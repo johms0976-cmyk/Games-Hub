@@ -30,7 +30,7 @@ const GAMES = [
   },
   {
     id: "shithead",
-    title: "Barstard",
+    title: "Bastard",
     subtitle: "Don't be the last one holding cards",
     category: "card",
     players: "2–5",
