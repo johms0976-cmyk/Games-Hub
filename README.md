@@ -22,6 +22,8 @@ game-hub/
 ├── games/
 │   ├── glory-to-rome/
 │   │   └── index.html      ← Self-contained game
+│   ├── shithead/
+│   │   └── index.html      ← Self-contained game
 │   ├── spades/
 │   │   └── index.html      ← (future)
 │   ├── hearts/
