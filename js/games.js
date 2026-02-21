@@ -40,6 +40,17 @@ const GAMES = [
     status: "playable",
   },
   {
+    id: "lotr-deckbuilder",
+    title: "Lord of the Rings Deckbuilder",
+    subtitle: "Destroy the Ring",
+    category: "strategy",
+    players: "1",
+    duration: "45–90 min",
+    icon: "🧙‍♂️",
+    accentColor: "#c9a84c",
+    status: "playable",
+  },
+  {
     id: "five-hundred",
     title: "500",
     subtitle: "The classic trick-taking game",
