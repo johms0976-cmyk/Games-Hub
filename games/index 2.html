@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>War of the Ring — The Card Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-darkest: #0a0a0f;
+  --bg-dark: #12121c;
+  --bg-card: #1a1a2e;
+  --bg-panel: #16162a;
+  --gold: #c9a84c;
+  --gold-light: #e4c76b;
+  --gold-dim: #8a7234;
+  --fp-blue: #3a6fa0;
+  --fp-light: #5a9fd4;
+  --shadow-red: #8a2030;
+  --shadow-light: #c44050;
+  --text: #d4cdb8;
+  --text-dim: #8a8470;
+  --text-bright: #f0ead2;
+  --green: #4a8a4a;
+  --path-bg: #1a2a1a;
+  --battle-bg: #2a1a1a;
+  --border: #2a2a3e;
+  --border-gold: #5a4a2a;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg-darkest);
+  color: var(--text);
+  font-family: 'Source Sans 3', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+  background: radial-gradient(ellipse at 30% 20%, rgba(60,40,10,0.15) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(40,10,20,0.15) 0%, transparent 50%);
+  pointer-events:none; z-index:0;
+}
+
+/* ─── HEADER ─── */
+.game-header {
+  background: linear-gradient(180deg, rgba(20,20,35,0.98) 0%, rgba(10,10,15,0.95) 100%);
+  border-bottom: 1px solid var(--border-gold);
+  padding: 8px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.game-title {
+  font-family: 'Cinzel', serif;
+  font-size: 18px; font-weight: 700;
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(201,168,76,0.3);
+  letter-spacing: 2px;
+}
+.game-title span { color: var(--text-dim); font-size: 12px; font-weight: 400; letter-spacing: 1px; display: block; }
+.header-info {
+  display: flex; gap: 20px; align-items: center; font-size: 13px;
+}
+.score-display {
+  display: flex; gap: 16px; align-items: center;
+}
+.score-item {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.score-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); }
+.score-value { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 700; }
+.score-fp { color: var(--fp-light); }
+.score-shadow { color: var(--shadow-light); }
+.round-display {
+  font-family: 'Cinzel', serif; font-size: 14px; color: var(--gold);
+  background: rgba(201,168,76,0.1); padding: 4px 12px; border-radius: 4px;
+  border: 1px solid var(--border-gold);
+}
+.corruption-display {
+  display: flex; align-items: center; gap: 4px;
+  color: var(--shadow-light); font-size: 13px;
+}
+.corruption-display .icon { font-size: 16px; }
+
+/* ─── MAIN LAYOUT ─── */
+.game-container {
+  display: grid;
+  grid-template-columns: 260px 1fr 260px;
+  grid-template-rows: auto 1fr auto;
+  gap: 0;
+  height: calc(100vh - 45px);
+  position: relative; z-index: 1;
+}
+
+/* ─── SIDE PANELS ─── */
+.side-panel {
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  padding: 10px;
+  overflow-y: auto;
+  font-size: 12px;
+}
+.side-panel:last-child { border-right: none; border-left: 1px solid var(--border); }
+.panel-title {
+  font-family: 'Cinzel', serif;
+  font-size: 13px; font-weight: 600;
+  color: var(--gold);
+  padding: 4px 0 8px;
+  border-bottom: 1px solid var(--border-gold);
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+/* ─── RESERVE AREA ─── */
+.reserve-section { margin-bottom: 12px; }
+.reserve-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-dim); margin-bottom: 4px;
+}
+.reserve-cards {
+  display: flex; flex-wrap: wrap; gap: 4px;
+}
+
+/* ─── CENTER BOARD ─── */
+.center-board {
+  grid-column: 2;
+  grid-row: 1 / -1;
+  display: flex; flex-direction: column;
+  overflow-y: auto;
+  background: var(--bg-darkest);
+}
+
+/* ─── LOCATIONS ─── */
+.locations-area {
+  display: flex; gap: 12px;
+  padding: 10px 16px;
+  min-height: 220px;
+}
+.location-slot {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  position: relative;
+}
+.location-slot.path-slot { border-color: #2a4a2a; background: linear-gradient(135deg, var(--bg-card), #141f14); }
+.location-slot.battle-slot { border-color: #4a2a2a; background: linear-gradient(135deg, var(--bg-card), #1f1414); }
+.location-header {
+  font-family: 'Cinzel', serif;
+  font-size: 12px; font-weight: 600;
+  margin-bottom: 6px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.location-header .type-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; }
+.path-header { color: #6aaa6a; }
+.battle-header { color: #aa6a6a; }
+.location-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px; font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 4px;
+}
+.location-stats {
+  font-size: 11px; color: var(--text-dim);
+  display: flex; gap: 10px; margin-bottom: 4px;
+}
+.location-stats .stat { display: flex; align-items: center; gap: 3px; }
+.location-effect {
+  font-size: 10px; color: var(--text-dim);
+  font-style: italic; line-height: 1.3;
+  padding: 4px; background: rgba(0,0,0,0.2); border-radius: 4px;
+  margin-bottom: 6px;
+}
+.location-cards-area {
+  display: flex; gap: 2px; flex-wrap: wrap;
+  min-height: 30px;
+}
+.location-cards-area .side-label {
+  width: 100%; font-size: 9px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-dim); margin-top: 4px;
+}
+
+/* ─── CARDS ─── */
+.mini-card {
+  width: 52px; height: 72px;
+  border-radius: 4px;
+  font-size: 8px;
+  padding: 3px;
+  display: flex; flex-direction: column;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.mini-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.5); z-index: 10; }
+.mini-card.fp-card { background: linear-gradient(135deg, #1a2840, #0f1a2a); border-color: rgba(90,159,212,0.3); }
+.mini-card.shadow-card { background: linear-gradient(135deg, #2a1520, #1a0f15); border-color: rgba(196,64,80,0.3); }
+.mini-card.selected { box-shadow: 0 0 10px rgba(201,168,76,0.8); border-color: var(--gold); transform: translateY(-5px); }
+.mini-card .card-type {
+  font-size: 7px; text-transform: uppercase; letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.5);
+}
+.mini-card .card-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 9px; font-weight: 700;
+  color: var(--text-bright);
+  line-height: 1.1;
+  flex: 1;
+}
+.mini-card .card-stats {
+  display: flex; gap: 3px; font-size: 8px;
+  margin-top: auto;
+}
+.mini-card .card-stats .atk { color: #e06060; }
+.mini-card .card-stats .def { color: #60a0e0; }
+.mini-card .card-stats .str { color: var(--gold); }
+
+/* ─── HAND CARD ─── */
+.hand-card {
+  width: 100px; height: 140px;
+  border-radius: 6px;
+  padding: 6px;
+  display: flex; flex-direction: column;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  flex-shrink: 0;
+}
+.hand-card:hover { transform: translateY(-12px); box-shadow: 0 8px 24px rgba(0,0,0,0.6); z-index: 10; }
+.hand-card.fp-card { background: linear-gradient(150deg, #1a2840, #0f1a2a, #162838); border: 1px solid rgba(90,159,212,0.3); }
+.hand-card.shadow-card { background: linear-gradient(150deg, #2a1520, #1a0f15, #281218); border: 1px solid rgba(196,64,80,0.3); }
+.hand-card.selected { border-color: var(--gold) !important; box-shadow: 0 0 16px rgba(201,168,76,0.6); transform: translateY(-16px); }
+.hand-card .card-type-badge {
+  font-size: 8px; text-transform: uppercase; letter-spacing: 1px;
+  padding: 1px 4px; border-radius: 2px;
+  align-self: flex-start; margin-bottom: 4px;
+}
+.hand-card .card-type-badge.army { background: rgba(180,80,80,0.3); color: #e08080; }
+.hand-card .card-type-badge.char { background: rgba(80,140,180,0.3); color: #80c0e0; }
+.hand-card .card-type-badge.item { background: rgba(180,160,80,0.3); color: #e0d080; }
+.hand-card .card-type-badge.event { background: rgba(140,80,180,0.3); color: #c080e0; }
+.hand-card .card-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 12px; font-weight: 700;
+  color: var(--text-bright);
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+.hand-card .card-faction {
+  font-size: 8px; color: var(--text-dim);
+  margin-bottom: auto;
+}
+.hand-card .card-stats-row {
+  display: flex; gap: 6px; font-size: 10px;
+  padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.06);
+}
+.hand-card .card-stats-row .atk { color: #e06060; }
+.hand-card .card-stats-row .def { color: #60a0e0; }
+.hand-card .card-stats-row .str { color: var(--gold); }
+.hand-card .card-effect {
+  font-size: 8px; color: var(--text-dim);
+  line-height: 1.2; margin-top: 2px;
+  max-height: 24px; overflow: hidden;
+}
+
+/* ─── PLAYER HAND ─── */
+.player-hand-area {
+  background: linear-gradient(0deg, rgba(20,20,35,0.98) 0%, rgba(10,10,20,0.9) 100%);
+  border-top: 1px solid var(--border-gold);
+  padding: 10px 16px;
+  grid-column: 1 / -1;
+}
+.hand-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 8px;
+}
+.hand-label {
+  font-family: 'Cinzel', serif;
+  font-size: 12px; color: var(--gold);
+  letter-spacing: 1px;
+}
+.hand-info { font-size: 11px; color: var(--text-dim); }
+.hand-cards {
+  display: flex; gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+/* ─── ACTION BAR ─── */
+.action-bar {
+  display: flex; gap: 8px; align-items: center;
+  padding: 8px 16px;
+  background: rgba(20,20,35,0.9);
+  border-top: 1px solid var(--border);
+}
+.action-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 11px; font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 4px;
+  border: 1px solid var(--border-gold);
+  background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05));
+  color: var(--gold);
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+.action-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(201,168,76,0.3), rgba(201,168,76,0.15));
+  box-shadow: 0 0 12px rgba(201,168,76,0.2);
+}
+.action-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.action-btn.primary {
+  background: linear-gradient(135deg, rgba(201,168,76,0.3), rgba(201,168,76,0.1));
+  border-color: var(--gold);
+}
+
+/* ─── LOG ─── */
+.game-log {
+  font-size: 11px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 6px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 4px;
+}
+.log-entry { padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.03); line-height: 1.3; }
+.log-entry.fp { color: var(--fp-light); }
+.log-entry.shadow { color: var(--shadow-light); }
+.log-entry.system { color: var(--gold); }
+.log-entry.combat { color: #e0a040; }
+
+/* ─── TOOLTIP ─── */
+.tooltip {
+  position: fixed;
+  background: var(--bg-dark);
+  border: 1px solid var(--gold-dim);
+  border-radius: 6px;
+  padding: 10px;
+  max-width: 280px;
+  z-index: 1000;
+  pointer-events: none;
+  font-size: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+  display: none;
+}
+.tooltip .tt-name { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 700; color: var(--text-bright); }
+.tooltip .tt-type { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--gold); margin-bottom: 4px; }
+.tooltip .tt-stats { display: flex; gap: 10px; margin: 4px 0; font-size: 12px; }
+.tooltip .tt-effect { font-size: 11px; color: var(--text); line-height: 1.4; }
+.tooltip .tt-path { font-size: 10px; color: var(--text-dim); }
+
+/* ─── MODAL ─── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200;
+}
+.modal-overlay.hidden { display: none; }
+.modal {
+  background: var(--bg-dark);
+  border: 1px solid var(--gold-dim);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 500px; width: 90%;
+  max-height: 80vh; overflow-y: auto;
+}
+.modal h2 {
+  font-family: 'Cinzel', serif;
+  font-size: 20px; color: var(--gold);
+  margin-bottom: 12px;
+  text-align: center;
+}
+.modal p { font-size: 13px; line-height: 1.5; margin-bottom: 12px; color: var(--text); }
+.modal .modal-actions { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
+.modal .choice-btn {
+  font-family: 'Cinzel', serif;
+  padding: 8px 20px;
+  border-radius: 6px;
+  border: 1px solid var(--border-gold);
+  background: rgba(201,168,76,0.1);
+  color: var(--gold);
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+.modal .choice-btn:hover { background: rgba(201,168,76,0.25); box-shadow: 0 0 12px rgba(201,168,76,0.2); }
+.modal .choice-btn.primary { background: rgba(201,168,76,0.2); border-color: var(--gold); }
+
+/* ─── PHASE INDICATOR ─── */
+.phase-bar {
+  display: flex; gap: 2px;
+  padding: 6px 16px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+}
+.phase-step {
+  flex: 1;
+  text-align: center;
+  padding: 4px 8px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  border-radius: 3px;
+  transition: all 0.3s;
+}
+.phase-step.active {
+  color: var(--gold);
+  background: rgba(201,168,76,0.15);
+  border: 1px solid var(--border-gold);
+}
+
+/* ─── DECK INFO ─── */
+.deck-info {
+  display: flex; justify-content: space-between;
+  font-size: 10px; color: var(--text-dim);
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  margin-bottom: 6px;
+}
+
+/* ─── COMBAT DISPLAY ─── */
+.combat-summary {
+  padding: 6px; background: rgba(0,0,0,0.3); border-radius: 4px;
+  margin: 4px 0; font-size: 11px;
+}
+.combat-summary .atk-total { color: #e06060; }
+.combat-summary .def-total { color: #60a0e0; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-darkest); }
+::-webkit-scrollbar-thumb { background: var(--border-gold); border-radius: 3px; }
+
+/* ─── VICTORY SCREEN ─── */
+.victory-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.9);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 300;
+  animation: fadeIn 0.5s;
+}
+.victory-overlay.hidden { display: none; }
+.victory-content {
+  text-align: center;
+}
+.victory-content h1 {
+  font-family: 'Cinzel', serif;
+  font-size: 36px;
+  margin-bottom: 12px;
+  text-shadow: 0 0 30px currentColor;
+}
+.victory-content.fp-win h1 { color: var(--fp-light); }
+.victory-content.shadow-win h1 { color: var(--shadow-light); }
+.victory-content p { font-size: 16px; color: var(--text); margin-bottom: 20px; }
+
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+/* ─── START SCREEN ─── */
+.start-screen {
+  position: fixed; inset: 0; z-index: 500;
+  background: var(--bg-darkest);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
+}
+.start-screen.hidden { display: none; }
+.start-screen h1 {
+  font-family: 'Cinzel', serif;
+  font-size: 32px; color: var(--gold);
+  text-shadow: 0 0 40px rgba(201,168,76,0.3);
+  margin-bottom: 4px;
+  letter-spacing: 4px;
+}
+.start-screen h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; color: var(--text-dim);
+  font-weight: 400; font-style: italic;
+  margin-bottom: 30px;
+}
+.start-screen .subtitle {
+  font-size: 13px; color: var(--text-dim);
+  max-width: 500px; text-align: center;
+  line-height: 1.6; margin-bottom: 30px;
+}
+.start-btn {
+  font-family: 'Cinzel', serif;
+  font-size: 16px; font-weight: 600;
+  padding: 12px 40px;
+  border-radius: 6px;
+  border: 2px solid var(--gold);
+  background: rgba(201,168,76,0.15);
+  color: var(--gold);
+  cursor: pointer;
+  transition: all 0.3s;
+  letter-spacing: 2px;
+}
+.start-btn:hover {
+  background: rgba(201,168,76,0.3);
+  box-shadow: 0 0 30px rgba(201,168,76,0.3);
+  transform: scale(1.05);
+}
+.rules-summary {
+  margin-top: 24px;
+  max-width: 600px;
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  text-align: left;
+  padding: 16px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.rules-summary h3 { font-family:'Cinzel',serif; font-size:13px; color:var(--gold); margin-bottom:6px; }
+</style>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div class="start-screen" id="startScreen">
+  <h1>WAR OF THE RING</h1>
+  <h2>The Card Game</h2>
+  <p class="subtitle">
+    Take command of the Free Peoples of Middle-earth against the Shadow forces of Sauron.
+    Deploy heroes, muster armies, and guide the Fellowship on their quest to destroy the One Ring.
+  </p>
+  <button class="start-btn" onclick="startGame()">BEGIN THE WAR</button>
+  <div class="rules-summary">
+    <h3>How to Play</h3>
+    <p>
+      You control the <b style="color:var(--fp-light)">Free Peoples</b> (Frodo + Aragorn decks) against the <b style="color:var(--shadow-light)">Shadow AI</b> (Witch-King + Saruman decks).
+      The game plays over up to 9 rounds. Each round:
+    </p>
+    <p>
+      <b style="color:var(--gold)">1. Locations</b> — A Path and Battleground are activated.<br>
+      <b style="color:var(--gold)">2. Draw</b> — Each side draws cards.<br>
+      <b style="color:var(--gold)">3. Actions</b> — Take turns playing cards to the Path, Battleground, or Reserve. When you play a card, you must cycle (discard) another. Pass when ready.<br>
+      <b style="color:var(--gold)">4. Combat</b> — Resolve Path combat (Shadow skulls vs FP shields) and Battleground combat (attacker swords vs defender shields). Winners score Victory Points.<br>
+      <b style="color:var(--gold)">5. Victory</b> — If one side leads by 10+ VP, they win. Otherwise continue to round 9.
+    </p>
+  </div>
+</div>
+
+<!-- VICTORY OVERLAY -->
+<div class="victory-overlay hidden" id="victoryOverlay">
+  <div class="victory-content" id="victoryContent">
+    <h1 id="victoryTitle"></h1>
+    <p id="victoryText"></p>
+    <button class="start-btn" onclick="location.reload()">PLAY AGAIN</button>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- TOOLTIP -->
+<div class="tooltip" id="tooltip"></div>
+
+<!-- GAME HEADER -->
+<div class="game-header">
+  <div class="game-title">WAR OF THE RING <span>The Card Game</span></div>
+  <div class="header-info">
+    <div class="score-display">
+      <div class="score-item">
+        <div class="score-label">Free Peoples</div>
+        <div class="score-value score-fp" id="fpScore">0</div>
+      </div>
+      <div style="color:var(--text-dim);font-family:'Cinzel',serif;font-size:12px">VP</div>
+      <div class="score-item">
+        <div class="score-label">Shadow</div>
+        <div class="score-value score-shadow" id="shadowScore">0</div>
+      </div>
+    </div>
+    <div class="corruption-display">
+      <span class="icon">💍</span>
+      <span>Corruption: <b id="corruptionCount">0</b></span>
+    </div>
+    <div class="round-display" id="roundDisplay">Round 1 / 9</div>
+    <button class="action-btn" onclick="showHelp()" style="font-size:10px;padding:4px 8px;">?</button>
+  </div>
+</div>
+
+<!-- PHASE BAR -->
+<div class="phase-bar" id="phaseBar">
+  <div class="phase-step" data-phase="location">📍 Location</div>
+  <div class="phase-step" data-phase="draw">🃏 Draw</div>
+  <div class="phase-step" data-phase="action">⚔️ Action</div>
+  <div class="phase-step" data-phase="combat">🛡️ Combat</div>
+  <div class="phase-step" data-phase="victory">👑 Victory</div>
+</div>
+
+<!-- GAME CONTAINER -->
+<div class="game-container">
+
+  <!-- LEFT PANEL: FP Reserve + Log -->
+  <div class="side-panel" id="leftPanel">
+    <div class="panel-title">🛡️ Free Peoples</div>
+    <div class="deck-info">
+      <span>Deck: <b id="fpDeckCount">0</b></span>
+      <span>Cycle: <b id="fpCycleCount">0</b></span>
+    </div>
+    <div class="reserve-section">
+      <div class="reserve-label">Reserve</div>
+      <div class="reserve-cards" id="fpReserve"></div>
+    </div>
+    <div class="panel-title" style="margin-top:8px">📜 Game Log</div>
+    <div class="game-log" id="gameLog"></div>
+  </div>
+
+  <!-- CENTER: Board -->
+  <div class="center-board" id="centerBoard">
+    <div class="locations-area" id="locationsArea">
+      <div class="location-slot path-slot" id="pathSlot">
+        <div class="location-header path-header">
+          <span class="type-label">Path</span>
+          <span id="pathNumber">—</span>
+        </div>
+        <div class="location-name" id="pathName">No path active</div>
+        <div class="location-stats" id="pathStats"></div>
+        <div class="location-effect" id="pathEffect"></div>
+        <div class="location-cards-area">
+          <div class="side-label" style="color:#6aaa6a">Free Peoples (Defenders)</div>
+          <div id="pathFPCards" style="display:flex;gap:2px;flex-wrap:wrap;"></div>
+          <div class="side-label" style="color:#aa6a6a">Shadow (Attackers)</div>
+          <div id="pathShadowCards" style="display:flex;gap:2px;flex-wrap:wrap;"></div>
+        </div>
+      </div>
+      <div class="location-slot battle-slot" id="battleSlot">
+        <div class="location-header battle-header">
+          <span class="type-label">Battleground</span>
+          <span id="battleVP">—</span>
+        </div>
+        <div class="location-name" id="battleName">No battleground active</div>
+        <div class="location-stats" id="battleStats"></div>
+        <div class="location-effect" id="battleEffect"></div>
+        <div class="location-cards-area">
+          <div class="side-label" style="color:#6aaa6a">Defenders</div>
+          <div id="battleDefCards" style="display:flex;gap:2px;flex-wrap:wrap;"></div>
+          <div class="side-label" style="color:#aa6a6a">Attackers</div>
+          <div id="battleAtkCards" style="display:flex;gap:2px;flex-wrap:wrap;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTION BAR -->
+    <div class="action-bar" id="actionBar">
+      <span style="font-size:12px;color:var(--text-dim)" id="phaseLabel">Waiting...</span>
+      <div style="flex:1"></div>
+      <button class="action-btn" id="btnPlayPath" onclick="playSelectedToPath()" disabled>Play to Path</button>
+      <button class="action-btn" id="btnPlayBattle" onclick="playSelectedToBattle()" disabled>Play to Battle</button>
+      <button class="action-btn" id="btnPlayReserve" onclick="playSelectedToReserve()" disabled>Play to Reserve</button>
+      <button class="action-btn" id="btnPass" onclick="playerPass()" disabled>Pass</button>
+      <button class="action-btn primary" id="btnContinue" onclick="continuePhase()" style="display:none">Continue</button>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL: Shadow Reserve -->
+  <div class="side-panel" id="rightPanel">
+    <div class="panel-title">⚔️ Shadow Forces</div>
+    <div class="deck-info">
+      <span>Deck: <b id="shadowDeckCount">0</b></span>
+      <span>Cycle: <b id="shadowCycleCount">0</b></span>
+    </div>
+    <div class="reserve-section">
+      <div class="reserve-label">Reserve</div>
+      <div class="reserve-cards" id="shadowReserve"></div>
+    </div>
+    <div class="reserve-section" style="margin-top:12px">
+      <div class="reserve-label">Shadow Hand (<span id="shadowHandCount">0</span> cards)</div>
+    </div>
+    <div class="panel-title" style="margin-top:8px">Scored Locations</div>
+    <div id="scoredLocations" style="font-size:10px;color:var(--text-dim)"></div>
+  </div>
+
+  <!-- PLAYER HAND -->
+  <div class="player-hand-area">
+    <div class="hand-header">
+      <div class="hand-label">Your Hand</div>
+      <div class="hand-info">
+        <span id="handCount">0</span> cards | Carryover limit: <span id="carryLimit">2</span>
+      </div>
+    </div>
+    <div class="hand-cards" id="playerHand"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// WAR OF THE RING: THE CARD GAME — GAME ENGINE
+// ═══════════════════════════════════════════════════
+
+// ─── CARD DATA ───
+const PATHS = [
+  {ring:1,name:"Bag End",vp:1,def:0,effect:"Hobbit player draws 2 cards"},
+  {ring:1,name:"Gildor's Encampment",vp:1,def:1,effect:"The Elf player draws 1 card then cycles 1"},
+  {ring:1,name:"Bucklebury Ferry",vp:1,def:1,effect:"The Mordor and Hobbit player each draw 1 card"},
+  {ring:2,name:"The Old Forest",vp:2,def:1,effect:"Each Free Peoples must forsake 1 card"},
+  {ring:2,name:"Inn of the Prancing Pony",vp:2,def:1,effect:"Each Shadow player draws 2 cards"},
+  {ring:2,name:"Weathertop",vp:2,def:0,effect:"The Mordor player draws 2 cards"},
+  {ring:3,name:"Fords of Bruinen",vp:1,def:0,effect:"Each FP player forsakes 1 then draws 3 cards"},
+  {ring:3,name:"Imladris (Rivendel)",vp:1,def:1,effect:"The Elf player draws 2 cards"},
+  {ring:3,name:"Council of Elrond",vp:1,def:1,effect:"Each Free Peoples player draws 1 card"},
+  {ring:4,name:"Caradhras",vp:2,def:0,effect:"Each Free Peoples must forsake 1 card"},
+  {ring:4,name:"Doors of Durin",vp:2,def:0,effect:"Monstrous may forsake 1 to add 1 attack marker"},
+  {ring:4,name:"Khazad-Dûm",vp:2,def:0,effect:"The Monstrous player draws 2 cards"},
+  {ring:5,name:"Dimrill Dale",vp:1,def:0,effect:"Each Shadow player must cycle 2 cards"},
+  {ring:5,name:"Egladil",vp:1,def:1,effect:"Each FP player draws 2 then cycles 1"},
+  {ring:5,name:"Lothlórien",vp:1,def:2,effect:"The Elf player draws 1 then cycles 1"},
+  {ring:6,name:"Amon Hen",vp:2,def:0,effect:"The Mordor player draws 1 then cycles 1"},
+  {ring:6,name:"Emyn Muil",vp:2,def:0,effect:"Each Free Peoples must forsake 1 card"},
+  {ring:6,name:"Dead Marshes",vp:2,def:1,effect:"The Monstrous player draws 2 cards"},
+  {ring:7,name:"Osgiliath",vp:1,def:0,effect:"Dúnedain may forsake 1 to draw 3 cards"},
+  {ring:7,name:"The Cross Roads",vp:1,def:0,effect:"Each Free Peoples player draws 1 card"},
+  {ring:7,name:"Henneth Annûn",vp:1,def:1,effect:"The Dúnedain player draws 1 card"},
+  {ring:8,name:"Morgul Vale",vp:2,def:0,effect:"Mordor draws 5, may play 1 Nazgûl, cycles rest"},
+  {ring:8,name:"Cirith Ungol",vp:2,def:0,effect:"Mordor draws 5, may play 1 Army, cycles rest"},
+  {ring:8,name:"Shelob's Lair",vp:2,def:0,effect:"The Monstrous player draws 2 cards"},
+  {ring:9,name:"Morgai",vp:3,def:0,effect:"Shadow adds 1 attack marker to this path"},
+  {ring:9,name:"Orodruin",vp:3,def:0,effect:"The Mordor player draws 2 cards"},
+  {ring:9,name:"Crack of Doom",vp:3,def:0,effect:"The Monstrous player draws 2 cards"}
+];
+
+const BATTLEGROUNDS = [
+  {name:"Helm's Deep",vp:2,def:2,effect:"Rohan draws 5, may play 1 Army/Character",defenders:["Wizard","Rohan"],attackers:["Isengard"]},
+  {name:"Edoras",vp:1,def:1,effect:"Activate Helm's Deep if in FP deck",defenders:["Wizard","Rohan"],attackers:["Isengard"]},
+  {name:"Rivendell",vp:2,def:2,effect:"Elf player draws 1 then cycles 1",defenders:["Wizard","Elf"],attackers:["Monstrous"]},
+  {name:"Lórien",vp:2,def:2,effect:"(Re)activate Dol Guldur",defenders:["Wizard","Elf"],attackers:["Monstrous","Mordor"]},
+  {name:"Minas Tirith",vp:3,def:3,effect:"Dúnedain may forsake 1 to draw 3",defenders:["Wizard","Dunedain"],attackers:["Southron","Mordor"]},
+  {name:"Dol Amroth",vp:1,def:2,effect:"Dúnedain may forsake 1 to draw 1",defenders:["Wizard","Dunedain"],attackers:["Southron"]},
+  {name:"Pelargir",vp:1,def:1,effect:"Dúnedain may forsake 1 to draw 1",defenders:["Wizard","Dunedain"],attackers:["Southron"]},
+  {name:"Moria",vp:1,def:2,effect:"Monstrous player draws 2 cards",defenders:["Monstrous"],attackers:["Wizard","Dwarf","Elf"]},
+  {name:"Dol Guldur",vp:1,def:2,effect:"Lórien must be (re)activated",defenders:["Mordor"],attackers:["Wizard","Elf"]},
+  {name:"Minas Morgul",vp:2,def:2,effect:"Mordor draws 5, may play 1 Nazgûl",defenders:["Mordor"],attackers:["Wizard","Dunedain"]},
+  {name:"Morannon",vp:2,def:2,effect:"Mordor draws 5, may play 1 Army",defenders:["Southron","Mordor"],attackers:["Wizard","Rohan","Dunedain"]},
+  {name:"Harad",vp:1,def:1,effect:"Each Shadow player draws 1",defenders:["Southron"],attackers:["Wizard","Dunedain"]},
+  {name:"Umbar",vp:1,def:2,effect:"Each Shadow player draws 1",defenders:["Southron"],attackers:["Wizard","Dunedain"]},
+  {name:"Orthanc",vp:2,def:2,effect:"Isengard may take Saruman from deck",defenders:["Isengard"],attackers:["Wizard","Rohan"]}
+];
+
+function makeFPCards() {
+  // Aragorn deck (Dunedain + Elf)
+  const aragorn = [
+    {type:"Army",name:"Dead Men of Dunharrow",atk:2,def:2,str:0,effect:"+2 Atk/Def when supporting Strider/Aragorn",faction:"Dunedain",path:null},
+    {type:"Army",name:"Knights of Dol Amroth",atk:1,def:1,str:0,effect:"+1 Def on Dol Amroth",faction:"Dunedain",path:null},
+    {type:"Army",name:"Guards of the Citadel",atk:1,def:1,str:0,effect:"+1 Def on Minas Tirith",faction:"Dunedain",path:null},
+    {type:"Army",name:"Soldiers of Gondor",atk:1,def:1,str:0,effect:null,faction:"Dunedain",path:null},
+    {type:"Army",name:"The Great Gate",atk:0,def:3,str:0,effect:"+3 Def on Minas Tirith. Cannot be on Shadow battleground.",faction:"Dunedain",path:null},
+    {type:"Character",name:"Aragorn",atk:2,def:2,str:0,effect:"Remove Strider when played. While in reserve: draw +1 card.",faction:"Dunedain",path:null},
+    {type:"Character",name:"Boromir",atk:1,def:1,str:1,effect:"When played draw 1 card. Must forsake 1 when played to path.",faction:"Dunedain",path:"3-6"},
+    {type:"Character",name:"Denethor",atk:1,def:1,str:0,effect:"In reserve: forsake 1 to take Boromir/Faramir from deck.",faction:"Dunedain",path:null},
+    {type:"Character",name:"Faramir",atk:1,def:1,str:1,effect:"On path 7: may activate a different path of same #.",faction:"Dunedain",path:"7-8"},
+    {type:"Character",name:"Halbarad",atk:1,def:1,str:1,effect:"In reserve: cycle to take Strider/Aragorn from deck.",faction:"Dunedain",path:"2-3"},
+    {type:"Character",name:"Prince Imrahil",atk:1,def:1,str:0,effect:"When played: cycle 1 to take Knights of Dol Amroth.",faction:"Dunedain",path:null},
+    {type:"Character",name:"Strider",atk:1,def:1,str:2,effect:"On path 7+: use action to activate next path #.",faction:"Dunedain",path:"2-6"},
+    {type:"Character",name:"Ioreth",atk:0,def:1,str:0,effect:"After battleground combat: cycled with 1 other non-Wizard character instead of eliminated.",faction:"Dunedain",path:null},
+    {type:"Item",name:"Andûril",atk:1,def:1,str:1,effect:"In reserve: (re)activate any Dúnedain battleground, move wielder there.",faction:"Dunedain",path:null,equip:"Strider/Aragorn"},
+    {type:"Item",name:"Blade of Westernesse",atk:1,def:1,str:1,effect:null,faction:"Dunedain",path:null,equip:"Hobbit"},
+    {type:"Event",name:"Paths of the Dead",atk:0,def:0,str:0,effect:"Forsake 2, draw 4 (or 5 if Strider/Aragorn in play).",faction:"Dunedain",path:null},
+    {type:"Event",name:"The Red Arrow",atk:0,def:0,str:0,effect:"This round: Rohan cards may be played on Dúnedain battlegrounds.",faction:"Dunedain",path:null},
+    {type:"Event",name:"The Three Hunters",atk:0,def:0,str:0,effect:"Strider/Aragorn, Gimli, Legolas may be moved to any battleground.",faction:"Dunedain",path:null},
+    {type:"Army",name:"High Elves",atk:2,def:2,str:0,effect:null,faction:"Elf",path:null},
+    {type:"Army",name:"High Elves",atk:2,def:2,str:0,effect:null,faction:"Elf",path:null},
+    {type:"Character",name:"Arwen",atk:0,def:0,str:0,effect:"Draw 1 when played. In reserve: +1 Def to Strider/Aragorn.",faction:"Elf",path:null},
+    {type:"Character",name:"Elrond",atk:2,def:2,str:2,effect:"Draw 1 when played. In reserve: +1 carryover limit.",faction:"Elf",path:"3"},
+    {type:"Character",name:"Galadriel",atk:2,def:2,str:2,effect:"Draw 1 when played. In reserve: draw +1, cycle 1.",faction:"Elf",path:"5"},
+    {type:"Character",name:"Legolas",atk:1,def:1,str:1,effect:"When played: take Bow of Galadhrim from deck.",faction:"Elf",path:"3-9"},
+    {type:"Item",name:"Bow of Galadhrim",atk:1,def:1,str:1,effect:"Wielder cannot wield another weapon.",faction:"Elf",path:null,equip:"Elf"},
+    {type:"Item",name:"Elven Cloak",atk:0,def:0,str:1,effect:"If wielder eliminated in PATH combat: cycle instead.",faction:"Elf",path:null,equip:"Hobbit/Elf"},
+    {type:"Item",name:"Lembas",atk:0,def:0,str:0,effect:"On path: eliminate to remove 1 corruption per Hobbit on path.",faction:"Elf",path:null,equip:"Hobbit"},
+    {type:"Item",name:"Phial of Galadriel",atk:0,def:0,str:0,effect:"On path: add 2 Def tokens to the path.",faction:"Elf",path:null,equip:"Frodo/Sam"},
+    {type:"Item",name:"Nenya, Ring of Adamant",atk:0,def:0,str:0,effect:"In reserve: cycle to add 1 Def to active path or battleground.",faction:"Elf",path:null,equip:"Galadriel"},
+    {type:"Item",name:"Mirror of Galadriel",atk:0,def:0,str:0,effect:"While in play: examine top card of draw deck.",faction:"Elf",path:null,equip:"Galadriel"},
+    {type:"Item",name:"Vilya, Ring of Air",atk:1,def:1,str:1,effect:"In reserve: cycle so each FP player draws 1 card.",faction:"Elf",path:null,equip:"Elrond"},
+  ];
+
+  // Frodo deck (Hobbit + Wizard + Rohan + Dwarf)
+  const frodo = [
+    {type:"Character",name:"Gimli",atk:1,def:1,str:1,effect:"When played: take Dwarven Axe from cycle pile.",faction:"Dwarf",path:"3-9"},
+    {type:"Item",name:"Dwarven Axe",atk:1,def:1,str:1,effect:null,faction:"Dwarf",path:null,equip:"Gimli"},
+    {type:"Character",name:"Frodo Baggins",atk:0,def:0,str:1,effect:"If eliminated or forsaken: cycle instead (items ARE eliminated).",faction:"Hobbit",path:"1-9"},
+    {type:"Character",name:"Merry Brandybuck",atk:0,def:1,str:1,effect:"May be played on Rohan battleground. If eliminated on PATH: cycle instead.",faction:"Hobbit",path:"1-9"},
+    {type:"Character",name:"Pippin Took",atk:0,def:1,str:1,effect:"May be played on Dúnedain battleground. If eliminated on PATH: cycle instead.",faction:"Hobbit",path:"1-9"},
+    {type:"Character",name:"Sam Gamgee",atk:0,def:0,str:1,effect:"In reserve: cycle to add 1 Def to active path.",faction:"Hobbit",path:"1-9"},
+    {type:"Character",name:"Bilbo Baggins",atk:0,def:0,str:1,effect:"If eliminated/forsaken: cycle instead. In reserve: cycle to draw 2.",faction:"Hobbit",path:"3"},
+    {type:"Character",name:"Fatty Bolger",atk:0,def:0,str:0,effect:"In reserve: forsaken→cycle. Action: eliminate to draw 3.",faction:"Hobbit",path:null},
+    {type:"Item",name:"Herbs & Stewed Rabbit",atk:0,def:0,str:0,effect:"Eliminate: take 1 Hobbit from cycle pile + draw 1.",faction:"Hobbit",path:null,equip:"Frodo/Sam"},
+    {type:"Item",name:"Sting",atk:0,def:0,str:0,effect:"If wielder on path with Monstrous: +1 Def to path.",faction:"Hobbit",path:null,equip:"Frodo/Sam"},
+    {type:"Item",name:"Mithril Coat",atk:0,def:0,str:2,effect:null,faction:"Hobbit",path:null,equip:"Frodo/Sam"},
+    {type:"Event",name:"There Is Another Way",atk:0,def:0,str:0,effect:"Activate a different path of same # + add 1 Def token.",faction:"Hobbit",path:null},
+    {type:"Army",name:"Riders of Rohan",atk:2,def:1,str:0,effect:null,faction:"Rohan",path:null},
+    {type:"Army",name:"Riders of Rohan",atk:2,def:1,str:0,effect:null,faction:"Rohan",path:null},
+    {type:"Army",name:"Village Militia",atk:1,def:1,str:0,effect:null,faction:"Rohan",path:null},
+    {type:"Character",name:"Éomer",atk:1,def:1,str:0,effect:"When played: draw 5, play up to 1 Rohan army, cycle rest.",faction:"Rohan",path:null},
+    {type:"Character",name:"Éowyn",atk:1,def:1,str:0,effect:"On battleground: eliminate 1 Nazgûl. In reserve: take Merry/Pippin from cycle.",faction:"Rohan",path:null},
+    {type:"Character",name:"Ghân-buri-Ghân",atk:0,def:1,str:0,effect:"In reserve: Rohan cards may play on Minas Tirith.",faction:"Rohan",path:null},
+    {type:"Character",name:"Théoden",atk:1,def:1,str:0,effect:"+1 Atk/Def if Gandalf in play. When played: draw 5, play 1 Rohan, cycle rest.",faction:"Rohan",path:null},
+    {type:"Item",name:"Shadowfax",atk:1,def:1,str:0,effect:"In reserve: (re)activate battleground, move Gandalf there.",faction:"Wizard",path:null,equip:"Gandalf"},
+    {type:"Event",name:"Death! Ride to Ruin",atk:0,def:0,str:0,effect:"Eliminate any # of Rohan in reserve; Mordor eliminates same # from battlegrounds.",faction:"Rohan",path:null},
+    {type:"Character",name:"Gandalf the Grey",atk:2,def:2,str:3,effect:"On path: activate next path #. If GtW played: eliminate GtG.",faction:"Wizard",path:"1-9"},
+    {type:"Character",name:"Gandalf the White",atk:2,def:3,str:0,effect:"Remove GtG from game. In reserve: draw +1. If forsaken from deck: cycle.",faction:"Wizard",path:null},
+    {type:"Character",name:"Treebeard",atk:1,def:1,str:1,effect:"+1 Atk on Orthanc. On battleground: Isengard eliminates 1 army.",faction:"Ent",path:"5-6"},
+    {type:"Character",name:"Quickbeam",atk:1,def:1,str:1,effect:"Atk/Def = 1 per 2 Isengard cards on same battleground.",faction:"Ent",path:"5-6"},
+    {type:"Character",name:"Sméagol",atk:0,def:0,str:1,effect:"On path: activate next path # but add 1 corruption.",faction:"Hobbit",path:"6-9"},
+    {type:"Character",name:"Gwaihir the Windlord",atk:1,def:1,str:1,effect:"In reserve: cycle to take Gandalf from cycle pile.",faction:"Wizard",path:"9"},
+    {type:"Item",name:"Gandalf's Staff",atk:1,def:1,str:1,effect:"+1 carryover limit.",faction:"Wizard",path:null,equip:"Gandalf"},
+    {type:"Item",name:"Glamdring",atk:1,def:1,str:1,effect:null,faction:"Wizard",path:null,equip:"Gandalf"},
+    {type:"Item",name:"Narya, Ring of Fire",atk:1,def:1,str:1,effect:"In reserve: cycle so each Shadow must cycle 1.",faction:"Wizard",path:null,equip:"Gandalf"},
+    {type:"Item",name:"Ent-draught",atk:0,def:0,str:0,effect:"Eliminate: take 2 Hobbits from cycle pile.",faction:"Ent",path:null,equip:"Ent"},
+  ];
+  return [...aragorn, ...frodo].map((c,i)=>({...c, id:'fp_'+i, side:'fp'}));
+}
+
+function makeShadowCards() {
+  const witchking = [
+    {type:"Army",name:"Grond",atk:3,def:0,str:0,effect:null,faction:"Mordor",path:null},
+    {type:"Army",name:"Olog-Hai",atk:2,def:2,str:0,effect:null,faction:"Mordor",path:null},
+    {type:"Army",name:"Trolls of Udûn",atk:1,def:2,str:0,effect:null,faction:"Mordor",path:null},
+    {type:"Army",name:"Black Uruks",atk:2,def:1,str:0,effect:null,faction:"Mordor",path:null},
+    {type:"Army",name:"Mordor Orcs",atk:1,def:1,str:0,effect:null,faction:"Mordor",path:null},
+    {type:"Army",name:"Mordor Orcs",atk:1,def:1,str:0,effect:null,faction:"Mordor",path:null},
+    {type:"Army",name:"Mordor Orcs",atk:1,def:1,str:0,effect:null,faction:"Mordor",path:null},
+    {type:"Army",name:"Mordor Orcs",atk:1,def:1,str:0,effect:null,faction:"Mordor",path:null},
+    {type:"Army",name:"Mordor Orcs",atk:1,def:1,str:0,effect:null,faction:"Mordor",path:null},
+    {type:"Character",name:"The Witch-King",atk:2,def:0,str:2,effect:"In reserve: draw +1. If forsaken from deck: cycle.",faction:"Mordor",path:"1-3/5-9"},
+    {type:"Character",name:"The Reaver",atk:1,def:0,str:1,effect:"In reserve: cycle so each FP forsakes 1.",faction:"Mordor",path:"1-3/5-9"},
+    {type:"Character",name:"The Beguiler",atk:1,def:0,str:1,effect:"In reserve: cycle so each FP cycles 1.",faction:"Mordor",path:"1-3/5-9"},
+    {type:"Character",name:"The Hunter",atk:1,def:0,str:1,effect:"In reserve: cycle to add 1 Attack to active path.",faction:"Mordor",path:"1-3/5-9"},
+    {type:"Character",name:"The Messenger",atk:1,def:0,str:1,effect:"In reserve: cycle to take Nazgûl from cycle pile.",faction:"Mordor",path:"1-3/5-9"},
+    {type:"Character",name:"The Black Easterling",atk:1,def:1,str:1,effect:"+1 Def on Dol Guldur. Draw 1 when played.",faction:"Mordor",path:"1-3/5-9"},
+    {type:"Character",name:"The Commander",atk:1,def:0,str:1,effect:"In reserve: cycle so each Shadow draws 1.",faction:"Mordor",path:"1-3/5-9"},
+    {type:"Character",name:"The Destroyer",atk:1,def:0,str:1,effect:"In reserve: cycle to add 1 Atk token to battleground.",faction:"Mordor",path:"1-3/5-9"},
+    {type:"Character",name:"The Warrior",atk:1,def:0,str:1,effect:"In reserve: cycle to add 1 Def token to battleground.",faction:"Mordor",path:"1-3/5-9"},
+    {type:"Character",name:"Grishnákh",atk:1,def:0,str:1,effect:"On path: eliminate to add 1 corruption.",faction:"Mordor",path:"6-7"},
+    {type:"Character",name:"Mouth of Sauron",atk:1,def:1,str:1,effect:"Cannot play to path if Shadow battleground active. In reserve: draw +1.",faction:"Mordor",path:"7-9"},
+    {type:"Character",name:"Gorbag & Shagrat",atk:0,def:1,str:0,effect:"On path: cycle 1 to add 1 atk (2 on Cirith Ungol).",faction:"Mordor",path:"8-9"},
+    {type:"Character",name:"The Lidless Eye",atk:0,def:0,str:1,effect:"Cannot play to path if SP battleground active. Each SP draws 1. +1 carryover.",faction:"Mordor",path:"9"},
+    {type:"Character",name:"Gothmog",atk:0,def:0,str:0,effect:"In reserve: draw +1. When played: remove Witch-King from game.",faction:"Mordor",path:null},
+    {type:"Item",name:"Nazgûl's Mantle",atk:0,def:0,str:0,effect:"If Nazgûl eliminated: cycle instead + wielded items.",faction:"Mordor",path:null,equip:"Nazgûl"},
+    {type:"Item",name:"Black Breath",atk:0,def:0,str:0,effect:"On path/battleground: cycle Nazgûl + items to add 1 corruption.",faction:"Mordor",path:null,equip:"Nazgûl"},
+    {type:"Item",name:"Black Rider's Mount",atk:0,def:0,str:0,effect:"When played on Nazgûl in reserve: move to path.",faction:"Mordor",path:null,equip:"Nazgûl"},
+    {type:"Item",name:"Fell Beast",atk:0,def:0,str:0,effect:"When played on Nazgûl in reserve: move to battleground.",faction:"Mordor",path:null,equip:"Nazgûl"},
+    {type:"Item",name:"Morgul Blade",atk:0,def:0,str:0,effect:"On path: eliminate to add 1 corruption.",faction:"Mordor",path:null,equip:"Nazgûl"},
+    {type:"Event",name:"The Black Captain",atk:0,def:0,str:0,effect:"If Witch-King in reserve: (re)activate Mordor battleground, move WK there.",faction:"Mordor",path:null},
+    {type:"Event",name:"Ringwraiths Are Abroad",atk:0,def:0,str:0,effect:"Draw 7, eliminate 1, play up to 2 Nazgûl, cycle rest.",faction:"Mordor",path:null},
+    {type:"Event",name:"Day Without Dawn",atk:0,def:0,str:0,effect:"Draw 7, eliminate 1, play up to 2 armies, cycle rest.",faction:"Mordor",path:null},
+  ];
+
+  const saruman = [
+    {type:"Army",name:"Devilry of Saruman",atk:3,def:0,str:0,effect:null,faction:"Isengard",path:null},
+    {type:"Army",name:"Fighting Uruk-Hai",atk:1,def:2,str:0,effect:null,faction:"Isengard",path:null},
+    {type:"Army",name:"Wolf Riders",atk:2,def:1,str:0,effect:null,faction:"Isengard",path:null},
+    {type:"Army",name:"White Hand Orcs",atk:1,def:1,str:0,effect:null,faction:"Isengard",path:null},
+    {type:"Army",name:"White Hand Orcs",atk:1,def:1,str:0,effect:null,faction:"Isengard",path:null},
+    {type:"Character",name:"Gríma Wormtongue",atk:0,def:0,str:1,effect:"In reserve: eliminate to take Saruman or eliminate Rohan character.",faction:"Isengard",path:"1-2/5-6"},
+    {type:"Character",name:"Saruman",atk:2,def:2,str:2,effect:"In reserve: draw +1. If forsaken from deck: cycle.",faction:"Isengard",path:"5-6"},
+    {type:"Character",name:"Uglúk",atk:1,def:1,str:1,effect:"On path: activate different path of same #.",faction:"Isengard",path:"5-6"},
+    {type:"Item",name:"Palantír",atk:0,def:0,str:0,effect:"In reserve: examine top 3 of deck; eliminate 1, cycle 1, take 1.",faction:"Isengard",path:null,equip:"Saruman"},
+    {type:"Item",name:"Saruman's Staff",atk:1,def:1,str:1,effect:"+1 carryover limit.",faction:"Isengard",path:null,equip:"Saruman"},
+    {type:"Item",name:"Many Colours",atk:0,def:0,str:0,effect:"If Saruman eliminated: cycle instead + wielded items.",faction:"Isengard",path:null,equip:"Saruman"},
+    {type:"Event",name:"Threats and Promises",atk:0,def:0,str:0,effect:"If Saruman in reserve: (re)activate Isengard battleground, may move Saruman.",faction:"Isengard",path:null},
+    {type:"Army",name:"Goblins",atk:1,def:1,str:0,effect:null,faction:"Monstrous",path:null},
+    {type:"Army",name:"Goblins",atk:1,def:1,str:0,effect:null,faction:"Monstrous",path:null},
+    {type:"Character",name:"Barrow-Wights",atk:0,def:0,str:1,effect:"In reserve: eliminate so each FP forsakes 1.",faction:"Monstrous",path:"1-3"},
+    {type:"Character",name:"Flocks of Crebain",atk:0,def:0,str:1,effect:"On path: activate different path of same #.",faction:"Monstrous",path:"1-7"},
+    {type:"Character",name:"Hill Troll",atk:1,def:1,str:1,effect:"In reserve: eliminate so each FP forsakes 1.",faction:"Monstrous",path:"2-9"},
+    {type:"Character",name:"Balrog",atk:2,def:2,str:2,effect:"+1 Str on Khazad-Dûm. When played: each FP forsakes 1.",faction:"Monstrous",path:"4-5"},
+    {type:"Character",name:"Caradhras (Spirit)",atk:0,def:0,str:1,effect:"On Caradhras: activate different path. In reserve: eliminate→FP forsakes 1.",faction:"Monstrous",path:"4-5"},
+    {type:"Character",name:"Cave Troll",atk:1,def:1,str:1,effect:"In reserve: eliminate so each FP forsakes 1.",faction:"Monstrous",path:"4/8-9"},
+    {type:"Character",name:"Candles of Corpses",atk:0,def:0,str:1,effect:"+1 Str on Dead Marshes. In reserve: eliminate→FP forsakes 1.",faction:"Monstrous",path:"6-7"},
+    {type:"Character",name:"Gollum",atk:0,def:0,str:1,effect:"On path: activate different path of same #. If eliminated: cycle.",faction:"Monstrous",path:"6-9"},
+    {type:"Character",name:"Shelob",atk:0,def:0,str:1,effect:"+1 Str on Shelob's Lair. When played: each FP forsakes 1.",faction:"Monstrous",path:"7-9"},
+    {type:"Item",name:"Whip of Many Thongs",atk:1,def:1,str:1,effect:"Draw 1 when played.",faction:"Monstrous",path:null,equip:"Balrog"},
+    {type:"Army",name:"Haradrim Mûmakil",atk:2,def:1,str:0,effect:null,faction:"Southron",path:null},
+    {type:"Army",name:"Coastal Raiders",atk:1,def:1,str:0,effect:"+1 Atk on Dol Amroth. In reserve: eliminate to activate Dol Amroth.",faction:"Southron",path:null},
+    {type:"Army",name:"Haradrim Cavalry",atk:1,def:1,str:0,effect:"+1 Atk on Minas Tirith. In reserve: eliminate to activate MT.",faction:"Southron",path:null},
+    {type:"Army",name:"The Black Fleet",atk:1,def:1,str:0,effect:"+1 Atk on Pelargir. In reserve: eliminate to activate Pelargir.",faction:"Southron",path:null},
+    {type:"Army",name:"Corsairs of Umbar",atk:1,def:1,str:0,effect:"In reserve: eliminate to activate Umbar.",faction:"Southron",path:null},
+    {type:"Army",name:"Haradrim Regulars",atk:1,def:1,str:0,effect:"In reserve: eliminate to activate Harad.",faction:"Southron",path:null},
+    {type:"Character",name:"The Black Serpent",atk:1,def:1,str:0,effect:"In reserve: eliminate to reactivate Southron battleground.",faction:"Southron",path:null},
+  ];
+  return [...witchking, ...saruman].map((c,i)=>({...c, id:'sh_'+i, side:'shadow'}));
+}
+
+// ─── GAME STATE ───
+let G = {};
+
+function initState() {
+  const fpAll = makeFPCards();
+  const shAll = makeShadowCards();
+  shuffle(fpAll);
+  shuffle(shAll);
+
+  G = {
+    round: 0,
+    maxRounds: 9,
+    fpScore: 0,
+    shadowScore: 0,
+    corruption: 0,
+    phase: 'start',
+    currentPath: null,
+    currentBattle: null,
+    pathDeck: [],
+    battleDeck: [],
+    // FP
+    fpDeck: fpAll.slice(7),
+    fpHand: fpAll.slice(0, 7),
+    fpCycle: [],
+    fpReserve: [],
+    fpPathCards: [],
+    fpBattleCards: [],
+    fpCarryover: 2,
+    fpPassed: false,
+    // Shadow
+    shadowDeck: shAll.slice(7),
+    shadowHand: shAll.slice(0, 7),
+    shadowCycle: [],
+    shadowReserve: [],
+    shadowPathCards: [],
+    shadowBattleCards: [],
+    shadowCarryover: 2,
+    shadowPassed: false,
+    // UI
+    selectedCard: null,
+    pathBonusDef: 0,
+    pathBonusAtk: 0,
+    battleBonusDef: 0,
+    battleBonusAtk: 0,
+    scoredFP: [],
+    scoredShadow: [],
+    allPassed: false,
+    turnOrder: 'fp', // who goes first in action
+    log: [],
+  };
+
+  // Build path deck (one random per ring number)
+  for (let ring = 1; ring <= 9; ring++) {
+    const pathsForRing = PATHS.filter(p => p.ring === ring);
+    G.pathDeck.push(pathsForRing[Math.floor(Math.random() * pathsForRing.length)]);
+  }
+
+  // Shuffle battlegrounds
+  G.battleDeck = shuffle([...BATTLEGROUNDS]);
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ─── GAME FLOW ───
+function startGame() {
+  document.getElementById('startScreen').classList.add('hidden');
+  initState();
+  nextRound();
+}
+
+function nextRound() {
+  G.round++;
+  if (G.round > G.maxRounds) {
+    endGame();
+    return;
+  }
+  G.fpPassed = false;
+  G.shadowPassed = false;
+  G.allPassed = false;
+  G.fpPathCards = [];
+  G.shadowPathCards = [];
+  G.fpBattleCards = [];
+  G.shadowBattleCards = [];
+  G.pathBonusDef = 0;
+  G.pathBonusAtk = 0;
+  G.battleBonusDef = 0;
+  G.battleBonusAtk = 0;
+  G.turnOrder = 'fp';
+
+  addLog(`═══ Round ${G.round} of ${G.maxRounds} ═══`, 'system');
+  setPhase('location');
+  locationStep();
+}
+
+function setPhase(phase) {
+  G.phase = phase;
+  document.querySelectorAll('.phase-step').forEach(el => {
+    el.classList.toggle('active', el.dataset.phase === phase);
+  });
+  updateUI();
+}
+
+function locationStep() {
+  // Activate path
+  G.currentPath = G.pathDeck[G.round - 1];
+  addLog(`📍 Path activated: ${G.currentPath.name} (Ring ${G.currentPath.ring}, ${G.currentPath.vp} VP, ${G.currentPath.def} Def)`, 'system');
+
+  // Activate battleground
+  if (G.battleDeck.length > 0) {
+    G.currentBattle = G.battleDeck.shift();
+    addLog(`⚔️ Battleground activated: ${G.currentBattle.name} (${G.currentBattle.vp} VP, ${G.currentBattle.def} Def)`, 'system');
+  }
+
+  // Resolve path effect (simplified)
+  addLog(`  Path effect: ${G.currentPath.effect}`, 'system');
+
+  updateUI();
+  document.getElementById('phaseLabel').textContent = `Location Step — Round ${G.round}`;
+
+  // Auto-continue to draw
+  setTimeout(() => drawStep(), 800);
+}
+
+function drawStep() {
+  setPhase('draw');
+  // FP draws 3, Shadow draws 4
+  const fpDraw = Math.min(3, G.fpDeck.length);
+  const shDraw = Math.min(4, G.shadowDeck.length);
+
+  for (let i = 0; i < fpDraw; i++) {
+    if (G.fpDeck.length > 0) G.fpHand.push(G.fpDeck.shift());
+  }
+  for (let i = 0; i < shDraw; i++) {
+    if (G.shadowDeck.length > 0) G.shadowHand.push(G.shadowDeck.shift());
+  }
+
+  // If FP deck empty, recycle
+  if (G.fpDeck.length === 0 && G.fpCycle.length > 0) {
+    G.fpDeck = shuffle([...G.fpCycle]);
+    G.fpCycle = [];
+    addLog('Free Peoples: cycle pile recycled into draw deck.', 'fp');
+  }
+  if (G.shadowDeck.length === 0 && G.shadowCycle.length > 0) {
+    G.shadowDeck = shuffle([...G.shadowCycle]);
+    G.shadowCycle = [];
+    addLog('Shadow: cycle pile recycled into draw deck.', 'shadow');
+  }
+
+  addLog(`FP draws ${fpDraw} cards (hand: ${G.fpHand.length})`, 'fp');
+  addLog(`Shadow draws ${shDraw} cards (hand: ${G.shadowHand.length})`, 'shadow');
+
+  updateUI();
+  setTimeout(() => actionStep(), 600);
+}
+
+function actionStep() {
+  setPhase('action');
+  G.fpPassed = false;
+  G.shadowPassed = false;
+  document.getElementById('phaseLabel').textContent = 'Action Step — Your turn. Select a card and destination.';
+  enablePlayerActions();
+  updateUI();
+}
+
+function enablePlayerActions() {
+  const inAction = G.phase === 'action' && !G.fpPassed;
+  document.getElementById('btnPlayPath').disabled = !inAction;
+  document.getElementById('btnPlayBattle').disabled = !inAction;
+  document.getElementById('btnPlayReserve').disabled = !inAction;
+  document.getElementById('btnPass').disabled = !(G.phase === 'action' && !G.fpPassed);
+}
+
+function disablePlayerActions() {
+  document.getElementById('btnPlayPath').disabled = true;
+  document.getElementById('btnPlayBattle').disabled = true;
+  document.getElementById('btnPlayReserve').disabled = true;
+  document.getElementById('btnPass').disabled = true;
+}
+
+// ─── PLAYER ACTIONS ───
+function selectCard(cardId) {
+  if (G.phase !== 'action' || G.fpPassed) return;
+  G.selectedCard = G.selectedCard === cardId ? null : cardId;
+  updateUI();
+}
+
+function playSelectedToPath() {
+  if (!G.selectedCard || !G.currentPath) return;
+  const card = G.fpHand.find(c => c.id === G.selectedCard);
+  if (!card) return;
+  // Must have str or be army for path, or character with path range
+  playCardTo(card, 'path');
+}
+
+function playSelectedToBattle() {
+  if (!G.selectedCard || !G.currentBattle) return;
+  const card = G.fpHand.find(c => c.id === G.selectedCard);
+  if (!card) return;
+  playCardTo(card, 'battle');
+}
+
+function playSelectedToReserve() {
+  if (!G.selectedCard) return;
+  const card = G.fpHand.find(c => c.id === G.selectedCard);
+  if (!card) return;
+  playCardTo(card, 'reserve');
+}
+
+function showCycleModal(playedCard, dest) {
+  const modal = document.getElementById('modalContent');
+  let html = `<h2>Cycle a Card</h2><p>You played <b>${playedCard.name}</b>. Choose a card to cycle (discard):</p><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">`;
+  G.fpHand.forEach(c => {
+    html += `<div class="hand-card fp-card" style="width:80px;height:110px;" onclick="doCycle('${c.id}','${playedCard.id}','${dest}')">
+      <div class="card-type-badge ${c.type.toLowerCase()}">${c.type}</div>
+      <div class="card-name">${c.name}</div>
+      <div class="card-stats-row">
+        ${c.atk ? `<span class="atk">⚔${c.atk}</span>` : ''}
+        ${c.def ? `<span class="def">🛡${c.def}</span>` : ''}
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+  modal.innerHTML = html;
+  document.getElementById('modalOverlay').classList.remove('hidden');
+}
+
+function doCycle(cycleId, playedId, dest) {
+  document.getElementById('modalOverlay').classList.add('hidden');
+  const cycledCard = G.fpHand.find(c => c.id === cycleId);
+  if (cycledCard) {
+    G.fpHand = G.fpHand.filter(c => c.id !== cycleId);
+    G.fpCycle.push(cycledCard);
+    addLog(`  Cycled: ${cycledCard.name}`, 'fp');
+  }
+  finishPlayCard(G._pendingCard, dest);
+}
+
+// Fix: store pending card
+function playCardTo(card, dest) {
+  G.fpHand = G.fpHand.filter(c => c.id !== card.id);
+  G._pendingCard = card;
+
+  if (G.fpHand.length > 0 && card.type !== 'Event') {
+    G.selectedCard = null;
+    updateUI();
+    showCycleModal(card, dest);
+    return;
+  }
+
+  finishPlayCard(card, dest);
+}
+
+function finishPlayCard(card, dest) {
+  G._pendingCard = null;
+  G.selectedCard = null;
+
+  if (dest === 'path') {
+    G.fpPathCards.push(card);
+    addLog(`Played ${card.name} to Path (${G.currentPath.name})`, 'fp');
+  } else if (dest === 'battle') {
+    G.fpBattleCards.push(card);
+    addLog(`Played ${card.name} to Battleground (${G.currentBattle?.name || '—'})`, 'fp');
+  } else {
+    G.fpReserve.push(card);
+    addLog(`Played ${card.name} to Reserve`, 'fp');
+  }
+
+  updateUI();
+
+  // Shadow takes a turn
+  setTimeout(() => shadowTurn(), 400);
+}
+
+function playerPass() {
+  G.fpPassed = true;
+  addLog('Free Peoples passed.', 'fp');
+  disablePlayerActions();
+
+  if (G.shadowPassed) {
+    allPassedCombat();
+  } else {
+    setTimeout(() => shadowTurn(), 400);
+  }
+}
+
+// ─── SHADOW AI ───
+function shadowTurn() {
+  if (G.shadowPassed) {
+    if (G.fpPassed) {
+      allPassedCombat();
+    } else {
+      document.getElementById('phaseLabel').textContent = 'Action Step — Your turn.';
+      enablePlayerActions();
+    }
+    return;
+  }
+
+  // Simple AI: play cards to path/battle or reserve
+  if (G.shadowHand.length <= G.shadowCarryover || G.shadowHand.length === 0) {
+    G.shadowPassed = true;
+    addLog('Shadow passed.', 'shadow');
+    if (G.fpPassed) {
+      allPassedCombat();
+    } else {
+      document.getElementById('phaseLabel').textContent = 'Action Step — Your turn.';
+      enablePlayerActions();
+      updateUI();
+    }
+    return;
+  }
+
+  // Pick a card to play
+  const hand = [...G.shadowHand];
+  // Prefer characters/armies with strength for path, armies for battle
+  let cardToPlay = null;
+  let dest = 'reserve';
+
+  // Try to play to path (characters with str for attacking the path)
+  const pathPlayable = hand.filter(c => (c.str > 0 || c.type === 'Character') && c.type !== 'Event' && c.type !== 'Item');
+  const battlePlayable = hand.filter(c => (c.atk > 0 || c.def > 0) && c.type === 'Army');
+  const reservePlayable = hand.filter(c => c.effect && c.effect.includes('reserve'));
+
+  if (pathPlayable.length > 0 && G.shadowPathCards.length < 4 && Math.random() > 0.4) {
+    cardToPlay = pathPlayable[Math.floor(Math.random() * pathPlayable.length)];
+    dest = 'path';
+  } else if (battlePlayable.length > 0 && G.currentBattle && G.shadowBattleCards.length < 4 && Math.random() > 0.3) {
+    cardToPlay = battlePlayable[Math.floor(Math.random() * battlePlayable.length)];
+    dest = 'battle';
+  } else if (reservePlayable.length > 0 && G.shadowReserve.length < 5) {
+    cardToPlay = reservePlayable[Math.floor(Math.random() * reservePlayable.length)];
+    dest = 'reserve';
+  } else {
+    cardToPlay = hand[Math.floor(Math.random() * hand.length)];
+    if (cardToPlay.atk > 0 && G.currentBattle) dest = 'battle';
+    else if (cardToPlay.str > 0) dest = 'path';
+    else dest = 'reserve';
+  }
+
+  // Remove from hand
+  G.shadowHand = G.shadowHand.filter(c => c.id !== cardToPlay.id);
+
+  // Cycle a random card
+  if (G.shadowHand.length > 0 && cardToPlay.type !== 'Event') {
+    const cycleIdx = Math.floor(Math.random() * G.shadowHand.length);
+    const cycled = G.shadowHand.splice(cycleIdx, 1)[0];
+    G.shadowCycle.push(cycled);
+  }
+
+  if (dest === 'path') {
+    G.shadowPathCards.push(cardToPlay);
+    addLog(`Shadow played ${cardToPlay.name} to Path`, 'shadow');
+  } else if (dest === 'battle') {
+    G.shadowBattleCards.push(cardToPlay);
+    addLog(`Shadow played ${cardToPlay.name} to Battleground`, 'shadow');
+  } else {
+    G.shadowReserve.push(cardToPlay);
+    addLog(`Shadow played ${cardToPlay.name} to Reserve`, 'shadow');
+  }
+
+  updateUI();
+
+  if (G.fpPassed) {
+    setTimeout(() => shadowTurn(), 500);
+  } else {
+    document.getElementById('phaseLabel').textContent = 'Action Step — Your turn.';
+    enablePlayerActions();
+  }
+}
+
+// ─── COMBAT ───
+function allPassedCombat() {
+  setPhase('combat');
+  disablePlayerActions();
+  document.getElementById('phaseLabel').textContent = 'Combat Step — Resolving battles...';
+  addLog('═══ Combat Step ═══', 'combat');
+
+  setTimeout(() => resolvePathCombat(), 500);
+}
+
+function resolvePathCombat() {
+  if (!G.currentPath) { resolveBattleCombat(); return; }
+
+  addLog(`--- Path Combat: ${G.currentPath.name} ---`, 'combat');
+
+  // Shadow attack = sum of strength of shadow cards on path + bonus
+  let shadowStr = G.shadowPathCards.reduce((s, c) => s + (c.str || 0), 0) + G.pathBonusAtk;
+  // FP defense = path base def + sum of strength of FP cards on path + bonus
+  let fpDef = (G.currentPath.def || 0) + G.fpPathCards.reduce((s, c) => s + (c.str || 0) + (c.def || 0), 0) + G.pathBonusDef;
+
+  addLog(`  Shadow attack: ${shadowStr} skulls`, 'combat');
+  addLog(`  FP defense: ${fpDef} shields (path: ${G.currentPath.def || 0} + cards)`, 'combat');
+
+  let unblocked = Math.max(0, shadowStr - fpDef);
+
+  if (unblocked > 0) {
+    // Shadow wins path - gains corruption tokens
+    G.corruption += unblocked;
+    addLog(`  Shadow wins! ${unblocked} corruption token(s) added. (Total: ${G.corruption})`, 'shadow');
+    // Shadow scores corruption value
+    G.shadowScore += unblocked; // Shadow scores corruption tokens as VP proxy
+  } else {
+    // FP wins path - scores VP
+    G.fpScore += G.currentPath.vp;
+    addLog(`  Free Peoples wins! +${G.currentPath.vp} VP (Total: ${G.fpScore})`, 'fp');
+    G.scoredFP.push(G.currentPath.name);
+  }
+
+  // Eliminate all cards from path combat
+  G.fpPathCards.forEach(c => G.fpCycle.push(c));
+  G.shadowPathCards.forEach(c => G.shadowCycle.push(c));
+  G.fpPathCards = [];
+  G.shadowPathCards = [];
+
+  updateUI();
+  setTimeout(() => resolveBattleCombat(), 600);
+}
+
+function resolveBattleCombat() {
+  if (!G.currentBattle || (G.fpBattleCards.length === 0 && G.shadowBattleCards.length === 0)) {
+    victoryCheck();
+    return;
+  }
+
+  addLog(`--- Battleground Combat: ${G.currentBattle.name} ---`, 'combat');
+
+  // FP attacks and Shadow attacks depending on who is attacker/defender
+  // Simplified: FP defending side totals defense, Shadow attacking side totals attack
+  // Check if FP is defender or attacker based on battleground
+  const isDefFP = G.currentBattle.defenders.some(f => ['Wizard','Dunedain','Elf','Rohan','Hobbit','Dwarf','Ent'].includes(f));
+
+  let fpAtk = G.fpBattleCards.reduce((s, c) => s + (c.atk || 0), 0);
+  let fpDef = G.fpBattleCards.reduce((s, c) => s + (c.def || 0), 0) + (isDefFP ? G.currentBattle.def : 0);
+  let shAtk = G.shadowBattleCards.reduce((s, c) => s + (c.atk || 0), 0);
+  let shDef = G.shadowBattleCards.reduce((s, c) => s + (c.def || 0), 0) + (!isDefFP ? G.currentBattle.def : 0);
+
+  addLog(`  FP: ${fpAtk} atk / ${fpDef} def`, 'combat');
+  addLog(`  Shadow: ${shAtk} atk / ${shDef} def`, 'combat');
+
+  // Determine winner: compare total combat strength
+  let fpTotal = fpAtk + fpDef;
+  let shTotal = shAtk + shDef;
+
+  if (fpTotal >= shTotal && G.fpBattleCards.length > 0) {
+    G.fpScore += G.currentBattle.vp;
+    addLog(`  Free Peoples wins ${G.currentBattle.name}! +${G.currentBattle.vp} VP`, 'fp');
+    G.scoredFP.push(G.currentBattle.name);
+  } else if (G.shadowBattleCards.length > 0) {
+    G.shadowScore += G.currentBattle.vp;
+    addLog(`  Shadow wins ${G.currentBattle.name}! +${G.currentBattle.vp} VP`, 'shadow');
+    G.scoredShadow.push(G.currentBattle.name);
+  } else {
+    addLog(`  No contest on battleground.`, 'combat');
+  }
+
+  // Eliminate battle cards
+  G.fpBattleCards.forEach(c => G.fpCycle.push(c));
+  G.shadowBattleCards.forEach(c => G.shadowCycle.push(c));
+  G.fpBattleCards = [];
+  G.shadowBattleCards = [];
+
+  updateUI();
+  setTimeout(() => victoryCheck(), 600);
+}
+
+function victoryCheck() {
+  setPhase('victory');
+  addLog(`Victory Check: FP ${G.fpScore} VP — Shadow ${G.shadowScore} VP | Corruption: ${G.corruption}`, 'system');
+
+  // Check 10 VP lead
+  if (G.fpScore - G.shadowScore >= 10) {
+    endGame('fp', 'The Free Peoples achieve a decisive victory!');
+    return;
+  }
+  if (G.shadowScore - G.fpScore >= 10) {
+    endGame('shadow', 'The Shadow dominates Middle-earth!');
+    return;
+  }
+  // Corruption check
+  if (G.corruption >= 12) {
+    endGame('shadow', 'Frodo has been corrupted by the Ring!');
+    return;
+  }
+
+  if (G.round >= G.maxRounds) {
+    // Final scoring
+    if (G.fpScore > G.shadowScore) {
+      endGame('fp', `The Free Peoples win ${G.fpScore} to ${G.shadowScore}!`);
+    } else if (G.shadowScore > G.fpScore) {
+      endGame('shadow', `The Shadow wins ${G.shadowScore} to ${G.fpScore}!`);
+    } else {
+      endGame('shadow', 'A tie goes to the Shadow!');
+    }
+    return;
+  }
+
+  // Continue to next round
+  document.getElementById('phaseLabel').textContent = `End of Round ${G.round}. Ready for next round.`;
+  document.getElementById('btnContinue').style.display = '';
+  document.getElementById('btnContinue').onclick = () => {
+    document.getElementById('btnContinue').style.display = 'none';
+    nextRound();
+  };
+  updateUI();
+}
+
+function endGame(winner, message) {
+  const overlay = document.getElementById('victoryOverlay');
+  const content = document.getElementById('victoryContent');
+  const title = document.getElementById('victoryTitle');
+  const text = document.getElementById('victoryText');
+
+  content.className = 'victory-content ' + (winner === 'fp' ? 'fp-win' : 'shadow-win');
+  title.textContent = winner === 'fp' ? '🛡️ VICTORY FOR THE FREE PEOPLES' : '⚔️ THE SHADOW PREVAILS';
+  text.innerHTML = `${message}<br><br>Final Score: Free Peoples <b>${G.fpScore}</b> — Shadow <b>${G.shadowScore}</b><br>Corruption: ${G.corruption} | Rounds: ${G.round}`;
+
+  overlay.classList.remove('hidden');
+}
+
+function continuePhase() {
+  // Generic continue
+}
+
+// ─── UI RENDERING ───
+function updateUI() {
+  // Scores
+  document.getElementById('fpScore').textContent = G.fpScore;
+  document.getElementById('shadowScore').textContent = G.shadowScore;
+  document.getElementById('corruptionCount').textContent = G.corruption;
+  document.getElementById('roundDisplay').textContent = `Round ${G.round} / ${G.maxRounds}`;
+
+  // Deck counts
+  document.getElementById('fpDeckCount').textContent = G.fpDeck.length;
+  document.getElementById('fpCycleCount').textContent = G.fpCycle.length;
+  document.getElementById('shadowDeckCount').textContent = G.shadowDeck.length;
+  document.getElementById('shadowCycleCount').textContent = G.shadowCycle.length;
+  document.getElementById('shadowHandCount').textContent = G.shadowHand.length;
+  document.getElementById('handCount').textContent = G.fpHand.length;
+  document.getElementById('carryLimit').textContent = G.fpCarryover;
+
+  // Path
+  if (G.currentPath) {
+    document.getElementById('pathNumber').textContent = `Ring ${G.currentPath.ring}`;
+    document.getElementById('pathName').textContent = G.currentPath.name;
+    document.getElementById('pathStats').innerHTML = `
+      <span class="stat">👑 ${G.currentPath.vp} VP</span>
+      <span class="stat">🛡️ ${G.currentPath.def} Base Def</span>
+    `;
+    document.getElementById('pathEffect').textContent = G.currentPath.effect;
+  }
+
+  // Battle
+  if (G.currentBattle) {
+    document.getElementById('battleVP').textContent = `${G.currentBattle.vp} VP`;
+    document.getElementById('battleName').textContent = G.currentBattle.name;
+    document.getElementById('battleStats').innerHTML = `
+      <span class="stat">🛡️ ${G.currentBattle.def} Base Def</span>
+      <span class="stat">Def: ${G.currentBattle.defenders.join(', ')}</span>
+    `;
+    document.getElementById('battleEffect').textContent = G.currentBattle.effect;
+  }
+
+  // Cards on locations
+  renderLocationCards('pathFPCards', G.fpPathCards, 'fp');
+  renderLocationCards('pathShadowCards', G.shadowPathCards, 'shadow');
+  renderLocationCards('battleDefCards', G.fpBattleCards, 'fp');
+  renderLocationCards('battleAtkCards', G.shadowBattleCards, 'shadow');
+
+  // Reserves
+  renderReserve('fpReserve', G.fpReserve, 'fp');
+  renderReserve('shadowReserve', G.shadowReserve, 'shadow');
+
+  // Player hand
+  renderHand();
+
+  // Log
+  renderLog();
+
+  // Scored locations
+  renderScored();
+}
+
+function renderLocationCards(containerId, cards, side) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = cards.map(c => miniCardHTML(c, side)).join('');
+}
+
+function renderReserve(containerId, cards, side) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = cards.length === 0 ? '<span style="font-size:10px;color:var(--text-dim)">Empty</span>' :
+    cards.map(c => miniCardHTML(c, side)).join('');
+}
+
+function miniCardHTML(c, side) {
+  return `<div class="mini-card ${side === 'fp' ? 'fp-card' : 'shadow-card'}"
+    onmouseenter="showTooltip(event,'${escape(c.name)}','${c.type}','${c.atk||0}','${c.def||0}','${c.str||0}','${escape(c.effect||'')}','${c.faction}')"
+    onmouseleave="hideTooltip()">
+    <div class="card-type">${c.type}</div>
+    <div class="card-name">${c.name}</div>
+    <div class="card-stats">
+      ${c.atk ? `<span class="atk">⚔${c.atk}</span>` : ''}
+      ${c.def ? `<span class="def">🛡${c.def}</span>` : ''}
+      ${c.str ? `<span class="str">✦${c.str}</span>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderHand() {
+  const el = document.getElementById('playerHand');
+  el.innerHTML = G.fpHand.map(c => {
+    const sel = G.selectedCard === c.id ? 'selected' : '';
+    return `<div class="hand-card fp-card ${sel}" onclick="selectCard('${c.id}')"
+      onmouseenter="showTooltip(event,'${escape(c.name)}','${c.type}','${c.atk||0}','${c.def||0}','${c.str||0}','${escape(c.effect||'')}','${c.faction}')"
+      onmouseleave="hideTooltip()">
+      <div class="card-type-badge ${c.type.toLowerCase().replace('.','')}">${c.type}</div>
+      <div class="card-name">${c.name}</div>
+      <div class="card-faction">${c.faction}</div>
+      <div class="card-stats-row">
+        ${c.atk ? `<span class="atk">⚔ ${c.atk}</span>` : ''}
+        ${c.def ? `<span class="def">🛡 ${c.def}</span>` : ''}
+        ${c.str ? `<span class="str">✦ ${c.str}</span>` : ''}
+      </div>
+      ${c.effect ? `<div class="card-effect">${c.effect}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderLog() {
+  const el = document.getElementById('gameLog');
+  el.innerHTML = G.log.slice(-40).map(l => `<div class="log-entry ${l.type}">${l.text}</div>`).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+function renderScored() {
+  const el = document.getElementById('scoredLocations');
+  let html = '';
+  if (G.scoredFP.length) html += `<div style="color:var(--fp-light);margin-bottom:4px">FP: ${G.scoredFP.join(', ')}</div>`;
+  if (G.scoredShadow.length) html += `<div style="color:var(--shadow-light)">Shadow: ${G.scoredShadow.join(', ')}</div>`;
+  if (!html) html = 'None yet';
+  el.innerHTML = html;
+}
+
+function addLog(text, type) {
+  G.log.push({ text, type });
+}
+
+function escape(str) {
+  return str.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+}
+
+// ─── TOOLTIP ───
+function showTooltip(event, name, type, atk, def, str, effect, faction) {
+  const tt = document.getElementById('tooltip');
+  tt.innerHTML = `
+    <div class="tt-type">${type} — ${unescape(faction)}</div>
+    <div class="tt-name">${unescape(name)}</div>
+    <div class="tt-stats">
+      ${atk > 0 ? `<span style="color:#e06060">⚔ Attack: ${atk}</span>` : ''}
+      ${def > 0 ? `<span style="color:#60a0e0">🛡 Defense: ${def}</span>` : ''}
+      ${str > 0 ? `<span style="color:var(--gold)">✦ Strength: ${str}</span>` : ''}
+    </div>
+    ${effect ? `<div class="tt-effect">${unescape(effect)}</div>` : ''}
+  `;
+  tt.style.display = 'block';
+  const rect = tt.getBoundingClientRect();
+  let x = event.clientX + 10;
+  let y = event.clientY + 10;
+  if (x + rect.width > window.innerWidth) x = event.clientX - rect.width - 10;
+  if (y + rect.height > window.innerHeight) y = event.clientY - rect.height - 10;
+  tt.style.left = x + 'px';
+  tt.style.top = y + 'px';
+}
+
+function hideTooltip() {
+  document.getElementById('tooltip').style.display = 'none';
+}
+
+function unescape(str) {
+  return str.replace(/\\'/g, "'").replace(/&quot;/g, '"').replace(/%27/g, "'");
+}
+
+// ─── HELP ───
+function showHelp() {
+  const modal = document.getElementById('modalContent');
+  modal.innerHTML = `
+    <h2>How to Play</h2>
+    <p><b>War of the Ring: The Card Game</b> pits the Free Peoples against the Shadow in a battle for Middle-earth.</p>
+    <p><b>Each Round:</b></p>
+    <p>1. <b>Location Step:</b> A Path and Battleground are activated.</p>
+    <p>2. <b>Draw Step:</b> Free Peoples draw 3 cards, Shadow draws 4.</p>
+    <p>3. <b>Action Step:</b> Take turns playing cards. Select a card from your hand, then choose where to play it:
+      <br>• <b>Path</b> — Deploy characters with Strength (✦) to defend the Fellowship's journey
+      <br>• <b>Battleground</b> — Deploy armies and characters with Attack (⚔) and Defense (🛡)
+      <br>• <b>Reserve</b> — Hold cards for their special abilities
+      <br>When you play a card, you must cycle (discard) another card from your hand.</p>
+    <p>4. <b>Combat Step:</b>
+      <br>• Path: Shadow's total Strength vs FP's total Strength + Path defense. Unblocked skulls = corruption.
+      <br>• Battleground: Compare total Attack + Defense. Winner scores VP.</p>
+    <p>5. <b>Victory Check:</b> 10+ VP lead wins immediately. At round 9, highest VP wins. 12+ corruption = Shadow wins.</p>
+    <div class="modal-actions">
+      <button class="choice-btn primary" onclick="document.getElementById('modalOverlay').classList.add('hidden')">Got it!</button>
+    </div>
+  `;
+  document.getElementById('modalOverlay').classList.remove('hidden');
+}
+
+// Init display
+updateUI();
+</script>
+</body>
+</html>
