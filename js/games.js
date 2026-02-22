@@ -83,6 +83,17 @@ const GAMES = [
     accentColor: "#2ecc71",
     status: "playable",
   }, 
+  {
+    id: "wotr-cardgame",
+    title: "War of the Rings Deckbuilder",
+    subtitle: "The Card Game",
+    category: "strategy",
+    players: "1",
+    duration: "45–90 min",
+    icon: "🧙‍♂️",
+    accentColor: "#c9a84c",
+    status: "playable",
+  },
   { 
     id: "escalation-engine",
     title: "Trick Escalation Engine",
