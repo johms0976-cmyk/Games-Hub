@@ -79,7 +79,7 @@ const GAMES = [
     category: "card",
     players: "3-5",
     duration: "30–45 min",
-    icon: "🃏",
+    icon: "🏡",
     accentColor: "#2ecc71",
     status: "playable",
   }, 
