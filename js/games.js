@@ -59,7 +59,7 @@ const GAMES = [
     duration: "30–45 min",
     icon: "🃏",
     accentColor: "#2ecc71",
-    status: "coming-soon",
+    status: "playable",
   },
   {
     id: "spades",
