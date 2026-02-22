@@ -72,6 +72,17 @@ const GAMES = [
     accentColor: "#2ecc71",
     status: "playable",
   },
+     {
+    id: "for-sale",
+    title: "For Sale",
+    subtitle: "The Game of Property and Prosperity",
+    category: "card",
+    players: "3-5",
+    duration: "30–45 min",
+    icon: "🃏",
+    accentColor: "#2ecc71",
+    status: "playable",
+  }, 
   { 
     id: "escalation-engine",
     title: "Trick Escalation Engine",
