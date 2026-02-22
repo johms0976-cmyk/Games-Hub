@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Sale — The Game of Property and Prosperity</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #0a0c10;
+  --bg-dark: #111520;
+  --bg-card: #1a1f2e;
+  --bg-surface: #151a28;
+  --gold: #d4a843;
+  --gold-bright: #f0c860;
+  --gold-dim: #9a7a30;
+  --green: #4caf50;
+  --green-bright: #66d16a;
+  --red: #e74c3c;
+  --red-dim: #a33;
+  --blue: #3498db;
+  --blue-bright: #5bb8f5;
+  --silver: #c0c8d8;
+  --text: #e8e0d4;
+  --text-dim: #8a8898;
+  --text-muted: #55556a;
+  --border: #2a3040;
+  --border-gold: #d4a84355;
+  --shadow: 0 4px 20px rgba(0,0,0,0.5);
+  --radius: 10px;
+  --card-w: 100px;
+  --card-h: 140px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Source Sans 3', sans-serif;
+  background: var(--bg-deep);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ---- Background pattern ---- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(212,168,67,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, rgba(52,152,219,0.03) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+
+button {
+  font-family: 'Source Sans 3', sans-serif;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: all 0.2s;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ---- SCREENS ---- */
+.screen { display: none; position: relative; z-index: 1; }
+.screen.active { display: flex; }
+
+/* ---- TITLE SCREEN ---- */
+#title-screen {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 30px;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+#title-screen h1 {
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-weight: 900;
+  color: var(--gold);
+  text-shadow: 0 2px 20px rgba(212,168,67,0.3);
+  letter-spacing: 2px;
+  line-height: 1.1;
+}
+
+#title-screen h1 span {
+  display: block;
+  font-size: 0.35em;
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 400;
+  color: var(--text-dim);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
+.title-cards {
+  display: flex;
+  gap: 12px;
+  margin: 10px 0;
+}
+
+.title-card {
+  width: 70px; height: 100px;
+  background: linear-gradient(135deg, var(--bg-card), #252b3d);
+  border: 2px solid var(--border-gold);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem; font-weight: 800;
+  color: var(--gold);
+  transform: rotate(calc(var(--r, 0) * 1deg));
+  transition: transform 0.3s;
+}
+.title-card:hover { transform: rotate(0deg) scale(1.1); }
+
+.setup-panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 30px 40px;
+  display: flex; flex-direction: column; gap: 20px;
+  max-width: 400px; width: 100%;
+}
+
+.setup-panel label {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 1rem; color: var(--text-dim);
+}
+
+.setup-panel select, .setup-panel input {
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dim));
+  color: var(--bg-deep);
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 14px 36px;
+  border-radius: 8px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(212,168,67,0.3);
+}
+
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--gold-dim);
+  color: var(--gold);
+}
+
+/* ---- GAME SCREEN ---- */
+#game-screen {
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.game-header h2 {
+  font-size: 1.2rem;
+  color: var(--gold);
+}
+
+.phase-indicator {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  background: var(--bg-dark);
+  padding: 4px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+}
+
+.game-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 16px;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ---- PLAYER INFO BAR ---- */
+.players-bar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.player-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  min-width: 130px;
+  transition: all 0.3s;
+}
+
+.player-chip.active-turn {
+  border-color: var(--gold);
+  box-shadow: 0 0 12px rgba(212,168,67,0.2);
+}
+
+.player-chip.passed-chip {
+  opacity: 0.45;
+}
+
+.player-chip .p-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.8rem;
+  color: var(--bg-deep);
+  flex-shrink: 0;
+}
+
+.player-chip .p-info { display: flex; flex-direction: column; gap: 1px; }
+.player-chip .p-name { font-weight: 600; color: var(--text); font-size: 0.85rem; }
+.player-chip .p-coins { color: var(--gold-dim); font-size: 0.75rem; }
+.player-chip .p-bid { color: var(--blue-bright); font-size: 0.75rem; }
+
+/* ---- AUCTION TABLE ---- */
+.auction-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.auction-label {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.auction-cards {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ---- PROPERTY CARD ---- */
+.prop-card {
+  width: var(--card-w);
+  height: var(--card-h);
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  background: var(--bg-card);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.35s;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+}
+
+.prop-card.highlight {
+  border-color: var(--gold);
+  box-shadow: 0 0 14px rgba(212,168,67,0.25);
+}
+
+.prop-card.taken {
+  opacity: 0.3;
+  transform: scale(0.92);
+}
+
+.prop-card-art {
+  flex: 1;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.prop-card-art svg {
+  width: 100%;
+  height: 100%;
+}
+
+.prop-card-value {
+  position: absolute;
+  top: 4px; left: 4px;
+  background: rgba(0,0,0,0.75);
+  color: var(--gold-bright);
+  font-family: 'Playfair Display', serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  padding: 2px 7px;
+  border-radius: 4px;
+  line-height: 1.2;
+}
+
+.prop-card-bottom {
+  padding: 4px 6px;
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  background: rgba(0,0,0,0.3);
+  border-top: 1px solid var(--border);
+}
+
+/* ---- CURRENCY CARD ---- */
+.currency-card {
+  width: var(--card-w);
+  height: var(--card-h);
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  background: linear-gradient(145deg, #2a3525, #1a2518);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.35s;
+}
+
+.currency-card.highlight {
+  border-color: var(--green);
+  box-shadow: 0 0 14px rgba(76,175,80,0.25);
+}
+
+.currency-card .dollar {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--green-bright);
+}
+
+.currency-card .amount {
+  font-size: 0.75rem;
+  color: var(--green);
+  font-weight: 600;
+}
+
+/* ---- BIDDING CONTROLS ---- */
+.bid-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.bid-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bid-amount-display {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gold-bright);
+  min-width: 100px;
+  text-align: center;
+}
+
+.bid-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 1.2rem;
+  display: flex; align-items: center; justify-content: center;
+}
+.bid-btn:hover:not(:disabled) {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.bid-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* ---- SELLING PHASE ---- */
+.sell-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.hand-cards {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.hand-card {
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.hand-card:hover { transform: translateY(-8px); }
+.hand-card.selected {
+  transform: translateY(-12px);
+  box-shadow: 0 8px 20px rgba(212,168,67,0.3);
+}
+.hand-card.selected .prop-card { border-color: var(--gold-bright); }
+
+/* ---- LOG ---- */
+.game-log {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  max-height: 120px;
+  overflow-y: auto;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+.game-log .log-entry { padding: 2px 0; }
+.game-log .log-entry.important { color: var(--gold); }
+.game-log .log-entry.result { color: var(--green); }
+
+/* ---- RESULTS OVERLAY ---- */
+.results-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.results-overlay.active { display: flex; }
+
+.results-panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius);
+  padding: 36px 44px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+}
+
+.results-panel h2 {
+  font-size: 2rem;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+
+.results-panel .subtitle {
+  color: var(--text-dim);
+  margin-bottom: 20px;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+}
+
+.results-table th {
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.results-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.95rem;
+}
+
+.results-table tr.winner td {
+  color: var(--gold-bright);
+  font-weight: 700;
+}
+
+/* ---- SELL REVEAL ---- */
+.sell-reveal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.reveal-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.reveal-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.reveal-item .reveal-name {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.reveal-item .reveal-arrow {
+  color: var(--gold-dim);
+  font-size: 0.85rem;
+}
+
+.reveal-item .reveal-earned {
+  font-size: 0.8rem;
+  color: var(--green);
+  font-weight: 600;
+}
+
+/* ---- MESSAGE BANNER ---- */
+.message-banner {
+  text-align: center;
+  font-size: 1rem;
+  color: var(--text);
+  padding: 8px;
+  min-height: 36px;
+}
+
+/* ---- BACK LINK ---- */
+.back-link {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--gold); }
+
+/* ---- Animations ---- */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes popIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+
+.anim-fade { animation: fadeIn 0.4s ease both; }
+.anim-pop { animation: popIn 0.35s ease both; }
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ---- Responsive ---- */
+@media (max-width: 600px) {
+  :root { --card-w: 80px; --card-h: 112px; }
+  .setup-panel { padding: 20px; }
+  .results-panel { padding: 24px 20px; }
+  .player-chip { min-width: 110px; padding: 6px 10px; font-size: 0.78rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== TITLE SCREEN ==================== -->
+<div id="title-screen" class="screen active">
+  <div class="title-cards">
+    <div class="title-card" style="--r:-8">🏚</div>
+    <div class="title-card" style="--r:-3">🏠</div>
+    <div class="title-card" style="--r:2">🏰</div>
+    <div class="title-card" style="--r:7">🚀</div>
+  </div>
+  <h1>FOR SALE
+    <span>The Game of Property &amp; Prosperity</span>
+  </h1>
+
+  <div class="setup-panel">
+    <label>
+      Players (including you)
+      <select id="player-count">
+        <option value="3">3 Players</option>
+        <option value="4" selected>4 Players</option>
+        <option value="5">5 Players</option>
+        <option value="6">6 Players</option>
+      </select>
+    </label>
+    <label>
+      Your name
+      <input type="text" id="player-name" value="You" maxlength="12">
+    </label>
+    <button class="btn-primary" onclick="startGame()">Start Game</button>
+  </div>
+  <a href="../../index.html" class="back-link">← Back to Hub</a>
+</div>
+
+<!-- ==================== GAME SCREEN ==================== -->
+<div id="game-screen" class="screen">
+  <div class="game-header">
+    <a href="../../index.html" class="back-link">← Hub</a>
+    <h2>FOR SALE</h2>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div class="phase-indicator" id="phase-label">Phase 1: Buying</div>
+      <button class="btn-secondary" style="padding:6px 12px;font-size:0.8rem" onclick="toggleHelp()">?</button>
+    </div>
+  </div>
+  <div class="game-body" id="game-body">
+    <!-- Dynamic content injected by JS -->
+  </div>
+</div>
+
+<!-- ==================== RESULTS OVERLAY ==================== -->
+<div class="results-overlay" id="results-overlay">
+  <div class="results-panel" id="results-panel"></div>
+</div>
+
+<!-- ==================== HELP OVERLAY ==================== -->
+<div class="results-overlay" id="help-overlay" onclick="if(event.target===this)toggleHelp()">
+  <div class="results-panel" style="text-align:left;max-width:550px;max-height:80vh;overflow-y:auto">
+    <h2 style="text-align:center;margin-bottom:16px">How to Play</h2>
+    <p style="color:var(--text-dim);margin-bottom:14px;line-height:1.6">
+      <strong style="color:var(--gold)">Phase 1 — Buying Properties</strong><br>
+      Properties (numbered 1–30) are auctioned in groups. Players bid coins or pass.
+      When you pass, you take the <em>lowest remaining</em> property and get <em>half your bid back</em> (rounded down).
+      The last bidder standing takes the highest property but pays their full bid.
+    </p>
+    <p style="color:var(--text-dim);margin-bottom:14px;line-height:1.6">
+      <strong style="color:var(--gold)">Phase 2 — Selling Properties</strong><br>
+      Currency cards ($0k–$15k) are revealed in groups. Each player secretly selects one property to sell.
+      The highest property played wins the highest currency card, second-highest gets second-highest, and so on.
+    </p>
+    <p style="color:var(--text-dim);margin-bottom:14px;line-height:1.6">
+      <strong style="color:var(--gold)">Winning</strong><br>
+      After all properties are sold, add up your currency cards plus any leftover coins. Richest player wins!
+    </p>
+    <div style="text-align:center;margin-top:18px">
+      <button class="btn-secondary" onclick="toggleHelp()">Got it</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+//  FOR SALE — Complete Game Logic
+// ================================================================
+
+const AI_NAMES = ['Alice', 'Bob', 'Clara', 'Diego', 'Eve'];
+const AI_COLORS = ['#e74c3c', '#3498db', '#2ecc71', '#e67e22', '#9b59b6'];
+
+const PROPERTY_LABELS = [
+  '', // 0 unused
+  'Cardboard Box', 'Outhouse', 'Tent', 'Tree House', 'Igloo',
+  'Mobile Home', 'Houseboat', 'Shack', 'Cottage', 'Cabin',
+  'Bungalow', 'Apartment', 'Townhouse', 'Ranch', 'Farmhouse',
+  'Duplex', 'Lighthouse', 'Villa', 'Beach House', 'Penthouse',
+  'Mansion', 'Manor', 'Ski Lodge', 'Chateau', 'Lakefront Estate',
+  'Victorian', 'Skyscraper', 'Castle', 'Private Island', 'Space Station'
+];
+
+// Currency values: $0, $2k, $3k, $4k, ..., $15k (skip $1k), two of each = 30 cards
+const CURRENCY_VALUES = [];
+{
+  const vals = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+  for (const v of vals) { CURRENCY_VALUES.push(v); CURRENCY_VALUES.push(v); }
+}
+
+let G = {}; // Game state
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ---- Card art with fallback SVG ----
+function propertyCardArtHTML(value) {
+  const imgPath = `assets/cards/${value}.jpg`;
+  const hue = (value * 12) % 360;
+  const saturation = 40 + (value % 5) * 10;
+  
+  // SVG fallback with a property-themed design
+  const svgFallback = `
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="bg${value}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:hsl(${hue},${saturation}%,25%)"/>
+          <stop offset="100%" style="stop-color:hsl(${hue + 30},${saturation}%,15%)"/>
+        </linearGradient>
+      </defs>
+      <rect width="100" height="100" fill="url(#bg${value})"/>
+      ${generatePropertySVG(value)}
+    </svg>`;
+
+  return `<div class="prop-card-art" id="card-art-${value}">
+    ${svgFallback}
+    <div class="prop-card-value">${value}</div>
+  </div>`;
+}
+
+function generatePropertySVG(value) {
+  // Simple house shapes that get fancier with higher values
+  const tier = Math.ceil(value / 6); // 1-5
+  const c = `hsl(${(value * 12) % 360}, 50%, 60%)`;
+  
+  if (tier <= 1) {
+    // Tiny structures
+    return `<rect x="30" y="55" width="40" height="30" fill="${c}" opacity="0.7"/>
+      <polygon points="50,35 25,55 75,55" fill="${c}" opacity="0.5"/>`;
+  } else if (tier <= 2) {
+    // Small houses
+    return `<rect x="25" y="50" width="50" height="35" fill="${c}" opacity="0.7"/>
+      <polygon points="50,28 18,50 82,50" fill="${c}" opacity="0.5"/>
+      <rect x="42" y="62" width="16" height="23" fill="rgba(0,0,0,0.3)"/>`;
+  } else if (tier <= 3) {
+    // Medium homes
+    return `<rect x="20" y="45" width="60" height="40" fill="${c}" opacity="0.7"/>
+      <polygon points="50,22 12,45 88,45" fill="${c}" opacity="0.5"/>
+      <rect x="35" y="55" width="12" height="12" fill="rgba(255,255,255,0.15)"/>
+      <rect x="55" y="55" width="12" height="12" fill="rgba(255,255,255,0.15)"/>
+      <rect x="42" y="65" width="16" height="20" fill="rgba(0,0,0,0.3)"/>`;
+  } else if (tier <= 4) {
+    // Grand buildings
+    return `<rect x="15" y="40" width="70" height="45" fill="${c}" opacity="0.7"/>
+      <polygon points="50,18 8,40 92,40" fill="${c}" opacity="0.5"/>
+      <rect x="25" y="48" width="10" height="12" fill="rgba(255,255,255,0.15)"/>
+      <rect x="45" y="48" width="10" height="12" fill="rgba(255,255,255,0.15)"/>
+      <rect x="65" y="48" width="10" height="12" fill="rgba(255,255,255,0.15)"/>
+      <rect x="25" y="65" width="10" height="12" fill="rgba(255,255,255,0.15)"/>
+      <rect x="65" y="65" width="10" height="12" fill="rgba(255,255,255,0.15)"/>
+      <rect x="42" y="68" width="16" height="17" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="50" cy="30" r="4" fill="rgba(255,255,200,0.3)"/>`;
+  } else {
+    // Palaces/special
+    return `<rect x="10" y="35" width="80" height="50" fill="${c}" opacity="0.7"/>
+      <rect x="30" y="20" width="40" height="20" fill="${c}" opacity="0.6"/>
+      <polygon points="50,8 25,20 75,20" fill="${c}" opacity="0.5"/>
+      <rect x="5" y="55" width="15" height="30" fill="${c}" opacity="0.55"/>
+      <rect x="80" y="55" width="15" height="30" fill="${c}" opacity="0.55"/>
+      ${[20,35,50,65].map(x => `<rect x="${x}" y="42" width="8" height="10" fill="rgba(255,255,255,0.15)"/>`).join('')}
+      ${[20,35,50,65].map(x => `<rect x="${x}" y="60" width="8" height="10" fill="rgba(255,255,255,0.15)"/>`).join('')}
+      <rect x="42" y="68" width="16" height="17" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="30" cy="15" r="3" fill="rgba(255,255,200,0.3)"/>
+      <circle cx="70" cy="15" r="3" fill="rgba(255,255,200,0.3)"/>`;
+  }
+}
+
+function tryLoadCardArt(value) {
+  const el = document.getElementById(`card-art-${value}`);
+  if (!el) return;
+  const img = new Image();
+  img.onload = () => {
+    el.style.backgroundImage = `url(${img.src})`;
+    el.querySelector('svg')?.remove();
+  };
+  img.src = `assets/cards/${value}.jpg`;
+}
+
+function currencyCardHTML(value) {
+  const displayVal = value === 0 ? '$0' : `$${value}k`;
+  return `<div class="currency-card">
+    <div class="dollar">$</div>
+    <div class="amount">${displayVal}</div>
+  </div>`;
+}
+
+// ================================================================
+//  GAME INIT
+// ================================================================
+
+function startGame() {
+  const numPlayers = parseInt(document.getElementById('player-count').value);
+  const playerName = document.getElementById('player-name').value.trim() || 'You';
+  
+  // Starting coins
+  const startCoins = numPlayers <= 4 ? 18 : 14; // $2k*2 + $1k*14 = 18, or $2k*2 + $1k*10 = 14
+
+  // Create players
+  const players = [];
+  players.push({ id: 0, name: playerName, isHuman: true, coins: startCoins, properties: [], currencyCards: [], color: var_gold(), bid: 0, passed: false });
+  for (let i = 1; i < numPlayers; i++) {
+    players.push({ id: i, name: AI_NAMES[i - 1], isHuman: false, coins: startCoins, properties: [], currencyCards: [], color: AI_COLORS[i - 1], bid: 0, passed: false });
+  }
+
+  // Create property deck
+  let propCards = [];
+  for (let i = 1; i <= 30; i++) propCards.push(i);
+  propCards = shuffle(propCards);
+
+  // Remove cards for < 5 players
+  let currCards = shuffle([...CURRENCY_VALUES]);
+  if (numPlayers === 3) {
+    propCards = propCards.slice(6); // remove 6
+    currCards = currCards.slice(6);
+  } else if (numPlayers === 4) {
+    propCards = propCards.slice(2); // remove 2
+    currCards = currCards.slice(2);
+  }
+  // 5-6 players use all 30
+
+  G = {
+    players,
+    numPlayers,
+    propDeck: propCards,
+    currDeck: currCards,
+    phase: 1,
+    // Phase 1 state
+    auctionCards: [],
+    currentBidder: 0,
+    highestBid: 0,
+    roundStarter: 0,
+    // Phase 2 state
+    currencyOnTable: [],
+    sellChoices: {},
+    // Logging
+    log: [],
+    // Selling round tracking
+    sellRound: 0,
+    totalSellRounds: 0,
+  };
+
+  G.totalSellRounds = Math.floor(G.propDeck.length / numPlayers);
+
+  showScreen('game-screen');
+  startPhase1();
+}
+
+function var_gold() { return '#d4a843'; }
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ================================================================
+//  PHASE 1: BUYING PROPERTIES
+// ================================================================
+
+function startPhase1() {
+  document.getElementById('phase-label').textContent = 'Phase 1: Buying Properties';
+  G.phase = 1;
+  nextAuctionRound();
+}
+
+function nextAuctionRound() {
+  if (G.propDeck.length < G.numPlayers) {
+    // No more cards to auction — move to phase 2
+    startPhase2();
+    return;
+  }
+
+  // Deal N cards face up
+  G.auctionCards = [];
+  for (let i = 0; i < G.numPlayers; i++) {
+    G.auctionCards.push(G.propDeck.shift());
+  }
+  G.auctionCards.sort((a, b) => a - b);
+
+  // Reset bidding
+  G.highestBid = 0;
+  G.players.forEach(p => { p.bid = 0; p.passed = false; });
+  G.currentBidder = G.roundStarter;
+
+  addLog(`New auction: properties ${G.auctionCards.join(', ')} are up for bid.`, 'important');
+  renderPhase1();
+
+  if (!G.players[G.currentBidder].isHuman) {
+    setTimeout(aiTakeBidTurn, 800);
+  }
+}
+
+function renderPhase1() {
+  const body = document.getElementById('game-body');
+  const activePlayers = G.players.filter(p => !p.passed).length;
+  
+  let html = '';
+
+  // Players bar
+  html += '<div class="players-bar">';
+  for (const p of G.players) {
+    const isActive = p.id === G.currentBidder && !p.passed;
+    const coinsDisplay = `$${p.coins}k`;
+    html += `<div class="player-chip ${isActive ? 'active-turn' : ''} ${p.passed ? 'passed-chip' : ''}">
+      <div class="p-avatar" style="background:${p.isHuman ? 'var(--gold)' : p.color}">${p.name[0]}</div>
+      <div class="p-info">
+        <div class="p-name">${p.name}${p.passed ? ' ✓' : ''}</div>
+        <div class="p-coins">${coinsDisplay} · ${p.properties.length} props</div>
+        ${p.bid > 0 && !p.passed ? `<div class="p-bid">Bid: $${p.bid}k</div>` : ''}
+      </div>
+    </div>`;
+  }
+  html += '</div>';
+
+  // Auction cards
+  html += '<div class="auction-area">';
+  html += '<div class="auction-label">Properties for Auction</div>';
+  html += '<div class="auction-cards">';
+  for (const v of G.auctionCards) {
+    html += `<div class="prop-card anim-pop">
+      ${propertyCardArtHTML(v)}
+      <div class="prop-card-bottom">${PROPERTY_LABELS[v] || `Property ${v}`}</div>
+    </div>`;
+  }
+  html += '</div></div>';
+
+  // Message
+  const currentP = G.players[G.currentBidder];
+  let msg = '';
+  if (currentP.isHuman && !currentP.passed) {
+    msg = `Your turn! Current high bid: $${G.highestBid}k. You have $${currentP.coins}k.`;
+  } else if (!currentP.isHuman && !currentP.passed) {
+    msg = `${currentP.name} is thinking...`;
+  }
+  html += `<div class="message-banner">${msg}</div>`;
+
+  // Bid controls (only for human on their turn)
+  if (currentP.isHuman && !currentP.passed && activePlayers > 1) {
+    const minBid = G.highestBid + 1;
+    const maxBid = currentP.coins;
+    const defaultBid = Math.min(minBid, maxBid);
+    html += `<div class="bid-controls anim-fade">
+      <div class="bid-row">
+        <button class="bid-btn" onclick="adjustBid(-1)">−</button>
+        <div class="bid-amount-display" id="bid-display">$${defaultBid}k</div>
+        <button class="bid-btn" onclick="adjustBid(1)">+</button>
+      </div>
+      <div class="bid-actions">
+        <button class="btn-secondary" onclick="humanPass()">Pass</button>
+        <button class="btn-primary" id="bid-button" onclick="humanBid()" ${maxBid < minBid ? 'disabled' : ''}>
+          Bid $${defaultBid}k
+        </button>
+      </div>
+    </div>`;
+    G._currentBidAmount = defaultBid;
+    G._minBid = minBid;
+    G._maxBid = maxBid;
+  } else if (activePlayers <= 1) {
+    // Last player auto-takes
+  }
+
+  // Log
+  html += renderLog();
+
+  body.innerHTML = html;
+
+  // Try loading card art
+  for (const v of G.auctionCards) tryLoadCardArt(v);
+}
+
+function adjustBid(delta) {
+  if (!G._currentBidAmount) return;
+  G._currentBidAmount = Math.max(G._minBid, Math.min(G._maxBid, G._currentBidAmount + delta));
+  document.getElementById('bid-display').textContent = `$${G._currentBidAmount}k`;
+  const btn = document.getElementById('bid-button');
+  if (btn) btn.textContent = `Bid $${G._currentBidAmount}k`;
+}
+
+function humanBid() {
+  const amount = G._currentBidAmount;
+  if (amount < G._minBid || amount > G._maxBid) return;
+  placeBid(0, amount);
+}
+
+function humanPass() {
+  doPass(0);
+}
+
+function placeBid(playerId, amount) {
+  const p = G.players[playerId];
+  p.bid = amount;
+  G.highestBid = amount;
+  addLog(`${p.name} bids $${amount}k.`);
+  advanceBidder();
+}
+
+function doPass(playerId) {
+  const p = G.players[playerId];
+  p.passed = true;
+  
+  // Take lowest available property, get half bid back
+  const lowestProp = G.auctionCards.shift();
+  p.properties.push(lowestProp);
+  
+  const refund = Math.floor(p.bid / 2);
+  const paid = p.bid - refund;
+  p.coins -= paid;
+  
+  addLog(`${p.name} passes. Takes property ${lowestProp} (${PROPERTY_LABELS[lowestProp]}). Pays $${paid}k, refunded $${refund}k.`);
+  p.bid = 0;
+
+  advanceBidder();
+}
+
+function advanceBidder() {
+  const remaining = G.players.filter(pp => !pp.passed);
+  
+  // If only 1 left, they auto-win
+  if (remaining.length <= 1) {
+    if (remaining.length === 1) {
+      const last = remaining[0];
+      const highestProp = G.auctionCards.pop();
+      last.properties.push(highestProp);
+      last.coins -= last.bid;
+      addLog(`${last.name} wins property ${highestProp} (${PROPERTY_LABELS[highestProp]}). Pays $${last.bid}k.`, 'result');
+      last.bid = 0;
+      last.passed = true;
+      G.auctionCards = [];
+      G.roundStarter = last.id;
+    }
+    renderPhase1();
+    setTimeout(nextAuctionRound, 1200);
+    return;
+  }
+
+  // Find next non-passed player
+  let next = (G.currentBidder + 1) % G.numPlayers;
+  let safety = 0;
+  while (G.players[next].passed && safety < G.numPlayers) {
+    next = (next + 1) % G.numPlayers;
+    safety++;
+  }
+  G.currentBidder = next;
+  renderPhase1();
+
+  if (!G.players[next].isHuman) {
+    setTimeout(aiTakeBidTurn, 700 + Math.random() * 500);
+  }
+}
+
+// ---- AI Bidding Logic ----
+function aiTakeBidTurn() {
+  const p = G.players[G.currentBidder];
+  if (p.passed || p.isHuman) return;
+
+  const remainingPlayers = G.players.filter(pp => !pp.passed).length;
+  const highCard = G.auctionCards[G.auctionCards.length - 1];
+  const lowCard = G.auctionCards[0];
+  const minBid = G.highestBid + 1;
+
+  // AI strategy: bid based on value of top card vs cost
+  const cardSpread = highCard - lowCard;
+  const cardValue = highCard; // rough value assessment
+  
+  // Willingness to pay based on card value, remaining money, and game phase
+  const totalProps = G.propDeck.length + G.auctionCards.length;
+  const gameProgress = 1 - (totalProps / 30);
+  const maxWilling = Math.min(p.coins, Math.floor(cardValue * 0.6 * (1 + gameProgress * 0.3)));
+  
+  // Factor in: if low card is decent, passing is fine
+  const lowCardQuality = lowCard / 30;
+  const passThreshold = 0.35 + lowCardQuality * 0.3;
+
+  // Decision
+  if (minBid > p.coins || minBid > maxWilling) {
+    doPass(p.id);
+  } else if (remainingPlayers === 2 && G.highestBid > 0) {
+    // Two players left: bid or take the lower card
+    if (Math.random() < passThreshold || minBid > maxWilling * 0.8) {
+      doPass(p.id);
+    } else {
+      const bid = Math.min(minBid + Math.floor(Math.random() * 2), p.coins);
+      placeBid(p.id, bid);
+    }
+  } else if (G.highestBid === 0) {
+    // Opening bid
+    const openBid = Math.max(1, Math.min(Math.floor(cardValue * 0.2), p.coins));
+    placeBid(p.id, openBid);
+  } else {
+    // Continue bidding?
+    if (Math.random() < 0.5 && minBid <= maxWilling) {
+      const bid = Math.min(minBid + Math.floor(Math.random() * 2), p.coins, maxWilling);
+      placeBid(p.id, bid);
+    } else {
+      doPass(p.id);
+    }
+  }
+}
+
+// ================================================================
+//  PHASE 2: SELLING PROPERTIES
+// ================================================================
+
+function startPhase2() {
+  G.phase = 2;
+  G.sellRound = 0;
+  document.getElementById('phase-label').textContent = 'Phase 2: Selling Properties';
+  
+  // Sort each player's properties for display
+  G.players.forEach(p => p.properties.sort((a, b) => a - b));
+  
+  // Shuffle currency deck (it was already shuffled at game start, but ensure it)
+  G.currDeck = shuffle(G.currDeck);
+  
+  addLog('--- Phase 2 begins! Time to sell properties for currency cards. ---', 'important');
+  nextSellRound();
+}
+
+function nextSellRound() {
+  // Check if players have properties left
+  if (G.players[0].properties.length === 0 || G.currDeck.length < G.numPlayers) {
+    endGame();
+    return;
+  }
+
+  G.sellRound++;
+  
+  // Turn up N currency cards
+  G.currencyOnTable = [];
+  for (let i = 0; i < G.numPlayers; i++) {
+    G.currencyOnTable.push(G.currDeck.pop());
+  }
+  G.currencyOnTable.sort((a, b) => a - b);
+
+  G.sellChoices = {};
+
+  // AI makes their choices immediately (hidden)
+  for (const p of G.players) {
+    if (!p.isHuman && p.properties.length > 0) {
+      G.sellChoices[p.id] = aiChooseSellCard(p);
+    }
+  }
+
+  addLog(`Sell round ${G.sellRound}: Currency cards ${G.currencyOnTable.map(v => '$' + v + 'k').join(', ')} available.`, 'important');
+  renderPhase2();
+}
+
+function renderPhase2() {
+  const body = document.getElementById('game-body');
+  let html = '';
+
+  // Players bar
+  html += '<div class="players-bar">';
+  for (const p of G.players) {
+    const currTotal = p.currencyCards.reduce((s, v) => s + v, 0);
+    html += `<div class="player-chip">
+      <div class="p-avatar" style="background:${p.isHuman ? 'var(--gold)' : p.color}">${p.name[0]}</div>
+      <div class="p-info">
+        <div class="p-name">${p.name}</div>
+        <div class="p-coins">$${p.coins}k coins · $${currTotal}k earned</div>
+      </div>
+    </div>`;
+  }
+  html += '</div>';
+
+  // Currency cards on table
+  html += '<div class="sell-area">';
+  html += '<div class="auction-label">Currency Cards Available</div>';
+  html += '<div class="auction-cards">';
+  for (const v of G.currencyOnTable) {
+    html += currencyCardHTML(v);
+  }
+  html += '</div>';
+
+  // Human's hand
+  const human = G.players[0];
+  html += '<div class="auction-label" style="margin-top:12px">Choose a Property to Sell</div>';
+  html += '<div class="hand-cards">';
+  for (const v of human.properties) {
+    const selected = G.sellChoices[0] === v;
+    html += `<div class="hand-card ${selected ? 'selected' : ''}" onclick="selectSellCard(${v})">
+      <div class="prop-card">
+        ${propertyCardArtHTML(v)}
+        <div class="prop-card-bottom">${PROPERTY_LABELS[v] || `#${v}`}</div>
+      </div>
+    </div>`;
+  }
+  html += '</div>';
+
+  html += `<button class="btn-primary" id="confirm-sell" onclick="confirmSell()" ${G.sellChoices[0] == null ? 'disabled' : ''}>
+    Confirm Selection
+  </button>`;
+
+  html += '</div>';
+
+  // Log
+  html += renderLog();
+
+  body.innerHTML = html;
+
+  // Try loading card art
+  for (const v of human.properties) tryLoadCardArt(v);
+}
+
+function selectSellCard(value) {
+  G.sellChoices[0] = value;
+  renderPhase2();
+}
+
+function confirmSell() {
+  if (G.sellChoices[0] == null) return;
+  resolveSellRound();
+}
+
+function resolveSellRound() {
+  // Gather all choices
+  const plays = [];
+  for (const p of G.players) {
+    plays.push({ player: p, cardPlayed: G.sellChoices[p.id] });
+  }
+
+  // Sort by card value descending — highest property gets highest currency
+  plays.sort((a, b) => b.cardPlayed - a.cardPlayed);
+  const sortedCurrency = [...G.currencyOnTable].sort((a, b) => b - a);
+
+  // Assign currency cards
+  const assignments = [];
+  for (let i = 0; i < plays.length; i++) {
+    const p = plays[i].player;
+    const propUsed = plays[i].cardPlayed;
+    const currEarned = sortedCurrency[i];
+    p.currencyCards.push(currEarned);
+    p.properties = p.properties.filter(v => v !== propUsed);
+    assignments.push({ player: p, prop: propUsed, currency: currEarned });
+  }
+
+  // Show reveal
+  showSellReveal(assignments);
+}
+
+function showSellReveal(assignments) {
+  const body = document.getElementById('game-body');
+  let html = '';
+
+  // Players bar (same as before)
+  html += '<div class="players-bar">';
+  for (const p of G.players) {
+    const currTotal = p.currencyCards.reduce((s, v) => s + v, 0);
+    html += `<div class="player-chip">
+      <div class="p-avatar" style="background:${p.isHuman ? 'var(--gold)' : p.color}">${p.name[0]}</div>
+      <div class="p-info">
+        <div class="p-name">${p.name}</div>
+        <div class="p-coins">$${p.coins}k coins · $${currTotal}k earned</div>
+      </div>
+    </div>`;
+  }
+  html += '</div>';
+
+  // Reveal area
+  html += '<div class="sell-reveal anim-fade">';
+  html += '<div class="auction-label">Round Results</div>';
+  html += '<div class="reveal-row">';
+  
+  for (const a of assignments) {
+    const displayCurr = a.currency === 0 ? '$0' : `$${a.currency}k`;
+    html += `<div class="reveal-item anim-pop">
+      <div class="reveal-name" style="color:${a.player.isHuman ? 'var(--gold)' : a.player.color}">${a.player.name}</div>
+      <div class="prop-card" style="width:80px;height:112px">
+        ${propertyCardArtHTML(a.prop)}
+        <div class="prop-card-bottom">#${a.prop}</div>
+      </div>
+      <div class="reveal-arrow">↓</div>
+      <div class="reveal-earned">${displayCurr}</div>
+    </div>`;
+  }
+  html += '</div>';
+
+  // Log entries for this round
+  for (const a of assignments) {
+    addLog(`${a.player.name} plays property ${a.prop} → earns $${a.currency}k.`, 'result');
+  }
+
+  html += `<button class="btn-primary" onclick="nextSellRound()" style="margin-top:14px">
+    ${G.players[0].properties.length > 0 ? 'Next Round' : 'See Final Results'}
+  </button>`;
+  html += '</div>';
+
+  html += renderLog();
+  body.innerHTML = html;
+
+  for (const a of assignments) tryLoadCardArt(a.prop);
+}
+
+// ---- AI Selling Logic ----
+function aiChooseSellCard(player) {
+  const props = [...player.properties].sort((a, b) => a - b);
+  if (props.length === 0) return null;
+  
+  const highCurrency = Math.max(...G.currencyOnTable);
+  const lowCurrency = Math.min(...G.currencyOnTable);
+  const spread = highCurrency - lowCurrency;
+  
+  // If high currency is good, play a good card
+  // If all currency is low, play worst card
+  if (spread <= 2 || highCurrency <= 3) {
+    // Low value round — dump worst card
+    return props[0];
+  }
+  
+  // Proportional: play a card roughly matching the quality of rewards
+  const roundsLeft = props.length;
+  const qualityIndex = Math.min(roundsLeft - 1, Math.floor((highCurrency / 15) * (roundsLeft - 1) * 0.8 + Math.random() * roundsLeft * 0.3));
+  const idx = Math.max(0, Math.min(props.length - 1, props.length - 1 - Math.floor(Math.random() * 2 + (spread > 8 ? 0 : 1))));
+  
+  // Smarter: if great rewards, play best. If mediocre, play middle.
+  if (highCurrency >= 12) {
+    // Play one of top 2 cards
+    return props[Math.max(0, props.length - 1 - Math.floor(Math.random() * Math.min(2, props.length)))];
+  } else if (highCurrency >= 7) {
+    // Play middle-ish card
+    const mid = Math.floor(props.length / 2);
+    return props[Math.min(props.length - 1, mid + Math.floor(Math.random() * 2))];
+  } else {
+    // Play lowest
+    return props[Math.floor(Math.random() * Math.min(2, props.length))];
+  }
+}
+
+// ================================================================
+//  END GAME
+// ================================================================
+
+function endGame() {
+  const results = G.players.map(p => {
+    const currTotal = p.currencyCards.reduce((s, v) => s + v, 0);
+    const total = currTotal + p.coins;
+    return { player: p, currTotal, coins: p.coins, total };
+  });
+
+  // Sort by total descending, tiebreak by coins
+  results.sort((a, b) => b.total - a.total || b.coins - a.coins);
+
+  const panel = document.getElementById('results-panel');
+  let html = `<h2>Game Over!</h2>`;
+  html += `<p class="subtitle">${results[0].player.name} wins with $${results[0].total}k!</p>`;
+  html += `<table class="results-table">
+    <thead><tr><th>Rank</th><th>Player</th><th>Currency</th><th>Coins</th><th>Total</th></tr></thead>
+    <tbody>`;
+  
+  results.forEach((r, i) => {
+    const isWinner = i === 0;
+    html += `<tr class="${isWinner ? 'winner' : ''}">
+      <td>${i === 0 ? '🏆' : i + 1}</td>
+      <td>${r.player.name}</td>
+      <td>$${r.currTotal}k</td>
+      <td>$${r.coins}k</td>
+      <td>$${r.total}k</td>
+    </tr>`;
+  });
+
+  html += `</tbody></table>`;
+  html += `<button class="btn-primary" onclick="location.reload()">Play Again</button>`;
+
+  panel.innerHTML = html;
+  document.getElementById('results-overlay').classList.add('active');
+}
+
+// ================================================================
+//  LOGGING
+// ================================================================
+
+function addLog(text, cls = '') {
+  G.log.push({ text, cls });
+  if (G.log.length > 60) G.log.shift();
+}
+
+function renderLog() {
+  const recent = G.log.slice(-15);
+  let html = '<div class="game-log">';
+  for (const entry of recent) {
+    html += `<div class="log-entry ${entry.cls}">${entry.text}</div>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+// ================================================================
+//  INIT
+// ================================================================
+
+function toggleHelp() {
+  document.getElementById('help-overlay').classList.toggle('active');
+}
+
+// Ensure title screen shows on load
+document.addEventListener('DOMContentLoaded', () => {
+  showScreen('title-screen');
+});
+</script>
+</body>
+</html>
