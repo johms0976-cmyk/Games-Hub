@@ -22,7 +22,7 @@ const GAMES = [
     title: "Five Crowns",
     subtitle: "The Games Not Over Until the Kings go Wild!",
     category: "card",
-    players: "2–7",
+    players: "2–6",
     duration: "45–90 min",
     icon: "👑",
     accentColor: "#c9a84c",
