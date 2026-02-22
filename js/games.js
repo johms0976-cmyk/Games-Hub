@@ -17,6 +17,17 @@
  */
 
 const GAMES = [
+    {
+    id: "five-crowns",
+    title: "Five Crowns",
+    subtitle: "The games not over until the Kings go wild!",
+    category: "card",
+    players: "2–7",
+    duration: "45–90 min",
+    icon: "👑",
+    accentColor: "#c9a84c",
+    status: "playable",
+  },
   {
     id: "glory-to-rome",
     title: "Glory to Rome",
