@@ -61,6 +61,17 @@ const GAMES = [
     accentColor: "#2ecc71",
     status: "playable",
   },
+  { 
+    id: "escalation-engine",
+    title: "Trick Escalation Engine",
+    subtitle: "Getting Higher and Higher",
+    category: "strategy",
+    players: "1",
+    duration: "45–90 min",
+    icon: "🏎️",
+    accentColor: "#c9a84c",
+    status: "playable",
+  },
   {
     id: "spades",
     title: "Spades",
