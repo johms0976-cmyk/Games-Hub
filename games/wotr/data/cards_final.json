@@ -1,0 +1,4846 @@
+[
+ {
+  "id": "WOTR_0001",
+  "title": "Elven Cloaks",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [],
+  "rules_text": "The \u201cElven Cloaks\u201d special Hunt tile is now in play. Add the tile to the Hunt Pool when the Fellowship is on the Mordor Track.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Elven Cloaks",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0002",
+  "title": "Elven Rope",
+  "faction": "free_peoples",
+  "deck_type": "character_event",
+  "timing": "general",
+  "requirements": [],
+  "rules_text": "(C) The \u201cElven Rope\u201d special Hunt tile is now in play. Add the tile to the Hunt Pool when the Fellowship is on the Mordor Track.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Elven Rope",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0003",
+  "title": "Phial of Galadriel",
+  "faction": "free_peoples",
+  "deck_type": "character_event",
+  "timing": "general",
+  "requirements": [],
+  "rules_text": "(C) The \u201cPhial of Galadriel\u201d special Hunt tile is now in play. Add the tile to the Hunt Pool when the Fellowship is on the Mordor Track.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Phial of Galadriel",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0004",
+  "title": "Sm\u00e9agol Helps Nice Master     (C)",
+  "faction": "free_peoples",
+  "deck_type": "character_event",
+  "timing": "general",
+  "requirements": [],
+  "rules_text": "The \u201cSm\u00e9agol Helps Nice Master\u201d special Hunt tile is now in play. Add the tile to the Hunt Pool when the Fellowship is on the Mordor Track.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Sm\u00e9agol Helps Nice Master",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0005",
+  "title": "It is a Gift (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the defending Army is in the"
+  ],
+  "rules_text": "Play if the defending Army is in the same region as the Fellowship. Add 1 to all dice on your Combat roll and Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "It is a Gift",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0006",
+  "title": "It is a Gift (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the defending Army is in the"
+  ],
+  "rules_text": "Play if the defending Army is in the same region as the Fellowship. Add 1 to all dice on your Combat roll and Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "It is a Gift",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0007",
+  "title": "It is a Gift (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the defending Army is in the"
+  ],
+  "rules_text": "Play if the defending Army is in the same region as the Fellowship. Add 1 to all dice on your Combat roll and Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "It is a Gift",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0008",
+  "title": "It is a Gift (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the defending Army is in the"
+  ],
+  "rules_text": "Play if the defending Army is in the same region as the Fellowship. Add 1 to all dice on your Combat roll and Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "It is a Gift",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0009",
+  "title": "Mithril Coat and Sting",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "persistent",
+  "requirements": [],
+  "rules_text": "Play on the table. After the Shadow player draws a Hunt tile, you may discard \u201cMithril Coat and Sting\u201d to force him to re- place the tile just drawn with an- other one. Apply the effects of the second tile, then return the first tile to the Hunt Pool.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": true
+  },
+  "display_name": "Mithril Coat and Sting",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0010",
+  "title": "Axe and Bow",
+  "faction": "free_peoples",
+  "deck_type": "character_event",
+  "timing": "persistent",
+  "requirements": [],
+  "rules_text": "(C) Play on the table if Gimli or Legolas are in the Fellowship. After the Shadow player draws a Hunt tile, you may discard \u201cAxe and Bow\u201d to reduce the Hunt damage by one (to a minimum of zero). Any remaining Hunt damage must be confronted normally. You must discard this card from the table immediately if both Gimli and Legolas leave the Fellowship.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": true
+  },
+  "display_name": "Axe and Bow",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0011",
+  "title": "Horn of Gondor",
+  "faction": "free_peoples",
+  "deck_type": "character_event",
+  "timing": "persistent",
+  "requirements": [],
+  "rules_text": "(C) Play on the table if Boromir is in the Fellowship. After the Shadow player draws a Hunt tile, you may discard \u201cHorn of Gondor\u201d to reduce the Hunt damage by one (to a minimum of zero). Any remaining Hunt damage must be confronted normally. You must discard this card from the table immediately if Boromir leaves the Fellowship.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": true
+  },
+  "display_name": "Horn of Gondor",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0012",
+  "title": "Wizard\u2019s Staff",
+  "faction": "free_peoples",
+  "deck_type": "character_event",
+  "timing": "persistent",
+  "requirements": [],
+  "rules_text": "(C) Play on the table if Gandalf the Grey is in the Fellowship. You may discard \u201cWizard\u2019s Staff\u201d to prevent the Shadow player from drawing a Hunt tile. You must discard this card from the table immediately if Gandalf the Grey leaves the Fellowship.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": true
+  },
+  "display_name": "Wizard\u2019s Staff",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0013",
+  "title": "Blade of Westernesse (6)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Hobbit is in the battle."
+  ],
+  "rules_text": "Play if a Hobbit is in the battle. Use one hit during the Leader re-roll to eliminate one Minion of your choice that is participating in the battle.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Blade of Westernesse",
+  "combat_strength": 6,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0014",
+  "title": "Mighty Attack (4)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Companion is in the battle."
+  ],
+  "rules_text": "Play if a Companion is in the battle. Before rolling the dice for your Leader re-roll, forfeit the Leadership of one Companion participating in the battle to automatically change one missed die roll to a hit.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Mighty Attack",
+  "combat_strength": 4,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0015",
+  "title": "Mighty Attack (4)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Companion is in the battle."
+  ],
+  "rules_text": "Play if a Companion is in the battle. Before rolling the dice for your Leader re-roll, forfeit the Leadership of one Companion participating in the battle to automatically change one missed die roll to a hit.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Mighty Attack",
+  "combat_strength": 4,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0016",
+  "title": "Servant of the Secret Fire (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if Gandalf is in the battle."
+  ],
+  "rules_text": "Play if Gandalf is in the battle. Add 1 to all dice on your Combat roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Servant of the Secret Fire",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0019",
+  "title": "Athelas",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [],
+  "rules_text": "Roll three dice and heal one Corruption point for each die result of 5+. If Strider is the Guide, heal one Corruption point for each die result of 3+ instead.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Athelas",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0020",
+  "title": "There is Another Way",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [],
+  "rules_text": "Heal one Corruption point. Then, if Gollum is the Guide, you may also hide or move the Fellowship (following the normal movement rules).",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "There is Another Way",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0021",
+  "title": "I Will Go Alone",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if at least one Companion is in"
+  ],
+  "rules_text": "Play if at least one Companion is in the Fellowship. Separate one Companion or one group of Companions from the Fellowship. You may move the Companions one extra region. Then, heal one Corruption point.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "I Will Go Alone",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0022",
+  "title": "Bilbo\u2019s Song",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [],
+  "rules_text": "Heal one Corruption point. If Gollum is the Guide, heal two Corruption points instead.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Bilbo\u2019s Song",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0023",
+  "title": "And\u00fbril (4)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if Strider/Aragorn is in the"
+  ],
+  "rules_text": "Play if Strider/Aragorn is in the battle. Before rolling the dice for your Leader re-roll, forfeit Strider\u2019s Leadership to automatically change one missed die roll to a hit, or forfeit Aragorn\u2019s Leadership to auto- matically change up to two missed die to hits.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "And\u00fbril",
+  "combat_strength": 4,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0024",
+  "title": "Mirror of Galadriel",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [],
+  "rules_text": "Change any one unused Character Action Die result into a Will of the West Action Die result. Then, if the Fellowship is L\u00f3rien, heal one Corruption point.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Mirror of Galadriel",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0025",
+  "title": "Heroic Death (6)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Free Peoples Leader or a"
+  ],
+  "rules_text": "Play if a Free Peoples Leader or a Companion is in the battle. Before you remove casualties in- flicted by your opponent\u2019s Combat roll and Leader re-roll, you may eliminate a Leader to cancel one hit, or eliminate one Companion to cancel a number of hits equal to or less than the Companion\u2019s Level.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Heroic Death",
+  "combat_strength": 6,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0026",
+  "title": "Heroic Death (6)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Free Peoples Leader or a"
+  ],
+  "rules_text": "Play if a Free Peoples Leader or a Companion is in the battle. Before you remove casualties in- flicted by your opponent\u2019s Combat roll and Leader re-roll, you may eliminate a Leader to cancel one hit, or eliminate one Companion to cancel a number of hits equal to or less than the Companion\u2019s Level.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Heroic Death",
+  "combat_strength": 6,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0027",
+  "title": "Challenge of the King",
+  "faction": "free_peoples",
+  "deck_type": "character_event",
+  "timing": "general",
+  "requirements": [
+   "Play if Strider/Aragorn is with a Free"
+  ],
+  "rules_text": "(C) Play if Strider/Aragorn is with a Free Peoples Army in Gondor or Rohan. Draw three Hunt tiles. If all three drawn tiles show Eyes, put them back in the Hunt Pool and eliminate Strider/Aragorn. Otherwise, discard permanently the drawn tiles bearing an Eye for the remainder of the game. All drawn tiles not bearing an Eye are put back in the Hunt Pool.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Challenge of the King",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0028",
+  "title": "Sudden Strike (2)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "pre_combat",
+  "requirements": [
+   "Play if a Free Peoples Leader or a"
+  ],
+  "rules_text": "Play if a Free Peoples Leader or a Companion is in the battle. Before the Combat roll, roll an addi- tional attack using a number of dice equal to your Leadership (up to a maximum of 5) and apply the result immediately.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Sudden Strike",
+  "combat_strength": 2,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0031",
+  "title": "Daring Defiance (0)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if a Companion is in the battle."
+  ],
+  "rules_text": "Play if a Companion is in the battle. Forfeit the Leadership of all the Companions participating in the battle to cancel the effects of the Combat card played by the Shadow player.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Daring Defiance",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0032",
+  "title": "Gwaihir the Windlord",
+  "faction": "free_peoples",
+  "deck_type": "character_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "(C) Move or separate one Companion or one group of Companions from the Fellowship as if their Level were 4. The movement of these Companions is allowed to end in a Stronghold under siege.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": true,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Gwaihir the Windlord",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0033",
+  "title": "Fateful Strike (6)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Free Peoples Leader or a"
+  ],
+  "rules_text": "Play if a Free Peoples Leader or a Companion is in the battle. If your Leader re-roll scores at least one hit, additionally eliminate a Nazg\u00fbl (if present). If the re-roll scores two or more hits, you can eliminate a Minion (if present) instead of a Nazg\u00fbl.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Fateful Strike",
+  "combat_strength": 6,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0034",
+  "title": "We Prove Swifter",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "Move or separate from the Fellowship one Companion or one group of Companions. You may move them two extra regions. The movement of these Companions is allowed to end in a Stronghold under siege.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": true,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "We Prove Swifter",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0035",
+  "title": "Daring Defiance (0)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if a Companion is in the battle."
+  ],
+  "rules_text": "Play if a Companion is in the battle. Forfeit the Leadership of all the Companions participating in the battle to cancel the effects of the Combat card played by the Shadow player.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Daring Defiance",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0036",
+  "title": "Daring Defiance (0)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if a Companion is in the battle."
+  ],
+  "rules_text": "Play if a Companion is in the battle. Forfeit the Leadership of all the Companions participating in the battle to cancel the effects of the Combat card played by the Shadow player.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Daring Defiance",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0037",
+  "title": "There and Back Again",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [],
+  "rules_text": "Separate one Companion or one group of Companions from the Fellowship. You may move them one extra region. Then, if Gimli or Legolas are in Dale, Erebor or the Woodland Realm, activate the Dwarven and North Nations and advance the Dwarven, Elven, and North Nations one step each on the Political Track.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": true,
+   "persistent_effect": false
+  },
+  "display_name": "There and Back Again",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0038",
+  "title": "The Eagles are Coming              (C)",
+  "faction": "free_peoples",
+  "deck_type": "character_event",
+  "timing": "general",
+  "requirements": [
+   "Play if a Free Peoples Army containing a"
+  ],
+  "rules_text": "Play if a Free Peoples Army containing a Companion is adjacent to, or is in the same region as, a Shadow Army containing a Nazg\u00fbl. Roll a die for each Nazg\u00fbl present (up to a maximum of five dice) and eliminate a Nazg\u00fbl for each roll of 5+. All surviving Nazg\u00fbl must immediately be moved to any one Sauron Stronghold controlled by the Shadow player. The Witch-king is not affected by this card.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "The Eagles are Coming",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0039",
+  "title": "Brave Stand (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Companion is in the battle."
+  ],
+  "rules_text": "Play if a Companion is in the battle. The Shadow player rolls one die less in his Combat roll for each Compan- ion present (to a minimum of one).",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Brave Stand",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0040",
+  "title": "The Ents Awake:  Entmoot       (C)",
+  "faction": "free_peoples",
+  "deck_type": "character_event",
+  "timing": "general",
+  "requirements": [
+   "Play if Saruman is in play and Gandalf"
+  ],
+  "rules_text": "Play if Saruman is in play and Gandalf the White is a Rohan region or in Fangorn. Roll three dice; for each result of 4+, score one hit against a Shadow Army in Orthanc. If all Army units in Orthanc are elimi- nated or if there is not a Shadow Army there, eliminate Saruman. If a Companion is in Fangorn, you may immediately play another Character Event card from your hand without using an Action Die.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "The Ents Awake:  Entmoot",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0041",
+  "title": "Nameless Wood (5)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the defending Army is in a Rohan"
+  ],
+  "rules_text": "Play if the defending Army is in a Rohan region, Fangorn, or Orthanc. If your Combat roll or Leader re-roll score at least one hit, score two additional hits. 21",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Nameless Wood",
+  "combat_strength": 5,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0044",
+  "title": "Heroic Death (6)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Free Peoples Leader or a"
+  ],
+  "rules_text": "Play if a Free Peoples Leader or a Companion is in the battle. Before you remove casualties inflicted by your opponent\u2019s Combat roll and Leader re-roll, you may eliminate a Leader to cancel one hit, or eliminate one Compan- ion to cancel a number of hits equal to or less than the Companion\u2019s Level.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Heroic Death",
+  "combat_strength": 6,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0045",
+  "title": "Dead Men of Dunharrow          (C)",
+  "faction": "free_peoples",
+  "deck_type": "character_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if Strider/Aragorn is in any"
+  ],
+  "rules_text": "Play if Strider/Aragorn is in any Rohan Region. Move Strider/Aragorn (and any number of Companions in the same region) to Erech, Lamedon or Pelargir. If there is a Shadow Army in that region, roll a die. That Army takes a number of hits equal to the die result and must then retreat. If the Army cannot retreat, it is de- stroyed, so are any Nazg\u00fbl and Minions along with it. You may then recruit up to three Gondor regular units in that region.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": true,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Dead Men of Dunharrow",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0046",
+  "title": "Sudden Strike (2)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "pre_combat",
+  "requirements": [
+   "Play if a Free Peoples Leader or a"
+  ],
+  "rules_text": "Play if a Free Peoples Leader or a Companion is in the battle. Before the Combat roll, roll an additional attack using a number of dice equal to your Leadership (up to a maximum of 5) and apply the result immediately.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Sudden Strike",
+  "combat_strength": 2,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0047",
+  "title": "The Ents Awake:  Treebeard    (C)",
+  "faction": "free_peoples",
+  "deck_type": "character_event",
+  "timing": "general",
+  "requirements": [
+   "Play if Saruman is in play and Gandalf"
+  ],
+  "rules_text": "Play if Saruman is in play and Gandalf the White is a Rohan region or in Fangorn. Roll three dice; for each result of 4+, score one hit against a Shadow Army in Orthanc. If all Army units in Orthanc are eliminated or if there is not a Shadow Army there, eliminate Saruman. If a Companion is in Fangorn, you may immediately play another Character Event card from your hand without using an Action Die.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "The Ents Awake:  Treebeard",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0048",
+  "title": "The Ents Awake:  Huorns          (C)",
+  "faction": "free_peoples",
+  "deck_type": "character_event",
+  "timing": "general",
+  "requirements": [
+   "Play if Saruman is in play and Gandalf"
+  ],
+  "rules_text": "Play if Saruman is in play and Gandalf the White is a Rohan region or in Fangorn. Roll three dice; for each result of 4+, score one hit against a Shadow Army in Orthanc. If all Army units in Orthanc are eliminated or if there is not a Shadow Army there, eliminate Saruman. If a Companion is in Fangorn, you may immediately play another Character Event card from your hand without using an Action Die.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "The Ents Awake:  Huorns",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0049",
+  "title": "Ent\u2019s Rage (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the defending Army is in a Rohan"
+  ],
+  "rules_text": "Play if the defending Army is in a Rohan region, Fangorn, or Orthanc. Add 2 to all dice on your Combat roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Ent\u2019s Rage",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0050",
+  "title": "House of the Stewards              (C)",
+  "faction": "free_peoples",
+  "deck_type": "character_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if Boromir is in a Gondor"
+  ],
+  "rules_text": "Play if Boromir is in a Gondor region. Recruit one Gondor unit (Regular or Elite) in the region with Boromir. Then, draw two Strategy Event cards.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "House of the Stewards",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0051",
+  "title": "Huorn-dark (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the defending Army is in a Rohan"
+  ],
+  "rules_text": "Play if the defending Army is in a Rohan region, Fangorn, or Orthanc. The Shadow player rolls a maximum of two dice in the Combat roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Huorn-dark",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0052",
+  "title": "The Grey Company",
+  "faction": "free_peoples",
+  "deck_type": "character_event",
+  "timing": "general",
+  "requirements": [
+   "Play if Strider/Aragorn is with a Free"
+  ],
+  "rules_text": "(C) Play if Strider/Aragorn is with a Free Peoples Army. Eliminate one Regular unit to recruit one Elite unit, of the same Nation, in the Army with Strider/Aragorn. Then, draw two Strategy Event cards.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "The Grey Company",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0053",
+  "title": "Brave Stand (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Companion is in the battle."
+  ],
+  "rules_text": "Play if a Companion is in the battle. The Shadow player rolls one die less in his Combat roll for each Compan- ion present (to a minimum of one).",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Brave Stand",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0054",
+  "title": "Brave Stand (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Companion is in the battle."
+  ],
+  "rules_text": "Play if a Companion is in the battle. The Shadow player rolls one die less in his Combat roll for each Compan- ion present (to a minimum of one).",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Brave Stand",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0055",
+  "title": "The Last Battle",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "persistent",
+  "requirements": [],
+  "rules_text": "Play on the table if Aragorn or Gandalf the White are with a Free Peoples Army in South or North Ithilien, Dagorlad, Barad-Dur, Morannon, Minas Morgal, Nurn, or Gorgoroth While this card is in play, Action Dice used to move the Fellowship are not added to the Hunt Box. You must discard this card from the table as soon as there is not a Free Peoples Army in the Regions listed above.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": true
+  },
+  "display_name": "The Last Battle",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0056",
+  "title": "A Power too Great",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "persistent",
+  "requirements": [],
+  "rules_text": "Play on the table. Advance the Elven Nation one step on the Political Track While this card is in play, the Shadow player cannot move an Army into or attack (either in normal battle or in a siege) L\u00f3rien, Rivendell or The Grey Havens. The Shadow player can force \u201cA Power too Great\u201d to be discarded by using any one Action Die and discard- ing one Army Event card and one Character card from his hand.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": true,
+   "persistent_effect": true
+  },
+  "display_name": "A Power too Great",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0057",
+  "title": "Daylight (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "The Shadow player rolls a maximum of three dice in his Combat roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Daylight",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0058",
+  "title": "The Spirit of Mordor                  (A)",
+  "faction": "free_peoples",
+  "deck_type": "army_event",
+  "timing": "general",
+  "requirements": [],
+  "rules_text": "Choose a Shadow Army anywhere on the board that is composed of units from at least two different Shadow Nations. Roll five dice and score one hit against this army for each result of 5+.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "The Spirit of Mordor",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0059",
+  "title": "No Quarter (5)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "If your Combat roll or Leader re-roll scores at least one hit, score one additional hit.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "No Quarter",
+  "combat_strength": 5,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0060",
+  "title": "Faramir\u2019s Rangers",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [],
+  "rules_text": "Choose a Shadow Army in Osgiliath or South Ithilien or North Ithilien. Roll three dice and score one hit against this Army for each result of 5+. Then, if there is a Free Peoples Army in Osgiliath, recruit one Gondor unit (Regular or Elite) and one Gondor Leader there.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Faramir\u2019s Rangers",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0061",
+  "title": "The Power of Tom Bombadil   (A)",
+  "faction": "free_peoples",
+  "deck_type": "army_event",
+  "timing": "persistent",
+  "requirements": [],
+  "rules_text": "Play on the table. Advance the North Nation one step on the Political Track. While this card is in play, the Shadow player cannot move an Army into or attack The Old Forest, The Shire or Buckland. The Shadow player can force \u201cThe Power of Tom Bombadil\u201d to be discarded by using any one Action Die and discarding one Army card and one Character card from his hand.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": true,
+   "persistent_effect": true
+  },
+  "display_name": "The Power of Tom Bombadil",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0062",
+  "title": "Advantageous Position (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if the defending Army is inside"
+  ],
+  "rules_text": "Play if the defending Army is inside the borders of a Free Peoples Nation. Subtract 1 from all dice on the Combat roll of the Shadow player (an unmodified \u201c6\u201d is still considered a hit for him).",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Advantageous Position",
+  "combat_strength": 3,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0063",
+  "title": "Fear! Fire! Foes!",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "Move any or all Companions on the map who are not in the Fellowship. Then, if a Companion is in The Shire or Bree, move the North Nation directly to the \u201cAt War\u201d step, even if the North Nation is not active.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": true,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Fear! Fire! Foes!",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0064",
+  "title": "Book of Mazarbul                     (M)",
+  "faction": "free_peoples",
+  "deck_type": "muster_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "Move any or all Companions who are not in the Fellowship, Then, if a Companion is in Erebor or Ered Luin, move the Dwarves directly to the \u201cAt War\u201d step, even if the Dwarven Nation is not Active.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": true,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Book of Mazarbul",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0065",
+  "title": "Advantageous Position (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the defending Army is inside"
+  ],
+  "rules_text": "Play if the defending Army is inside the borders of a Free Peoples Nation. Subtract 1 from all dice on the Combat roll of the Shadow player (an unmodified \u201c6\u201d is still considered a hit for him).",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Advantageous Position",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0066",
+  "title": "Wisdom of Elrond",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [],
+  "rules_text": "Activate one Free Peoples Nation of your choice and advance that Nation one step on the Political Track.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": true,
+   "persistent_effect": false
+  },
+  "display_name": "Wisdom of Elrond",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0067",
+  "title": "Scouts (1)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "pre_combat",
+  "requirements": [],
+  "rules_text": "Before the Combat roll, retreat your Army to an adjacent free region or withdraw into a siege.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Scouts",
+  "combat_strength": 1,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0068",
+  "title": "Shield-Wall (6)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "Before you remove casualties inflicted by your opponent\u2019s Combat roll and Leader re-roll, if your opponent scored two or more hits, cancel one hit.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Shield-Wall",
+  "combat_strength": 6,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0069",
+  "title": "Shield-Wall (6)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "Before you remove casualties inflicted by your opponent\u2019s Combat roll and Leader re-roll, if your opponent scored two or more hits, cancel one hit.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Shield-Wall",
+  "combat_strength": 6,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0070",
+  "title": "Confusion (4)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "Every unmodified die result of \u201c1\u201d in the Shadow player\u2019s Combat roll scores one hit against the Shadow Army. Any result of \u201c1\u201d cannot be rolled again during the Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Confusion",
+  "combat_strength": 4,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0073",
+  "title": "The Red Arrow",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if Gondor is Active."
+  ],
+  "rules_text": "Play if Gondor is Active. Advance Rohan one step on the Political Track. Then, recruit one Rohan unit (Regular or Elite) and one Rohan Leader in Edoras.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": true,
+   "persistent_effect": false
+  },
+  "display_name": "The Red Arrow",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0074",
+  "title": "Help Unlooked For",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "Attack a Shadow Army besieging a Stronghold with a Free Peoples Army in an adjacent region. For this entire battle, the Shadow player rolls one die less during the Combat roll for each Free Peoples unit in the besieged Stronghold (to a minimum of one).",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Help Unlooked For",
+  "combat_strength": 0,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0075",
+  "title": "Paths of the Woses",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if there is a Free Peoples Army"
+  ],
+  "rules_text": "Play if there is a Free Peoples Army in Minis Tirith and Rohan is \u201cAt War\u201d. Move a Free Peoples Army from any one Rohan region directly to Minas Tirith. If Minas Tirith is under siege, move the Army to a free region adjacent to Minas Tirith instead.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": true,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Paths of the Woses",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0076",
+  "title": "Scouts (1)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "pre_combat",
+  "requirements": [],
+  "rules_text": "Before the Combat roll, retreat your Army to an adjacent free region or withdraw into a siege.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Scouts",
+  "combat_strength": 1,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0077",
+  "title": "No Quarter (5)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "If your Combat roll or Leader re-roll scores at least one hit, score one additional hit.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "No Quarter",
+  "combat_strength": 5,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0078",
+  "title": "Cirdan\u2019s Ships",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if the Elves are \u201cAt War\u201d."
+  ],
+  "rules_text": "Play if the Elves are \u201cAt War\u201d. Recruit two Elven units (Regular or Elite) in any one coastal region containing a Free Peoples Army.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Cirdan\u2019s Ships",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0079",
+  "title": "Guards of the Citadel",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "Recruit one Gondor unit (Regular or Elite) and one Gondor Leader in Minas Tirith.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Guards of the Citadel",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0080",
+  "title": "Sudden Strike (2)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "pre_combat",
+  "requirements": [
+   "Play if a Free Peoples Leader or a"
+  ],
+  "rules_text": "Play if a Free Peoples Leader or a Companion is in the battle. Before the Combat roll, roll an addi- tional attack using a number of dice equal to your Leadership (up to a maximum of 5)and apply the result immediately.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Sudden Strike",
+  "combat_strength": 2,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0081",
+  "title": "Celeborn\u2019s Galadhrim",
+  "faction": "free_peoples",
+  "deck_type": "muster_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "(M) Recruit one Elven unit (Regular or Elite) in L\u00f3rien. Then, draw one Strategy Event card.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Celeborn\u2019s Galadhrim",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0082",
+  "title": "Through a Day and a Night      (A)",
+  "faction": "free_peoples",
+  "deck_type": "army_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "Play on a Free Peoples Army containing a Companion. Move the Army containing the Com- panion(s) up to two regions. The regions must be free for the purposes of Army movement, and no Free Peoples units may be picked up or dropped off along the way (other than, possibly, splitting the Army initially).",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": true,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Through a Day and a Night",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0083",
+  "title": "Confusion (4)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "Every unmodified die result of \u201c1\u201d in the Shadow player\u2019s Combat roll scores one hit against the Shadow Army. Any result of \u201c1\u201d cannot be rolled again during the Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Confusion",
+  "combat_strength": 4,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0084",
+  "title": "Riders of Th\u00e9oden",
+  "faction": "free_peoples",
+  "deck_type": "muster_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "(M) Recruit one Rohan unit (Regular or Elite) and one Leader in either Edoras or any Rohan region containing a Companion.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Riders of Th\u00e9oden",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0085",
+  "title": "Charge (2)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "pre_combat",
+  "requirements": [
+   "Play if a Free Peoples Elite unit is"
+  ],
+  "rules_text": "Play if a Free Peoples Elite unit is in the battle. Before the Combat roll, roll an additional attack using only the Free Peoples Elite units (up to a maximum of 5) and apply the result immediately.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Charge",
+  "combat_strength": 2,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0086",
+  "title": "Charge (2)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "pre_combat",
+  "requirements": [
+   "Play if a Free Peoples Elite unit is"
+  ],
+  "rules_text": "Play if a Free Peoples Elite unit is in the battle. Before the Combat roll, roll an additional attack using only the Free Peoples Elite units (up to a maximum of 5) and apply the result immediately.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Charge",
+  "combat_strength": 2,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0087",
+  "title": "Daylight (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "The Shadow player rolls a maximum of three dice in his Combat roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Daylight",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0088",
+  "title": "Daylight (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "The Shadow player rolls a maximum of three dice in his Combat roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Daylight",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0091",
+  "title": "Grimbeorn the Old,                  (M)",
+  "faction": "free_peoples",
+  "deck_type": "muster_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "Son of Beorn Recruit one North unit (Regular or Elite) and one North Leader in Carrock.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Grimbeorn the Old,",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0092",
+  "title": "Imrahil of Dol Amroth",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "Recruit one Gondor unit (Regular or Elite) and one Gondor Leader in Dol Amroth.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Imrahil of Dol Amroth",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0093",
+  "title": "King Brand\u2019s Men",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "Recruit two North Regular units in Dale. Then, draw one Strategy Event card.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "King Brand\u2019s Men",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0094",
+  "title": "Swords in Eriador",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "Recruit one North unit (Regular or Elite) in The Shire and one Dwarven unit (Regular or Elite) in Ered Luin. Then, draw one Strategy Event card.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Swords in Eriador",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0095",
+  "title": "Scouts (1)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "pre_combat",
+  "requirements": [],
+  "rules_text": "Before the Combat roll, retreat your Army to an adjacent free region or withdraw into a siege.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Scouts",
+  "combat_strength": 1,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0096",
+  "title": "Shield-Wall (6)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "Before you remove casualties inflicted by your opponent\u2019s Combat roll and Leader re-roll, if your opponent scored two or more hits, cancel one hit.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Shield-Wall",
+  "combat_strength": 6,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0097",
+  "title": "Shield-Wall (6)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "Before you remove casualties inflicted by your opponent\u2019s Combat roll and Leader re-roll, if your opponent scored two or more hits, cancel one hit.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Shield-Wall",
+  "combat_strength": 6,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0098",
+  "title": "Kindred of Glorfindel",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "Recruit one Elven unit (Regular or Elite) in Rivendell. Then, draw one Strategy Event card",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Kindred of Glorfindel",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0099",
+  "title": "Dain Ironfoot\u2019s Guard",
+  "faction": "free_peoples",
+  "deck_type": "muster_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "(M) Recruit one Dwarven unit (Regular or Elite) and one Dwarven Leader in Erebor",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Dain Ironfoot\u2019s Guard",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0100",
+  "title": "\u00c9omer, son of \u00c9omund             (M)",
+  "faction": "free_peoples",
+  "deck_type": "muster_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "Recruit one Rohan unit (Regular or Elite) and one Rohan Leader in any free Rohan region containing a Settlement.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "\u00c9omer, son of \u00c9omund",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0101",
+  "title": "Advantageous Position (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if the defending Army is inside"
+  ],
+  "rules_text": "Play if the defending Army is inside the borders of a Free Peoples Nation. Subtract 1 from all dice on the Com- bat roll of the Shadow player (an unmodified \u201c6\u201d is still considered a hit for him).",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Advantageous Position",
+  "combat_strength": 3,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0102",
+  "title": "Thranduil\u2019s Archers",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "Recruit one Elven unit (Regular or Elite) in the Woodland Realm. Then, draw one Strategy Event card.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Thranduil\u2019s Archers",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0103",
+  "title": "Advantageous Position (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the defending Army is inside"
+  ],
+  "rules_text": "Play if the defending Army is inside the borders of a Free Peoples Nation. Subtract 1 from all dice on the Combat roll of the Shadow player (an unmodified \u201c6\u201d is still considered a hit for him).",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Advantageous Position",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0104",
+  "title": "Valour (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Free Peoples Elite unit is in"
+  ],
+  "rules_text": "Play if a Free Peoples Elite unit is in the battle. Add 1 to all dice on your Combat roll. 22",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Valour",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0105",
+  "title": "Valour (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Free Peoples Elite unit is in"
+  ],
+  "rules_text": "Play if a Free Peoples Elite unit is in the battle. Add 1 to all dice on your Combat roll. 23",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Valour",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0106",
+  "title": "Valour (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Free Peoples Elite unit is in"
+  ],
+  "rules_text": "Play if a Free Peoples Elite unit is in the battle. Add 1 to all dice on your Combat roll. 24",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Valour",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0109",
+  "title": "Shelob\u2019s Lair",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [],
+  "rules_text": "The \u201cShelob\u2019s Lair\u201d special Hunt tile is now in play. Add the tile to the Hunt Pool when the Fellowship is on the Mordor Track.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Shelob\u2019s Lair",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0110",
+  "title": "The Ring is Mine!",
+  "faction": "shadow",
+  "deck_type": "character_event",
+  "timing": "general",
+  "requirements": [],
+  "rules_text": "(C) The \u201cThe Ring is Mine!\u201d special Hunt tile is now in play. Add the tile to the Hunt Pool when the Fellowship is on the Mordor Track.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "The Ring is Mine!",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0111",
+  "title": "On, On They Went",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [],
+  "rules_text": "The \u201cOn, On They Went\u201d special Hunt tile is now in play. Add the tile to the Hunt Pool when the Fellowship is on the Mordor Track.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "On, On They Went",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0112",
+  "title": "Give it to Uss!",
+  "faction": "shadow",
+  "deck_type": "character_event",
+  "timing": "general",
+  "requirements": [],
+  "rules_text": "(C) The \u201cGive it to Uss!\u201d special Hunt tile is now in play. Add the tile to the Hunt Pool when the Fellowship is on the Mordor Track.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Give it to Uss!",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0113",
+  "title": "One for the Dark Lord (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the defending Army is in the"
+  ],
+  "rules_text": "Play if the defending Army is in the same region as the Fellowship. Add 1 to all dice on your Combat and Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "One for the Dark Lord",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0114",
+  "title": "One for the Dark Lord (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the defending Army is in the"
+  ],
+  "rules_text": "Play if the defending Army is in the same region as the Fellowship. Add 1 to all dice on your Combat and Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "One for the Dark Lord",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0115",
+  "title": "One for the Dark Lord (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the defending Army is in the"
+  ],
+  "rules_text": "Play if the defending Army is in the same region as the Fellowship. Add 1 to all dice on your Combat and Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "One for the Dark Lord",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0116",
+  "title": "One for the Dark Lord (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the defending Army is in the"
+  ],
+  "rules_text": "Play if the defending Army is in the same region as the Fellowship. Add 1 to all dice on your Combat and Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "One for the Dark Lord",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0119",
+  "title": "Orc Patrol",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if the Fellowship is not in a re-"
+  ],
+  "rules_text": "Play if the Fellowship is not in a re- gion containing a Free Peoples Set- tlement. Draw a Hunt tile. If the tile shows an Eye or is a Fellowship special tile, discard it without effect. Otherwise, follow the rules for a successful Hunt.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Orc Patrol",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0120",
+  "title": "Isuldur\u2019s Bane",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if the Fellowship is not in a"
+  ],
+  "rules_text": "Play if the Fellowship is not in a region containing a Free Peoples Settlement. Draw a Hunt tile. If the tile shows an Eye or is a Fellowship special tile, discard it without effect. Otherwise, follow the rules for a successful Hunt, with the exception that the Free Peoples player must take all Hunt damage as Corruption.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Isuldur\u2019s Bane",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0121",
+  "title": "Foul Thing from the Deep         (C)",
+  "faction": "shadow",
+  "deck_type": "character_event",
+  "timing": "general",
+  "requirements": [
+   "Play if the Fellowship is not in a"
+  ],
+  "rules_text": "Play if the Fellowship is not in a region containing a Free Peoples Settlement. Draw a Hunt tile. If the tile shows an Eye or is a Fellowship special tile, discard it without effect. Otherwise, follow the rules for a success- ful Hunt, with the exception that the Free Peoples player must reduce any Hunt damage by eliminating a random Companion (unless there are no Com- panions in the Fellowship).",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Foul Thing from the Deep",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0122",
+  "title": "Cruel as Death (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the total Nazg\u00fbl"
+  ],
+  "rules_text": "Play if the total Nazg\u00fbl Leadership is 2 or more. Subtract 2 from your total Nazg\u00fbl Leadership to add 1 to all dice on your Combat roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Cruel as Death",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0123",
+  "title": "Cruel as Death (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the total Nazg\u00fbl"
+  ],
+  "rules_text": "Play if the total Nazg\u00fbl Leadership is 2 or more. Subtract 2 from your total Nazg\u00fbl Leadership to add 1 to all dice on your Combat roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Cruel as Death",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0124",
+  "title": "They are Terrible (4)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the total Nazg\u00fbl Leadership"
+  ],
+  "rules_text": "Play if the total Nazg\u00fbl Leadership is 1 or more. Subtract 1 from your total Nazg\u00fbl Leadership to add 1 to all dice on your Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "They are Terrible",
+  "combat_strength": 4,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0125",
+  "title": "Candles of Corpses",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if the Fellowship is not in a"
+  ],
+  "rules_text": "Play if the Fellowship is not in a region containing a Free Peoples Settlement. Roll three dice and add one Corrup- tion point on each result of 4+. If Gollum is the Guide, add one Corruption points on each result of \u201c6\u201d instead.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Candles of Corpses",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0126",
+  "title": "Dread and Despair (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "pre_combat",
+  "requirements": [
+   "Play if the total Nazg\u00fbl"
+  ],
+  "rules_text": "Play if the total Nazg\u00fbl Leadership is 1 or more. Before the Combat roll, forfeit one or more points of Nazg\u00fbl Leadership. During this Combat roll, the Free Peoples player rolls one die less (to a minimum of 1) for every point you have chosen to forfeit.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Dread and Despair",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0127",
+  "title": "Nazg\u00fbl Search",
+  "faction": "shadow",
+  "deck_type": "character_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if the Fellowship is on step 1 or"
+  ],
+  "rules_text": "(C) Play if the Fellowship is on step 1 or higher on the Fellowship Track. Move any or all of the Nazg\u00fbl. Then, if at least one Nazg\u00fbl is in the region with the Fellowship, the Fel- lowship is revealed.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": true,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Nazg\u00fbl Search",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0128",
+  "title": "Cruel Weather",
+  "faction": "shadow",
+  "deck_type": "character_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if the Fellowship is on step 1 or"
+  ],
+  "rules_text": "(C) Play if the Fellowship is on step 1 or higher on the Fellowship Track. Move the Ring-bearers to an adjacent region.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": true,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Cruel Weather",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0129",
+  "title": "Foul Stench (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if the total Nazg\u00fbl"
+  ],
+  "rules_text": "Play if the total Nazg\u00fbl Leadership is 1 or more. If the Nazg\u00fbl Leadership equals or exceeds the total Free Peoples Leadership, the Free Peoples Leader re-roll is cancelled.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Foul Stench",
+  "combat_strength": 3,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0130",
+  "title": "Cruel as Death (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the total Nazg\u00fbl"
+  ],
+  "rules_text": "Play if the total Nazg\u00fbl Leadership is 2 or more. Subtract 2 from your total Nazg\u00fbl Leadership to add 1 to all dice on your Combat roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Cruel as Death",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0131",
+  "title": "The Nazg\u00fbl Strike!",
+  "faction": "shadow",
+  "deck_type": "character_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if the Fellowship is on step 1 or"
+  ],
+  "rules_text": "(C) Play if the Fellowship is on step 1 or higher on the Fellowship Track. Move any or all of the Nazg\u00fbl. Then, if at least one Nazg\u00fbl is in the re- gion with the Ring-bearers, you may either discard one Free Peoples Charac- ter Event card from the table or roll for the Hunt (as if the Free Peoples player had moved the Fellowship).",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": true,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "The Nazg\u00fbl Strike!",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0132",
+  "title": "Black Breath (6)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Nazg\u00fbl is in the battle."
+  ],
+  "rules_text": "Play if a Nazg\u00fbl is in the battle. If your Leader re-roll scores at least one hit, you may additionally eliminate one Free Peoples Leader participating in the battle. Alternatively, you can choose to eliminate a Companion in the battle, if the number of hits equals or exceeds that Companion\u2019s Level.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Black Breath",
+  "combat_strength": 6,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0135",
+  "title": "Lure of the Ring",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if the Fellowship is revealed."
+  ],
+  "rules_text": "Play if the Fellowship is revealed. Randomly select one Companion in the Fellowship by drawing a Companion counter. The Free Peoples player must choose either to add Corruption equal to the Companion\u2019s Level or to eliminate him. If Gollum is the Guide, add one Corruption point instead.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Lure of the Ring",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0136",
+  "title": "They are Terrible (4)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the total Nazg\u00fbl Leadership"
+  ],
+  "rules_text": "Play if the total Nazg\u00fbl Leadership is 1 or more. Subtract 1 from your total Nazg\u00fbl Leadership to add 1 to all dice on your Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "They are Terrible",
+  "combat_strength": 4,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0137",
+  "title": "The Breaking of the Fellowship (C)",
+  "faction": "shadow",
+  "deck_type": "character_event",
+  "timing": "pre_combat",
+  "requirements": [
+   "Play if the Fellowship is revealed.",
+   "Play if the total Nazg\u00fbl Leadership is 1"
+  ],
+  "rules_text": "Play if the Fellowship is revealed. Draw a Hunt tile. If the tile shows an Eye or is a Fellowship special tile, discard it without effect. Otherwise, the Free Peoples player must separate a number of Companions equal to the number on the tile (if possible), placing them in the same region as the Ring-bearers. Ignore any \u201cReveal\u201d or \u201cStop\u201d icons on the tile. If Gollum is the Guide, add one Corruption point instead. Dread and Despair (3) Play if the total Nazg\u00fbl Leadership is 1 or more. Before the Combat roll, forfeit one or more points of Nazg\u00fbl Leadership. During this Combat roll, the Free Peoples player rolls one die less (to a minimum of 1) for every point you have chosen to forfeit.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "The Breaking of the Fellowship",
+  "combat_strength": 0,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0138",
+  "title": "Worn with Sorrow and Toil      (C)",
+  "faction": "shadow",
+  "deck_type": "character_event",
+  "timing": "persistent",
+  "requirements": [],
+  "rules_text": "Play on the table. When \u201cWorn with Sorrow and Toil\u201d is in play, if a Companion in the Fel- lowship is taken as a casualty you may also discard one of the Free Peoples player\u2019s Character Event cards from his hand (choosing it ran- domly) or from the table. You must discard this card from the table immediately if the Fellowship is declared in a Free Peoples City or Stronghold controlled by the Free Peoples.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": true
+  },
+  "display_name": "Worn with Sorrow and Toil",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0139",
+  "title": "Words of Power (1)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if a Nazg\u00fbl is in the battle."
+  ],
+  "rules_text": "Play if a Nazg\u00fbl is in the battle. Choose a Companion. That Compan- ion\u2019s Leadership and special abilities are cancelled for this Combat round. 15",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Words of Power",
+  "combat_strength": 1,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0140",
+  "title": "Morgul Wound",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if the Fellowship is revealed."
+  ],
+  "rules_text": "Play if the Fellowship is revealed. If the Fellowship\u2019s current Corruption is three or less, add two Corruption points; otherwise add one Corruption point.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Morgul Wound",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0141",
+  "title": "Black Breath (6)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Nazg\u00fbl is in the battle."
+  ],
+  "rules_text": "Play if a Nazg\u00fbl is in the battle. If your Leader re-roll scores at least one hit, you may additionally eliminate one Free Peoples Leader participating in the battle. Alternatively, you can choose to eliminate a Companion in the battle, if the number of hits equals or exceeds that Companion\u2019s Level.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Black Breath",
+  "combat_strength": 6,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0142",
+  "title": "Flocks of Crebain",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "persistent",
+  "requirements": [],
+  "rules_text": "Play on the table. Before you make a Hunt roll, you may discard \u201cFlocks of Crebain\u201d to add 1 to all dice on that Hunt roll (including re-rolls). You must discard this card from the table immediately if the Fellowship is declared in a Free Peoples City or Stronghold.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": true
+  },
+  "display_name": "Flocks of Crebain",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0143",
+  "title": "They are Terrible (4)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the total Nazg\u00fbl Leadership"
+  ],
+  "rules_text": "Play if the total Nazg\u00fbl Leadership is 1 or more. Subtract 1 from your total Nazg\u00fbl Leadership to add 1 to all dice on your Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "They are Terrible",
+  "combat_strength": 4,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0144",
+  "title": "Balrog of Moria",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "persistent",
+  "requirements": [],
+  "rules_text": "Play on the table. You may discard \u201cBalrog of Moria\u201d to draw an additional Hunt tile if the Fel- lowship moves into, out of, or through Moria while being declared or revealed. If the tile shows an Eye, discard it without effect; otherwise follow the rules for a suc- cessful Hunt. Ignore any \u201cReveal\u201d icon on the drawn tile if the Fellowship has been declared in a Free Peoples City or Stronghold. Or you may discard \u201cBalrog of Moria\u201d to use its Com- bat effect as if you were playing the card from your hand.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": true
+  },
+  "display_name": "Balrog of Moria",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0145",
+  "title": "Durin\u2019s Bane (2)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "pre_combat",
+  "requirements": [
+   "Play if the defending Army is within two"
+  ],
+  "rules_text": "Play if the defending Army is within two regions of Moria Before the Combat roll, roll an additional attack using three combat dice. Score hits on 4+ and apply the result immediately.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Durin\u2019s Bane",
+  "combat_strength": 2,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0146",
+  "title": "The Palant\u00edr of Orthanc             (C)",
+  "faction": "shadow",
+  "deck_type": "character_event",
+  "timing": "persistent",
+  "requirements": [],
+  "rules_text": "Play on the table if Saruman is in play. When \u201cThe Palant\u00edr of Orthanc\u201d is in play, every time you use an Event Ac- tion Die result to play an Event card, immediately draw another card from either one of your decks. The Free Peoples player can force \u201cThe Palant\u00edr of Orthanc\u201d to be discarded by either using a Will of the West Action Die result, or using any Action Die and one Elven Ring. You must discard this card if Saruman is eliminated.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": true
+  },
+  "display_name": "The Palant\u00edr of Orthanc",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0147",
+  "title": "Cruel as Death (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the total Nazg\u00fbl"
+  ],
+  "rules_text": "Play if the total Nazg\u00fbl Leadership is 2 or more. Subtract 2 from your total Nazg\u00fbl Leadership to add 1 to all dice on your Combat roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Cruel as Death",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0150",
+  "title": "The Lidless Eye",
+  "faction": "shadow",
+  "deck_type": "character_event",
+  "timing": "general",
+  "requirements": [],
+  "rules_text": "(C) Change up to three unused Shadow Action Dice results into \u201cEye\u201d results. Place the dice in the Hunt Box immediately.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "The Lidless Eye",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0151",
+  "title": "Dreadful Spells",
+  "faction": "shadow",
+  "deck_type": "character_event",
+  "timing": "general",
+  "requirements": [
+   "Play if a Shadow Army  containing a"
+  ],
+  "rules_text": "(C) Play if a Shadow Army containing a Nazg\u00fbl is adjacent to, or is in the same region as, a Free Peoples Army. Roll a number of dice equal to the number of Nazg\u00fbl in that Army (up to a maximum of 5) and score one hit for each result of 5+.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Dreadful Spells",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0152",
+  "title": "Words of Power (1)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if a Nazg\u00fbl is in the battle."
+  ],
+  "rules_text": "Play if a Nazg\u00fbl is in the battle. Choose a Companion. That Compan- ion\u2019s Leadership and special abilities are cancelled for this Combat round. 18",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Words of Power",
+  "combat_strength": 1,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0153",
+  "title": "Devilry of Orthanc (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if an Isengard Army unit is in"
+  ],
+  "rules_text": "Play if an Isengard Army unit is in the battle and the defending Army is in a Stronghold. Add 1 to all dice on your Combat roll. 19",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Devilry of Orthanc",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0154",
+  "title": "The Ringwraiths Are Abroad    (C)",
+  "faction": "shadow",
+  "deck_type": "character_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "Move any or all of the Nazg\u00fbl. Then, you may either move two Armies each containing a Nazg\u00fbl, or attack with one Army containing a Nazg\u00fbl.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": true,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "The Ringwraiths Are Abroad",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0155",
+  "title": "Grond, Hammer of the              (C)",
+  "faction": "shadow",
+  "deck_type": "character_event",
+  "timing": "general",
+  "requirements": [
+   "Play if the Witch-king is in play and"
+  ],
+  "rules_text": "Underworld Play if the Witch-king is in play and is with a Shadow Army besieging a Free Peoples Stronghold. Attack that Stronghold. The Siege lasts for three Combat rounds in- stead of one. During the first round, the Free Peoples player cannot use a Combat card unless a Companion is in the battle.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Grond, Hammer of the",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0156",
+  "title": "Dread and Despair (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "pre_combat",
+  "requirements": [
+   "Play if the total Nazg\u00fbl Leadership is 1 or"
+  ],
+  "rules_text": "Play if the total Nazg\u00fbl Leadership is 1 or more. Before the Combat roll, forfeit one or more points of Nazg\u00fbl Leadership. During this Combat roll, the Free Peoples player rolls one die less (to a minimum of 1) for every point you have chosen to forfeit.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Dread and Despair",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0157",
+  "title": "The Black Captain Commands (C)",
+  "faction": "shadow",
+  "deck_type": "character_event",
+  "timing": "general",
+  "requirements": [
+   "Play if the Witch-king is in play."
+  ],
+  "rules_text": "Play if the Witch-king is in play. You may either recruit two Nazg\u00fbl in the region containing the Witch-king, or move any or all of the Nazg\u00fbl. Then, you may move or attack with an Army containing the Witch-king.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "The Black Captain Commands",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0158",
+  "title": "Wormtongue",
+  "faction": "shadow",
+  "deck_type": "character_event",
+  "timing": "persistent",
+  "requirements": [],
+  "rules_text": "(C) Play on the table if Saruman is in play. When \u201cWormtongue\u201d is in play, Ro- han cannot be activated except by a Companion\u2019s special ability, or by the Fellowship being declared in Edoras or Helm\u2019s Deep, or by an attack on Edoras or Helm\u2019s Deep. You must discard this card from the table as soon as Rohan is activated, or if Saruman is eliminated.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": true
+  },
+  "display_name": "Wormtongue",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0159",
+  "title": "Foul Stench (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if the total Nazg\u00fbl"
+  ],
+  "rules_text": "Play if the total Nazg\u00fbl Leadership is 1 or more. If the Nazg\u00fbl Leadership equals or exceeds the total Free Peoples Leadership, the Free Peoples Leader re-roll is cancelled.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Foul Stench",
+  "combat_strength": 3,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0160",
+  "title": "Words of Power (1)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if a Nazg\u00fbl is in the battle."
+  ],
+  "rules_text": "Play if a Nazg\u00fbl is in the battle. Choose a Companion. That Compan- ion\u2019s Leadership and special abilities are cancelled for this Combat round. 23",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Words of Power",
+  "combat_strength": 1,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0161",
+  "title": "Foul Stench (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if the total Nazg\u00fbl"
+  ],
+  "rules_text": "Play if the total Nazg\u00fbl Leadership is 1 or more. If the Nazg\u00fbl Leadership equals or exceeds the total Free Peoples Leadership, the Free Peoples Leader re-roll is cancelled.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Foul Stench",
+  "combat_strength": 3,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0162",
+  "title": "Return to Valinor",
+  "faction": "shadow",
+  "deck_type": "army_event",
+  "timing": "general",
+  "requirements": [
+   "Play if you control at least one Elven"
+  ],
+  "rules_text": "(A) Play if you control at least one Elven Stronghold. For each region with an Elven Stronghold which is not under siege, roll a number of dice equal to the number of Elven Army units in that region (up to a maximum of 5) and score one hit against that Army for each result of \u201c6\u201d.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Return to Valinor",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0163",
+  "title": "The Fighting Uruk-hai",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if Saruman is in play, and if an"
+  ],
+  "rules_text": "Play if Saruman is in play, and if an Army containing an Isengard unit is besieging a Stronghold. Attack that Stronghold. The Siege lasts for three Combat rounds in- stead of one. During the first round, the Free Peoples player cannot use a Combat card unless a Companion is in the battle.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "The Fighting Uruk-hai",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0164",
+  "title": "Denethor\u2019s Folly",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "persistent",
+  "requirements": [],
+  "rules_text": "Play on the table if Minas Tirith is besieged by a Shadow Army. When you play this card, immedi- ately eliminate one Free Peoples Leader in Minas Tirith. When \u201cDenethor\u2019s Folly\u201d is in play, the Free Peoples player cannot use Combat cards for battles fought in Minas Tirith. The Free Peoples player can force \u201cDenethor\u2019s Folly\u201d to be discarded using a Will of the West Action Die result, or any Action Die if Gandalf or Aragorn is in Minas Tirith.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": true
+  },
+  "display_name": "Denethor\u2019s Folly",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0165",
+  "title": "Devilry of Orthanc (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if an Isengard Army unit is in the"
+  ],
+  "rules_text": "Play if an Isengard Army unit is in the battle and the defending Army is in a Stronghold. Add 1 to all dice on your Combat roll. 3",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Devilry of Orthanc",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0166",
+  "title": "The Day Without Dawn             (A)",
+  "faction": "shadow",
+  "deck_type": "army_event",
+  "timing": "general",
+  "requirements": [
+   "Play if all Shadow Nations are \u201cAt"
+  ],
+  "rules_text": "Play if all Shadow Nations are \u201cAt War\u201d. Discard all unused Free Peoples Action Dice that show a Will of the West result.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "The Day Without Dawn",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0167",
+  "title": "Relentless Assault (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "pre_combat",
+  "requirements": [],
+  "rules_text": "Before the Combat roll, you may inflict and apply up to two hits against your units. Add 1 to all dice on your Combat roll for each hit you inflicted.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Relentless Assault",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0168",
+  "title": "Onslaught (7)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "After removing casualties from the Combat roll and Leader re-roll, you may inflict and apply up to four additional hits against your units. Roll one die for each hit you inflicted to your units and score one hit against the enemy on each result of 4+.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Onslaught",
+  "combat_strength": 7,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0169",
+  "title": "Stormcrow",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if either the Ring-bearers or a"
+  ],
+  "rules_text": "Play if either the Ring-bearers or a Companion is inside the borders of a Free Peoples Nation not \u201cAt War\u201d. Move that Nation\u2019s Political Counter back one step on the Political Track. Then, the Free Peoples player must eliminate one Leader or Army unit of that Nation (Regular or Elite).",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": true,
+   "political_track": true,
+   "persistent_effect": false
+  },
+  "display_name": "Stormcrow",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0170",
+  "title": "Shadows Gather",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "Move one Shadow Army up to three regions. The movement must end in a region already occupied by another Shadow Army (that must not be under siege). The regions must be free for the purposes of Army movement, and no Shadow units may be picked up or dropped off along the way (other than, possibly, splitting the Army initially).",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": true,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Shadows Gather",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0171",
+  "title": "The Shadow Lengthens             (A)",
+  "faction": "free_peoples",
+  "deck_type": "army_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "Move two Shadow Armies up to two regions. Each movement must end in a region already occupied by another Shadow Army (that must not be under siege). The regions must be free for the purposes of Army movement, and no Shadow units may be picked up or dropped off along the way (other than, possibly, splitting the Army initially).",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": true,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "The Shadow Lengthens",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0172",
+  "title": "Devilry of Orthanc (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if an Isengard Army unit is in"
+  ],
+  "rules_text": "Play if an Isengard Army unit is in the battle and the defending Army is in a Stronghold. Add 1 to all dice on your Combat roll. 5",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Devilry of Orthanc",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0173",
+  "title": "Great Host (7)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "If, after removing casualties from the Combat roll and Leader re-roll, your Army units are at least twice as many as the enemy Army units, score one automatic hit.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Great Host",
+  "combat_strength": 7,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0174",
+  "title": "M\u00fbmakil (3-5)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Southrons & Easterlings Elite"
+  ],
+  "rules_text": "Play if a Southrons & Easterlings Elite unit is in the battle. Add 1 to all dice on your Combat roll. If, after the Leader re-roll, you scored more total hits than your opponent (including hits from any Free Peoples pre-Combat attack from a Combat card), score one additional hit.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "M\u00fbmakil (3-5)",
+  "combat_strength": 0,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0175",
+  "title": "M\u00fbmakil (3-5)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Southrons & Easterlings Elite"
+  ],
+  "rules_text": "Play if a Southrons & Easterlings Elite unit is in the battle. Add 1 to all dice on your Combat roll. If, after the Leader re-roll, you scored more total hits than your opponent (including hits from any Free Peoples pre-Combat attack from a Combat card), score one additional hit.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "M\u00fbmakil (3-5)",
+  "combat_strength": 0,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0176",
+  "title": "Deadly Strife (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "Both Armies add 2 to all dice on their Combat and Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Deadly Strife",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0177",
+  "title": "Threats and Promises              (M)",
+  "faction": "shadow",
+  "deck_type": "muster_event",
+  "timing": "persistent",
+  "requirements": [],
+  "rules_text": "Play on the table. When \u201cThreats and Promises\u201d is in play, the Free Peoples player cannot advance a passive Nation on the Po- litical Track using a Muster Action Die. You must discard this card from the table as soon as a Free Peoples Na- tion advances on the Political Track either due to an attack or due to a Companion\u2019s special Ability.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": true,
+   "persistent_effect": true
+  },
+  "display_name": "Threats and Promises",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0180",
+  "title": "The Shadow is Moving              (A)",
+  "faction": "shadow",
+  "deck_type": "army_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if all Shadow Nations are \u201cAt"
+  ],
+  "rules_text": "Play if all Shadow Nations are \u201cAt War\u201d. Move up to four different Shadow Armies up to one region each.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": true,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "The Shadow is Moving",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0181",
+  "title": "Corsairs of Umbar",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if the Southrons & Easterlings"
+  ],
+  "rules_text": "Play if the Southrons & Easterlings are \u201cAt War\u201d. Move one Shadow Army from Umbar to any Gondor coastal region. If there is a Free Peoples Army in the region, a battle starts. The attacking Shadow Army cannot retreat.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": true,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Corsairs of Umbar",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0182",
+  "title": "Rage of the Dunlendings         (M)",
+  "faction": "shadow",
+  "deck_type": "muster_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if Isengard is \u201cAt War\u201d."
+  ],
+  "rules_text": "Play if Isengard is \u201cAt War\u201d. Recruit two Isengard Regular units in a free region adjacent to North or South Dunland. You may also move to this region up to four Isengard units. (Regular or Elite) from North Dunland and/or South Dunland.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Rage of the Dunlendings",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0183",
+  "title": "Return of the Witch-king         (M)",
+  "faction": "shadow",
+  "deck_type": "muster_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if the Witch-king is in play."
+  ],
+  "rules_text": "Play if the Witch-king is in play. Move the Witch-king to Angmar and recruit two Sauron Regular units and one Sauron Elite there.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": true,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Return of the Witch-king",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0184",
+  "title": "Swarm of Bats (0)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "Cancel the effects of the Combat card played by the Free Peoples player. If the Free Peoples player did not play a card, add 1 to all dice on your Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Swarm of Bats",
+  "combat_strength": 0,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0185",
+  "title": "Deadly Strife (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "Both Armies add 2 to all dice on their Combat and Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Deadly Strife",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0186",
+  "title": "Relentless Assault (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "pre_combat",
+  "requirements": [],
+  "rules_text": "Before the Combat roll, you may inflict and apply up to two hits against your units. Add 1 to all dice on your Combat roll for each hit you inflicted.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Relentless Assault",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0187",
+  "title": "Half-orcs and Goblin-men        (A)",
+  "faction": "shadow",
+  "deck_type": "army_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if Isengard is \u201cAt War\u201d."
+  ],
+  "rules_text": "Play if Isengard is \u201cAt War\u201d. Recruit one Isengard unit (Regular or Elite) in a region where a Shadow Army is present.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Half-orcs and Goblin-men",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0188",
+  "title": "Olag-hai",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if Sauron is \u201cAt War\u201d."
+  ],
+  "rules_text": "Play if Sauron is \u201cAt War\u201d. Recruit one Sauron unit (Regular or Elite) in a region where a Shadow Army is present.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Olag-hai",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0189",
+  "title": "Hill-trolls",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if Sauron is \u201cAt War\u201d."
+  ],
+  "rules_text": "Play if Sauron is \u201cAt War\u201d. Replace two Sauron Regular units anywhere on the game board with two Sauron Elite units.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Hill-trolls",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0190",
+  "title": "Swarm of Bats (0)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "Cancel the effects of the Combat card played by the Free Peoples player. If the Free Peoples player did not play a card, add 1 to all dice on your Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Swarm of Bats",
+  "combat_strength": 0,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0191",
+  "title": "A New Power is Rising             (M)",
+  "faction": "shadow",
+  "deck_type": "muster_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if Saruman is in play."
+  ],
+  "rules_text": "Play if Saruman is in play. Recruit two Isengard Regular units in each of North and South Dunland and two units (Regular or Elite) in Orthanc.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "A New Power is Rising",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0192",
+  "title": "We Come to Kill (7)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Shadow Elite unit is in the"
+  ],
+  "rules_text": "Play if a Shadow Elite unit is in the battle. After removing casualties from the Combat roll and Leader re-roll, roll an additional attack using only the Shadow Elite units (up to a maximum of five) and score one hit for each result of 5+.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "We Come to Kill",
+  "combat_strength": 7,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0193",
+  "title": "We Come to Kill (7)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Shadow Elite unit is in the"
+  ],
+  "rules_text": "Play if a Shadow Elite unit is in the battle. After removing casualties from the Combat roll and Leader re-roll, roll an additional attack using only the Shadow Elite units (up to a maximum of five) and score one hit for each result of 5+.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "We Come to Kill",
+  "combat_strength": 7,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0194",
+  "title": "We Come to Kill (7)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Shadow Elite unit is in the"
+  ],
+  "rules_text": "Play if a Shadow Elite unit is in the battle. After removing casualties from the Combat roll and Leader re-roll, roll an additional attack using only the Shadow Elite units (up to a maximum of five) and score one hit for each result of 5+.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "We Come to Kill",
+  "combat_strength": 7,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0195",
+  "title": "Great Host (7)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "If, after removing casualties from the Combat roll and Leader re-roll, your Army units are at least twice as many as the enemy Army units, score one automatic hit.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Great Host",
+  "combat_strength": 7,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0198",
+  "title": "Many Kings to the Service       (M)",
+  "faction": "shadow",
+  "deck_type": "muster_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "of Mordor Recruit two Southron & Easterling Regular units in each of three differ- ent Southron & Easterling Settlements.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Many Kings to the Service",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0199",
+  "title": "The King is Revealed                (M)",
+  "faction": "shadow",
+  "deck_type": "muster_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if Aragorn is in Play."
+  ],
+  "rules_text": "Play if Aragorn is in Play. Recruit five Sauron Regular units and a Nazg\u00fbl in Minas Morgul.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "The King is Revealed",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0200",
+  "title": "Shadows on the                         (M)",
+  "faction": "shadow",
+  "deck_type": "muster_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "Misty Mountains Recruit two Sauron units (Regular or Elite) and one Nazg\u00fbl in either Mount Gram or Moria.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Shadows on the",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0201",
+  "title": "Orcs Multiplying Again             (M)",
+  "faction": "shadow",
+  "deck_type": "muster_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "Recruit three Sauron Regular units in Dol Guldur and three Sauron Regular units in Mount Gundabad.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Orcs Multiplying Again",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0202",
+  "title": "Great Host (7)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "If, after removing casualties from the Combat roll and Leader re-roll, your Army units are at least twice as many as the enemy Army units, score one automatic hit.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Great Host",
+  "combat_strength": 7,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0203",
+  "title": "Relentless Assault (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "pre_combat",
+  "requirements": [],
+  "rules_text": "Before the Combat roll, you may inflict and apply up to two hits against your units. Add 1 to all dice on your Combat roll for each hit you inflicted.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Relentless Assault",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0204",
+  "title": "Onslaught (7)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "After removing casualties from the Combat roll and Leader re-roll, you may inflict and apply up to four additional hits against your units. Roll one die for each hit you inflicted to your units and score one hit against the enemy on each result of 4+.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Onslaught",
+  "combat_strength": 7,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0205",
+  "title": "Onslaught (7)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "After removing casualties from the Combat roll and Leader re-roll, you may inflict and apply up to four additional hits against your units. Roll one die for each hit you inflicted to your units and score one hit against the enemy on each result of 4+.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Onslaught",
+  "combat_strength": 7,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0206",
+  "title": "Horde from the East                 (M)",
+  "faction": "shadow",
+  "deck_type": "muster_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if the Southrons & Easterlings"
+  ],
+  "rules_text": "Play if the Southrons & Easterlings are \u201cAt War\u201d. Recruit five Southron & Easterling Regular units in a free region inside the Southron & Easterling Nation. This region must be adjacent to the eastern edge of the map.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Horde from the East",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0207",
+  "title": "Monsters Roused",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "Recruit one Sauron regular unit in each of Angmar, Ettenmoors, and Weather Hills, and one Sauron Elite unit in Trollshaws.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Monsters Roused",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0208",
+  "title": "Musterings of Long-",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if all Shadow Nations are \u201cAt"
+  ],
+  "rules_text": "planned War Play if all Shadow Nations are \u201cAt War\u201d. Place five Southron & Easterling Regular units in Gorgoroth and five Sauron Regular units in Nurn.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Musterings of Long-",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0209",
+  "title": "Pits of Mordor",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if Sauron is \u201cAt War\u201d."
+  ],
+  "rules_text": "Play if Sauron is \u201cAt War\u201d. Recruit two Sauron Regular units in each of three different Sauron Strongholds.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Pits of Mordor",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0210",
+  "title": "Deadly Strife (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "Both Armies add 2 to all dice on their Combat and Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Deadly Strife",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0211",
+  "title": "Desperate Battle (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "Both Armies add 1 to all dice on their Combat roll and Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Desperate Battle",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0212",
+  "title": "Desperate Battle (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "Both Armies add 1 to all dice on their Combat roll and Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Desperate Battle",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0213",
+  "title": "Desperate Battle (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "Both Armies add 1 to all dice on their Combat roll and Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Desperate Battle",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0216",
+  "title": "Ents Awake:  Rock and Stone   (C)",
+  "faction": "free_peoples",
+  "deck_type": "character_event",
+  "timing": "general",
+  "requirements": [
+   "Play if the Ents of Fangorn faction is"
+  ],
+  "rules_text": "Play if the Ents of Fangorn faction is in play and Gandalf the White is in play. Place two Ents in Fangorn. You may then move and attack with the Ents. If a Companion is in Fangorn, you may play or draw another Character Event card.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Ents Awake:  Rock and Stone",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0217",
+  "title": "Ents Awake:  Huorns",
+  "faction": "free_peoples",
+  "deck_type": "character_event",
+  "timing": "general",
+  "requirements": [
+   "Play if the Ents of Fangorn faction is"
+  ],
+  "rules_text": "(C) Play if the Ents of Fangorn faction is in play and Gandalf the White is in play. Place two Ents in Fangorn. You may then move and attack with the Ents. If a Companion is in Fangorn, you may play or draw another Character Event card.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Ents Awake:  Huorns",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0218",
+  "title": "Ents Awake:  Entmoot              (C)",
+  "faction": "free_peoples",
+  "deck_type": "character_event",
+  "timing": "general",
+  "requirements": [
+   "Play if the Ents of Fangorn faction is"
+  ],
+  "rules_text": "Play if the Ents of Fangorn faction is in play and Gandalf the White is in play. Place two Ents in Fangorn. You may then move and attack with the Ents. If a Companion is in Fangorn, you may play or draw another Character Event card.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Ents Awake:  Entmoot",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0219",
+  "title": "Wind from the West",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [],
+  "rules_text": "Discard any one Shadow Event card on the table. If not Shadow Event card is on the table, you may look at the Event cards in the hand of one Shadow player and discard one card.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Wind from the West",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0220",
+  "title": "Ent\u2019s Rage (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the defending Army is in a"
+  ],
+  "rules_text": "Play if the defending Army is in a Rohan region, Fangorn, or Orthanc. Add 2 to all dice on your Combat roll. 19E",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Ent\u2019s Rage",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0221",
+  "title": "Three Rings for the Elven-King(C)",
+  "faction": "free_peoples",
+  "deck_type": "character_event",
+  "timing": "general",
+  "requirements": [],
+  "rules_text": "Roll three dice and take back one used Elven Ring token for each result of 4+. Take the tokens first from those out of play and then, if needed, from those in possession of the Shadow player.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Three Rings for the Elven-King",
+  "combat_strength": 0,
+  "card_type": "character_event"
+ },
+ {
+  "id": "WOTR_0222",
+  "title": "Huorn-dark (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the defending Army is in a"
+  ],
+  "rules_text": "Play if the defending Army is in a Rohan region, Fangorn, or Orthanc. The Shadow player rolls a maximum of two dice in the Combat roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Huorn-dark",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0223",
+  "title": "Nameless Wood (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if the defending Army is in a"
+  ],
+  "rules_text": "Play if the defending Army is in a Rohan region, Fangorn, or Orthanc. If your Combat or Leader re-roll score at least one hit, score two additional hits.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Nameless Wood",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0224",
+  "title": "Rangers of the North",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [],
+  "rules_text": "Choose a Shadow Army inside, or in a region bordering, the North Nation. Roll three dice and score one hit against this Army for each result of 5+. Then, recruit one North unit (Regular or Elite) and one North Leader in any free region of the North Nation adjacent to the attacked region.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Rangers of the North",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0225",
+  "title": "Threat to the Fiefs",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if the Corsairs of Umbar"
+  ],
+  "rules_text": "of the South Play if the Corsairs of Umbar faction is in play. Recruit one Gondor Regular unit in each of Pelargir, Lossarnach, and Lamedon. One at a time, roll a die for each Corsair Ship in any Gondor region. Each Ship is removed on a result of 4+.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Threat to the Fiefs",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0226",
+  "title": "Among the Siege Engines (6)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "If your Leader re-roll scores at least one hit, you may eliminate one en- emy siege engine (if one is in battle) in addition to your hit.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Among the Siege Engines",
+  "combat_strength": 6,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0227",
+  "title": "Last Defences (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if a Free Peoples Siege Engine is"
+  ],
+  "rules_text": "Play if a Free Peoples Siege Engine is in the battle. Add the number of your Siege Engines to the strength of the Free Peoples Army (you can still roll a maximum of 5 Combat dice).",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Last Defences",
+  "combat_strength": 3,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0228",
+  "title": "Last Defences (3)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "general",
+  "requirements": [
+   "Play if a Free Peoples Siege Engine is"
+  ],
+  "rules_text": "Play if a Free Peoples Siege Engine is in the battle. Add the number of your Siege Engines to the strength of the Free Peoples Army (you can still roll a maximum of 5 Combat dice).",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Last Defences",
+  "combat_strength": 3,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0229",
+  "title": "Among the Siege Engines (6)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "If your Leader re-roll scores at least one hit, you may eliminate one en- emy siege engine (if one is in battle) in addition to your hit.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Among the Siege Engines",
+  "combat_strength": 6,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0230",
+  "title": "A Balrog is Come!",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "persistent",
+  "requirements": [],
+  "rules_text": "Play on the table if the Balrog is in play. The movement of the Balrog is con- sidered to be 2 while this card is in play. The Free Peoples Player can force \u201cA Balrog is Come!\u201d to be discarded either using a Will of the West Action Die result, or a Character Action Die result if Gandalf is in the same region as the Balrog. Eliminate the Balrog if he is not in Moria when this card is discarded.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": true
+  },
+  "display_name": "A Balrog is Come!",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0231",
+  "title": "Durin\u2019s Bane (2)",
+  "faction": "free_peoples",
+  "deck_type": "combat_or_event",
+  "timing": "pre_combat",
+  "requirements": [
+   "Play if the defending Army is within two"
+  ],
+  "rules_text": "Play if the defending Army is within two regions of Moria Before the Combat roll, roll an additional attack using three combat dice. Score hits on 4+ and apply the result immediately.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Durin\u2019s Bane",
+  "combat_strength": 2,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0234",
+  "title": "The Gates are Closed",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "persistent",
+  "requirements": [],
+  "rules_text": "Play on the table. If the Fellowship goes into, out of, or through a Shadow Stronghold while be- ing declared or revealed, you may dis- card \u201cThe Gates are Closed\u201d to draw an additional Hunt tile. If the tile shows an Eye, discard it without effect. Otherwise, follow the rules for a successful Hunt. Ignore any reveal icon. The Free Peoples Player can force \u201cThe Gates are Closed\u201d to be discarded by either using a Will of the West Action Die result, or a Character Action Die result if Gandalf or Gollum is the Guide.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": true
+  },
+  "display_name": "The Gates are Closed",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0235",
+  "title": "Captain of Despair",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "persistent",
+  "requirements": [],
+  "rules_text": "Play on the table if The Witch-king is in play and Gollum is not the Guide of the Fellowship. Every Character Action die result used by the Shadow player is added to the Hunt box as an eye die when the action is completed. You must discard this card from the table immediately if the Fellowship is declared in a Free Peoples Stronghold controlled by the Free Peoples, or if Gollum becomes the Guide of the Fellowship.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": true,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": true
+  },
+  "display_name": "Captain of Despair",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0236",
+  "title": "The Corsairs are upon us!         (A)",
+  "faction": "shadow",
+  "deck_type": "army_event",
+  "timing": "general",
+  "requirements": [
+   "Play if the Corsairs of Umbar"
+  ],
+  "rules_text": "Play if the Corsairs of Umbar faction is in play. You may move any or all of the Ships. Then, you may move one Army from a region containing a Ship to a region free for the purposes of Army movement which also contains a Ship. You may then move or attack with that Army. If a battle starts, during the first round the Free Peoples player cannot play a Combat card.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "The Corsairs are upon us!",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0237",
+  "title": "Heads of the Fallen (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Shadow Army Siege Engine is in"
+  ],
+  "rules_text": "Play if a Shadow Army Siege Engine is in the Battle. Add 1 to all dice on your Combat roll. The Free Peoples player does not receive a Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Heads of the Fallen",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0238",
+  "title": "Heads of the Fallen (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [
+   "Play if a Shadow Army Siege Engine is in"
+  ],
+  "rules_text": "Play if a Shadow Army Siege Engine is in the Battle. Add 1 to all dice on your Combat roll. The Free Peoples player does not receive a Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Heads of the Fallen",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0239",
+  "title": "Rage of the Dunlendings         (M)",
+  "faction": "shadow",
+  "deck_type": "muster_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if the Hillmen of Dunland"
+  ],
+  "rules_text": "Play if the Hillmen of Dunland faction is in play. Recruit up to four Dunlendings and add them to a Shadow Army in ei- ther North or South Dunland (respecting the stacking limit). You may then move or attack with that Army.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Rage of the Dunlendings",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0240",
+  "title": "Deep Trenches and                   (M)",
+  "faction": "shadow",
+  "deck_type": "muster_event",
+  "timing": "action_phase",
+  "requirements": [],
+  "rules_text": "Great Engines Recruit up to two Shadow Siege En- gines, or eliminate up to two Free Peoples Siege Engines, in one or two regions with a Shadow Army besieg- ing a Stronghold controlled by the Free Peoples. No more than two total Siege En- gines may be recruited or eliminated in this way.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Deep Trenches and",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0241",
+  "title": "Deadly Strife (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "combat",
+  "requirements": [],
+  "rules_text": "Both Armies add 2 to all dice on their Combat and Leader re-roll.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": true,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Deadly Strife",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0242",
+  "title": "Shadow of Dol Guldur",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "action_phase",
+  "requirements": [
+   "Play if there is a Nazg\u00fbl in Dol Gul-"
+  ],
+  "rules_text": "Play if there is a Nazg\u00fbl in Dol Gul- dur. Recruit in Dol Guldur a number of Sauron Regular units equal to the Nazg\u00fbl Leadership in Dol Guldur (up to a maximum of 5, and respecting the stacking limit). You may then move or attack with that army.",
+  "engine_flags": {
+   "modifies_combat_roll": false,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": true,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Shadow of Dol Guldur",
+  "combat_strength": 0,
+  "card_type": "strategy_event"
+ },
+ {
+  "id": "WOTR_0243",
+  "title": "Relentless Assault (3)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "pre_combat",
+  "requirements": [],
+  "rules_text": "Before the Combat roll, you may inflict and apply up to two hits against your units. Add 1 to all dice on your Combat roll for each hit you inflicted.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Relentless Assault",
+  "combat_strength": 3,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0244",
+  "title": "Old Hatred (2)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "pre_combat",
+  "requirements": [
+   "Play if any Dunlending are in"
+  ],
+  "rules_text": "Play if any Dunlending are in the Battle. Before the Combat roll, roll an additional attack using only the Dunlending units and apply the results immediately.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Old Hatred",
+  "combat_strength": 2,
+  "card_type": "combat"
+ },
+ {
+  "id": "WOTR_0245",
+  "title": "Old Hatred (2)",
+  "faction": "shadow",
+  "deck_type": "combat_or_event",
+  "timing": "pre_combat",
+  "requirements": [
+   "Play if any Dunlending are in"
+  ],
+  "rules_text": "Play if any Dunlending are in the Battle. Before the Combat roll, roll an additional attack using only the Dunlending units and apply the results immediately.",
+  "engine_flags": {
+   "modifies_combat_roll": true,
+   "modifies_leader_reroll": false,
+   "affects_hunt": false,
+   "recruitment": false,
+   "movement": false,
+   "political_track": false,
+   "persistent_effect": false
+  },
+  "display_name": "Old Hatred",
+  "combat_strength": 2,
+  "card_type": "combat"
+ }
+]
