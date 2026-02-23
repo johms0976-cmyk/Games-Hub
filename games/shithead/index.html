@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Barstard</title>
+<title>Bastard</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════
@@ -1804,14 +1804,14 @@ function showGameOver(loser) {
   screen.classList.add('active');
 
   if (loser.isHuman) {
-    document.getElementById('go-title').textContent = 'BARSTARD!';
+    document.getElementById('go-title').textContent = 'BASTARD!';
     document.getElementById('go-title').style.color = 'var(--red)';
-    document.getElementById('go-loser').textContent = "You're the Barstard!";
+    document.getElementById('go-loser').textContent = "You're the Bastard!";
     document.getElementById('go-subtitle').textContent = 'Better luck next time... now go make the tea.';
   } else {
     document.getElementById('go-title').textContent = 'VICTORY!';
     document.getElementById('go-title').style.color = 'var(--gold)';
-    document.getElementById('go-loser').textContent = `${loser.name} is the Barstard!`;
+    document.getElementById('go-loser').textContent = `${loser.name} is the Bastard!`;
     document.getElementById('go-subtitle').textContent = 'They shuffle and deal next round.';
   }
 }
