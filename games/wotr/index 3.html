@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>War of the Ring — Digital Edition</title>
+    <link rel="stylesheet" href="main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Top Bar -->
+    <header id="top-bar">
+        <div class="bar-left">
+            <h1 class="game-title">War of the Ring</h1>
+            <span class="turn-info">Turn <span id="turn-num">1</span> — <span id="phase-name">Action Phase</span></span>
+        </div>
+        <div class="bar-center">
+            <div class="player-indicator fp-active" id="fp-indicator">
+                <span class="pip fp-pip"></span> Free Peoples
+            </div>
+            <div class="player-indicator" id="sp-indicator">
+                Shadow <span class="pip sp-pip"></span>
+            </div>
+        </div>
+        <div class="bar-right">
+            <button id="btn-dice" class="bar-btn" title="Roll Action Dice">🎲 Roll Dice</button>
+            <button id="btn-cards" class="bar-btn" title="View Cards">🃏 Cards</button>
+            <button id="btn-log" class="bar-btn" title="Game Log">📜 Log</button>
+            <button id="btn-help" class="bar-btn" title="Help">❓</button>
+        </div>
+    </header>
+
+    <!-- Main Board Area -->
+    <main id="board-wrapper">
+        <div id="board-container">
+            <img id="board-img" src="assets/board.jpg" alt="War of the Ring Board" draggable="false">
+            <!-- Region overlay nodes rendered by JS -->
+            <div id="region-overlay"></div>
+            <!-- Fellowship marker -->
+            <div id="fellowship-marker" class="board-marker" title="The Fellowship">⚪</div>
+        </div>
+    </main>
+
+    <!-- Dice Panel (slides in from left) -->
+    <aside id="dice-panel" class="side-panel hidden">
+        <div class="panel-header">
+            <h2>Action Dice</h2>
+            <button class="close-panel" data-panel="dice-panel">✕</button>
+        </div>
+        <div class="dice-section">
+            <h3>Free Peoples <span class="dice-count" id="fp-dice-count">4</span></h3>
+            <div id="fp-dice-tray" class="dice-tray"></div>
+            <button id="btn-roll-fp" class="roll-btn fp-btn">Roll Free Peoples Dice</button>
+        </div>
+        <div class="dice-section">
+            <h3>Shadow <span class="dice-count" id="sp-dice-count">7</span></h3>
+            <div id="sp-dice-tray" class="dice-tray"></div>
+            <button id="btn-roll-sp" class="roll-btn sp-btn">Roll Shadow Dice</button>
+        </div>
+        <div class="dice-section">
+            <h3>Combat Dice</h3>
+            <div id="combat-dice-tray" class="dice-tray"></div>
+            <div class="combat-controls">
+                <label>Dice: <input type="number" id="combat-dice-num" value="5" min="1" max="10"></label>
+                <button id="btn-roll-combat" class="roll-btn">Roll Combat</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Cards Panel (slides in from right) -->
+    <aside id="cards-panel" class="side-panel right-panel hidden">
+        <div class="panel-header">
+            <h2>Event Cards</h2>
+            <button class="close-panel" data-panel="cards-panel">✕</button>
+        </div>
+        <div class="cards-tabs">
+            <button class="tab-btn active" data-tab="fp-hand">FP Hand</button>
+            <button class="tab-btn" data-tab="sp-hand">Shadow Hand</button>
+            <button class="tab-btn" data-tab="played">In Play</button>
+            <button class="tab-btn" data-tab="browser">Browse</button>
+        </div>
+        <div class="cards-actions">
+            <button id="btn-draw-fp" class="draw-btn fp-btn">Draw FP Card</button>
+            <button id="btn-draw-sp" class="draw-btn sp-btn">Draw Shadow Card</button>
+            <span class="deck-info">FP Deck: <span id="fp-deck-count">0</span> | Shadow Deck: <span id="sp-deck-count">0</span></span>
+        </div>
+        <div id="cards-content" class="cards-content">
+            <div id="tab-fp-hand" class="tab-content active"></div>
+            <div id="tab-sp-hand" class="tab-content"></div>
+            <div id="tab-played" class="tab-content"></div>
+            <div id="tab-browser" class="tab-content">
+                <div class="browser-filters">
+                    <select id="filter-faction">
+                        <option value="all">All Factions</option>
+                        <option value="free_peoples">Free Peoples</option>
+                        <option value="shadow">Shadow</option>
+                    </select>
+                    <select id="filter-type">
+                        <option value="all">All Types</option>
+                        <option value="character_event">Character</option>
+                        <option value="strategy_event">Strategy</option>
+                        <option value="combat">Combat</option>
+                    </select>
+                    <input type="text" id="filter-search" placeholder="Search cards...">
+                </div>
+                <div id="browser-results"></div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Game Log Panel (slides from bottom) -->
+    <aside id="log-panel" class="bottom-panel hidden">
+        <div class="panel-header">
+            <h2>Game Log</h2>
+            <button class="close-panel" data-panel="log-panel">✕</button>
+        </div>
+        <div id="log-entries"></div>
+    </aside>
+
+    <!-- Game Status Bar (bottom) -->
+    <footer id="status-bar">
+        <div class="status-group">
+            <div class="status-item" title="Fellowship Progress">
+                <span class="status-label">Fellowship</span>
+                <span class="status-val" id="fellowship-pos">Rivendell (0)</span>
+            </div>
+            <div class="status-item" title="Corruption">
+                <span class="status-label">Corruption</span>
+                <div class="corruption-bar">
+                    <div class="corruption-fill" id="corruption-fill" style="width: 0%"></div>
+                </div>
+                <span class="status-val" id="corruption-val">0/12</span>
+            </div>
+        </div>
+        <div class="status-group">
+            <div class="status-item vp-item">
+                <span class="status-label fp-color">FP VP</span>
+                <span class="status-val fp-color" id="fp-vp">0</span>
+            </div>
+            <div class="status-item vp-item">
+                <span class="status-label sp-color">Shadow VP</span>
+                <span class="status-val sp-color" id="sp-vp">0</span>
+            </div>
+        </div>
+        <div class="status-group political-status">
+            <div class="pol-tracker" title="Political Status">
+                <span id="pol-elves" class="pol-pip fp-nation" data-nation="Elves">E:0</span>
+                <span id="pol-dwarves" class="pol-pip fp-nation" data-nation="Dwarves">D:0</span>
+                <span id="pol-north" class="pol-pip fp-nation" data-nation="The North">N:0</span>
+                <span id="pol-rohan" class="pol-pip fp-nation" data-nation="Rohan">R:0</span>
+                <span id="pol-gondor" class="pol-pip fp-nation" data-nation="Gondor">G:0</span>
+                <span class="pol-divider">|</span>
+                <span id="pol-isengard" class="pol-pip sp-nation" data-nation="Isengard">I:0</span>
+                <span id="pol-sauron" class="pol-pip sp-nation" data-nation="Sauron">S:0</span>
+                <span id="pol-southrons" class="pol-pip sp-nation" data-nation="Southrons">So:0</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Card Detail Modal -->
+    <div id="card-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content card-detail">
+            <button class="modal-close">✕</button>
+            <div id="card-modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Region Detail Modal -->
+    <div id="region-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content region-detail">
+            <button class="modal-close">✕</button>
+            <div id="region-modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content help-content">
+            <button class="modal-close">✕</button>
+            <h2>War of the Ring — Digital Board</h2>
+            <div class="help-body">
+                <p>This is a digital companion for the War of the Ring board game. Use it to track game state, manage cards, and roll dice.</p>
+                <h3>Controls</h3>
+                <ul>
+                    <li><strong>Scroll/Pinch</strong> — Zoom the board</li>
+                    <li><strong>Click + Drag</strong> — Pan the board</li>
+                    <li><strong>Click a region</strong> — View region details, manage armies</li>
+                    <li><strong>🎲 Roll Dice</strong> — Action & combat dice</li>
+                    <li><strong>🃏 Cards</strong> — Draw, view, and play event cards</li>
+                    <li><strong>📜 Log</strong> — Game history</li>
+                </ul>
+                <h3>Political Tracks</h3>
+                <p>Click the political status pips in the bottom bar to advance nations toward "At War".</p>
+                <h3>Fellowship</h3>
+                <p>The fellowship marker on the board shows current position. Use region clicks to move it.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
