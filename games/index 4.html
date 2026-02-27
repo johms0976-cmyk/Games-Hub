@@ -1,0 +1,2627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trick Escalation Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --hearts: #e63946;
+  --hearts-glow: #ff6b7a;
+  --diamonds: #f4a300;
+  --diamonds-glow: #ffd166;
+  --clubs: #2a9d8f;
+  --clubs-glow: #5eead4;
+  --spades: #6c5ce7;
+  --spades-glow: #a78bfa;
+  --bg-deep: #0a0a12;
+  --bg-mid: #12121e;
+  --bg-card: #1a1a2e;
+  --bg-surface: #16213e;
+  --text-primary: #e8e8f0;
+  --text-secondary: #8888aa;
+  --text-dim: #555577;
+  --gold: #d4a843;
+  --gold-glow: #f0d078;
+  --accent: #c9a84c;
+  --danger: #e63946;
+  --success: #2a9d8f;
+  --crown-row: #d4a843;
+  --heart-row: #e63946;
+  --foundation-row: #2a9d8f;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Crimson Text', Georgia, serif;
+  overflow: hidden;
+}
+
+/* ===== SCREEN SYSTEM ===== */
+.screen { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+.screen.active { display: flex; }
+
+/* ===== TITLE SCREEN ===== */
+#title-screen {
+  flex-direction: column; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 50% 40%, #1a1a3a 0%, #0a0a12 70%);
+  gap: 30px;
+}
+
+.title-ornament {
+  width: 200px; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  position: relative;
+}
+.title-ornament::after {
+  content: '◆'; position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--gold); font-size: 14px;
+}
+
+.game-title {
+  font-family: 'Cinzel', serif; font-weight: 900;
+  font-size: clamp(28px, 5vw, 56px);
+  text-align: center;
+  background: linear-gradient(180deg, #f0d078 0%, #d4a843 40%, #a07830 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  text-shadow: none; letter-spacing: 4px;
+  line-height: 1.2;
+}
+.game-subtitle {
+  font-family: 'Crimson Text', serif; font-style: italic;
+  color: var(--text-secondary); font-size: clamp(14px, 2vw, 20px);
+  text-align: center;
+}
+
+.class-select {
+  display: flex; gap: 20px; margin-top: 10px; flex-wrap: wrap; justify-content: center;
+}
+.class-card {
+  width: 220px; padding: 24px 20px;
+  background: var(--bg-card);
+  border: 1px solid #333355;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+.class-card:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 30px rgba(212,168,67,0.15);
+  transform: translateY(-4px);
+}
+.class-card.selected {
+  border-color: var(--gold);
+  background: linear-gradient(180deg, #1a1a2e, #1f1a30);
+  box-shadow: 0 0 40px rgba(212,168,67,0.2);
+}
+.class-card h3 {
+  font-family: 'Cinzel', serif; font-size: 16px; color: var(--gold);
+  margin-bottom: 8px;
+}
+.class-card p {
+  font-size: 13px; color: var(--text-secondary); line-height: 1.4;
+}
+
+.btn {
+  font-family: 'Cinzel', serif; font-weight: 700;
+  padding: 14px 40px; font-size: 16px;
+  background: linear-gradient(180deg, #d4a843, #a07830);
+  color: #0a0a12; border: none; border-radius: 8px;
+  cursor: pointer; letter-spacing: 2px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(212,168,67,0.4); }
+.btn:disabled { opacity: 0.4; cursor: default; transform: none; box-shadow: none; }
+
+/* ===== MAP SCREEN ===== */
+#map-screen {
+  flex-direction: column; align-items: center;
+  background: radial-gradient(ellipse at 50% 30%, #141428 0%, #0a0a12 70%);
+  padding: 20px; overflow-y: auto;
+}
+.map-header {
+  font-family: 'Cinzel', serif; font-size: 22px; color: var(--gold);
+  margin-bottom: 4px;
+}
+.map-subheader { color: var(--text-secondary); font-size: 14px; margin-bottom: 16px; }
+.map-stats {
+  display: flex; gap: 24px; margin-bottom: 20px; font-size: 14px; flex-wrap: wrap; justify-content: center;
+}
+.map-stats span { color: var(--text-secondary); }
+.map-stats .val { color: var(--gold); font-weight: 700; }
+
+/* Relic display on map */
+.map-relics {
+  display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; justify-content: center;
+}
+.relic-icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--bg-card); border: 2px solid #555577;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; cursor: help; position: relative;
+  transition: all 0.2s;
+}
+.relic-icon:hover { border-color: var(--gold); transform: scale(1.15); }
+.relic-tooltip {
+  position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%);
+  background: #1a1a2e; border: 1px solid var(--gold); border-radius: 8px;
+  padding: 8px 12px; font-size: 11px; white-space: nowrap;
+  color: var(--text-primary); pointer-events: none; opacity: 0;
+  transition: opacity 0.2s; z-index: 50;
+  font-family: 'Crimson Text', serif;
+}
+.relic-icon:hover .relic-tooltip { opacity: 1; }
+.relic-tooltip .relic-tip-name { color: var(--gold); font-weight: 600; }
+.relic-tooltip .relic-tip-desc { color: var(--text-secondary); }
+
+.map-container {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  padding: 20px;
+}
+.map-row {
+  display: flex; gap: 16px; justify-content: center;
+}
+.map-node {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  border: 2px solid #333355;
+  background: var(--bg-card);
+  cursor: default;
+  transition: all 0.3s ease;
+  position: relative;
+}
+.map-node.available {
+  cursor: pointer;
+  border-color: var(--gold);
+  animation: nodePulse 2s ease-in-out infinite;
+}
+.map-node.available:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 25px rgba(212,168,67,0.4);
+}
+.map-node.completed {
+  opacity: 0.4;
+  border-color: var(--text-dim);
+}
+.map-node.current {
+  border-color: var(--gold-glow);
+  box-shadow: 0 0 20px rgba(212,168,67,0.3);
+}
+.map-node.boss {
+  width: 64px; height: 64px; font-size: 26px;
+  border-color: var(--danger);
+}
+.map-node.boss.available { border-color: var(--danger); animation: bossNodePulse 2s ease-in-out infinite; }
+
+@keyframes nodePulse {
+  0%,100% { box-shadow: 0 0 8px rgba(212,168,67,0.2); }
+  50% { box-shadow: 0 0 20px rgba(212,168,67,0.4); }
+}
+@keyframes bossNodePulse {
+  0%,100% { box-shadow: 0 0 8px rgba(230,57,70,0.3); }
+  50% { box-shadow: 0 0 25px rgba(230,57,70,0.6); }
+}
+
+.node-tooltip {
+  position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%);
+  font-size: 11px; color: var(--text-secondary); white-space: nowrap;
+  font-family: 'Cinzel', serif; opacity: 0;
+  transition: opacity 0.2s;
+}
+.map-node:hover .node-tooltip { opacity: 1; }
+
+/* ===== BATTLE SCREEN ===== */
+#battle-screen {
+  flex-direction: column;
+  background: var(--bg-deep);
+  position: relative;
+}
+
+.battle-top-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 16px;
+  background: rgba(0,0,0,0.4);
+  border-bottom: 1px solid #222244;
+  font-size: 13px; min-height: 44px;
+}
+.battle-top-bar .info-left { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.battle-top-bar .info-right { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.stat-badge {
+  display: flex; align-items: center; gap: 4px;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+}
+.stat-badge .label { color: var(--text-dim); }
+.stat-badge .val { color: var(--gold); font-weight: 700; }
+.hp-val { color: var(--hearts) !important; }
+.ink-val { color: var(--diamonds) !important; }
+
+/* Battle Relics Bar */
+.battle-relics {
+  display: flex; gap: 4px; align-items: center;
+}
+.battle-relic {
+  width: 24px; height: 24px; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: help; position: relative;
+}
+.battle-relic .relic-tooltip { bottom: -40px; }
+.battle-relic:hover .relic-tooltip { opacity: 1; }
+
+/* Enemy Area */
+.enemy-area {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 12px 16px;
+  min-height: 130px;
+}
+.enemy-name {
+  font-family: 'Cinzel', serif; font-size: 18px; color: var(--danger);
+  margin-bottom: 4px;
+}
+.enemy-intent {
+  font-size: 12px; color: var(--text-secondary); margin-bottom: 6px;
+  font-style: italic;
+}
+.enemy-phase {
+  font-size: 10px; color: var(--spades-glow); margin-bottom: 4px;
+  font-family: 'JetBrains Mono', monospace; text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.enemy-hp-bar {
+  width: 240px; height: 14px;
+  background: #1a1a2e; border-radius: 7px;
+  overflow: hidden; border: 1px solid #333;
+  margin-bottom: 10px; position: relative;
+}
+.enemy-hp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--danger), #ff8888);
+  transition: width 0.5s ease;
+  border-radius: 7px;
+}
+.enemy-hp-phase-markers {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+}
+.phase-marker {
+  position: absolute; top: 0; width: 2px; height: 100%;
+  background: rgba(255,255,255,0.4);
+}
+.enemy-hp-text {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--text-secondary); margin-bottom: 8px;
+}
+
+.enemy-card-slot {
+  width: 80px; height: 110px;
+  border: 2px dashed #333355;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-dim); font-size: 12px;
+}
+.enemy-card-slot.has-card {
+  border: 2px solid;
+  background: var(--bg-card);
+}
+.enemy-card-slot.revealed {
+  border-style: dashed;
+  opacity: 0.5;
+}
+
+/* Row Area */
+.rows-area {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  flex: 1;
+}
+.row-lane {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; max-width: 600px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+  min-height: 50px;
+  cursor: default;
+}
+.row-lane.selectable {
+  cursor: pointer;
+  border: 1px dashed;
+}
+.row-lane.selectable:hover { background: rgba(255,255,255,0.03); }
+.row-lane.selected { background: rgba(255,255,255,0.06); }
+
+.row-lane.crown { border-color: rgba(212,168,67,0.3); }
+.row-lane.crown.selectable { border-color: var(--crown-row); }
+.row-lane.heart { border-color: rgba(230,57,70,0.3); }
+.row-lane.heart.selectable { border-color: var(--heart-row); }
+.row-lane.foundation { border-color: rgba(42,157,143,0.3); }
+.row-lane.foundation.selectable { border-color: var(--foundation-row); }
+
+.row-label {
+  font-family: 'Cinzel', serif; font-size: 11px;
+  width: 80px; text-align: right;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.row-lane.crown .row-label { color: var(--crown-row); }
+.row-lane.heart .row-label { color: var(--heart-row); }
+.row-lane.foundation .row-label { color: var(--foundation-row); }
+
+.row-cards {
+  display: flex; gap: 4px; flex: 1; min-height: 40px; align-items: center;
+}
+.row-streak {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--text-dim); margin-left: auto;
+}
+
+.mini-card {
+  width: 32px; height: 44px;
+  border-radius: 4px;
+  background: var(--bg-card);
+  border: 1px solid #444;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Trick Area */
+.trick-area {
+  display: flex; align-items: center; justify-content: center;
+  gap: 40px; padding: 10px; min-height: 60px;
+}
+.trick-result {
+  font-family: 'Cinzel', serif;
+  font-size: 20px; font-weight: 700;
+  opacity: 0; transition: opacity 0.4s;
+}
+.trick-result.visible { opacity: 1; }
+.trick-result.win { color: var(--gold); }
+.trick-result.lose { color: var(--danger); }
+
+/* Score Display */
+.score-display {
+  text-align: center; padding: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.score-number {
+  font-size: 32px; font-weight: 700;
+  color: var(--gold);
+  transition: all 0.3s ease;
+}
+.score-number.exploding {
+  animation: scoreExplode 0.6s ease-out;
+}
+@keyframes scoreExplode {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.6); color: #fff; text-shadow: 0 0 30px var(--gold); }
+  100% { transform: scale(1); }
+}
+.score-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; }
+
+/* ===== SCORE BREAKDOWN OVERLAY ===== */
+.score-breakdown-overlay {
+  position: absolute; inset: 0;
+  background: rgba(5,5,15,0.88);
+  z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.score-breakdown-overlay.active {
+  opacity: 1; pointer-events: auto;
+}
+.score-breakdown-container {
+  background: linear-gradient(180deg, #16213e, #0e0e1a);
+  border: 1px solid var(--gold);
+  border-radius: 16px;
+  padding: 24px 32px;
+  min-width: 320px; max-width: 400px;
+  box-shadow: 0 0 60px rgba(212,168,67,0.15);
+}
+.breakdown-title {
+  font-family: 'Cinzel', serif; color: var(--gold);
+  font-size: 14px; text-align: center;
+  letter-spacing: 3px; text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.breakdown-step {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  opacity: 0; transform: translateX(-20px);
+  transition: all 0.3s ease;
+  font-size: 13px;
+}
+.breakdown-step.visible {
+  opacity: 1; transform: translateX(0);
+}
+.breakdown-step .step-label { color: var(--text-secondary); }
+.breakdown-step .step-value {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-primary); font-weight: 700;
+}
+.breakdown-step .step-value.chips-color { color: var(--diamonds); }
+.breakdown-step .step-value.mult-color { color: var(--hearts); }
+.breakdown-step .step-value.bonus-color { color: var(--clubs); }
+.breakdown-step .step-value.keyword-color { color: var(--spades-glow); }
+.breakdown-step .step-value.relic-color { color: #ff9f43; }
+.breakdown-final {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 0 4px;
+  font-family: 'Cinzel', serif;
+  opacity: 0; transform: scale(0.8);
+  transition: all 0.4s ease;
+}
+.breakdown-final.visible {
+  opacity: 1; transform: scale(1);
+}
+.breakdown-final .final-label { color: var(--gold); font-size: 14px; letter-spacing: 2px; }
+.breakdown-final .final-value {
+  font-size: 28px; font-weight: 900; color: var(--gold);
+  text-shadow: 0 0 20px rgba(212,168,67,0.5);
+}
+
+/* Player Hand */
+.hand-area {
+  padding: 8px 16px 12px;
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,0.4));
+  border-top: 1px solid #222244;
+}
+.hand-label {
+  font-family: 'Cinzel', serif; font-size: 11px;
+  color: var(--text-dim); text-align: center; margin-bottom: 6px;
+  letter-spacing: 2px; text-transform: uppercase;
+}
+.hand-cards {
+  display: flex; justify-content: center; gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Cards */
+.card {
+  width: 72px; height: 100px;
+  border-radius: 8px;
+  background: var(--bg-card);
+  border: 2px solid #333355;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  position: relative;
+  user-select: none;
+}
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+.card.selected {
+  transform: translateY(-12px);
+  border-color: var(--gold);
+  box-shadow: 0 0 20px rgba(212,168,67,0.3);
+}
+.card.disabled { opacity: 0.4; cursor: default; pointer-events: none; }
+
+.card-rank {
+  font-family: 'Cinzel', serif; font-weight: 900;
+  font-size: 22px; line-height: 1;
+}
+.card-suit { font-size: 20px; margin-top: 2px; }
+.card-chips {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.card.hearts { border-color: rgba(230,57,70,0.4); }
+.card.hearts .card-rank { color: var(--hearts); }
+.card.diamonds { border-color: rgba(244,163,0,0.4); }
+.card.diamonds .card-rank { color: var(--diamonds); }
+.card.clubs { border-color: rgba(42,157,143,0.4); }
+.card.clubs .card-rank { color: var(--clubs); }
+.card.spades { border-color: rgba(108,92,231,0.4); }
+.card.spades .card-rank { color: var(--spades); }
+
+.card-keyword {
+  position: absolute; top: 3px; right: 3px;
+  font-size: 8px; background: rgba(0,0,0,0.5);
+  padding: 1px 4px; border-radius: 3px;
+  color: var(--gold); font-family: 'JetBrains Mono', monospace;
+}
+
+/* Escalation Matrix Panel */
+.matrix-panel {
+  position: absolute; right: 0; top: 44px; bottom: 0;
+  width: 220px;
+  background: rgba(10,10,18,0.95);
+  border-left: 1px solid #222244;
+  padding: 12px;
+  overflow-y: auto;
+  z-index: 10;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+}
+.matrix-panel.open { transform: translateX(0); }
+
+.matrix-toggle {
+  position: absolute; right: 16px; top: 50px;
+  width: 36px; height: 36px;
+  background: var(--bg-card); border: 1px solid #333355;
+  border-radius: 50%;
+  color: var(--gold); font-size: 16px;
+  cursor: pointer; z-index: 11;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s;
+}
+.matrix-toggle:hover { border-color: var(--gold); }
+.matrix-panel.open ~ .matrix-toggle { right: 226px; }
+
+.matrix-title {
+  font-family: 'Cinzel', serif; font-size: 13px;
+  color: var(--gold); text-align: center; margin-bottom: 10px;
+  letter-spacing: 2px; text-transform: uppercase;
+}
+.mod-item {
+  padding: 6px 8px; margin-bottom: 4px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 6px; border-left: 3px solid;
+  font-size: 11px; line-height: 1.3;
+}
+.mod-item .mod-name { font-weight: 600; color: var(--text-primary); }
+.mod-item .mod-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--gold);
+}
+.mod-item .mod-tier {
+  font-size: 9px; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.mod-item.spark { border-color: #ff9f43; }
+.mod-item.flame { border-color: #e63946; }
+.mod-item.inferno { border-color: #6c5ce7; }
+.mod-item.activated {
+  animation: modPulse 0.5s ease;
+}
+@keyframes modPulse {
+  0% { background: rgba(212,168,67,0.2); }
+  100% { background: rgba(255,255,255,0.03); }
+}
+
+/* Score Preview */
+.score-preview {
+  text-align: center; font-size: 12px;
+  color: var(--text-secondary); padding: 2px 0;
+  min-height: 18px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.score-preview .preview-val {
+  color: var(--gold); font-weight: 700;
+}
+
+/* Action Buttons */
+.action-bar {
+  display: flex; justify-content: center; gap: 10px;
+  padding: 6px;
+}
+.btn-small {
+  font-family: 'Cinzel', serif;
+  padding: 8px 20px; font-size: 12px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid #444466;
+  border-radius: 6px;
+  cursor: pointer; transition: all 0.2s;
+  letter-spacing: 1px;
+}
+.btn-small:hover { border-color: var(--gold); color: var(--gold); }
+.btn-small.primary {
+  background: linear-gradient(180deg, #d4a843, #a07830);
+  color: #0a0a12; border: none; font-weight: 700;
+}
+.btn-small:disabled { opacity: 0.3; cursor: default; }
+
+/* ===== REWARD SCREEN ===== */
+#reward-screen {
+  flex-direction: column; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 50% 40%, #1a1a3a 0%, #0a0a12 70%);
+  gap: 20px; padding: 20px;
+}
+.reward-title {
+  font-family: 'Cinzel', serif; font-size: 24px; color: var(--gold);
+}
+.reward-subtitle { color: var(--text-secondary); font-size: 14px; }
+.reward-cards {
+  display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+}
+.reward-card-option {
+  width: 100px; height: 140px;
+  border-radius: 10px; background: var(--bg-card);
+  border: 2px solid #333355;
+  cursor: pointer; transition: all 0.3s;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 8px;
+}
+.reward-card-option:hover {
+  border-color: var(--gold);
+  transform: translateY(-6px);
+  box-shadow: 0 8px 25px rgba(212,168,67,0.2);
+}
+.reward-card-option .card-rank { font-size: 26px; }
+.reward-card-option .card-suit { font-size: 24px; }
+.reward-card-option .card-name {
+  font-size: 10px; color: var(--text-secondary);
+  margin-top: 6px; text-align: center;
+}
+
+/* Relic Reward */
+.relic-reward-option {
+  width: 120px; padding: 16px;
+  border-radius: 10px; background: var(--bg-card);
+  border: 2px solid #555577;
+  cursor: pointer; transition: all 0.3s;
+  display: flex; flex-direction: column;
+  align-items: center; text-align: center; gap: 6px;
+}
+.relic-reward-option:hover {
+  border-color: #ff9f43;
+  transform: translateY(-6px);
+  box-shadow: 0 8px 25px rgba(255,159,67,0.2);
+}
+.relic-reward-option .relic-big-icon { font-size: 32px; }
+.relic-reward-option .relic-r-name { font-size: 12px; color: #ff9f43; font-weight: 600; }
+.relic-reward-option .relic-r-desc { font-size: 10px; color: var(--text-secondary); }
+
+/* ===== EVENT SCREEN ===== */
+#event-screen {
+  flex-direction: column; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 50% 40%, #1a1a3a 0%, #0a0a12 70%);
+  gap: 16px; padding: 20px;
+}
+.event-title {
+  font-family: 'Cinzel', serif; font-size: 22px; color: var(--gold);
+}
+.event-text {
+  max-width: 500px; text-align: center;
+  font-style: italic; color: var(--text-secondary);
+  line-height: 1.6; font-size: 15px;
+}
+.event-choices { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 400px; }
+.event-choice {
+  padding: 14px 18px;
+  background: var(--bg-card); border: 1px solid #333355;
+  border-radius: 8px; cursor: pointer;
+  transition: all 0.2s; text-align: left;
+}
+.event-choice:hover { border-color: var(--gold); background: #1f1f35; }
+.event-choice .choice-label { font-weight: 600; color: var(--text-primary); font-size: 14px; }
+.event-choice .choice-desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+/* ===== REST SCREEN ===== */
+#rest-screen {
+  flex-direction: column; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 50% 40%, #1a1a3a 0%, #0a0a12 70%);
+  gap: 20px;
+}
+
+/* ===== GAME OVER ===== */
+#gameover-screen {
+  flex-direction: column; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 50% 40%, #1a0a0a 0%, #0a0a12 70%);
+  gap: 16px;
+}
+.gameover-title {
+  font-family: 'Cinzel', serif; font-size: 36px;
+}
+.gameover-title.victory { color: var(--gold); }
+.gameover-title.defeat { color: var(--danger); }
+.gameover-stats { color: var(--text-secondary); font-size: 14px; text-align: center; line-height: 1.8; }
+
+/* ===== FLOATING SCORE POPUPS ===== */
+.score-popup {
+  position: fixed;
+  font-family: 'Cinzel', serif; font-weight: 900;
+  pointer-events: none; z-index: 100;
+  animation: popUp 1.2s ease-out forwards;
+}
+@keyframes popUp {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  50% { opacity: 1; transform: translateY(-40px) scale(1.3); }
+  100% { opacity: 0; transform: translateY(-80px) scale(0.8); }
+}
+
+/* Keyword trigger popup */
+.keyword-popup {
+  position: fixed;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  color: var(--spades-glow); font-weight: 700;
+  pointer-events: none; z-index: 100;
+  animation: keywordPop 1s ease-out forwards;
+  text-shadow: 0 0 10px rgba(167,139,250,0.5);
+}
+@keyframes keywordPop {
+  0% { opacity: 1; transform: translateY(0) scale(0.8); }
+  30% { opacity: 1; transform: translateY(-20px) scale(1.2); }
+  100% { opacity: 0; transform: translateY(-50px) scale(1); }
+}
+
+/* Revealed enemy cards area */
+.revealed-cards {
+  display: flex; gap: 4px; margin-top: 4px;
+}
+.revealed-mini {
+  width: 28px; height: 38px; border-radius: 3px;
+  background: rgba(108,92,231,0.15); border: 1px dashed var(--spades);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+}
+
+/* Phase transition flash */
+.phase-flash {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle, rgba(230,57,70,0.3), transparent);
+  z-index: 45; pointer-events: none;
+  animation: phaseFlash 0.8s ease-out forwards;
+}
+@keyframes phaseFlash {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Screen shake */
+.screen-shake {
+  animation: shake 0.4s ease;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px) translateY(2px); }
+  40% { transform: translateX(4px) translateY(-2px); }
+  60% { transform: translateX(-3px) translateY(1px); }
+  80% { transform: translateX(3px) translateY(-1px); }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #333355; border-radius: 3px; }
+
+/* Responsive */
+@media (max-width: 640px) {
+  .card { width: 58px; height: 82px; }
+  .card-rank { font-size: 18px; }
+  .card-suit { font-size: 16px; }
+  .matrix-panel { width: 180px; }
+  .enemy-card-slot { width: 64px; height: 88px; }
+  .score-breakdown-container { min-width: 260px; padding: 16px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== TITLE SCREEN ===== -->
+<div id="title-screen" class="screen active">
+  <div class="title-ornament"></div>
+  <h1 class="game-title">Trick Escalation<br>Engine</h1>
+  <p class="game-subtitle">Every trick won reshapes the next. Every hand played rewrites the rules.</p>
+  <div class="title-ornament"></div>
+
+  <p style="color: var(--text-secondary); font-size: 14px; margin-top: 10px;">Choose your class:</p>
+  <div class="class-select">
+    <div class="class-card selected" data-class="ember">
+      <h3>The Ember Dealer</h3>
+      <p>Hearts &amp; Diamonds focus. First trick each round grants a bonus modifier. Balanced &amp; forgiving.</p>
+    </div>
+    <div class="class-card" data-class="chrome">
+      <h3>The Chrome Tactician</h3>
+      <p>Spades &amp; Clubs focus. Losing tricks powers up your next play. Strategic &amp; calculated.</p>
+    </div>
+  </div>
+  <button class="btn" onclick="startGame()">Begin Run</button>
+</div>
+
+<!-- ===== MAP SCREEN ===== -->
+<div id="map-screen" class="screen">
+  <h2 class="map-header" id="map-act-title">Act 1 — The Outskirts</h2>
+  <p class="map-subheader">Choose your path</p>
+  <div class="map-stats">
+    <span>HP: <span class="val hp-val" id="map-hp">100</span></span>
+    <span>Ink: <span class="val ink-val" id="map-ink">0</span></span>
+    <span>Deck: <span class="val" id="map-deck">20</span></span>
+    <span>Modifiers: <span class="val" id="map-mods">0</span></span>
+  </div>
+  <div class="map-relics" id="map-relics"></div>
+  <div class="map-container" id="map-container"></div>
+</div>
+
+<!-- ===== BATTLE SCREEN ===== -->
+<div id="battle-screen" class="screen">
+  <div class="battle-top-bar">
+    <div class="info-left">
+      <div class="stat-badge"><span class="label">HP</span><span class="val hp-val" id="battle-hp">100</span></div>
+      <div class="stat-badge"><span class="label">Ink</span><span class="val ink-val" id="battle-ink">0</span></div>
+      <div class="stat-badge"><span class="label">Round</span><span class="val" id="battle-round">1</span></div>
+      <div class="stat-badge"><span class="label">Trick</span><span class="val" id="battle-trick">0/3</span></div>
+      <div class="battle-relics" id="battle-relics"></div>
+    </div>
+    <div class="info-right">
+      <div class="stat-badge"><span class="label">Act</span><span class="val" id="battle-act">1</span></div>
+    </div>
+  </div>
+
+  <!-- Enemy -->
+  <div class="enemy-area">
+    <div class="enemy-name" id="enemy-name">Ink Imp</div>
+    <div class="enemy-phase" id="enemy-phase"></div>
+    <div class="enemy-intent" id="enemy-intent">Intent: Attack</div>
+    <div class="enemy-hp-bar">
+      <div class="enemy-hp-fill" id="enemy-hp-fill" style="width:100%"></div>
+      <div class="enemy-hp-phase-markers" id="enemy-phase-markers"></div>
+    </div>
+    <div class="enemy-hp-text" id="enemy-hp-text">50 / 50</div>
+    <div class="enemy-card-slot" id="enemy-card-slot">Waiting...</div>
+    <div class="revealed-cards" id="revealed-cards"></div>
+  </div>
+
+  <!-- Score Breakdown Overlay -->
+  <div class="score-breakdown-overlay" id="score-breakdown-overlay">
+    <div class="score-breakdown-container" id="score-breakdown-container">
+      <div class="breakdown-title">Score Breakdown</div>
+      <div id="breakdown-steps"></div>
+      <div class="breakdown-final" id="breakdown-final">
+        <span class="final-label">DAMAGE</span>
+        <span class="final-value" id="breakdown-total">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trick Result -->
+  <div class="trick-area">
+    <div class="score-display">
+      <div class="score-label">Round Score</div>
+      <div class="score-number" id="round-score">0</div>
+    </div>
+    <div class="trick-result" id="trick-result"></div>
+  </div>
+
+  <!-- Rows -->
+  <div class="rows-area" id="rows-area">
+    <div class="row-lane crown" data-row="crown">
+      <div class="row-label">Crown<br>×Mult</div>
+      <div class="row-cards" id="crown-row-cards"></div>
+      <div class="row-streak" id="crown-streak"></div>
+    </div>
+    <div class="row-lane heart" data-row="heart">
+      <div class="row-label">Heart<br>+Chips</div>
+      <div class="row-cards" id="heart-row-cards"></div>
+      <div class="row-streak" id="heart-streak"></div>
+    </div>
+    <div class="row-lane foundation" data-row="foundation">
+      <div class="row-label">Shield<br>Defend</div>
+      <div class="row-cards" id="foundation-row-cards"></div>
+      <div class="row-streak" id="foundation-streak"></div>
+    </div>
+  </div>
+
+  <!-- Action Bar -->
+  <div class="score-preview" id="score-preview"></div>
+  <div class="action-bar" id="action-bar">
+    <button class="btn-small" onclick="toggleMatrix()" title="View Escalation Matrix (M)">✦ Matrix</button>
+    <button class="btn-small primary" id="btn-play" onclick="playCard()" disabled>Play Card</button>
+    <button class="btn-small" onclick="showHelp()" title="How to play">? Help</button>
+  </div>
+
+  <!-- Hand -->
+  <div class="hand-area">
+    <div class="hand-label">Your Hand</div>
+    <div class="hand-cards" id="hand-cards"></div>
+  </div>
+
+  <!-- Escalation Matrix -->
+  <button class="matrix-toggle" id="matrix-toggle" onclick="toggleMatrix()">✦</button>
+  <div class="matrix-panel" id="matrix-panel">
+    <div class="matrix-title">Escalation Matrix</div>
+    <div id="matrix-list"></div>
+  </div>
+</div>
+
+<!-- ===== REWARD SCREEN ===== -->
+<div id="reward-screen" class="screen">
+  <h2 class="reward-title" id="reward-title">Victory!</h2>
+  <p class="reward-subtitle" id="reward-ink">+30 Ink</p>
+  <p style="color: var(--text-secondary); font-size: 14px;" id="reward-card-label">Choose a card to add to your deck:</p>
+  <div class="reward-cards" id="reward-cards"></div>
+  <div id="relic-reward-area" style="display:none; text-align:center; margin-top:10px;">
+    <p style="color: #ff9f43; font-size: 14px; margin-bottom: 10px; font-family:'Cinzel',serif;">Choose a Relic:</p>
+    <div class="reward-cards" id="relic-reward-cards"></div>
+  </div>
+  <button class="btn-small" onclick="skipReward()" style="margin-top:10px">Skip / Continue</button>
+</div>
+
+<!-- ===== EVENT SCREEN ===== -->
+<div id="event-screen" class="screen">
+  <h2 class="event-title" id="event-title">???</h2>
+  <p class="event-text" id="event-text"></p>
+  <div class="event-choices" id="event-choices"></div>
+</div>
+
+<!-- ===== REST SCREEN ===== -->
+<div id="rest-screen" class="screen">
+  <h2 class="event-title">🔥 Rest Site</h2>
+  <p class="event-text">The warmth of a fire. A moment of respite.</p>
+  <div class="event-choices" id="rest-choices"></div>
+</div>
+
+<!-- ===== HELP OVERLAY ===== -->
+<div id="help-overlay" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--bg-card);border:1px solid #333355;border-radius:12px;max-width:520px;padding:28px;max-height:80vh;overflow-y:auto;">
+    <h2 style="font-family:'Cinzel',serif;color:var(--gold);font-size:20px;margin-bottom:12px;">How to Play</h2>
+    <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">
+      <p><strong style="color:var(--text-primary)">Trick-Taking:</strong> The enemy leads a card. You respond. If you follow suit and your rank is higher, you win the trick and deal damage!</p>
+      <p style="margin-top:8px"><strong style="color:var(--text-primary)">Off-Suit:</strong> Playing a different suit means you lose the trick — but you still place it in a row for strategic reasons.</p>
+      <p style="margin-top:8px"><strong style="color:var(--text-primary)">Suit Bonuses:</strong> Winning tricks grants suit-specific rewards:</p>
+      <ul style="margin:4px 0 4px 16px;list-style:disc;">
+        <li><span style="color:var(--hearts)">Hearts</span> — +mult modifier (×1.5 in Crown row)</li>
+        <li><span style="color:var(--diamonds)">Diamonds</span> — +chip modifier (×1.5 in Heart row)</li>
+        <li><span style="color:var(--clubs)">Clubs</span> — +direct damage to enemy</li>
+        <li><span style="color:var(--spades)">Spades</span> — Reveal an enemy card</li>
+      </ul>
+      <p style="margin-top:8px"><strong style="color:var(--text-primary)">Rows:</strong></p>
+      <ul style="margin:4px 0 4px 16px;list-style:disc;">
+        <li><span style="color:var(--crown-row)">Crown Row</span> — ×1.5 to multiplier modifiers</li>
+        <li><span style="color:var(--heart-row)">Heart Row</span> — ×1.5 to chip modifiers</li>
+        <li><span style="color:var(--foundation-row)">Foundation Row</span> — Grants shield on loss</li>
+      </ul>
+      <p style="margin-top:8px"><strong style="color:var(--text-primary)">Keywords:</strong></p>
+      <ul style="margin:4px 0 4px 16px;list-style:disc;font-size:12px;">
+        <li><span style="color:var(--gold)">Swift</span> — Wins ties</li>
+        <li><span style="color:var(--gold)">Echo</span> — Copies modifier reward to next trick</li>
+        <li><span style="color:var(--gold)">Phantom</span> — Returns to hand on loss</li>
+        <li><span style="color:var(--gold)">Crown</span> — ×1.5 in Crown Row</li>
+        <li><span style="color:var(--gold)">Bloom</span> — +chips per active modifier</li>
+        <li><span style="color:var(--gold)">Anchor</span> — Prevents row streak from breaking</li>
+        <li><span style="color:var(--gold)">Volatile</span> — ×2 chips, card destroyed after</li>
+        <li><span style="color:var(--gold)">Absorb</span> — Absorbs enemy damage on loss (no HP lost)</li>
+        <li><span style="color:var(--gold)">Linked</span> — Pulls highest card of same suit from deck to hand</li>
+        <li><span style="color:var(--gold)">Fracture</span> — Breaks enemy armor</li>
+      </ul>
+      <p style="margin-top:8px"><strong style="color:var(--text-primary)">Relics:</strong> Passive items earned from elites, bosses, and treasure. Max 8 per run.</p>
+      <p style="margin-top:8px"><strong style="color:var(--text-primary)">Boss Phases:</strong> Bosses change tactics at 66% and 33% HP. Watch for phase transitions!</p>
+      <p style="margin-top:8px"><strong style="color:var(--text-primary)">Controls:</strong> Click a card, click a row, then hit Play. Keys: 1/2/3 for rows, Enter to play, M for matrix.</p>
+    </div>
+    <button class="btn-small" style="margin-top:16px;width:100%" onclick="document.getElementById('help-overlay').style.display='none'">Got it!</button>
+  </div>
+</div>
+
+<!-- ===== GAME OVER ===== -->
+<div id="gameover-screen" class="screen">
+  <h2 class="gameover-title" id="gameover-title">Defeat</h2>
+  <div class="gameover-stats" id="gameover-stats"></div>
+  <button class="btn" onclick="location.reload()">Try Again</button>
+</div>
+
+<script>
+// ============================================================
+// TRICK ESCALATION ENGINE — GAME LOGIC (v2.0 — Tier 1 Complete)
+// ============================================================
+
+const SUITS = ['hearts','diamonds','clubs','spades'];
+const SUIT_SYMBOLS = { hearts:'♥', diamonds:'♦', clubs:'♣', spades:'♠' };
+const SUIT_COLORS = { hearts:'var(--hearts)', diamonds:'var(--diamonds)', clubs:'var(--clubs)', spades:'var(--spades)' };
+const RANK_NAMES = {2:'2',3:'3',4:'4',5:'5',6:'6',7:'7',8:'8',9:'9',10:'10',11:'J',12:'Q',13:'K',14:'A'};
+const CARD_NAMES_PREFIX = {
+  hearts: ['Ember','Crimson','Blood','Flame','Rose','Scarlet','Ruby','Blaze','Burning','Pyre','Infernal','Heart','Ardent'],
+  diamonds: ['Golden','Crystal','Gilded','Prism','Shining','Brilliant','Jeweled','Radiant','Lustrous','Gleaming','Opulent','Amber','Auric'],
+  clubs: ['Iron','Steel','Chrome','Titanium','Bronze','Forged','Tempered','Granite','Obsidian','Onyx','Adamant','Cobalt','Zinc'],
+  spades: ['Void','Shadow','Phantom','Spectral','Ethereal','Twilight','Arcane','Mystic','Nebula','Astral','Cosmic','Umbral','Cipher']
+};
+const KEYWORDS = ['Swift','Echo','Phantom','Crown','Bloom','Anchor','Volatile','Absorb','Linked','Fracture'];
+
+// ============================================================
+// TIER 1 FEATURE 6: RELIC DEFINITIONS
+// ============================================================
+const RELIC_POOL = [
+  { id: 'loaded_dice', name: 'Loaded Dice', icon: '🎲', desc: '+2 chips to even-rank cards', effect: 'even_chip_bonus' },
+  { id: 'bleeding_heart', name: 'Bleeding Heart Locket', icon: '💔', desc: 'Hearts wins heal 2 HP', effect: 'hearts_heal' },
+  { id: 'cracked_monocle', name: 'Cracked Monocle', icon: '🧐', desc: 'Reveal 2 enemy cards at encounter start', effect: 'reveal_start' },
+  { id: 'shattered_crown', name: 'Shattered Crown', icon: '👑', desc: 'Crown Row wins score even on trick loss', effect: 'crown_on_loss' },
+  { id: 'ink_siphon', name: 'Ink Siphon', icon: '🖋️', desc: '+5 Ink per trick won', effect: 'ink_per_win' },
+  { id: 'ember_core', name: 'Ember Core', icon: '🔥', desc: '+0.1× mult per round survived', effect: 'round_mult_bonus' },
+  { id: 'void_lens', name: 'Void Lens', icon: '🔮', desc: 'Spades cards get +3 chips', effect: 'spades_chip_bonus' },
+  { id: 'iron_scales', name: 'Iron Scales', icon: '⚖️', desc: 'Start each encounter with 5 shield', effect: 'start_shield' },
+  { id: 'echo_chamber', name: 'Echo Chamber', icon: '📡', desc: 'Echo keyword triggers twice', effect: 'double_echo' },
+  { id: 'gamblers_coin', name: "Gambler's Coin", icon: '🪙', desc: '20% chance for double modifier on win', effect: 'double_mod_chance' },
+  { id: 'diamond_lens', name: 'Diamond Lens', icon: '💎', desc: 'Diamond chip mods give +50% more', effect: 'diamond_chip_boost' },
+  { id: 'blood_pact', name: 'Blood Pact', icon: '🩸', desc: 'Lose 1 HP per trick, gain +0.2× universal mult', effect: 'blood_mult' },
+];
+
+// ====== GAME STATE ======
+let G = {};
+
+function initState(playerClass) {
+  G = {
+    playerClass,
+    hp: playerClass === 'ember' ? 100 : 90,
+    maxHp: playerClass === 'ember' ? 100 : 90,
+    ink: 0,
+    deck: [],
+    hand: [],
+    burnPile: [],
+    modifiers: [],
+    relics: [],
+    revealedEnemyCards: [],
+    act: 1,
+    mapNodes: [],
+    currentNode: -1,
+    totalDamage: 0,
+    tricksWon: 0,
+    tricksLost: 0,
+    encountersWon: 0,
+    roundScore: 0,
+    rowStreaks: { crown: 0, heart: 0, foundation: 0 },
+    selectedCard: null,
+    selectedRow: null,
+    // encounter state
+    enemy: null,
+    roundNum: 0,
+    trickNum: 0,
+    tricksPerRound: 3,
+    enemyCard: null,
+    phase: 'idle',
+    consecutiveWins: 0,
+    shield: 0,
+    // Tier 1: Echo carry-over
+    echoNextTrick: false,
+    echoSuit: null,
+  };
+
+  // Starting modifiers by class
+  if (playerClass === 'ember') {
+    G.modifiers.push({ name: 'Hearts Spark', suit: 'hearts', type: 'mult', value: 0.1, tier: 'spark', persistent: false });
+  } else {
+    G.modifiers.push({ name: 'Clubs Spark', suit: 'clubs', type: 'mult', value: 0.1, tier: 'spark', persistent: false });
+  }
+
+  buildStartingDeck();
+}
+
+function buildStartingDeck() {
+  G.deck = [];
+  const bias = G.playerClass === 'ember' ? ['hearts','diamonds','hearts','diamonds','clubs','spades']
+    : ['spades','clubs','spades','clubs','hearts','diamonds'];
+
+  for (let i = 0; i < 20; i++) {
+    const suit = bias[i % bias.length];
+    const rank = 2 + (i % 13);
+    G.deck.push(makeCard(suit, Math.min(rank, 14)));
+  }
+  shuffleArray(G.deck);
+}
+
+function makeCard(suit, rank, rarity) {
+  rarity = rarity || (Math.random() < 0.6 ? 'common' : Math.random() < 0.8 ? 'uncommon' : 'rare');
+  const rarityBonus = { common: 0, uncommon: 2, rare: 4, epic: 8, legendary: 15 };
+  const rarityMult = { common: 1.0, uncommon: 1.1, rare: 1.3, epic: 1.5, legendary: 2.0 };
+  const prefixes = CARD_NAMES_PREFIX[suit];
+  const name = prefixes[Math.floor(Math.random() * prefixes.length)] + ' ' + RANK_NAMES[rank];
+  let keywords = [];
+  if (rarity === 'rare' || rarity === 'epic' || rarity === 'legendary') {
+    keywords.push(KEYWORDS[Math.floor(Math.random() * KEYWORDS.length)]);
+  }
+  if (rarity === 'legendary' && Math.random() < 0.5) {
+    const second = KEYWORDS[Math.floor(Math.random() * KEYWORDS.length)];
+    if (!keywords.includes(second)) keywords.push(second);
+  }
+  return {
+    id: Math.random().toString(36).substr(2, 8),
+    suit, rank, name, rarity,
+    baseChips: rank + (rarityBonus[rarity] || 0),
+    baseMult: rarityMult[rarity] || 1.0,
+    keywords,
+  };
+}
+
+function shuffleArray(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+}
+
+function hasRelic(id) { return G.relics.some(r => r.id === id); }
+
+// ====== SCREENS ======
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ====== TITLE ======
+document.querySelectorAll('.class-card').forEach(c => {
+  c.addEventListener('click', () => {
+    document.querySelectorAll('.class-card').forEach(x => x.classList.remove('selected'));
+    c.classList.add('selected');
+  });
+});
+
+function startGame() {
+  const cls = document.querySelector('.class-card.selected')?.dataset.class || 'ember';
+  initState(cls);
+  generateMap();
+  showMap();
+}
+
+// ====== MAP ======
+function generateMap() {
+  G.mapNodes = [];
+  const nodeTypes = [
+    { type: 'encounter', icon: '⚔️', label: 'Encounter', weight: 40 },
+    { type: 'elite', icon: '💀', label: 'Elite', weight: 15 },
+    { type: 'event', icon: '❓', label: 'Event', weight: 15 },
+    { type: 'rest', icon: '🔥', label: 'Rest', weight: 10 },
+    { type: 'shop', icon: '🏪', label: 'Shop', weight: 10 },
+    { type: 'treasure', icon: '💎', label: 'Treasure', weight: 5 },
+    { type: 'shrine', icon: '✨', label: 'Shrine', weight: 5 },
+  ];
+
+  const numNodes = 8 + Math.floor(Math.random() * 3);
+  G.mapNodes.push({ type: 'encounter', icon: '⚔️', label: 'Encounter', completed: false });
+
+  for (let i = 1; i < numNodes; i++) {
+    const roll = Math.random() * 100;
+    let cumul = 0;
+    let chosen = nodeTypes[0];
+    for (const nt of nodeTypes) {
+      cumul += nt.weight;
+      if (roll < cumul) { chosen = nt; break; }
+    }
+    G.mapNodes.push({ type: chosen.type, icon: chosen.icon, label: chosen.label, completed: false });
+  }
+  G.mapNodes.push({ type: 'boss', icon: '👑', label: 'Boss', completed: false });
+  G.currentNode = -1;
+}
+
+function showMap() {
+  showScreen('map-screen');
+  const actNames = ['Act 1 — The Outskirts','Act 2 — The Contested Lands','Act 3 — The Monarch\'s Domain'];
+  document.getElementById('map-act-title').textContent = actNames[G.act - 1] || 'Act ' + G.act;
+  document.getElementById('map-hp').textContent = G.hp;
+  document.getElementById('map-ink').textContent = G.ink;
+  document.getElementById('map-deck').textContent = G.deck.length;
+  document.getElementById('map-mods').textContent = G.modifiers.length;
+
+  // Render relics on map
+  renderRelicBar('map-relics');
+
+  const container = document.getElementById('map-container');
+  container.innerHTML = '';
+
+  const nextIdx = G.currentNode + 1;
+  for (let i = 0; i < G.mapNodes.length; i++) {
+    const node = G.mapNodes[i];
+    if (i % 3 === 0) {
+      var rowDiv = document.createElement('div');
+      rowDiv.className = 'map-row';
+      container.appendChild(rowDiv);
+    }
+    const el = document.createElement('div');
+    el.className = 'map-node';
+    if (node.type === 'boss') el.classList.add('boss');
+    if (node.completed) el.classList.add('completed');
+    else if (i === nextIdx) el.classList.add('available');
+    if (!node.completed && i >= nextIdx && i <= nextIdx + 1 && i < G.mapNodes.length) {
+      el.classList.add('available');
+      el.addEventListener('click', () => enterNode(i));
+    }
+    el.innerHTML = `${node.icon}<span class="node-tooltip">${node.label}</span>`;
+    rowDiv.appendChild(el);
+  }
+}
+
+function renderRelicBar(containerId) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  G.relics.forEach(r => {
+    const el = document.createElement('div');
+    el.className = containerId === 'map-relics' ? 'relic-icon' : 'battle-relic';
+    el.innerHTML = `${r.icon}<span class="relic-tooltip"><span class="relic-tip-name">${r.name}</span><br><span class="relic-tip-desc">${r.desc}</span></span>`;
+    container.appendChild(el);
+  });
+}
+
+function enterNode(idx) {
+  G.currentNode = idx;
+  const node = G.mapNodes[idx];
+  node.completed = true;
+
+  switch (node.type) {
+    case 'encounter': startEncounter(generateEnemy('standard')); break;
+    case 'elite': startEncounter(generateEnemy('elite')); break;
+    case 'boss': startEncounter(generateEnemy('boss')); break;
+    case 'event': showEvent(); break;
+    case 'rest': showRest(); break;
+    case 'shop': showShop(); break;
+    case 'treasure': showTreasure(); break;
+    case 'shrine': showShrine(); break;
+    default: showMap();
+  }
+}
+
+// ============================================================
+// ENEMIES (with TIER 1: Boss Phases & Enemy AI)
+// ============================================================
+function generateEnemy(tier) {
+  const actMult = G.act;
+  const enemies = {
+    standard: [
+      { name: 'Ink Imp', hp: 30 + actMult * 15, passive: null },
+      { name: 'Page Scratcher', hp: 35 + actMult * 15, passive: null },
+      { name: 'Smudge Sprite', hp: 25 + actMult * 20, passive: 'Gains +1 rank per round' },
+      { name: 'Blot Fiend', hp: 40 + actMult * 10, passive: null },
+    ],
+    elite: [
+      { name: 'Eraser Wraith', hp: 80 + actMult * 30, passive: 'Disables your lowest modifier each round' },
+      { name: 'Echo Shade', hp: 70 + actMult * 25, passive: 'Copies your last modifier at half strength' },
+      { name: 'Page Golem', hp: 100 + actMult * 20, passive: 'Gains 5 armor each round' },
+    ],
+    boss: [
+      {
+        name: 'The Crimson Regent', hp: 150 + actMult * 60, passive: 'Heals 5% HP per trick won',
+        phases: [
+          { threshold: 1.0, name: 'Reign', effect: 'heal', desc: 'Heals 3% HP per trick won' },
+          { threshold: 0.66, name: 'Bloodletting', effect: 'recoil', desc: 'Winning tricks deal 3 recoil damage to you' },
+          { threshold: 0.33, name: 'Crimson Storm', effect: 'double_play', desc: 'Enemy leads with +3 rank bonus' },
+        ]
+      },
+      {
+        name: 'The Golden Archon', hp: 140 + actMult * 50, passive: 'Diamonds cards have +3 rank',
+        phases: [
+          { threshold: 1.0, name: 'Gilded', effect: 'diamond_boost', desc: 'Diamond enemy cards get +3 rank' },
+          { threshold: 0.66, name: 'Midas Touch', effect: 'steal_chips', desc: 'Steals 2 chips from your modifiers on win' },
+          { threshold: 0.33, name: 'Golden Fury', effect: 'all_boost', desc: 'ALL enemy cards get +2 rank' },
+        ]
+      },
+      {
+        name: 'The Iron Marshal', hp: 180 + actMult * 40, passive: 'Gains 8 armor per round',
+        phases: [
+          { threshold: 1.0, name: 'Fortified', effect: 'armor_gain', desc: 'Gains 8 armor per round' },
+          { threshold: 0.66, name: 'Iron Wall', effect: 'armor_surge', desc: 'Gains 12 armor per round' },
+          { threshold: 0.33, name: 'Juggernaut', effect: 'reflect', desc: 'Reflects 25% damage back as recoil' },
+        ]
+      },
+      {
+        name: 'The Void Librarian', hp: 130 + actMult * 55, passive: 'Rearranges modifier order each round',
+        phases: [
+          { threshold: 1.0, name: 'Cataloging', effect: 'shuffle_mods', desc: 'Randomizes modifier application order' },
+          { threshold: 0.66, name: 'Erasure', effect: 'disable_mod', desc: 'Disables a random modifier each round' },
+          { threshold: 0.33, name: 'Void Collapse', effect: 'void_surge', desc: 'Enemy cards are all rank 12+' },
+        ]
+      },
+    ],
+  };
+
+  const pool = enemies[tier];
+  const template = pool[Math.floor(Math.random() * pool.length)];
+
+  // Build enemy hand
+  const hand = [];
+  const handSize = tier === 'boss' ? 10 : tier === 'elite' ? 8 : 6;
+  const rankBonus = tier === 'boss' ? 3 : tier === 'elite' ? 1 : 0;
+  for (let i = 0; i < handSize; i++) {
+    const suit = SUITS[Math.floor(Math.random() * 4)];
+    const rank = Math.min(14, Math.max(2, Math.floor(Math.random() * 13) + 2 + rankBonus));
+    hand.push({ suit, rank, id: 'e' + Math.random().toString(36).substr(2, 6) });
+  }
+
+  return {
+    ...template,
+    maxHp: template.hp,
+    armor: 0,
+    tier,
+    hand,
+    tricksPerRound: tier === 'boss' ? 5 : tier === 'elite' ? 4 : 3,
+    intent: 'Attack',
+    currentPhase: 0,
+    disabledModIdx: -1,
+  };
+}
+
+// ============================================================
+// TIER 1 FEATURE 5: ENEMY AI HEURISTICS
+// ============================================================
+function enemySelectCard() {
+  const hand = G.enemy.hand;
+  if (hand.length === 0) return null;
+  if (hand.length === 1) return hand.splice(0, 1)[0];
+
+  const hpPct = G.enemy.hp / G.enemy.maxHp;
+
+  // Boss phase: Void Collapse = all high rank
+  if (G.enemy.tier === 'boss' && G.enemy.phases) {
+    const phase = getCurrentPhase();
+    if (phase && phase.effect === 'void_surge') {
+      hand.forEach(c => { c.rank = Math.max(c.rank, 12); });
+    }
+    if (phase && phase.effect === 'all_boost') {
+      hand.forEach(c => { c.rank = Math.min(14, c.rank + 2); });
+    }
+  }
+
+  // Heuristic 1: If low HP (<33%), lead with strongest card
+  if (hpPct < 0.33) {
+    hand.sort((a, b) => b.rank - a.rank);
+    return hand.splice(0, 1)[0];
+  }
+
+  // Heuristic 2: Find player's dominant suit (most cards in hand)
+  const playerSuitCounts = {};
+  SUITS.forEach(s => { playerSuitCounts[s] = G.hand.filter(c => c.suit === s).length; });
+  const dominantSuit = Object.entries(playerSuitCounts).sort((a,b) => b[1] - a[1])[0][0];
+
+  // Heuristic 3: If HP < 66%, try to lead in player's dominant suit with high card
+  if (hpPct < 0.66) {
+    const suitCards = hand.filter(c => c.suit === dominantSuit).sort((a,b) => b.rank - a.rank);
+    if (suitCards.length > 0) {
+      const idx = hand.indexOf(suitCards[0]);
+      return hand.splice(idx, 1)[0];
+    }
+    // Fallback: lead strongest
+    hand.sort((a, b) => b.rank - a.rank);
+    return hand.splice(0, 1)[0];
+  }
+
+  // Heuristic 4: Normal - lead weakest first (save power for later)
+  hand.sort((a, b) => a.rank - b.rank);
+  return hand.splice(0, 1)[0];
+}
+
+// ============================================================
+// TIER 1 FEATURE 4: BOSS PHASE SYSTEM
+// ============================================================
+function getCurrentPhase() {
+  if (!G.enemy || !G.enemy.phases) return null;
+  const hpPct = G.enemy.hp / G.enemy.maxHp;
+  // Find the lowest threshold that HP is still below
+  let current = G.enemy.phases[0];
+  for (const phase of G.enemy.phases) {
+    if (hpPct <= phase.threshold) {
+      current = phase;
+    }
+  }
+  return current;
+}
+
+function checkPhaseTransition() {
+  if (!G.enemy || !G.enemy.phases) return;
+  const hpPct = G.enemy.hp / G.enemy.maxHp;
+  const oldPhase = G.enemy.currentPhase;
+
+  let newPhaseIdx = 0;
+  for (let i = G.enemy.phases.length - 1; i >= 0; i--) {
+    if (hpPct <= G.enemy.phases[i].threshold) {
+      newPhaseIdx = i;
+    }
+  }
+
+  if (newPhaseIdx > oldPhase) {
+    G.enemy.currentPhase = newPhaseIdx;
+    const phase = G.enemy.phases[newPhaseIdx];
+
+    // Visual: phase transition flash
+    const flash = document.createElement('div');
+    flash.className = 'phase-flash';
+    document.getElementById('battle-screen').appendChild(flash);
+    setTimeout(() => flash.remove(), 800);
+
+    // Screen shake
+    document.getElementById('battle-screen').classList.add('screen-shake');
+    setTimeout(() => document.getElementById('battle-screen').classList.remove('screen-shake'), 400);
+
+    // Show phase popup
+    spawnKeywordPopup(`PHASE ${newPhaseIdx + 1}: ${phase.name}`, 45);
+  }
+}
+
+function applyBossPhaseEffects(context, pCard, eCard, playerWins, score) {
+  if (!G.enemy || !G.enemy.phases) return 0;
+  const phase = getCurrentPhase();
+  if (!phase) return 0;
+
+  let extraEffect = 0;
+
+  if (context === 'on_win' && playerWins) {
+    if (phase.effect === 'heal') {
+      G.enemy.hp = Math.min(G.enemy.maxHp, G.enemy.hp + Math.floor(G.enemy.maxHp * 0.03));
+    }
+    if (phase.effect === 'recoil') {
+      G.hp = Math.max(1, G.hp - 3);
+      extraEffect = -3;
+    }
+    if (phase.effect === 'reflect') {
+      const recoil = Math.floor(score * 0.25);
+      G.hp = Math.max(1, G.hp - recoil);
+      extraEffect = -recoil;
+    }
+  }
+
+  if (context === 'round_start') {
+    if (phase.effect === 'armor_gain') G.enemy.armor += 8;
+    if (phase.effect === 'armor_surge') G.enemy.armor += 12;
+    if (phase.effect === 'disable_mod' && G.modifiers.length > 0) {
+      G.enemy.disabledModIdx = Math.floor(Math.random() * G.modifiers.length);
+    } else {
+      G.enemy.disabledModIdx = -1;
+    }
+  }
+
+  if (context === 'enemy_card_boost') {
+    if (phase.effect === 'diamond_boost' && eCard && eCard.suit === 'diamonds') {
+      return 3; // rank bonus
+    }
+    if (phase.effect === 'double_play') {
+      return 3; // rank bonus
+    }
+  }
+
+  return extraEffect;
+}
+
+// ============================================================
+// ENCOUNTER SYSTEM
+// ============================================================
+function startEncounter(enemy) {
+  G.enemy = enemy;
+  G.roundNum = 0;
+  G.trickNum = 0;
+  G.roundScore = 0;
+  G.consecutiveWins = 0;
+  G.shield = 0;
+  G.tricksPerRound = enemy.tricksPerRound;
+  G.rowStreaks = { crown: 0, heart: 0, foundation: 0 };
+  G.hand = [];
+  G.burnPile = [];
+  G.selectedCard = null;
+  G.selectedRow = null;
+  G.revealedEnemyCards = [];
+  G.echoNextTrick = false;
+  G.echoSuit = null;
+
+  // Clear encounter-only (spark) modifiers unless persistent
+  G.modifiers = G.modifiers.filter(m => m.tier !== 'spark' || m.persistent);
+
+  // Relic: Iron Scales — start with shield
+  if (hasRelic('iron_scales')) G.shield = 5;
+
+  // Relic: Cracked Monocle — reveal 2 enemy cards
+  if (hasRelic('cracked_monocle') && enemy.hand.length >= 2) {
+    G.revealedEnemyCards = [{ ...enemy.hand[0] }, { ...enemy.hand[1] }];
+  }
+
+  showScreen('battle-screen');
+  document.getElementById('matrix-panel').classList.remove('open');
+  clearRows();
+  startRound();
+}
+
+function startRound() {
+  G.roundNum++;
+  G.trickNum = 0;
+  G.roundScore = 0;
+  G.consecutiveWins = 0;
+
+  // Draw hand
+  if (G.deck.length < 7) {
+    G.deck.push(...G.burnPile);
+    G.burnPile = [];
+    shuffleArray(G.deck);
+  }
+  shuffleArray(G.deck);
+  const drawCount = Math.min(7, G.deck.length);
+  G.hand = G.deck.splice(0, drawCount);
+
+  if (G.hand.length === 0) {
+    for (let i = 0; i < 5; i++) {
+      G.hand.push(makeCard(SUITS[Math.floor(Math.random()*4)], Math.floor(Math.random()*8)+2, 'common'));
+    }
+  }
+
+  // Replenish enemy hand
+  while (G.enemy.hand.length < G.tricksPerRound) {
+    const suit = SUITS[Math.floor(Math.random() * 4)];
+    const rank = Math.min(14, Math.floor(Math.random() * 13) + 2 + (G.enemy.tier === 'boss' ? 3 : G.enemy.tier === 'elite' ? 1 : 0));
+    G.enemy.hand.push({ suit, rank, id: 'e' + Math.random().toString(36).substr(2, 6) });
+  }
+
+  // Boss phase: round_start effects
+  applyBossPhaseEffects('round_start', null, null, false, 0);
+
+  // Elite passives at round start
+  if (G.enemy.name === 'Page Golem') G.enemy.armor += 5;
+  if (G.enemy.name === 'Eraser Wraith' && G.modifiers.length > 0) {
+    // Disable lowest modifier temporarily (already handled in score calc via enemy.disabledModIdx)
+    const sorted = G.modifiers.map((m,i) => ({val: m.value, idx: i})).sort((a,b) => a.val - b.val);
+    G.enemy.disabledModIdx = sorted[0].idx;
+  }
+
+  // Relic: Ember Core — gain mult per round
+  if (hasRelic('ember_core')) {
+    G.modifiers.push({
+      name: 'Ember Core', suit: null, type: 'mult', value: 0.1,
+      tier: 'spark', persistent: false
+    });
+  }
+
+  updateBattleUI();
+  startTrick();
+}
+
+function startTrick() {
+  G.trickNum++;
+  G.selectedCard = null;
+  G.selectedRow = null;
+  G.enemyCard = null;
+  G.phase = 'enemy_led';
+
+  // TIER 1 FEATURE 5: Enemy AI selects card
+  G.enemyCard = enemySelectCard();
+
+  if (!G.enemyCard) {
+    // No cards left, enemy passes
+    G.enemyCard = { suit: SUITS[Math.floor(Math.random()*4)], rank: 2, id: 'epass' };
+  }
+
+  // Boss phase card boost
+  const rankBoost = applyBossPhaseEffects('enemy_card_boost', null, G.enemyCard, false, 0);
+  if (rankBoost) G.enemyCard.rank = Math.min(14, G.enemyCard.rank + rankBoost);
+
+  updateBattleUI();
+  G.phase = 'player_choose';
+  enableRowSelection(true);
+}
+
+function selectCard(cardId) {
+  if (G.phase !== 'player_choose') return;
+  G.selectedCard = G.hand.find(c => c.id === cardId) || null;
+
+  // TIER 1 FEATURE 3: Linked keyword — pull card of same suit from deck
+  if (G.selectedCard && G.selectedCard.keywords.includes('Linked')) {
+    const sameInDeck = G.deck.filter(c => c.suit === G.selectedCard.suit).sort((a,b) => b.rank - a.rank);
+    if (sameInDeck.length > 0 && G.hand.length < 10) {
+      const pulled = sameInDeck[0];
+      G.deck = G.deck.filter(c => c.id !== pulled.id);
+      G.hand.push(pulled);
+      spawnKeywordPopup('LINKED: +' + RANK_NAMES[pulled.rank] + SUIT_SYMBOLS[pulled.suit], 60);
+    }
+  }
+
+  updateBattleUI();
+}
+
+function selectRow(row) {
+  if (G.phase !== 'player_choose') return;
+  G.selectedRow = row;
+  updateBattleUI();
+}
+
+// ============================================================
+// CORE: PLAY CARD (with all Tier 1 features integrated)
+// ============================================================
+function playCard() {
+  if (!G.selectedCard || !G.selectedRow || G.phase !== 'player_choose') return;
+  G.phase = 'resolving';
+  enableRowSelection(false);
+
+  const pCard = G.selectedCard;
+  const eCard = G.enemyCard;
+  const row = G.selectedRow;
+
+  // Remove from hand
+  G.hand = G.hand.filter(c => c.id !== pCard.id);
+
+  // TIER 1 FEATURE 3: Swift keyword — wins ties
+  let playerWins = false;
+  if (pCard.suit === eCard.suit) {
+    if (pCard.keywords.includes('Swift')) {
+      playerWins = pCard.rank >= eCard.rank; // wins ties!
+    } else {
+      playerWins = pCard.rank > eCard.rank;
+    }
+  } else {
+    playerWins = false;
+  }
+
+  // Relic: Shattered Crown — Crown Row wins score even on loss
+  let crownOnLoss = false;
+  if (!playerWins && row === 'crown' && hasRelic('shattered_crown')) {
+    crownOnLoss = true;
+  }
+
+  // TIER 1 FEATURE 3: Anchor keyword — prevent streak breaking
+  const hasAnchor = pCard.keywords.includes('Anchor');
+
+  // Row streak
+  if (playerWins || crownOnLoss) {
+    G.rowStreaks[row]++;
+  } else if (!hasAnchor) {
+    // Anchor prevents streak from resetting on loss
+    // Normal: do nothing (streaks only increment on win now)
+  }
+  // Actually let's always increment — playing to a row = row streak
+  G.rowStreaks[row]++;
+
+  // Relic: Blood Pact — lose 1 HP, gain mult
+  if (hasRelic('blood_pact')) {
+    G.hp = Math.max(1, G.hp - 1);
+  }
+
+  // Score the trick
+  let trickScore = 0;
+  let breakdownData = null;
+
+  if (playerWins || crownOnLoss) {
+    const result = calculateScoreDetailed(pCard, row);
+    trickScore = result.total;
+    breakdownData = result;
+    G.consecutiveWins++;
+    G.tricksWon++;
+
+    // TIER 1 FEATURE 2: Suit-Specific Modifier Rewards
+    addSuitSpecificReward(pCard.suit);
+
+    // TIER 1 FEATURE 3: Echo keyword — copy modifier to next trick
+    if (pCard.keywords.includes('Echo')) {
+      G.echoNextTrick = true;
+      G.echoSuit = pCard.suit;
+      spawnKeywordPopup('ECHO: Modifier carries!', 55);
+      if (hasRelic('echo_chamber')) {
+        // Double echo: add an extra modifier right now
+        addSuitSpecificReward(pCard.suit);
+        spawnKeywordPopup('ECHO ×2!', 50);
+      }
+    }
+
+    // Echo from previous trick
+    if (G.echoNextTrick && G.trickNum > 1) {
+      // Already applied at start; reset
+    }
+
+    // Class passive: Ember Dealer bonus
+    if (G.playerClass === 'ember' && G.trickNum === 1) {
+      G.modifiers.push({
+        name: 'Warming Up', suit: pCard.suit, type: 'mult', value: 0.1,
+        tier: 'spark', persistent: false
+      });
+    }
+
+    // Boss phase on-win effects
+    const phaseRecoil = applyBossPhaseEffects('on_win', pCard, eCard, true, trickScore);
+
+    // TIER 1 FEATURE 3: Fracture keyword — break enemy armor
+    if (pCard.keywords.includes('Fracture') && G.enemy.armor > 0) {
+      const armorBroken = Math.min(G.enemy.armor, 10);
+      G.enemy.armor -= armorBroken;
+      spawnKeywordPopup('FRACTURE: -' + armorBroken + ' armor', 65);
+    }
+
+    // Deal damage
+    const finalDmg = Math.max(1, Math.floor(trickScore));
+    const armorBlock = Math.min(finalDmg, G.enemy.armor);
+    G.enemy.armor -= armorBlock;
+    G.enemy.hp = Math.max(0, G.enemy.hp - (finalDmg - armorBlock));
+    G.roundScore += finalDmg;
+    G.totalDamage += finalDmg;
+
+    // Relic: Ink Siphon
+    if (hasRelic('ink_per_win') || hasRelic('ink_siphon')) G.ink += 5;
+
+    // Relic: Bleeding Heart Locket
+    if (hasRelic('bleeding_heart') && pCard.suit === 'hearts') {
+      G.hp = Math.min(G.maxHp, G.hp + 2);
+    }
+
+    // Check phase transition
+    checkPhaseTransition();
+
+  } else {
+    G.consecutiveWins = 0;
+    G.tricksLost++;
+
+    // TIER 1 FEATURE 3: Phantom keyword — returns to hand on loss
+    if (pCard.keywords.includes('Phantom')) {
+      G.hand.push(pCard);
+      spawnKeywordPopup('PHANTOM: Card returns!', 55);
+    }
+
+    // TIER 1 FEATURE 3: Absorb keyword — no damage on loss
+    const hasAbsorb = pCard.keywords.includes('Absorb');
+
+    // Chrome Tactician passive (with duration cap fix)
+    if (G.playerClass === 'chrome') {
+      const existingCalc = G.modifiers.filter(m => m.name === 'Calculated Risk');
+      if (existingCalc.length < 3) { // Cap at 3 stacks
+        G.modifiers.push({
+          name: 'Calculated Risk', suit: null, type: 'mult', value: 0.5,
+          tier: 'spark', persistent: false, duration: 1
+        });
+      }
+    }
+
+    // Foundation row defense
+    if (row === 'foundation') {
+      G.shield += 3;
+    }
+
+    // Enemy damage on win
+    if (!hasAbsorb) {
+      let eDmg = Math.floor(eCard.rank * 0.8 * G.act);
+      if (G.enemy.tier === 'boss') eDmg = Math.floor(eDmg * 1.5);
+      eDmg = Math.max(0, eDmg - G.shield);
+      G.shield = Math.max(0, G.shield - Math.floor(eCard.rank * 0.8 * G.act));
+      G.hp = Math.max(0, G.hp - eDmg);
+    } else {
+      spawnKeywordPopup('ABSORB: No damage!', 55);
+    }
+  }
+
+  // Add to burn pile
+  if (playerWins) {
+    G.burnPile.push(eCard);
+  } else {
+    if (!pCard.keywords.includes('Phantom')) {
+      G.burnPile.push(pCard);
+    }
+  }
+
+  // Place mini card in row
+  addMiniCard(row, pCard);
+
+  // TIER 1 FEATURE 1: Show Score Breakdown Animation
+  if ((playerWins || crownOnLoss) && breakdownData) {
+    showScoreBreakdown(breakdownData);
+  }
+
+  // Show result
+  showTrickResult(playerWins || crownOnLoss, trickScore, pCard);
+
+  // Handle echo for next trick
+  if (!pCard.keywords.includes('Echo') && G.echoNextTrick) {
+    G.echoNextTrick = false;
+  }
+
+  // Volatile keyword — destroy card
+  if (pCard.keywords.includes('Volatile')) {
+    G.deck = G.deck.filter(c => c.id !== pCard.id);
+    // Also remove from hand if somehow still there
+    G.hand = G.hand.filter(c => c.id !== pCard.id);
+  }
+
+  // Continue after delay (longer if breakdown shown)
+  const delay = (playerWins || crownOnLoss) && breakdownData ? 2500 : 800;
+
+  setTimeout(() => {
+    if (G.enemy.hp <= 0) {
+      encounterVictory();
+      return;
+    }
+    if (G.hp <= 0) {
+      gameOver(false);
+      return;
+    }
+
+    if (G.trickNum >= G.tricksPerRound) {
+      G.phase = 'round_end';
+      G.deck.push(...G.hand);
+      G.hand = [];
+
+      // Remove duration-limited modifiers
+      G.modifiers = G.modifiers.filter(m => {
+        if (m.duration) {
+          m.duration--;
+          return m.duration > 0;
+        }
+        return true;
+      });
+
+      if (G.enemy.hp > 0) {
+        setTimeout(() => startRound(), 600);
+      }
+    } else {
+      G.phase = 'idle';
+      setTimeout(() => startTrick(), 500);
+    }
+  }, delay);
+}
+
+// ============================================================
+// TIER 1 FEATURE 2: SUIT-SPECIFIC MODIFIER REWARDS
+// ============================================================
+function addSuitSpecificReward(suit) {
+  switch(suit) {
+    case 'hearts':
+      // Hearts = mult modifier
+      addSparkModifier('hearts', 'mult');
+      break;
+    case 'diamonds':
+      // Diamonds = chip modifier
+      addSparkModifier('diamonds', 'chips');
+      break;
+    case 'clubs':
+      // Clubs = direct damage to enemy
+      const directDmg = 2 + G.act;
+      G.enemy.hp = Math.max(0, G.enemy.hp - directDmg);
+      G.totalDamage += directDmg;
+      spawnScorePopup(directDmg);
+      break;
+    case 'spades':
+      // Spades = reveal next enemy card
+      if (G.enemy.hand.length > 0) {
+        const revealIdx = Math.floor(Math.random() * G.enemy.hand.length);
+        G.revealedEnemyCards.push({ ...G.enemy.hand[revealIdx] });
+        spawnKeywordPopup('REVEALED: ' + RANK_NAMES[G.enemy.hand[revealIdx].rank] + SUIT_SYMBOLS[G.enemy.hand[revealIdx].suit], 55);
+      }
+      break;
+  }
+
+  // Relic: Gambler's Coin — 20% chance for double modifier
+  if (hasRelic('gamblers_coin') && Math.random() < 0.2 && suit !== 'clubs') {
+    addSparkModifier(suit, suit === 'diamonds' ? 'chips' : 'mult');
+    spawnKeywordPopup('GAMBLER\'S COIN: Double!', 50);
+  }
+
+  // Echo carry from previous trick
+  if (G.echoNextTrick && G.echoSuit) {
+    if (G.echoSuit !== suit) {
+      addSparkModifier(G.echoSuit, G.echoSuit === 'diamonds' ? 'chips' : 'mult');
+    }
+  }
+}
+
+function addSparkModifier(suit, type) {
+  if (type === 'chips') {
+    // Add chip modifier
+    const chipVal = 2 + (hasRelic('diamond_lens') && suit === 'diamonds' ? 1 : 0);
+    const existing = G.modifiers.find(m => m.tier === 'spark' && m.suit === suit && m.type === 'chips' && !m.persistent);
+    if (existing) {
+      const stacks = G.modifiers.filter(m => m.tier === 'spark' && m.suit === suit && m.type === 'chips').length;
+      existing.value += stacks >= 5 ? 1 : chipVal;
+    } else {
+      G.modifiers.push({
+        name: suit.charAt(0).toUpperCase() + suit.slice(1) + ' Chips',
+        suit, type: 'chips', value: chipVal,
+        tier: 'spark', persistent: false,
+      });
+    }
+  } else {
+    // mult modifier (original behavior)
+    const existing = G.modifiers.find(m => m.tier === 'spark' && m.suit === suit && m.type === 'mult' && !m.persistent);
+    if (existing) {
+      const stacks = G.modifiers.filter(m => m.tier === 'spark' && m.suit === suit && m.type === 'mult').length;
+      existing.value += stacks >= 5 ? 0.05 : 0.1;
+      existing.value = Math.min(existing.value, 2.0);
+    } else {
+      G.modifiers.push({
+        name: suit.charAt(0).toUpperCase() + suit.slice(1) + ' Spark',
+        suit, type: 'mult', value: 0.1,
+        tier: 'spark', persistent: false,
+      });
+    }
+  }
+}
+
+// ============================================================
+// TIER 1 FEATURE 1: DETAILED SCORE CALCULATION + BREAKDOWN
+// ============================================================
+function calculateScoreDetailed(card, row) {
+  const steps = [];
+
+  // Base chips
+  let chips = card.baseChips;
+
+  // Relic: Loaded Dice
+  if (hasRelic('loaded_dice') && card.rank % 2 === 0) {
+    chips += 2;
+    steps.push({ label: 'Loaded Dice', value: '+2', colorClass: 'relic-color' });
+  }
+  // Relic: Void Lens
+  if (hasRelic('void_lens') && card.suit === 'spades') {
+    chips += 3;
+    steps.push({ label: 'Void Lens', value: '+3', colorClass: 'relic-color' });
+  }
+
+  steps.unshift({ label: 'Base Chips', value: card.baseChips.toString(), colorClass: 'chips-color' });
+
+  // Chip modifiers
+  let chipMod = 0;
+  G.modifiers.forEach((m, idx) => {
+    if (idx === G.enemy.disabledModIdx) return; // Boss: disabled mod
+    if (m.type === 'chips' && (m.suit === card.suit || m.suit === null)) {
+      chipMod += m.value;
+    }
+  });
+
+  if (row === 'heart') chipMod *= 1.5;
+
+  if (chipMod > 0) {
+    steps.push({ label: `Chip Mods${row === 'heart' ? ' (×1.5 Heart Row)' : ''}`, value: '+' + chipMod.toFixed(1), colorClass: 'chips-color' });
+  }
+
+  chips += chipMod;
+
+  // Keyword: Bloom
+  if (card.keywords.includes('Bloom')) {
+    const bloomChips = G.modifiers.length;
+    chips += bloomChips;
+    if (bloomChips > 0) steps.push({ label: 'Bloom (+per mod)', value: '+' + bloomChips, colorClass: 'keyword-color' });
+  }
+
+  // Keyword: Volatile
+  if (card.keywords.includes('Volatile')) {
+    chips *= 2;
+    steps.push({ label: 'Volatile (×2 chips)', value: chips.toFixed(0), colorClass: 'keyword-color' });
+  }
+
+  // Multiplier
+  let mult = card.baseMult;
+
+  // Relic: Blood Pact
+  if (hasRelic('blood_pact')) {
+    mult += 0.2;
+    steps.push({ label: 'Blood Pact', value: '+0.2×', colorClass: 'relic-color' });
+  }
+
+  steps.push({ label: 'Base Mult', value: mult.toFixed(2) + '×', colorClass: 'mult-color' });
+
+  // Gather multiplier modifiers by tier
+  let sparkMult = 0, flameMult = 0, infernoMult = 0;
+  G.modifiers.forEach((m, idx) => {
+    if (idx === G.enemy.disabledModIdx) return;
+    if (m.type !== 'mult') return;
+    if (m.suit !== null && m.suit !== card.suit) return;
+    if (m.tier === 'spark') sparkMult += m.value;
+    else if (m.tier === 'flame') flameMult += m.value;
+    else if (m.tier === 'inferno') infernoMult += m.value;
+  });
+
+  const crownBonus = row === 'crown' ? 1.5 : 1.0;
+
+  if (sparkMult > 0) {
+    mult *= (1 + sparkMult * crownBonus);
+    steps.push({ label: `Spark Mods${row === 'crown' ? ' (×1.5 Crown)' : ''}`, value: '×' + (1 + sparkMult * crownBonus).toFixed(2), colorClass: 'mult-color' });
+  }
+  if (flameMult > 0) {
+    mult *= (1 + flameMult * crownBonus);
+    steps.push({ label: `Flame Mods${row === 'crown' ? ' (×1.5 Crown)' : ''}`, value: '×' + (1 + flameMult * crownBonus).toFixed(2), colorClass: 'mult-color' });
+  }
+  if (infernoMult > 0) {
+    mult *= (1 + infernoMult * crownBonus);
+    steps.push({ label: `Inferno Mods${row === 'crown' ? ' (×1.5 Crown)' : ''}`, value: '×' + (1 + infernoMult * crownBonus).toFixed(2), colorClass: 'mult-color' });
+  }
+
+  // Row streak
+  const streak = G.rowStreaks[row] || 0;
+  const streakBonus = streak >= 4 ? 1.5 : streak >= 3 ? 1.25 : streak >= 2 ? 1.1 : 1.0;
+  if (streakBonus > 1) {
+    mult *= streakBonus;
+    steps.push({ label: `Row Streak (×${streak})`, value: '×' + streakBonus.toFixed(2), colorClass: 'bonus-color' });
+  }
+
+  // Combo multiplier
+  if (G.consecutiveWins > 0) {
+    const comboMult = 1 + 0.1 * G.consecutiveWins;
+    mult *= comboMult;
+    steps.push({ label: `Combo (${G.consecutiveWins} wins)`, value: '×' + comboMult.toFixed(2), colorClass: 'bonus-color' });
+  }
+
+  // Keyword: Crown
+  if (card.keywords.includes('Crown') && row === 'crown') {
+    mult *= 1.5;
+    steps.push({ label: 'Crown Keyword', value: '×1.5', colorClass: 'keyword-color' });
+  }
+
+  const total = Math.max(1, Math.floor(chips * mult));
+
+  return { steps, total, chips: Math.floor(chips), mult: mult.toFixed(2) };
+}
+
+function calculateScore(card, row) {
+  return calculateScoreDetailed(card, row).total;
+}
+
+// ============================================================
+// TIER 1 FEATURE 1: SCORE BREAKDOWN ANIMATION
+// ============================================================
+function showScoreBreakdown(data) {
+  const overlay = document.getElementById('score-breakdown-overlay');
+  const stepsContainer = document.getElementById('breakdown-steps');
+  const finalEl = document.getElementById('breakdown-final');
+  const totalEl = document.getElementById('breakdown-total');
+
+  stepsContainer.innerHTML = '';
+  finalEl.classList.remove('visible');
+  totalEl.textContent = '0';
+
+  // Build step elements
+  data.steps.forEach((step, i) => {
+    const el = document.createElement('div');
+    el.className = 'breakdown-step';
+    el.innerHTML = `<span class="step-label">${step.label}</span><span class="step-value ${step.colorClass}">${step.value}</span>`;
+    stepsContainer.appendChild(el);
+
+    // Stagger animation
+    setTimeout(() => el.classList.add('visible'), 80 * (i + 1));
+  });
+
+  // Show final total
+  const totalDelay = 80 * (data.steps.length + 1) + 200;
+  setTimeout(() => {
+    totalEl.textContent = data.total.toLocaleString();
+    finalEl.classList.add('visible');
+  }, totalDelay);
+
+  // Show overlay
+  overlay.classList.add('active');
+
+  // Auto-dismiss
+  setTimeout(() => {
+    overlay.classList.remove('active');
+  }, totalDelay + 1200);
+}
+
+function showTrickResult(won, score, card) {
+  const el = document.getElementById('trick-result');
+  el.textContent = won ? `Won! +${score}` : 'Lost!';
+  el.className = 'trick-result visible ' + (won ? 'win' : 'lose');
+
+  if (won && score > 0) {
+    const scoreEl = document.getElementById('round-score');
+    scoreEl.classList.add('exploding');
+    setTimeout(() => scoreEl.classList.remove('exploding'), 600);
+
+    if (score >= 20) {
+      spawnScorePopup(score);
+    }
+
+    // Big hit screen shake
+    if (score >= 50) {
+      document.getElementById('battle-screen').classList.add('screen-shake');
+      setTimeout(() => document.getElementById('battle-screen').classList.remove('screen-shake'), 400);
+    }
+  }
+
+  setTimeout(() => { el.classList.remove('visible'); }, 700);
+  updateBattleUI();
+}
+
+function spawnScorePopup(score) {
+  const popup = document.createElement('div');
+  popup.className = 'score-popup';
+  popup.textContent = '+' + score;
+  popup.style.left = (40 + Math.random() * 20) + '%';
+  popup.style.top = (30 + Math.random() * 20) + '%';
+  popup.style.fontSize = Math.min(48, 20 + score / 5) + 'px';
+  popup.style.color = score >= 100 ? '#ffd166' : score >= 50 ? '#f0d078' : 'var(--gold)';
+  document.body.appendChild(popup);
+  setTimeout(() => popup.remove(), 1200);
+}
+
+function spawnKeywordPopup(text, topPct) {
+  const popup = document.createElement('div');
+  popup.className = 'keyword-popup';
+  popup.textContent = text;
+  popup.style.left = (30 + Math.random() * 40) + '%';
+  popup.style.top = (topPct || 45) + '%';
+  document.body.appendChild(popup);
+  setTimeout(() => popup.remove(), 1000);
+}
+
+function encounterVictory() {
+  G.encountersWon++;
+  const inkGain = G.enemy.tier === 'boss' ? 80 : G.enemy.tier === 'elite' ? 50 : 30;
+  G.ink += inkGain;
+
+  G.deck.push(...G.hand);
+  G.hand = [];
+
+  // Add flame modifier from elite/boss
+  if (G.enemy.tier === 'elite' || G.enemy.tier === 'boss') {
+    const suit = SUITS[Math.floor(Math.random() * 4)];
+    G.modifiers.push({
+      name: suit.charAt(0).toUpperCase() + suit.slice(1) + (G.enemy.tier === 'boss' ? ' Inferno' : ' Flame'),
+      suit, type: 'mult', value: G.enemy.tier === 'boss' ? 0.3 : 0.2,
+      tier: G.enemy.tier === 'boss' ? 'inferno' : 'flame', persistent: true
+    });
+  }
+
+  if (G.enemy.tier === 'boss') {
+    G.act++;
+    if (G.act > 3) {
+      gameOver(true);
+      return;
+    }
+    generateMap();
+    showRewardScreen(inkGain, true);
+  } else {
+    showRewardScreen(inkGain, false);
+  }
+}
+
+function showRewardScreen(inkGain, isBoss) {
+  showScreen('reward-screen');
+  document.getElementById('reward-ink').textContent = '+' + inkGain + ' Ink' + (isBoss ? '  •  Act Complete!' : '');
+  document.getElementById('reward-title').textContent = 'Victory!';
+  document.getElementById('reward-card-label').textContent = 'Choose a card to add to your deck:';
+
+  const container = document.getElementById('reward-cards');
+  container.innerHTML = '';
+
+  // Generate 3 reward cards
+  const tier = G.enemy?.tier || 'standard';
+  for (let i = 0; i < 3; i++) {
+    const suit = SUITS[Math.floor(Math.random() * 4)];
+    const rank = Math.min(14, Math.floor(Math.random() * 13) + 2 + (tier === 'boss' ? 3 : tier === 'elite' ? 2 : 0));
+    const rarity = tier === 'boss' ? 'rare' : tier === 'elite' ? (Math.random() < 0.5 ? 'uncommon' : 'rare') : (Math.random() < 0.7 ? 'common' : 'uncommon');
+    const card = makeCard(suit, rank, rarity);
+
+    const el = document.createElement('div');
+    el.className = 'reward-card-option';
+    el.innerHTML = `
+      <div class="card-rank" style="color:${SUIT_COLORS[suit]}">${RANK_NAMES[rank]}</div>
+      <div class="card-suit">${SUIT_SYMBOLS[suit]}</div>
+      <div class="card-name">${card.name}</div>
+      <div style="font-size:9px;color:var(--text-dim);margin-top:2px">${card.baseChips}♦ ${card.baseMult}×</div>
+      ${card.keywords.length ? '<div style="font-size:8px;color:var(--gold);margin-top:2px">'+card.keywords.join(', ')+'</div>' : ''}
+    `;
+    el.addEventListener('click', () => {
+      G.deck.push(card);
+      showMap();
+    });
+    container.appendChild(el);
+  }
+
+  // TIER 1 FEATURE 6: Relic reward from elites/bosses
+  const relicArea = document.getElementById('relic-reward-area');
+  const relicContainer = document.getElementById('relic-reward-cards');
+  relicContainer.innerHTML = '';
+
+  if ((tier === 'elite' || tier === 'boss') && G.relics.length < 8) {
+    relicArea.style.display = 'block';
+    const available = RELIC_POOL.filter(r => !G.relics.some(gr => gr.id === r.id));
+    shuffleArray(available);
+    const offered = available.slice(0, Math.min(3, available.length));
+
+    offered.forEach(relic => {
+      const el = document.createElement('div');
+      el.className = 'relic-reward-option';
+      el.innerHTML = `
+        <div class="relic-big-icon">${relic.icon}</div>
+        <div class="relic-r-name">${relic.name}</div>
+        <div class="relic-r-desc">${relic.desc}</div>
+      `;
+      el.addEventListener('click', () => {
+        G.relics.push({ ...relic });
+        relicArea.style.display = 'none';
+        // Don't auto-leave — let them also pick a card
+      });
+      relicContainer.appendChild(el);
+    });
+  } else {
+    relicArea.style.display = 'none';
+  }
+}
+
+function skipReward() { showMap(); }
+
+// ====== EVENTS ======
+const EVENTS = [
+  {
+    title: 'The Ink Well',
+    text: 'You find a bubbling well of pure Ink. Its depths seem bottomless.',
+    choices: [
+      { label: 'Drink Deep', desc: '+80 Ink, but add 3 random common cards to deck', fn: () => { G.ink += 80; for(let i=0;i<3;i++) G.deck.push(makeCard(SUITS[Math.floor(Math.random()*4)], Math.floor(Math.random()*8)+2, 'common')); }},
+      { label: 'Bottle It', desc: '+35 Ink', fn: () => { G.ink += 35; }},
+      { label: 'Drown a Card', desc: 'Remove a random card from your deck', fn: () => { if(G.deck.length>15) G.deck.splice(Math.floor(Math.random()*G.deck.length),1); }},
+    ]
+  },
+  {
+    title: 'The Modifier Merchant',
+    text: 'A cloaked figure offers you a glowing sigil. "Trade me something precious," they whisper.',
+    choices: [
+      { label: 'Trade HP', desc: 'Lose 15 max HP. Gain a Flame modifier.', fn: () => { G.maxHp -= 15; G.hp = Math.min(G.hp, G.maxHp); const s=SUITS[Math.floor(Math.random()*4)]; G.modifiers.push({name:s.charAt(0).toUpperCase()+s.slice(1)+' Flame',suit:s,type:'mult',value:0.3,tier:'flame',persistent:true}); }},
+      { label: 'Trade Ink', desc: 'Pay 50 Ink. Gain +0.2× universal multiplier.', fn: () => { if(G.ink>=50){G.ink-=50;G.modifiers.push({name:'Universal Flame',suit:null,type:'mult',value:0.2,tier:'flame',persistent:true});}else{G.ink+=10;} }},
+      { label: 'Refuse', desc: 'Nothing happens.', fn: () => {} },
+    ]
+  },
+  {
+    title: 'The Gambler\'s Ghost',
+    text: 'A spectral card player materializes before you. "One trick. That\'s all I ask."',
+    choices: [
+      { label: 'Accept the Wager', desc: '50% chance: gain +0.3× mult. 50% chance: lose a card.', fn: () => { if(Math.random()<0.5){G.modifiers.push({name:'Ghost\'s Gift',suit:null,type:'mult',value:0.3,tier:'flame',persistent:true});}else if(G.deck.length>15){G.deck.splice(Math.floor(Math.random()*G.deck.length),1);} }},
+      { label: 'Decline', desc: 'The ghost vanishes.', fn: () => {} },
+    ]
+  },
+  {
+    title: 'The Broken Mirror',
+    text: 'A shattered mirror shows a version of you from a lost timeline.',
+    choices: [
+      { label: 'Merge Timelines', desc: 'Add 2 rare cards to your deck.', fn: () => { for(let i=0;i<2;i++) G.deck.push(makeCard(SUITS[Math.floor(Math.random()*4)], Math.floor(Math.random()*5)+10, 'rare')); }},
+      { label: 'Shatter It', desc: 'Gain +5 chips modifier.', fn: () => { G.modifiers.push({name:'Fracture Chips',suit:null,type:'chips',value:5,tier:'flame',persistent:true}); }},
+    ]
+  },
+];
+
+function showEvent() {
+  showScreen('event-screen');
+  const evt = EVENTS[Math.floor(Math.random() * EVENTS.length)];
+  document.getElementById('event-title').textContent = evt.title;
+  document.getElementById('event-text').textContent = evt.text;
+  const container = document.getElementById('event-choices');
+  container.innerHTML = '';
+  evt.choices.forEach(ch => {
+    const el = document.createElement('div');
+    el.className = 'event-choice';
+    el.innerHTML = `<div class="choice-label">${ch.label}</div><div class="choice-desc">${ch.desc}</div>`;
+    el.addEventListener('click', () => { ch.fn(); showMap(); });
+    container.appendChild(el);
+  });
+}
+
+function showRest() {
+  showScreen('rest-screen');
+  const container = document.getElementById('rest-choices');
+  container.innerHTML = '';
+  const choices = [
+    { label: '🔥 Rest & Heal', desc: `Recover 30% HP (+${Math.floor(G.maxHp*0.3)} HP)`, fn: () => { G.hp = Math.min(G.maxHp, G.hp + Math.floor(G.maxHp * 0.3)); }},
+    { label: '⚒️ Upgrade a Card', desc: 'Choose: a random card gains +50% base chips', fn: () => { if(G.deck.length>0){ const c=G.deck[Math.floor(Math.random()*G.deck.length)]; c.baseChips=Math.floor(c.baseChips*1.5); c.name='★ '+c.name; } }},
+    { label: '✨ Meditate', desc: 'Gain a random Flame modifier', fn: () => { const s=SUITS[Math.floor(Math.random()*4)]; G.modifiers.push({name:s.charAt(0).toUpperCase()+s.slice(1)+' Flame',suit:s,type:'mult',value:0.15,tier:'flame',persistent:true}); }},
+  ];
+  choices.forEach(ch => {
+    const el = document.createElement('div');
+    el.className = 'event-choice';
+    el.innerHTML = `<div class="choice-label">${ch.label}</div><div class="choice-desc">${ch.desc}</div>`;
+    el.addEventListener('click', () => { ch.fn(); showMap(); });
+    container.appendChild(el);
+  });
+}
+
+function showShop() {
+  showScreen('event-screen');
+  document.getElementById('event-title').textContent = '🏪 The Card Shop';
+  document.getElementById('event-text').textContent = `You have ${G.ink} Ink to spend.`;
+  const container = document.getElementById('event-choices');
+  container.innerHTML = '';
+  const items = [
+    { label: `Buy a Rare Card (100 Ink)`, desc: 'Add a random rare card', fn: () => { if(G.ink>=100){G.ink-=100;G.deck.push(makeCard(SUITS[Math.floor(Math.random()*4)],Math.floor(Math.random()*5)+10,'rare'));} }},
+    { label: `Remove a Card (50 Ink)`, desc: 'Remove a random weak card from your deck', fn: () => { if(G.ink>=50&&G.deck.length>15){G.ink-=50;G.deck.sort((a,b)=>a.rank-b.rank);G.deck.shift();} }},
+    { label: `Heal Potion (40 Ink)`, desc: `Heal 25% HP (+${Math.floor(G.maxHp*0.25)})`, fn: () => { if(G.ink>=40){G.ink-=40;G.hp=Math.min(G.maxHp,G.hp+Math.floor(G.maxHp*0.25));} }},
+    { label: 'Leave', desc: 'Return to the map', fn: () => {} },
+  ];
+  items.forEach(ch => {
+    const el = document.createElement('div');
+    el.className = 'event-choice';
+    el.innerHTML = `<div class="choice-label">${ch.label}</div><div class="choice-desc">${ch.desc}</div>`;
+    el.addEventListener('click', () => { ch.fn(); showMap(); });
+    container.appendChild(el);
+  });
+}
+
+function showTreasure() {
+  showScreen('event-screen');
+  document.getElementById('event-title').textContent = '💎 Treasure Found!';
+  const suit = SUITS[Math.floor(Math.random() * 4)];
+  G.modifiers.push({ name: suit.charAt(0).toUpperCase()+suit.slice(1)+' Flame', suit, type: 'mult', value: 0.25, tier: 'flame', persistent: true });
+  G.ink += 40;
+
+  // Also offer relic from treasure if slot available
+  let relicText = '';
+  if (G.relics.length < 8) {
+    const available = RELIC_POOL.filter(r => !G.relics.some(gr => gr.id === r.id));
+    if (available.length > 0) {
+      const relic = available[Math.floor(Math.random() * available.length)];
+      G.relics.push({ ...relic });
+      relicText = ` Also found relic: ${relic.icon} ${relic.name}!`;
+    }
+  }
+
+  document.getElementById('event-text').textContent = `You found a ${suit} Flame Modifier (+0.25× mult) and 40 Ink!${relicText}`;
+  const container = document.getElementById('event-choices');
+  container.innerHTML = '';
+  const el = document.createElement('div');
+  el.className = 'event-choice';
+  el.innerHTML = `<div class="choice-label">Continue</div>`;
+  el.addEventListener('click', () => showMap());
+  container.appendChild(el);
+}
+
+function showShrine() {
+  showScreen('event-screen');
+  document.getElementById('event-title').textContent = '✨ Modifier Shrine';
+  document.getElementById('event-text').textContent = 'Ancient energy hums through the sigils. Choose your blessing.';
+  const container = document.getElementById('event-choices');
+  container.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const suit = SUITS[i % 4];
+    const type = Math.random() < 0.5 ? 'mult' : 'chips';
+    const val = type === 'mult' ? +(0.15 + Math.random() * 0.2).toFixed(2) : Math.floor(3 + Math.random() * 5);
+    const el = document.createElement('div');
+    el.className = 'event-choice';
+    el.innerHTML = `<div class="choice-label">${suit.charAt(0).toUpperCase()+suit.slice(1)} ${type === 'mult' ? 'Mult' : 'Chips'}</div>
+      <div class="choice-desc">+${val}${type==='mult'?'×':''} ${type} for ${suit} cards (Flame)</div>`;
+    el.addEventListener('click', () => {
+      G.modifiers.push({ name: suit.charAt(0).toUpperCase()+suit.slice(1)+' Shrine', suit, type, value: val, tier: 'flame', persistent: true });
+      showMap();
+    });
+    container.appendChild(el);
+  }
+}
+
+// ====== GAME OVER ======
+function gameOver(victory) {
+  showScreen('gameover-screen');
+  const titleEl = document.getElementById('gameover-title');
+  titleEl.textContent = victory ? 'Victory!' : 'Defeat';
+  titleEl.className = 'gameover-title ' + (victory ? 'victory' : 'defeat');
+
+  const score = G.totalDamage + (G.tricksWon * 10) + (G.modifiers.length * 50) + (G.hp * 20) + (G.relics.length * 100);
+  document.getElementById('gameover-stats').innerHTML = `
+    Total Damage Dealt: ${G.totalDamage}<br>
+    Tricks Won: ${G.tricksWon} | Lost: ${G.tricksLost}<br>
+    Encounters Won: ${G.encountersWon}<br>
+    Modifiers Collected: ${G.modifiers.length}<br>
+    Relics: ${G.relics.map(r => r.icon).join(' ') || 'None'}<br>
+    Act Reached: ${G.act}<br>
+    <br>
+    <span style="color:var(--gold);font-family:'Cinzel',serif;font-size:20px;">
+      Final Score: ${score.toLocaleString()}
+    </span>
+  `;
+}
+
+// ====== UI HELPERS ======
+function updateBattleUI() {
+  document.getElementById('battle-hp').textContent = G.hp + (G.shield > 0 ? ' (🛡' + G.shield + ')' : '');
+  document.getElementById('battle-ink').textContent = G.ink;
+  document.getElementById('battle-round').textContent = G.roundNum;
+  document.getElementById('battle-trick').textContent = G.trickNum + '/' + G.tricksPerRound;
+  document.getElementById('battle-act').textContent = G.act;
+  document.getElementById('round-score').textContent = G.roundScore;
+
+  // Render battle relics
+  renderRelicBar('battle-relics');
+
+  // Enemy
+  if (G.enemy) {
+    document.getElementById('enemy-name').textContent = G.enemy.name;
+
+    // Phase display for bosses
+    const phaseEl = document.getElementById('enemy-phase');
+    if (G.enemy.phases) {
+      const phase = getCurrentPhase();
+      phaseEl.textContent = phase ? `Phase: ${phase.name} — ${phase.desc}` : '';
+
+      // Phase markers on HP bar
+      const markers = document.getElementById('enemy-phase-markers');
+      markers.innerHTML = '';
+      G.enemy.phases.forEach(p => {
+        if (p.threshold < 1.0) {
+          const marker = document.createElement('div');
+          marker.className = 'phase-marker';
+          marker.style.left = (p.threshold * 100) + '%';
+          markers.appendChild(marker);
+        }
+      });
+    } else {
+      phaseEl.textContent = '';
+    }
+
+    // Intent based on AI state
+    const hpPct = G.enemy.hp / G.enemy.maxHp;
+    let intentText = G.enemy.passive ? `Passive: ${G.enemy.passive}` : 'Intent: Attack';
+    if (hpPct < 0.33) intentText = 'Intent: Desperate Attack!';
+    else if (hpPct < 0.66) intentText = 'Intent: Aggressive';
+    document.getElementById('enemy-intent').textContent = intentText;
+
+    const hpPctDisplay = Math.max(0, (G.enemy.hp / G.enemy.maxHp) * 100);
+    document.getElementById('enemy-hp-fill').style.width = hpPctDisplay + '%';
+    document.getElementById('enemy-hp-text').textContent = G.enemy.hp + ' / ' + G.enemy.maxHp + (G.enemy.armor > 0 ? ' [🛡' + G.enemy.armor + ']' : '');
+  }
+
+  // Enemy card slot
+  const ecs = document.getElementById('enemy-card-slot');
+  if (G.enemyCard) {
+    ecs.className = 'enemy-card-slot has-card';
+    ecs.style.borderColor = getComputedSuitColor(G.enemyCard.suit);
+    ecs.innerHTML = `
+      <div style="text-align:center">
+        <div style="font-family:'Cinzel',serif;font-size:24px;font-weight:900;color:${SUIT_COLORS[G.enemyCard.suit]}">${RANK_NAMES[G.enemyCard.rank]}</div>
+        <div style="font-size:22px">${SUIT_SYMBOLS[G.enemyCard.suit]}</div>
+        <div style="font-size:10px;color:var(--text-dim)">${G.enemyCard.suit}</div>
+      </div>
+    `;
+  } else {
+    ecs.className = 'enemy-card-slot';
+    ecs.innerHTML = 'Waiting...';
+  }
+
+  // Revealed enemy cards
+  const revContainer = document.getElementById('revealed-cards');
+  revContainer.innerHTML = '';
+  G.revealedEnemyCards.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'revealed-mini';
+    el.style.color = getComputedSuitColor(c.suit);
+    el.textContent = RANK_NAMES[c.rank] + SUIT_SYMBOLS[c.suit];
+    revContainer.appendChild(el);
+  });
+
+  // Hand
+  renderHand();
+
+  // Play button
+  const playBtn = document.getElementById('btn-play');
+  playBtn.disabled = !(G.selectedCard && G.selectedRow && G.phase === 'player_choose');
+
+  // Score preview
+  const previewEl = document.getElementById('score-preview');
+  if (G.selectedCard && G.selectedRow && G.phase === 'player_choose') {
+    const est = calculateScore(G.selectedCard, G.selectedRow);
+    const followsSuit = G.enemyCard && G.selectedCard.suit === G.enemyCard.suit;
+    const hasSwift = G.selectedCard.keywords.includes('Swift');
+    const wouldWin = followsSuit && (hasSwift ? G.selectedCard.rank >= G.enemyCard.rank : G.selectedCard.rank > G.enemyCard.rank);
+    previewEl.innerHTML = followsSuit
+      ? (wouldWin
+        ? `Follows suit — <span class="preview-val">Win! ≈${est} damage</span>`
+        : `Follows suit — <span style="color:var(--danger)">Lose (outranked)</span>`)
+      : `Off-suit — <span style="color:var(--danger)">Cannot win trick</span> (plays to ${G.selectedRow} row)`;
+  } else if (G.selectedCard && !G.selectedRow) {
+    previewEl.innerHTML = '<span style="color:var(--text-dim)">Select a row ↑ (1=Crown, 2=Heart, 3=Shield)</span>';
+  } else {
+    previewEl.innerHTML = '';
+  }
+
+  // Row streaks
+  ['crown','heart','foundation'].forEach(r => {
+    const el = document.getElementById(r + '-streak');
+    el.textContent = G.rowStreaks[r] > 0 ? '×' + G.rowStreaks[r] : '';
+  });
+
+  // Escalation Matrix
+  renderMatrix();
+}
+
+function renderHand() {
+  const container = document.getElementById('hand-cards');
+  container.innerHTML = '';
+  G.hand.forEach(card => {
+    const matchesSuit = G.enemyCard && card.suit === G.enemyCard.suit;
+    const el = document.createElement('div');
+    el.className = 'card ' + card.suit;
+    if (G.selectedCard && G.selectedCard.id === card.id) el.classList.add('selected');
+    if (G.phase !== 'player_choose') el.classList.add('disabled');
+    if (matchesSuit && G.phase === 'player_choose') {
+      el.style.boxShadow = '0 0 12px rgba(212,168,67,0.25)';
+    }
+    el.innerHTML = `
+      <div class="card-rank">${RANK_NAMES[card.rank]}</div>
+      <div class="card-suit">${SUIT_SYMBOLS[card.suit]}</div>
+      <div class="card-chips">${card.baseChips}♦ ${card.baseMult}×</div>
+      ${card.keywords.length ? '<div class="card-keyword">'+card.keywords[0]+'</div>' : ''}
+      ${matchesSuit && G.phase === 'player_choose' ? '<div style="position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-size:8px;color:var(--gold)">match</div>' : ''}
+    `;
+    el.addEventListener('click', () => selectCard(card.id));
+    container.appendChild(el);
+  });
+}
+
+function renderMatrix() {
+  const list = document.getElementById('matrix-list');
+  list.innerHTML = '';
+  if (G.modifiers.length === 0) {
+    list.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:12px;padding:16px">No modifiers yet.<br>Win tricks to build your engine!</div>';
+    return;
+  }
+  const tiers = ['inferno','flame','spark'];
+  tiers.forEach(tier => {
+    const mods = G.modifiers.filter(m => m.tier === tier);
+    if (mods.length === 0) return;
+    mods.forEach((m, idx) => {
+      const globalIdx = G.modifiers.indexOf(m);
+      const isDisabled = globalIdx === G.enemy?.disabledModIdx;
+      const el = document.createElement('div');
+      el.className = 'mod-item ' + tier;
+      if (isDisabled) el.style.opacity = '0.3';
+      el.innerHTML = `
+        <div class="mod-tier">${tier}${isDisabled ? ' (DISABLED)' : ''}</div>
+        <div class="mod-name">${m.name}</div>
+        <div class="mod-val">+${typeof m.value === 'number' ? (m.type === 'mult' ? m.value.toFixed(2) + '×' : m.value) : m.value} ${m.type === 'mult' ? 'mult' : 'chips'}${m.suit ? ' ('+m.suit+')' : ' (all)'}</div>
+      `;
+      list.appendChild(el);
+    });
+  });
+}
+
+function enableRowSelection(enable) {
+  document.querySelectorAll('.row-lane').forEach(el => {
+    if (enable) {
+      el.classList.add('selectable');
+      el.onclick = () => selectRow(el.dataset.row);
+    } else {
+      el.classList.remove('selectable', 'selected');
+      el.onclick = null;
+    }
+  });
+  if (enable) updateRowHighlight();
+}
+
+function updateRowHighlight() {
+  document.querySelectorAll('.row-lane').forEach(el => {
+    el.classList.toggle('selected', el.dataset.row === G.selectedRow);
+  });
+}
+
+function clearRows() {
+  ['crown','heart','foundation'].forEach(r => {
+    document.getElementById(r + '-row-cards').innerHTML = '';
+    document.getElementById(r + '-streak').textContent = '';
+  });
+}
+
+function addMiniCard(row, card) {
+  const container = document.getElementById(row + '-row-cards');
+  const el = document.createElement('div');
+  el.className = 'mini-card';
+  el.style.color = SUIT_COLORS[card.suit];
+  el.style.borderColor = getComputedSuitColor(card.suit);
+  el.textContent = RANK_NAMES[card.rank];
+  container.appendChild(el);
+}
+
+function getComputedSuitColor(suit) {
+  const map = { hearts: '#e63946', diamonds: '#f4a300', clubs: '#2a9d8f', spades: '#6c5ce7' };
+  return map[suit] || '#888';
+}
+
+function toggleMatrix() {
+  document.getElementById('matrix-panel').classList.toggle('open');
+}
+
+// ====== KEYBOARD SHORTCUTS ======
+function showHelp() {
+  document.getElementById('help-overlay').style.display = 'flex';
+}
+
+document.addEventListener('keydown', (e) => {
+  if (G.phase === 'player_choose') {
+    if (e.key === '1' || e.key === 'q') selectRow('crown');
+    if (e.key === '2' || e.key === 'w') selectRow('heart');
+    if (e.key === '3' || e.key === 'e') selectRow('foundation');
+    if (e.key === 'Enter' || e.key === ' ') playCard();
+  }
+  if (e.key === 'm') toggleMatrix();
+  if (e.key === 'Escape') {
+    document.getElementById('help-overlay').style.display = 'none';
+    document.getElementById('matrix-panel').classList.remove('open');
+    document.getElementById('score-breakdown-overlay').classList.remove('active');
+  }
+});
+
+// Select row on click
+window.selectRow = function(row) {
+  if (G.phase !== 'player_choose') return;
+  G.selectedRow = row;
+  document.querySelectorAll('.row-lane').forEach(el => {
+    el.classList.toggle('selected', el.dataset.row === row);
+  });
+  updateBattleUI();
+};
+</script>
+</body>
+</html>
