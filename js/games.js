@@ -103,7 +103,7 @@ const GAMES = [
     duration: "45–90 min",
     icon: "🧙‍♂️",
     accentColor: "#c9a84c",
-    status: "playable",
+    status: "In Progress",
   },
      {
     id: "wotr",
@@ -114,7 +114,7 @@ const GAMES = [
     duration: "45–90 min",
     icon: "🧙‍♂️",
     accentColor: "#c9a84c",
-    status: "playable",
+    status: "In Progress",
   },
   { 
     id: "escalation-engine",
@@ -125,8 +125,19 @@ const GAMES = [
     duration: "45–90 min",
     icon: "🏎️",
     accentColor: "#c9a84c",
-    status: "playable",
+    status: "In Progress",
   },
+         {
+    id: "yaniv",
+    title: "Yaniv",
+    subtitle: "Do you have the lowest score?",
+    category: "card",
+    players: "4",
+    duration: "5-10 min",
+    icon: "0️⃣",
+    accentColor: "#e74c3c",
+    status: "playable",
+  }, 
       {
     id: "diamonds",
     title: "Diamonds",
