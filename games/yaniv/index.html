@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Yaniv</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e0818;
+  --bg-panel: #16102a;
+  --bg-card: #1e1636;
+  --border: rgba(212,168,67,0.1);
+  --border-hover: rgba(212,168,67,0.25);
+  --gold: #d4a843;
+  --gold-dim: rgba(212,168,67,0.15);
+  --gold-glow: rgba(212,168,67,0.3);
+  --red: #c0392b;
+  --red-dim: rgba(192,57,43,0.2);
+  --green: #27ae60;
+  --green-dim: rgba(46,204,113,0.15);
+  --blue: #3498db;
+  --purple: #9b59b6;
+  --purple-bright: #c77dff;
+  --purple-deep: #3d1a6e;
+  --text: #d4ccbe;
+  --text-dim: rgba(255,255,255,0.4);
+  --text-bright: #f0e8d8;
+  --card-w: 58px;
+  --card-h: 84px;
+  --card-radius: 7px;
+}
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit','Segoe UI',sans-serif;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  font-family: 'Outfit',sans-serif;
+  cursor: pointer;
+  transition: all .2s;
+  border: none;
+  outline: none;
+}
+button:hover:not(:disabled) { filter:brightness(1.15); transform:translateY(-1px); }
+button:active:not(:disabled) { transform:translateY(0) scale(0.97); }
+button:disabled { opacity:.4; cursor:not-allowed; }
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:rgba(255,255,255,.08); border-radius:3px; }
+
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(155,89,182,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(212,168,67,0.04) 0%, transparent 60%);
+  pointer-events:none; z-index:0;
+}
+
+/* ═══ SCREENS ═══ */
+.screen { display:none; min-height:100vh; min-height:100dvh; flex-direction:column; align-items:center; justify-content:center; position:relative; z-index:1; }
+.screen.active { display:flex; }
+
+/* ─── Title Screen ─── */
+#title-screen {
+  background: radial-gradient(ellipse at 50% 30%, #2a1548 0%, #0e0818 70%);
+  gap: 8px;
+  padding: 40px 24px;
+}
+#title-screen h1 {
+  font-family:'Cinzel',serif;
+  font-size: clamp(36px, 8vw, 56px);
+  font-weight:900;
+  background: linear-gradient(135deg, var(--gold), #f0d78c, var(--gold));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  letter-spacing:8px;
+  text-shadow:0 2px 20px var(--gold-glow);
+  text-transform: uppercase;
+}
+.title-sub {
+  color: var(--text-dim);
+  font-size:12px;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  font-weight:300;
+  margin-bottom:28px;
+}
+.title-icon { font-size: 40px; margin-bottom: 8px; }
+.setup-section { margin-bottom: 20px; text-align: center; }
+.setup-label {
+  color: var(--text-dim);
+  font-size:11px; letter-spacing:2.5px;
+  text-transform:uppercase; margin-bottom:10px; font-weight:500;
+}
+.option-row { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+.option-btn {
+  min-width:48px; height:48px; border-radius:12px;
+  border:2px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  color: var(--text-dim);
+  font-size:15px; font-weight:600;
+  font-family:'Outfit',sans-serif;
+  transition: all .2s;
+  padding: 0 14px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap: 2px;
+}
+.option-btn .opt-sub { font-size:8px; letter-spacing:1px; text-transform:uppercase; opacity:0.6; }
+.option-btn.sel {
+  border-color: var(--gold);
+  background: var(--gold-dim);
+  color: var(--gold);
+}
+.player-num-btn { width:48px; height:48px; font-family:'Cinzel',serif; font-size:18px; font-weight:700; }
+.start-btn {
+  padding:14px 48px;
+  font-size:15px; font-weight:700; letter-spacing:4px;
+  background:linear-gradient(135deg, #5a2d82, #7b3fa0);
+  color:#f0d78c; border-radius:12px;
+  font-family:'Cinzel',serif;
+  box-shadow:0 4px 24px rgba(123,63,160,.35);
+  text-transform:uppercase;
+  margin-top: 8px;
+  border: 1px solid rgba(212,168,67,0.3);
+}
+.rules-link {
+  margin-top: 16px;
+  color: var(--text-dim);
+  font-size:12px; letter-spacing:1.5px;
+  text-transform:uppercase;
+  cursor:pointer; transition: color .2s;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  background:none; border:none;
+  font-family:'Outfit',sans-serif;
+}
+.rules-link:hover { color: var(--gold); transform:none; }
+.hub-link {
+  margin-top: 20px;
+  color: var(--text-dim);
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-decoration: none;
+  font-family: 'Outfit', sans-serif;
+  transition: color .2s;
+  padding: 6px 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+}
+.hub-link:hover { color: var(--gold); border-color: rgba(212,168,67,0.3); }
+
+/* ─── Game Screen ─── */
+#game-screen {
+  justify-content: flex-start;
+  padding: 4px 6px 0;
+  gap: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* ═══ PLAYING CARDS ═══ */
+.card {
+  width: var(--card-w);
+  height: var(--card-h);
+  border-radius: var(--card-radius);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  position: relative;
+  flex-shrink: 0;
+  transition: transform .15s, box-shadow .15s, outline .15s;
+}
+.card-face {
+  background: linear-gradient(145deg, #f5f2ea, #e8e2d4);
+  border: 1px solid rgba(0,0,0,0.12);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.8);
+  color: #1a1a1a;
+  cursor: default;
+}
+.card-face.suit-hearts { color: #c0392b; }
+.card-face.suit-diamonds { color: #e67e22; }
+.card-face.suit-clubs { color: #1a8a3e; }
+.card-face.suit-spades { color: #2c3e50; }
+.card-face.is-joker {
+  background: linear-gradient(145deg, #3d1a6e, #2a0e48);
+  color: #f0d78c;
+  border: 1.5px solid rgba(212,168,67,0.4);
+  box-shadow: 0 2px 12px rgba(212,168,67,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.card-face.is-joker .card-corner { color: #f0d78c; }
+.card-face .card-rank { font-size:15px; line-height:1; }
+.card-face .card-suit { font-size:17px; line-height:1; margin-top:1px; }
+.card-face .card-corner {
+  position:absolute; font-size:8px; line-height:1;
+  display:flex; flex-direction:column; align-items:center; gap:0;
+}
+.card-face .card-corner.tl { top:3px; left:4px; }
+.card-face .card-corner.br { bottom:3px; right:4px; transform:rotate(180deg); }
+
+.card-back {
+  background:
+    radial-gradient(circle 1px at 15% 20%, rgba(212,168,67,0.5) 0%, transparent 100%),
+    radial-gradient(circle 1px at 70% 15%, rgba(240,215,140,0.4) 0%, transparent 100%),
+    radial-gradient(circle 1px at 40% 75%, rgba(212,168,67,0.5) 0%, transparent 100%),
+    radial-gradient(circle 1px at 85% 60%, rgba(240,215,140,0.35) 0%, transparent 100%),
+    radial-gradient(circle 1px at 25% 50%, rgba(212,168,67,0.4) 0%, transparent 100%),
+    radial-gradient(circle 1px at 55% 35%, rgba(240,215,140,0.3) 0%, transparent 100%),
+    radial-gradient(circle 1px at 10% 85%, rgba(212,168,67,0.45) 0%, transparent 100%),
+    radial-gradient(circle 1px at 90% 30%, rgba(240,215,140,0.35) 0%, transparent 100%),
+    radial-gradient(circle 1px at 50% 90%, rgba(212,168,67,0.4) 0%, transparent 100%),
+    radial-gradient(circle 1px at 35% 10%, rgba(240,215,140,0.3) 0%, transparent 100%),
+    radial-gradient(circle 1px at 75% 80%, rgba(212,168,67,0.35) 0%, transparent 100%),
+    radial-gradient(circle 1px at 60% 55%, rgba(240,215,140,0.25) 0%, transparent 100%),
+    linear-gradient(145deg, #5a2380, #3a1560, #2a0e48);
+  border: 1.5px solid rgba(212,168,67,0.3);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4), inset 0 0 12px rgba(155,89,182,0.15);
+}
+.card-back::after {
+  content:'♛';
+  font-size: 20px;
+  color: rgba(212,168,67,0.4);
+  text-shadow: 0 0 6px rgba(212,168,67,0.15);
+}
+.card.selectable { cursor:pointer; }
+.card.selectable:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 24px rgba(212,168,67,0.25);
+  z-index: 10;
+}
+.card.selected {
+  transform: translateY(-12px);
+  outline: 2.5px solid var(--gold);
+  box-shadow: 0 8px 20px var(--gold-glow);
+  z-index: 10;
+}
+
+/* ═══ GAME TABLE LAYOUT ═══ */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 2px 4px 4px;
+  flex-shrink: 0;
+}
+.top-bar-left { display: flex; align-items: center; gap: 6px; }
+.menu-btn {
+  background: none;
+  color: var(--text-dim);
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-family: 'Outfit', sans-serif;
+}
+.menu-btn:hover { color: var(--gold); border-color: rgba(212,168,67,0.3); transform:none; }
+.game-info {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-align: right;
+}
+
+/* Score bar */
+.score-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 6px 8px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 4px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.score-chip {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+}
+.score-chip.is-you { border-color: rgba(212,168,67,0.25); }
+.score-chip.is-eliminated {
+  opacity: 0.35;
+  text-decoration: line-through;
+}
+.score-chip .sc-name {
+  font-family: 'Cinzel',serif;
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.score-chip .sc-pts {
+  font-weight: 700;
+  color: var(--gold);
+  font-size: 12px;
+}
+.score-chip.is-eliminated .sc-pts { color: var(--red); }
+
+/* Opponents */
+.opponents-row {
+  display:flex;
+  justify-content:center;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+  padding: 4px 0;
+}
+.opponent-zone {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 10px;
+  text-align: center;
+  min-width: 90px;
+  max-width: 180px;
+  flex: 1;
+  transition: border-color .3s, box-shadow .3s;
+}
+.opponent-zone.is-turn {
+  border-color: rgba(212,168,67,0.3);
+  box-shadow: 0 0 20px rgba(212,168,67,0.08);
+}
+.opponent-zone.is-eliminated {
+  opacity: 0.3;
+}
+.opponent-name {
+  font-family:'Cinzel',serif;
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.opponent-name .turn-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: pulse 1s infinite;
+}
+.opp-cards {
+  display: flex;
+  gap: 2px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+.opp-cards .card {
+  --card-w: 28px;
+  --card-h: 38px;
+  --card-radius: 4px;
+}
+.opp-cards .card-back::after { font-size: 10px; }
+.opp-cards .card-face .card-rank { font-size: 8px; }
+.opp-cards .card-face .card-suit { font-size: 10px; }
+.opp-cards .card-face .card-corner { display:none; }
+.opp-score-info {
+  font-size: 9px;
+  color: var(--text-dim);
+  margin-top: 3px;
+  letter-spacing: 0.5px;
+}
+
+/* Status bar */
+.status-bar {
+  text-align: center;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: var(--text);
+  letter-spacing: 1px;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.status-bar .highlight { color: var(--gold); font-weight: 600; }
+
+/* Center area — draw & discard */
+.center-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 8px 0;
+  min-height: 130px;
+  flex-shrink: 0;
+}
+.pile-zone { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.pile-label {
+  font-size:10px; color:var(--text-dim);
+  letter-spacing:2px; text-transform:uppercase;
+  font-weight:500;
+}
+.pile-cards {
+  position: relative;
+  width: var(--card-w);
+  height: var(--card-h);
+  cursor: pointer;
+}
+.pile-cards .card { position:absolute; top:0; left:0; }
+.pile-count {
+  font-size:10px; color:var(--text-dim);
+  letter-spacing:1px;
+}
+
+/* Discard pile — show spread for multi-card discards */
+.discard-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.discard-spread {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+  min-height: var(--card-h);
+  align-items: center;
+  position: relative;
+}
+.discard-spread .card {
+  transition: transform .2s, box-shadow .2s;
+}
+.discard-spread .card.pickup-able {
+  cursor: pointer;
+  border: 1.5px solid rgba(46,204,113,0.4);
+}
+.discard-spread .card.pickup-able:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 20px rgba(46,204,113,0.3);
+}
+
+/* Action bar */
+.action-bar {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 4px 0;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  min-height: 40px;
+  align-items: center;
+}
+.action-btn {
+  padding: 8px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-radius: 10px;
+  font-family: 'Outfit', sans-serif;
+}
+.btn-discard {
+  background: linear-gradient(135deg, #5a2d82, #7b3fa0);
+  color: #f0d78c;
+  border: 1px solid rgba(212,168,67,0.3);
+}
+.btn-yaniv {
+  background: linear-gradient(135deg, #1a6b3a, #27ae60);
+  color: #fff;
+  border: 1px solid rgba(46,204,113,0.3);
+  box-shadow: 0 0 16px rgba(46,204,113,0.15);
+}
+.btn-yaniv:disabled {
+  box-shadow: none;
+}
+
+/* Hand score display */
+.hand-score-bar {
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+  padding: 3px 0 1px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.hand-score-bar .hand-score-val {
+  font-weight: 700;
+  font-size: 13px;
+}
+.hand-score-bar .hand-score-val.score-low { color: #2ecc71; }
+.hand-score-bar .hand-score-val.score-med { color: var(--gold); }
+.hand-score-bar .hand-score-val.score-high { color: var(--red); }
+
+/* Player hand */
+.player-zone {
+  width: 100%;
+  padding: 2px 4px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+.player-hand {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 500px;
+  position: relative;
+}
+.player-label {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+/* ═══ MODAL ═══ */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.show { display: flex; }
+.modal-content {
+  background: linear-gradient(165deg, #1e1636, #140e28);
+  border: 1px solid var(--border-hover);
+  border-radius: 16px;
+  padding: 28px 24px;
+  max-width: 480px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: fadeIn .2s ease;
+}
+.modal-content h2 {
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  color: var(--gold);
+  letter-spacing: 3px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.modal-close {
+  float: right;
+  background: none;
+  color: var(--text-dim);
+  font-size: 18px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+.modal-close:hover { color: var(--gold); }
+.rule-section { margin-bottom: 14px; font-size: 13px; line-height: 1.6; color: var(--text); }
+.rule-section strong { color: var(--gold); }
+.rule-title {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  color: var(--gold);
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+
+/* Round results */
+.round-results { text-align: center; }
+.round-results h2 { margin-bottom: 8px; }
+.round-subtitle {
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.round-subtitle .asaf-alert {
+  color: var(--red);
+  font-weight: 700;
+}
+.round-subtitle .yaniv-success {
+  color: var(--green);
+  font-weight: 700;
+}
+.round-players {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.rp-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.rp-row.is-caller { border-color: rgba(212,168,67,0.3); }
+.rp-row.is-penalty { border-color: rgba(192,57,43,0.3); background: rgba(192,57,43,0.05); }
+.rp-row.is-eliminated-row { opacity: 0.4; }
+.rp-name {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.rp-cards {
+  display: flex;
+  gap: 2px;
+  margin: 0 8px;
+}
+.rp-cards .card {
+  --card-w: 32px;
+  --card-h: 46px;
+  --card-radius: 4px;
+}
+.rp-cards .card-face .card-rank { font-size: 9px; }
+.rp-cards .card-face .card-suit { font-size: 11px; }
+.rp-cards .card-face .card-corner { display:none; }
+.rp-hand-val {
+  font-size: 12px;
+  color: var(--text-dim);
+  min-width: 32px;
+  text-align: right;
+}
+.rp-score {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold);
+  min-width: 48px;
+  text-align: right;
+}
+.rp-score.penalty { color: var(--red); }
+.rp-score.zero { color: var(--green); }
+.rp-eliminated-tag {
+  font-size: 9px;
+  color: var(--red);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-left: 4px;
+}
+.rp-halved-tag {
+  font-size: 9px;
+  color: var(--green);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-left: 4px;
+}
+.next-round-btn {
+  padding: 10px 36px;
+  font-size: 13px; font-weight: 700; letter-spacing: 3px;
+  background: linear-gradient(135deg, #5a2d82, #7b3fa0);
+  color: #f0d78c; border-radius: 10px;
+  font-family: 'Cinzel', serif;
+  text-transform: uppercase;
+  border: 1px solid rgba(212,168,67,0.3);
+  margin-top: 8px;
+}
+
+/* ═══ GAME OVER SCREEN ═══ */
+#gameover-screen {
+  background: radial-gradient(ellipse at 50% 30%, #2a1548 0%, #0e0818 70%);
+  gap: 12px;
+  padding: 40px 24px;
+}
+#gameover-screen h1 {
+  font-family:'Cinzel',serif;
+  font-size: clamp(28px, 6vw, 42px);
+  font-weight:900;
+  background: linear-gradient(135deg, var(--gold), #f0d78c, var(--gold));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  letter-spacing:6px;
+  text-transform: uppercase;
+}
+.winner-name {
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  color: var(--gold);
+  letter-spacing: 3px;
+}
+.final-scores {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 16px 0;
+  min-width: 240px;
+}
+.final-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+}
+.final-row.is-winner { border-color: rgba(212,168,67,0.3); background: rgba(212,168,67,0.05); }
+.final-row .fn { font-family:'Cinzel',serif; letter-spacing:1px; color:var(--text-dim); font-size:11px; text-transform:uppercase; }
+.final-row .fs { font-weight:700; color:var(--gold); }
+.final-row.is-winner .fn { color: var(--gold); }
+
+/* ═══ TOAST ═══ */
+.toast {
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:rgba(22,16,42,0.95); color:var(--gold);
+  padding:10px 24px; border-radius:10px;
+  font-size:13px; font-weight:600; letter-spacing:1px;
+  border:1px solid var(--border-hover);
+  opacity:0; transition:all .3s; pointer-events:none; z-index:200;
+  text-align:center; max-width:90vw;
+  backdrop-filter: blur(8px);
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ═══ ANIMATIONS ═══ */
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+@keyframes popIn { 0%{transform:scale(0.85);opacity:0} 100%{transform:scale(1);opacity:1} }
+.card { animation: popIn .15s ease both; }
+
+@keyframes yanivGlow {
+  0%,100% { box-shadow: 0 0 0 0 rgba(46,204,113,0.4); }
+  50% { box-shadow: 0 0 16px 4px rgba(46,204,113,0.3); }
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width:600px) {
+  :root { --card-w:50px; --card-h:72px; }
+  .opponent-zone { min-width:80px; padding:5px 6px; }
+  .opp-cards .card { --card-w:24px; --card-h:32px; }
+  .opp-cards .card-back::after { font-size: 8px; }
+  .player-hand { gap:2px; }
+  .center-area { gap:18px; min-height:110px; }
+  .opponents-row { gap:5px; }
+  .score-bar { gap:6px; padding:5px 6px; }
+  .score-chip { padding: 2px 5px; font-size: 10px; }
+  .discard-spread { gap: 2px; }
+}
+@media (max-width:380px) {
+  :root { --card-w:44px; --card-h:64px; }
+  .player-hand { gap:1px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ TITLE SCREEN ═══ -->
+<div id="title-screen" class="screen active">
+  <div class="title-icon">🃏</div>
+  <h1>Yaniv</h1>
+  <div class="title-sub">Drop Your Cards · Call Your Bluff</div>
+
+  <div class="setup-section">
+    <div class="setup-label">Players</div>
+    <div class="option-row" id="player-select">
+      <button class="option-btn player-num-btn" data-count="2">2</button>
+      <button class="option-btn player-num-btn sel" data-count="3">3</button>
+      <button class="option-btn player-num-btn" data-count="4">4</button>
+      <button class="option-btn player-num-btn" data-count="5">5</button>
+    </div>
+  </div>
+
+  <div class="setup-section">
+    <div class="setup-label">Score Limit</div>
+    <div class="option-row" id="limit-select">
+      <button class="option-btn sel" data-limit="100">100</button>
+      <button class="option-btn" data-limit="200">200</button>
+    </div>
+  </div>
+
+  <button class="start-btn" onclick="startGame()">Deal</button>
+  <button class="rules-link" onclick="showRules()">How to Play</button>
+  <a href="../index.html" class="hub-link">← Back to Game Hub</a>
+</div>
+
+<!-- ═══ GAME SCREEN ═══ -->
+<div id="game-screen" class="screen">
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <button class="menu-btn" onclick="confirmQuit()">✕ Quit</button>
+      <button class="menu-btn" onclick="showRules()">? Rules</button>
+    </div>
+    <div class="game-info" id="game-info"></div>
+  </div>
+  <div class="score-bar" id="score-bar"></div>
+  <div class="opponents-row" id="opponents-row"></div>
+  <div class="status-bar" id="status-bar"></div>
+  <div class="center-area">
+    <div class="pile-zone">
+      <div class="pile-label">Draw</div>
+      <div class="pile-cards" id="draw-pile"></div>
+      <div class="pile-count" id="draw-count"></div>
+    </div>
+    <div class="discard-zone">
+      <div class="pile-label">Discard</div>
+      <div class="discard-spread" id="discard-spread"></div>
+    </div>
+  </div>
+  <div class="hand-score-bar" id="hand-score-bar"></div>
+  <div class="action-bar" id="action-bar"></div>
+  <div class="player-zone" id="player-zone">
+    <div class="player-label">Your Hand</div>
+    <div class="player-hand" id="player-hand"></div>
+  </div>
+</div>
+
+<!-- ═══ GAME OVER SCREEN ═══ -->
+<div id="gameover-screen" class="screen">
+  <div class="title-icon">🏆</div>
+  <h1 id="go-title"></h1>
+  <div class="winner-name" id="go-winner"></div>
+  <div class="final-scores" id="final-scores"></div>
+  <button class="start-btn" onclick="showScreen('title-screen')">Play Again</button>
+  <a href="../index.html" class="hub-link" style="margin-top:12px;">← Back to Game Hub</a>
+</div>
+
+<!-- ═══ TOAST ═══ -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══ RULES MODAL ═══ -->
+<div class="modal-overlay" id="rules-modal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="hideRules()">✕</button>
+    <h2>How to Play</h2>
+    <div class="rule-section">
+      <div class="rule-title">Goal</div>
+      Be the last player standing! Each round, try to reduce your hand value as low as possible. When you think you have the lowest hand, call <strong>Yaniv!</strong> to end the round. Players exceeding the score limit are eliminated.
+    </div>
+    <div class="rule-section">
+      <div class="rule-title">Card Values</div>
+      <strong>Jokers = 0</strong>, <strong>Aces = 1</strong>, number cards = face value, <strong>J/Q/K = 10</strong> each.
+    </div>
+    <div class="rule-section">
+      <div class="rule-title">Your Turn</div>
+      <strong>1.</strong> Discard one or more cards (a single card, a set of 2+ same rank, or a run of 3+ consecutive same suit).<br>
+      <strong>2.</strong> Pick up one card — either from the draw pile, or the <strong>first or last</strong> card of the previous discard.
+    </div>
+    <div class="rule-section">
+      <div class="rule-title">Jokers in Runs</div>
+      A Joker can substitute for any card in a run (e.g. 4♦ 5♦ 🃏 7♦). Jokers placed at the end of a sequence can be picked up by the next player.
+    </div>
+    <div class="rule-section">
+      <div class="rule-title">Calling Yaniv</div>
+      If your hand totals <strong>5 or fewer</strong> points at the start of your turn, you may call <strong>Yaniv</strong> instead of playing. All hands are revealed.
+    </div>
+    <div class="rule-section">
+      <div class="rule-title">Scoring</div>
+      If you called Yaniv and have the lowest hand: <strong>you score 0</strong>, others score their hand values.<br>
+      If someone else ties or beats you (<strong>Asaf!</strong>): you get a <strong>30-point penalty</strong> plus your hand value. Everyone else scores their hand values.
+    </div>
+    <div class="rule-section">
+      <div class="rule-title">Score Reductions</div>
+      Landing on <strong>exactly 100</strong> drops you to <strong>50</strong>. Landing on <strong>exactly 200</strong> drops you to <strong>100</strong>.
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ROUND END MODAL ═══ -->
+<div class="modal-overlay" id="round-modal">
+  <div class="modal-content round-results" id="round-results"></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   CONSTANTS & HELPERS
+   ═══════════════════════════════════════════════════ */
+const SUITS = ['♥','♦','♣','♠'];
+const SUIT_NAMES = { '♥':'hearts','♦':'diamonds','♣':'clubs','♠':'spades' };
+const RANKS = [1,2,3,4,5,6,7,8,9,10,11,12,13]; // A=1 .. K=13
+const RANK_DISPLAY = {1:'A',2:'2',3:'3',4:'4',5:'5',6:'6',7:'7',8:'8',9:'9',10:'10',11:'J',12:'Q',13:'K'};
+const AI_NAMES = ['Sagi','Noam','Itay','Dalia'];
+
+let G = {}; // game state
+
+function cardValue(c) {
+  if (c.joker) return 0;
+  if (c.rank >= 11) return 10; // J Q K
+  return c.rank; // A=1, 2-10 face
+}
+
+function handValue(hand) {
+  return hand.reduce((s, c) => s + cardValue(c), 0);
+}
+
+function makeCard(rank, suit) {
+  return { rank, suit, joker: false, id: 'c' + rank + suit + Math.random().toString(36).slice(2,6) };
+}
+
+function makeJoker() {
+  return { rank: 0, suit: 'JK', joker: true, id: 'jk' + Math.random().toString(36).slice(2,6) };
+}
+
+function makeDeck() {
+  const d = [];
+  for (const s of SUITS) for (const r of RANKS) d.push(makeCard(r, s));
+  d.push(makeJoker());
+  d.push(makeJoker());
+  return d;
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function displayRank(c) {
+  if (c.joker) return '★';
+  return RANK_DISPLAY[c.rank] || c.rank;
+}
+
+function displaySuit(c) {
+  if (c.joker) return '🃏';
+  return c.suit + '\uFE0E';
+}
+
+function suitClass(c) {
+  if (c.joker) return 'is-joker';
+  return 'suit-' + SUIT_NAMES[c.suit];
+}
+
+/* ═══════════════════════════════════════════════════
+   DISCARD VALIDATION
+   ═══════════════════════════════════════════════════ */
+
+function isValidDiscard(cards) {
+  if (!cards || cards.length === 0) return false;
+  if (cards.length === 1) return true;
+
+  // Check set (2+ same rank) — jokers can be in sets as any rank
+  const nonJokers = cards.filter(c => !c.joker);
+  const jokers = cards.filter(c => c.joker);
+  if (nonJokers.length > 0) {
+    const allSameRank = nonJokers.every(c => c.rank === nonJokers[0].rank);
+    if (allSameRank && cards.length >= 2) return true;
+  } else if (jokers.length >= 2) {
+    return true; // all jokers set
+  }
+
+  // Check run (3+ consecutive same suit, jokers fill gaps)
+  if (cards.length >= 3) {
+    if (isValidRun(cards)) return true;
+  }
+
+  return false;
+}
+
+function isValidRun(cards) {
+  if (cards.length < 3) return false;
+  const nonJokers = cards.filter(c => !c.joker);
+  const jokerCount = cards.filter(c => c.joker).length;
+
+  if (nonJokers.length === 0) return false; // all jokers not a run
+  const suit = nonJokers[0].suit;
+  if (!nonJokers.every(c => c.suit === suit)) return false;
+
+  // Find what ranks we need to form a consecutive run
+  const ranks = nonJokers.map(c => c.rank).sort((a, b) => a - b);
+  // Check for duplicates
+  for (let i = 1; i < ranks.length; i++) {
+    if (ranks[i] === ranks[i-1]) return false;
+  }
+
+  const minR = ranks[0];
+  const maxR = ranks[ranks.length - 1];
+  const span = maxR - minR + 1;
+  if (span > cards.length) return false; // too many gaps even with jokers
+  if (span < cards.length) return false; // cards exceed span
+  // Gaps that need jokers
+  const gaps = span - nonJokers.length;
+  return gaps <= jokerCount;
+}
+
+function getRunOrder(cards) {
+  // Return cards ordered as a run (for display / pickup rules)
+  const nonJokers = cards.filter(c => !c.joker);
+  const jokers = cards.filter(c => c.joker);
+  if (nonJokers.length === 0) return [...cards];
+  const suit = nonJokers[0].suit;
+  const ranks = nonJokers.map(c => c.rank).sort((a, b) => a - b);
+  const minR = ranks[0];
+  const maxR = ranks[ranks.length - 1];
+  const ordered = [];
+  let ji = 0;
+  for (let r = minR; r <= maxR; r++) {
+    const card = nonJokers.find(c => c.rank === r);
+    if (card) {
+      ordered.push(card);
+    } else if (ji < jokers.length) {
+      ordered.push(jokers[ji++]);
+      ji;
+    }
+  }
+  // Remaining jokers at end
+  while (ji < jokers.length) { ordered.push(jokers[ji++]); }
+  return ordered;
+}
+
+function isSet(cards) {
+  if (cards.length < 2) return false;
+  const nonJokers = cards.filter(c => !c.joker);
+  if (nonJokers.length === 0) return cards.length >= 2;
+  return nonJokers.every(c => c.rank === nonJokers[0].rank);
+}
+
+/* ═══════════════════════════════════════════════════
+   PICKUP RULES — which discard cards can be taken
+   ═══════════════════════════════════════════════════ */
+function getPickupableIndices(discardCards) {
+  // From the last discard group, only first and last can be picked up
+  if (!discardCards || discardCards.length === 0) return [];
+  if (discardCards.length === 1) return [0];
+  return [0, discardCards.length - 1];
+}
+
+/* ═══════════════════════════════════════════════════
+   UI HELPERS
+   ═══════════════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showToast(msg, duration = 2000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('show'), duration);
+}
+
+function showRules() { document.getElementById('rules-modal').classList.add('show'); }
+function hideRules() { document.getElementById('rules-modal').classList.remove('show'); }
+
+function confirmQuit() {
+  if (confirm('Quit this game?')) showScreen('title-screen');
+}
+
+function cardHTML(c, extraClass = '') {
+  const sc = suitClass(c);
+  const r = displayRank(c);
+  const s = displaySuit(c);
+  return `<div class="card card-face ${sc} ${extraClass}" data-id="${c.id}">
+    <span class="card-corner tl"><span>${r}</span><span>${s}</span></span>
+    <span class="card-rank">${r}</span>
+    <span class="card-suit">${s}</span>
+    <span class="card-corner br"><span>${r}</span><span>${s}</span></span>
+  </div>`;
+}
+
+function cardBackHTML(extraClass = '') {
+  return `<div class="card card-back ${extraClass}"></div>`;
+}
+
+/* ═══════════════════════════════════════════════════
+   SETUP
+   ═══════════════════════════════════════════════════ */
+
+// Title screen selectors
+document.getElementById('player-select').addEventListener('click', e => {
+  const btn = e.target.closest('.player-num-btn');
+  if (!btn) return;
+  document.querySelectorAll('#player-select .option-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+});
+document.getElementById('limit-select').addEventListener('click', e => {
+  const btn = e.target.closest('.option-btn');
+  if (!btn) return;
+  document.querySelectorAll('#limit-select .option-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+});
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); });
+});
+
+function startGame() {
+  const numPlayers = parseInt(document.querySelector('#player-select .sel').dataset.count);
+  const scoreLimit = parseInt(document.querySelector('#limit-select .sel').dataset.limit);
+
+  const players = [{ name: 'You', isHuman: true, hand: [], score: 0, eliminated: false }];
+  const shuffledNames = shuffle([...AI_NAMES]);
+  for (let i = 1; i < numPlayers; i++) {
+    players.push({ name: shuffledNames[i-1], isHuman: false, hand: [], score: 0, eliminated: false });
+  }
+
+  G = {
+    players,
+    scoreLimit,
+    round: 0,
+    deck: [],
+    lastDiscard: [], // the spread of cards from last discard
+    discardPile: [], // all discarded cards (for reshuffling)
+    currentPlayer: 0,
+    phase: 'discard', // 'discard' or 'pickup'
+    selectedCards: [],
+    humanMustPickup: false,
+    roundStarter: 0,
+    animating: false,
+  };
+
+  showScreen('game-screen');
+  startRound();
+}
+
+function startRound() {
+  G.round++;
+  G.deck = shuffle(makeDeck());
+  G.lastDiscard = [];
+  G.discardPile = [];
+  G.selectedCards = [];
+
+  // Deal 5 cards to each active player
+  const active = G.players.filter(p => !p.eliminated);
+  for (const p of G.players) {
+    p.hand = [];
+    if (p.eliminated) continue;
+    for (let i = 0; i < 5; i++) {
+      p.hand.push(G.deck.pop());
+    }
+    sortHand(p.hand);
+  }
+
+  // Flip one card to start discard
+  const startCard = G.deck.pop();
+  G.lastDiscard = [startCard];
+  G.pendingDiscard = null;
+  G.discardPile.push(startCard);
+
+  // Determine starting player
+  G.currentPlayer = G.roundStarter;
+  while (G.players[G.currentPlayer].eliminated) {
+    G.currentPlayer = nextActivePlayer(G.currentPlayer);
+  }
+
+  G.phase = 'discard';
+  G.humanMustPickup = false;
+  G.animating = false;
+
+  renderAll();
+
+  // If AI starts, run their turn
+  if (!G.players[G.currentPlayer].isHuman) {
+    setTimeout(runAITurn, 600);
+  }
+}
+
+function nextActivePlayer(idx) {
+  let next = (idx + 1) % G.players.length;
+  while (G.players[next].eliminated) {
+    next = (next + 1) % G.players.length;
+  }
+  return next;
+}
+
+function sortHand(hand) {
+  hand.sort((a, b) => {
+    if (a.joker && !b.joker) return -1;
+    if (!a.joker && b.joker) return 1;
+    if (a.joker && b.joker) return 0;
+    if (a.suit !== b.suit) return SUITS.indexOf(a.suit) - SUITS.indexOf(b.suit);
+    return a.rank - b.rank;
+  });
+}
+
+/* ═══════════════════════════════════════════════════
+   RENDERING
+   ═══════════════════════════════════════════════════ */
+
+function renderAll() {
+  renderScoreBar();
+  renderOpponents();
+  renderCenter();
+  renderHandScore();
+  renderPlayerHand();
+  renderActions();
+  renderStatus();
+  renderGameInfo();
+}
+
+function renderScoreBar() {
+  const bar = document.getElementById('score-bar');
+  bar.innerHTML = G.players.map(p => {
+    let cls = p.isHuman ? 'is-you' : '';
+    if (p.eliminated) cls += ' is-eliminated';
+    return `<div class="score-chip ${cls}">
+      <span class="sc-name">${p.name}</span>
+      <span class="sc-pts">${p.score}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderOpponents() {
+  const row = document.getElementById('opponents-row');
+  const opps = G.players.filter(p => !p.isHuman);
+  row.innerHTML = opps.map(p => {
+    const isTurn = G.players.indexOf(p) === G.currentPlayer && !p.eliminated;
+    const cards = p.eliminated ? '' : p.hand.map(() => cardBackHTML()).join('');
+    return `<div class="opponent-zone ${isTurn ? 'is-turn' : ''} ${p.eliminated ? 'is-eliminated' : ''}">
+      <div class="opponent-name">
+        ${isTurn ? '<span class="turn-dot"></span>' : ''}
+        ${p.name}
+      </div>
+      <div class="opp-cards">${cards}</div>
+      <div class="opp-score-info">${p.eliminated ? 'Out' : p.hand.length + ' cards'}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderCenter() {
+  // Draw pile
+  const drawEl = document.getElementById('draw-pile');
+  const canDraw = isHumanPickupPhase();
+  drawEl.innerHTML = G.deck.length > 0
+    ? `<div class="card card-back ${canDraw ? 'selectable' : ''}" 
+           ${canDraw ? 'onclick="humanPickupDraw()"' : ''} 
+           style="cursor:${canDraw ? 'pointer' : 'default'}"></div>`
+    : '';
+  document.getElementById('draw-count').textContent = G.deck.length + ' left';
+
+  // Discard spread
+  const spread = document.getElementById('discard-spread');
+  const pickupable = canDraw ? getPickupableIndices(G.lastDiscard) : [];
+  if (G.lastDiscard.length === 0) {
+    spread.innerHTML = `<div class="card" style="border:1.5px dashed rgba(255,255,255,0.1);background:transparent;"></div>`;
+  } else {
+    spread.innerHTML = G.lastDiscard.map((c, i) => {
+      const canPick = pickupable.includes(i);
+      return cardHTML(c, canPick ? 'pickup-able' : '');
+    }).join('');
+    if (canDraw) {
+      spread.querySelectorAll('.pickup-able').forEach(el => {
+        el.style.cursor = 'pointer';
+        el.addEventListener('click', () => {
+          const id = el.dataset.id;
+          const card = G.lastDiscard.find(c => c.id === id);
+          if (card) humanPickupDiscard(card);
+        });
+      });
+    }
+  }
+}
+
+function renderHandScore() {
+  const bar = document.getElementById('hand-score-bar');
+  const p = G.players[0]; // human
+  if (p.eliminated || p.hand.length === 0) { bar.innerHTML = ''; return; }
+  const val = handValue(p.hand);
+  let cls = 'score-high';
+  if (val <= 5) cls = 'score-low';
+  else if (val <= 15) cls = 'score-med';
+  bar.innerHTML = `Hand value: <span class="hand-score-val ${cls}">${val}</span>`;
+}
+
+function renderPlayerHand() {
+  const hand = document.getElementById('player-hand');
+  const p = G.players[0];
+  if (p.eliminated) { hand.innerHTML = '<span style="color:var(--text-dim);font-size:12px;">Eliminated</span>'; return; }
+
+  const isMyTurn = G.currentPlayer === 0 && !G.animating;
+  const inDiscardPhase = G.phase === 'discard' && isMyTurn;
+
+  hand.innerHTML = p.hand.map(c => {
+    const sel = G.selectedCards.includes(c.id) ? 'selected' : '';
+    const clickable = inDiscardPhase ? 'selectable' : '';
+    return cardHTML(c, `${sel} ${clickable}`);
+  }).join('');
+
+  if (inDiscardPhase) {
+    hand.querySelectorAll('.selectable').forEach(el => {
+      el.addEventListener('click', () => toggleSelect(el.dataset.id));
+    });
+  }
+}
+
+function renderActions() {
+  const bar = document.getElementById('action-bar');
+  const p = G.players[0];
+  if (p.eliminated || G.currentPlayer !== 0 || G.animating) { bar.innerHTML = ''; return; }
+
+  let html = '';
+  if (G.phase === 'discard') {
+    const canYaniv = handValue(p.hand) <= 5;
+    const canDiscard = G.selectedCards.length > 0 && isValidDiscard(getSelectedCards());
+
+    html += `<button class="action-btn btn-yaniv" ${canYaniv ? '' : 'disabled'} onclick="humanCallYaniv()">Yaniv!</button>`;
+    html += `<button class="action-btn btn-discard" ${canDiscard ? '' : 'disabled'} onclick="humanDiscard()">Discard</button>`;
+  } else if (G.phase === 'pickup') {
+    html = `<span style="font-size:12px;color:var(--text-dim);letter-spacing:1px;">Pick up a card ↑</span>`;
+  }
+  bar.innerHTML = html;
+}
+
+function renderStatus() {
+  const bar = document.getElementById('status-bar');
+  const cp = G.players[G.currentPlayer];
+  if (G.animating) { return; }
+  if (cp.isHuman) {
+    if (G.phase === 'discard') {
+      const hv = handValue(cp.hand);
+      if (hv <= 5) {
+        bar.innerHTML = `Your turn — <span class="highlight">discard cards</span> or call <span class="highlight">Yaniv!</span>`;
+      } else {
+        bar.innerHTML = `Your turn — <span class="highlight">select cards to discard</span>`;
+      }
+    } else {
+      bar.innerHTML = `Pick up from <span class="highlight">draw pile</span> or the <span class="highlight">previous discard</span>`;
+    }
+  } else {
+    bar.innerHTML = `<span class="highlight">${cp.name}</span> is thinking…`;
+  }
+}
+
+function renderGameInfo() {
+  document.getElementById('game-info').innerHTML = `Round ${G.round} · Limit ${G.scoreLimit}`;
+}
+
+function isHumanPickupPhase() {
+  return G.currentPlayer === 0 && G.phase === 'pickup' && !G.animating && !G.players[0].eliminated;
+}
+
+/* ═══════════════════════════════════════════════════
+   HUMAN ACTIONS
+   ═══════════════════════════════════════════════════ */
+
+function toggleSelect(cardId) {
+  const idx = G.selectedCards.indexOf(cardId);
+  if (idx >= 0) {
+    G.selectedCards.splice(idx, 1);
+  } else {
+    G.selectedCards.push(cardId);
+  }
+  renderPlayerHand();
+  renderActions();
+}
+
+function getSelectedCards() {
+  const p = G.players[0];
+  return G.selectedCards.map(id => p.hand.find(c => c.id === id)).filter(Boolean);
+}
+
+function humanDiscard() {
+  if (G.currentPlayer !== 0 || G.phase !== 'discard') return;
+  const cards = getSelectedCards();
+  if (!isValidDiscard(cards)) {
+    showToast('Invalid discard — single card, set of same rank, or run of 3+ same suit');
+    return;
+  }
+  performDiscard(0, cards);
+}
+
+function humanCallYaniv() {
+  if (G.currentPlayer !== 0 || G.phase !== 'discard') return;
+  if (handValue(G.players[0].hand) > 5) return;
+  resolveYaniv(0);
+}
+
+function humanPickupDraw() {
+  if (!isHumanPickupPhase()) return;
+  if (G.deck.length === 0) reshuffleDeck();
+  const card = G.deck.pop();
+  if (!card) { showToast('No cards to draw!'); return; }
+  G.players[0].hand.push(card);
+  sortHand(G.players[0].hand);
+  finishTurn();
+}
+
+function humanPickupDiscard(card) {
+  if (!isHumanPickupPhase()) return;
+  const idx = G.lastDiscard.findIndex(c => c.id === card.id);
+  const pickupable = getPickupableIndices(G.lastDiscard);
+  if (!pickupable.includes(idx)) return;
+
+  // Remove from lastDiscard
+  G.lastDiscard.splice(idx, 1);
+  G.players[0].hand.push(card);
+  sortHand(G.players[0].hand);
+  finishTurn();
+}
+
+/* ═══════════════════════════════════════════════════
+   CORE GAME ACTIONS
+   ═══════════════════════════════════════════════════ */
+
+function performDiscard(playerIdx, cards) {
+  const p = G.players[playerIdx];
+
+  // Order cards for display (runs in sequence order, sets in any order)
+  let ordered;
+  if (cards.length >= 3 && isValidRun(cards)) {
+    ordered = getRunOrder(cards);
+  } else if (cards.length >= 2 && isSet(cards)) {
+    ordered = [...cards];
+  } else {
+    ordered = [...cards];
+  }
+
+  // Remove from hand
+  for (const c of cards) {
+    const i = p.hand.findIndex(h => h.id === c.id);
+    if (i >= 0) p.hand.splice(i, 1);
+  }
+
+  // IMPORTANT: In Yaniv, you pick up from the PREVIOUS player's discard.
+  // So we stage the new discard and only commit it after pickup.
+  G.pendingDiscard = ordered;
+  for (const c of ordered) G.discardPile.push(c);
+
+  G.selectedCards = [];
+  G.phase = 'pickup';
+
+  // Check if deck is empty — reshuffle
+  if (G.deck.length === 0) reshuffleDeck();
+
+  renderAll();
+}
+
+function reshuffleDeck() {
+  // Keep lastDiscard, reshuffle rest
+  const keep = new Set(G.lastDiscard.map(c => c.id));
+  const toShuffle = G.discardPile.filter(c => !keep.has(c.id));
+  G.discardPile = G.discardPile.filter(c => keep.has(c.id));
+  G.deck = shuffle(toShuffle);
+  if (G.deck.length === 0) {
+    showToast('No cards to reshuffle!');
+  }
+}
+
+function finishTurn() {
+  // Commit the pending discard as the new lastDiscard (for next player's pickup)
+  if (G.pendingDiscard) {
+    G.lastDiscard = G.pendingDiscard;
+    G.pendingDiscard = null;
+  }
+  G.phase = 'discard';
+  G.currentPlayer = nextActivePlayer(G.currentPlayer);
+  G.selectedCards = [];
+  renderAll();
+
+  if (!G.players[G.currentPlayer].isHuman) {
+    setTimeout(runAITurn, 500);
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   YANIV RESOLUTION
+   ═══════════════════════════════════════════════════ */
+
+function resolveYaniv(callerIdx) {
+  G.animating = true;
+  const caller = G.players[callerIdx];
+  const callerVal = handValue(caller.hand);
+
+  // Check if anyone ties or beats
+  let asaf = false;
+  let lowestVal = callerVal;
+  const active = G.players.filter(p => !p.eliminated);
+  for (const p of active) {
+    if (p === caller) continue;
+    if (handValue(p.hand) <= callerVal) {
+      asaf = true;
+    }
+  }
+
+  // Calculate round scores
+  const roundScores = [];
+  for (const p of G.players) {
+    if (p.eliminated) { roundScores.push({ player: p, handVal: 0, roundPts: 0, penalty: false }); continue; }
+    const hv = handValue(p.hand);
+    if (p === caller) {
+      if (asaf) {
+        roundScores.push({ player: p, handVal: hv, roundPts: hv + 30, penalty: true });
+      } else {
+        roundScores.push({ player: p, handVal: hv, roundPts: 0, penalty: false });
+      }
+    } else {
+      roundScores.push({ player: p, handVal: hv, roundPts: hv, penalty: false });
+    }
+  }
+
+  // Apply scores and check reductions/eliminations
+  const events = [];
+  for (const rs of roundScores) {
+    if (rs.player.eliminated) continue;
+    rs.player.score += rs.roundPts;
+
+    // Check reductions (not cascading — only one reduction per round)
+    if (rs.player.score === 200 && G.scoreLimit >= 200) {
+      rs.player.score = 100;
+      events.push({ player: rs.player, type: 'halved', from: 200, to: 100 });
+      rs.halved = true;
+    } else if (rs.player.score === 100) {
+      rs.player.score = 50;
+      events.push({ player: rs.player, type: 'halved', from: 100, to: 50 });
+      rs.halved = true;
+    }
+
+    // Check elimination
+    if (rs.player.score > G.scoreLimit) {
+      rs.player.eliminated = true;
+      rs.eliminated = true;
+    }
+  }
+
+  // Determine next round starter (lowest hand value, ties go clockwise from caller)
+  let lowestHand = Infinity;
+  for (const rs of roundScores) {
+    if (rs.player.eliminated) continue;
+    if (rs.handVal < lowestHand) lowestHand = rs.handVal;
+  }
+  // Find first player clockwise from caller with lowest hand
+  let starter = callerIdx;
+  for (let i = 0; i < G.players.length; i++) {
+    const idx = (callerIdx + i) % G.players.length;
+    const rs = roundScores[idx];
+    if (!rs.player.eliminated && rs.handVal === lowestHand) {
+      starter = idx;
+      break;
+    }
+  }
+  G.roundStarter = starter;
+
+  showRoundResults(callerIdx, asaf, roundScores);
+}
+
+function showRoundResults(callerIdx, asaf, roundScores) {
+  const modal = document.getElementById('round-modal');
+  const content = document.getElementById('round-results');
+  const caller = G.players[callerIdx];
+
+  let subtitle = '';
+  if (asaf) {
+    subtitle = `<span class="asaf-alert">Asaf!</span> ${caller.name} called Yaniv but someone had an equal or lower hand. <strong>+30 penalty!</strong>`;
+  } else {
+    subtitle = `<span class="yaniv-success">${caller.name} called Yaniv successfully!</span>`;
+  }
+
+  let playersHTML = roundScores.map(rs => {
+    const p = rs.player;
+    if (p.eliminated && rs.roundPts === 0) return ''; // was already eliminated
+    const isCaller = p === caller;
+    let rowClass = isCaller ? 'is-caller' : '';
+    if (rs.penalty) rowClass += ' is-penalty';
+    if (rs.eliminated) rowClass += ' is-eliminated-row';
+
+    const cardsHTML = p.hand.map(c => cardHTML(c)).join('');
+    let scoreText = '+' + rs.roundPts;
+    let scoreClass = rs.roundPts === 0 ? 'zero' : '';
+    if (rs.penalty) scoreClass = 'penalty';
+
+    let tags = '';
+    if (rs.eliminated) tags += `<span class="rp-eliminated-tag">Eliminated</span>`;
+    if (rs.halved) tags += `<span class="rp-halved-tag">→ ${p.score}</span>`;
+
+    return `<div class="rp-row ${rowClass}">
+      <span class="rp-name">${p.name}${isCaller ? ' 📣' : ''}</span>
+      <div class="rp-cards">${cardsHTML}</div>
+      <span class="rp-hand-val">(${rs.handVal})</span>
+      <span class="rp-score ${scoreClass}">${scoreText}${tags}</span>
+    </div>`;
+  }).filter(Boolean).join('');
+
+  // Check if game is over
+  const activePlayers = G.players.filter(p => !p.eliminated);
+  const gameOver = activePlayers.length <= 1;
+  const humanEliminated = G.players[0].eliminated;
+
+  let buttons = '';
+  if (gameOver) {
+    buttons = `<button class="next-round-btn" onclick="endGame()">Final Results</button>`;
+  } else if (humanEliminated) {
+    buttons = `<button class="next-round-btn" onclick="endGame()">Final Results</button>
+               <div style="font-size:11px;color:var(--text-dim);margin-top:6px;">You've been eliminated</div>`;
+  } else {
+    buttons = `<button class="next-round-btn" onclick="nextRound()">Next Round</button>`;
+  }
+
+  content.innerHTML = `
+    <h2>Round ${G.round} Results</h2>
+    <div class="round-subtitle">${subtitle}</div>
+    <div class="round-players">${playersHTML}</div>
+    ${buttons}
+  `;
+
+  modal.classList.add('show');
+}
+
+function nextRound() {
+  document.getElementById('round-modal').classList.remove('show');
+  G.animating = false;
+  startRound();
+}
+
+function endGame() {
+  document.getElementById('round-modal').classList.remove('show');
+  const activePlayers = G.players.filter(p => !p.eliminated);
+  let winner;
+  if (activePlayers.length === 1) {
+    winner = activePlayers[0];
+  } else if (activePlayers.length === 0) {
+    // All eliminated same round — lowest score wins
+    winner = [...G.players].sort((a, b) => a.score - b.score)[0];
+  } else {
+    winner = G.players.reduce((a, b) => a.score < b.score ? a : b);
+  }
+
+  document.getElementById('go-title').textContent = winner.isHuman ? 'Victory!' : 'Game Over';
+  document.getElementById('go-winner').textContent = winner.name + ' Wins!';
+
+  const sorted = [...G.players].sort((a, b) => {
+    if (a.eliminated && !b.eliminated) return 1;
+    if (!a.eliminated && b.eliminated) return -1;
+    return a.score - b.score;
+  });
+
+  document.getElementById('final-scores').innerHTML = sorted.map(p => {
+    const isW = p === winner;
+    return `<div class="final-row ${isW ? 'is-winner' : ''}">
+      <span class="fn">${p.name}</span>
+      <span class="fs">${p.eliminated ? '✕ ' + p.score : p.score}</span>
+    </div>`;
+  }).join('');
+
+  showScreen('gameover-screen');
+}
+
+/* ═══════════════════════════════════════════════════
+   AI LOGIC
+   ═══════════════════════════════════════════════════ */
+
+function runAITurn() {
+  if (G.animating) return;
+  const p = G.players[G.currentPlayer];
+  if (p.eliminated || p.isHuman) return;
+
+  // Check if can call Yaniv
+  if (handValue(p.hand) <= 5) {
+    const confidence = estimateYanivConfidence(p);
+    if (confidence > 0.4 || handValue(p.hand) <= 2) {
+      showToast(`${p.name} calls Yaniv!`, 2500);
+      setTimeout(() => resolveYaniv(G.currentPlayer), 600);
+      return;
+    }
+  }
+
+  // Find best discard
+  const discard = findBestDiscard(p);
+  const discardDesc = discard.length === 1
+    ? displayRank(discard[0]) + (discard[0].joker ? '' : discard[0].suit)
+    : discard.length + ' cards';
+  performDiscard(G.currentPlayer, discard);
+
+  // Pick up (after short delay for feel)
+  setTimeout(() => {
+    aiPickup(p);
+    finishTurn();
+  }, 400);
+}
+
+function estimateYanivConfidence(p) {
+  const hv = handValue(p.hand);
+  // Simple heuristic: lower hand value = more confident
+  const activePlayers = G.players.filter(q => !q.eliminated && q !== p);
+  // Guess average opponent hand value based on card count
+  const avgOppCards = activePlayers.reduce((s, q) => s + q.hand.length, 0) / Math.max(activePlayers.length, 1);
+  // Assume ~3-4 points per card on average after some play
+  const estimatedAvgOppVal = avgOppCards * 4;
+  if (hv <= estimatedAvgOppVal) return 0.8;
+  if (hv <= 3) return 0.7;
+  return 0.3;
+}
+
+function findBestDiscard(p) {
+  // Strategy: find the discard that removes the most value
+  const candidates = [];
+
+  // Single cards
+  for (const c of p.hand) {
+    candidates.push({ cards: [c], valueRemoved: cardValue(c) });
+  }
+
+  // Sets (2+ same rank)
+  const byRank = {};
+  p.hand.forEach(c => {
+    const key = c.joker ? 'joker' : c.rank;
+    if (!byRank[key]) byRank[key] = [];
+    byRank[key].push(c);
+  });
+  for (const [key, cards] of Object.entries(byRank)) {
+    if (cards.length >= 2 && key !== 'joker') {
+      // Try all subsets of 2+
+      for (let size = 2; size <= cards.length; size++) {
+        const subset = cards.slice(0, size);
+        candidates.push({ cards: subset, valueRemoved: subset.reduce((s, c) => s + cardValue(c), 0) });
+      }
+    }
+  }
+
+  // Runs (3+ consecutive same suit)
+  for (const suit of SUITS) {
+    const suitCards = p.hand.filter(c => !c.joker && c.suit === suit).sort((a, b) => a.rank - b.rank);
+    const jokers = p.hand.filter(c => c.joker);
+
+    // Try to find runs of length 3+
+    for (let i = 0; i < suitCards.length; i++) {
+      for (let len = 3; len <= suitCards.length - i + jokers.length; len++) {
+        // Try forming a run starting from suitCards[i]
+        const run = tryFormRun(suitCards, i, len, jokers);
+        if (run && run.length >= 3) {
+          candidates.push({ cards: run, valueRemoved: run.reduce((s, c) => s + cardValue(c), 0) });
+        }
+      }
+    }
+  }
+
+  // Pick the candidate that removes the most value
+  // But prefer keeping jokers unless they're part of a high-value run
+  candidates.sort((a, b) => {
+    const aJokers = a.cards.filter(c => c.joker).length;
+    const bJokers = b.cards.filter(c => c.joker).length;
+    // Penalize discarding jokers
+    const aVal = a.valueRemoved - aJokers * 8;
+    const bVal = b.valueRemoved - bJokers * 8;
+    return bVal - aVal;
+  });
+
+  // Validate top candidate
+  for (const cand of candidates) {
+    if (isValidDiscard(cand.cards)) return cand.cards;
+  }
+
+  // Fallback: discard highest single card
+  const sorted = [...p.hand].sort((a, b) => cardValue(b) - cardValue(a));
+  return [sorted[0]];
+}
+
+function tryFormRun(suitCards, startIdx, targetLen, availableJokers) {
+  const start = suitCards[startIdx];
+  const result = [start];
+  let jokersUsed = 0;
+  const maxJokers = availableJokers.length;
+  let nextRank = start.rank + 1;
+
+  while (result.length < targetLen && nextRank <= 13) {
+    const nextCard = suitCards.find(c => c.rank === nextRank && !result.includes(c));
+    if (nextCard) {
+      result.push(nextCard);
+    } else if (jokersUsed < maxJokers) {
+      result.push(availableJokers[jokersUsed]);
+      jokersUsed++;
+    } else {
+      break;
+    }
+    nextRank++;
+  }
+
+  if (result.length >= 3 && result.length >= targetLen) return result;
+  return null;
+}
+
+function aiPickup(p) {
+  // Decide: pick from discard or draw pile
+  const pickupable = getPickupableIndices(G.lastDiscard);
+  let bestPickup = null;
+  let bestBenefit = -1;
+
+  for (const idx of pickupable) {
+    const card = G.lastDiscard[idx];
+    const benefit = evaluatePickup(p, card);
+    if (benefit > bestBenefit) {
+      bestBenefit = benefit;
+      bestPickup = { type: 'discard', idx, card };
+    }
+  }
+
+  // Compare with random draw (estimated average benefit)
+  const drawBenefit = 2; // baseline
+  if (bestPickup && bestBenefit > drawBenefit) {
+    // Pick from discard
+    G.lastDiscard.splice(bestPickup.idx, 1);
+    p.hand.push(bestPickup.card);
+  } else {
+    // Draw from deck
+    if (G.deck.length === 0) reshuffleDeck();
+    if (G.deck.length > 0) {
+      p.hand.push(G.deck.pop());
+    }
+  }
+  sortHand(p.hand);
+}
+
+function evaluatePickup(p, card) {
+  // How much does this card help? Check if it completes a set or run
+  let benefit = 0;
+  const cv = cardValue(card);
+
+  if (card.joker) return 10; // jokers are always great
+
+  // Check for set potential
+  const sameRank = p.hand.filter(c => !c.joker && c.rank === card.rank).length;
+  if (sameRank >= 1) benefit += sameRank * 3;
+
+  // Check for run potential
+  const sameSuit = p.hand.filter(c => !c.joker && c.suit === card.suit);
+  for (const c of sameSuit) {
+    const diff = Math.abs(c.rank - card.rank);
+    if (diff === 1) benefit += 3;
+    if (diff === 2) benefit += 1;
+  }
+
+  // Low value cards are better
+  if (cv <= 2) benefit += 3;
+  if (cv >= 10) benefit -= 2;
+
+  return benefit;
+}
+
+/* ═══════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════ */
+
+showScreen('title-screen');
+</script>
+</body>
+</html>
