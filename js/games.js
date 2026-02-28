@@ -125,7 +125,7 @@ const GAMES = [
     duration: "45–90 min",
     icon: "🏎️",
     accentColor: "#c9a84c",
-    status: "In Progress",
+    status: "playable",
   },
          {
     id: "yaniv",
