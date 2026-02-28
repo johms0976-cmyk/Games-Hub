@@ -117,7 +117,7 @@ const GAMES = [
     status: "In Progress",
   },
   { 
-    id: "escalation-engine",
+    id: "escalate",
     title: "Trick Escalation Engine",
     subtitle: "Getting Higher and Higher",
     category: "strategy",
