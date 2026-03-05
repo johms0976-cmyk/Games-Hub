@@ -1,0 +1,328 @@
+{
+  "unlocks": [
+    {
+      "id": "relic_phoenix_rebirth",
+      "name": "Phoenix Rebirth",
+      "desc": "Win a run with Pyre Master as lead archetype",
+      "category": "relic",
+      "icon": "🔥",
+      "condition": { "type": "win_with_archetype", "archetype": "pyre_master" },
+      "reward": { "type": "relic", "data": { "id": "phoenix_rebirth", "name": "Phoenix Rebirth", "icon": "🦅", "desc": "On fatal damage, revive with 1 HP once per run", "effect": "phoenix_revive" }}
+    },
+    {
+      "id": "relic_crown_jewel",
+      "name": "Crown Jewel",
+      "desc": "Win a run with Crown Sovereign as lead archetype",
+      "category": "relic",
+      "icon": "👑",
+      "condition": { "type": "win_with_archetype", "archetype": "crown_sovereign" },
+      "reward": { "type": "relic", "data": { "id": "crown_jewel", "name": "Crown Jewel", "icon": "💍", "desc": "Crown row streak starts at 2", "effect": "crown_head_start" }}
+    },
+    {
+      "id": "relic_void_anchor",
+      "name": "Void Anchor",
+      "desc": "Win a run with Void Walker as lead archetype",
+      "category": "relic",
+      "icon": "🔮",
+      "condition": { "type": "win_with_archetype", "archetype": "void_walker" },
+      "reward": { "type": "relic", "data": { "id": "void_anchor", "name": "Void Anchor", "icon": "⚓", "desc": "Spades wins steal 1 enemy trick per round", "effect": "void_steal" }}
+    },
+    {
+      "id": "relic_heart_engine_core",
+      "name": "Heart Engine Core",
+      "desc": "Win a run with Heart Engine as lead archetype",
+      "category": "relic",
+      "icon": "❤️",
+      "condition": { "type": "win_with_archetype", "archetype": "heart_engine" },
+      "reward": { "type": "relic", "data": { "id": "heart_engine_core", "name": "Heart Engine Core", "icon": "⚙️", "desc": "Heart row chips apply ×1.2 mult retroactively", "effect": "heart_retro_mult" }}
+    },
+    {
+      "id": "relic_star_compass",
+      "name": "Star Compass",
+      "desc": "Win a run with Star Weaver as lead archetype",
+      "category": "relic",
+      "icon": "⭐",
+      "condition": { "type": "win_with_archetype", "archetype": "star_weaver" },
+      "reward": { "type": "relic", "data": { "id": "star_compass", "name": "Star Compass", "icon": "🧭", "desc": "Star cards draw an extra card on play", "effect": "star_draw" }}
+    },
+    {
+      "id": "relic_iron_fortress",
+      "name": "Iron Fortress",
+      "desc": "Win a run with Iron Wall as lead archetype",
+      "category": "relic",
+      "icon": "🛡️",
+      "condition": { "type": "win_with_archetype", "archetype": "iron_wall" },
+      "reward": { "type": "relic", "data": { "id": "iron_fortress", "name": "Iron Fortress", "icon": "🏰", "desc": "Shield overflow converts to permanent HP", "effect": "shield_overflow_hp" }}
+    },
+    {
+      "id": "event_ember_oracle",
+      "name": "The Ember Oracle",
+      "desc": "Complete 5 total runs",
+      "category": "event",
+      "icon": "🔮",
+      "condition": { "type": "total_runs", "value": 5 },
+      "reward": { "type": "event", "data": { "title": "The Ember Oracle", "text": "A swirling pillar of flame speaks in riddles. It sees all possible futures.", "choices": [
+        { "label": "Peer Into Tomorrow", "desc": "See all enemy types in next 3 encounters", "effectKey": "oracle_peek" },
+        { "label": "Burn the Past", "desc": "Remove 3 weakest cards, gain +10 Embers", "effectKey": "oracle_burn" },
+        { "label": "Embrace the Flame", "desc": "+0.4× universal mult, lose 20% max HP", "effectKey": "oracle_embrace" }
+      ]}}
+    },
+    {
+      "id": "event_void_merchant",
+      "name": "The Void Merchant",
+      "desc": "Deal 2000 total damage across all runs",
+      "category": "event",
+      "icon": "🌀",
+      "condition": { "type": "total_damage", "value": 2000 },
+      "reward": { "type": "event", "data": { "title": "The Void Merchant", "text": "A figure made of shadow and starlight. 'I trade in potential.'", "choices": [
+        { "label": "Trade a Relic", "desc": "Sacrifice a relic for 2 Flame modifiers", "effectKey": "void_trade_relic" },
+        { "label": "Trade Your Hand", "desc": "Discard hand, draw all new rare cards", "effectKey": "void_trade_hand" },
+        { "label": "Trade HP", "desc": "Set HP to 1. All cards get +5 chips permanently", "effectKey": "void_trade_hp" }
+      ]}}
+    },
+    {
+      "id": "event_chronos_dealer",
+      "name": "The Chronos Dealer",
+      "desc": "Win 10 total runs",
+      "category": "event",
+      "icon": "⏳",
+      "condition": { "type": "total_victories", "value": 10 },
+      "reward": { "type": "event", "data": { "title": "The Chronos Dealer", "text": "Time folds. A dealer from a future timeline offers you cards that haven't been made yet.", "choices": [
+        { "label": "Future Sight", "desc": "Add 2 legendary cards to deck", "effectKey": "chronos_legendary" },
+        { "label": "Time Loop", "desc": "Reset deck to start but keep all modifiers", "effectKey": "chronos_loop" },
+        { "label": "Temporal Gambit", "desc": "Double all modifier values, -30 max HP", "effectKey": "chronos_gambit" }
+      ]}}
+    },
+    {
+      "id": "relic_lucky_penny",
+      "name": "Lucky Penny",
+      "desc": "Win 3 runs total",
+      "category": "relic",
+      "icon": "🪙",
+      "condition": { "type": "total_victories", "value": 3 },
+      "reward": { "type": "relic", "data": { "id": "lucky_penny", "name": "Lucky Penny", "icon": "🍀", "desc": "10% chance to win ties regardless of rank", "effect": "lucky_tie" }}
+    },
+    {
+      "id": "relic_ember_crown",
+      "name": "Ember Crown",
+      "desc": "Reach Ascension 5",
+      "category": "relic",
+      "icon": "🔥",
+      "condition": { "type": "highest_ascension", "value": 5 },
+      "reward": { "type": "relic", "data": { "id": "ember_crown", "name": "Ember Crown", "icon": "👑🔥", "desc": "+1 Ember per trick won on Crown row", "effect": "crown_ember" }}
+    },
+    {
+      "id": "relic_ink_reservoir",
+      "name": "Ink Reservoir",
+      "desc": "Play 500 cards total",
+      "category": "relic",
+      "icon": "🖋️",
+      "condition": { "type": "cards_played", "value": 500 },
+      "reward": { "type": "relic", "data": { "id": "ink_reservoir", "name": "Ink Reservoir", "icon": "🫙", "desc": "+15 Ink at encounter start", "effect": "start_ink" }}
+    },
+    {
+      "id": "relic_spectral_deck",
+      "name": "Spectral Deck",
+      "desc": "Reach Ascension 10",
+      "category": "relic",
+      "icon": "👻",
+      "condition": { "type": "highest_ascension", "value": 10 },
+      "reward": { "type": "relic", "data": { "id": "spectral_deck", "name": "Spectral Deck", "icon": "👻", "desc": "Draw 1 extra card per round", "effect": "extra_draw" }}
+    },
+    {
+      "id": "relic_chaos_die",
+      "name": "Chaos Die",
+      "desc": "Reach Ascension 15",
+      "category": "relic",
+      "icon": "🎲",
+      "condition": { "type": "highest_ascension", "value": 15 },
+      "reward": { "type": "relic", "data": { "id": "chaos_die", "name": "Chaos Die", "icon": "🎲", "desc": "Random keyword added to each card at encounter start", "effect": "chaos_keywords" }}
+    },
+    {
+      "id": "event_forge_spirit",
+      "name": "The Forge Spirit",
+      "desc": "Upgrade 10 modifiers in the Forge across all runs",
+      "category": "event",
+      "icon": "⚒️",
+      "condition": { "type": "forge_upgrades", "value": 10 },
+      "reward": { "type": "event", "data": { "title": "The Forge Spirit", "text": "The anvil itself speaks. 'You have fed me well. Now I shall forge something... extraordinary.'", "choices": [
+        { "label": "Forge a Masterwork", "desc": "Create an Inferno modifier with ×0.5 mult", "effectKey": "forge_masterwork" },
+        { "label": "Temper Your Deck", "desc": "All cards get +3 base chips permanently", "effectKey": "forge_temper" },
+        { "label": "Anneal Your Soul", "desc": "+20 max HP, +10 shield at round start", "effectKey": "forge_anneal" }
+      ]}}
+    },
+    {
+      "id": "event_star_gate",
+      "name": "The Star Gate",
+      "desc": "Win 5 runs total",
+      "category": "event",
+      "icon": "🌟",
+      "condition": { "type": "total_victories", "value": 5 },
+      "reward": { "type": "event", "data": { "title": "The Star Gate", "text": "A portal of crystallized starlight. Through it, you glimpse infinite decks.", "choices": [
+        { "label": "Step Through", "desc": "Replace 5 random cards with Star-suit rares", "effectKey": "stargate_transform" },
+        { "label": "Channel the Light", "desc": "All Star cards permanently get +0.1× mult", "effectKey": "stargate_channel" },
+        { "label": "Absorb the Gate", "desc": "+25 max HP, Stellar class bonus doubled this run", "effectKey": "stargate_absorb" }
+      ]}}
+    },
+    {
+      "id": "card_keyword_tempest",
+      "name": "Tempest Keyword",
+      "desc": "Win 50 tricks in a single run",
+      "category": "keyword",
+      "icon": "🌪️",
+      "condition": { "type": "tricks_in_run", "value": 50 },
+      "reward": { "type": "keyword", "data": { "keyword": "Tempest", "desc": "On win, deal bonus damage equal to consecutive wins × 3" }}
+    },
+    {
+      "id": "card_keyword_leech",
+      "name": "Leech Keyword",
+      "desc": "Win a run with less than 10 HP remaining",
+      "category": "keyword",
+      "icon": "🩸",
+      "condition": { "type": "win_low_hp", "value": 10 },
+      "reward": { "type": "keyword", "data": { "keyword": "Leech", "desc": "On win, heal HP equal to 10% of damage dealt" }}
+    },
+    {
+      "id": "card_keyword_nexus",
+      "name": "Nexus Keyword",
+      "desc": "Activate all 6 archetypes to level 3+ in a single run",
+      "category": "keyword",
+      "icon": "🔗",
+      "condition": { "type": "all_archetypes_active", "value": 3 },
+      "reward": { "type": "keyword", "data": { "keyword": "Nexus", "desc": "Counts as all suits for archetype progress" }}
+    },
+    {
+      "id": "relic_memorial",
+      "name": "The Memorial",
+      "desc": "Lose 20 runs total",
+      "category": "relic",
+      "icon": "🪦",
+      "condition": { "type": "total_losses", "value": 20 },
+      "reward": { "type": "relic", "data": { "id": "memorial", "name": "The Memorial", "icon": "🪦", "desc": "+0.01× mult per lifetime loss (stacks forever)", "effect": "memorial_mult" }}
+    },
+    {
+      "id": "event_card_graveyard",
+      "name": "The Card Graveyard",
+      "desc": "Burn 100 cards across all runs",
+      "category": "event",
+      "icon": "💀",
+      "condition": { "type": "cards_burned", "value": 100 },
+      "reward": { "type": "event", "data": { "title": "The Card Graveyard", "text": "Ghostly cards swirl in a vortex of lost potential. Some still hold power.", "choices": [
+        { "label": "Reclaim the Fallen", "desc": "Add 3 rare cards with Resurrect keyword", "effectKey": "graveyard_reclaim" },
+        { "label": "Harvest the Graveyard", "desc": "+20 Embers, all Pyre cards get +5 chips", "effectKey": "graveyard_harvest" },
+        { "label": "Let Them Rest", "desc": "Heal to full HP, +5 max HP", "effectKey": "graveyard_rest" }
+      ]}}
+    },
+    {
+      "id": "relic_score_crown",
+      "name": "Score Crown",
+      "desc": "Deal 200+ damage in a single trick",
+      "category": "relic",
+      "icon": "💥",
+      "condition": { "type": "best_trick", "value": 200 },
+      "reward": { "type": "relic", "data": { "id": "score_crown", "name": "Score Crown", "icon": "💥", "desc": "Tricks dealing 100+ damage grant +0.1× permanent mult", "effect": "big_score_mult" }}
+    },
+    {
+      "id": "relic_perfectionist",
+      "name": "Perfectionist's Gem",
+      "desc": "Win a run without losing a single trick",
+      "category": "relic",
+      "icon": "💎",
+      "condition": { "type": "perfect_run", "value": true },
+      "reward": { "type": "relic", "data": { "id": "perfectionist_gem", "name": "Perfectionist's Gem", "icon": "💎", "desc": "First trick each encounter deals ×3 damage", "effect": "first_trick_triple" }}
+    },
+    {
+      "id": "event_ascension_altar",
+      "name": "The Ascension Altar",
+      "desc": "Beat Ascension 20",
+      "category": "event",
+      "icon": "🏔️",
+      "condition": { "type": "beat_ascension", "value": 20 },
+      "reward": { "type": "event", "data": { "title": "The Ascension Altar", "text": "You have conquered the highest peak. The altar offers one final gift.", "choices": [
+        { "label": "Transcend", "desc": "Start runs with a random Inferno modifier", "effectKey": "altar_transcend" },
+        { "label": "Reflect", "desc": "Start runs with +15 max HP permanently", "effectKey": "altar_reflect" },
+        { "label": "Ascend Again", "desc": "Unlock Ascension 25 (extreme difficulty)", "effectKey": "altar_extend" }
+      ]}}
+    },
+    {
+      "id": "relic_collectors_tome",
+      "name": "Collector's Tome",
+      "desc": "Discover 30 unique achievements",
+      "category": "relic",
+      "icon": "📖",
+      "condition": { "type": "achievements_earned", "value": 30 },
+      "reward": { "type": "relic", "data": { "id": "collectors_tome", "name": "Collector's Tome", "icon": "📖", "desc": "Card rewards always include 1 legendary option", "effect": "guaranteed_legendary" }}
+    },
+    {
+      "id": "relic_veterans_badge",
+      "name": "Veteran's Badge",
+      "desc": "Complete 50 total runs",
+      "category": "relic",
+      "icon": "🎖️",
+      "condition": { "type": "total_runs", "value": 50 },
+      "reward": { "type": "relic", "data": { "id": "veterans_badge", "name": "Veteran's Badge", "icon": "🎖️", "desc": "+5% to all modifier values", "effect": "veteran_boost" }}
+    }
+  ],
+  "achievements": [
+    { "id": "first_blood", "name": "First Blood", "desc": "Win your first trick", "icon": "⚔️", "category": "combat", "condition": { "type": "tricks_won_total", "value": 1 }, "points": 5 },
+    { "id": "trick_novice", "name": "Trick Novice", "desc": "Win 50 tricks total", "icon": "🃏", "category": "combat", "condition": { "type": "tricks_won_total", "value": 50 }, "points": 10 },
+    { "id": "trick_master", "name": "Trick Master", "desc": "Win 500 tricks total", "icon": "🏆", "category": "combat", "condition": { "type": "tricks_won_total", "value": 500 }, "points": 25 },
+    { "id": "trick_legend", "name": "Trick Legend", "desc": "Win 2000 tricks total", "icon": "👑", "category": "combat", "condition": { "type": "tricks_won_total", "value": 2000 }, "points": 50 },
+    { "id": "big_hit", "name": "Big Hit", "desc": "Deal 100+ damage in a single trick", "icon": "💥", "category": "scoring", "condition": { "type": "best_trick", "value": 100 }, "points": 10 },
+    { "id": "devastation", "name": "Devastation", "desc": "Deal 300+ damage in a single trick", "icon": "🌋", "category": "scoring", "condition": { "type": "best_trick", "value": 300 }, "points": 25 },
+    { "id": "apocalypse", "name": "Apocalypse", "desc": "Deal 500+ damage in a single trick", "icon": "☄️", "category": "scoring", "condition": { "type": "best_trick", "value": 500 }, "points": 50 },
+    { "id": "nuclear", "name": "Nuclear Option", "desc": "Deal 1000+ damage in a single trick", "icon": "☢️", "category": "scoring", "condition": { "type": "best_trick", "value": 1000 }, "points": 100 },
+    { "id": "first_victory", "name": "First Victory", "desc": "Win your first run", "icon": "🏅", "category": "progression", "condition": { "type": "total_victories", "value": 1 }, "points": 15 },
+    { "id": "serial_winner", "name": "Serial Winner", "desc": "Win 5 runs", "icon": "🎯", "category": "progression", "condition": { "type": "total_victories", "value": 5 }, "points": 20 },
+    { "id": "champion", "name": "Champion", "desc": "Win 15 runs", "icon": "🏆", "category": "progression", "condition": { "type": "total_victories", "value": 15 }, "points": 30 },
+    { "id": "grandmaster", "name": "Grandmaster", "desc": "Win 30 runs", "icon": "👑", "category": "progression", "condition": { "type": "total_victories", "value": 30 }, "points": 50 },
+    { "id": "persistent", "name": "Persistent", "desc": "Complete 10 runs (win or lose)", "icon": "🔄", "category": "progression", "condition": { "type": "total_runs", "value": 10 }, "points": 10 },
+    { "id": "dedicated", "name": "Dedicated", "desc": "Complete 50 runs", "icon": "💪", "category": "progression", "condition": { "type": "total_runs", "value": 50 }, "points": 25 },
+    { "id": "obsessed", "name": "Obsessed", "desc": "Complete 100 runs", "icon": "🤯", "category": "progression", "condition": { "type": "total_runs", "value": 100 }, "points": 50 },
+    { "id": "ascension_1", "name": "Ascending", "desc": "Beat Ascension 1", "icon": "🔥", "category": "ascension", "condition": { "type": "highest_ascension", "value": 1 }, "points": 10 },
+    { "id": "ascension_5", "name": "Flame Walker", "desc": "Beat Ascension 5", "icon": "🔥", "category": "ascension", "condition": { "type": "highest_ascension", "value": 5 }, "points": 20 },
+    { "id": "ascension_10", "name": "Inferno Runner", "desc": "Beat Ascension 10", "icon": "🔥", "category": "ascension", "condition": { "type": "highest_ascension", "value": 10 }, "points": 35 },
+    { "id": "ascension_15", "name": "Hellfire Elite", "desc": "Beat Ascension 15", "icon": "🔥", "category": "ascension", "condition": { "type": "highest_ascension", "value": 15 }, "points": 50 },
+    { "id": "ascension_20", "name": "The Pinnacle", "desc": "Beat Ascension 20", "icon": "🏔️", "category": "ascension", "condition": { "type": "highest_ascension", "value": 20 }, "points": 100 },
+    { "id": "pyre_master_arch", "name": "Pyre Master", "desc": "Reach Pyre Master archetype level 10", "icon": "🔥", "category": "archetype", "condition": { "type": "archetype_level", "archetype": "pyre_master", "value": 10 }, "points": 20 },
+    { "id": "crown_sovereign_arch", "name": "Crown Sovereign", "desc": "Reach Crown Sovereign archetype level 10", "icon": "👑", "category": "archetype", "condition": { "type": "archetype_level", "archetype": "crown_sovereign", "value": 10 }, "points": 20 },
+    { "id": "heart_engine_arch", "name": "Heart Engine", "desc": "Reach Heart Engine archetype level 10", "icon": "❤️", "category": "archetype", "condition": { "type": "archetype_level", "archetype": "heart_engine", "value": 10 }, "points": 20 },
+    { "id": "void_walker_arch", "name": "Void Walker", "desc": "Reach Void Walker archetype level 10", "icon": "🔮", "category": "archetype", "condition": { "type": "archetype_level", "archetype": "void_walker", "value": 10 }, "points": 20 },
+    { "id": "star_weaver_arch", "name": "Star Weaver", "desc": "Reach Star Weaver archetype level 10", "icon": "⭐", "category": "archetype", "condition": { "type": "archetype_level", "archetype": "star_weaver", "value": 10 }, "points": 20 },
+    { "id": "iron_wall_arch", "name": "Iron Wall", "desc": "Reach Iron Wall archetype level 10", "icon": "🛡️", "category": "archetype", "condition": { "type": "archetype_level", "archetype": "iron_wall", "value": 10 }, "points": 20 },
+    { "id": "all_archetypes", "name": "Renaissance Player", "desc": "Reach level 3+ in all 6 archetypes in one run", "icon": "🌈", "category": "archetype", "condition": { "type": "all_archetypes_active", "value": 3 }, "points": 50 },
+    { "id": "relic_hoarder", "name": "Relic Hoarder", "desc": "Hold 6+ relics in a single run", "icon": "🎒", "category": "collection", "condition": { "type": "relics_in_run", "value": 6 }, "points": 15 },
+    { "id": "max_relics", "name": "Fully Loaded", "desc": "Hold 8 relics in a single run (max)", "icon": "🎪", "category": "collection", "condition": { "type": "relics_in_run", "value": 8 }, "points": 25 },
+    { "id": "modifier_mountain", "name": "Modifier Mountain", "desc": "Have 15+ modifiers active at once", "icon": "📊", "category": "scoring", "condition": { "type": "modifiers_active", "value": 15 }, "points": 15 },
+    { "id": "modifier_avalanche", "name": "Modifier Avalanche", "desc": "Have 25+ modifiers active at once", "icon": "🏔️", "category": "scoring", "condition": { "type": "modifiers_active", "value": 25 }, "points": 30 },
+    { "id": "streak_5", "name": "On a Roll", "desc": "Win 5 tricks in a row", "icon": "🔥", "category": "combat", "condition": { "type": "win_streak", "value": 5 }, "points": 10 },
+    { "id": "streak_10", "name": "Unstoppable", "desc": "Win 10 tricks in a row", "icon": "⚡", "category": "combat", "condition": { "type": "win_streak", "value": 10 }, "points": 25 },
+    { "id": "streak_20", "name": "Invincible", "desc": "Win 20 tricks in a row", "icon": "💎", "category": "combat", "condition": { "type": "win_streak", "value": 20 }, "points": 50 },
+    { "id": "perfect_encounter", "name": "Perfect Round", "desc": "Win an encounter without losing a trick", "icon": "✨", "category": "combat", "condition": { "type": "perfect_encounter", "value": true }, "points": 20 },
+    { "id": "perfect_run", "name": "Flawless", "desc": "Win a run without losing a single trick", "icon": "💎", "category": "combat", "condition": { "type": "perfect_run", "value": true }, "points": 100 },
+    { "id": "close_call", "name": "Close Call", "desc": "Win a run with 5 or less HP", "icon": "😰", "category": "special", "condition": { "type": "win_low_hp", "value": 5 }, "points": 15 },
+    { "id": "skin_of_teeth", "name": "Skin of Your Teeth", "desc": "Win a run with exactly 1 HP", "icon": "💀", "category": "special", "condition": { "type": "win_low_hp", "value": 1 }, "points": 30 },
+    { "id": "ember_dealer_win", "name": "Ember's Chosen", "desc": "Win a run as The Ember Dealer", "icon": "🔥", "category": "class", "condition": { "type": "win_as_class", "class": "ember" }, "points": 10 },
+    { "id": "chrome_dealer_win", "name": "Chrome's Edge", "desc": "Win a run as The Chrome Tactician", "icon": "⚙️", "category": "class", "condition": { "type": "win_as_class", "class": "chrome" }, "points": 10 },
+    { "id": "stellar_dealer_win", "name": "Among the Stars", "desc": "Win a run as The Star Weaver", "icon": "⭐", "category": "class", "condition": { "type": "win_as_class", "class": "stellar" }, "points": 10 },
+    { "id": "all_classes", "name": "Jack of All Trades", "desc": "Win with all 3 classes", "icon": "🎭", "category": "class", "condition": { "type": "win_all_classes", "value": true }, "points": 30 },
+    { "id": "trump_master", "name": "Trump Master", "desc": "Win 10 tricks using trump suit", "icon": "🃏", "category": "combat", "condition": { "type": "trump_wins", "value": 10 }, "points": 15 },
+    { "id": "synergy_hunter", "name": "Synergy Hunter", "desc": "Trigger 5 different keyword synergies in a single run", "icon": "🔗", "category": "special", "condition": { "type": "synergies_in_run", "value": 5 }, "points": 25 },
+    { "id": "burn_baby_burn", "name": "Burn Baby Burn", "desc": "Have 15+ cards in the burn pile at once", "icon": "🔥", "category": "special", "condition": { "type": "burn_pile_size", "value": 15 }, "points": 15 },
+    { "id": "big_deck", "name": "Deck Builder", "desc": "Have 35+ cards in your deck", "icon": "📚", "category": "collection", "condition": { "type": "deck_size", "value": 35 }, "points": 10 },
+    { "id": "slim_deck", "name": "Minimalist", "desc": "Win a run with 12 or fewer cards", "icon": "✂️", "category": "special", "condition": { "type": "win_small_deck", "value": 12 }, "points": 30 },
+    { "id": "total_dmg_5k", "name": "Damage Dealer", "desc": "Deal 5,000 total damage across all runs", "icon": "💥", "category": "scoring", "condition": { "type": "total_damage", "value": 5000 }, "points": 15 },
+    { "id": "total_dmg_25k", "name": "Destroyer", "desc": "Deal 25,000 total damage across all runs", "icon": "💣", "category": "scoring", "condition": { "type": "total_damage", "value": 25000 }, "points": 30 },
+    { "id": "total_dmg_100k", "name": "Annihilator", "desc": "Deal 100,000 total damage across all runs", "icon": "🌌", "category": "scoring", "condition": { "type": "total_damage", "value": 100000 }, "points": 50 },
+    { "id": "card_collector_50", "name": "Card Collector", "desc": "See 50 unique cards in the codex", "icon": "📕", "category": "collection", "condition": { "type": "codex_cards", "value": 50 }, "points": 15 },
+    { "id": "card_collector_100", "name": "Card Connoisseur", "desc": "See 100 unique cards in the codex", "icon": "📗", "category": "collection", "condition": { "type": "codex_cards", "value": 100 }, "points": 25 },
+    { "id": "relic_collector_10", "name": "Relic Finder", "desc": "Discover 10 unique relics in the bestiary", "icon": "🔍", "category": "collection", "condition": { "type": "bestiary_relics", "value": 10 }, "points": 15 },
+    { "id": "relic_collector_all", "name": "Museum Curator", "desc": "Discover all relics in the bestiary", "icon": "🏛️", "category": "collection", "condition": { "type": "bestiary_all_relics", "value": true }, "points": 50 },
+    { "id": "shield_master", "name": "Shield Master", "desc": "Have 30+ shield at once", "icon": "🛡️", "category": "combat", "condition": { "type": "max_shield", "value": 30 }, "points": 15 },
+    { "id": "boss_slayer", "name": "Boss Slayer", "desc": "Defeat 10 bosses total", "icon": "⚔️", "category": "combat", "condition": { "type": "bosses_killed", "value": 10 }, "points": 20 },
+    { "id": "elite_hunter", "name": "Elite Hunter", "desc": "Defeat 20 elite enemies total", "icon": "🗡️", "category": "combat", "condition": { "type": "elites_killed", "value": 20 }, "points": 20 },
+    { "id": "surge_all", "name": "Full Surge", "desc": "Trigger all 3 row surges in a single encounter", "icon": "⚡", "category": "scoring", "condition": { "type": "all_surges", "value": true }, "points": 20 },
+    { "id": "cards_played_1000", "name": "Cardslinger", "desc": "Play 1,000 cards total", "icon": "🃏", "category": "progression", "condition": { "type": "cards_played", "value": 1000 }, "points": 20 },
+    { "id": "cards_played_5000", "name": "Card Hurricane", "desc": "Play 5,000 cards total", "icon": "🌪️", "category": "progression", "condition": { "type": "cards_played", "value": 5000 }, "points": 40 }
+  ]
+}

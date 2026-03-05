@@ -1,0 +1,22 @@
+[
+  { "level": 1, "desc": "Enemies +10% HP", "applyKey": "enemy_hp_10" },
+  { "level": 2, "desc": "Start with -10 max HP", "applyKey": null },
+  { "level": 3, "desc": "Elites +20% HP", "applyKey": "elite_hp_20" },
+  { "level": 4, "desc": "Lose 1 HP per rest", "applyKey": null },
+  { "level": 5, "desc": "Boss +25% HP", "applyKey": "boss_hp_25" },
+  { "level": 6, "desc": "Enemy rank floor +1", "applyKey": null },
+  { "level": 7, "desc": "Shop prices +25%", "applyKey": null },
+  { "level": 8, "desc": "Start with 1 fewer card in hand", "applyKey": null },
+  { "level": 9, "desc": "All enemies +15% HP", "applyKey": "enemy_hp_15" },
+  { "level": 10, "desc": "Enemy armor starts at 5", "applyKey": "enemy_armor_5" },
+  { "level": 11, "desc": "Fewer reward options", "applyKey": null },
+  { "level": 12, "desc": "Enemies deal +20% damage", "applyKey": null },
+  { "level": 13, "desc": "Streak resets on any loss", "applyKey": null },
+  { "level": 14, "desc": "Bosses gain +2 tricks per round", "applyKey": "boss_tricks_2" },
+  { "level": 15, "desc": "All enemies +25% HP", "applyKey": "enemy_hp_25" },
+  { "level": 16, "desc": "-20 max HP", "applyKey": null },
+  { "level": 17, "desc": "No free modifier on first trick", "applyKey": null },
+  { "level": 18, "desc": "Enemy rank floor +2", "applyKey": null },
+  { "level": 19, "desc": "Start each act with curse card", "applyKey": null },
+  { "level": 20, "desc": "The Final Challenge — all modifiers active", "applyKey": "final_challenge" }
+]

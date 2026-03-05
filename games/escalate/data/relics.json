@@ -1,0 +1,20 @@
+[
+  { "id": "loaded_dice", "name": "Loaded Dice", "icon": "🎲", "desc": "+2 chips to even-rank cards", "effect": "even_chip_bonus" },
+  { "id": "bleeding_heart", "name": "Bleeding Heart Locket", "icon": "💔", "desc": "Hearts wins heal 2 HP", "effect": "hearts_heal" },
+  { "id": "cracked_monocle", "name": "Cracked Monocle", "icon": "🧐", "desc": "Reveal 2 enemy cards at start", "effect": "reveal_start" },
+  { "id": "shattered_crown", "name": "Shattered Crown", "icon": "👑", "desc": "Crown Row scores on trick loss", "effect": "crown_on_loss" },
+  { "id": "ink_siphon", "name": "Ink Siphon", "icon": "🖋️", "desc": "+5 Ink per trick won", "effect": "ink_per_win" },
+  { "id": "ember_core", "name": "Ember Core", "icon": "🔥", "desc": "+0.1× mult per round survived", "effect": "round_mult_bonus" },
+  { "id": "void_lens", "name": "Void Lens", "icon": "🔮", "desc": "Spades cards get +3 chips", "effect": "spades_chip_bonus" },
+  { "id": "iron_scales", "name": "Iron Scales", "icon": "⚖️", "desc": "Start encounters with 5 shield", "effect": "start_shield" },
+  { "id": "echo_chamber", "name": "Echo Chamber", "icon": "📡", "desc": "Echo keyword triggers twice", "effect": "double_echo" },
+  { "id": "gamblers_coin", "name": "Gambler's Coin", "icon": "🪙", "desc": "20% chance for double modifier", "effect": "double_mod_chance" },
+  { "id": "diamond_lens", "name": "Diamond Lens", "icon": "💎", "desc": "Diamond chip mods give +50%", "effect": "diamond_chip_boost" },
+  { "id": "blood_pact", "name": "Blood Pact", "icon": "🩸", "desc": "Lose 1 HP/trick, +0.2× mult", "effect": "blood_mult" },
+  { "id": "suit_trump", "name": "Trump Card", "icon": "🃏", "desc": "Most-played suit becomes trump", "effect": "suit_trump" },
+  { "id": "wild_trump", "name": "Wild Joker", "icon": "🤡", "desc": "Cards with 2+ keywords = trump", "effect": "wild_trump" },
+  { "id": "resilient_heart", "name": "Resilient Heart", "icon": "💗", "desc": "+1 extra Resilience on loss", "effect": "extra_resilience" },
+  { "id": "star_prism", "name": "Star Prism", "icon": "🌟", "desc": "Stars cards get +4 chips and +0.2× mult", "effect": "star_boost" },
+  { "id": "phoenix_ash", "name": "Phoenix Ash", "icon": "🐦", "desc": "Burn pile cards give +1 chip each to Pyre cards", "effect": "phoenix_burn" },
+  { "id": "molten_heart", "name": "Molten Heart", "icon": "❤️‍🔥", "desc": "+2 Embers per trick won", "effect": "ember_bonus" }
+]
