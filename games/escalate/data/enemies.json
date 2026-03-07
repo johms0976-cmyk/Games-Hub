@@ -1,0 +1,189 @@
+{
+  "standard": [
+    {
+      "name": "Ink Imp",
+      "baseHp": 30, "hpPerAct": 15,
+      "passive": "Chaotic ink shifts required suit each trick — match for ×2!",
+      "passiveKey": "ink_chaos",
+      "ruleKey": "suit_rotation"
+    },
+    {
+      "name": "Page Scratcher",
+      "baseHp": 35, "hpPerAct": 15,
+      "passive": "Scratches weaken your hand — highest card loses 2 rank per trick",
+      "passiveKey": "page_scratch",
+      "ruleKey": "page_tear"
+    },
+    {
+      "name": "Smudge Sprite",
+      "baseHp": 25, "hpPerAct": 20,
+      "passive": "Smudge makes enemy cards stronger each round (+1 rank)",
+      "passiveKey": "rising_power",
+      "ruleKey": "rising_ranks"
+    },
+    {
+      "name": "Blot Fiend",
+      "baseHp": 40, "hpPerAct": 10,
+      "passive": "Ink blots punish retreats — off-suit plays cost 4 extra HP",
+      "passiveKey": "blot_punish",
+      "ruleKey": "blot_spread"
+    },
+    {
+      "name": "Ironclad Scribe",
+      "baseHp": 28, "hpPerAct": 12,
+      "passive": "Iron paths block retracing — can't play the same row twice consecutively",
+      "passiveKey": "regen_armor",
+      "passiveValue": 3,
+      "ruleKey": "no_repeat_row"
+    },
+    {
+      "name": "Suit Binder",
+      "baseHp": 32, "hpPerAct": 14,
+      "passive": "Binds your suits — play 2+ different suits each round or take damage",
+      "passiveKey": "suit_restrict",
+      "ruleKey": "suit_variety"
+    },
+    {
+      "name": "Twin Dealer",
+      "baseHp": 22, "hpPerAct": 18,
+      "passive": "Crown guard — only cards rank 8+ deal full damage",
+      "passiveKey": "double_play",
+      "ruleKey": "high_card_only"
+    },
+    {
+      "name": "Fade Wraith",
+      "baseHp": 35, "hpPerAct": 12,
+      "passive": "Fading presence — only the LAST trick each round deals full damage",
+      "passiveKey": "damage_reduction",
+      "passiveValue": 0.3,
+      "ruleKey": "last_trick_only"
+    },
+    {
+      "name": "Ink Leech",
+      "baseHp": 26, "hpPerAct": 16,
+      "passive": "Drains your resources — each trick costs Ink, or enemy gains armor",
+      "passiveKey": "ink_steal",
+      "passiveValue": 5,
+      "ruleKey": "escalating_cost"
+    },
+    {
+      "name": "Ember Moth",
+      "baseHp": 30, "hpPerAct": 13,
+      "passive": "Gravity pull weakens cards — your cards lose 1 rank per trick",
+      "passiveKey": "ember_drain",
+      "passiveValue": 2,
+      "ruleKey": "descending_ranks"
+    },
+    {
+      "name": "Grudge Sentinel",
+      "baseHp": 34, "hpPerAct": 14,
+      "passive": "Ticking grudge — win within 2 rounds or take escalating damage",
+      "passiveKey": "win_punish",
+      "passiveValue": 8,
+      "ruleKey": "countdown"
+    },
+    {
+      "name": "Patience Weaver",
+      "baseHp": 28, "hpPerAct": 16,
+      "passive": "Mirrors your every move — enemy always plays your row (Clash!)",
+      "passiveKey": "armor_on_player_win",
+      "passiveValue": 2,
+      "ruleKey": "mirror_rows"
+    }
+  ],
+  "elite": [
+    {
+      "name": "Eraser Wraith",
+      "baseHp": 80, "hpPerAct": 30,
+      "passive": "Disables lowest modifier",
+      "signaturePattern": ["debuff", "heavy_attack", "defend", "heavy_attack"],
+      "eliteMechanic": "disable_mod"
+    },
+    {
+      "name": "Echo Shade",
+      "baseHp": 70, "hpPerAct": 25,
+      "passive": "Copies your last modifier",
+      "signaturePattern": ["attack", "buff", "attack", "heavy_attack"],
+      "eliteMechanic": "copy_mod"
+    },
+    {
+      "name": "Page Golem",
+      "baseHp": 100, "hpPerAct": 20,
+      "passive": "Gains 5 armor/round",
+      "signaturePattern": ["defend", "defend", "heavy_attack", "heavy_attack"],
+      "eliteMechanic": "armor_stack"
+    },
+    {
+      "name": "Mirror Knight",
+      "baseHp": 75, "hpPerAct": 28,
+      "passive": "Reflects 20% damage back at you",
+      "signaturePattern": ["defend", "attack", "heavy_attack", "attack"],
+      "eliteMechanic": "reflect_damage",
+      "mechanicValue": 0.2
+    },
+    {
+      "name": "Streak Breaker",
+      "baseHp": 65, "hpPerAct": 32,
+      "passive": "Resets all row streaks on trick win",
+      "signaturePattern": ["heavy_attack", "attack", "debuff", "heavy_attack"],
+      "eliteMechanic": "streak_reset"
+    },
+    {
+      "name": "Void Siphon",
+      "baseHp": 85, "hpPerAct": 22,
+      "passive": "Steals modifier on win, heals 5% on loss",
+      "signaturePattern": ["debuff", "attack", "debuff", "heavy_attack"],
+      "eliteMechanic": "mod_steal"
+    },
+    {
+      "name": "Clockwork Duelist",
+      "baseHp": 70, "hpPerAct": 26,
+      "passive": "Immune every other trick",
+      "signaturePattern": ["defend", "heavy_attack", "defend", "heavy_attack"],
+      "eliteMechanic": "alternating_immune"
+    }
+  ],
+  "boss": [
+    {
+      "name": "The Crimson Regent", "baseHp": 150, "hpPerAct": 60, "passive": "Heals 5% HP/win",
+      "signaturePattern": ["buff", "attack", "heavy_attack", "debuff", "heavy_attack"],
+      "phases": [
+        { "threshold": 1.0, "name": "Reign", "effect": "heal", "desc": "Heals 3% HP per trick won" },
+        { "threshold": 0.66, "name": "Bloodletting", "effect": "recoil", "desc": "3 recoil damage on win" },
+        { "threshold": 0.33, "name": "Crimson Storm", "effect": "double_play", "desc": "Enemy +3 rank" }
+      ]
+    },
+    {
+      "name": "The Golden Archon", "baseHp": 140, "hpPerAct": 50, "passive": "Diamonds +3 rank",
+      "signaturePattern": ["defend", "buff", "attack", "heavy_attack", "heavy_attack"],
+      "phases": [
+        { "threshold": 1.0, "name": "Gilded", "effect": "diamond_boost", "desc": "Diamond cards +3 rank" },
+        { "threshold": 0.66, "name": "Midas Touch", "effect": "steal_chips", "desc": "Steals 2 chips on win" },
+        { "threshold": 0.33, "name": "Golden Fury", "effect": "all_boost", "desc": "ALL enemy cards +2 rank" }
+      ]
+    },
+    {
+      "name": "The Iron Marshal", "baseHp": 180, "hpPerAct": 40, "passive": "+8 armor/round",
+      "signaturePattern": ["defend", "defend", "buff", "attack", "heavy_attack"],
+      "phases": [
+        { "threshold": 1.0, "name": "Fortified", "effect": "armor_gain", "desc": "+8 armor/round" },
+        { "threshold": 0.66, "name": "Iron Wall", "effect": "armor_surge", "desc": "+12 armor/round" },
+        { "threshold": 0.33, "name": "Juggernaut", "effect": "reflect", "desc": "Reflects 25% damage" }
+      ]
+    },
+    {
+      "name": "The Void Librarian", "baseHp": 130, "hpPerAct": 55, "passive": "Rearranges modifiers",
+      "signaturePattern": ["debuff", "debuff", "attack", "heavy_attack", "heavy_attack"],
+      "phases": [
+        { "threshold": 1.0, "name": "Cataloging", "effect": "shuffle_mods", "desc": "Randomizes modifier order" },
+        { "threshold": 0.66, "name": "Erasure", "effect": "disable_mod", "desc": "Disables random modifier" },
+        { "threshold": 0.33, "name": "Void Collapse", "effect": "void_surge", "desc": "All enemy cards rank 12+" }
+      ]
+    }
+  ],
+  "tierConfig": {
+    "standard": { "handSize": 6, "rankBonus": 0, "tricksPerRound": 3 },
+    "elite": { "handSize": 8, "rankBonus": 1, "tricksPerRound": 4 },
+    "boss": { "handSize": 10, "rankBonus": 3, "tricksPerRound": 5 }
+  }
+}
