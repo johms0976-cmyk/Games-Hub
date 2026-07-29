@@ -17,6 +17,28 @@
  */
 
 const GAMES = [
+         {
+    id: "countdown",
+    title: "Countdown",
+    subtitle: "30 Seconds to prove how dumb you are!",
+    category: "puzzle",
+    players: "1",
+    duration: "5-10 min",
+    icon: "0️⃣",
+    accentColor: "#e74c3c",
+    status: "playable",
+  }, 
+             {
+    id: "heat",
+    title: "Heat",
+    subtitle: "Pedal to the Metal",
+    category: "board",
+    players: "1-4",
+    duration: "5-20 min",
+    icon: "0️⃣",
+    accentColor: "#e74c3c",
+    status: "playable",
+  }, 
     {
     id: "five-crowns",
     title: "Five Crowns",
