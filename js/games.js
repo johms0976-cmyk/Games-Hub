@@ -160,6 +160,17 @@ const GAMES = [
     accentColor: "#e74c3c",
     status: "playable",
   }, 
+                  {
+    id: "crow",
+    title: "Crow Flies",
+    subtitle: "how far does a crow fly?",
+    category: "card",
+    players: "4",
+    duration: "5-10 min",
+    icon: "🐦‍⬛",
+    accentColor: "#e74c3c",
+    status: "playable",
+  }, 
       {
     id: "diamonds",
     title: "Diamonds",
