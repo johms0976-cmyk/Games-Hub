@@ -1,0 +1,3256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Countdown Game — A Letters & Numbers Tribute</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#071634; --navy2:#0a2350; --teal:#0e3f63; --teal2:#10577f;
+    --ink:#06122b; --gold:#ffc23c; --gold2:#ffd877; --amber:#f59e0b;
+    --cream:#f6f0e2; --white:#ffffff; --mut:#9fb6d6; --mut2:#6f88ad;
+    --tileface:#1c5d92; --tileface2:#2a78b8; --tiletop:#3f93d6; --tileedge:#0c3a5e;
+    --good:#43d17a; --bad:#ff6b6b; --pink:#ff7ab6;
+    --r:18px; --shadow:0 18px 50px rgba(0,0,0,.45);
+    --disp:'Bricolage Grotesque',system-ui,sans-serif;
+    --body:'DM Sans',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
+  html,body{height:100%}
+  body{
+    font-family:var(--body); color:var(--white); min-height:100%;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(255,194,60,.10), transparent 60%),
+      radial-gradient(1000px 800px at 0% 110%, rgba(255,122,182,.10), transparent 55%),
+      linear-gradient(160deg,var(--navy) 0%, var(--navy2) 38%, var(--teal) 100%);
+    background-attachment:fixed;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.5;
+    background-image:radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
+    background-size:3px 3px;
+  }
+  .wrap{position:relative; z-index:1; max-width:1040px; margin:0 auto; padding:22px 18px 60px;}
+  header.brand{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:10px;}
+  .logo{display:flex; align-items:center; gap:14px;}
+  .clockmark{width:46px;height:46px;border-radius:50%;
+    background:conic-gradient(var(--gold) 0 25%, var(--teal2) 0 50%, var(--gold) 0 75%, var(--teal2) 0);
+    box-shadow:0 0 0 4px rgba(255,255,255,.08), var(--shadow); flex:0 0 auto;}
+  .logo h1{font-family:var(--disp); font-weight:800; font-size:1.45rem; letter-spacing:.5px; line-height:1;}
+  .logo h1 span{color:var(--gold)}
+  .logo p{font-size:.72rem; color:var(--mut); letter-spacing:.18em; text-transform:uppercase; margin-top:3px}
+  .toolbar{display:flex; gap:8px; align-items:center}
+  .iconbtn{background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); color:var(--white);
+    width:42px;height:42px;border-radius:12px;cursor:pointer;font-size:1.05rem; transition:.15s; display:grid; place-items:center}
+  .iconbtn:hover{background:rgba(255,255,255,.16)}
+
+  /* Screens */
+  .screen{display:none; animation:fade .35s ease both}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0; transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.12); border-radius:var(--r); padding:26px; box-shadow:var(--shadow);
+    backdrop-filter:blur(6px)}
+
+  /* Title screen */
+  .hero{text-align:center; padding:34px 20px 14px}
+  .hero .tiles{display:flex; gap:7px; justify-content:center; flex-wrap:wrap; margin:8px 0 20px}
+  .hero h2{font-family:var(--disp); font-weight:800; font-size:clamp(1.9rem,5vw,3rem); line-height:1.02; margin-bottom:10px}
+  .hero h2 em{font-style:normal; color:var(--gold)}
+  .hero p{color:var(--mut); max-width:560px; margin:0 auto 26px; font-size:1.02rem}
+  .modegrid{display:grid; grid-template-columns:1fr 1fr; gap:16px; max-width:680px; margin:0 auto}
+  .modegrid.menu3{grid-template-columns:repeat(3,1fr); max-width:1000px}
+  @media(max-width:760px){.modegrid.menu3{grid-template-columns:1fr}}
+  @media(max-width:560px){.modegrid{grid-template-columns:1fr}}
+  .lan-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--mut2);margin-right:6px;vertical-align:middle}
+  .lan-dot.on{background:var(--good);box-shadow:0 0 8px var(--good)}
+  .seatcard{display:flex;gap:14px;align-items:center;padding:14px 18px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);margin:8px 0}
+  .seatcard .av{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-family:var(--disp);font-weight:800;flex:0 0 auto}
+  .seatcard .who{font-family:var(--disp);font-weight:800}
+  .seatcard .role{font-size:.72rem;color:var(--mut);text-transform:uppercase;letter-spacing:.1em}
+  .codebox{font-family:var(--disp);font-weight:800;font-size:1.1rem;letter-spacing:.04em;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:8px 14px;display:inline-block;color:var(--gold);user-select:all}
+  .waiting{color:var(--mut);text-align:center;padding:10px}
+  .modecard{cursor:pointer; text-align:left; border-radius:16px; padding:22px; position:relative; overflow:hidden;
+    border:1px solid rgba(255,255,255,.14); transition:.2s; background:rgba(255,255,255,.04)}
+  .modecard:hover{transform:translateY(-4px); border-color:var(--gold); box-shadow:0 14px 34px rgba(0,0,0,.4)}
+  .modecard .big{font-family:var(--disp); font-weight:800; font-size:1.35rem; margin-bottom:6px}
+  .modecard .em{color:var(--gold)}
+  .modecard p{color:var(--mut); font-size:.9rem; line-height:1.45}
+  .modecard .badge{position:absolute; top:14px; right:14px; font-size:1.6rem; opacity:.5}
+
+  /* Buttons */
+  .btn{font-family:var(--body); font-weight:700; cursor:pointer; border:none; border-radius:12px;
+    padding:13px 22px; font-size:1rem; transition:.16s; color:var(--ink); background:var(--gold);
+    box-shadow:0 6px 0 #c9911f, 0 10px 22px rgba(0,0,0,.3)}
+  .btn:hover{filter:brightness(1.05); transform:translateY(-1px)}
+  .btn:active{transform:translateY(3px); box-shadow:0 3px 0 #c9911f}
+  .btn.ghost{background:rgba(255,255,255,.08); color:var(--white); box-shadow:0 6px 0 rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.14)}
+  .btn.ghost:active{box-shadow:0 3px 0 rgba(0,0,0,.25)}
+  .btn.sm{padding:9px 15px; font-size:.9rem; box-shadow:0 4px 0 #c9911f}
+  .btn.sm.ghost{box-shadow:0 4px 0 rgba(0,0,0,.25)}
+  .btn:disabled{opacity:.4; cursor:not-allowed; transform:none; box-shadow:0 6px 0 rgba(0,0,0,.2)}
+  .btnrow{display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:8px}
+
+  /* daily challenge button */
+  .dailybtn{display:inline-flex; flex-direction:column; align-items:center; gap:3px; padding:14px 34px; font-size:1.12rem;
+    background:linear-gradient(135deg,var(--gold2),var(--gold)); box-shadow:0 6px 0 #c9911f, 0 12px 26px rgba(0,0,0,.35)}
+  .dailybtn:active{box-shadow:0 3px 0 #c9911f}
+  .dailybtn .sub{font-family:var(--body); font-weight:600; font-size:.74rem; letter-spacing:.01em; text-transform:none; color:#6b4e08}
+  .dailybtn.done{background:linear-gradient(135deg,#c4eccf,#8fd6a3); box-shadow:0 6px 0 #5fae74, 0 12px 26px rgba(0,0,0,.3)}
+  .dailybtn.done:active{box-shadow:0 3px 0 #5fae74}
+  .dailybtn.done .sub{color:#1f5a33}
+
+  .section-h{font-family:var(--disp); font-weight:800; font-size:1.5rem; margin-bottom:4px; text-align:center}
+  .section-sub{color:var(--mut); text-align:center; margin-bottom:24px}
+
+  /* Opponent picker */
+  .oppgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+  @media(max-width:620px){.oppgrid{grid-template-columns:1fr}}
+  .opp{cursor:pointer; text-align:center; padding:22px 16px; border-radius:16px; border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.04); transition:.2s}
+  .opp:hover{transform:translateY(-4px); border-color:var(--gold)}
+  .avatar{width:74px;height:74px;border-radius:50%; margin:0 auto 12px; display:grid; place-items:center;
+    font-family:var(--disp); font-weight:800; font-size:1.5rem; color:#fff; box-shadow:0 8px 20px rgba(0,0,0,.35), inset 0 -6px 12px rgba(0,0,0,.25)}
+  .opp .nm{font-family:var(--disp); font-weight:800; font-size:1.12rem}
+  .opp .lvl{font-size:.78rem; letter-spacing:.14em; text-transform:uppercase; margin-top:4px}
+  .lvl.easy{color:#7ee0a3}.lvl.medium{color:var(--gold2)}.lvl.hard{color:var(--pink)}
+  .lvl.legend{color:#c4b5fd}
+  .theme-sw{display:flex; gap:6px; justify-content:center; margin:8px 0 11px}
+  .theme-sw span{width:22px; height:28px; border-radius:6px; display:inline-block; border:1px solid rgba(255,255,255,.22); box-shadow:inset 0 2px 0 rgba(255,255,255,.2)}
+  .opp .desc{color:var(--mut); font-size:.82rem; margin-top:10px; line-height:1.4}
+
+  /* Scoreboard */
+  .scorebar{display:flex; align-items:stretch; gap:12px; margin-bottom:18px}
+  .scoreside{flex:1; display:flex; align-items:center; gap:12px; padding:12px 16px; border-radius:14px;
+    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1)}
+  .scoreside.me{justify-content:flex-start}
+  .scoreside.them{justify-content:flex-end; text-align:right; flex-direction:row-reverse}
+  .scoreside .av{width:46px;height:46px;border-radius:50%; display:grid; place-items:center; font-family:var(--disp); font-weight:800; flex:0 0 auto}
+  .scoreside .who{font-family:var(--disp); font-weight:800; font-size:.98rem}
+  .scoreside .role{font-size:.7rem; color:var(--mut); text-transform:uppercase; letter-spacing:.1em}
+  .scoreside .pts{font-family:var(--disp); font-weight:800; font-size:1.9rem; color:var(--gold); margin-left:auto}
+  .scoreside.them .pts{margin-left:0; margin-right:auto}
+  .vs{align-self:center; font-family:var(--disp); font-weight:800; color:var(--mut); font-size:.9rem}
+  .roundmeta{text-align:center; color:var(--mut); font-size:.85rem; margin-bottom:6px; letter-spacing:.06em; text-transform:uppercase}
+
+  /* Tiles */
+  .board{display:flex; gap:9px; justify-content:center; flex-wrap:wrap; margin:18px 0}
+  .tile{width:62px;height:74px; border-radius:10px; display:grid; place-items:center;
+    font-family:var(--disp); font-weight:800; font-size:2rem; color:#fff; user-select:none;
+    background:linear-gradient(180deg,var(--tiletop),var(--tileface) 55%, var(--tileface2));
+    box-shadow:0 7px 0 var(--tileedge), 0 12px 22px rgba(0,0,0,.4), inset 0 2px 0 rgba(255,255,255,.25);
+    border:1px solid rgba(255,255,255,.15); transition:transform .25s, opacity .2s}
+  .tile.num{font-size:1.5rem}
+  .tile.empty{background:rgba(255,255,255,.05); box-shadow:inset 0 2px 8px rgba(0,0,0,.3); color:transparent}
+  .tile.flip{animation:flip .45s ease both}
+  @keyframes flip{from{transform:rotateX(90deg); opacity:0}to{transform:none; opacity:1}}
+  /* slot-machine "spin" while a letter is being selected */
+  .tile.spinning{animation:reelbob .11s linear infinite}
+  @keyframes reelbob{0%{transform:translateY(-9%)}50%{transform:translateY(7%)}100%{transform:translateY(-9%)}}
+  .tile.land{animation:tileland .28s cubic-bezier(.34,1.56,.64,1) both}
+  @keyframes tileland{0%{transform:translateY(-14%) scale(1.07)}60%{transform:translateY(3%) scale(.97)}100%{transform:none}}
+  @media(prefers-reduced-motion: reduce){.tile.spinning,.tile.land{animation:none}}
+  @media(max-width:560px){.tile{width:46px;height:56px;font-size:1.5rem}.tile.num{font-size:1.15rem}}
+
+  /* number tiles interactive */
+  .ntile{cursor:pointer; position:relative}
+  .ntile.sel{outline:3px solid var(--gold); outline-offset:2px; transform:translateY(-4px)}
+  .ntile.used{opacity:.18; pointer-events:none; filter:grayscale(.6)}
+  .ntile.result{background:linear-gradient(180deg,#e7b23a,#d99a1d 60%,#c98916); box-shadow:0 7px 0 #9c6a10,0 12px 22px rgba(0,0,0,.4); color:#3a2600}
+
+  /* interactive letter rack (tap to spell · drag to rearrange) */
+  .rackwrap{margin:6px 0 2px}
+  .rack{display:flex; gap:9px; justify-content:center; flex-wrap:wrap; margin:10px 0; min-height:74px}
+  .rack .tile{cursor:pointer; touch-action:none; user-select:none; -webkit-user-select:none; transition:transform .12s, box-shadow .12s, opacity .12s}
+  .rack .tile.used{opacity:.24; filter:grayscale(.55)}
+  .rack .tile.dragging{outline:3px solid var(--gold); outline-offset:2px; transform:translateY(-5px) scale(1.05); z-index:6; box-shadow:0 16px 28px rgba(0,0,0,.55); opacity:1}
+  .rack .tile.swaparm{outline:3px dashed var(--gold); outline-offset:2px; animation:swp 1s ease infinite}
+  .answer{display:flex; gap:7px; justify-content:center; flex-wrap:wrap; align-items:center; min-height:62px;
+    margin:4px auto 6px; padding:8px 10px; border-radius:14px; border:1px dashed rgba(255,255,255,.20); background:rgba(0,0,0,.14); max-width:640px}
+  .answer .tile{width:48px; height:58px; font-size:1.7rem; cursor:pointer}
+  .answer .tile:hover{outline:2px solid rgba(255,107,107,.7); outline-offset:2px}
+  .answer-empty{color:var(--mut); font-size:.92rem; padding:16px 8px}
+  .hintline{font-size:.82rem}
+  @media(max-width:560px){.answer .tile{width:38px; height:46px; font-size:1.25rem}}
+
+  /* clock */
+  .clockwrap{display:flex; align-items:center; justify-content:center; gap:18px; margin:10px 0 6px}
+  .clock{position:relative; width:118px;height:118px}
+  .clock svg{transform:rotate(-90deg)}
+  .clock .num{position:absolute; inset:0; display:grid; place-items:center; font-family:var(--disp); font-weight:800; font-size:2.4rem}
+  .clock.warn .num{color:var(--bad)}
+  /* one-shot sweeping "hand" on round entry (independent of the ticking ring) */
+  .clock .sweep{position:absolute; inset:0; border-radius:50%; pointer-events:none;
+    background:conic-gradient(from 0deg, rgba(255,194,60,.55), rgba(255,194,60,0) 70deg, transparent 70deg);
+    animation:clockhand .65s ease-out 1 both}
+  @keyframes clockhand{from{transform:rotate(0);opacity:.9}to{transform:rotate(360deg);opacity:0}}
+
+  /* confetti for match wins */
+  .confetti-layer{position:fixed; inset:0; pointer-events:none; z-index:1200; overflow:hidden}
+  .confetti-bit{position:absolute; top:-18px; opacity:.95;
+    animation:conffall var(--d,3s) linear var(--delay,0s) forwards}
+  @keyframes conffall{
+    0%{transform:translateY(-20px) translateX(0) rotate(0)}
+    100%{transform:translateY(106vh) translateX(calc(var(--x,0) * 150px)) rotate(var(--r,360deg)); opacity:.85}}
+
+  /* styled confirm dialog */
+  .modal-overlay{position:fixed; inset:0; z-index:1000; display:grid; place-items:center; padding:20px;
+    background:rgba(3,8,20,.62); backdrop-filter:blur(3px); animation:fade .2s ease both}
+  .modal-box{max-width:380px; text-align:center; animation:popin .22s ease both}
+  @keyframes popin{from{opacity:0; transform:translateY(10px) scale(.96)}to{opacity:1; transform:none}}
+
+  @media(prefers-reduced-motion: reduce){
+    .clock .sweep{display:none}
+    .modal-overlay,.modal-box{animation:none}
+  }
+
+  .inputrow{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:6px}
+  input[type=text]{font-family:var(--disp); font-weight:800; letter-spacing:.18em; text-transform:uppercase;
+    background:rgba(255,255,255,.95); color:var(--ink); border:none; border-radius:12px; padding:12px 16px;
+    font-size:1.2rem; width:280px; max-width:80vw; text-align:center; outline:3px solid transparent}
+  input[type=text]:focus{outline-color:var(--gold)}
+  .feedback{text-align:center; min-height:24px; margin-top:10px; font-weight:700}
+  .feedback.good{color:var(--good)} .feedback.bad{color:var(--bad)}
+  .best-so-far{text-align:center; color:var(--mut); margin-top:6px; font-size:.9rem}
+  .best-so-far b{color:var(--gold); font-family:var(--disp)}
+
+  /* easy mode: count-up clock + multiplier dial */
+  .clock.relaxclock .num{font-size:1.85rem; transform:translateY(-10px)}
+  .clock .mult{position:absolute; inset:0; display:grid; place-items:center; transform:translateY(24px);
+    font-family:var(--body); font-weight:800; font-size:.8rem; letter-spacing:.05em; color:#7bd88f}
+  .clock.relaxclock.fade .mult{color:#ffc23c}
+  .clock.relaxclock.floorhit .mult{color:var(--bad)}
+  .relaxnote{text-align:center; color:var(--mut); font-size:.82rem; line-height:1.5; margin:2px auto 2px; max-width:34rem}
+  .relaxnote b{color:var(--gold)}
+  .relaxline{text-align:center; color:var(--mut); font-size:.86rem; margin-top:10px}
+  .relaxline b{color:var(--gold); font-family:var(--disp)}
+  .relaxbadge{display:inline-block; padding:4px 12px; border-radius:999px; font-family:var(--body); font-weight:700;
+    font-size:.76rem; letter-spacing:.05em; text-transform:uppercase; background:rgba(123,216,143,.16);
+    color:#9ee8ae; border:1px solid rgba(123,216,143,.35)}
+  /* segmented mode picker under the daily button */
+  .modeseg{display:inline-flex; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.14);
+    border-radius:999px; padding:4px; gap:4px}
+  .modeseg .segbtn{appearance:none; border:0; cursor:pointer; font-family:var(--body); font-weight:700;
+    font-size:.85rem; color:rgba(255,255,255,.62); background:transparent; padding:7px 16px; border-radius:999px;
+    transition:background .15s, color .15s}
+  .modeseg .segbtn:hover{color:var(--white)}
+  .modeseg .segbtn.on{background:linear-gradient(135deg,#ffd76a,#e8b23a); color:#3a2a00; box-shadow:0 2px 6px rgba(0,0,0,.3)}
+  .modeseg.locked{opacity:.5}
+  .modeseg.locked .segbtn{cursor:default}
+  .segnote{margin:8px auto 0; color:var(--mut); font-size:.79rem; line-height:1.5; max-width:32rem}
+
+  /* numbers controls */
+  .ops{display:flex; gap:9px; justify-content:center; flex-wrap:wrap; margin:8px 0}
+  .opbtn{width:54px;height:54px;border-radius:12px;border:1px solid rgba(255,255,255,.15); cursor:pointer;
+    font-family:var(--disp); font-weight:800; font-size:1.5rem; color:#fff; background:rgba(255,255,255,.08); transition:.15s}
+  .opbtn:hover{background:rgba(255,255,255,.18)}
+  .opbtn.sel{background:var(--gold); color:var(--ink)}
+  .target{text-align:center; margin:6px 0}
+  .target .lbl{color:var(--mut); text-transform:uppercase; letter-spacing:.16em; font-size:.72rem}
+  .target .val{font-family:var(--disp); font-weight:800; font-size:3.2rem; color:var(--gold); line-height:1}
+
+  .largepick{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:14px 0}
+  .largepick button{padding:14px 18px}
+
+  /* reveal */
+  .reveal{margin-top:14px}
+  .panel{border-radius:16px; padding:20px 22px; margin-top:14px; border:1px solid rgba(255,255,255,.12)}
+  .panel.host{background:linear-gradient(180deg, rgba(255,194,60,.14), rgba(255,194,60,.03))}
+  .panel h3{font-family:var(--disp); font-weight:800; font-size:1.1rem; margin-bottom:4px; display:flex; align-items:center; gap:10px}
+  .panel .host-sub{color:var(--mut); font-size:.8rem; margin-bottom:12px}
+  .wordlist{display:flex; gap:8px; flex-wrap:wrap}
+  .wchip{background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:7px 12px;
+    font-family:var(--disp); font-weight:800; letter-spacing:.06em}
+  .wchip.best{background:var(--gold); color:var(--ink)}
+  .wchip small{font-weight:400; font-family:var(--body); letter-spacing:0; opacity:.7; margin-left:6px}
+  .solution{font-family:var(--disp); font-weight:800; font-size:1.05rem; line-height:1.9}
+  .solution .eq{background:rgba(255,255,255,.08); padding:3px 9px; border-radius:8px; margin:3px 0; display:inline-block}
+  .declared{display:flex; gap:30px; justify-content:center; text-align:center; margin:6px 0 2px; flex-wrap:wrap}
+  .declared .col .t{color:var(--mut); font-size:.78rem; text-transform:uppercase; letter-spacing:.1em}
+  .declared .col .v{font-family:var(--disp); font-weight:800; font-size:1.5rem}
+  .declared .col .v.win{color:var(--good)}
+
+  /* career hud */
+  .careerhud{display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:16px}
+  .stat{background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:12px; padding:10px 16px; text-align:center; min-width:96px}
+  .stat .t{font-size:.68rem; color:var(--mut); text-transform:uppercase; letter-spacing:.12em}
+  .stat .v{font-family:var(--disp); font-weight:800; font-size:1.3rem; color:var(--gold)}
+
+  .result-banner{text-align:center; font-family:var(--disp); font-weight:800; font-size:2.2rem; margin:6px 0 2px}
+  .result-banner.win{color:var(--good)} .result-banner.lose{color:var(--bad)} .result-banner.draw{color:var(--gold)}
+
+  .footer{margin-top:34px; text-align:center; color:var(--mut2); font-size:.74rem; line-height:1.6}
+  .pill{display:inline-block; padding:4px 11px; border-radius:99px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); font-size:.74rem; color:var(--mut); margin-bottom:14px; letter-spacing:.04em}
+  .center{text-align:center}
+  .spin{display:inline-block; animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+  .hide{display:none!important}
+
+  /* ===== Gauntlet ===== */
+  .modegrid.menu4{grid-template-columns:repeat(2,1fr); max-width:760px}
+  @media(max-width:620px){.modegrid.menu4{grid-template-columns:1fr}}
+  .gaunt-tray{margin-top:18px; border-top:1px solid rgba(255,255,255,.1); padding-top:13px}
+  .tray-label{font-size:.68rem; color:var(--mut); text-transform:uppercase; letter-spacing:.14em; text-align:center; margin-bottom:9px}
+  .tray-row{display:flex; gap:9px; justify-content:center; flex-wrap:wrap}
+  .powbtn{display:flex; flex-direction:column; align-items:center; gap:2px; min-width:86px; cursor:pointer; border-radius:13px;
+    padding:9px 12px; border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.06); color:#fff; transition:.15s}
+  .powbtn:hover{background:rgba(255,194,60,.16); border-color:var(--gold); transform:translateY(-2px)}
+  .powbtn .pic{font-size:1.4rem; line-height:1}
+  .powbtn .pnm{font-family:var(--disp); font-weight:800; font-size:.74rem}
+  .powbtn .pct{font-size:.7rem; color:var(--gold); font-weight:700}
+  .tray-msg{text-align:center; color:var(--gold); min-height:20px; margin-top:11px; font-weight:700; font-size:.92rem}
+  .tray-empty{text-align:center; color:var(--mut2); font-size:.84rem}
+  .tile.swapsel{cursor:pointer; outline:3px dashed var(--gold); outline-offset:2px; animation:swp 1s ease infinite}
+  @keyframes swp{0%,100%{transform:none}50%{transform:translateY(-5px)}}
+  .draftgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:12px}
+  @media(max-width:620px){.draftgrid{grid-template-columns:1fr}}
+  .draftcard{cursor:pointer; text-align:center; border-radius:16px; padding:22px 16px; border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.04); transition:.2s}
+  .draftcard:hover{transform:translateY(-5px); border-color:var(--gold); box-shadow:0 14px 34px rgba(0,0,0,.4)}
+  .draftcard .dicon{font-size:2.4rem; margin-bottom:8px}
+  .draftcard .dname{font-family:var(--disp); font-weight:800; font-size:1.1rem}
+  .draftcard .dblurb{color:var(--mut); font-size:.84rem; line-height:1.45; margin:8px 0 10px}
+  .draftcard .dtag{display:inline-block; font-size:.64rem; letter-spacing:.12em; text-transform:uppercase; color:var(--gold);
+    border:1px solid rgba(255,194,60,.4); border-radius:99px; padding:3px 10px}
+  .boss-flag{color:var(--pink)}
+  /* ===== Jimmy Carr's Cash Shop ===== */
+  .shophead{display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:6px}
+  .shopjc{width:58px; height:58px; flex:0 0 auto; border-radius:50%; display:grid; place-items:center;
+    font-family:var(--disp); font-weight:800; font-size:1.3rem; color:#1a1408;
+    background:linear-gradient(145deg,#ffd970,#caa11e); box-shadow:0 6px 18px rgba(0,0,0,.35)}
+  .jimmysay{color:var(--gold); font-style:italic; font-size:.92rem; margin-top:3px; min-height:1.2em; max-width:520px}
+  .shopbal{margin-left:auto; text-align:right}
+  .shopbal .t{font-size:.66rem; letter-spacing:.12em; text-transform:uppercase; color:var(--mut)}
+  .shopbal .v{font-family:var(--disp); font-weight:800; font-size:1.5rem; color:#fff}
+  .shopgrid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:14px}
+  @media(max-width:620px){.shopgrid{grid-template-columns:1fr}}
+  .shopcard{display:flex; flex-direction:column; text-align:center; border-radius:16px; padding:20px 16px 18px;
+    border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.03)}
+  .shopcard.maxed{border-color:rgba(255,194,60,.5); background:rgba(255,194,60,.06)}
+  .shopcard .dicon{font-size:2.2rem; margin-bottom:6px}
+  .shopcard .dname{font-family:var(--disp); font-weight:800; font-size:1.06rem}
+  .shopcard .dblurb{color:var(--mut); font-size:.82rem; line-height:1.45; margin:7px 0 9px}
+  .shopcard .shoplvl{font-size:.8rem; font-weight:700; color:var(--gold); min-height:1.1em}
+  .shopcard .shoplvl .mut{color:var(--mut2); font-weight:400}
+  .pips{display:flex; gap:6px; justify-content:center; margin:9px 0 12px}
+  .pip{width:9px; height:9px; border-radius:50%; border:1px solid rgba(255,194,60,.5); background:transparent}
+  .pip.on{background:var(--gold); box-shadow:0 0 6px rgba(255,194,60,.6)}
+  .shopbuy{margin-top:auto; width:100%}
+  .shopbuy:disabled{opacity:.45; cursor:not-allowed; transform:none}
+
+  /* ===== Rachel — pixel presenter who puts up the tiles ===== */
+  .rachel-stage{display:flex; align-items:center; justify-content:center; gap:14px; margin:8px auto 16px; max-width:580px; min-height:150px}
+  .rachel-fig{width:120px; flex:0 0 auto; transform-origin:50% 100%;
+    filter:drop-shadow(0 10px 16px rgba(0,0,0,.45)); animation:rachelIdle 3.4s ease-in-out infinite}
+  .rachel-fig .rachel-svg{width:100%; height:auto; display:block; image-rendering:pixelated}
+  @keyframes rachelIdle{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  .rachel-fig.talk{animation:rachelTalk .5s ease}
+  @keyframes rachelTalk{0%,100%{transform:translateY(0) rotate(0)}30%{transform:translateY(-3px) rotate(-1.6deg)}65%{transform:translateY(-1px) rotate(1.6deg)}}
+  .rachel-fig.place{animation:rachelPlace .62s cubic-bezier(.3,1.5,.5,1)}
+  @keyframes rachelPlace{0%{transform:translateY(0) rotate(0)}38%{transform:translateY(-11px) rotate(-6deg) scale(1.05)}100%{transform:translateY(0) rotate(0)}}
+  .rachel-bubble{position:relative; align-self:center; max-width:300px;
+    background:var(--cream); color:var(--ink); border-radius:14px; padding:11px 15px;
+    box-shadow:0 8px 22px rgba(0,0,0,.35); border:2px solid #d9cba6}
+  .rachel-bubble:after{content:""; position:absolute; right:-9px; bottom:20px;
+    width:0; height:0; border:9px solid transparent; border-left-color:var(--cream); border-right:0}
+  .rachel-bubble.pop{animation:rachelPop .28s ease}
+  @keyframes rachelPop{0%{transform:scale(.86); opacity:.35}100%{transform:scale(1); opacity:1}}
+  .rachel-name{display:block; font-family:var(--disp); font-weight:800; font-size:.7rem;
+    letter-spacing:.14em; text-transform:uppercase; color:#b07d12; margin-bottom:3px}
+  .rachel-line{font-family:var(--body); font-weight:700; font-size:1rem; line-height:1.28; min-height:1.28em}
+  .iconbtn.off{opacity:.42}
+  @media(max-width:560px){
+    .rachel-stage{gap:8px; min-height:128px}
+    .rachel-fig{width:92px}
+    .rachel-bubble{max-width:58vw; font-size:.92rem; padding:9px 12px}
+  }
+  @media(prefers-reduced-motion: reduce){
+    .rachel-fig,.rachel-fig.talk,.rachel-fig.place{animation:none}
+    .rachel-bubble.pop{animation:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="brand">
+    <div class="logo">
+      <div class="clockmark"></div>
+      <div>
+        <h1>The <span>Countdown</span> Game</h1>
+        <p>Letters &amp; Numbers</p>
+      </div>
+    </div>
+    <div class="toolbar">
+      <button class="iconbtn" id="muteBtn" title="Sound on/off">🔊</button>
+      <button class="iconbtn" id="rachelBtn" title="Presenter on/off">👩</button>
+      <button class="iconbtn" id="homeBtn" title="Main menu">🏠</button>
+    </div>
+  </header>
+
+  <!-- ===== MENU ===== -->
+  <section class="screen active" id="screen-menu">
+    <div class="hero">
+      <div class="pill">An unofficial fan tribute · 30 seconds on the clock</div>
+      <div class="tiles" id="menuTiles"></div>
+      <h2>Words and sums.<br><em>Beat the clock.</em></h2>
+      <p>Pick a round, take on the computer, and let the experts reveal the best answers when the 30 seconds are up.</p>
+    </div>
+    <div class="center" style="margin:2px 0 10px"><button class="btn dailybtn" id="dailyBtn">🗓️ Play the Daily Challenge<span class="sub" id="dailyBtnSub">A fresh show every day</span></button></div>
+    <div class="center" style="margin:0 0 16px">
+      <div class="modeseg" id="dailyModeSeg" role="group" aria-label="Daily Challenge difficulty">
+        <button type="button" class="segbtn" data-dmode="timed">⏱️ Timed</button>
+        <button type="button" class="segbtn" data-dmode="relaxed">🧘 Easy</button>
+      </div>
+      <div class="segnote" id="dailyModeNote"></div>
+    </div>
+    <div class="center" style="margin:-6px 0 20px"><button class="btn ghost sm" id="trophyBtn">🏆 Trophy Cabinet</button></div>
+    <div class="modegrid menu4">
+      <div class="modecard" data-mode="career">
+        <div class="badge">🏆</div>
+        <div class="big">Career Mode <span class="em">— Champion</span></div>
+        <p>Play a full show against the computer across letters, numbers and the crucial conundrum. Win to bank prize money and return as reigning champion. Eight wins makes you an octochamp.</p>
+      </div>
+      <div class="modecard" data-mode="gauntlet">
+        <div class="badge">⚔️</div>
+        <div class="big">The Gauntlet <span class="em">— Roguelike Run</span></div>
+        <p>Climb a rising ladder of rounds against tougher and tougher opponents. Draft artefacts between rounds, clear bonus mini-games, and survive a conundrum boss every fifth stage. Three lives — how far can you get?</p>
+      </div>
+      <div class="modecard" data-mode="free">
+        <div class="badge">🎲</div>
+        <div class="big">Free Play <span class="em">— One Round</span></div>
+        <p>Choose a letters round or a numbers round and play a single hand against the computer. When it's done, hit replay for fresh tiles or exit to the menu.</p>
+      </div>
+      <div class="modecard" data-mode="lan" id="lanCard">
+        <div class="badge">📡</div>
+        <div class="big">Play over LAN <span class="em">— vs a Human</span></div>
+        <p>Two players, same network, two browsers. Take turns choosing letters and numbers and race head-to-head through a real match. <span id="lanCardNote" style="color:var(--gold)"></span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TROPHY CABINET ===== -->
+  <section class="screen" id="screen-trophy">
+    <div class="card" id="trophyCard"></div>
+  </section>
+
+  <!-- ===== OPPONENT PICK ===== -->
+  <section class="screen" id="screen-opp">
+    <div class="card">
+      <div class="section-h">Choose your opponent</div>
+      <div class="section-sub" id="oppSub">Who's in the other chair?</div>
+      <div class="oppgrid" id="oppGrid"></div>
+      <div class="btnrow" style="margin-top:22px"><button class="btn ghost sm" data-go="menu">← Back</button></div>
+    </div>
+  </section>
+
+  <!-- ===== FREE PLAY: ROUND PICK ===== -->
+  <section class="screen" id="screen-free">
+    <div class="card">
+      <div class="section-h">Pick your round</div>
+      <div class="section-sub">Free play — one round against <span id="freeOppName">the computer</span></div>
+      <div class="modegrid" style="max-width:620px">
+        <div class="modecard" data-round="letters"><div class="badge">🔤</div><div class="big">Letters</div><p>Nine tiles, thirty seconds. Find the longest word you can.</p></div>
+        <div class="modecard" data-round="numbers"><div class="badge">🔢</div><div class="big">Numbers</div><p>Six numbers and a target. Get as close as you can.</p></div>
+      </div>
+      <div class="btnrow" style="margin-top:22px"><button class="btn ghost sm" data-go="opp">← Change opponent</button></div>
+    </div>
+  </section>
+
+  <!-- ===== GAME ===== -->
+  <section class="screen" id="screen-game">
+    <div class="careerhud" id="careerHud"></div>
+    <div class="card">
+      <div class="roundmeta" id="roundMeta"></div>
+      <div class="scorebar" id="scoreBar"></div>
+      <div id="gameBody"></div>
+    </div>
+  </section>
+
+  <!-- ===== MATCH RESULT (career) ===== -->
+  <section class="screen" id="screen-match">
+    <div class="card center" id="matchCard"></div>
+  </section>
+
+  <!-- ===== GAUNTLET (intro / draft / minigame / over) ===== -->
+  <section class="screen" id="screen-gaunt">
+    <div class="careerhud" id="gauntHud"></div>
+    <div class="card" id="gauntCard"></div>
+  </section>
+
+  <!-- ===== LAN MULTIPLAYER ===== -->
+  <section class="screen" id="screen-lan">
+    <div class="careerhud" id="lanHud"></div>
+    <div class="card">
+      <div class="roundmeta" id="lanMeta"><span class="lan-dot" id="lanConn"></span><span id="lanConnText">Connecting…</span></div>
+      <div id="lanScore"></div>
+      <div id="lanBody"></div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    The Countdown Game is an unofficial, non-commercial fan tribute. Not affiliated with, endorsed by, or connected to the television programme or any individual named here.<br>
+    Names are used affectionately to evoke the show. Dictionary based on an open English word list.
+  </footer>
+</div>
+
+<script src="countdown-words.js"></script>
+<script>
+/* ============================================================
+   WORD DATA (injected at build time)
+============================================================ */
+const ALL = (()=>{ try{ return WORDS_VALID.split(' '); }catch(_){ return null; } })();
+if(!ALL || !ALL.length){
+  // countdown-words.js didn't load (moved, blocked, or opened straight from a zip).
+  // Show a friendly, recoverable panel instead of letting the whole page die silently.
+  const w=document.querySelector('.wrap')||document.body;
+  w.innerHTML='<div class="card center" style="margin-top:40px;max-width:560px;margin-left:auto;margin-right:auto">'
+    +'<div class="section-h">Word list missing</div>'
+    +'<p style="color:var(--mut);margin:12px auto 0;line-height:1.5">The game couldn\u2019t load <b>countdown-words.js</b>. '
+    +'Make sure that file sits in the <b>same folder</b> as this page, then reload. '
+    +'If you opened the game straight from a zip, extract all the files first.</p></div>';
+  throw new Error('countdown-words.js failed to load \u2014 WORDS_VALID is undefined.');
+}
+const VALID = new Set(ALL);
+const COMMON = (typeof WORDS_COMMON!=='undefined'? WORDS_COMMON : '').split(' ').filter(Boolean);
+const RANK = new Map(); COMMON.forEach((w,i)=>RANK.set(w,i));
+const CONUNDRUMS = COMMON.filter(w=>w.length===9);
+
+/* ============================================================
+   GENERAL HELPERS
+============================================================ */
+const $=s=>document.querySelector(s);
+const el=(t,c,h)=>{const e=document.createElement(t); if(c)e.className=c; if(h!=null)e.innerHTML=h; return e;};
+let RNG=Math.random;                 // swappable random source — the Daily Challenge seeds it
+const rnd=n=>Math.floor(RNG()*n);
+const pick=a=>a[rnd(a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const randint=(lo,hi)=>lo+rnd(hi-lo+1);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+/* Deterministic PRNG so every player gets the identical board on a given day. */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function seedFromString(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=h<<13|h>>>19;}return h>>>0;}
+function withSeed(seedStr,fn){const prev=RNG;RNG=mulberry32(seedFromString(seedStr));try{return fn();}finally{RNG=prev;}}
+
+/* ============================================================
+   RACHEL — the pixel presenter who puts up the letters & numbers
+   A self-contained controller: a pixel-art figure plus a speech
+   bubble. She announces every tile as it goes up, and (when sound
+   is on) reads it aloud via the browser's speech synthesiser.
+============================================================ */
+const RACHEL_PAL={S:'#f2c9a3',K:'#e0ae89',H:'#7d4326',h:'#9c5a30',E:'#3a2418',W:'#ffffff',M:'#9c443d',P:'#ec9d8c',D:'#13608f',d:'#0e4366',G:'#ffc23c',N:'#ffd877'};
+const RACHEL_GRID=[
+ "       HHHHHHHH       ",
+ "     HHHHHHHHHHHH     ",
+ "    HHHHHHHHHHHHHH    ",
+ "   HHHHhhhhhhhhHHHH   ",
+ "   HHHhhhSSSShhhHHH   ",
+ "   HHhhSSSSSSSShhHH   ",
+ "   HHhSSSSSSSSSShHH   ",
+ "   HHhSSSSSSSSSShHH   ",
+ "   HHhSSWESSSEWSShH   ",
+ "   HHhSSWESSSEWSShH   ",
+ "   HHhSSSSSKSSSSShH   ",
+ "   HHhSPSSSSSSSPSshH  ",
+ "   HHhSSSSMMMSSSShH   ",
+ "   HHhhSSMMMMMSSshH   ",
+ "   HHHhSSSSSSSSShHH   ",
+ "   HHHhhSSSSSSShhHH   ",
+ "   HHHHhhSSSSShhHHH   ",
+ "   HHHHHhKSSSKhHHHH   ",
+ "    HHHH NNNNN HHHH   ",
+ "    HHH DDDGGGDDD HH  ",
+ "   HHH DDDDGGGDDDD H  ",
+ "   HH DDDDDDdGdDDDDD  ",
+ "   H DDDDDDDDDDDDDDD  ",
+ "    dDDDDDDDDDDDDDDDd "];
+function rachelSVG(){
+  const W=22; let r='';
+  for(let y=0;y<RACHEL_GRID.length;y++){
+    const row=RACHEL_GRID[y].padEnd(W); let x=0;
+    while(x<W){ const ch=row[x];
+      if(RACHEL_PAL[ch]){ let run=1; while(x+run<W && row[x+run]===ch) run++;
+        r+=`<rect x="${x}" y="${y}" width="${run}" height="1" fill="${RACHEL_PAL[ch]}"/>`; x+=run; }
+      else x++; }
+  }
+  return `<svg class="rachel-svg" viewBox="0 0 ${W} ${RACHEL_GRID.length}" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">${r}</svg>`;
+}
+const Rachel={
+  enabled:true, _host:null, _fig:null, _bubble:null, _line:null, _voice:null,
+  init(){
+    try{ this.enabled = localStorage.getItem('cd_rachel')!=='off'; }catch(e){}
+    if('speechSynthesis' in window){
+      const choose=()=>{ const vs=window.speechSynthesis.getVoices(); if(!vs||!vs.length) return;
+        this._voice = vs.find(v=>/en[-_]GB/i.test(v.lang)&&/female|hazel|libby|sonia|susan|emma/i.test(v.name))
+          || vs.find(v=>/en[-_]GB/i.test(v.lang)) || vs.find(v=>/^en/i.test(v.lang)) || vs[0]; };
+      choose(); try{ window.speechSynthesis.onvoiceschanged=choose; }catch(e){}
+    }
+  },
+  setEnabled(on){ this.enabled=on; try{ localStorage.setItem('cd_rachel', on?'on':'off'); }catch(e){}
+    if(!on) this.unmount(); },
+  mount(host,intro){
+    if(!host||!this.enabled) return;
+    this._host=host; host.innerHTML=''; host.classList.add('rachel-stage');
+    const bub=el('div','rachel-bubble','<span class="rachel-name">Rachel</span><span class="rachel-line"></span>');
+    const fig=el('div','rachel-fig'); fig.innerHTML=rachelSVG();
+    host.appendChild(bub); host.appendChild(fig);
+    this._bubble=bub; this._fig=fig; this._line=bub.querySelector('.rachel-line');
+    if(intro) this.say(intro,{hold:0});
+  },
+  unmount(){ if(this._host){ this._host.innerHTML=''; this._host.classList.remove('rachel-stage'); }
+    this._host=this._fig=this._bubble=this._line=null;
+    if('speechSynthesis' in window){ try{ window.speechSynthesis.cancel(); }catch(e){} } },
+  _anim(cls){ if(!this._fig) return; this._fig.classList.remove(cls); void this._fig.offsetWidth; this._fig.classList.add(cls); },
+  _speak(text){
+    if(!this.enabled || muted || !('speechSynthesis' in window)) return;
+    try{ window.speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(String(text).replace(/—/g,', '));
+      if(this._voice) u.voice=this._voice; u.rate=1.05; u.pitch=1.12; u.volume=.9;
+      window.speechSynthesis.speak(u);
+    }catch(e){}
+  },
+  say(text,opts){ opts=opts||{}; const hold=opts.hold==null?650:opts.hold;
+    if(this._line){ this._line.textContent=text;
+      if(this._bubble){ this._bubble.classList.remove('pop'); void this._bubble.offsetWidth; this._bubble.classList.add('pop'); } }
+    this._anim('talk'); if(opts.speak!==false) this._speak(text);
+    return sleep(hold);
+  },
+  place(text,opts){ this._anim('place'); return this.say(text, Object.assign({hold:800}, opts||{})); }
+};
+Rachel.init();
+const kindOf=ch=>VOWELS.includes(ch)?'v':'c';
+const _vLead=["A vowel","And a vowel","Vowel, please","Another vowel","A vowel coming up"];
+const _cLead=["A consonant","And a consonant","Consonant, please","Another consonant","One more consonant"];
+function rachelLetterLine(letter,kind,idx,total){
+  const L=letter.toUpperCase();
+  if(idx===total-1) return (kind==='v'?'And the last, a vowel — ':'And your last consonant — ')+L+'. Good luck!';
+  return (kind==='v'?pick(_vLead):pick(_cLead))+' — '+L;
+}
+function rachelNumberLine(v){
+  return (v>=25 ? pick(["One from the top — ","From the top row — ","A big one — "])
+                : pick(["And a small one — ","From the bottom — ","A little one — "])) + v;
+}
+function rachelTargetLine(t){ return pick(["And the target is ","Your target — ","Aim for "])+t+'.'; }
+
+/* ============================================================
+   PRESENTATION HELPERS — reveal cascade, clock sweep, confetti, modal
+============================================================ */
+function prefersReduced(){ try{ return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(_){ return false; } }
+
+// Stagger the tile-flip across a board so reveals "land" the way they do on the show.
+function cascadeFlip(cont, per){
+  if(!cont) return;
+  const tiles=[...cont.querySelectorAll('.tile')];
+  if(prefersReduced()){ tiles.forEach(t=>t.classList.remove('flip')); return; }
+  per=per||55;
+  tiles.forEach((t,i)=>{
+    t.classList.remove('flip'); void t.offsetWidth;   // restart the animation if reused
+    t.style.animationDelay=(i*per)+'ms';
+    t.classList.add('flip');
+  });
+}
+
+// Spin a single tile from blank through cycling glyphs, landing on the final letter
+// (slot-machine style). Returns a promise that resolves when it settles.
+function spinTile(tile, finalChar){
+  if(!tile) return Promise.resolve();
+  finalChar=(finalChar||'').toUpperCase();
+  tile.classList.remove('empty');
+  if(prefersReduced()){ tile.textContent=finalChar; tile.classList.remove('flip'); void tile.offsetWidth; tile.classList.add('flip'); return Promise.resolve(); }
+  const glyphs='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  tile.textContent=glyphs[(Math.random()*26)|0];   // start mid-spin so the final letter never flashes
+  tile.classList.remove('land'); tile.classList.add('spinning');
+  return new Promise(res=>{
+    let elapsed=0, delay=34; const total=560;
+    const tick=()=>{
+      elapsed+=delay;
+      if(elapsed>=total){
+        tile.classList.remove('spinning');
+        tile.textContent=finalChar;
+        void tile.offsetWidth; tile.classList.add('land');
+        setTimeout(()=>tile.classList.remove('land'),300);
+        res(); return;
+      }
+      tile.textContent=glyphs[(Math.random()*26)|0];
+      delay=34+Math.pow(elapsed/total,2)*72;   // decelerate as it nears the letter
+      setTimeout(tick,delay);
+    };
+    setTimeout(tick,delay);
+  });
+}
+
+// Keep the big numbers (25/50/75/100) on the left of the board, smalls on the right.
+const bigLeft=(nums)=> Array.isArray(nums) ? [...nums.filter(n=>n>=25), ...nums.filter(n=>n<25)] : nums;
+
+// A quick, dependency-free confetti shower for match wins.
+function confettiBurst(){
+  if(prefersReduced()) return;
+  const colors=['#ffc23c','#ffd877','#ff7ab6','#43d17a','#10577f','#ffffff'];
+  const layer=el('div','confetti-layer'); document.body.appendChild(layer);
+  for(let i=0;i<100;i++){
+    const p=el('div','confetti-bit');
+    p.style.background=colors[rnd(colors.length)];
+    p.style.left=(Math.random()*100)+'vw';
+    p.style.setProperty('--x',(Math.random()*2-1).toFixed(2));
+    p.style.setProperty('--r',(Math.random()*720-360)+'deg');
+    p.style.setProperty('--d',(2.4+Math.random()*1.8).toFixed(2)+'s');
+    p.style.setProperty('--delay',(Math.random()*0.45).toFixed(2)+'s');
+    const sz=(6+Math.random()*8); p.style.width=sz+'px'; p.style.height=sz+'px';
+    if(Math.random()<0.5) p.style.borderRadius='50%';
+    layer.appendChild(p);
+  }
+  setTimeout(()=>layer.remove(),5200);
+}
+
+// A styled in-app confirm dialog to replace jarring native confirm().
+function confirmModal(msg, onYes, yesLabel, noLabel){
+  const ov=el('div','modal-overlay');
+  ov.innerHTML=`<div class="modal-box card">
+    <p style="margin-bottom:18px;font-size:1.02rem;line-height:1.45">${msg}</p>
+    <div class="btnrow"><button class="btn" id="mdYes">${yesLabel||'Yes'}</button>
+    <button class="btn ghost" id="mdNo">${noLabel||'Cancel'}</button></div></div>`;
+  document.body.appendChild(ov);
+  const close=()=>{ ov.remove(); document.removeEventListener('keydown',onKey); };
+  const onKey=e=>{ if(e.key==='Escape') close(); };
+  ov.querySelector('#mdYes').onclick=()=>{ close(); onYes&&onYes(); };
+  ov.querySelector('#mdNo').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+  document.addEventListener('keydown',onKey);
+  setTimeout(()=>{ const y=ov.querySelector('#mdYes'); if(y) y.focus(); },30);
+}
+
+/* ============================================================
+   INTERACTIVE LETTER RACK
+   - tap a tile to add that letter to your answer (like the numbers tiles)
+   - type on a hardware keyboard (letters spell, Backspace deletes, Enter submits)
+   - drag tiles (touch or mouse) to rearrange them as a thinking aid
+============================================================ */
+let _rackKey=null;
+function makeLetterRack(opts){
+  const mount=opts.mount;
+  const placeholder=opts.placeholder||'tap a letter or type';
+  let tiles=opts.letters.map((ch,i)=>({id:i, ch:String(ch).toLowerCase(), used:false}));
+  let order=tiles.map(t=>t.id);
+  let played=[];
+  let disabled=false;
+  let interceptTap=null;
+
+  const root=el('div','rackwrap');
+  const rackEl=el('div','rack');
+  const ansEl=el('div','answer');
+  const row=el('div','inputrow');
+  const btnSubmit=el('button','btn',opts.submitLabel||'Declare'); btnSubmit.type='button';
+  const btnClear=el('button','btn ghost','Clear'); btnClear.type='button';
+  row.appendChild(btnSubmit);
+  (opts.extraButtons||[]).forEach(b=>{ const x=el('button','btn '+(b.cls||'ghost'),b.label); x.type='button'; x.onclick=()=>{ if(!disabled) b.onClick(); }; row.appendChild(x); });
+  row.appendChild(btnClear);
+  root.appendChild(rackEl); root.appendChild(ansEl); root.appendChild(row);
+  mount.appendChild(root);
+
+  const tileOf=id=>tiles.find(t=>t.id===id);
+  function getWord(){ return played.map(id=>tileOf(id).ch).join(''); }
+
+  function renderRack(){
+    rackEl.innerHTML='';
+    order.forEach(id=>{
+      const t=tileOf(id);
+      const d=el('div','tile rtile'+(t.used?' used':''), t.ch.toUpperCase());
+      d.dataset.id=id;
+      attachPointer(d,id);
+      rackEl.appendChild(d);
+    });
+  }
+  function renderAnswer(){
+    ansEl.innerHTML='';
+    if(!played.length){ ansEl.appendChild(el('div','answer-empty',placeholder)); }
+    else played.forEach(id=>{
+      const t=tileOf(id);
+      const d=el('div','tile atile', t.ch.toUpperCase());
+      d.dataset.id=id;
+      d.onclick=()=>{ if(!disabled) unplay(id); };
+      ansEl.appendChild(d);
+    });
+    if(opts.onChange) opts.onChange(getWord());
+  }
+  function play(id){ const t=tileOf(id); if(!t||t.used) return; t.used=true; played.push(id); sFlip(); renderRack(); renderAnswer(); }
+  function unplay(id){ const t=tileOf(id); if(!t||!t.used) return; t.used=false; const i=played.indexOf(id); if(i>=0) played.splice(i,1); renderRack(); renderAnswer(); }
+  function tapTile(id){ if(disabled) return; if(interceptTap && interceptTap(id)) return; const t=tileOf(id); if(!t) return; if(t.used) unplay(id); else play(id); }
+  function backspace(){ if(played.length) unplay(played[played.length-1]); }
+  function clearAnswer(){ played.forEach(id=>{ const t=tileOf(id); if(t) t.used=false; }); played=[]; renderRack(); renderAnswer(); }
+  function doSubmit(){ if(disabled) return; if(opts.onSubmit) opts.onSubmit(getWord()); }
+
+  // pointer = tap (no movement) OR drag-reorder (movement past a threshold)
+  function attachPointer(elm,id){
+    let sx=0, sy=0, drag=false, pid=null;
+    elm.addEventListener('pointerdown',e=>{
+      if(disabled) return;
+      pid=e.pointerId; sx=e.clientX; sy=e.clientY; drag=false;
+      try{ elm.setPointerCapture(pid); }catch(_){}
+    });
+    elm.addEventListener('pointermove',e=>{
+      if(pid===null) return;
+      if(!drag && Math.hypot(e.clientX-sx,e.clientY-sy)>8){ drag=true; elm.classList.add('dragging'); }
+      if(drag){
+        const sibs=[...rackEl.children].filter(c=>c!==elm);
+        let placed=false;
+        for(const s of sibs){ const r=s.getBoundingClientRect(); if(e.clientX < r.left + r.width/2){ rackEl.insertBefore(elm,s); placed=true; break; } }
+        if(!placed) rackEl.appendChild(elm);
+      }
+    });
+    const finish=()=>{
+      if(pid===null) return;
+      try{ elm.releasePointerCapture(pid); }catch(_){}
+      pid=null;
+      if(drag){ drag=false; elm.classList.remove('dragging'); order=[...rackEl.children].map(c=>+c.dataset.id); }
+      else { tapTile(id); }
+    };
+    elm.addEventListener('pointerup',finish);
+    elm.addEventListener('pointercancel',()=>{ if(pid!==null){ try{elm.releasePointerCapture(pid);}catch(_){} pid=null; if(drag){ drag=false; elm.classList.remove('dragging'); order=[...rackEl.children].map(c=>+c.dataset.id); } } });
+  }
+
+  btnSubmit.onclick=doSubmit;
+  btnClear.onclick=()=>{ if(!disabled) clearAnswer(); };
+
+  // hardware keyboard support (one active rack at a time)
+  if(_rackKey) document.removeEventListener('keydown',_rackKey);
+  _rackKey=function rackKey(e){
+    if(!document.body.contains(root)){ document.removeEventListener('keydown',rackKey); if(_rackKey===rackKey) _rackKey=null; return; }
+    if(disabled) return;
+    const tgt=e.target;
+    if(tgt && (tgt.tagName==='INPUT'||tgt.tagName==='TEXTAREA')) return;  // don't hijack other fields
+    if(e.key==='Enter'){ e.preventDefault(); doSubmit(); return; }
+    if(e.key==='Backspace'){ e.preventDefault(); backspace(); return; }
+    const k=(e.key||'').toLowerCase();
+    if(/^[a-z]$/.test(k) && !e.ctrlKey && !e.metaKey && !e.altKey){
+      const cEl=[...rackEl.children].find(c=>{ const t=tileOf(+c.dataset.id); return t && !t.used && t.ch===k; });
+      if(cEl){ e.preventDefault(); tapTile(+cEl.dataset.id); }
+    }
+  };
+  document.addEventListener('keydown',_rackKey);
+
+  renderRack(); renderAnswer();
+
+  return {
+    root, getWord,
+    clear:clearAnswer, backspace,
+    disable(){ disabled=true; btnSubmit.disabled=true; btnClear.disabled=true; },
+    enable(){ disabled=false; btnSubmit.disabled=false; btnClear.disabled=false; },
+    setLetters(arr){ tiles=arr.map((ch,i)=>({id:i, ch:String(ch).toLowerCase(), used:false})); order=tiles.map(t=>t.id); played=[]; disabled=false; btnSubmit.disabled=false; btnClear.disabled=false; renderRack(); renderAnswer(); },
+    playChar(ch){ ch=String(ch||'').toLowerCase(); const cEl=[...rackEl.children].find(c=>{ const t=tileOf(+c.dataset.id); return t && !t.used && t.ch===ch; }); if(cEl) tapTile(+cEl.dataset.id); },
+    setInterceptTap(fn){ interceptTap=fn||null; },
+    setSwapArmed(on){ [...rackEl.children].forEach(c=>c.classList.toggle('swaparm',!!on)); }
+  };
+}
+
+const OPPONENTS={
+  easy:{key:'easy',name:'Joe Wilkinson',init:'JW',color:'#3a8f5e',level:'EASY',desc:'A gentle warm-up. Goes for the safe, shorter answers.'},
+  medium:{key:'medium',name:'Sean Lock',init:'SL',color:'#c08a1e',level:'MEDIUM',desc:'Sharp and steady. Will dig out a solid six or seven.'},
+  hard:{key:'hard',name:'Jon Richardson',init:'JR',color:'#b14d86',level:'HARD',desc:'Relentless. Hunts the longest word and the exact total.'},
+  legend:{key:'legend',name:'The Champion',init:'CH',color:'#7c5cd0',level:'LEGEND',desc:'An undefeated former octochamp. Misses nothing — but pays out big.'}
+};
+const HOST_LETTERS={name:'Susie Dent', title:"Dictionary Corner"};
+const HOST_NUMBERS={name:'Rachel Riley', title:"The Numbers Game"};
+const PRIZE={easy:200, medium:400, hard:750, legend:1500};
+
+/* ============================================================
+   CAREER PROGRESSION  (persistent winnings + Trophy Cabinet)
+   - Career winnings now persist across sessions in localStorage.
+   - "bank" is spendable; "lifetime" is a high-score that never drops.
+   - Winnings have a SINK: cosmetic tile sets + a prestige opponent.
+============================================================ */
+const CAREER_KEY='cd_career';
+const PRESTIGE_COST=1000;
+const TILE_THEMES={
+  classic:{name:'Studio Blue', cost:0,   vars:{'--tiletop':'#3f93d6','--tileface':'#1c5d92','--tileface2':'#2a78b8','--tileedge':'#0c3a5e'}},
+  sunset: {name:'Sunset',      cost:300, vars:{'--tiletop':'#ffae63','--tileface':'#c2410c','--tileface2':'#ea580c','--tileedge':'#7c2d12'}},
+  forest: {name:'Evergreen',   cost:300, vars:{'--tiletop':'#5fe39a','--tileface':'#15803d','--tileface2':'#1f9d4e','--tileedge':'#0f4d28'}},
+  royal:  {name:'Royal Purple',cost:600, vars:{'--tiletop':'#b39bf5','--tileface':'#6d28d9','--tileface2':'#7c3aed','--tileedge':'#42198f'}},
+  slate:  {name:'Graphite',    cost:600, vars:{'--tiletop':'#9fb0c4','--tileface':'#334155','--tileface2':'#475569','--tileedge':'#1c2733'}}
+};
+function careerLoad(){
+  try{ const r=JSON.parse(localStorage.getItem(CAREER_KEY));
+    if(r&&typeof r==='object') return {
+      bank:+r.bank||0, lifetime:+r.lifetime||0, teapots:+r.teapots||0,
+      bestStreak:+r.bestStreak||0, matches:+r.matches||0,
+      theme:(r.theme&&TILE_THEMES[r.theme])?r.theme:'classic',
+      themes:Array.isArray(r.themes)?r.themes:['classic'],
+      prestige:!!r.prestige
+    };
+  }catch(e){}
+  return {bank:0,lifetime:0,teapots:0,bestStreak:0,matches:0,theme:'classic',themes:['classic'],prestige:false};
+}
+function careerSave(c){ try{ localStorage.setItem(CAREER_KEY, JSON.stringify(c)); }catch(e){} }
+function applyTheme(id){
+  const t=TILE_THEMES[id]||TILE_THEMES.classic;
+  const root=document.documentElement;
+  Object.entries(t.vars).forEach(([k,v])=>root.style.setProperty(k,v));
+}
+function showTrophy(){
+  ac();
+  showScreen('screen-trophy');
+  const c=careerLoad();
+  const themeCards=Object.entries(TILE_THEMES).map(([id,t])=>{
+    const owned=c.themes.includes(id), equipped=c.theme===id, can=!owned && c.bank>=t.cost;
+    let btn;
+    if(equipped) btn=`<button class="btn shopbuy" disabled>Equipped</button>`;
+    else if(owned) btn=`<button class="btn shopbuy ghost" data-equip="${id}">Equip</button>`;
+    else btn=`<button class="btn shopbuy${can?'':' ghost'}" data-buytheme="${id}" ${can?'':'disabled'}>Buy · £${t.cost}</button>`;
+    const sw=`<div class="theme-sw"><span style="background:${t.vars['--tiletop']}"></span><span style="background:${t.vars['--tileface']}"></span><span style="background:${t.vars['--tileface2']}"></span></div>`;
+    return `<div class="shopcard${equipped?' maxed':''}"><div class="dname">${t.name}</div>${sw}<div class="shoplvl">${equipped?'In play':(owned?'Owned':(t.cost?'Cosmetic':'Default'))}</div>${btn}</div>`;
+  }).join('');
+  const prestigeBtn = c.prestige
+    ? `<button class="btn shopbuy" disabled>Unlocked</button>`
+    : `<button class="btn shopbuy${c.bank>=PRESTIGE_COST?'':' ghost'}" id="buyPrestige" ${c.bank>=PRESTIGE_COST?'':'disabled'}>Unlock · £${PRESTIGE_COST}</button>`;
+  $('#trophyCard').innerHTML=`
+    <div class="section-h">Trophy Cabinet</div>
+    <div class="section-sub">Your <b>bank</b> is prize money won and not yet spent. <b>Lifetime</b> winnings only ever go up.</div>
+    <div class="careerhud" style="justify-content:center">
+      <div class="stat"><div class="t">Bank</div><div class="v">£${c.bank}</div></div>
+      <div class="stat"><div class="t">Lifetime</div><div class="v">£${c.lifetime}</div></div>
+      <div class="stat"><div class="t">Best streak</div><div class="v">${c.bestStreak}</div></div>
+      <div class="stat"><div class="t">Teapots 🫖</div><div class="v">${c.teapots}</div></div>
+      <div class="stat"><div class="t">Matches</div><div class="v">${c.matches}</div></div>
+    </div>
+    <h3 style="font-family:var(--disp);font-weight:800;margin:24px 0 2px">🎨 Tile sets</h3>
+    <div class="section-sub" style="text-align:left;margin-bottom:14px">Spend winnings on a fresh look for your tiles — it applies everywhere in the game.</div>
+    <div class="shopgrid">${themeCards}</div>
+    <h3 style="font-family:var(--disp);font-weight:800;margin:24px 0 2px">👑 Prestige</h3>
+    <div class="section-sub" style="text-align:left;margin-bottom:14px">Unlock a relentless fourth opponent for Career mode.</div>
+    <div class="shopgrid"><div class="shopcard${c.prestige?' maxed':''}">
+      <div class="dicon">👑</div><div class="dname">The Champion</div>
+      <div class="dblurb">A former octochamp who misses nothing. Bigger risk — but pays £${PRIZE.legend} a win.</div>
+      ${prestigeBtn}
+    </div></div>
+    <div class="btnrow" style="margin-top:24px"><button class="btn ghost sm" data-go="menu">← Back to menu</button></div>`;
+  $('#trophyCard').querySelectorAll('[data-buytheme]').forEach(b=>b.onclick=()=>{
+    const cc=careerLoad(), t=TILE_THEMES[b.dataset.buytheme];
+    if(cc.bank<t.cost){ sBad(); return; }
+    cc.bank-=t.cost; if(!cc.themes.includes(b.dataset.buytheme)) cc.themes.push(b.dataset.buytheme);
+    cc.theme=b.dataset.buytheme; careerSave(cc); applyTheme(cc.theme); sGood(); beep(990,0.08); showTrophy();
+  });
+  $('#trophyCard').querySelectorAll('[data-equip]').forEach(b=>b.onclick=()=>{
+    const cc=careerLoad(); cc.theme=b.dataset.equip; careerSave(cc); applyTheme(cc.theme); sFlip(); showTrophy();
+  });
+  const bp=$('#buyPrestige');
+  if(bp) bp.onclick=()=>{ const cc=careerLoad(); if(cc.bank<PRESTIGE_COST){ sBad(); return; }
+    cc.bank-=PRESTIGE_COST; cc.prestige=true; careerSave(cc); sGood(); beep(990,0.08); showTrophy(); };
+  $('#trophyCard').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>goMenu());
+}
+
+/* ============================================================
+   SOUND (tiny WebAudio)
+============================================================ */
+let muted=false, AC=null;
+function ac(){ if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}} return AC; }
+function beep(freq=440,dur=0.08,type='sine',vol=0.12){
+  if(muted) return; const c=ac(); if(!c) return;
+  const o=c.createOscillator(), g=c.createGain();
+  o.type=type; o.frequency.value=freq; o.connect(g); g.connect(c.destination);
+  g.gain.setValueAtTime(vol,c.currentTime); g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+dur);
+  o.start(); o.stop(c.currentTime+dur);
+}
+const sTick=()=>beep(660,0.05,'square',0.05);
+const sLow=()=>beep(300,0.06,'square',0.05);
+const sEnd=()=>{beep(180,0.5,'sawtooth',0.12);};
+const sGood=()=>{beep(660,0.09,'sine',0.12);setTimeout(()=>beep(990,0.12,'sine',0.12),90);};
+const sBad=()=>beep(160,0.18,'square',0.1);
+const sFlip=()=>beep(520,0.04,'triangle',0.05);
+
+/* ============================================================
+   STATE & SCREEN MANAGEMENT
+============================================================ */
+const state={};
+const DAILY={board:null,run:null};   // today's seeded board + the player's results
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $('#'+id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* timer */
+let timer={raf:null, end:0, total:0, onEnd:null, lastSec:null, running:false};
+function startTimer(seconds,onEnd){
+  stopTimer();
+  timer.total=seconds; timer.end=performance.now()+seconds*1000; timer.onEnd=onEnd; timer.lastSec=null; timer.running=true;
+  if(state.mode==='gauntlet' && state.gaunt && state.gaunt.pendingBonus>0){   // Stoppage Time upgrade
+    const b=state.gaunt.pendingBonus; state.gaunt.pendingBonus=0;
+    timer.total+=b; timer.end+=b*1000;
+  }
+  const step=()=>{
+    if(!timer.running) return;
+    const left=Math.max(0,(timer.end-performance.now())/1000);
+    drawClock(left,timer.total);
+    const s=Math.ceil(left);
+    if(s!==timer.lastSec){ timer.lastSec=s; if(s<=5&&s>0) sLow(); else if(s<=10&&s>0) sTick(); }
+    if(left<=0){ timer.running=false; sEnd(); onEnd&&onEnd(); return; }
+    timer.raf=requestAnimationFrame(step);
+  };
+  timer.raf=requestAnimationFrame(step);
+}
+function stopTimer(){ timer.running=false; if(timer.raf) cancelAnimationFrame(timer.raf); timer.raf=null; stopRelaxClock(); }
+
+/* ------------------------------------------------------------
+   EASY MODE — the clock counts UP instead of down.
+   You finish each round when you're ready; the score is
+   pro-rated by how long you took.
+
+     first 30s ............ 100%  (the normal allowance)
+     after that ........... −1% every 2 seconds
+     floor ................  25%  (reached at 3 minutes)
+
+   A scoring answer never drops below 1 point.
+------------------------------------------------------------ */
+const RELAX={GRACE:30, RATE:0.005, FLOOR:0.25};
+function relaxMult(sec){
+  if(!(sec>RELAX.GRACE)) return 1;
+  return Math.max(RELAX.FLOOR, 1-(sec-RELAX.GRACE)*RELAX.RATE);
+}
+function relaxScore(raw,sec){
+  if(!raw) return 0;
+  if(sec==null) return raw;
+  return Math.max(1, Math.round(raw*relaxMult(sec)));
+}
+function fmtClock(sec){
+  sec=Math.max(0,Math.round(sec));
+  return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');
+}
+
+let relaxTimer={raf:null, start:0, frozen:0, running:false, lastPct:null};
+function startRelaxClock(){
+  stopTimer();                                   // also clears any previous count-up
+  relaxTimer.start=performance.now(); relaxTimer.frozen=0;
+  relaxTimer.running=true; relaxTimer.lastPct=100;
+  const step=()=>{
+    if(!relaxTimer.running) return;
+    const sec=(performance.now()-relaxTimer.start)/1000;
+    drawRelaxClock(sec);
+    const pct=Math.round(relaxMult(sec)*100);    // a soft tick at each 5% the dial gives up
+    if(Math.floor(pct/5)<Math.floor(relaxTimer.lastPct/5)) sTick();
+    relaxTimer.lastPct=pct;
+    relaxTimer.raf=requestAnimationFrame(step);
+  };
+  relaxTimer.raf=requestAnimationFrame(step);
+}
+function stopRelaxClock(){
+  if(relaxTimer.running) relaxTimer.frozen=(performance.now()-relaxTimer.start)/1000;
+  relaxTimer.running=false;
+  if(relaxTimer.raf) cancelAnimationFrame(relaxTimer.raf);
+  relaxTimer.raf=null;
+}
+/* elapsed seconds — frozen once the round is closed, so it can be read after stopping */
+function relaxElapsed(){
+  if(!relaxTimer.start) return 0;
+  return relaxTimer.running ? (performance.now()-relaxTimer.start)/1000 : relaxTimer.frozen;
+}
+function drawRelaxClock(sec){
+  const cont=$('#clockHolder'); if(!cont) return;
+  const R=52, C=2*Math.PI*R;
+  const m=relaxMult(sec), off=C*(1-m);
+  let cl=cont.querySelector('.clock.relaxclock');
+  if(!cl){
+    cont.innerHTML=`<div class="clock relaxclock">
+      <svg width="118" height="118" viewBox="0 0 118 118">
+        <circle cx="59" cy="59" r="${R}" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="11"/>
+        <circle class="prog" cx="59" cy="59" r="${R}" fill="none" stroke="#7bd88f" stroke-width="11"
+          stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/>
+      </svg>
+      <div class="num">0:00</div><div class="mult">100%</div></div>`;
+    cl=cont.querySelector('.clock.relaxclock');
+  }
+  const atFloor=m<=RELAX.FLOOR+1e-6, fading=m<1;
+  const prog=cl.querySelector('.prog');
+  prog.setAttribute('stroke-dashoffset',off);
+  prog.setAttribute('stroke', atFloor?'#ff6b6b':(fading?'#ffc23c':'#7bd88f'));
+  cl.classList.toggle('fade', fading&&!atFloor);
+  cl.classList.toggle('floorhit', atFloor);
+  const num=cl.querySelector('.num'), t=fmtClock(sec);
+  if(num.textContent!==t) num.textContent=t;
+  const mu=cl.querySelector('.mult'), p=Math.round(m*100)+'%';
+  if(mu.textContent!==p) mu.textContent=p;
+}
+/* drop the explainer above the clock, then start counting */
+function relaxBegin(){
+  const cw=document.querySelector('#gameBody .clockwrap');
+  if(cw && !$('#relaxNote')){
+    const n=el('div','relaxnote','🧘 <b>Easy mode</b> — no countdown, finish whenever you like. Full points for the first 30 seconds, then the multiplier slips 1% every 2 seconds down to a 25% floor.');
+    n.id='relaxNote';
+    cw.parentNode.insertBefore(n,cw);
+  }
+  drawRelaxClock(0);
+  startRelaxClock();
+}
+/* the "you took X, so Y points" line shown on each reveal */
+function relaxLine(raw,pts,sec){
+  if(!state.relaxed || sec==null || !raw) return '';
+  return `<div class="relaxline">🧘 ${fmtClock(sec)} on the clock · ${raw} × ${Math.round(relaxMult(sec)*100)}% = <b>${pts} pts</b></div>`;
+}
+function drawClock(left,total){
+  const cont=$('#clockHolder'); if(!cont) return;
+  const R=52,C=2*Math.PI*R;
+  const frac=total>0?Math.max(0,Math.min(1,left/total)):0;
+  const off=C*(1-frac);
+  const warn=left<=5 && left>0;
+  let cl=cont.querySelector('.clock');
+  if(!cl){
+    // First render for this round: build once (so the sweep animates a single time
+    // and per-frame ticking just updates attributes instead of thrashing the DOM).
+    cont.innerHTML=`<div class="clock">
+      <div class="sweep"></div>
+      <svg width="118" height="118" viewBox="0 0 118 118">
+        <circle cx="59" cy="59" r="${R}" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="11"/>
+        <circle class="prog" cx="59" cy="59" r="${R}" fill="none" stroke="#ffc23c" stroke-width="11"
+          stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/>
+      </svg>
+      <div class="num">${Math.ceil(left)}</div></div>`;
+    cl=cont.querySelector('.clock');
+  }
+  const prog=cl.querySelector('.prog');
+  prog.setAttribute('stroke-dashoffset',off);
+  prog.setAttribute('stroke', warn?'#ff6b6b':'#ffc23c');
+  cl.classList.toggle('warn',warn);
+  const num=cl.querySelector('.num'), sec=String(Math.ceil(Math.max(0,left)));
+  if(num.textContent!==sec) num.textContent=sec;
+}
+
+/* ============================================================
+   SCOREBOARD
+============================================================ */
+function renderScore(){
+  if(state.mode==='daily'){
+    $('#scoreBar').innerHTML=`
+      <div class="scoreside me">
+        <div class="av" style="background:#1d5c8a">YOU</div>
+        <div><div class="who">You</div><div class="role">Today's show</div></div>
+        <div class="pts">${state.playerScore}</div>
+      </div>
+      <div class="vs">PTS</div>
+      <div class="scoreside them" style="justify-content:center">
+        <div style="text-align:center;width:100%"><div class="role">Round</div><div class="who" style="font-size:1.05rem">${(state.dailyIndex||0)+1} of 3</div></div>
+      </div>`;
+    return;
+  }
+  const o=state.opponent;
+  $('#scoreBar').innerHTML=`
+    <div class="scoreside me">
+      <div class="av" style="background:#1d5c8a">YOU</div>
+      <div><div class="who">You</div><div class="role">Champion's seat</div></div>
+      <div class="pts">${state.playerScore}</div>
+    </div>
+    <div class="vs">VS</div>
+    <div class="scoreside them">
+      <div class="av" style="background:${o.color}">${o.init}</div>
+      <div><div class="who">${o.name}</div><div class="role">${o.level}</div></div>
+      <div class="pts">${state.oppScore}</div>
+    </div>`;
+}
+function renderCareerHud(){
+  const h=$('#careerHud');
+  if(!h) return;
+  if(state.mode==='gauntlet'){ h.innerHTML=gauntHudHTML(); return; }
+  if(state.mode!=='career'){ h.innerHTML=''; return; }
+  h.innerHTML=`
+    <div class="stat"><div class="t">Round</div><div class="v">${state.roundIndex+1}/${state.rounds.length}</div></div>
+    <div class="stat"><div class="t">Career bank</div><div class="v">£${state.winnings}</div></div>
+    <div class="stat"><div class="t">Win streak</div><div class="v">${state.streak}</div></div>
+    <div class="stat"><div class="t">Teapots 🫖</div><div class="v">${state.teapots}</div></div>`;
+}
+
+/* ============================================================
+   LETTERS ROUND
+============================================================ */
+const VOWELS='aeiou', CONS='bcdfghjklmnpqrstvwxyz';
+// weighted bags loosely echoing letter frequency
+const VOWEL_BAG=('a'.repeat(15)+'e'.repeat(21)+'i'.repeat(13)+'o'.repeat(13)+'u'.repeat(5)).split('');
+const CONS_BAG=('b'.repeat(2)+'c'.repeat(3)+'d'.repeat(6)+'f'.repeat(2)+'g'.repeat(3)+'h'.repeat(2)+'j'.repeat(1)+'k'.repeat(1)+'l'.repeat(5)+'m'.repeat(4)+'n'.repeat(8)+'p'.repeat(4)+'q'.repeat(1)+'r'.repeat(9)+'s'.repeat(9)+'t'.repeat(9)+'v'.repeat(1)+'w'.repeat(1)+'x'.repeat(1)+'y'.repeat(1)+'z'.repeat(1)).split('');
+
+function letterCounts(arr){ const m={}; for(const c of arr) m[c]=(m[c]||0)+1; return m; }
+function canForm(word,avail){ const m={...avail}; for(const c of word){ if(!m[c]) return false; m[c]--; } return true; }
+function formableWords(letters){
+  const avail=letterCounts(letters); const out=[];
+  for(let i=0;i<ALL.length;i++){ const w=ALL[i]; if(w.length>letters.length) continue; if(canForm(w,avail)) out.push(w); }
+  return out;
+}
+function scoreWord(w){ return w.length===9?18:w.length; }
+
+function setupLetters(){
+  state.round='letters';
+  state.letters=[]; state.vowelCount=0; state.consCount=0; state.bestWord='';
+  renderScore(); renderCareerHud();
+  $('#roundMeta').textContent = (state.mode==='career'? `Round ${state.roundIndex+1} · `:'') + 'Letters Round';
+  const b=$('#gameBody');
+  b.innerHTML=`
+    <div class="center" style="margin-bottom:6px;color:var(--mut)">Pick nine letters — at least three vowels and four consonants.</div>
+    <div id="rachelStage"></div>
+    <div class="board" id="letterBoard"></div>
+    <div class="btnrow" id="pickRow">
+      <button class="btn" id="pickVowel">Vowel</button>
+      <button class="btn ghost" id="pickCons">Consonant</button>
+      <button class="btn ghost" id="pickAuto">Auto-pick rest</button>
+    </div>`;
+  renderLetterBoard();
+  Rachel.mount($('#rachelStage'), "Right then — call vowel or consonant and I'll put them up.");
+  $('#pickVowel').onclick=()=>addLetter('v');
+  $('#pickCons').onclick=()=>addLetter('c');
+  $('#pickAuto').onclick=autoFill;
+  updatePickButtons();
+}
+function renderLetterBoard(){
+  const bd=$('#letterBoard'); bd.innerHTML='';
+  for(let i=0;i<9;i++){
+    const L=state.letters[i];
+    const t=el('div','tile'+(L?'':' empty'), L?L.toUpperCase():'');
+    bd.appendChild(t);
+  }
+}
+// spin the tile at the given index from blank to its letter
+function spinLetterAt(idx){
+  const bd=$('#letterBoard'); if(!bd) return Promise.resolve();
+  const t=bd.children[idx]; if(!t) return Promise.resolve();
+  return spinTile(t, (state.letters[idx]||''));
+}
+function updatePickButtons(){
+  const n=state.letters.length, left=9-n;
+  const minV=3,minC=4;
+  // disable vowel if max vowels reached (9-minC=5) or no slots
+  const vDis = left===0 || state.vowelCount>= (9-minC) || left<=(minC-state.consCount && false);
+  const cDis = left===0 || state.consCount>= (9-minV);
+  // ensure we can still satisfy minimums
+  const mustVowel = left <= (minV-state.vowelCount);
+  const mustCons  = left <= (minC-state.consCount);
+  const pv=$('#pickVowel'), pc=$('#pickCons'), pa=$('#pickAuto');
+  if(!pv) return;
+  pv.disabled = left===0 || state.vowelCount>=5 || mustCons;
+  pc.disabled = left===0 || state.consCount>=6 || mustVowel;
+  pa.classList.toggle('hide', left===0);
+}
+async function addLetter(type){
+  if(state.letters.length>=9) return;
+  const ch = type==='v'? pick(VOWEL_BAG) : pick(CONS_BAG);
+  state.letters.push(ch);
+  if(type==='v') state.vowelCount++; else state.consCount++;
+  sFlip(); renderLetterBoard(); const spinDone=spinLetterAt(state.letters.length-1); updatePickButtons();
+  if(Rachel.enabled){
+    Rachel.place(rachelLetterLine(ch,type,state.letters.length-1,9));
+    if(state.letters.length===9){
+      const pr=$('#pickRow'); if(pr) pr.querySelectorAll('button').forEach(b=>b.disabled=true);
+      await sleep(1100); beginLetters();
+    }
+  }else if(state.letters.length===9){ await spinDone; await sleep(180); beginLetters(); }
+}
+async function autoFill(){
+  const minV=3,minC=4;
+  const pr=$('#pickRow'); if(pr) pr.querySelectorAll('button').forEach(b=>b.disabled=true);
+  if(Rachel.enabled) await Rachel.say("Right, I'll finish these off for you.",{hold:650});
+  while(state.letters.length<9){
+    const left=9-state.letters.length;
+    let type;
+    if(state.vowelCount<minV && left<= (minV-state.vowelCount)) type='v';
+    else if(state.consCount<minC && left<=(minC-state.consCount)) type='c';
+    else type = Math.random()<0.42 && state.vowelCount<5 ? 'v' : (state.consCount<6?'c':'v');
+    const ch=type==='v'?pick(VOWEL_BAG):pick(CONS_BAG);
+    state.letters.push(ch); if(type==='v')state.vowelCount++; else state.consCount++;
+    renderLetterBoard(); updatePickButtons();
+    sFlip();
+    await spinLetterAt(state.letters.length-1);
+    if(Rachel.enabled){ Rachel.place(rachelLetterLine(ch,type,state.letters.length-1,9)); await sleep(360); }
+  }
+  renderLetterBoard(); updatePickButtons();
+  if(Rachel.enabled) await sleep(400);
+  beginLetters();
+}
+function beginLetters(){
+  ac();
+  const b=$('#gameBody');
+  Rachel.unmount(); const rs=$('#rachelStage'); if(rs) rs.remove();
+  const pr=$('#pickRow'); if(pr) pr.remove();        // Daily Challenge has no pick row — guard against null
+  const lb=$('#letterBoard'); if(lb) lb.remove();   // the fixed board is replaced by the interactive rack
+  const avail=letterCounts(state.letters);
+  state.availCounts=avail;
+  const ctrl=el('div','');
+  ctrl.innerHTML=`
+    <div class="clockwrap"><div id="clockHolder"></div></div>
+    <div class="hintline center" style="color:var(--mut);margin-bottom:2px">Drag to rearrange · tap a letter or type to spell · then Declare</div>
+    <div id="rackMount"></div>
+    <div class="feedback" id="wordFeedback"></div>
+    <div class="best-so-far" id="bestSoFar">Your best word: <b>—</b></div>
+    ${(state.mode==='daily'&&state.relaxed)?'<div class="btnrow" style="margin-top:10px"><button class="btn ghost" id="finishLettersBtn">I\u2019m done \u2192</button></div>':''}`;
+  b.appendChild(ctrl);
+  state.letterRack=makeLetterRack({
+    mount:$('#rackMount'),
+    letters:state.letters,
+    submitLabel:'Declare',
+    placeholder:'tap letters or type your word',
+    onSubmit:(w)=>tryWord(w)
+  });
+  if(state.mode==='daily' && state.relaxed){
+    relaxBegin();
+    const fb=$('#finishLettersBtn'); if(fb) fb.onclick=()=>endDailyLetters();
+  }else{
+    drawClock(30,30);
+    startTimer(30, state.mode==='daily'?endDailyLetters:endLetters);
+  }
+  if(state.mode==='gauntlet') injectGauntPowers('letters');
+}
+function tryWord(w){
+  const fb=$('#wordFeedback');
+  w=(w||'').trim().toLowerCase();
+  if(!w){ return; }
+  if(!/^[a-z]+$/.test(w)){ fb.className='feedback bad'; fb.textContent='Letters only.'; return; }
+  if(!canForm(w,state.availCounts)){ fb.className='feedback bad'; fb.textContent=`You can't make "${w.toUpperCase()}" from those tiles.`; sBad(); return; }
+  if(!VALID.has(w)){ fb.className='feedback bad'; fb.textContent=`"${w.toUpperCase()}" isn't in the dictionary.`; sBad(); return; }
+  if(w.length>state.bestWord.length){
+    state.bestWord=w; sGood();
+    fb.className='feedback good'; fb.textContent=`Lovely — ${w.toUpperCase()} (${w.length}) is your best yet!`;
+    $('#bestSoFar').innerHTML=`Your best word: <b>${w.toUpperCase()} (${scoreWord(w)} pts)</b>`;
+  }else{
+    fb.className='feedback good'; fb.textContent=`${w.toUpperCase()} is valid — but ${state.bestWord.toUpperCase()} is still longer.`;
+  }
+  if(state.letterRack) state.letterRack.clear();
+}
+function computerWord(formable,level){
+  if(!formable.length) return '';
+  const byLen={}; let maxLen=0;
+  for(const w of formable){ (byLen[w.length]=byLen[w.length]||[]).push(w); if(w.length>maxLen)maxLen=w.length; }
+  const commonOf=(L,cap)=> (byLen[L]||[]).filter(w=>RANK.has(w)&&RANK.get(w)<cap);
+  if(level==='hard'||level==='legend'){
+    // Legend is relentless (always the maximum). Hard occasionally settles for one
+    // length short of the best, so a player who finds the longest word can actually
+    // WIN the round outright instead of only ever drawing it.
+    if(level==='hard' && maxLen>4 && Math.random()<0.18){
+      for(let L=maxLen-1; L>=Math.max(4,maxLen-2); L--){ if(byLen[L]&&byLen[L].length) return pick(byLen[L]); }
+    }
+    return pick(byLen[maxLen]);
+  }
+  if(level==='medium'){
+    for(let L=Math.min(7,maxLen);L>=5;L--){
+      const c=commonOf(L,26000); if(c.length) return pick(c);
+    }
+    for(let L=Math.min(7,maxLen);L>=4;L--){ if(byLen[L]&&byLen[L].length) return pick(byLen[L]); }
+    return pick(formable);
+  }
+  // easy
+  for(const L of [5,4,6]){ const c=commonOf(L,12000); if(c.length) return pick(c); }
+  for(let L=4;L<=Math.min(6,maxLen);L++){ if(byLen[L]) return pick(byLen[L]); }
+  return pick(formable);
+}
+function endLetters(){
+  stopTimer();
+  if(state.letterRack) state.letterRack.disable();
+  const formable=formableWords(state.letters);
+  const cWord=computerWord(formable,state.level);
+  const pWord=state.bestWord;
+  const pPts=pWord?scoreWord(pWord):0, cPts=cWord?scoreWord(cWord):0;
+  // award (longer word scores; if equal length both score in real show)
+  let pGain=0,cGain=0;
+  if(pPts>cPts){ pGain=pPts; }
+  else if(cPts>pPts){ cGain=cPts; }
+  else { pGain=pPts; cGain=cPts; } // tie -> both
+  state.playerScore+=pGain; state.oppScore+=cGain; renderScore();
+  // best words for host reveal
+  const sorted=[...new Set(formable)].sort((a,b)=> b.length-a.length || (RANK.get(a)??1e9)-(RANK.get(b)??1e9));
+  const best=[]; const seenLen={};
+  for(const w of sorted){ if((seenLen[w.length]||0)<2){ best.push(w); seenLen[w.length]=(seenLen[w.length]||0)+1; } if(best.length>=6) break; }
+
+  const result = pPts>cPts?'win':(cPts>pPts?'lose':'draw');
+  state.lastRoundResult=result;
+  let body=`
+    <div class="board" id="finalBoard"></div>
+    <div class="declared">
+      <div class="col"><div class="t">Your word</div><div class="v ${result==='win'?'win':''}">${pWord?pWord.toUpperCase():'—'} ${pWord?'('+pPts+')':''}</div></div>
+      <div class="col"><div class="t">${state.opponent.name}</div><div class="v ${result==='lose'?'win':''}">${cWord?cWord.toUpperCase():'—'} ${cWord?'('+cPts+')':''}</div></div>
+    </div>
+    <div class="panel host">
+      <h3>📖 ${HOST_LETTERS.title} <span style="color:var(--mut);font-weight:400;font-size:.85rem">with ${HOST_LETTERS.name}</span></h3>
+      <div class="host-sub">The best words available from those nine letters:</div>
+      <div class="wordlist">${best.map((w,i)=>`<div class="wchip ${i===0?'best':''}">${w.toUpperCase()}<small>${scoreWord(w)}pts</small></div>`).join('')||'<i>No words found.</i>'}</div>
+    </div>`;
+  showRevealLetters(body);
+}
+function showRevealLetters(html){
+  const b=$('#gameBody');
+  b.innerHTML=`<div class="reveal">${html}</div>`+revealControls();
+  // render final letters board
+  const fb=$('#finalBoard');
+  if(fb){ for(const L of state.letters){ fb.appendChild(el('div','tile',L.toUpperCase())); } cascadeFlip(fb); }
+  wireRevealControls();
+}
+
+/* ============================================================
+   NUMBERS ROUND
+============================================================ */
+function setupNumbers(){
+  state.round='numbers';
+  renderScore(); renderCareerHud();
+  $('#roundMeta').textContent=(state.mode==='career'?`Round ${state.roundIndex+1} · `:'')+'Numbers Round';
+  const b=$('#gameBody');
+  b.innerHTML=`
+    <div class="center" style="color:var(--mut);margin-bottom:6px">How many big numbers would you like? (from 25, 50, 75, 100)</div>
+    <div id="rachelStage"></div>
+    <div class="largepick" id="largePick">
+      ${[0,1,2,3,4].map(n=>`<button class="btn ghost" data-large="${n}">${n}</button>`).join('')}
+    </div>`;
+  $('#largePick').querySelectorAll('button').forEach(btn=>{
+    btn.onclick=()=>dealNumbers(+btn.dataset.large);
+  });
+  Rachel.mount($('#rachelStage'), "How many big ones would you like — none, up to four?");
+}
+async function dealNumbers(numLarge){
+  ac();
+  const lp=$('#largePick'); if(lp) lp.querySelectorAll('button').forEach(b=>b.disabled=true);
+  const large=shuffle([25,50,75,100]).slice(0,numLarge);
+  const bag=[]; for(let n=1;n<=10;n++){ bag.push(n,n); }
+  const small=shuffle(bag).slice(0,6-numLarge);
+  state.numbers=large.concat(small);   // big numbers stay on the left
+  state.target=randint(101,999);
+  // build tiles
+  state.tiles=state.numbers.map((v,i)=>({id:i,val:v,expr:String(v),used:false,origin:true}));
+  state.opsStack=[];
+  state.selA=null, state.selOp=null;
+  state.bestVal=null; state.bestDist=Infinity;
+  state.tiles.forEach(t=>considerVal(t.val,t.expr));
+  // solve
+  state.solution=solveNumbers(state.numbers,state.target);
+  state._numEnded=false;
+  if(Rachel.enabled){
+    await rachelRevealNumbers(numLarge);
+    renderNumbersUI(true);
+  }else{
+    renderNumbersUI(false);
+  }
+  startTimer(30,endNumbers);
+}
+async function rachelRevealNumbers(numLarge){
+  const b=$('#gameBody');
+  b.innerHTML=`
+    <div id="rachelStage"></div>
+    <div class="target"><div class="lbl">Target</div><div class="val" id="revTarget">—</div></div>
+    <div class="board" id="revBoard"></div>`;
+  Rachel.mount($('#rachelStage'));
+  const bd=$('#revBoard');
+  const slots=state.numbers.map(()=>{ const t=el('div','tile num empty',''); bd.appendChild(t); return t; });
+  const intro = numLarge===0 ? "No big ones — six little numbers it is."
+    : numLarge===1 ? "One big one and five small. Here we go."
+    : numLarge+" from the top, and "+(6-numLarge)+" small.";
+  await Rachel.say(intro,{hold:850});
+  for(let i=0;i<state.numbers.length;i++){
+    const v=state.numbers[i];
+    Rachel.place(rachelNumberLine(v));
+    const t=slots[i]; t.classList.remove('empty'); t.classList.add('flip'); t.textContent=String(v); sFlip();
+    await sleep(720);
+  }
+  await Rachel.say("And the target is…",{hold:550});
+  const tv=$('#revTarget'); let rolls=0;
+  await new Promise(res=>{ const ri=setInterval(()=>{ tv.textContent=randint(100,999);
+    if(++rolls>12){ clearInterval(ri); tv.textContent=state.target; res(); } },45); });
+  await Rachel.say(rachelTargetLine(state.target),{hold:850});
+}
+function considerVal(v,expr){
+  if(!Number.isInteger(v)||v<1) return;
+  const d=Math.abs(v-state.target);
+  if(d<state.bestDist){ state.bestDist=d; state.bestVal=v; state.bestExpr=expr; }
+}
+function solveNumbers(nums,target){
+  const byDist={}; let bestD=Infinity;
+  let bestVal=null, bestExpr=null;   // overall closest found, with NO distance cap
+  function consider(val,expr){
+    if(!Number.isInteger(val)||val<1) return;
+    const d=Math.abs(val-target);
+    if(d<=40 && byDist[d]===undefined) byDist[d]={val,expr,ops:(expr.match(/[+\-×÷]/g)||[]).length};
+    if(d<bestD){ bestD=d; bestVal=val; bestExpr=expr; }
+  }
+  function recurse(ns,es){
+    const n=ns.length;
+    for(let i=0;i<n;i++){
+      for(let j=0;j<n;j++){
+        if(i===j) continue;
+        const a=ns[i],b=ns[j],ea=es[i],eb=es[j];
+        const res=[];
+        if(i<j){ res.push([a+b,`(${ea} + ${eb})`]); if(a!==1&&b!==1) res.push([a*b,`(${ea} × ${eb})`]); else res.push([a*b,`(${ea} × ${eb})`]); }
+        if(a>b) res.push([a-b,`(${ea} - ${eb})`]);
+        if(b!==0 && a%b===0 && b!==1) res.push([a/b,`(${ea} ÷ ${eb})`]);
+        for(const [v,e] of res){
+          consider(v,e);
+          if(bestD===0) return;
+          const nn=[],ne=[];
+          for(let k=0;k<n;k++){ if(k!==i&&k!==j){ nn.push(ns[k]); ne.push(es[k]); } }
+          nn.push(v); ne.push(e);
+          recurse(nn,ne);
+          if(bestD===0) return;
+        }
+      }
+    }
+  }
+  nums.forEach(x=>consider(x,String(x)));
+  recurse(nums,nums.map(String));
+  return {byDist,bestD,bestVal,bestExpr};
+}
+// Always returns a usable closest {val,expr} or null — even when nothing lands
+// within the byDist cap (which previously made the reveal crash on a hard board).
+function closestSolution(sol){
+  if(!sol) return null;
+  if(sol.byDist[0]) return sol.byDist[0];
+  const dists=Object.keys(sol.byDist).map(Number).sort((a,b)=>a-b);
+  if(dists.length) return sol.byDist[dists[0]];
+  if(sol.bestExpr!=null) return {val:sol.bestVal,expr:sol.bestExpr,ops:0};
+  return null;
+}
+function computerNumbers(sol,level){
+  const {byDist}=sol;
+  const dists=Object.keys(byDist).map(Number).sort((a,b)=>a-b);
+  if(!dists.length) return null;
+  const inRange=(lo,hi)=>{ for(const d of dists) if(d>=lo&&d<=hi) return byDist[d]; return null; };
+  const exact=byDist[0];
+  if(level==='hard'||level==='legend'){
+    // Legend always nails the exact answer when one exists. Hard very occasionally
+    // lands just short, so a perfect solve from the player can win rather than draw.
+    if(level==='hard' && exact && Math.random()<0.15){
+      const near=inRange(1,5); if(near) return near;
+    }
+    return exact||byDist[dists[0]];
+  }
+  if(level==='medium'){
+    if(exact && Math.random()<0.62) return exact;
+    return inRange(1,9) || byDist[dists[0]];
+  }
+  // easy
+  if(exact && Math.random()<0.22) return exact;
+  return inRange(6,30) || (Math.random()<0.5? inRange(1,30):null) || byDist[dists[0]];
+}
+function renderNumbersUI(skipRoll){
+  Rachel.unmount();
+  const b=$('#gameBody');
+  b.innerHTML=`
+    <div class="target"><div class="lbl">Target</div><div class="val" id="targetVal">000</div></div>
+    <div class="clockwrap"><div id="clockHolder"></div></div>
+    <div class="board" id="numBoard"></div>
+    <div class="ops" id="opsRow">
+      ${['+','-','×','÷'].map(o=>`<button class="opbtn" data-op="${o}">${o}</button>`).join('')}
+      <button class="opbtn" id="undoBtn" title="Undo">↶</button>
+      <button class="opbtn" id="resetBtn" title="Reset">⟳</button>
+    </div>
+    <div class="feedback" id="numFeedback">Tap a number, an operator, then another number.</div>
+    <div class="best-so-far" id="numBest">Closest so far: <b>—</b></div>
+    <div class="btnrow" style="margin-top:6px"><button class="btn ghost" id="finishBtn">Finish round →</button></div>`;
+  // animate target roll
+  const tv=$('#targetVal');
+  if(skipRoll){ tv.textContent=state.target; }
+  else{ let rolls=0;
+    const rollInt=setInterval(()=>{ tv.textContent=randint(100,999); rolls++; if(rolls>12){ clearInterval(rollInt); tv.textContent=state.target; } },45);
+  }
+  drawClock(30,30);
+  renderNumTiles();
+  $('#opsRow').querySelectorAll('[data-op]').forEach(btn=>btn.onclick=()=>selectOp(btn.dataset.op,btn));
+  $('#undoBtn').onclick=undoOp;
+  $('#resetBtn').onclick=resetNums;
+  $('#finishBtn').onclick=finishNumbers;
+  updateNumBest();
+  if(state.mode==='gauntlet') injectGauntPowers('numbers');
+}
+function renderNumTiles(){
+  const bd=$('#numBoard'); bd.innerHTML='';
+  state.tiles.forEach(t=>{
+    const sw=(state.mode==='gauntlet'&&state.gaunt&&state.gaunt.swapMode&&t.origin&&!t.used)?' swapsel':'';
+    const cls='tile num ntile'+(t.used?' used':'')+(t.origin?'':' result')+(state.selA===t.id?' sel':'')+sw;
+    const d=el('div',cls,String(t.val));
+    if(!t.used) d.onclick=()=>tapTile(t.id);
+    bd.appendChild(d);
+  });
+}
+function selectOp(op,btn){
+  state.selOp=op;
+  $('#opsRow').querySelectorAll('[data-op]').forEach(b=>b.classList.toggle('sel',b===btn));
+}
+function tapTile(id){
+  if(state.mode==='gauntlet' && state.gaunt && state.gaunt.swapMode){ return doNumberSwap(id); }
+  const t=state.tiles.find(x=>x.id===id);
+  if(!t||t.used) return;
+  if(state.selA===null){ state.selA=id; renderNumTiles(); sFlip(); return; }
+  if(state.selA===id){ state.selA=null; renderNumTiles(); return; } // deselect
+  if(!state.selOp){ $('#numFeedback').textContent='Choose an operator first (+ − × ÷).'; $('#numFeedback').className='feedback bad'; return; }
+  const a=state.tiles.find(x=>x.id===state.selA);
+  const op=state.selOp;
+  let val, ok=true;
+  if(op==='+') val=a.val+t.val;
+  else if(op==='-'){ val=a.val-t.val; if(val<=0) ok=false; }
+  else if(op==='×') val=a.val*t.val;
+  else if(op==='÷'){ if(t.val===0||a.val%t.val!==0){ ok=false; } else val=a.val/t.val; }
+  if(!ok){
+    $('#numFeedback').className='feedback bad';
+    $('#numFeedback').textContent = op==='-'? 'That would go zero or negative — not allowed.' : 'Division must be exact (whole numbers only).';
+    sBad(); state.selA=null; state.selOp=null; renderNumTiles(); clearOpSel(); return;
+  }
+  // perform
+  a.used=true; t.used=true;
+  const expr=`(${a.expr} ${op} ${t.expr})`;
+  const nid=state.tiles.length;
+  const nt={id:nid,val,expr,used:false,origin:false};
+  state.tiles.push(nt);
+  state.opsStack.push({a:a.id,b:t.id,nid});
+  considerVal(val,expr);
+  beep(700,0.05,'triangle',0.06);
+  state.selA=null; state.selOp=null; clearOpSel();
+  renderNumTiles(); updateNumBest();
+  $('#numFeedback').className='feedback';
+  $('#numFeedback').textContent = val===state.target? '🎯 That\'s the target!' : `Made ${val}.`;
+}
+function clearOpSel(){ const r=$('#opsRow'); if(r) r.querySelectorAll('[data-op]').forEach(b=>b.classList.remove('sel')); }
+function undoOp(){
+  const last=state.opsStack.pop(); if(!last) return;
+  const nt=state.tiles.find(x=>x.id===last.nid);
+  // remove the result tile (only if it's the last and unused)
+  if(nt && !nt.used){
+    state.tiles=state.tiles.filter(x=>x.id!==last.nid);
+    state.tiles.find(x=>x.id===last.a).used=false;
+    state.tiles.find(x=>x.id===last.b).used=false;
+    state.selA=null; state.selOp=null; clearOpSel();
+    renderNumTiles();
+  } else { state.opsStack.push(last); }
+}
+function resetNums(){
+  state.tiles=state.numbers.map((v,i)=>({id:i,val:v,expr:String(v),used:false,origin:true}));
+  state.opsStack=[]; state.selA=null; state.selOp=null; clearOpSel();
+  renderNumTiles(); $('#numFeedback').className='feedback'; $('#numFeedback').textContent='Reset. Start again.';
+}
+function updateNumBest(){
+  const nb=$('#numBest');
+  if(state.bestVal==null){ nb.innerHTML='Closest so far: <b>—</b>'; }
+  else nb.innerHTML=`Closest so far: <b>${state.bestVal}</b> (${state.bestDist===0?'spot on!':state.bestDist+' away'})`;
+  // when the target has been reached, promote the Finish button so the player
+  // can lock it in without waiting out the clock.
+  const fb=$('#finishBtn');
+  if(fb){
+    if(state.bestDist===0){ fb.classList.remove('ghost'); fb.textContent='🎯 Finish round →'; }
+    else { fb.classList.add('ghost'); fb.textContent='Finish round →'; }
+  }
+}
+function finishNumbers(){
+  if(state.round!=='numbers') return;
+  if(state.mode==='daily') return endDailyNumbers();
+  endNumbers();
+}
+function numScore(dist){ if(dist===0) return 10; if(dist<=5) return 7; if(dist<=10) return 5; return 0; }
+function endNumbers(){
+  if(state._numEnded) return; state._numEnded=true;
+  stopTimer();
+  const opsRow=$('#opsRow'); if(opsRow) opsRow.querySelectorAll('button').forEach(b=>b.disabled=true);
+  $('#numBoard') && $('#numBoard').querySelectorAll('.ntile').forEach(t=>t.onclick=null);
+  const pVal=state.bestVal, pDist=state.bestVal==null?Infinity:state.bestDist;
+  const cAns=computerNumbers(state.solution,state.level);
+  const cVal=cAns?cAns.val:null, cDist=cAns?Math.abs(cAns.val-state.target):Infinity;
+  const pPts=pVal==null?0:numScore(pDist);
+  const cPts=cVal==null?0:numScore(cDist);
+  let pGain=0,cGain=0;
+  // closest-wins rule: ONLY the closer player scores; equal distance -> both score.
+  // (Decide by distance, not by points tier — two different distances can fall in
+  //  the same tier, which previously let the computer score when it wasn't closer.)
+  if(pDist<cDist) pGain=pPts; else if(cDist<pDist) cGain=cPts; else { pGain=pPts; cGain=cPts; }
+  state.playerScore+=pGain; state.oppScore+=cGain; renderScore();
+  const result=pDist<cDist?'win':(cDist<pDist?'lose':'draw');
+  state.lastRoundResult=result;
+  const closest = closestSolution(state.solution);
+  let solHtml, steps;
+  if(closest && closest.val===state.target){
+    solHtml=`There's a way to hit ${state.target} exactly:`; steps=exprToSteps(closest.expr);
+  } else if(closest){
+    solHtml=`${state.target} can't be reached exactly. The closest possible is ${closest.val} (${Math.abs(closest.val-state.target)} away):`;
+    steps=exprToSteps(closest.expr);
+  } else {
+    solHtml=`No combination of these six tiles gets anywhere near ${state.target} — a brutal draw.`; steps=[];
+  }
+  let body=`
+    <div class="target"><div class="lbl">Target</div><div class="val">${state.target}</div></div>
+    <div class="board" id="numFinalBoard"></div>
+    <div class="declared">
+      <div class="col"><div class="t">You reached</div><div class="v ${result==='win'?'win':''}">${pVal==null?'—':pVal} ${pVal==null?'':'('+pPts+' pts)'}</div></div>
+      <div class="col"><div class="t">${state.opponent.name}</div><div class="v ${result==='lose'?'win':''}">${cVal==null?'—':cVal} ${cVal==null?'':'('+cPts+' pts)'}</div></div>
+    </div>
+    <div class="panel host">
+      <h3>🧮 ${HOST_NUMBERS.title} <span style="color:var(--mut);font-weight:400;font-size:.85rem">with ${HOST_NUMBERS.name}</span></h3>
+      <div class="host-sub">${solHtml}</div>
+      <div class="solution">${steps.map(s=>`<span class="eq">${s}</span>`).join('<br>')}</div>
+    </div>`;
+  showRevealNumbers(body);
+}
+// Convert nested expression into readable sequential steps
+function exprToSteps(expr){
+  const steps=[]; let counter=0;
+  function walk(e){
+    e=e.trim();
+    if(/^\d+$/.test(e)) return e;
+    // strip one outer paren pair
+    if(e[0]==='('&&e[e.length-1]===')'){
+      // find top-level operator
+      let depth=0, opIdx=-1, opc='';
+      for(let i=1;i<e.length-1;i++){
+        const c=e[i];
+        if(c==='(')depth++; else if(c===')')depth--;
+        else if(depth===0 && '+-×÷'.includes(c) && e[i-1]===' '){ opIdx=i; opc=c; }
+      }
+      if(opIdx>-1){
+        const left=walk(e.slice(1,opIdx-1));
+        const right=walk(e.slice(opIdx+2,e.length-1));
+        const lv=evalExpr(e.slice(1,opIdx-1)), rv=evalExpr(e.slice(opIdx+2,e.length-1));
+        const res=evalExpr(e);
+        steps.push(`${lv} ${opc} ${rv} = ${res}`);
+        return String(res);
+      }
+    }
+    return e;
+  }
+  walk(expr);
+  return steps.length?steps:[expr];
+}
+function evalExpr(e){
+  e=e.replace(/×/g,'*').replace(/÷/g,'/').replace(/[^0-9+\-*/(). ]/g,'');
+  try{ return Function('"use strict";return ('+e+')')(); }catch(_){ return '?'; }
+}
+function showRevealNumbers(html){
+  const b=$('#gameBody');
+  b.innerHTML=`<div class="reveal">${html}</div>`+revealControls();
+  const fb=$('#numFinalBoard');
+  if(fb){ state.numbers.forEach(n=>fb.appendChild(el('div','tile num',String(n)))); cascadeFlip(fb); }
+  wireRevealControls();
+}
+
+/* ============================================================
+   CONUNDRUM (career finale)
+============================================================ */
+function setupConundrum(){
+  state.round='conundrum';
+  renderScore(); renderCareerHud();
+  $('#roundMeta').textContent=`Round ${state.roundIndex+1} · The Crucial Conundrum`;
+  const word=pick(CONUNDRUMS);
+  state.conundrum=word;
+  let scr;
+  do{ scr=shuffle(word.split('')).join(''); }while(scr===word);
+  state.scram=scr;
+  state.conundrumSolved=false;
+  const b=$('#gameBody');
+  b.innerHTML=`
+    <div class="center" style="color:var(--mut);margin-bottom:6px">One nine-letter word. First to buzz in with the answer wins 10 points.</div>
+    <div class="clockwrap"><div id="clockHolder"></div></div>
+    <div class="hintline center" style="color:var(--mut);margin-bottom:2px">Drag to rearrange · tap a letter or type · then Buzz</div>
+    <div id="rackMount"></div>
+    <div class="feedback" id="conFeedback"></div>`;
+  drawClock(30,30);
+  state.conRack=makeLetterRack({
+    mount:$('#rackMount'),
+    letters:scr.split(''),
+    submitLabel:'Buzz!',
+    placeholder:'tap or type the nine-letter word',
+    onSubmit:(w)=>tryConundrum(w)
+  });
+  // schedule computer buzz
+  const delays={easy:[16,30],medium:[8,20],hard:[4,12],legend:[3,9]};
+  const probs={easy:0.30,medium:0.60,hard:0.85,legend:0.96};
+  const [lo,hi]=delays[state.level]||delays.hard;
+  const willSolve = Math.random() < (probs[state.level]??0.85);
+  state.conTimeout=null;
+  if(willSolve){
+    const t=randint(lo,hi)*1000;
+    state.conTimeout=setTimeout(()=>computerBuzz(), t);
+  }
+  startTimer(30, endConundrum);
+  if(state.mode==='gauntlet') injectGauntPowers('conundrum');
+  if(state.mode==='gauntlet' && state.gaunt && state.gaunt.up && state.gaunt.up.lastletter){
+    const fb=$('#conFeedback');
+    if(fb){ fb.className='feedback'; fb.textContent='🔚 Final Flourish — it ends with “'+word[word.length-1].toUpperCase()+'”.'; }
+  }
+}
+function tryConundrum(w){
+  if(state.conundrumSolved) return;
+  const fb=$('#conFeedback');
+  w=(w||'').trim().toLowerCase();
+  if(!w) return;
+  if(w===state.conundrum){
+    state.conundrumSolved='player'; clearTimeout(state.conTimeout); stopTimer();
+    state.playerScore+=10; renderScore(); sGood();
+    fb.className='feedback good'; fb.textContent=`YES! ${w.toUpperCase()} — 10 points to you!`;
+    if(state.conRack) state.conRack.disable();
+    setTimeout(()=>endConundrum(true),1200);
+  }else{
+    fb.className='feedback bad'; fb.textContent='Not quite — keep going!'; sBad();
+    if(state.conRack) state.conRack.clear();
+  }
+}
+function computerBuzz(){
+  if(state.conundrumSolved) return;
+  state.conundrumSolved='computer'; stopTimer();
+  state.oppScore+=10; renderScore(); sLow();
+  const fb=$('#conFeedback'); if(state.conRack) state.conRack.disable();
+  fb.className='feedback bad'; fb.textContent=`${state.opponent.name} buzzed in: ${state.conundrum.toUpperCase()} — 10 points to them.`;
+  setTimeout(()=>endConundrum(true),1400);
+}
+function endConundrum(solved){
+  stopTimer(); clearTimeout(state.conTimeout);
+  if(state.conRack) state.conRack.disable();
+  const winner = state.conundrumSolved;
+  state.lastRoundResult = (winner==='player')?'win':'lose';
+  let msg = winner==='player'? `You solved it — <b>${state.conundrum.toUpperCase()}</b>!`
+          : winner==='computer'? `${state.opponent.name} got it — <b>${state.conundrum.toUpperCase()}</b>.`
+          : `Nobody got it. The word was <b>${state.conundrum.toUpperCase()}</b>.`;
+  const b=$('#gameBody');
+  b.innerHTML=`<div class="reveal">
+    <div class="board" id="conRevealBoard">${state.conundrum.split('').map(c=>`<div class="tile">${c.toUpperCase()}</div>`).join('')}</div>
+    <div class="center" style="font-size:1.15rem;margin:10px 0">${msg}</div>
+  </div>`+revealControls();
+  cascadeFlip($('#conRevealBoard'));
+  wireRevealControls();
+}
+
+/* ============================================================
+   REVEAL CONTROLS (continue / replay / exit)
+============================================================ */
+function revealControls(){
+  if(state.mode==='gauntlet'){
+    return `<div class="btnrow" style="margin-top:20px"><button class="btn" id="gauntBtn">Continue →</button></div>`;
+  }
+  if(state.mode==='career'){
+    const last = state.roundIndex>=state.rounds.length-1;
+    return `<div class="btnrow" style="margin-top:20px">
+      <button class="btn" id="continueBtn">${last?'See the result →':'Next round →'}</button>
+    </div>`;
+  }
+  return `<div class="btnrow" style="margin-top:20px">
+    <button class="btn" id="replayBtn">Play again</button>
+    <button class="btn ghost" id="exitBtn">Exit to menu</button>
+  </div>`;
+}
+function wireRevealControls(){
+  if(state.mode==='gauntlet'){
+    const b=$('#gauntBtn'); if(b) b.onclick=()=>gauntResolveRound();
+    return;
+  }
+  if(state.mode==='career'){
+    $('#continueBtn').onclick=()=>{ state.roundIndex++; if(state.roundIndex>=state.rounds.length) endMatch(); else runRound(); };
+  }else{
+    $('#replayBtn').onclick=()=>{ state.playerScore=0; state.oppScore=0; startFreeRound(state.freeType); };
+    $('#exitBtn').onclick=()=>goMenu();
+  }
+}
+
+/* ============================================================
+   FLOW: CAREER
+============================================================ */
+function startCareer(){
+  state.mode='career';
+  state.careerInit=true;
+  goOpp('Choose who you\'ll face across the whole show.');
+}
+function beginMatch(){
+  state.playerScore=0; state.oppScore=0;
+  state.rounds=['letters','numbers','letters','numbers','conundrum'];
+  state.roundIndex=0;
+  showScreen('screen-game');
+  runRound();
+}
+function runRound(){
+  const r=state.rounds[state.roundIndex];
+  if(r==='letters') setupLetters();
+  else if(r==='numbers') setupNumbers();
+  else setupConundrum();
+}
+function endMatch(){
+  stopTimer();
+  const p=state.playerScore, c=state.oppScore;
+  let outcome = p>c?'win':(c>p?'lose':'draw');
+  let prize=0, html='';
+  if(outcome==='win'){
+    state.streak++; prize=PRIZE[state.level]+ (state.streak-1)*50; state.winnings+=prize; state.teapots++;
+    const cw=careerLoad();
+    cw.bank+=prize; cw.lifetime+=prize; cw.teapots+=1; cw.matches+=1;
+    if(state.streak>cw.bestStreak) cw.bestStreak=state.streak;
+    careerSave(cw);
+    state.winnings=cw.bank; state.teapots=cw.teapots;
+    sGood();
+    const octo = state.streak>=8;
+    html=`<div class="result-banner win">You win! 🏆</div>
+      <p style="color:var(--mut);margin-bottom:14px">Final score — You ${p} : ${c} ${state.opponent.name}</p>
+      <div class="careerhud" style="justify-content:center">
+        <div class="stat"><div class="t">Prize this match</div><div class="v">£${prize}</div></div>
+        <div class="stat"><div class="t">Career bank</div><div class="v">£${state.winnings}</div></div>
+        <div class="stat"><div class="t">Win streak</div><div class="v">${state.streak}</div></div>
+        <div class="stat"><div class="t">Teapots 🫖</div><div class="v">${state.teapots}</div></div>
+      </div>
+      ${octo?`<p style="color:var(--gold);font-weight:700;margin-top:14px;font-size:1.1rem">🎉 Eight wins — you're an OCTOCHAMP! Take your seat in the finals.</p>`:''}
+      <p style="color:var(--mut);margin-top:14px">You return as the reigning champion. Defend your title, or visit the <b>Trophy Cabinet</b> from the menu to spend your winnings.</p>
+      <div class="btnrow" style="margin-top:18px">
+        <button class="btn" id="defendBtn">Defend the title →</button>
+        <button class="btn ghost" id="retireBtn">Retire as champion</button>
+      </div>`;
+  } else if(outcome==='lose'){
+    sBad();
+    const cl=careerLoad();
+    if(state.streak>cl.bestStreak) cl.bestStreak=state.streak;
+    cl.matches+=1; careerSave(cl);
+    html=`<div class="result-banner lose">Beaten this time</div>
+      <p style="color:var(--mut);margin-bottom:14px">Final score — You ${p} : ${c} ${state.opponent.name}</p>
+      <div class="careerhud" style="justify-content:center">
+        <div class="stat"><div class="t">Wins banked</div><div class="v">${state.streak}</div></div>
+        <div class="stat"><div class="t">Career bank</div><div class="v">£${state.winnings}</div></div>
+        <div class="stat"><div class="t">Teapots 🫖</div><div class="v">${state.teapots}</div></div>
+      </div>
+      <p style="color:var(--mut);margin-top:14px">${state.streak>0?`A fine run of ${state.streak}. `:''}The champion's seat is empty again.</p>
+      <div class="btnrow" style="margin-top:18px">
+        <button class="btn" id="defendBtn">Start a new run →</button>
+        <button class="btn ghost" id="retireBtn">Back to menu</button>
+      </div>`;
+    state.streak=0;
+  } else {
+    html=`<div class="result-banner draw">It's a tie!</div>
+      <p style="color:var(--mut);margin-bottom:14px">Final score — You ${p} : ${c} ${state.opponent.name}. We'll need a tie-break conundrum.</p>
+      <div class="btnrow"><button class="btn" id="tieBtn">Tie-break conundrum →</button></div>`;
+  }
+  showScreen('screen-match');
+  $('#matchCard').innerHTML=html;
+  if(outcome==='win') confettiBurst();
+  if(outcome==='draw'){
+    $('#tieBtn').onclick=()=>{ state.rounds.push('conundrum'); showScreen('screen-game'); runRound(); };
+  }else{
+    $('#defendBtn').onclick=()=>beginMatch();
+    $('#retireBtn').onclick=()=>goMenu();
+  }
+}
+
+/* ============================================================
+   FLOW: FREE PLAY
+============================================================ */
+function startFree(){ state.mode='free'; goOpp('Choose who plays against you.'); }
+function startFreeRound(type){
+  state.freeType=type;
+  state.playerScore=0; state.oppScore=0; state.roundIndex=0; state.rounds=[type];
+  showScreen('screen-game');
+  if(type==='letters') setupLetters(); else setupNumbers();
+}
+
+/* ============================================================
+   FLOW: DAILY CHALLENGE
+   A fixed three-round solo show (Letters → Numbers → Conundrum),
+   identical for everyone on a given calendar day. Seeded by the
+   date, playable once, with a shareable spoiler-free result.
+============================================================ */
+function dailyLoad(){ try{ return JSON.parse(localStorage.getItem('cd_daily'))||{}; }catch(e){ return {}; } }
+function dailySave(o){ try{ localStorage.setItem('cd_daily', JSON.stringify(o)); }catch(e){} }
+function dateKeyOf(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function todayKey(){ return dateKeyOf(new Date()); }
+function yesterdayKey(){ const d=new Date(); d.setDate(d.getDate()-1); return dateKeyOf(d); }
+function prettyDate(key){ try{ const [y,m,d]=key.split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'}); }catch(e){ return key; } }
+
+// Build today's board deterministically. Same seed string -> same nine letters,
+// same six numbers + target, same conundrum, for everyone, everywhere.
+function buildDailyBoard(key){
+  return withSeed('countdown-daily|'+key, ()=>{
+    const nv=pick([3,4,4,5,5]);                 // vowels, weighted toward 4–5
+    const letters=[];
+    for(let i=0;i<nv;i++) letters.push(pick(VOWEL_BAG));
+    for(let i=0;i<9-nv;i++) letters.push(pick(CONS_BAG));
+    const board=shuffle(letters);
+    const numLarge=pick([0,1,1,2,2,2,3,4]);     // big numbers, weighted toward 1–2
+    const large=shuffle([25,50,75,100]).slice(0,numLarge);
+    const bag=[]; for(let n=1;n<=10;n++){ bag.push(n,n); }
+    const small=shuffle(bag).slice(0,6-numLarge);
+    const numbers=large.concat(small);          // big numbers stay on the left
+    const target=randint(101,999);
+    const conundrum=pick(CONUNDRUMS)||'';
+    let scram=conundrum; if(conundrum){ let guard=0; do{ scram=shuffle(conundrum.split('')).join(''); }while(scram===conundrum && ++guard<40); }
+    return {letters:board, numbers, target, conundrum, scram};
+  });
+}
+
+function startDaily(){
+  ac();
+  const key=todayKey(), prev=dailyLoad();
+  state.mode='daily'; state.opponent=null;
+  state.relaxed=(dailyModeGet()==='relaxed');  // easy mode: clock counts up, score pro-rated
+  if(prev.lastDate===key && prev.today){       // already played today — show the result
+    showScreen('screen-game');
+    dailyResultsScreen(prev, false);
+    return;
+  }
+  if(!CONUNDRUMS.length){                       // safety: no nine-letter words loaded
+    showScreen('screen-game');
+    const hud=$('#careerHud'); if(hud) hud.innerHTML='';
+    $('#roundMeta').textContent='Daily Challenge'; $('#scoreBar').innerHTML='';
+    $('#gameBody').innerHTML='<p class="center" style="color:var(--mut)">The daily show needs the full word list to build a conundrum. Reload with countdown-words.js in place.</p><div class="btnrow" style="margin-top:16px"><button class="btn ghost" id="dErr">Back to menu</button></div>';
+    $('#dErr').onclick=()=>goMenu(); return;
+  }
+  state.playerScore=0; state.oppScore=0; state.dailyIndex=0;
+  DAILY.board=buildDailyBoard(key);
+  DAILY.run={letters:null,numbers:null,conundrum:null,relaxed:!!state.relaxed};
+  const hud=$('#careerHud'); if(hud) hud.innerHTML='';
+  showScreen('screen-game');
+  dailyLetters();
+}
+
+/* round 1 — letters (board is fixed; just reveal, then play with the shared rack) */
+function dailyLetters(){
+  state.round='letters'; state.dailyIndex=0;
+  state.letters=DAILY.board.letters.slice();
+  state.vowelCount=state.letters.filter(c=>VOWELS.includes(c)).length;
+  state.consCount=9-state.vowelCount; state.bestWord=''; state._lettersEnded=false;
+  renderScore(); renderCareerHud();
+  $('#roundMeta').textContent='Letters · Round 1 of 3'+(state.relaxed?' · 🧘':'');
+  const b=$('#gameBody');
+  b.innerHTML=`<div class="center" style="margin-bottom:6px;color:var(--mut)">Today's nine letters — the same for everyone. Find the longest word you can.</div>
+    <div id="rachelStage"></div>
+    <div class="board" id="letterBoard"></div>`;
+  const bd=$('#letterBoard'); for(let i=0;i<9;i++) bd.appendChild(el('div','tile empty',''));
+  if(Rachel.enabled){
+    Rachel.mount($('#rachelStage'), "Here are today's nine — same letters for everyone. Off you go!");
+    (async()=>{ for(let i=0;i<9;i++){ Rachel.place(rachelLetterLine(state.letters[i],VOWELS.includes(state.letters[i])?'v':'c',i,9)); await spinLetterAt(i); await sleep(120);} await sleep(350); beginLetters(); })();
+  }else{
+    (async()=>{ for(let i=0;i<9;i++){ await spinLetterAt(i);} await sleep(220); beginLetters(); })();
+  }
+}
+function endDailyLetters(){
+  if(state._lettersEnded) return; state._lettersEnded=true;
+  const sec=state.relaxed?relaxElapsed():null;
+  stopTimer();
+  if(state.letterRack) state.letterRack.disable();
+  const fbtn=$('#finishLettersBtn'); if(fbtn) fbtn.disabled=true;
+  const pWord=state.bestWord, raw=pWord?scoreWord(pWord):0;
+  const pPts=state.relaxed?relaxScore(raw,sec):raw;
+  state.playerScore+=pPts; renderScore();
+  DAILY.run.letters={word:pWord,pts:pPts,raw:raw,sec:sec};
+  const formable=formableWords(state.letters);
+  const sorted=[...new Set(formable)].sort((a,b)=> b.length-a.length || (RANK.get(a)??1e9)-(RANK.get(b)??1e9));
+  const best=[]; const seenLen={};
+  for(const w of sorted){ if((seenLen[w.length]||0)<2){ best.push(w); seenLen[w.length]=(seenLen[w.length]||0)+1; } if(best.length>=6) break; }
+  const body=`
+    <div class="board" id="finalBoard"></div>
+    <div class="declared">
+      <div class="col"><div class="t">Your word</div><div class="v win">${pWord?pWord.toUpperCase()+' ('+pPts+')':'—'}</div></div>
+    </div>
+    ${relaxLine(raw,pPts,sec)}
+    <div class="panel host">
+      <h3>📖 ${HOST_LETTERS.title} <span style="color:var(--mut);font-weight:400;font-size:.85rem">with ${HOST_LETTERS.name}</span></h3>
+      <div class="host-sub">The best words available from those nine letters:</div>
+      <div class="wordlist">${best.map((w,i)=>'<div class="wchip '+(i===0?'best':'')+'">'+w.toUpperCase()+'<small>'+scoreWord(w)+'pts</small></div>').join('')||'<i>No words found.</i>'}</div>
+    </div>`;
+  dailyReveal(body,'numbers');
+  const fb=$('#finalBoard'); if(fb){ for(const L of state.letters) fb.appendChild(el('div','tile',L.toUpperCase())); cascadeFlip(fb); }
+}
+
+/* round 2 — numbers (fixed selection + target; reuse the interactive UI) */
+function dailyNumbers(){
+  state.round='numbers'; state.dailyIndex=1;
+  state.numbers=DAILY.board.numbers.slice();
+  state.target=DAILY.board.target;
+  state.tiles=state.numbers.map((v,i)=>({id:i,val:v,expr:String(v),used:false,origin:true}));
+  state.opsStack=[]; state.selA=null; state.selOp=null;
+  state.bestVal=null; state.bestDist=Infinity; state._numEnded=false;
+  state.tiles.forEach(t=>considerVal(t.val,t.expr));
+  state.solution=solveNumbers(state.numbers,state.target);
+  renderScore(); renderCareerHud();
+  $('#roundMeta').textContent='Numbers · Round 2 of 3'+(state.relaxed?' · 🧘':'');
+  renderNumbersUI(false);
+  if(state.relaxed){
+    const fb=$('#finishBtn'); if(fb) fb.textContent='I\u2019m done \u2192';
+    relaxBegin();
+  }else{
+    startTimer(30, endDailyNumbers);
+  }
+}
+function endDailyNumbers(){
+  if(state._numEnded) return; state._numEnded=true;
+  const sec=state.relaxed?relaxElapsed():null;
+  stopTimer();
+  const opsRow=$('#opsRow'); if(opsRow) opsRow.querySelectorAll('button').forEach(b=>b.disabled=true);
+  const finBtn=$('#finishBtn'); if(finBtn) finBtn.disabled=true;
+  if($('#numBoard')) $('#numBoard').querySelectorAll('.ntile').forEach(t=>t.onclick=null);
+  const pVal=state.bestVal, pDist=pVal==null?Infinity:state.bestDist;
+  const raw=pVal==null?0:numScore(pDist);
+  const pPts=state.relaxed?relaxScore(raw,sec):raw;
+  state.playerScore+=pPts; renderScore();
+  DAILY.run.numbers={val:pVal,dist:(pVal==null?null:pDist),pts:pPts,raw:raw,sec:sec};
+  const closest=closestSolution(state.solution); let solHtml,steps;
+  if(closest && closest.val===state.target){ solHtml=`There's a way to hit ${state.target} exactly:`; steps=exprToSteps(closest.expr); }
+  else if(closest){ solHtml=`${state.target} can't be reached exactly. The closest possible is ${closest.val} (${Math.abs(closest.val-state.target)} away):`; steps=exprToSteps(closest.expr); }
+  else { solHtml=`No combination of these six tiles gets anywhere near ${state.target}.`; steps=[]; }
+  const body=`
+    <div class="target"><div class="lbl">Target</div><div class="val">${state.target}</div></div>
+    <div class="board" id="numFinalBoard"></div>
+    <div class="declared">
+      <div class="col"><div class="t">You reached</div><div class="v win">${pVal==null?'—':pVal+' ('+pPts+' pts)'}</div></div>
+    </div>
+    ${relaxLine(raw,pPts,sec)}
+    <div class="panel host">
+      <h3>🧮 ${HOST_NUMBERS.title} <span style="color:var(--mut);font-weight:400;font-size:.85rem">with ${HOST_NUMBERS.name}</span></h3>
+      <div class="host-sub">${solHtml}</div>
+      <div class="solution">${steps.map(s=>'<span class="eq">'+s+'</span>').join('<br>')}</div>
+    </div>`;
+  dailyReveal(body,'conundrum');
+  const fb=$('#numFinalBoard'); if(fb){ state.numbers.forEach(n=>fb.appendChild(el('div','tile num',String(n)))); cascadeFlip(fb); }
+}
+
+/* round 3 — conundrum (fixed word, no opponent; solo race against the clock) */
+function dailyConundrum(){
+  state.round='conundrum'; state.dailyIndex=2;
+  state.conundrum=DAILY.board.conundrum; state.scram=DAILY.board.scram;
+  state.conundrumSolved=false; state.conStart=performance.now(); state.conTimeMs=null;
+  state.conPts=0; state._conEnded=false;
+  renderScore(); renderCareerHud();
+  $('#roundMeta').textContent='The Conundrum · Round 3 of 3'+(state.relaxed?' · 🧘':'');
+  const b=$('#gameBody');
+  b.innerHTML=`<div class="center" style="color:var(--mut);margin-bottom:6px">${state.relaxed?'One nine-letter word, all the time you need. Solve it for 10 points.':'One nine-letter word, thirty seconds. Solve it for 10 points.'}</div>
+    <div class="clockwrap"><div id="clockHolder"></div></div>
+    <div class="hintline center" style="color:var(--mut);margin-bottom:2px">Drag to rearrange · tap a letter or type · then Buzz</div>
+    <div id="rackMount"></div>
+    <div class="feedback" id="conFeedback"></div>
+    ${state.relaxed?'<div class="btnrow" style="margin-top:10px"><button class="btn ghost" id="giveUpBtn">I give up \u2192</button></div>':''}`;
+  state.conRack=makeLetterRack({mount:$('#rackMount'),letters:state.scram.split(''),submitLabel:'Buzz!',placeholder:'tap or type the nine-letter word',onSubmit:(w)=>dailyTryConundrum(w)});
+  if(state.relaxed){
+    relaxBegin();
+    state.conStart=performance.now();
+    const gu=$('#giveUpBtn'); if(gu) gu.onclick=()=>endDailyConundrum(false);
+  }else{
+    drawClock(30,30);
+    startTimer(30, ()=>endDailyConundrum(false));
+  }
+}
+function dailyTryConundrum(w){
+  if(state.conundrumSolved) return;
+  const fb=$('#conFeedback'); w=(w||'').trim().toLowerCase(); if(!w) return;
+  if(w===state.conundrum){
+    state.conundrumSolved='player'; stopTimer();
+    state.conTimeMs=Math.round(performance.now()-state.conStart);
+    const sec=state.relaxed?state.conTimeMs/1000:null;
+    state.conPts=state.relaxed?relaxScore(10,sec):10;
+    state.playerScore+=state.conPts; renderScore(); sGood();
+    fb.className='feedback good'; fb.textContent=`YES! ${w.toUpperCase()} — ${state.conPts} point${state.conPts===1?'':'s'}!`;
+    const gu=$('#giveUpBtn'); if(gu) gu.disabled=true;
+    if(state.conRack) state.conRack.disable();
+    setTimeout(()=>endDailyConundrum(true),1200);
+  }else{ fb.className='feedback bad'; fb.textContent='Not quite — keep going!'; sBad(); if(state.conRack) state.conRack.clear(); }
+}
+function endDailyConundrum(){
+  if(state._conEnded) return; state._conEnded=true;
+  const elapsed=state.relaxed?relaxElapsed():null;
+  stopTimer(); if(state.conRack) state.conRack.disable();
+  const gu=$('#giveUpBtn'); if(gu) gu.disabled=true;
+  const got=state.conundrumSolved==='player';
+  const pts=got?(state.conPts||10):0;
+  const sec=got?(state.relaxed?state.conTimeMs/1000:null):elapsed;
+  DAILY.run.conundrum={solved:got, ms:got?state.conTimeMs:null, pts:pts, raw:got?10:0, sec:sec};
+  const msg = got? `You solved it — <b>${state.conundrum.toUpperCase()}</b>${state.conTimeMs?` in ${(state.conTimeMs/1000).toFixed(1)}s`:''}!`
+                 : (state.relaxed? `The word was <b>${state.conundrum.toUpperCase()}</b>.`
+                                  : `Time! The word was <b>${state.conundrum.toUpperCase()}</b>.`);
+  const b=$('#gameBody');
+  b.innerHTML=`<div class="reveal">
+    <div class="board" id="conRevealBoard">${state.conundrum.split('').map(c=>'<div class="tile">'+c.toUpperCase()+'</div>').join('')}</div>
+    <div class="center" style="font-size:1.15rem;margin:10px 0">${msg}</div>
+    ${got?relaxLine(10,pts,state.relaxed?state.conTimeMs/1000:null):''}
+  </div>
+  <div class="btnrow" style="margin-top:20px"><button class="btn" id="dailyNext">See your result →</button></div>`;
+  cascadeFlip($('#conRevealBoard'));
+  $('#dailyNext').onclick=()=>{ $('#dailyNext').disabled=true; dailyFinish(); };
+}
+
+/* shared between-round reveal: one button that chains to the next round */
+function dailyReveal(html, next){
+  const b=$('#gameBody');
+  b.innerHTML=`<div class="reveal">${html}</div>
+    <div class="btnrow" style="margin-top:20px"><button class="btn" id="dailyNext">${next==='done'?'See your result →':'Next round →'}</button></div>`;
+  $('#dailyNext').onclick=()=>{
+    $('#dailyNext').disabled=true;
+    if(next==='numbers') dailyNumbers();
+    else if(next==='conundrum') dailyConundrum();
+    else dailyFinish();
+  };
+}
+
+/* tally, persist (with a daily streak), reward coins, and show the result */
+function dailyFinish(){
+  const total=state.playerScore, key=todayKey(), prev=dailyLoad();
+  let streak;
+  if(prev.lastDate===key) streak=prev.streak||1;
+  else if(prev.lastDate===yesterdayKey()) streak=(prev.streak||0)+1;
+  else streak=1;
+  const relaxed=!!state.relaxed;
+  const history=prev.history||{}; history[key]={score:total,relaxed:relaxed};
+  const totalSec=['letters','numbers','conundrum']
+    .reduce((a,k)=>a+((DAILY.run[k]&&DAILY.run[k].sec)||0),0);
+  // easy-mode scores are pro-rated but still gentler than the 30s clock,
+  // so they keep their own personal best rather than muddying the timed one.
+  const rec={ lastDate:key, streak,
+    bestEver: relaxed?(prev.bestEver||0):Math.max(prev.bestEver||0,total),
+    bestRelaxed: relaxed?Math.max(prev.bestRelaxed||0,total):(prev.bestRelaxed||0),
+    today:{date:key,score:total,relaxed:relaxed,totalSec:relaxed?totalSec:null,
+           run:JSON.parse(JSON.stringify(DAILY.run))}, history };
+  dailySave(rec);
+  try{ const s=shopLoad(); s.coins=(s.coins||0)+Math.round(total*2); shopSave(s); }catch(e){}
+  if(total>0) confettiBurst();
+  dailyResultsScreen(rec, true);
+}
+
+function dailyResultsScreen(rec, justFinished){
+  showScreen('screen-game');
+  const hud=$('#careerHud'); if(hud) hud.innerHTML='';
+  const meta=$('#roundMeta'); if(meta) meta.textContent='Daily Challenge';
+  const sb=$('#scoreBar'); if(sb) sb.innerHTML='';
+  const t=rec.today, run=t.run||{};
+  const lw=run.letters||{}, nm=run.numbers||{}, cn=run.conundrum||{};
+  const conStr = cn.solved ? ('✓'+(cn.ms?' '+(cn.ms/1000).toFixed(1)+'s':'')) : '✗';
+  const easy = !!t.relaxed;
+  const sub = r => (easy && r.sec!=null && r.raw)
+    ? `<div class="role" style="color:var(--mut);font-size:.72rem">${fmtClock(r.sec)} \u00b7 ${Math.round(relaxMult(r.sec)*100)}%</div>` : '';
+  $('#gameBody').innerHTML=`
+    <div class="center">
+      ${justFinished?'<div class="result-banner win">Show complete!</div>':'<div class="roundmeta">You\u2019ve already played today</div>'}
+      ${easy?'<div style="margin:6px 0 2px"><span class="relaxbadge">\uD83E\uDDD8 Easy mode</span></div>':''}
+      <p style="color:var(--mut);margin:2px 0 14px">${prettyDate(t.date)}${justFinished?'':' \u2014 come back tomorrow for a fresh show'}</p>
+    </div>
+    <div class="careerhud" style="justify-content:center;margin-bottom:18px">
+      <div class="stat"><div class="t">Today</div><div class="v">${t.score}</div></div>
+      ${easy&&t.totalSec!=null?`<div class="stat"><div class="t">Time taken</div><div class="v">${fmtClock(t.totalSec)}</div></div>`:''}
+      <div class="stat"><div class="t">Streak</div><div class="v">${rec.streak||1}\uD83D\uDD25</div></div>
+      <div class="stat"><div class="t">${easy?'Best easy':'Best ever'}</div><div class="v">${(easy?rec.bestRelaxed:rec.bestEver)||t.score}</div></div>
+    </div>
+    <div class="declared" style="gap:22px">
+      <div class="col"><div class="t">\uD83D\uDD24 Letters</div><div class="v">${lw.word?lw.word.toUpperCase():'\u2014'}</div><div class="role" style="color:var(--mut)">${lw.pts||0} pts</div>${sub(lw)}</div>
+      <div class="col"><div class="t">\uD83D\uDD22 Numbers</div><div class="v">${nm.val==null?'\u2014':nm.val}</div><div class="role" style="color:var(--mut)">${nm.pts||0} pts</div>${sub(nm)}</div>
+      <div class="col"><div class="t">\uD83E\uDDE0 Conundrum</div><div class="v">${conStr}</div><div class="role" style="color:var(--mut)">${cn.pts||0} pts</div>${cn.solved?sub(cn):''}</div>
+    </div>
+    <div class="feedback" id="dailyShareFb" style="margin-top:16px;white-space:pre-line"></div>
+    <div class="btnrow" style="margin-top:8px">
+      <button class="btn" id="dailyShare">\uD83D\uDCCB Copy result</button>
+      <button class="btn ghost" id="dailyMenu">Back to menu</button>
+    </div>`;
+  $('#dailyMenu').onclick=()=>goMenu();
+  $('#dailyShare').onclick=()=>{
+    const txt=dailyShareText(rec), fb=$('#dailyShareFb');
+    const done=()=>{ if(fb){ fb.className='feedback good'; fb.textContent='Copied to clipboard!'; } };
+    try{
+      if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done,()=>dailyFallbackCopy(txt,done));
+      else dailyFallbackCopy(txt,done);
+    }catch(e){ dailyFallbackCopy(txt,done); }
+  };
+}
+function dailyShareText(rec){
+  const t=rec.today, run=t.run||{}, lw=run.letters||{}, nm=run.numbers||{}, cn=run.conundrum||{};
+  const con = cn.solved ? '\uD83E\uDDE0 \u2713'+(cn.ms?' '+(cn.ms/1000).toFixed(1)+'s':'') : '\uD83E\uDDE0 \u2717';
+  const tag = t.relaxed ? ' \uD83E\uDDD8 Easy'+(t.totalSec!=null?' \u00b7 '+fmtClock(t.totalSec):'') : '';
+  return `The Countdown Game \u2014 Daily ${t.date}${tag}\nScore: ${t.score}\n\uD83D\uDD24 ${lw.pts||0}   \uD83D\uDD22 ${nm.pts||0}   ${con}\nStreak: ${rec.streak||1}\uD83D\uDD25`;
+}
+function dailyFallbackCopy(txt,done){
+  try{ const ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.focus(); ta.select(); document.execCommand('copy'); ta.remove(); done&&done(); }
+  catch(e){ const fb=$('#dailyShareFb'); if(fb){ fb.className='feedback'; fb.textContent=txt; } }
+}
+/* which flavour of the daily the player has chosen — remembered between visits */
+function dailyModeGet(){ try{ return localStorage.getItem('cd_daily_mode')==='relaxed'?'relaxed':'timed'; }catch(e){ return 'timed'; } }
+function dailyModeSet(m){ try{ localStorage.setItem('cd_daily_mode',m); }catch(e){} refreshDailyBtn(); }
+
+function refreshDailyBtn(){
+  const btn=$('#dailyBtn'); if(!btn) return;
+  const prev=dailyLoad(), key=todayKey(), done=(prev.lastDate===key && prev.today);
+  const sub=$('#dailyBtnSub');
+  if(done){ btn.classList.add('done'); if(sub) sub.textContent=`\u2713 Done today \u00b7 ${prev.today.score} pts`+(prev.streak?` \u00b7 ${prev.streak}\uD83D\uDD25`:''); }
+  else { btn.classList.remove('done'); if(sub) sub.textContent=(prev.streak&&prev.lastDate===yesterdayKey())?`New show ready \u00b7 keep your ${prev.streak}\uD83D\uDD25 streak`:'A fresh show every day'; }
+
+  const seg=$('#dailyModeSeg'), note=$('#dailyModeNote');
+  if(!seg) return;
+  // The board is the same for everyone and playable once, so the mode is picked
+  // before the show and locked in afterwards.
+  const playedRelaxed = done && !!prev.today.relaxed;
+  const mode = done ? (playedRelaxed?'relaxed':'timed') : dailyModeGet();
+  seg.classList.toggle('locked', !!done);
+  seg.querySelectorAll('[data-dmode]').forEach(b=>{
+    b.classList.toggle('on', b.dataset.dmode===mode);
+    b.disabled=!!done;
+  });
+  if(note){
+    if(done) note.textContent = playedRelaxed
+      ? 'Today\u2019s show was played in easy mode. A fresh one lands tomorrow.'
+      : 'Today\u2019s show is done. A fresh one lands tomorrow.';
+    else if(mode==='relaxed') note.innerHTML='\uD83E\uDDD8 <b>Easy</b> \u2014 no countdown. Finish each round when you\u2019re ready; the score is pro-rated by the time you take. Full points for the first 30 seconds, then \u22121% every 2 seconds down to a 25% floor.';
+    else note.innerHTML='\u23F1\uFE0F <b>Timed</b> \u2014 the classic show: thirty seconds a round, full points on the line.';
+  }
+}
+
+/* ============================================================
+   NAV
+============================================================ */
+function goMenu(){ stopTimer(); Rachel.unmount(); if(typeof lanLeave==='function') lanLeave(); showScreen('screen-menu'); if(typeof refreshDailyBtn==='function') refreshDailyBtn(); }
+function goOpp(sub){
+  $('#oppSub').textContent=sub||'Who\'s in the other chair?';
+  const g=$('#oppGrid'); g.innerHTML='';
+  const list=['easy','medium','hard'];
+  if(careerLoad().prestige) list.push('legend');
+  list.forEach(k=>{
+    const o=OPPONENTS[k];
+    const card=el('div','opp');
+    card.innerHTML=`<div class="avatar" style="background:${o.color}">${o.init}</div>
+      <div class="nm">${o.name}</div><div class="lvl ${k}">${o.level}</div>
+      <div class="desc">${o.desc}</div>`;
+    card.onclick=()=>chooseOpp(k);
+    g.appendChild(card);
+  });
+  showScreen('screen-opp');
+}
+function chooseOpp(level){
+  state.level=level; state.opponent=OPPONENTS[level];
+  if(state.mode==='career'){
+    if(state.careerInit){
+      const c=careerLoad();
+      state.winnings=c.bank;     // spendable prize money carries across sessions
+      state.teapots=c.teapots;   // lifetime teapots
+      state.streak=0;            // streak is per-run
+      state.careerInit=false;
+    }
+    beginMatch();
+  }else{
+    $('#freeOppName').textContent=state.opponent.name;
+    showScreen('screen-free');
+  }
+}
+
+/* ============================================================
+   THE GAUNTLET  (roguelike run)
+============================================================ */
+const ARTEFACTS={
+  swap:    {id:'swap',    name:'The Swap',        icon:'🔁', blurb:'Replace one tile on the board with a fresh one.',                    usable:true,  rounds:['letters','numbers']},
+  reroll:  {id:'reroll',  name:'Fresh Draw',      icon:'🎲', blurb:'Redraw the whole board and reset the clock to 30.',                  usable:true,  rounds:['letters','numbers']},
+  time:    {id:'time',    name:'Time Lord',       icon:'⏳', blurb:'Bend time — add six seconds to the clock.',                         usable:true,  rounds:['letters','numbers','conundrum']},
+  whisper: {id:'whisper', name:"Susie's Whisper", icon:'🤫', blurb:'Hear how good the best answer is — without being told what it is.',  usable:true,  rounds:['letters','numbers']},
+  charm:   {id:'charm',   name:'Conundrum Charm', icon:'🔮', blurb:'Reveal the first letter — works on the conundrum and in bonus word rounds.', usable:true,  rounds:['conundrum']},
+  heart:   {id:'heart',   name:'Spare Heart',     icon:'❤️', blurb:'Restore one life, up to a maximum of five.',                        usable:false, rounds:[]}
+};
+const MINIGAMES=['anagram','lightning','conundrumRun'];
+
+/* ============================================================
+   JIMMY CARR'S CASH SHOP — persistent wallet + permanent upgrades
+============================================================ */
+const SHOP_KEY='cd_gaunt_shop';
+const COIN_MULTS=[1,1.15,1.35,1.60];
+const SHOP_UPGRADES={
+  coin:     {name:'Tax Efficiency',    icon:'💰', max:3, cost:[60,140,260],
+             blurb:'Earn more coins from every round and mini-game for the rest of this run.',
+             desc:l=>['+15% coins','+35% coins','+60% coins'][l-1]},
+  time:     {name:'Stoppage Time',     icon:'⏱️', max:3, cost:[50,110,200],
+             blurb:'Start every remaining round of this run with extra seconds on the clock.',
+             desc:l=>'+'+(2*l)+'s every round'},
+  lastletter:{name:'Final Flourish',   icon:'🔚', max:1, cost:[120],
+             blurb:'For the rest of this run, every conundrum — and every bonus word round — reveals its last letter.',
+             desc:()=>'Last letter shown'},
+  stipend:  {name:'Care Package',      icon:'🎁', max:3, cost:[70,150,260],
+             blurb:'Receive an artefact right now — a Time Lord, then a Swap, then a Fresh Draw.',
+             desc:l=>['Got a Time Lord','+ a Swap','+ a Fresh Draw'][l-1]},
+  draft:    {name:'Little Black Book',  icon:'📓', max:1, cost:[150],
+             blurb:'See four artefacts in every draft for the rest of this run.',
+             desc:()=>'4 draft choices'},
+  insurance:{name:'No Win No Fee',      icon:'⚖️', max:1, cost:[200],
+             blurb:'Your next lost round this run costs you no life.',
+             desc:()=>'1 free loss'},
+  lives:    {name:'Spare Ribs',         icon:'❤️', max:2, cost:[120,300],
+             blurb:'Buy back a life right now (up to a maximum of five).',
+             desc:l=>'+'+l+' '+(l===1?'life':'lives')+' bought'}
+};
+const SHOP_ORDER=['coin','time','lastletter','stipend','draft','insurance','lives'];
+const JIMMY_LINES=[
+  "Welcome. No refunds, no receipts, no questions.",
+  "Coins — the one currency I'm legally allowed to discuss.",
+  "Spend it all. It's only money. Specifically, it's only your money.",
+  "Everything here lasts the run. Unlike my patience.",
+  "Buy big. I've got a yacht with your name vaguely near it.",
+  "These upgrades are an investment. Mostly in me."
+];
+const JIMMY_BUY=[
+  "Lovely. Straight into the offshore account.",
+  "Cha-ching. That's the sound of progress.",
+  "Sold. You won't regret it. Probably.",
+  "A wise purchase. For one of us.",
+  "Done. Tell your friends. Bring their coins.",
+  "Pleasure doing business — and I do mean my pleasure."
+];
+function shopLoad(){
+  try{ const r=JSON.parse(localStorage.getItem(SHOP_KEY)); if(r&&typeof r==='object') return {coins:+r.coins||0, up:r.up||{}}; }catch(e){}
+  return {coins:0, up:{}};
+}
+function shopSave(s){ try{ localStorage.setItem(SHOP_KEY, JSON.stringify(s)); }catch(e){} }
+function shopWallet(){ return shopLoad().coins; }
+function shopLevel(id){ return shopLoad().up[id]||0; }
+function gCoin(g,n){ const lvl=(g&&g.up&&g.up.coin)||0; return Math.round(n*(COIN_MULTS[lvl]||1)); }
+function bankRunCoins(g){
+  if(!g||g.banked) return 0;
+  const earned=Math.max(0, g.coins||0);
+  if(earned>0){ const s=shopLoad(); s.coins=(s.coins||0)+earned; shopSave(s); }
+  g.banked=true; g.coins=0; return earned;
+}
+
+function gauntBest(){ try{ return +localStorage.getItem('cd_gaunt_best')||0; }catch(e){ return 0; } }
+function gauntSaveBest(s){ try{ if(s>gauntBest()) localStorage.setItem('cd_gaunt_best',String(s)); }catch(e){} }
+
+function gauntHudHTML(){
+  const g=state.gaunt;
+  if(!g) return '';
+  const lifeStr = g.lives>0 ? '❤️'.repeat(g.lives) : '—';
+  const itemCount=Object.values(g.items).reduce((a,b)=>a+b,0);
+  return `<div class="stat"><div class="t">Stage</div><div class="v">${g.stage}</div></div>
+    <div class="stat"><div class="t">Lives</div><div class="v" style="letter-spacing:1px">${lifeStr}</div></div>
+    <div class="stat"><div class="t">Coins</div><div class="v">${g.coins}</div></div>
+    <div class="stat"><div class="t">Artefacts</div><div class="v">${itemCount}</div></div>`;
+}
+
+function startGauntlet(){
+  state.mode='gauntlet';
+  state.gaunt=null;          // run state is built in gauntBegin (after any shopping)
+  gauntIntro();
+}
+function gauntBegin(){
+  // Fresh start every run: 50 coins, no upgrades. Everything here lasts ONLY for
+  // the duration of this run — nothing is carried over to the next gauntlet.
+  state.gaunt={
+    stage:1, lives:3, coins:50, items:{},
+    up:{},                       // upgrades bought during THIS run only
+    level:'easy', swapMode:false,
+    roundsPlayed:0, lastShopRound:0,
+    insured:false
+  };
+  gauntNextStage();
+}
+function gauntIntro(){
+  showScreen('screen-gaunt');
+  $('#gauntHud').innerHTML='';
+  $('#gauntCard').innerHTML=`
+    <div class="section-h">The Gauntlet</div>
+    <div class="section-sub">One run. Rising difficulty. Three lives.</div>
+    <p style="color:var(--mut);line-height:1.7;text-align:center;max-width:560px;margin:0 auto 4px">
+      Survive a climbing ladder of letters and numbers rounds against ever-tougher opponents.
+      After each round you survive, <b>draft an artefact</b> to bend the rules in your favour. Clear bonus
+      <b>mini-games</b> for extra coins, and steel yourself for a <b>conundrum boss</b> every fifth stage.
+      You start with <b>50 coins</b> and <b>Jimmy's shop opens after each bonus round</b> — but spend up,
+      because coins and upgrades reset when the run ends. Lose a round and you drop a life — lose your last life and the run is over.</p>
+    <div class="careerhud" style="justify-content:center;margin-top:16px">
+      <div class="stat"><div class="t">Best run</div><div class="v">${gauntBest()?'Stage '+gauntBest():'—'}</div></div>
+      <div class="stat"><div class="t">Starting coins</div><div class="v">50 🪙</div></div>
+    </div>
+    <div class="btnrow" style="margin-top:18px">
+      <button class="btn" id="gauntGo">Enter the Gauntlet →</button>
+      <button class="btn ghost" id="gauntMenu">← Menu</button>
+    </div>`;
+  $('#gauntGo').onclick=()=>gauntBegin();
+  $('#gauntMenu').onclick=()=>goMenu();
+}
+
+function gauntLevelFor(stage){ return stage<=3?'easy':stage<=7?'medium':'hard'; }
+function gauntStageType(stage){
+  if(stage%5===0) return 'conundrum';     // boss
+  if(stage%3===0) return 'minigame';      // bonus
+  return (stage%2===1)?'letters':'numbers';
+}
+function gauntNextStage(){
+  const g=state.gaunt;
+  g.swapMode=false;
+  const type=gauntStageType(g.stage);
+  if(type==='minigame'){
+    const mg=MINIGAMES[(Math.floor(g.stage/3)-1+MINIGAMES.length)%MINIGAMES.length];
+    return gauntMinigame(mg);
+  }
+  g.level=gauntLevelFor(g.stage);
+  state.level=g.level; state.opponent=OPPONENTS[g.level];
+  state.boss=(type==='conundrum');
+  state.playerScore=0; state.oppScore=0; state.roundIndex=0; state.rounds=[type];
+  state.lastRoundResult=null;
+  showScreen('screen-game');
+  g.pendingBonus = 2*((g.up&&g.up.time)||0);   // consumed by startTimer (Stoppage Time)
+  if(type==='letters') setupLetters();
+  else if(type==='numbers') setupNumbers();
+  else setupConundrum();
+  const meta=$('#roundMeta');
+  if(meta){
+    const label = type==='letters'?'Letters':type==='numbers'?'Numbers':'Conundrum Boss';
+    meta.innerHTML = `Stage ${g.stage} · ${state.boss?'<span class="boss-flag">🔥 </span>':''}${label} · vs ${state.opponent.name}`;
+  }
+}
+
+function gauntResolveRound(){
+  const g=state.gaunt; const res=state.lastRoundResult;
+  g.roundsPlayed=(g.roundsPlayed||0)+1;   // a played round = letters / numbers / conundrum
+  if(res==='lose'){
+    if(g.insured){ g.insured=false; g.stage++; return gauntInsuredScreen(); }
+    g.lives--; sBad();
+    if(g.lives<=0) return gauntOver();
+    g.stage++;
+    return gauntLossScreen();
+  }
+  g.coins += gCoin(g, Math.max(0, state.playerScore));
+  g.stage++;
+  gauntDraft(false);
+}
+// Checkpoint between stages: open Jimmy's shop ONLY after a bonus letter/numbers
+// mini-game round; otherwise carry straight on to the next stage.
+function gauntProceed(){
+  const g=state.gaunt;
+  if(g.pendingShop){ g.pendingShop=false; return gauntShop('run'); }   // just finished a bonus round
+  gauntNextStage();
+}
+function gauntInsuredScreen(){
+  showScreen('screen-gaunt');
+  $('#gauntHud').innerHTML=gauntHudHTML();
+  $('#gauntCard').innerHTML=`
+    <div class="result-banner draw">No Win No Fee</div>
+    <p style="color:var(--mut);text-align:center">Jimmy Carr covers the loss — that round costs you nothing. Your free pass for this run is now spent.</p>
+    <div class="btnrow" style="margin-top:18px"><button class="btn" id="gauntOn">Press on →</button></div>`;
+  $('#gauntOn').onclick=()=>gauntProceed();
+}
+function gauntLossScreen(){
+  showScreen('screen-gaunt');
+  $('#gauntHud').innerHTML=gauntHudHTML();
+  const g=state.gaunt;
+  $('#gauntCard').innerHTML=`
+    <div class="result-banner lose">A life lost</div>
+    <p style="color:var(--mut);text-align:center">That round went the other way. You have ${g.lives} ${g.lives===1?'life':'lives'} left.</p>
+    <div class="btnrow" style="margin-top:18px"><button class="btn" id="gauntOn">Press on →</button></div>`;
+  $('#gauntOn').onclick=()=>gauntProceed();
+}
+
+function gauntDraft(isBonus){
+  showScreen('screen-gaunt');
+  $('#gauntHud').innerHTML=gauntHudHTML();
+  const g=state.gaunt;
+  const pool=['swap','reroll','time','whisper','charm','heart'].filter(id=> id==='heart' ? g.lives<5 : true );
+  const offer=shuffle(pool).slice(0, 3 + (((g.up&&g.up.draft)||0)?1:0));
+  const cards=offer.map(id=>{const a=ARTEFACTS[id];return `
+    <div class="draftcard" data-pick="${id}">
+      <div class="dicon">${a.icon}</div>
+      <div class="dname">${a.name}</div>
+      <div class="dblurb">${a.blurb}</div>
+      <div class="dtag">${id==='heart'?'Instant':(a.usable?'Consumable':'Passive')}</div>
+    </div>`;}).join('');
+  $('#gauntCard').innerHTML=`
+    <div class="section-h">${isBonus?'Bonus draft':'Choose your reward'}</div>
+    <div class="section-sub">Stage ${g.stage-1} cleared — take one artefact into the next round.</div>
+    <div class="draftgrid">${cards}</div>`;
+  $('#gauntCard').querySelectorAll('[data-pick]').forEach(c=>c.onclick=()=>gauntTake(c.dataset.pick));
+}
+function gauntTake(id){
+  const g=state.gaunt;
+  if(id==='heart'){ g.lives=Math.min(5,g.lives+1); }
+  else { g.items[id]=(g.items[id]||0)+1; }
+  sGood(); beep(990,0.08);
+  gauntProceed();
+}
+
+/* ---- in-round artefact tray ---- */
+function injectGauntPowers(roundType){
+  const g=state.gaunt; if(!g) return;
+  const host=$('#gameBody'); if(!host) return;
+  const owned=Object.keys(g.items).filter(id=> g.items[id]>0 && ARTEFACTS[id].usable && ARTEFACTS[id].rounds.includes(roundType));
+  const ex=$('#gauntTray'); if(ex) ex.remove();
+  const tray=el('div','gaunt-tray'); tray.id='gauntTray';
+  if(!owned.length){
+    tray.innerHTML=`<div class="tray-empty">No artefacts to use here — win rounds to draft some.</div>`;
+  }else{
+    tray.innerHTML=`<div class="tray-label">Your artefacts</div><div class="tray-row">`+
+      owned.map(id=>{const a=ARTEFACTS[id];return `<button class="powbtn" data-pow="${id}"><span class="pic">${a.icon}</span><span class="pnm">${a.name}</span><span class="pct">×${g.items[id]}</span></button>`;}).join('')+
+      `</div><div class="tray-msg" id="powMsg"></div>`;
+  }
+  host.appendChild(tray);
+  tray.querySelectorAll('[data-pow]').forEach(b=>b.onclick=()=>usePower(b.dataset.pow,roundType));
+}
+function setPowMsg(t){ const m=$('#powMsg'); if(m) m.textContent=t; }
+function addTime(sec){ if(!timer.running) return; timer.end+=sec*1000; timer.total+=sec; }
+
+function usePower(id,roundType){
+  const g=state.gaunt; if(!g||!g.items[id]||g.items[id]<=0) return;
+  if(id==='swap'){
+    g.swapMode=!g.swapMode;
+    if(roundType==='letters') renderLetterBoardSwap(); else renderNumTiles();
+    injectGauntPowers(roundType);
+    setPowMsg(g.swapMode?'🔁 Swap armed — tap a tile to replace it.':'Swap cancelled.');
+    return;
+  }
+  if(id==='time'){ addTime(6); g.items.time--; beep(880,0.08); injectGauntPowers(roundType); setPowMsg('⏳ Six seconds added to the clock!'); return; }
+  if(id==='whisper'){
+    let msg;
+    if(roundType==='letters'){ const f=formableWords(state.letters); let m=0; f.forEach(w=>{ if(w.length>m)m=w.length; }); msg=m?`🤫 The best word here is ${m} letters long.`:'🤫 Nothing can be made from these tiles.'; }
+    else { const bd=state.solution?state.solution.bestD:Infinity; msg=bd===0?'🤫 The target can be reached exactly.':`🤫 The closest anyone can get is ${bd} away.`; }
+    g.items.whisper--; injectGauntPowers(roundType); setPowMsg(msg); return;
+  }
+  if(id==='charm'){
+    if(state.conRack) state.conRack.playChar(state.conundrum[0]);
+    g.items.charm--; injectGauntPowers(roundType); setPowMsg(`🔮 It begins with “${state.conundrum[0].toUpperCase()}”.`); return;
+  }
+  if(id==='reroll'){
+    g.items.reroll--;
+    if(roundType==='letters') gauntRerollLetters(); else gauntRerollNumbers();
+    setPowMsg('🎲 Fresh board — clock reset to 30.'); return;
+  }
+}
+
+/* swap implementations */
+function renderLetterBoardSwap(){
+  const rack=state.letterRack; if(!rack) return;
+  const armed=state.mode==='gauntlet'&&state.gaunt&&state.gaunt.swapMode;
+  rack.setSwapArmed(armed);
+  rack.setInterceptTap(armed ? (id)=>{ doLetterSwap(id); return true; } : null);
+}
+function doLetterSwap(i){
+  const g=state.gaunt; if(!g.swapMode||!g.items.swap) return;
+  const old=state.letters[i], isVowel=VOWELS.includes(old);
+  let ch; do{ ch=isVowel?pick(VOWEL_BAG):pick(CONS_BAG); }while(ch===old);
+  state.letters[i]=ch;
+  state.availCounts=letterCounts(state.letters);
+  if(state.bestWord && !canForm(state.bestWord,state.availCounts)){
+    state.bestWord=''; const bs=$('#bestSoFar'); if(bs) bs.innerHTML='Your best word: <b>—</b>';
+  }
+  g.items.swap--; g.swapMode=false;
+  sFlip();
+  if(state.letterRack){ state.letterRack.setLetters(state.letters); }
+  renderLetterBoardSwap(); injectGauntPowers('letters');
+  const f=$('#wordFeedback'); if(f){ f.className='feedback good'; f.textContent=`Swapped ${old.toUpperCase()} for ${ch.toUpperCase()}.`; }
+}
+function doNumberSwap(id){
+  const g=state.gaunt;
+  if(id<0||id>=state.numbers.length){ setPowMsg('Tap one of the original numbers to swap.'); return; }
+  const t=state.tiles.find(x=>x.id===id);
+  if(!t||!t.origin){ setPowMsg('That one can\'t be swapped — pick an original number.'); return; }
+  const nv=randint(1,10);
+  state.numbers[id]=nv;
+  state.tiles=state.numbers.map((v,i)=>({id:i,val:v,expr:String(v),used:false,origin:true}));
+  state.opsStack=[]; state.selA=null; state.selOp=null; state.bestVal=null; state.bestDist=Infinity;
+  state.tiles.forEach(tt=>considerVal(tt.val,tt.expr));
+  state.solution=solveNumbers(state.numbers,state.target);
+  g.items.swap--; g.swapMode=false;
+  clearOpSel(); renderNumTiles(); updateNumBest(); injectGauntPowers('numbers');
+  const f=$('#numFeedback'); if(f){ f.className='feedback good'; f.textContent=`Swapped to ${nv}. Working area reset.`; }
+}
+function gauntRerollLetters(){
+  state.letters=[]; state.vowelCount=0; state.consCount=0; state.bestWord='';
+  const minV=3,minC=4;
+  while(state.letters.length<9){
+    const left=9-state.letters.length; let type;
+    if(state.vowelCount<minV && left<=(minV-state.vowelCount)) type='v';
+    else if(state.consCount<minC && left<=(minC-state.consCount)) type='c';
+    else type=(Math.random()<0.42 && state.vowelCount<5)?'v':(state.consCount<6?'c':'v');
+    const ch=type==='v'?pick(VOWEL_BAG):pick(CONS_BAG);
+    state.letters.push(ch); if(type==='v')state.vowelCount++; else state.consCount++;
+  }
+  state.availCounts=letterCounts(state.letters);
+  const bs=$('#bestSoFar'); if(bs) bs.innerHTML='Your best word: <b>—</b>';
+  const fb=$('#wordFeedback'); if(fb){ fb.className='feedback'; fb.textContent=''; }
+  if(state.letterRack){ state.letterRack.setLetters(state.letters); }
+  renderLetterBoardSwap();
+  stopTimer(); drawClock(30,30); startTimer(30,endLetters);
+  injectGauntPowers('letters');
+}
+function gauntRerollNumbers(){
+  const numLarge=state.numbers.filter(n=>n>=25).length;
+  const large=shuffle([25,50,75,100]).slice(0,numLarge);
+  const bag=[]; for(let n=1;n<=10;n++){ bag.push(n,n); }
+  const small=shuffle(bag).slice(0,6-numLarge);
+  state.numbers=large.concat(small);   // big numbers stay on the left
+  state.target=randint(101,999);
+  state.tiles=state.numbers.map((v,i)=>({id:i,val:v,expr:String(v),used:false,origin:true}));
+  state.opsStack=[]; state.selA=null; state.selOp=null; state.bestVal=null; state.bestDist=Infinity;
+  state.tiles.forEach(t=>considerVal(t.val,t.expr));
+  state.solution=solveNumbers(state.numbers,state.target);
+  const tv=$('#targetVal'); if(tv) tv.textContent=state.target;
+  clearOpSel(); renderNumTiles(); updateNumBest();
+  const f=$('#numFeedback'); if(f){ f.className='feedback'; f.textContent='Fresh numbers — off you go!'; }
+  state._numEnded=false;
+  stopTimer(); drawClock(30,30); startTimer(30,endNumbers);
+  injectGauntPowers('numbers');
+}
+
+/* ---- letter aids for the bonus WORD rounds (Anagram Sprint & Conundrum Run) ----
+   Conundrum Charm (consumable artefact): reveals the FIRST letter of the word in play.
+   Final Flourish (run upgrade): passively reveals the LAST letter of every word.    */
+function mgWordAids(){
+  const g=state.gaunt||{};
+  const startCharm=(g.items&&g.items.charm)||0;
+  const hasFlourish=!!(g.up&&g.up.lastletter);
+  if(startCharm<=0 && !hasFlourish) return null;   // nothing to offer
+  const wrap=el('div','gaunt-tray'); wrap.id='mgAids';
+  let curWord='', curRack=null, charmNote='';
+  function useCharm(){
+    const gg=state.gaunt; if(!gg||!gg.items.charm||gg.items.charm<=0||!curWord) return;
+    if(curRack) curRack.playChar(curWord[0]);
+    gg.items.charm--; sGood(); beep(990,0.08);
+    charmNote=`🔮 It begins with “${curWord[0].toUpperCase()}”.`;
+    const hud=$('#gauntHud'); if(hud) hud.innerHTML=gauntHudHTML();   // refresh artefact tally
+    render();
+  }
+  function render(){
+    const gg=state.gaunt||{};
+    const charm=(gg.items&&gg.items.charm)||0;
+    const flourish=!!(gg.up&&gg.up.lastletter);
+    let html='';
+    if(charm>0){
+      html+='<div class="tray-label">Letter aids</div><div class="tray-row">'+
+        `<button class="powbtn" data-mgcharm><span class="pic">🔮</span><span class="pnm">Reveal first letter</span><span class="pct">×${charm}</span></button>`+
+        '</div>';
+    }
+    let msg='';
+    if(flourish && curWord) msg+=`🔚 Final Flourish — it ends with “${curWord[curWord.length-1].toUpperCase()}”.`;
+    if(charmNote) msg+=(msg?'   ':'')+charmNote;
+    html+=`<div class="tray-msg">${msg}</div>`;
+    wrap.innerHTML=html;
+    const b=wrap.querySelector('[data-mgcharm]'); if(b) b.onclick=useCharm;
+  }
+  return {
+    root:wrap,
+    refresh(word,rack){ curWord=word; curRack=rack; charmNote=''; render(); }
+  };
+}
+
+/* ---- mini-games (bonus stages) ---- */
+function gauntMinigame(kind){
+  showScreen('screen-gaunt'); $('#gauntHud').innerHTML=gauntHudHTML();
+  if(kind==='anagram') mgAnagram();
+  else if(kind==='lightning') mgLightning();
+  else mgConundrumRun();
+}
+function mgDone(title,score,coins){
+  stopTimer();
+  showScreen('screen-gaunt'); $('#gauntHud').innerHTML=gauntHudHTML();
+  $('#gauntCard').innerHTML=`
+    <div class="result-banner draw">Time!</div>
+    <div class="section-sub" style="text-align:center">${title} complete</div>
+    <div class="careerhud" style="justify-content:center;margin-top:8px">
+      <div class="stat"><div class="t">Solved</div><div class="v">${score}</div></div>
+      <div class="stat"><div class="t">Coins earned</div><div class="v">${coins}</div></div>
+    </div>
+    <p style="color:var(--mut);text-align:center;margin-top:10px">A bonus stage — no life at stake. Take a reward and press on.</p>
+    <div class="btnrow" style="margin-top:16px"><button class="btn" id="mgNext">Draft a reward →</button></div>`;
+  $('#mgNext').onclick=()=>{ state.gaunt.pendingShop=true; state.gaunt.stage++; gauntDraft(true); };
+}
+function mgAnagram(){
+  const g=state.gaunt; let solved=0, earned=0;
+  const words=COMMON.filter(w=>w.length>=5 && w.length<=7);
+  let cur='';
+  const fresh=()=>{ cur=pick(words); let s; do{ s=shuffle(cur.split('')).join(''); }while(s===cur); return s; };
+  let scr=fresh();
+  $('#gauntCard').innerHTML=`
+    <div class="section-h">⚡ Anagram Sprint</div>
+    <div class="section-sub">Unscramble as many common words as you can — +5 coins each.</div>
+    <div class="clockwrap"><div id="clockHolder"></div></div>
+    <div class="hintline center" style="color:var(--mut);margin-bottom:2px">Drag to rearrange · tap a letter or type</div>
+    <div id="rackMount"></div>
+    <div class="feedback" id="mgFb"></div>
+    <div class="best-so-far">Solved: <b id="mgCount">0</b></div>`;
+  let rack; const aids=mgWordAids();
+  const go=()=>{ const v=(rack.getWord()||'').trim().toLowerCase();
+    if(v===cur){ solved++; const got=gCoin(g,5); g.coins+=got; earned+=got; $('#mgCount').textContent=solved; const f=$('#mgFb'); f.className='feedback good'; f.textContent='✔ '+cur.toUpperCase(); sGood(); scr=fresh(); rack.setLetters(scr.split('')); if(aids) aids.refresh(cur,rack); }
+    else { const f=$('#mgFb'); f.className='feedback bad'; f.textContent='Not it — try again or skip.'; sBad(); } };
+  const skip=()=>{ const was=cur; scr=fresh(); rack.setLetters(scr.split('')); const f=$('#mgFb'); f.className='feedback'; f.innerHTML='Skipped — the word was <b>'+was.toUpperCase()+'</b>.'; if(aids) aids.refresh(cur,rack); };
+  rack=makeLetterRack({ mount:$('#rackMount'), letters:scr.split(''), submitLabel:'Solve', placeholder:'tap or type your answer', onSubmit:go, extraButtons:[{label:'Skip',cls:'ghost',onClick:skip}] });
+  if(aids){ $('#gauntCard').appendChild(aids.root); aids.refresh(cur,rack); }
+  drawClock(30,30); startTimer(30,()=>{ rack.disable(); mgDone('Anagram Sprint',solved,earned); });
+}
+function mgLightning(){
+  const g=state.gaunt; let solved=0, earned=0; let ans=0;
+  const gen=()=>{ const t=rnd(3); let a,b,txt;
+    if(t===0){ a=randint(11,89); b=randint(11,89); ans=a+b; txt=a+' + '+b; }
+    else if(t===1){ a=randint(3,15); b=randint(3,12); ans=a*b; txt=a+' × '+b; }
+    else { b=randint(3,12); ans=randint(2,12); a=ans*b; txt=a+' ÷ '+b; }
+    return txt; };
+  let q=gen();
+  $('#gauntCard').innerHTML=`
+    <div class="section-h">⚡ Numbers Lightning</div>
+    <div class="section-sub">Quickfire mental arithmetic — +5 coins each.</div>
+    <div class="clockwrap"><div id="clockHolder"></div></div>
+    <div class="target"><div class="lbl">Solve</div><div class="val" id="mgQ" style="font-size:2.6rem">${q}</div></div>
+    <div class="inputrow"><input type="text" id="mgIn" inputmode="numeric" placeholder="answer" maxlength="6" autocomplete="off"><button class="btn" id="mgGo">Enter</button></div>
+    <div class="feedback" id="mgFb"></div>
+    <div class="best-so-far">Solved: <b id="mgCount">0</b></div>`;
+  const inp=$('#mgIn'); inp.focus();
+  const go=()=>{ const v=parseInt(inp.value.trim(),10);
+    if(v===ans){ solved++; const got=gCoin(g,5); g.coins+=got; earned+=got; $('#mgCount').textContent=solved; const f=$('#mgFb'); f.className='feedback good'; f.textContent='✔ '+ans; sGood(); q=gen(); $('#mgQ').textContent=q; inp.value=''; }
+    else { const f=$('#mgFb'); f.className='feedback bad'; f.textContent='Not quite.'; sBad(); } };
+  $('#mgGo').onclick=go; inp.addEventListener('keydown',e=>{ if(e.key==='Enter') go(); });
+  drawClock(30,30); startTimer(30,()=>mgDone('Numbers Lightning',solved,earned));
+}
+function mgConundrumRun(){
+  const g=state.gaunt; let solved=0, earned=0; let cur='';
+  const fresh=()=>{ cur=pick(CONUNDRUMS); let s; do{ s=shuffle(cur.split('')).join(''); }while(s===cur); return s; };
+  let scr=fresh();
+  $('#gauntCard').innerHTML=`
+    <div class="section-h">⚡ Conundrum Run</div>
+    <div class="section-sub">Solve as many nine-letter conundrums as you can — +15 coins each.</div>
+    <div class="clockwrap"><div id="clockHolder"></div></div>
+    <div class="hintline center" style="color:var(--mut);margin-bottom:2px">Drag to rearrange · tap a letter or type</div>
+    <div id="rackMount"></div>
+    <div class="feedback" id="mgFb"></div>
+    <div class="best-so-far">Solved: <b id="mgCount">0</b></div>`;
+  let rack; const aids=mgWordAids();
+  const go=()=>{ const v=(rack.getWord()||'').trim().toLowerCase();
+    if(v===cur){ solved++; const got=gCoin(g,15); g.coins+=got; earned+=got; $('#mgCount').textContent=solved; const f=$('#mgFb'); f.className='feedback good'; f.textContent='✔ '+cur.toUpperCase(); sGood(); scr=fresh(); rack.setLetters(scr.split('')); if(aids) aids.refresh(cur,rack); }
+    else { const f=$('#mgFb'); f.className='feedback bad'; f.textContent='Not it.'; sBad(); } };
+  const skip=()=>{ const was=cur; scr=fresh(); rack.setLetters(scr.split('')); const f=$('#mgFb'); f.className='feedback'; f.innerHTML='Skipped — the word was <b>'+was.toUpperCase()+'</b>.'; if(aids) aids.refresh(cur,rack); };
+  rack=makeLetterRack({ mount:$('#rackMount'), letters:scr.split(''), submitLabel:'Buzz', placeholder:'tap or type the word', onSubmit:go, extraButtons:[{label:'Skip',cls:'ghost',onClick:skip}] });
+  if(aids){ $('#gauntCard').appendChild(aids.root); aids.refresh(cur,rack); }
+  drawClock(40,40); startTimer(40,()=>{ rack.disable(); mgDone('Conundrum Run',solved,earned); });
+}
+
+function gauntOver(){
+  stopTimer();
+  const g=state.gaunt;
+  g.reached=g.stage;
+  gauntSaveBest(g.reached);
+  gauntOverScreen();
+}
+function gauntOverScreen(){
+  const g=state.gaunt;
+  const best=gauntBest();
+  showScreen('screen-gaunt'); $('#gauntHud').innerHTML='';
+  $('#gauntCard').innerHTML=`
+    <div class="result-banner lose">The run ends</div>
+    <p style="color:var(--mut);text-align:center;margin-bottom:8px">You fell at <b>Stage ${g.reached}</b>. Coins and upgrades reset — the next run starts fresh with 50 🪙.</p>
+    <div class="careerhud" style="justify-content:center">
+      <div class="stat"><div class="t">Reached</div><div class="v">Stage ${g.reached}</div></div>
+      <div class="stat"><div class="t">Best ever</div><div class="v">Stage ${best}</div></div>
+    </div>
+    ${g.reached>=best&&g.reached>0?`<p style="color:var(--gold);text-align:center;font-weight:700;margin-top:12px">🏅 A new best run!</p>`:''}
+    <div class="btnrow" style="margin-top:18px">
+      <button class="btn" id="gauntAgain">Run it back →</button>
+      <button class="btn ghost" id="gauntMenu2">← Menu</button>
+    </div>`;
+  $('#gauntAgain').onclick=()=>startGauntlet();
+  $('#gauntMenu2').onclick=()=>goMenu();
+}
+
+/* ---- the shop screen (in-run: spends this run's coins, upgrades last the run) ---- */
+function gauntShop(from){
+  showScreen('screen-gaunt');
+  $('#gauntHud').innerHTML = (from==='run') ? gauntHudHTML() : '';
+  const g=state.gaunt; const up=g.up||(g.up={});
+  const cards=SHOP_ORDER.map(id=>{
+    const u=SHOP_UPGRADES[id]; const lvl=up[id]||0; const maxed=lvl>=u.max;
+    const cost=maxed?null:u.cost[lvl];
+    const can=!maxed && g.coins>=cost;
+    const pips=Array.from({length:u.max},(_,i)=>`<span class="pip${i<lvl?' on':''}"></span>`).join('');
+    return `<div class="shopcard${maxed?' maxed':''}">
+      <div class="dicon">${u.icon}</div>
+      <div class="dname">${u.name}</div>
+      <div class="dblurb">${u.blurb}</div>
+      <div class="shoplvl">${lvl>0?u.desc(lvl):'<span class="mut">Not owned yet</span>'}</div>
+      ${u.max>1?`<div class="pips">${pips}</div>`:''}
+      <button class="btn shopbuy${can?'':' ghost'}" data-buy="${id}" ${(maxed||!can)?'disabled':''}>${maxed?'Maxed out':'Buy · '+cost+' 🪙'}</button>
+    </div>`;
+  }).join('');
+  $('#gauntCard').innerHTML=`
+    <div class="shophead">
+      <div class="shopjc">JC</div>
+      <div style="flex:1 1 240px">
+        <div class="section-h" style="margin:0;text-align:left">Jimmy Carr's Cash Shop</div>
+        <div class="jimmysay" id="jimmySay">“${pick(JIMMY_LINES)}”</div>
+      </div>
+      <div class="shopbal"><div class="t">Your coins</div><div class="v">${g.coins} 🪙</div></div>
+    </div>
+    <div class="section-sub" style="text-align:left">Upgrades last for the rest of this run only. Spend up — coins vanish when the run ends.</div>
+    <div class="shopgrid">${cards}</div>
+    <div class="btnrow" style="margin-top:20px"><button class="btn${from==='run'?'':' ghost'}" id="shopBack">${from==='run'?'Continue the run →':'← Back'}</button></div>`;
+  $('#gauntCard').querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>shopBuy(b.dataset.buy,from));
+  $('#shopBack').onclick=()=> from==='run' ? gauntNextStage() : gauntIntro();
+}
+function shopBuy(id,from){
+  const g=state.gaunt; if(!g) return;
+  const u=SHOP_UPGRADES[id]; const up=g.up||(g.up={}); const lvl=up[id]||0;
+  if(lvl>=u.max) return;
+  const cost=u.cost[lvl];
+  if(g.coins<cost){ sBad(); const j=$('#jimmySay'); if(j) j.textContent='“Come back when you can afford it.”'; return; }
+  g.coins-=cost; up[id]=lvl+1;
+  // upgrades with an immediate one-off effect
+  if(id==='lives'){ g.lives=Math.min(5, g.lives+1); }
+  else if(id==='stipend'){ const art=['time','swap','reroll'][lvl]; if(art) g.items[art]=(g.items[art]||0)+1; }
+  else if(id==='insurance'){ g.insured=true; }
+  sGood(); beep(990,0.08);
+  gauntShop(from);
+  const j=$('#jimmySay'); if(j) j.textContent='“'+pick(JIMMY_BUY)+'”';
+}
+
+/* ============================================================
+   WIRE UP MENU
+============================================================ */
+document.querySelectorAll('.modecard[data-mode]').forEach(c=>{
+  c.onclick=()=>{ ac(); const m=c.dataset.mode; if(m==='career')startCareer(); else if(m==='free')startFree(); else if(m==='gauntlet')startGauntlet(); else enterLan(); };
+});
+document.querySelectorAll('.modecard[data-round]').forEach(c=>{
+  c.onclick=()=>{ ac(); startFreeRound(c.dataset.round); };
+});
+document.querySelectorAll('[data-go]').forEach(b=>{
+  b.onclick=()=>{ const t=b.dataset.go; if(t==='menu')goMenu(); else if(t==='opp')goOpp(); };
+});
+$('#homeBtn').onclick=()=>{ confirmModal('Return to the main menu? The current round will be lost.', goMenu, 'Leave round', 'Stay'); };
+$('#muteBtn').onclick=()=>{ muted=!muted; $('#muteBtn').textContent=muted?'🔇':'🔊'; if(!muted){ac();beep(660,0.06);} else if('speechSynthesis' in window){try{speechSynthesis.cancel();}catch(e){}} };
+(function(){ const rb=$('#rachelBtn'); if(!rb) return;
+  const paint=()=>{ rb.classList.toggle('off',!Rachel.enabled); rb.title=Rachel.enabled?'Presenter: on':'Presenter: off'; };
+  paint();
+  rb.onclick=()=>{ Rachel.setEnabled(!Rachel.enabled); paint(); if(Rachel.enabled){ac();beep(880,0.06);} };
+})();
+$('#trophyBtn').onclick=()=>showTrophy();
+(function(){
+  const db=$('#dailyBtn'); if(db) db.onclick=()=>startDaily();
+  const seg=$('#dailyModeSeg');
+  if(seg) seg.querySelectorAll('[data-dmode]').forEach(b=>{
+    b.onclick=()=>{ if(b.disabled) return; ac(); sFlip(); dailyModeSet(b.dataset.dmode); };
+  });
+  refreshDailyBtn();
+})();
+
+/* ============================================================
+   LAN MULTIPLAYER (talks to the local host server)
+============================================================ */
+const LAN={active:false,id:null,name:'',seat:-1,ver:-1,room:null,poll:null,stageKey:null,
+  timed:false,submitted:false,best:'',avail:null,matchLen:'standard',
+  nt:[],nstack:[],nselA:null,nselOp:null,nbest:null,nbestDist:Infinity,ntarget:0,rack:null};
+function api(path,body){const o=body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{};return fetch(path,o).then(r=>r.json());}
+function lanId(){let v=null;try{v=localStorage.getItem('cd_lan_id');}catch(e){}if(!v){v='p'+Math.random().toString(36).slice(2,10);try{localStorage.setItem('cd_lan_id',v);}catch(e){}}return v;}
+function initials(n){return (n||'?').trim().slice(0,2).toUpperCase();}
+function setLanBody(html){Rachel.unmount();const b=$('#lanBody');b.innerHTML=html;b.querySelectorAll('.lanback').forEach(x=>x.onclick=()=>goMenu());}
+function lanConnDot(on,txt){const d=$('#lanConn'),t=$('#lanConnText');if(d)d.className='lan-dot'+(on?' on':'');if(t)t.textContent=txt;}
+
+function enterLan(){
+  showScreen('screen-lan');$('#lanHud').innerHTML='';$('#lanScore').innerHTML='';
+  if(location.protocol==='file:'){
+    lanConnDot(false,'Not connected');
+    setLanBody(`<div class="panel" style="background:rgba(255,255,255,.04)">
+      <h3>📡 Start the LAN host first</h3>
+      <div class="host-sub">This page was opened directly as a file, so it can't reach the network yet.</div>
+      <p style="color:var(--mut);line-height:1.8">
+      1&nbsp;· On <b>one</b> computer, run the included host: <code>python3 server.py</code> (or <code>node server.js</code>).<br>
+      2&nbsp;· It prints an address like <code>http://192.168.1.23:8000</code>.<br>
+      3&nbsp;· Open that address in a browser on <b>both</b> machines (same network), then pick <b>Play over LAN</b>.</p>
+      <p style="color:var(--mut)">Full instructions are in the included <b>README</b>.</p></div>
+      <div class="btnrow"><button class="btn ghost lanback">← Back to menu</button></div>`);
+    return;
+  }
+  LAN.active=true;LAN.id=lanId();LAN.ver=-1;LAN.stageKey=null;
+  try{LAN.name=localStorage.getItem('cd_lan_name')||'';}catch(e){LAN.name='';}
+  lanConnDot(false,'Connecting…');
+  if(!LAN.name) lanNamePrompt(); else lanConnect();
+}
+function lanNamePrompt(){
+  setLanBody(`<div class="center" style="padding:10px">
+    <div class="section-h">What's your name?</div>
+    <div class="section-sub">So your opponent knows who they're up against.</div>
+    <div class="inputrow"><input type="text" id="lanName" placeholder="your name" maxlength="14" style="letter-spacing:.02em;text-transform:none">
+    <button class="btn" id="lanNameGo">Continue</button></div>
+    <div class="btnrow" style="margin-top:16px"><button class="btn ghost sm lanback">← Back</button></div></div>`);
+  const inp=$('#lanName');inp.value=LAN.name||'';inp.focus();
+  const go=()=>{const v=inp.value.trim()||'Player';LAN.name=v;try{localStorage.setItem('cd_lan_name',v);}catch(e){}lanConnect();};
+  $('#lanNameGo').onclick=go;inp.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+}
+function lanConnect(){
+  lanConnDot(false,'Connecting…');
+  api('/api/join',{id:LAN.id,name:LAN.name}).then(res=>{
+    if(!res||res.seat===undefined){lanError('Could not reach the host.');return;}
+    LAN.seat=res.seat;LAN.room=res.room;LAN.ver=-1;lanStartPoll();
+  }).catch(()=>lanError('Could not reach the host. Is the server running?'));
+}
+function lanError(msg){
+  lanConnDot(false,'Offline');
+  setLanBody(`<div class="panel" style="background:rgba(255,107,107,.08)"><h3>⚠️ ${msg}</h3>
+    <p style="color:var(--mut)">Make sure the host program is running and you opened the exact address it printed.</p></div>
+    <div class="btnrow"><button class="btn" id="lanRetry">Retry</button><button class="btn ghost lanback">← Menu</button></div>`);
+  $('#lanRetry').onclick=()=>lanConnect();
+}
+function lanStartPoll(){
+  if(LAN.poll)clearInterval(LAN.poll);
+  const tick=()=>{if(!LAN.active)return;
+    api('/api/state?seat='+LAN.seat+'&id='+LAN.id).then(res=>{
+      lanConnDot(true,'Connected');
+      if(!res||!res.room)return;LAN.room=res.room;
+      if(res.version!==LAN.ver){LAN.ver=res.version;lanApply();}
+    }).catch(()=>lanConnDot(false,'Reconnecting…'));};
+  tick();LAN.poll=setInterval(tick,450);
+}
+function lanLeave(){
+  if(!LAN.active && !LAN.poll){return;}
+  LAN.active=false;if(LAN.poll){clearInterval(LAN.poll);LAN.poll=null;}stopTimer();
+  if(LAN.id)api('/api/act',{id:LAN.id,type:'leave'}).catch(()=>{});
+  LAN.seat=-1;LAN.ver=-1;LAN.room=null;LAN.stageKey=null;
+}
+function lanAct(type,extra){
+  return api('/api/act',Object.assign({id:LAN.id,type},extra||{})).then(res=>{
+    if(res&&res.room){LAN.room=res.room;if(res.version!==LAN.ver){LAN.ver=res.version;lanApply();}}
+    return res;});
+}
+
+/* ---- master render ---- */
+function lanApply(){
+  const r=LAN.room;if(!r)return;
+  lanRenderHud();lanRenderScore();
+  if(r.phase==='lobby'){LAN.stageKey='lobby';lanBuildLobby();return;}
+  if(r.phase==='matchover'){const k='over|'+r.matchId;if(LAN.stageKey!==k){LAN.stageKey=k;lanBuildOver();}return;}
+  if(r.phase==='reveal'){const k='rev|'+r.matchId+'|'+r.roundIndex;if(LAN.stageKey!==k){LAN.stageKey=k;lanBuildReveal();}return;}
+  // round
+  if(LAN.seat<0){const k='spec|'+r.matchId+'|'+r.roundIndex;if(LAN.stageKey!==k){LAN.stageKey=k;setLanBody('<div class="waiting">Spectating — a round is in progress.</div>');}return;}
+  const complete=r.roundType==='conundrum'?true:r.roundType==='letters'?(r.letters.length>=9):!!r.numbers;
+  const stage=complete?'play':'pick';
+  const sk='r'+r.matchId+'|'+r.roundIndex+'|'+r.roundType+'|'+stage;
+  if(LAN.stageKey!==sk){LAN.stageKey=sk;lanBuildStage(stage);}else{lanPatchStage(stage);}
+}
+function lanRenderHud(){
+  const r=LAN.room;const h=$('#lanHud');
+  if(r.phase==='lobby'||r.phase==='matchover'){h.innerHTML='';return;}
+  h.innerHTML=`<div class="stat"><div class="t">Round</div><div class="v">${r.roundIndex+1}/${r.rounds.length}</div></div>
+    <div class="stat"><div class="t">This round</div><div class="v" style="font-size:1rem;text-transform:capitalize">${r.roundType}</div></div>
+    <div class="stat"><div class="t">Tonight</div><div class="v">${r.night.wins[0]}–${r.night.wins[1]}</div></div>`;
+}
+function lanRenderScore(){
+  const r=LAN.room;if(r.phase==='lobby'){$('#lanScore').innerHTML='';return;}
+  const n0=r.players[0]?r.players[0].name:'Player 1',n1=r.players[1]?r.players[1].name:'Player 2';
+  $('#lanScore').innerHTML=`<div class="scorebar">
+    <div class="scoreside me"><div class="av" style="background:#1d5c8a">${initials(n0)}</div>
+      <div><div class="who">${n0}${LAN.seat===0?' (you)':''}</div><div class="role">Seat 1</div></div><div class="pts">${r.scores[0]}</div></div>
+    <div class="vs">VS</div>
+    <div class="scoreside them"><div class="av" style="background:#b14d86">${initials(n1)}</div>
+      <div><div class="who">${n1}${LAN.seat===1?' (you)':''}</div><div class="role">Seat 2</div></div><div class="pts">${r.scores[1]}</div></div></div>`;
+}
+
+/* ---- lobby ---- */
+function lanBuildLobby(){
+  const r=LAN.room;const me=LAN.seat;
+  const seat=(i)=>{const p=r.players[i];return `<div class="seatcard"><div class="av" style="background:${i===0?'#1d5c8a':'#b14d86'}">${p?initials(p.name):'—'}</div>
+    <div><div class="who">${p?p.name:'Waiting for a player…'} ${i===me?'<span style="color:var(--gold)">(you)</span>':''}</div>
+    <div class="role">${i===0?'Host · picks first':'Challenger'}${p?(p.connected?' · online':' · away'):''}</div></div></div>`;};
+  const both=r.players[0]&&r.players[1];let ctrl='';
+  if(me===0){ctrl=`<div class="center" style="margin-top:14px"><div class="section-sub">Match length</div>
+    <div class="btnrow" id="lanLenRow"><button class="btn sm ghost" data-len="quick">Quick · 3</button><button class="btn sm ghost" data-len="standard">Standard · 5</button><button class="btn sm ghost" data-len="full">Full · 6</button></div>
+    <div class="btnrow" style="margin-top:14px"><button class="btn" id="lanStart" ${both?'':'disabled'}>${both?'Start match →':'Waiting for challenger…'}</button></div></div>`;}
+  else if(me===1)ctrl=`<div class="waiting">You're in. Waiting for ${r.players[0]?r.players[0].name:'the host'} to start the match…</div>`;
+  else ctrl=`<div class="waiting">Both seats are taken — you're watching as a spectator.</div>`;
+  setLanBody(`<div class="section-h" style="margin-top:4px">The Table</div>
+    <div class="section-sub">Two players, same network. Share this page's web address with your opponent.</div>
+    ${seat(0)}${seat(1)}${ctrl}
+    <div class="btnrow" style="margin-top:18px"><button class="btn ghost sm lanback">← Leave</button></div>`);
+  if(me===0){
+    const paint=()=>$('#lanLenRow').querySelectorAll('[data-len]').forEach(b=>b.className='btn sm '+(b.dataset.len===LAN.matchLen?'':'ghost'));
+    paint();$('#lanLenRow').querySelectorAll('[data-len]').forEach(b=>b.onclick=()=>{LAN.matchLen=b.dataset.len;paint();});
+    const st=$('#lanStart');if(st&&!st.disabled)st.onclick=()=>{st.disabled=true;lanAct('startMatch',{len:LAN.matchLen});};
+  }
+}
+
+/* ---- stage build/patch ---- */
+function lanBuildStage(stage){
+  LAN.timed=false;LAN.submitted=false;LAN.best='';
+  const r=LAN.room;
+  if(r.roundType==='letters')return stage==='pick'?lanLettersPick():lanLettersPlay();
+  if(r.roundType==='numbers')return stage==='pick'?lanNumbersPick():lanNumbersPlay();
+  return lanConundrum();
+}
+function lanPatchStage(stage){
+  const r=LAN.room;
+  if(r.roundType==='letters'){stage==='pick'?lanPatchLettersPick():lanPatchPlay();}
+  else if(r.roundType==='numbers'){if(stage!=='pick')lanPatchPlay();}
+}
+function lanStartPlayTimer(onEnd){if(LAN.timed||LAN.seat<0)return;LAN.timed=true;startTimer(30,onEnd);}
+function lanShowWaiting(){const s=$('#lanOppStatus');if(s)s.innerHTML='⏳ Time! Waiting for your opponent to finish…';}
+function lanPatchPlay(){const r=LAN.room,s=$('#lanOppStatus');if(!s)return;const ot=1-LAN.seat;
+  if(LAN.submitted)s.innerHTML=r.submitted[ot]?'✔ Both in — revealing…':'⏳ Waiting for your opponent…';
+  else if(r.submitted[ot])s.innerHTML='🔔 Your opponent has locked in their answer!';}
+
+/* letters */
+function lanLettersPick(){
+  const r=LAN.room,mine=LAN.seat===r.picker,pn=r.players[r.picker]?r.players[r.picker].name:'Player';
+  setLanBody(`<div class="roundmeta">Round ${r.roundIndex+1} · Letters</div>
+    <div class="center" style="color:var(--mut);margin-bottom:6px">${mine?'Your choice — pick nine letters (at least three vowels and four consonants).':pn+' is choosing the letters…'}</div>
+    <div id="rachelStage"></div>
+    <div class="board" id="lanLetterBoard"></div><div class="btnrow" id="lanPickRow"></div>`);
+  LAN._rachelShown=0;
+  LAN._lanLetShown=0;
+  Rachel.mount($('#rachelStage'), mine?"Your pick — call vowel or consonant and I'll put them up.":pn+" is choosing. I'll put them up as they come.");
+  lanPatchLettersPick();
+}
+function lanPatchLettersPick(){
+  const r=LAN.room,bd=$('#lanLetterBoard');if(!bd)return;bd.innerHTML='';
+  const prevShown=LAN._lanLetShown||0;
+  for(let i=0;i<9;i++){const L=r.letters[i];const t=el('div','tile'+(L?'':' empty'),L?L.toUpperCase():'');bd.appendChild(t);if(L&&i>=prevShown){if(i===prevShown)sFlip();spinTile(t,L);}}
+  LAN._lanLetShown=r.letters.length;
+  const row=$('#lanPickRow'),mine=LAN.seat===r.picker;
+  if(mine&&r.letters.length<9){
+    row.innerHTML=`<button class="btn" id="lpV">Vowel</button><button class="btn ghost" id="lpC">Consonant</button><button class="btn ghost" id="lpA">Auto-pick rest</button>`;
+    const left=9-r.letters.length,v=r.vowels,c=r.cons;
+    $('#lpV').disabled=left===0||v>=5||left<=(4-c);
+    $('#lpC').disabled=left===0||c>=6||left<=(3-v);
+    $('#lpV').onclick=()=>lanAct('pickLetter',{kind:'v'});
+    $('#lpC').onclick=()=>lanAct('pickLetter',{kind:'c'});
+    $('#lpA').onclick=()=>lanAct('pickLetter',{kind:'auto'});
+  }else row.innerHTML=r.letters.length<9?`<div class="waiting">Tiles chosen: ${r.letters.length}/9</div>`:'';
+  // Rachel announces any letters that have appeared since last patch
+  if(Rachel.enabled && $('#rachelStage')){
+    const shown=LAN._rachelShown||0;
+    if(r.letters.length>shown){
+      for(let i=shown;i<r.letters.length;i++){
+        const ch=r.letters[i].toLowerCase();
+        setTimeout(()=>{ if($('#rachelStage')) Rachel.place(rachelLetterLine(ch,kindOf(ch),i,9)); },(i-shown)*130);
+      }
+      LAN._rachelShown=r.letters.length;
+    }
+  }
+}
+function lanLettersPlay(){
+  const r=LAN.room;LAN.avail=letterCounts(r.letters);LAN.best='';
+  setLanBody(`<div class="roundmeta">Round ${r.roundIndex+1} · Letters — 30 seconds!</div>
+    <div class="clockwrap"><div id="clockHolder"></div></div>
+    <div class="hintline center" style="color:var(--mut);margin-bottom:2px">Drag to rearrange · tap a letter or type · then Declare</div>
+    <div id="rackMount"></div>
+    <div class="feedback" id="lanWFb"></div><div class="best-so-far" id="lanWBest">Your best word: <b>—</b></div>
+    <div class="center" id="lanOppStatus" style="color:var(--mut);margin-top:8px"></div>`);
+  drawClock(30,30);
+  LAN.rack=makeLetterRack({
+    mount:$('#rackMount'),
+    letters:r.letters,
+    submitLabel:'Declare',
+    placeholder:'tap letters or type your word',
+    onSubmit:(w)=>lanTryWord(w)
+  });
+  lanStartPlayTimer(lanSubmitLetters);lanPatchPlay();
+}
+function lanTryWord(w){
+  if(LAN.submitted)return;const fb=$('#lanWFb');w=(w||'').trim().toLowerCase();if(!w)return;
+  if(!/^[a-z]+$/.test(w)){fb.className='feedback bad';fb.textContent='Letters only.';return;}
+  if(!canForm(w,LAN.avail)){fb.className='feedback bad';fb.textContent="You can't make that from these tiles.";sBad();if(LAN.rack)LAN.rack.clear();return;}
+  if(!VALID.has(w)){fb.className='feedback bad';fb.textContent='"'+w.toUpperCase()+'" isn\'t in the dictionary.';sBad();if(LAN.rack)LAN.rack.clear();return;}
+  if(w.length>LAN.best.length){LAN.best=w;sGood();fb.className='feedback good';fb.textContent='Lovely — '+w.toUpperCase()+' ('+w.length+')!';$('#lanWBest').innerHTML='Your best word: <b>'+w.toUpperCase()+' ('+scoreWord(w)+' pts)</b>';}
+  else{fb.className='feedback good';fb.textContent=w.toUpperCase()+' is valid, but shorter than your best.';}
+  if(LAN.rack)LAN.rack.clear();
+}
+function lanSubmitLetters(){
+  if(LAN.submitted)return;LAN.submitted=true;
+  if(LAN.rack)LAN.rack.disable();
+  lanAct('submit',{word:LAN.best});lanShowWaiting();
+}
+
+/* numbers */
+function lanNumbersPick(){
+  const r=LAN.room,mine=LAN.seat===r.picker,pn=r.players[r.picker]?r.players[r.picker].name:'Player';
+  setLanBody(`<div class="roundmeta">Round ${r.roundIndex+1} · Numbers</div>
+    <div class="center" style="color:var(--mut);margin-bottom:6px">${mine?'Your choice — how many big numbers? (from 25, 50, 75, 100)':pn+' is choosing the numbers…'}</div>
+    <div id="rachelStage"></div>
+    <div class="largepick" id="lanLargePick"></div>`);
+  Rachel.mount($('#rachelStage'), mine?"How many big ones — none, up to four?":pn+" is choosing how many big numbers…");
+  const lp=$('#lanLargePick');
+  if(mine)[0,1,2,3,4].forEach(n=>{const b=el('button','btn ghost',String(n));b.onclick=()=>lanAct('dealNumbers',{large:n});lp.appendChild(b);});
+  else lp.innerHTML='<div class="waiting">Waiting…</div>';
+}
+function lanNumbersPlay(){
+  const r=LAN.room;LAN.ntarget=r.target;
+  LAN.nt=bigLeft(r.numbers).map((v,i)=>({id:i,val:v,expr:String(v),used:false,origin:true}));
+  LAN.nstack=[];LAN.nselA=null;LAN.nselOp=null;LAN.nbest=null;LAN.nbestDist=Infinity;
+  LAN.nt.forEach(t=>lanConsider(t.val));
+  setLanBody(`<div class="roundmeta">Round ${r.roundIndex+1} · Numbers — 30 seconds!</div>
+    <div class="target"><div class="lbl">Target</div><div class="val">${r.target}</div></div>
+    <div class="clockwrap"><div id="clockHolder"></div></div><div class="board" id="lanNB"></div>
+    <div class="ops" id="lanOps">${['+','-','×','÷'].map(o=>`<button class="opbtn" data-op="${o}">${o}</button>`).join('')}<button class="opbtn" id="lanUndo">↶</button><button class="opbtn" id="lanReset">⟳</button></div>
+    <div class="feedback" id="lanNFb">Tap a number, an operator, then another number.</div>
+    <div class="best-so-far" id="lanNBest">Closest so far: <b>—</b></div>
+    <div class="center" id="lanOppStatus" style="color:var(--mut);margin-top:8px"></div>`);
+  drawClock(30,30);lanRenderNTiles();
+  $('#lanOps').querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>{LAN.nselOp=b.dataset.op;$('#lanOps').querySelectorAll('[data-op]').forEach(x=>x.classList.toggle('sel',x===b));});
+  $('#lanUndo').onclick=lanUndo;$('#lanReset').onclick=lanReset;
+  lanUpdateNBest();lanStartPlayTimer(lanSubmitNumbers);lanPatchPlay();
+}
+function lanConsider(v){if(!Number.isInteger(v)||v<1)return;const d=Math.abs(v-LAN.ntarget);if(d<LAN.nbestDist){LAN.nbestDist=d;LAN.nbest=v;}}
+function lanRenderNTiles(){const bd=$('#lanNB');if(!bd)return;bd.innerHTML='';LAN.nt.forEach(t=>{const cls='tile num ntile'+(t.used?' used':'')+(t.origin?'':' result')+(LAN.nselA===t.id?' sel':'');const d=el('div',cls,String(t.val));if(!t.used)d.onclick=()=>lanTapTile(t.id);bd.appendChild(d);});}
+function lanTapTile(id){
+  if(LAN.submitted)return;const t=LAN.nt.find(x=>x.id===id);if(!t||t.used)return;
+  if(LAN.nselA===null){LAN.nselA=id;lanRenderNTiles();sFlip();return;}
+  if(LAN.nselA===id){LAN.nselA=null;lanRenderNTiles();return;}
+  const f=$('#lanNFb');if(!LAN.nselOp){f.className='feedback bad';f.textContent='Choose an operator first.';return;}
+  const a=LAN.nt.find(x=>x.id===LAN.nselA),op=LAN.nselOp;let val,ok=true;
+  if(op==='+')val=a.val+t.val;else if(op==='-'){val=a.val-t.val;if(val<=0)ok=false;}else if(op==='×')val=a.val*t.val;else{if(t.val===0||a.val%t.val!==0)ok=false;else val=a.val/t.val;}
+  if(!ok){f.className='feedback bad';f.textContent=op==='-'?'That goes to zero or below.':'Division must be exact.';sBad();LAN.nselA=null;LAN.nselOp=null;lanClearOp();lanRenderNTiles();return;}
+  a.used=true;t.used=true;const nid=LAN.nt.length;LAN.nt.push({id:nid,val,expr:'('+a.expr+' '+op+' '+t.expr+')',used:false,origin:false});LAN.nstack.push({a:a.id,b:t.id,nid});lanConsider(val);beep(700,0.05,'triangle',0.06);
+  LAN.nselA=null;LAN.nselOp=null;lanClearOp();lanRenderNTiles();lanUpdateNBest();
+  f.className='feedback';f.textContent=val===LAN.ntarget?'🎯 That\'s the target!':'Made '+val+'.';
+}
+function lanClearOp(){const o=$('#lanOps');if(o)o.querySelectorAll('[data-op]').forEach(b=>b.classList.remove('sel'));}
+function lanUndo(){const last=LAN.nstack.pop();if(!last)return;const nt=LAN.nt.find(x=>x.id===last.nid);if(nt&&!nt.used){LAN.nt=LAN.nt.filter(x=>x.id!==last.nid);LAN.nt.find(x=>x.id===last.a).used=false;LAN.nt.find(x=>x.id===last.b).used=false;LAN.nselA=null;LAN.nselOp=null;lanClearOp();lanRenderNTiles();}else LAN.nstack.push(last);}
+function lanReset(){LAN.nt=bigLeft(LAN.room.numbers).map((v,i)=>({id:i,val:v,expr:String(v),used:false,origin:true}));LAN.nstack=[];LAN.nselA=null;LAN.nselOp=null;lanClearOp();lanRenderNTiles();const f=$('#lanNFb');f.className='feedback';f.textContent='Reset.';}
+function lanUpdateNBest(){const nb=$('#lanNBest');if(!nb)return;if(LAN.nbest==null){nb.innerHTML='Closest so far: <b>—</b>';return;}nb.innerHTML='Closest so far: <b>'+LAN.nbest+'</b> ('+(LAN.nbestDist===0?'spot on!':LAN.nbestDist+' away')+')';}
+function lanSubmitNumbers(){if(LAN.submitted)return;LAN.submitted=true;const o=$('#lanOps');if(o)o.querySelectorAll('button').forEach(b=>b.disabled=true);const nb=$('#lanNB');if(nb)nb.querySelectorAll('.ntile').forEach(t=>t.onclick=null);lanAct('submit',{value:LAN.nbest});lanShowWaiting();}
+
+/* conundrum */
+function lanConundrum(){
+  const r=LAN.room;
+  setLanBody(`<div class="roundmeta">Round ${r.roundIndex+1} · The Conundrum</div>
+    <div class="center" style="color:var(--mut);margin-bottom:6px">One nine-letter word. First to buzz in correctly wins 10!</div>
+    <div class="board" id="lanCB"></div><div class="clockwrap"><div id="clockHolder"></div></div>
+    <div class="inputrow"><input type="text" id="lanCon" placeholder="the word" maxlength="9" autocomplete="off"><button class="btn" id="lanConGo">Buzz!</button></div>
+    <div class="feedback" id="lanCFb"></div>`);
+  const bd=$('#lanCB');(r.scram||'').split('').forEach(c=>bd.appendChild(el('div','tile',c.toUpperCase())));
+  drawClock(30,30);const inp=$('#lanCon');inp.focus();
+  const go=()=>lanBuzz(inp.value.trim().toLowerCase());
+  $('#lanConGo').onclick=go;inp.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+  lanStartPlayTimer(()=>{});
+}
+function lanBuzz(w){
+  if(LAN.submitted)return;const fb=$('#lanCFb'),inp=$('#lanCon');
+  if(!w||w.length!==9){fb.className='feedback bad';fb.textContent='Needs all nine letters.';return;}
+  lanAct('buzz',{word:w}).then(res=>{
+    if(res&&res.buzzAccepted){LAN.submitted=true;fb.className='feedback good';fb.textContent='YES! '+w.toUpperCase()+' — 10 points!';sGood();}
+    else{fb.className='feedback bad';fb.textContent='Not quite — keep going!';sBad();inp.value='';}});
+}
+
+/* reveal + match over */
+function lanBuildReveal(){
+  const r=LAN.room;stopTimer();const res=r.result||{subs:[{},{}]};
+  const n0=r.players[0]?r.players[0].name:'Player 1',n1=r.players[1]?r.players[1].name:'Player 2';
+  let body='';
+  if(r.roundType==='letters'){
+    const w0=(res.subs[0].word||''),w1=(res.subs[1].word||'');
+    const formable=formableWords(r.letters);
+    const sorted=[...new Set(formable)].sort((a,b)=>b.length-a.length||(RANK.get(a)??1e9)-(RANK.get(b)??1e9));
+    const best=[],seen={};for(const w of sorted){if((seen[w.length]||0)<2){best.push(w);seen[w.length]=(seen[w.length]||0)+1;}if(best.length>=6)break;}
+    body=`<div class="board">${r.letters.map(L=>'<div class="tile">'+L.toUpperCase()+'</div>').join('')}</div>
+      <div class="declared"><div class="col"><div class="t">${n0}</div><div class="v ${res.winner===0?'win':''}">${w0?w0.toUpperCase()+' ('+res.subs[0].pts+')':'—'}</div></div>
+      <div class="col"><div class="t">${n1}</div><div class="v ${res.winner===1?'win':''}">${w1?w1.toUpperCase()+' ('+res.subs[1].pts+')':'—'}</div></div></div>
+      <div class="panel host"><h3>📖 ${HOST_LETTERS.title} <span style="color:var(--mut);font-weight:400;font-size:.85rem">with ${HOST_LETTERS.name}</span></h3>
+      <div class="host-sub">The best words available:</div>
+      <div class="wordlist">${best.map((w,i)=>'<div class="wchip '+(i===0?'best':'')+'">'+w.toUpperCase()+'<small>'+scoreWord(w)+'pts</small></div>').join('')||'<i>None.</i>'}</div></div>`;
+  }else if(r.roundType==='numbers'){
+    const v0=res.subs[0].value,v1=res.subs[1].value;
+    const sol=solveNumbers(r.numbers,r.target);
+    const closest=closestSolution(sol);
+    const steps=closest?exprToSteps(closest.expr):[];
+    const lead=!closest?("No combination gets near "+r.target+'.')
+      :(closest.val===r.target?('There\'s a way to hit '+r.target+' exactly:')
+      :(r.target+" can't be made exactly. Closest is "+closest.val+' ('+Math.abs(closest.val-r.target)+' away):'));
+    body=`<div class="target"><div class="lbl">Target</div><div class="val">${r.target}</div></div>
+      <div class="board">${bigLeft(r.numbers).map(n=>'<div class="tile num">'+n+'</div>').join('')}</div>
+      <div class="declared"><div class="col"><div class="t">${n0}</div><div class="v ${res.winner===0?'win':''}">${v0==null?'—':v0+' ('+res.subs[0].pts+')'}</div></div>
+      <div class="col"><div class="t">${n1}</div><div class="v ${res.winner===1?'win':''}">${v1==null?'—':v1+' ('+res.subs[1].pts+')'}</div></div></div>
+      <div class="panel host"><h3>🧮 ${HOST_NUMBERS.title} <span style="color:var(--mut);font-weight:400;font-size:.85rem">with ${HOST_NUMBERS.name}</span></h3>
+      <div class="host-sub">${lead}</div><div class="solution">${steps.map(s=>'<span class="eq">'+s+'</span>').join('<br>')}</div></div>`;
+  }else{
+    const word=res.conWord||'',ws=res.winner;
+    const who=ws==null?'Nobody got it':(ws===LAN.seat?'You got it!':((r.players[ws]?r.players[ws].name:'Opponent')+' got it'));
+    body=`<div class="board">${word.split('').map(c=>'<div class="tile">'+c.toUpperCase()+'</div>').join('')}</div>
+      <div class="center" style="font-size:1.15rem;margin:10px 0">${who} — <b>${word.toUpperCase()}</b></div>`;
+  }
+  const last=r.roundIndex>=r.rounds.length-1;
+  setLanBody(`<div class="roundmeta">Round ${r.roundIndex+1} result</div>${body}
+    <div class="btnrow" style="margin-top:20px"><button class="btn" id="lanNext">${last?'See the result →':'Next round →'}</button></div>`);
+  cascadeFlip(($('#lanBody')||document).querySelector('.board'));
+  $('#lanNext').onclick=()=>{$('#lanNext').disabled=true;$('#lanNext').textContent='…';lanAct('next');};
+}
+function lanBuildOver(){
+  const r=LAN.room;stopTimer();const s0=r.scores[0],s1=r.scores[1];
+  const meWin=(LAN.seat===0&&s0>s1)||(LAN.seat===1&&s1>s0),draw=s0===s1;
+  const cls=draw?'draw':(meWin?'win':'lose'),title=draw?"It's a tie!":(meWin?'You win! 🏆':'Beaten this time');
+  const n0=r.players[0]?r.players[0].name:'Player 1',n1=r.players[1]?r.players[1].name:'Player 2',host=LAN.seat===0;
+  setLanBody(`<div class="result-banner ${cls}">${title}</div>
+    <p style="color:var(--mut);text-align:center;margin-bottom:8px">${n0} ${s0} : ${s1} ${n1}</p>
+    <div class="careerhud" style="justify-content:center"><div class="stat"><div class="t">Tonight</div><div class="v">${r.night.wins[0]}–${r.night.wins[1]}</div></div><div class="stat"><div class="t">Matches</div><div class="v">${r.night.matches}</div></div></div>
+    <div class="btnrow" style="margin-top:18px">${host?'<button class="btn" id="lanRematch">Rematch →</button>':'<div class="waiting">Waiting for the host to start a rematch…</div>'}<button class="btn ghost lanback">Leave</button></div>`);
+  if(host){const rb=$('#lanRematch');if(rb)rb.onclick=()=>{rb.disabled=true;lanAct('rematch');};}
+  if(meWin) confettiBurst();
+}
+
+// apply the player's saved tile set (Trophy Cabinet cosmetic)
+try{ applyTheme(careerLoad().theme); }catch(e){}
+
+// decorative menu tiles
+(function(){
+  const word='COUNTDOWN'.split(''); const c=$('#menuTiles');
+  word.forEach((ch,i)=>{ const t=el('div','tile',ch); t.style.animationDelay=(i*0.06)+'s'; t.classList.add('flip'); c.appendChild(t); });
+})();
+</script>
+</body>
+</html>
