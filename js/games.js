@@ -116,6 +116,17 @@ const GAMES = [
     accentColor: "#2ecc71",
     status: "playable",
   }, 
+           {
+    id: "tipping",
+    title: "Tipping Point",
+    subtitle: "Game Show",
+    category: "strategy",
+    players: "1",
+    duration: "10-20 min",
+    icon: "🧙‍♂️",
+    accentColor: "#c9a84c",
+    status: "playable",
+  },
   {
     id: "wotr-cardgame",
     title: "War of the Rings",
@@ -125,7 +136,7 @@ const GAMES = [
     duration: "45–90 min",
     icon: "🧙‍♂️",
     accentColor: "#c9a84c",
-    status: "In Progress",
+    status: "playable",
   },
      {
     id: "wotr",
