@@ -1,0 +1,2552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tipping Point — Fan Quiz Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Archivo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#070a1e;
+  --stage:#12173d;
+  --panel:#1b2159;
+  --panel-2:#232a6e;
+  --violet:#6c3df4;
+  --rose:#ff3d7f;
+  --gold:#f5b62e;
+  --gold-dk:#b97f10;
+  --cyan:#43e8ff;
+  --text:#f2f0ff;
+  --muted:#9aa2d8;
+  --good:#3ddc84;
+  --bad:#ff5a5a;
+  --disp:'Bungee', 'Arial Black', sans-serif;
+  --body:'Archivo', 'Segoe UI', sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:
+    radial-gradient(1200px 600px at 50% -10%, #2a2070 0%, transparent 60%),
+    radial-gradient(900px 500px at 85% 110%, #3a1050 0%, transparent 60%),
+    var(--ink);
+  color:var(--text);
+  font-family:var(--body);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+#app{max-width:1180px;margin:0 auto;padding:14px 14px 30px}
+
+/* ---------- header ---------- */
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 2px 14px}
+.logo{font-family:var(--disp);font-size:clamp(20px,3.4vw,34px);letter-spacing:1px;line-height:1;
+  background:linear-gradient(180deg,#ffe9a8 0%, var(--gold) 45%, #ff6d3d 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 0 rgba(0,0,0,.55)) drop-shadow(0 0 18px rgba(245,182,46,.35));
+}
+.logo small{display:block;font-family:var(--body);font-weight:800;font-size:11px;letter-spacing:4px;color:var(--cyan);-webkit-text-fill-color:var(--cyan);margin-top:4px}
+.hdr-right{display:flex;gap:8px;align-items:center}
+.chip{font-size:12px;font-weight:600;color:var(--muted);background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:6px 12px}
+button.icon{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:var(--text);border-radius:10px;padding:7px 11px;cursor:pointer;font-size:15px}
+button.icon:hover{background:rgba(255,255,255,.12)}
+
+/* ---------- layout ---------- */
+.stage{display:grid;grid-template-columns:minmax(0,58%) minmax(0,42%);gap:16px;align-items:start}
+@media (max-width:900px){.stage{grid-template-columns:1fr}}
+
+/* ---------- machine ---------- */
+.machine-wrap{background:linear-gradient(180deg,#171d4e,#0d1233);border:1px solid rgba(245,182,46,.4);
+  border-radius:18px;padding:12px;box-shadow:0 20px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.06);position:relative}
+.machine-title{display:flex;justify-content:space-between;align-items:center;padding:2px 6px 10px}
+.machine-title span{font-family:var(--disp);font-size:13px;color:var(--cyan);letter-spacing:2px}
+.machine-title em{font-style:normal;font-size:12px;color:var(--muted)}
+#machineCanvas{width:100%;height:auto;display:block;border-radius:12px;background:#08080d;cursor:pointer}
+.zones{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.zone-btn{font-family:var(--disp);font-size:13px;letter-spacing:1px;padding:12px 4px;border-radius:12px;cursor:pointer;
+  color:#1a1230;background:linear-gradient(180deg,#ffe9a8,var(--gold));border:1px solid #8a5f00;
+  box-shadow:0 4px 0 var(--gold-dk), 0 8px 18px rgba(245,182,46,.25);transition:transform .08s, box-shadow .08s, filter .2s}
+.zone-btn:hover:not(:disabled){transform:translateY(-2px)}
+.zone-btn:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 var(--gold-dk)}
+.zone-btn:disabled{filter:grayscale(.9) brightness(.55);cursor:default;box-shadow:none}
+.drops-left{margin-top:8px;text-align:center;font-size:13px;color:var(--muted);min-height:18px}
+.drops-left b{color:var(--gold)}
+
+/* ---------- host + question ---------- */
+.right-col{display:flex;flex-direction:column;gap:14px}
+.host{display:flex;gap:12px;align-items:flex-start;background:var(--panel);border:1px solid rgba(120,140,255,.2);border-radius:16px;padding:12px}
+.host-avatar{flex:0 0 58px;width:58px;height:58px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #4a55d8, #232a6e 70%);
+  border:2px solid var(--cyan);display:grid;place-items:center;font-size:28px;box-shadow:0 0 16px rgba(67,232,255,.35)}
+.host-body{min-width:0}
+.host-name{font-family:var(--disp);font-size:12px;color:var(--cyan);letter-spacing:2px;margin-bottom:4px}
+.host-speech{font-size:15px;line-height:1.45;min-height:44px}
+
+.qcard{background:var(--panel);border:1px solid rgba(120,140,255,.2);border-radius:16px;padding:14px;display:none}
+.qcard.show{display:block}
+.q-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.q-cat{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#1a1230;background:var(--cyan);border-radius:999px;padding:4px 10px}
+.q-for{font-size:12px;color:var(--muted)}
+.q-text{font-size:17px;font-weight:600;line-height:1.4;margin-bottom:12px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:480px){.opts{grid-template-columns:1fr}}
+.opt{background:var(--panel-2);border:1px solid rgba(140,160,255,.3);color:var(--text);border-radius:12px;
+  padding:11px 12px;font-size:14px;font-weight:600;cursor:pointer;text-align:left;transition:background .12s, transform .08s}
+.opt:hover:not(:disabled){background:#2c358b;transform:translateY(-1px)}
+.opt:disabled{cursor:default;opacity:.85}
+.opt.correct{background:#134d31;border-color:var(--good);box-shadow:0 0 12px rgba(61,220,132,.35)}
+.opt.wrong{background:#4d1620;border-color:var(--bad)}
+.opt.dim{opacity:.35}
+.timer{height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:12px}
+.timer i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--cyan),var(--rose));transition:width .2s linear;border-radius:99px}
+
+/* ---------- players ---------- */
+.players{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+@media (max-width:700px){.players{grid-template-columns:repeat(2,1fr)}}
+.pod{background:linear-gradient(180deg,var(--panel),#141a45);border:1px solid rgba(120,140,255,.2);border-radius:14px;padding:10px;text-align:center;position:relative;transition:box-shadow .25s, border-color .25s, opacity .3s}
+.pod.active{border-color:var(--gold);box-shadow:0 0 0 2px rgba(245,182,46,.5), 0 0 24px rgba(245,182,46,.3)}
+.pod.out{opacity:.32;filter:grayscale(1)}
+.pod .pname{font-family:var(--disp);font-size:12px;letter-spacing:1px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pod .bank{font-size:20px;font-weight:800;color:var(--gold)}
+.pod .sub{font-size:11px;color:var(--muted);margin-top:2px}
+.pod .you-tag{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--rose);font-size:9px;font-weight:800;letter-spacing:1px;padding:2px 8px;border-radius:99px}
+.pod.out .out-stamp{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--disp);color:var(--bad);font-size:14px;letter-spacing:2px;transform:rotate(-8deg)}
+
+/* ---------- stage focus (spotlight the question or the machine) ---------- */
+.machine-wrap, .qcard, .host{transition:box-shadow .4s, opacity .4s, border-color .4s, filter .4s}
+.focus-glow{border-color:var(--cyan)!important;
+  box-shadow:0 0 0 2px rgba(67,232,255,.55), 0 0 36px rgba(67,232,255,.35), 0 20px 60px rgba(0,0,0,.5)!important}
+.focus-dim{opacity:.45;filter:saturate(.6)}
+
+/* ---------- roguelike run HUD ---------- */
+.run-hud{display:none;flex-direction:column;gap:10px;background:linear-gradient(180deg,var(--panel),#141a45);
+  border:1px solid rgba(120,140,255,.25);border-radius:16px;padding:12px 14px;margin-top:16px}
+.run-hud.show{display:flex}
+.run-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.run-round{font-family:var(--disp);font-size:13px;letter-spacing:2px;color:var(--cyan)}
+.run-round em{font-style:normal;color:var(--rose)}
+.run-money{font-family:var(--disp);font-size:20px;color:var(--gold)}
+.run-money small{font-size:12px;color:var(--muted);font-family:var(--body);font-weight:600}
+.run-bar{height:10px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+.run-bar i{display:block;height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--gold),var(--rose));transition:width .35s ease}
+.run-sub{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.run-sub b{color:var(--cyan)}
+.relic-bar{display:flex;gap:6px;flex-wrap:wrap;min-height:30px}
+.relic{width:30px;height:30px;display:grid;place-items:center;font-size:16px;border-radius:9px;cursor:help;
+  background:rgba(255,255,255,.06);border:1px solid rgba(245,182,46,.45);box-shadow:0 0 10px rgba(245,182,46,.15)}
+.relic-empty{font-size:11px;color:#5a6194;align-self:center}
+/* shop cards */
+.shop-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:8px 0 4px}
+@media (max-width:560px){.shop-cards{grid-template-columns:1fr}}
+.shop-card{background:linear-gradient(180deg,var(--panel-2),#171d52);border:1px solid rgba(140,160,255,.35);border-radius:14px;
+  padding:14px 10px;cursor:pointer;text-align:center;color:var(--text);transition:transform .1s, border-color .15s, box-shadow .15s}
+.shop-card:hover{transform:translateY(-3px);border-color:var(--gold);box-shadow:0 0 18px rgba(245,182,46,.3)}
+.shop-card .sc-icon{font-size:30px;margin-bottom:6px}
+.shop-card .sc-name{font-family:var(--disp);font-size:12px;letter-spacing:1px;color:var(--gold);margin-bottom:6px;line-height:1.25}
+.shop-card .sc-cat{display:inline-block;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#1a1230;background:var(--cyan);border-radius:99px;padding:2px 8px;margin-bottom:7px}
+.shop-card .sc-desc{font-size:12px;color:var(--muted);line-height:1.4}
+.combo-flash{position:absolute;left:50%;top:38%;transform:translateX(-50%);font-family:var(--disp);color:var(--cyan);
+  font-size:22px;letter-spacing:2px;pointer-events:none;text-shadow:0 0 14px rgba(67,232,255,.9);animation:rise 1.3s ease forwards;z-index:21;white-space:nowrap}
+.mode-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.q-skip{margin-top:10px;background:rgba(255,255,255,.07);border:1px solid rgba(140,160,255,.4);color:var(--cyan);
+  border-radius:10px;padding:8px 14px;font-size:12px;font-weight:800;letter-spacing:1px;cursor:pointer}
+.q-skip:hover{background:rgba(67,232,255,.15)}
+
+/* ---------- overlays ---------- */
+.overlay{position:fixed;inset:0;background:rgba(4,6,20,.86);backdrop-filter:blur(5px);display:none;z-index:50;padding:18px;
+  overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+/* flex + margin:auto on the panel centres it when it fits and lets it scroll from
+   the top when it doesn't — a plain place-items:center grid clips the overflow
+   unreachably, which hid the lower nomination buttons on short screens. */
+.overlay.show{display:flex;justify-content:center}
+.panel{background:linear-gradient(180deg,#1c2259,#101540);border:1px solid rgba(140,160,255,.3);border-radius:20px;
+  max-width:560px;width:100%;padding:28px 26px;text-align:center;box-shadow:0 30px 90px rgba(0,0,0,.6);margin:auto}
+.panel h1{font-family:var(--disp);font-size:clamp(26px,5vw,40px);line-height:1.05;margin-bottom:6px;
+  background:linear-gradient(180deg,#ffe9a8, var(--gold) 55%, #ff6d3d);-webkit-background-clip:text;background-clip:text;color:transparent}
+.panel h2{font-family:var(--disp);font-size:20px;color:var(--cyan);margin-bottom:12px}
+.panel p{color:var(--muted);font-size:15px;line-height:1.55;margin-bottom:12px}
+.panel p b{color:var(--text)}
+.panel input{width:100%;max-width:280px;background:#0c1030;border:1px solid rgba(140,160,255,.4);color:var(--text);
+  font-family:var(--body);font-size:16px;font-weight:600;text-align:center;border-radius:12px;padding:11px;margin:6px 0 16px;outline:none}
+.panel input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(67,232,255,.2)}
+.big-btn{font-family:var(--disp);font-size:16px;letter-spacing:1px;color:#1a1230;cursor:pointer;border:none;border-radius:14px;padding:14px 30px;
+  background:linear-gradient(180deg,#ffe9a8,var(--gold));box-shadow:0 5px 0 var(--gold-dk), 0 12px 30px rgba(245,182,46,.3);transition:transform .08s, box-shadow .08s}
+.big-btn:hover{transform:translateY(-2px)}
+.big-btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--gold-dk)}
+.big-btn.alt{background:linear-gradient(180deg,#8ff0ff,var(--cyan));box-shadow:0 5px 0 #0e7f95, 0 12px 30px rgba(67,232,255,.3)}
+/* nomination choices: compact so every opponent is reachable without scrolling */
+.nom-btn{width:100%;max-width:340px;font-size:14px;padding:11px 16px;letter-spacing:.5px}
+@media (max-height:720px){
+  .panel{padding:18px 18px}
+  .panel h2{margin-bottom:8px}
+  .panel p{font-size:14px;margin-bottom:9px}
+  .nom-btn{padding:9px 14px;font-size:13px}
+}
+.banner{position:fixed;left:0;right:0;top:34%;z-index:60;display:none;pointer-events:none;text-align:center}
+.banner.show{display:block;animation:bannerIn .5s ease}
+.banner span{display:inline-block;font-family:var(--disp);font-size:clamp(24px,6vw,52px);letter-spacing:2px;padding:14px 34px;border-radius:16px;
+  color:#1a1230;background:linear-gradient(180deg,#ffe9a8,var(--gold));box-shadow:0 20px 60px rgba(0,0,0,.6), 0 0 40px rgba(245,182,46,.5)}
+@keyframes bannerIn{from{transform:translateY(24px) scale(.9);opacity:0}to{transform:none;opacity:1}}
+.win-flash{position:absolute;font-family:var(--disp);color:var(--gold);font-size:15px;pointer-events:none;text-shadow:0 0 10px rgba(245,182,46,.8);animation:rise 1.1s ease forwards;z-index:20}
+@keyframes rise{from{transform:translateY(0);opacity:1}to{transform:translateY(-46px);opacity:0}}
+.footer-note{margin-top:18px;text-align:center;font-size:11px;color:#5a6194}
+@media (prefers-reduced-motion:reduce){
+  .banner.show{animation:none}.win-flash{animation-duration:.7s}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo">TIPPING POINT<small>FAN QUIZ GAME</small></div>
+    <div class="hdr-right">
+      <span class="chip" id="roundChip">Ready</span>
+      <span class="chip" id="bankChip">Bank: £0</span>
+      <button class="icon" id="muteBtn" title="Toggle sound">🔊</button>
+    </div>
+  </header>
+
+  <div class="stage">
+    <div class="machine-wrap">
+      <div class="machine-title"><span>THE MACHINE</span><em id="machineSub">Pick a drop zone — every counter over the edge = £50</em></div>
+      <canvas id="machineCanvas" width="960" height="560"></canvas>
+      <div class="zones">
+        <button class="zone-btn" data-zone="0" disabled>ZONE 1</button>
+        <button class="zone-btn" data-zone="1" disabled>ZONE 2</button>
+        <button class="zone-btn" data-zone="2" disabled>ZONE 3</button>
+        <button class="zone-btn" data-zone="3" disabled>ZONE 4</button>
+      </div>
+      <div class="drops-left" id="dropsLeft"></div>
+    </div>
+
+    <div class="right-col">
+      <div class="host">
+        <div class="host-avatar">🎙️</div>
+        <div class="host-body">
+          <div class="host-name">BEN — YOUR HOST</div>
+          <div class="host-speech" id="hostSpeech">Welcome to Tipping Point!</div>
+        </div>
+      </div>
+
+      <div class="qcard" id="qcard">
+        <div class="q-top">
+          <span class="q-cat" id="qCat">GENERAL</span>
+          <span class="q-for" id="qFor"></span>
+        </div>
+        <div class="q-text" id="qText"></div>
+        <div class="opts" id="qOpts"></div>
+        <div class="timer"><i id="timerBar"></i></div>
+      </div>
+
+      <div class="players" id="playersStrip"></div>
+
+      <div class="run-hud" id="runHud">
+        <div class="run-row">
+          <span class="run-round" id="runRound">ROUND 1 / 8</span>
+          <span class="run-money" id="runMoney">£0 <small>/ £40</small></span>
+        </div>
+        <div class="run-bar"><i id="runBar"></i></div>
+        <div class="run-sub">
+          <span>Drop tokens: <b id="runTokens">0</b></span>
+          <span>Next mult: <b id="runMult">×1</b></span>
+        </div>
+        <div class="relic-bar" id="relicBar"><span class="relic-empty">No power-ups yet — clear a round to earn one.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">A fan-made homage for personal fun. Counters: £50 each · Jackpot counter: £10,000.</div>
+</div>
+
+<div class="overlay show" id="titleOverlay">
+  <div class="panel">
+    <h1>TIPPING POINT</h1>
+    <h2>FAN QUIZ GAME</h2>
+    <p>Answer questions to earn counters, then drop them into the machine.
+       Push counters over the <b>tipping point</b> to bank <b>£50</b> each.
+       After every round the player with the <b>lowest bank is eliminated</b> —
+       survive to the final and chase the <b>£10,000 jackpot counter</b>.</p>
+    <p id="poolInfo" style="font-size:12px"></p>
+    <input id="nameInput" maxlength="14" placeholder="Your name" value="">
+    <div class="mode-btns">
+      <button class="big-btn" id="startBtn">CLASSIC GAME</button>
+      <button class="big-btn alt" id="runBtn">ROGUELIKE RUN</button>
+    </div>
+    <p style="font-size:12px;margin-top:12px"><b>Roguelike Run:</b> a solo, Balatro-style mode. Hit escalating cash targets,
+      trigger physics combos for multipliers, and draft power-ups between rounds. Miss a target and the run ends.</p>
+  </div>
+</div>
+
+<div class="overlay" id="msgOverlay">
+  <div class="panel">
+    <h2 id="msgTitle"></h2>
+    <p id="msgBody"></p>
+    <button class="big-btn" id="msgBtn">CONTINUE</button>
+  </div>
+</div>
+
+<div class="overlay" id="nomOverlay">
+  <div class="panel">
+    <h2>CORRECT!</h2>
+    <p id="nomBody"></p>
+    <div id="nomBtns" style="display:flex;flex-direction:column;gap:10px;align-items:center"></div>
+  </div>
+</div>
+
+<div class="overlay" id="endOverlay">
+  <div class="panel">
+    <h1 id="endTitle"></h1>
+    <p id="endBody"></p>
+    <button class="big-btn" id="againBtn">PLAY AGAIN</button>
+  </div>
+</div>
+
+<div class="overlay" id="shopOverlay">
+  <div class="panel" style="max-width:640px">
+    <h2 id="shopTitle">ROUND CLEARED!</h2>
+    <p id="shopBody"></p>
+    <div class="shop-cards" id="shopCards"></div>
+    <p style="font-size:11px;margin-top:8px">Power-ups last for the whole run.</p>
+  </div>
+</div>
+
+<div class="banner" id="banner"><span id="bannerText"></span></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   TIPPING POINT — FAN QUIZ GAME
+   Single-file game: quiz engine + coin-pusher machine physics.
+   ===================================================================== */
+
+/* ---------------------------------------------------------------
+   1. QUESTION BANK
+   Hand-written questions: [question, correct, wrong1, wrong2, wrong3, category]
+   A generator section below expands the pool past 1,000 questions.
+---------------------------------------------------------------- */
+const HAND_QUESTIONS = [
+// ---- GENERAL KNOWLEDGE ----
+["How many sides does a hexagon have?","Six","Five","Seven","Eight","General"],
+["What colour do you get by mixing blue and yellow paint?","Green","Purple","Orange","Brown","General"],
+["How many days are there in a leap year?","366","365","364","367","General"],
+["Which direction does a compass needle point?","North","South","East","West","General"],
+["How many strings does a standard guitar have?","Six","Four","Five","Seven","General"],
+["What is the tallest building in the world?","Burj Khalifa","Shanghai Tower","Empire State Building","The Shard","General"],
+["How many minutes are there in a full day?","1,440","1,240","1,540","960","General"],
+["Which month has 28 days in a common year?","February","January","April","June","General"],
+["What does 'www' stand for in a web address?","World Wide Web","Wide World Web","World Web Window","Web World Wide","General"],
+["How many cards are in a standard deck (without jokers)?","52","54","50","48","General"],
+["What is the currency of the United Kingdom?","Pound sterling","Euro","Dollar","Franc","General"],
+["How many wheels does a tricycle have?","Three","Two","Four","One","General"],
+["Which of these is a primary colour of light?","Red","Pink","Brown","Grey","General"],
+["What do bees collect from flowers?","Nectar","Water","Seeds","Leaves","General"],
+["How many zeros are in one million?","Six","Five","Seven","Eight","General"],
+["What is the name of the fairy in Peter Pan?","Tinker Bell","Silvermist","Periwinkle","Rosetta","General"],
+["Which hand is traditionally used for a wedding ring in the UK?","Left","Right","Either","Neither","General"],
+["How many players are on a chess board at the start, per side?","16","12","18","20","General"],
+["What is a baby kangaroo called?","Joey","Cub","Kit","Calf","General"],
+["Which fictional detective lives at 221B Baker Street?","Sherlock Holmes","Hercule Poirot","Miss Marple","Inspector Morse","General"],
+["What is the largest ocean on Earth?","Pacific","Atlantic","Indian","Arctic","General"],
+["How many hours are in three days?","72","48","64","96","General"],
+["What is the freezing point of water in Celsius?","0°C","10°C","-10°C","32°C","General"],
+["Which of these months has 30 days?","September","January","March","December","General"],
+["A score equals how many years?","20","10","25","50","General"],
+["What colour is a London bus?","Red","Blue","Green","Yellow","General"],
+["Which precious stone is traditionally given for a 60th anniversary?","Diamond","Ruby","Gold","Pearl","General"],
+["What is the emergency phone number in the UK?","999","911","000","112 only","General"],
+["What do you call a person who makes barrels?","Cooper","Fletcher","Mason","Tanner","General"],
+["What is the seventh letter of the English alphabet?","G","F","H","E","General"],
+
+// ---- GEOGRAPHY ----
+["Which is the longest river in the world by most measures?","Nile","Amazon","Yangtze","Mississippi","Geography"],
+["Which country has the largest population?","India","China","USA","Indonesia","Geography"],
+["Mount Everest sits on the border of Nepal and which country?","China","India","Bhutan","Pakistan","Geography"],
+["Which desert is the largest hot desert in the world?","Sahara","Gobi","Kalahari","Atacama","Geography"],
+["The Great Barrier Reef lies off the coast of which country?","Australia","Brazil","Mexico","Indonesia","Geography"],
+["Which US state is nicknamed the Sunshine State?","Florida","California","Texas","Arizona","Geography"],
+["Which country is both in Europe and Asia?","Turkey","Egypt","Morocco","Portugal","Geography"],
+["What is the smallest country in the world?","Vatican City","Monaco","San Marino","Liechtenstein","Geography"],
+["Which sea separates Europe from Africa?","Mediterranean","Baltic","Red Sea","North Sea","Geography"],
+["In which country would you find Machu Picchu?","Peru","Mexico","Chile","Bolivia","Geography"],
+["Which river flows through London?","Thames","Severn","Mersey","Tyne","Geography"],
+["What is the largest continent by area?","Asia","Africa","North America","Europe","Geography"],
+["Which country is home to the kangaroo?","Australia","New Zealand","South Africa","Argentina","Geography"],
+["The Eiffel Tower is in which city?","Paris","Lyon","Brussels","Marseille","Geography"],
+["Which African country was formerly known as Abyssinia?","Ethiopia","Kenya","Sudan","Ghana","Geography"],
+["Which mountain range separates France and Spain?","Pyrenees","Alps","Apennines","Carpathians","Geography"],
+["What is the capital of Scotland?","Edinburgh","Glasgow","Aberdeen","Dundee","Geography"],
+["Which island country lies south of India?","Sri Lanka","Maldives only","Madagascar","Fiji","Geography"],
+["The Panama Canal connects the Pacific with which ocean?","Atlantic","Indian","Arctic","Southern","Geography"],
+["Which is the largest of the Channel Islands?","Jersey","Guernsey","Alderney","Sark","Geography"],
+["In which country is the Taj Mahal?","India","Pakistan","Bangladesh","Nepal","Geography"],
+["Which US city is known as the Big Apple?","New York","Chicago","Los Angeles","Boston","Geography"],
+["Loch Ness is in which country?","Scotland","Ireland","Wales","England","Geography"],
+["Which country has a maple leaf on its flag?","Canada","Switzerland","Denmark","Norway","Geography"],
+["What is the longest river entirely in England?","Thames","Severn","Trent","Ouse","Geography"],
+["Which strait separates England and France at its narrowest?","Strait of Dover","Bering Strait","Strait of Gibraltar","Bosphorus","Geography"],
+["Which country's flag is a red circle on a white background?","Japan","China","South Korea","Vietnam","Geography"],
+["Which is the largest country in the world by area?","Russia","Canada","China","USA","Geography"],
+["The Alps do NOT run through which of these countries?","Portugal","Switzerland","Austria","Italy","Geography"],
+["Which city is known as the Eternal City?","Rome","Athens","Jerusalem","Cairo","Geography"],
+
+// ---- HISTORY ----
+["In which year did World War II end?","1945","1944","1946","1943","History"],
+["Who was the first President of the United States?","George Washington","Thomas Jefferson","Abraham Lincoln","John Adams","History"],
+["The Titanic sank in which year?","1912","1905","1918","1923","History"],
+["Which ancient civilisation built the pyramids at Giza?","Egyptians","Romans","Greeks","Aztecs","History"],
+["Who was the British Prime Minister for most of World War II?","Winston Churchill","Neville Chamberlain","Clement Attlee","Anthony Eden","History"],
+["In which year did the Berlin Wall fall?","1989","1991","1985","1979","History"],
+["The Battle of Hastings took place in which year?","1066","1266","966","1166","History"],
+["Who was the first man to walk on the Moon?","Neil Armstrong","Buzz Aldrin","Yuri Gagarin","Michael Collins","History"],
+["Which queen ruled England for most of the 16th century's second half?","Elizabeth I","Victoria","Mary I","Anne","History"],
+["The Great Fire of London happened in which year?","1666","1566","1766","1616","History"],
+["Which empire was ruled by Julius Caesar's successors?","Roman","Ottoman","Persian","Mongol","History"],
+["Who wrote the 95 Theses, sparking the Reformation?","Martin Luther","John Calvin","Henry VIII","Thomas More","History"],
+["Which ship carried the Pilgrims to America in 1620?","Mayflower","Santa Maria","Endeavour","Beagle","History"],
+["Who was the ancient Greek god of the sea?","Poseidon","Zeus","Apollo","Hades","History"],
+["Which country gifted the Statue of Liberty to the USA?","France","Britain","Spain","Italy","History"],
+["Henry VIII had how many wives?","Six","Four","Five","Seven","History"],
+["The Cold War was primarily between the USA and which country?","Soviet Union","China","Germany","Japan","History"],
+["Which explorer is credited with reaching the Americas in 1492?","Christopher Columbus","Ferdinand Magellan","Marco Polo","Vasco da Gama","History"],
+["Who was assassinated in Sarajevo in 1914, sparking WWI?","Archduke Franz Ferdinand","Kaiser Wilhelm","Tsar Nicholas II","Otto von Bismarck","History"],
+["Which Egyptian queen allied with Julius Caesar and Mark Antony?","Cleopatra","Nefertiti","Hatshepsut","Isis","History"],
+["The Magna Carta was signed in which year?","1215","1315","1115","1415","History"],
+["Which wall did the Romans build across northern England?","Hadrian's Wall","Offa's Dyke","Antonine Wall only","Berlin Wall","History"],
+["Who was the first female Prime Minister of the UK?","Margaret Thatcher","Theresa May","Barbara Castle","Liz Truss","History"],
+["Which city was buried by Mount Vesuvius in AD 79?","Pompeii","Athens","Carthage","Troy","History"],
+["The Hundred Years' War was fought between England and which country?","France","Spain","Germany","Scotland","History"],
+["Who led the Free French forces during World War II?","Charles de Gaulle","Napoleon III","Philippe Pétain","Georges Clemenceau","History"],
+["Which US President delivered the Gettysburg Address?","Abraham Lincoln","George Washington","Ulysses S. Grant","Andrew Johnson","History"],
+["In which decade did the first email get sent?","1970s","1980s","1960s","1990s","History"],
+["Which dynasty built most of the Great Wall of China seen today?","Ming","Qing","Han","Tang","History"],
+["Queen Victoria reigned for how many years?","63","50","70","45","History"],
+
+// ---- SCIENCE & NATURE ----
+["What is the chemical formula for water?","H2O","CO2","O2","H2O2","Science"],
+["What planet is known as the Red Planet?","Mars","Venus","Jupiter","Mercury","Science"],
+["What gas do plants absorb from the atmosphere?","Carbon dioxide","Oxygen","Nitrogen","Hydrogen","Science"],
+["How many bones are in the adult human body?","206","201","212","196","Science"],
+["What is the fastest land animal?","Cheetah","Lion","Greyhound","Pronghorn","Science"],
+["What force keeps us on the ground?","Gravity","Magnetism","Friction","Inertia","Science"],
+["Which organ pumps blood around the body?","Heart","Liver","Lungs","Kidneys","Science"],
+["What is the largest mammal on Earth?","Blue whale","African elephant","Giraffe","Orca","Science"],
+["How many legs does a spider have?","Eight","Six","Ten","Twelve","Science"],
+["What is the centre of an atom called?","Nucleus","Electron","Proton shell","Core ring","Science"],
+["At what temperature does water boil at sea level (Celsius)?","100°C","90°C","110°C","120°C","Science"],
+["Which vitamin does sunlight help the body produce?","Vitamin D","Vitamin C","Vitamin A","Vitamin B12","Science"],
+["What is the hardest natural substance?","Diamond","Granite","Steel","Quartz","Science"],
+["Which blood cells fight infection?","White blood cells","Red blood cells","Platelets","Plasma cells","Science"],
+["What is the closest star to Earth?","The Sun","Proxima Centauri","Sirius","Alpha Centauri A","Science"],
+["Which animal is known for having a pouch?","Kangaroo","Rhino","Hippo","Zebra","Science"],
+["How many hearts does an octopus have?","Three","One","Two","Four","Science"],
+["What do you call animals that eat only plants?","Herbivores","Carnivores","Omnivores","Insectivores","Science"],
+["Which planet has the most prominent rings?","Saturn","Jupiter","Uranus","Neptune","Science"],
+["What is the study of weather called?","Meteorology","Geology","Astronomy","Ecology","Science"],
+["Sound travels fastest through which medium?","Solids","Air","A vacuum","Gases","Science"],
+["What is the largest organ of the human body?","Skin","Liver","Brain","Lungs","Science"],
+["Which bird is the fastest in a dive?","Peregrine falcon","Golden eagle","Swift","Albatross","Science"],
+["What is the main gas in Earth's atmosphere?","Nitrogen","Oxygen","Carbon dioxide","Argon","Science"],
+["A group of lions is called a what?","Pride","Pack","Herd","Flock","Science"],
+["Which scientist proposed the theory of general relativity?","Albert Einstein","Isaac Newton","Stephen Hawking","Niels Bohr","Science"],
+["How many teeth does an adult human typically have?","32","28","30","36","Science"],
+["What is the process by which plants make food called?","Photosynthesis","Respiration","Digestion","Fermentation","Science"],
+["Which metal is liquid at room temperature?","Mercury","Lead","Aluminium","Tin","Science"],
+["Which part of the eye controls how much light enters?","Iris","Retina","Cornea","Lens","Science"],
+["What type of animal is a Komodo dragon?","Lizard","Snake","Crocodile","Amphibian","Science"],
+["How long does Earth take to orbit the Sun?","365.25 days","364 days","360 days","366.5 days","Science"],
+["Which gas makes up most of the Sun?","Hydrogen","Helium","Oxygen","Nitrogen","Science"],
+["What is a baby frog called?","Tadpole","Fry","Pup","Chick","Science"],
+["Which scientist is famous for the theory of evolution by natural selection?","Charles Darwin","Gregor Mendel","Louis Pasteur","Alexander Fleming","Science"],
+
+// ---- SPORT ----
+["How many players are on a football (soccer) team on the pitch?","11","10","12","9","Sport"],
+["In which sport would you perform a slam dunk?","Basketball","Volleyball","Netball","Handball","Sport"],
+["How often are the Summer Olympic Games held?","Every 4 years","Every 2 years","Every 3 years","Every 5 years","Sport"],
+["Which country hosts the Wimbledon tennis championships?","England","France","USA","Australia","Sport"],
+["In golf, what is one stroke under par called?","Birdie","Eagle","Bogey","Albatross","Sport"],
+["How many points is a try worth in rugby union?","5","3","4","6","Sport"],
+["Which sport uses the terms 'strike' and 'spare'?","Ten-pin bowling","Baseball","Cricket","Darts","Sport"],
+["In which sport is the Ashes contested?","Cricket","Rugby","Football","Rowing","Sport"],
+["How many rings are on the Olympic flag?","Five","Four","Six","Seven","Sport"],
+["What is the maximum break in snooker?","147","155","150","145","Sport"],
+["Which boxer was known as 'The Greatest'?","Muhammad Ali","Mike Tyson","Joe Frazier","Rocky Marciano","Sport"],
+["In tennis, what score comes after deuce if you win a point?","Advantage","Game","40-30","Match point","Sport"],
+["How long is a marathon (to the nearest mile)?","26 miles","24 miles","28 miles","30 miles","Sport"],
+["Which country won the first FIFA World Cup in 1930?","Uruguay","Brazil","Argentina","Italy","Sport"],
+["In darts, what is the highest score with a single dart?","60","50","57","100","Sport"],
+["Which race is known as 'The Greatest Steeplechase in the World'?","Grand National","Epsom Derby","Royal Ascot Gold Cup","Cheltenham Gold Cup","Sport"],
+["How many players are on a netball team on court?","7","6","8","9","Sport"],
+["Which sport is played at Twickenham?","Rugby union","Football","Cricket","Hockey","Sport"],
+["In which sport would you use a shuttlecock?","Badminton","Squash","Table tennis","Lacrosse","Sport"],
+["How many holes are played in a standard round of golf?","18","16","20","12","Sport"],
+["The Tour de France is a race in which sport?","Cycling","Running","Motor racing","Sailing","Sport"],
+["Which colour jersey does the Tour de France leader wear?","Yellow","Green","White","Polka dot","Sport"],
+["In football, which country has won the most World Cups?","Brazil","Germany","Italy","Argentina","Sport"],
+["What shape is a boxing ring?","Square","Circle","Octagon","Hexagon","Sport"],
+["How many periods are in an ice hockey game?","Three","Two","Four","Five","Sport"],
+["Which club plays home games at Old Trafford?","Manchester United","Manchester City","Liverpool","Leeds United","Sport"],
+["In cricket, how many balls are in an over?","Six","Five","Seven","Eight","Sport"],
+["Usain Bolt set world records in which events?","100m and 200m","100m and 400m","200m and 400m","100m only","Sport"],
+["Which Grand Slam tennis tournament is played on clay?","French Open","Wimbledon","US Open","Australian Open","Sport"],
+["A perfect score from one gymnastics judge was traditionally what?","10","9","12","20","Sport"],
+
+// ---- ENTERTAINMENT & FILM ----
+["Which wizard attends Hogwarts School?","Harry Potter","Gandalf","Merlin","Frodo","Entertainment"],
+["In The Lion King, what is Simba's father called?","Mufasa","Scar","Rafiki","Zazu","Entertainment"],
+["Which film features a great white shark terrorising Amity Island?","Jaws","The Meg","Deep Blue Sea","Sharknado","Entertainment"],
+["Who directed E.T. and Jurassic Park?","Steven Spielberg","George Lucas","James Cameron","Ridley Scott","Entertainment"],
+["Which toy cowboy stars in Toy Story?","Woody","Buzz","Rex","Slinky","Entertainment"],
+["In which city is the TV soap EastEnders set?","London","Manchester","Liverpool","Birmingham","Entertainment"],
+["Which actor played Jack in Titanic?","Leonardo DiCaprio","Brad Pitt","Johnny Depp","Matt Damon","Entertainment"],
+["What is the name of the snowman in Frozen?","Olaf","Sven","Kristoff","Hans","Entertainment"],
+["Which spy has the code number 007?","James Bond","Jason Bourne","Ethan Hunt","Jack Ryan","Entertainment"],
+["Doctor Who travels in a time machine called the what?","TARDIS","DeLorean","Enterprise","Millennium Falcon","Entertainment"],
+["Which superhero is known as the Caped Crusader?","Batman","Superman","Spider-Man","Iron Man","Entertainment"],
+["In Shrek, what type of creature is Shrek?","Ogre","Troll","Giant","Goblin","Entertainment"],
+["Which street is home to a famous UK soap set in Manchester?","Coronation Street","Albert Square","Ramsay Street","Brookside Close","Entertainment"],
+["Who plays Captain Jack Sparrow?","Johnny Depp","Orlando Bloom","Russell Crowe","Hugh Jackman","Entertainment"],
+["What is the highest-grossing film franchise about superheroes?","Marvel Cinematic Universe","DC Extended Universe","X-Men","The Incredibles","Entertainment"],
+["Which meerkat and warthog befriend Simba?","Timon and Pumbaa","Chip and Dale","Tom and Jerry","Bert and Ernie","Entertainment"],
+["The Simpsons live in which town?","Springfield","Shelbyville","Quahog","South Park","Entertainment"],
+["Which British baking show is famous for its tent?","The Great British Bake Off","MasterChef","Ready Steady Cook","Hell's Kitchen","Entertainment"],
+["Who is the green Jedi master in Star Wars?","Yoda","Obi-Wan","Mace Windu","Qui-Gon","Entertainment"],
+["Which film features the song 'Let It Go'?","Frozen","Moana","Tangled","Encanto","Entertainment"],
+["Wallace and Gromit are made from what?","Plasticine","Wood","Lego","Felt","Entertainment"],
+["Which actor played Iron Man in the Marvel films?","Robert Downey Jr.","Chris Evans","Chris Hemsworth","Mark Ruffalo","Entertainment"],
+["What colour is the Teletubby called Tinky Winky?","Purple","Green","Red","Yellow","Entertainment"],
+["In Friends, what is the name of the coffee shop?","Central Perk","The Grind","Java Joe's","Coffee Central","Entertainment"],
+["Which dinosaur film series began in 1993?","Jurassic Park","The Land Before Time","Godzilla","King Kong","Entertainment"],
+["Paddington Bear comes from which country?","Peru","Brazil","Ecuador","Bolivia","Entertainment"],
+["Which family lives at 742 Evergreen Terrace?","The Simpsons","The Griffins","The Flintstones","The Addams","Entertainment"],
+["Mickey Mouse's dog is called what?","Pluto","Goofy","Rex","Spike","Entertainment"],
+["Which fictional continent is Game of Thrones mainly set on?","Westeros","Middle-earth","Narnia","Essos only","Entertainment"],
+["Which movie clownfish gets lost and must be found?","Nemo","Dory","Marlin","Flounder","Entertainment"],
+
+// ---- MUSIC ----
+["Which band recorded the album 'Abbey Road'?","The Beatles","The Rolling Stones","The Who","Queen","Music"],
+["How many strings does a violin have?","Four","Five","Six","Three","Music"],
+["Which singer is known as the 'Queen of Pop'?","Madonna","Beyoncé","Adele","Lady Gaga","Music"],
+["'Bohemian Rhapsody' is a song by which band?","Queen","Led Zeppelin","Pink Floyd","ABBA","Music"],
+["Which instrument has 88 keys?","Piano","Organ","Accordion","Harpsichord","Music"],
+["Elton John's real first name is what?","Reginald","Roger","Robert","Raymond","Music"],
+["ABBA came from which country?","Sweden","Norway","Denmark","Finland","Music"],
+["Which composer wrote the 'Moonlight Sonata'?","Beethoven","Mozart","Bach","Chopin","Music"],
+["How many members were in the Spice Girls?","Five","Four","Six","Three","Music"],
+["Which rapper's real name is Marshall Mathers?","Eminem","Jay-Z","Drake","Kanye West","Music"],
+["'Hey Jude' was released by which band?","The Beatles","The Kinks","Oasis","The Beach Boys","Music"],
+["Which singer released the album '21'?","Adele","Taylor Swift","Rihanna","Amy Winehouse","Music"],
+["What is the highest female singing voice?","Soprano","Alto","Mezzo","Contralto","Music"],
+["Which band sang 'Wonderwall'?","Oasis","Blur","Pulp","Radiohead","Music"],
+["Freddie Mercury was the lead singer of which band?","Queen","The Police","Genesis","Dire Straits","Music"],
+["Which country music star sang 'Jolene'?","Dolly Parton","Shania Twain","Reba McEntire","Patsy Cline","Music"],
+["A standard drum kit is played with what?","Sticks","Bows","Picks","Mallets only","Music"],
+["Which Beatle was known as the 'quiet one'?","George Harrison","Paul McCartney","John Lennon","Ringo Starr","Music"],
+["'Thriller' is a best-selling album by whom?","Michael Jackson","Prince","Stevie Wonder","Lionel Richie","Music"],
+["Which instrument does a pianist play?","Piano","Flute","Violin","Trumpet","Music"],
+["The Eurovision Song Contest is held how often?","Every year","Every 2 years","Every 4 years","Twice a year","Music"],
+["Which singer is nicknamed 'The Boss'?","Bruce Springsteen","Bob Dylan","Billy Joel","Tom Petty","Music"],
+["How many notes are in an octave, counting both ends?","Eight","Seven","Six","Ten","Music"],
+["Which classical composer became deaf later in life?","Beethoven","Mozart","Haydn","Vivaldi","Music"],
+["Ed Sheeran's albums are often named after what?","Maths symbols","Colours","Animals","Numbers in French","Music"],
+
+// ---- FOOD & DRINK ----
+["What is the main ingredient of guacamole?","Avocado","Tomato","Cucumber","Pea","Food & Drink"],
+["Which country is famous for inventing pizza?","Italy","France","Greece","Spain","Food & Drink"],
+["What type of pastry is used for profiteroles?","Choux","Puff","Shortcrust","Filo","Food & Drink"],
+["Sushi originates from which country?","Japan","China","Thailand","Korea","Food & Drink"],
+["What is the main ingredient in hummus?","Chickpeas","Lentils","Beans","Peas","Food & Drink"],
+["Which fruit is dried to make a prune?","Plum","Grape","Apricot","Fig","Food & Drink"],
+["What is the most consumed drink in the world after water?","Tea","Coffee","Beer","Orange juice","Food & Drink"],
+["A Margherita pizza has tomato, mozzarella and which herb?","Basil","Oregano","Parsley","Thyme","Food & Drink"],
+["Which nut is used to make marzipan?","Almond","Peanut","Cashew","Walnut","Food & Drink"],
+["What does 'al dente' describe?","Pasta with a firm bite","Burnt food","Very spicy food","Raw fish","Food & Drink"],
+["Cheddar cheese originally comes from which country?","England","France","Switzerland","Netherlands","Food & Drink"],
+["What is the main ingredient of a traditional omelette?","Eggs","Flour","Milk","Cheese","Food & Drink"],
+["Which spice is the most expensive by weight?","Saffron","Vanilla","Cardamom","Cinnamon","Food & Drink"],
+["Haggis is a traditional dish of which country?","Scotland","Ireland","Wales","England","Food & Drink"],
+["What fruit is traditionally on top of a Pavlova?","Mixed fresh fruit","Dried raisins","Candied peel","Tinned pears only","Food & Drink"],
+["Which vegetable is used to make sauerkraut?","Cabbage","Cucumber","Carrot","Turnip","Food & Drink"],
+["Prosecco is a sparkling wine from which country?","Italy","France","Spain","Portugal","Food & Drink"],
+["What are the two main ingredients of a Victoria sponge filling?","Jam and cream","Lemon and sugar","Chocolate and nuts","Honey and butter","Food & Drink"],
+["Which fish is traditionally used in fish and chips?","Cod","Salmon","Tuna","Mackerel","Food & Drink"],
+["Tofu is made from which bean?","Soybean","Kidney bean","Black bean","Broad bean","Food & Drink"],
+["What type of food is a 'bloomer'?","Bread","Cheese","Sausage","Cake","Food & Drink"],
+["Which drink is made from fermented apples?","Cider","Perry","Mead","Sake","Food & Drink"],
+["A 'full English' breakfast typically includes baked what?","Beans","Potatoes","Apples","Rice","Food & Drink"],
+["Which herb is the main flavour of pesto?","Basil","Mint","Coriander","Sage","Food & Drink"],
+["Which sauce is traditionally served with roast lamb?","Mint sauce","Apple sauce","Cranberry sauce","Horseradish","Food & Drink"],
+
+// ---- LITERATURE ----
+["Who wrote 'Romeo and Juliet'?","William Shakespeare","Charles Dickens","Jane Austen","Oscar Wilde","Literature"],
+["Which author created Matilda and the BFG?","Roald Dahl","Enid Blyton","J.K. Rowling","C.S. Lewis","Literature"],
+["Who wrote 'Pride and Prejudice'?","Jane Austen","Emily Brontë","Charlotte Brontë","George Eliot","Literature"],
+["'1984' was written by which author?","George Orwell","Aldous Huxley","Ray Bradbury","H.G. Wells","Literature"],
+["Which boy wizard was created by J.K. Rowling?","Harry Potter","Percy Jackson","Artemis Fowl","Eragon","Literature"],
+["Who wrote 'A Christmas Carol'?","Charles Dickens","Thomas Hardy","Lewis Carroll","Mark Twain","Literature"],
+["In 'Alice in Wonderland', which animal is always late?","White Rabbit","Cheshire Cat","March Hare","Dormouse","Literature"],
+["Who created the detective Hercule Poirot?","Agatha Christie","Arthur Conan Doyle","Dorothy L. Sayers","Ian Fleming","Literature"],
+["'The Lord of the Rings' was written by whom?","J.R.R. Tolkien","C.S. Lewis","George R.R. Martin","Terry Pratchett","Literature"],
+["Which Shakespeare play features the characters of three witches?","Macbeth","Hamlet","Othello","King Lear","Literature"],
+["Who wrote 'Charlie and the Chocolate Factory'?","Roald Dahl","Dr. Seuss","Michael Morpurgo","David Walliams","Literature"],
+["'War and Peace' was written by which Russian author?","Leo Tolstoy","Fyodor Dostoevsky","Anton Chekhov","Ivan Turgenev","Literature"],
+["Which bear was found at a London railway station?","Paddington","Winnie-the-Pooh","Rupert","Baloo","Literature"],
+["Who wrote 'The Adventures of Huckleberry Finn'?","Mark Twain","Ernest Hemingway","John Steinbeck","F. Scott Fitzgerald","Literature"],
+["In 'The Jungle Book', what type of animal is Baloo?","Bear","Panther","Tiger","Wolf","Literature"],
+["Sherlock Holmes was created by which author?","Arthur Conan Doyle","Agatha Christie","Edgar Allan Poe","Wilkie Collins","Literature"],
+["Which dystopian novel features 'Big Brother'?","1984","Brave New World","Fahrenheit 451","The Handmaid's Tale","Literature"],
+["Who wrote the 'Discworld' series?","Terry Pratchett","Neil Gaiman","Douglas Adams","Philip Pullman","Literature"],
+["'Wuthering Heights' was written by which Brontë sister?","Emily","Charlotte","Anne","Maria","Literature"],
+["Which classic novel begins 'Call me Ishmael'?","Moby-Dick","Treasure Island","Robinson Crusoe","Gulliver's Travels","Literature"],
+["The Gruffalo was written by whom?","Julia Donaldson","Judith Kerr","Eric Carle","Beatrix Potter","Literature"],
+["Which Roman poet wrote the 'Aeneid'?","Virgil","Ovid","Horace","Homer","Literature"],
+["Who created Peter Rabbit?","Beatrix Potter","A.A. Milne","Kenneth Grahame","Lewis Carroll","Literature"],
+["'The Hunger Games' was written by whom?","Suzanne Collins","Veronica Roth","Stephenie Meyer","Cassandra Clare","Literature"],
+["Which knight searched for the Holy Grail with a round table?","King Arthur's knights","The Templars","The Musketeers","The Crusaders of Troy","Literature"],
+
+// ---- TECHNOLOGY ----
+["Who co-founded Apple with Steve Wozniak?","Steve Jobs","Bill Gates","Elon Musk","Mark Zuckerberg","Technology"],
+["What does 'CPU' stand for?","Central Processing Unit","Computer Personal Unit","Central Program Utility","Core Processing Unit","Technology"],
+["Which company makes the PlayStation?","Sony","Microsoft","Nintendo","Sega","Technology"],
+["What does 'USB' stand for?","Universal Serial Bus","United System Board","Universal System Backup","Unified Serial Band","Technology"],
+["Which social network is famous for 280-character posts?","X (Twitter)","Facebook","Instagram","LinkedIn","Technology"],
+["Who founded Microsoft with Paul Allen?","Bill Gates","Steve Jobs","Larry Page","Jeff Bezos","Technology"],
+["What is the name of Amazon's voice assistant?","Alexa","Siri","Cortana","Bixby","Technology"],
+["HTML is used to create what?","Web pages","Spreadsheets","Databases","Viruses","Technology"],
+["Which company created the Android operating system?","Google","Apple","Samsung","Nokia","Technology"],
+["What does 'Wi-Fi' allow devices to do?","Connect wirelessly to networks","Charge faster","Print documents","Cool processors","Technology"],
+["The character Mario was created by which games company?","Nintendo","Sega","Atari","Sony","Technology"],
+["What does 'AI' stand for?","Artificial Intelligence","Automated Internet","Advanced Interface","Applied Informatics","Technology"],
+["Which key combination commonly copies text on Windows?","Ctrl+C","Ctrl+V","Ctrl+X","Ctrl+P","Technology"],
+["What was the first video-sharing site to reach a billion users?","YouTube","Vimeo","TikTok","Dailymotion","Technology"],
+["Which of these is a web browser?","Firefox","Excel","Photoshop","Slack","Technology"],
+["A gigabyte is roughly how many megabytes?","1,000","100","10,000","500","Technology"],
+["Which company's logo is a bitten apple?","Apple","Samsung","HP","Dell","Technology"],
+["Bluetooth is named after a king from which country?","Denmark","Norway","Sweden","Germany","Technology"],
+["What does a URL point to?","A web address","A printer","An email inbox","A password","Technology"],
+["Tesla cars are primarily powered by what?","Electricity","Petrol","Diesel","Hydrogen","Technology"],
+
+// ---- UK & ROYALS ----
+["How many countries make up the United Kingdom?","Four","Three","Five","Two","UK"],
+["What is the name of the UK Prime Minister's official residence?","10 Downing Street","Buckingham Palace","Westminster Hall","Whitehall House","UK"],
+["Which Scottish city is famous for its castle on a volcanic rock?","Edinburgh","Glasgow","Stirling","Inverness","UK"],
+["The Angel of the North sculpture is near which city?","Gateshead/Newcastle","Leeds","Manchester","Sheffield","UK"],
+["What is the national flower of England?","Rose","Thistle","Daffodil","Shamrock","UK"],
+["Which bird is a traditional symbol of the Tower of London?","Raven","Pigeon","Falcon","Owl","UK"],
+["What is the national flower of Wales?","Daffodil","Rose","Thistle","Orchid","UK"],
+["Big Ben is the nickname of the bell inside which tower?","Elizabeth Tower","Victoria Tower","The Shard","Tower Bridge","UK"],
+["Which motorway circles London?","M25","M1","M6","M4","UK"],
+["The Queen's official London residence was which palace?","Buckingham Palace","Windsor Castle","Kensington Palace","St James's only","UK"],
+["Stonehenge is in which English county?","Wiltshire","Somerset","Dorset","Hampshire","UK"],
+["What is the highest mountain in the UK?","Ben Nevis","Snowdon","Scafell Pike","Ben Macdui","UK"],
+["Which city is home to the Beatles?","Liverpool","Manchester","London","Birmingham","UK"],
+["The Welsh flag features which creature?","Dragon","Lion","Unicorn","Eagle","UK"],
+["Which sea lies to the east of England?","North Sea","Irish Sea","Celtic Sea","Baltic Sea","UK"],
+["What is the currency symbol for the pound?","£","$","€","¥","UK"],
+["Hadrian's Wall roughly marks the border area with which nation?","Scotland","Wales","Ireland","France","UK"],
+["Which university city is famous for punting on the River Cam?","Cambridge","Oxford","Bath","York","UK"],
+["The Giant's Causeway is in which part of the UK?","Northern Ireland","Scotland","Wales","England","UK"],
+["What colour are traditional British postboxes?","Red","Blue","Green","Black","UK"]
+];
+
+/* ---------------------------------------------------------------
+   2. GENERATED QUESTIONS — expands the pool well past 1,000
+---------------------------------------------------------------- */
+const CAPITALS = [
+["France","Paris"],["Germany","Berlin"],["Italy","Rome"],["Spain","Madrid"],["Portugal","Lisbon"],
+["Netherlands","Amsterdam"],["Belgium","Brussels"],["Switzerland","Bern"],["Austria","Vienna"],["Greece","Athens"],
+["Norway","Oslo"],["Sweden","Stockholm"],["Denmark","Copenhagen"],["Finland","Helsinki"],["Iceland","Reykjavik"],
+["Ireland","Dublin"],["Poland","Warsaw"],["Czechia","Prague"],["Hungary","Budapest"],["Romania","Bucharest"],
+["Bulgaria","Sofia"],["Croatia","Zagreb"],["Serbia","Belgrade"],["Slovakia","Bratislava"],["Slovenia","Ljubljana"],
+["Ukraine","Kyiv"],["Russia","Moscow"],["Turkey","Ankara"],["Egypt","Cairo"],["Morocco","Rabat"],
+["Kenya","Nairobi"],["Nigeria","Abuja"],["South Africa","Pretoria"],["Ethiopia","Addis Ababa"],["Ghana","Accra"],
+["Tanzania","Dodoma"],["Algeria","Algiers"],["Tunisia","Tunis"],["Senegal","Dakar"],["Zimbabwe","Harare"],
+["China","Beijing"],["Japan","Tokyo"],["South Korea","Seoul"],["India","New Delhi"],["Pakistan","Islamabad"],
+["Bangladesh","Dhaka"],["Thailand","Bangkok"],["Vietnam","Hanoi"],["Indonesia","Jakarta"],["Malaysia","Kuala Lumpur"],
+["Philippines","Manila"],["Singapore","Singapore"],["Nepal","Kathmandu"],["Sri Lanka","Sri Jayawardenepura Kotte"],["Mongolia","Ulaanbaatar"],
+["Saudi Arabia","Riyadh"],["Iran","Tehran"],["Iraq","Baghdad"],["Israel","Jerusalem"],["Jordan","Amman"],
+["Lebanon","Beirut"],["Qatar","Doha"],["United Arab Emirates","Abu Dhabi"],["Kuwait","Kuwait City"],["Afghanistan","Kabul"],
+["USA","Washington, D.C."],["Canada","Ottawa"],["Mexico","Mexico City"],["Cuba","Havana"],["Jamaica","Kingston"],
+["Brazil","Brasília"],["Argentina","Buenos Aires"],["Chile","Santiago"],["Peru","Lima"],["Colombia","Bogotá"],
+["Venezuela","Caracas"],["Uruguay","Montevideo"],["Paraguay","Asunción"],["Bolivia","La Paz"],["Ecuador","Quito"],
+["Australia","Canberra"],["New Zealand","Wellington"],["Fiji","Suva"],["Papua New Guinea","Port Moresby"],
+["Scotland","Edinburgh"],["Wales","Cardiff"],["Northern Ireland","Belfast"],["England","London"],
+["Estonia","Tallinn"],["Latvia","Riga"],["Lithuania","Vilnius"],["Luxembourg","Luxembourg City"],["Malta","Valletta"],
+["Cyprus","Nicosia"],["Albania","Tirana"],["North Macedonia","Skopje"],["Georgia","Tbilisi"],["Armenia","Yerevan"],
+["Azerbaijan","Baku"],["Kazakhstan","Astana"],["Uzbekistan","Tashkent"],["Belarus","Minsk"],["Moldova","Chișinău"],
+["Libya","Tripoli"],["Sudan","Khartoum"],["Uganda","Kampala"],["Zambia","Lusaka"],["Botswana","Gaborone"],
+["Namibia","Windhoek"],["Mozambique","Maputo"],["Angola","Luanda"],["Cameroon","Yaoundé"],["Ivory Coast","Yamoussoukro"]
+];
+
+const US_STATES = [
+["Alabama","Montgomery"],["Alaska","Juneau"],["Arizona","Phoenix"],["Arkansas","Little Rock"],["California","Sacramento"],
+["Colorado","Denver"],["Connecticut","Hartford"],["Delaware","Dover"],["Florida","Tallahassee"],["Georgia","Atlanta"],
+["Hawaii","Honolulu"],["Idaho","Boise"],["Illinois","Springfield"],["Indiana","Indianapolis"],["Iowa","Des Moines"],
+["Kansas","Topeka"],["Kentucky","Frankfort"],["Louisiana","Baton Rouge"],["Maine","Augusta"],["Maryland","Annapolis"],
+["Massachusetts","Boston"],["Michigan","Lansing"],["Minnesota","St. Paul"],["Mississippi","Jackson"],["Missouri","Jefferson City"],
+["Montana","Helena"],["Nebraska","Lincoln"],["Nevada","Carson City"],["New Hampshire","Concord"],["New Jersey","Trenton"],
+["New Mexico","Santa Fe"],["New York","Albany"],["North Carolina","Raleigh"],["North Dakota","Bismarck"],["Ohio","Columbus"],
+["Oklahoma","Oklahoma City"],["Oregon","Salem"],["Pennsylvania","Harrisburg"],["Rhode Island","Providence"],["South Carolina","Columbia"],
+["South Dakota","Pierre"],["Tennessee","Nashville"],["Texas","Austin"],["Utah","Salt Lake City"],["Vermont","Montpelier"],
+["Virginia","Richmond"],["Washington","Olympia"],["West Virginia","Charleston"],["Wisconsin","Madison"],["Wyoming","Cheyenne"]
+];
+
+const ELEMENTS = [
+["Hydrogen","H"],["Helium","He"],["Lithium","Li"],["Carbon","C"],["Nitrogen","N"],["Oxygen","O"],["Fluorine","F"],
+["Neon","Ne"],["Sodium","Na"],["Magnesium","Mg"],["Aluminium","Al"],["Silicon","Si"],["Phosphorus","P"],["Sulfur","S"],
+["Chlorine","Cl"],["Potassium","K"],["Calcium","Ca"],["Iron","Fe"],["Copper","Cu"],["Zinc","Zn"],["Silver","Ag"],
+["Tin","Sn"],["Gold","Au"],["Mercury","Hg"],["Lead","Pb"],["Uranium","U"],["Nickel","Ni"],["Titanium","Ti"],
+["Chromium","Cr"],["Cobalt","Co"],["Platinum","Pt"],["Iodine","I"],["Argon","Ar"],["Krypton","Kr"],["Radon","Rn"],
+["Barium","Ba"],["Tungsten","W"],["Manganese","Mn"],["Bromine","Br"],["Boron","B"]
+];
+
+const CURRENCIES = [
+["Japan","Yen"],["USA","Dollar"],["India","Rupee"],["Russia","Ruble"],["China","Yuan (Renminbi)"],
+["South Korea","Won"],["Thailand","Baht"],["Vietnam","Dong"],["Mexico","Peso"],["Brazil","Real"],
+["South Africa","Rand"],["Sweden","Krona"],["Norway","Krone"],["Denmark","Krone"],["Poland","Złoty"],
+["Hungary","Forint"],["Czechia","Koruna"],["Switzerland","Franc"],["Turkey","Lira"],["Israel","Shekel"],
+["Saudi Arabia","Riyal"],["United Arab Emirates","Dirham"],["Egypt","Egyptian pound"],["Nigeria","Naira"],["Kenya","Shilling"],
+["Argentina","Peso"],["Peru","Sol"],["Indonesia","Rupiah"],["Malaysia","Ringgit"],["Philippines","Peso"],
+["Bangladesh","Taka"],["Iran","Rial"],["Ukraine","Hryvnia"],["Ghana","Cedi"],["Costa Rica","Colón"]
+];
+
+const COLLECTIVES = [
+["lions","pride"],["wolves","pack"],["crows","murder"],["owls","parliament"],["fish","school"],
+["geese (on the ground)","gaggle"],["bees","swarm"],["sheep","flock"],["cattle","herd"],["whales","pod"],
+["monkeys","troop"],["kittens","litter"],["ants","colony"],["ravens","unkindness"],["flamingos","flamboyance"],
+["giraffes","tower"],["hippos","bloat"],["porcupines","prickle"],["ferrets","business"],["frogs","army"],
+["toads","knot"],["jellyfish","smack"],["rhinos","crash"],["zebras","dazzle"],["crocodiles","bask"],
+["eagles","convocation"],["hedgehogs","array"],["otters","romp"],["hyenas","cackle"],["lemurs","conspiracy"]
+];
+
+const ANIMAL_YOUNG = [
+["kangaroo","joey"],["dog","puppy"],["cat","kitten"],["cow","calf"],["horse","foal"],
+["sheep","lamb"],["goat","kid"],["pig","piglet"],["deer","fawn"],["bear","cub"],
+["frog","tadpole"],["swan","cygnet"],["duck","duckling"],["goose","gosling"],["hen","chick"],
+["eagle","eaglet"],["owl","owlet"],["hare","leveret"],["rabbit","kit"],["fox","cub"],
+["seal","pup"],["elephant","calf"],["whale","calf"],["butterfly","caterpillar"],["fish","fry"]
+];
+
+const PLANETS = ["Mercury","Venus","Earth","Mars","Jupiter","Saturn","Uranus","Neptune"];
+const MONTH_DAYS = [["January",31],["February",28],["March",31],["April",30],["May",31],["June",30],
+["July",31],["August",31],["September",30],["October",31],["November",30],["December",31]];
+
+/* --- helpers --- */
+function toRoman(n){
+  const map=[[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
+  let out=''; for(const [v,s] of map){ while(n>=v){out+=s;n-=v;} } return out;
+}
+function seededRand(seed){ let s=seed>>>0; return function(){ s=(s*1664525+1013904223)>>>0; return s/4294967296; }; }
+function pickDistinct(rng, arr, n, exclude){
+  const out=[]; const used=new Set([exclude]);
+  let guard=0;
+  while(out.length<n && guard++<500){
+    const v=arr[Math.floor(rng()*arr.length)];
+    if(!used.has(v)){ used.add(v); out.push(v); }
+  }
+  return out;
+}
+
+function buildQuestionPool(){
+  const pool=[];
+  const rng=seededRand(20260705);
+  const push=(q,a,d,cat)=>pool.push({q,a,d,cat});
+
+  // hand-written
+  for(const row of HAND_QUESTIONS) push(row[0],row[1],[row[2],row[3],row[4]],row[5]);
+
+  // capitals (both directions)
+  const capNames=CAPITALS.map(c=>c[1]), countryNames=CAPITALS.map(c=>c[0]);
+  for(const [country,cap] of CAPITALS){
+    push(`What is the capital of ${country}?`, cap, pickDistinct(rng,capNames,3,cap), "Geography");
+    push(`${cap} is the capital of which country?`, country, pickDistinct(rng,countryNames,3,country), "Geography");
+  }
+
+  // US state capitals (both directions)
+  const stCaps=US_STATES.map(s=>s[1]), stNames=US_STATES.map(s=>s[0]);
+  for(const [state,cap] of US_STATES){
+    push(`What is the state capital of ${state}?`, cap, pickDistinct(rng,stCaps,3,cap), "Geography");
+    push(`${cap} is the capital of which US state?`, state, pickDistinct(rng,stNames,3,state), "Geography");
+  }
+
+  // element symbols (both directions)
+  const symList=ELEMENTS.map(e=>e[1]), elNames=ELEMENTS.map(e=>e[0]);
+  for(const [name,sym] of ELEMENTS){
+    push(`What is the chemical symbol for ${name}?`, sym, pickDistinct(rng,symList,3,sym), "Science");
+    push(`Which element has the chemical symbol ${sym}?`, name, pickDistinct(rng,elNames,3,name), "Science");
+  }
+
+  // currencies
+  const curList=[...new Set(CURRENCIES.map(c=>c[1]))];
+  for(const [country,cur] of CURRENCIES){
+    push(`What is the main currency of ${country}?`, cur, pickDistinct(rng,curList,3,cur), "General");
+  }
+
+  // collective nouns
+  const collList=[...new Set(COLLECTIVES.map(c=>c[1]))];
+  for(const [animal,coll] of COLLECTIVES){
+    push(`What is the collective noun for a group of ${animal}?`, cap1(coll), pickDistinct(rng,collList,3,coll).map(cap1), "Science");
+  }
+
+  // animal young
+  const youngList=[...new Set(ANIMAL_YOUNG.map(a=>a[1]))];
+  for(const [animal,young] of ANIMAL_YOUNG){
+    push(`What is a baby ${animal} called?`, cap1(young), pickDistinct(rng,youngList,3,young).map(cap1), "Science");
+  }
+
+  // planets by order
+  const ordinals=["first","second","third","fourth","fifth","sixth","seventh","eighth"];
+  PLANETS.forEach((p,i)=>{
+    push(`Which planet is ${ordinals[i]} from the Sun?`, p, pickDistinct(rng,PLANETS,3,p), "Science");
+  });
+
+  // days in each month
+  for(const [m,d] of MONTH_DAYS){
+    const wrongs=[28,29,30,31].filter(x=>x!==d).slice(0,3).map(String);
+    push(`How many days are in ${m}${m==='February'?' (in a common year)':''}?`, String(d), wrongs, "General");
+  }
+
+  // roman numerals (both directions)
+  const romanNums=[2,3,4,6,7,8,9,11,12,13,14,15,16,18,19,20,21,24,25,29,30,35,40,44,45,49,50,55,60,64,70,75,80,85,90,94,95,99,100,101,110,120,150,200,250,300,400,450,500,550,600,650,700,750,800,850,900,950,1000,1500,1900,1985,2000,2024];
+  for(const n of romanNums){
+    const r=toRoman(n);
+    const wrongNums=pickDistinct(rng,romanNums.filter(x=>x!==n),3,n);
+    push(`What is ${n} in Roman numerals?`, r, wrongNums.map(toRoman), "General");
+    push(`What number does the Roman numeral ${r} represent?`, String(n), wrongNums.map(String), "General");
+  }
+
+  // arithmetic: multiplication
+  for(let a=6;a<=19;a++){
+    for(let b=3;b<=12;b++){
+      const ans=a*b;
+      const wrongSet=new Set();
+      let guard=0;
+      while(wrongSet.size<3 && guard++<80){
+        const delta=[a,b,-a,-b,10,-10,a+b,-(a+b)][Math.floor(rng()*8)];
+        const w=ans+delta;
+        if(w>0 && w!==ans) wrongSet.add(w);
+      }
+      push(`What is ${a} × ${b}?`, String(ans), [...wrongSet].map(String), "Maths");
+    }
+  }
+
+  // arithmetic: squares
+  for(let n=11;n<=25;n++){
+    const ans=n*n;
+    push(`What is ${n} squared?`, String(ans), [ans+n, ans-n, ans+2*n].map(String), "Maths");
+  }
+
+  // arithmetic: percentages
+  const pcts=[10,20,25,50,75];
+  const bases=[40,60,80,120,160,200,240,300,360,400,480,500,600,800];
+  for(const p of pcts){
+    for(const b of bases){
+      const ans=p*b/100;
+      if(!Number.isInteger(ans)) continue;
+      const wrongs=new Set();
+      for(const w of [ans*2, ans/2, ans+p, ans+10, ans-10, b-ans]){
+        if(wrongs.size<3 && Number.isInteger(w) && w>0 && w!==ans) wrongs.add(w);
+      }
+      if(wrongs.size===3) push(`What is ${p}% of ${b}?`, String(ans), [...wrongs].map(String), "Maths");
+    }
+  }
+
+  // additions of larger numbers
+  for(let i=0;i<60;i++){
+    const a=Math.floor(rng()*80)+15, b=Math.floor(rng()*80)+15;
+    const ans=a+b;
+    push(`What is ${a} + ${b}?`, String(ans), [ans+1,ans-1,ans+10].map(String), "Maths");
+  }
+
+  return pool;
+}
+function cap1(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+const QUESTION_POOL = buildQuestionPool();
+
+/* ---------------------------------------------------------------
+   3. THE MACHINE — 3D coin-pusher, viewed front-on like the studio.
+   World axes: x = across the machine, y = up, z = depth (back → front).
+   Two decks each swept by a pusher; counters shoved over tipping
+   point 1 fall to the lower deck, over tipping point 2 into the
+   win zone at the front. Rendered with a perspective camera.
+---------------------------------------------------------------- */
+const Machine = (() => {
+  const canvas = document.getElementById('machineCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = 960, H = 560;
+
+  /* --- world geometry --- */
+  const MW = 440;                                    // inner width
+  const WALL_L = 0, WALL_R = MW;
+  const Z_MAX = 400;                                 // machine depth at the front
+  const TOP_Y = 190, TOP_BACK = 6,  TOP_EDGE = 230;  // top deck; front edge = tipping point 1
+  const LOW_Y = 95,  LOW_BACK = 130, LOW_EDGE = 330; // lower deck; front edge = tipping point 2
+  const DECK_T = 14;
+  const TRAY_Y = 10;
+  const R = 17, CH = 4;                              // counter radius / half-thickness
+  const JACKPOT_R = 25, JACKPOT_CH = 5;
+  const PUSH_H = 40;
+
+  // pushers: kinematic full-width blocks sliding in z. front = z of leading face
+  const pushTop = { min: 62,  max: 148, h: PUSH_H, y: TOP_Y, t: 0,   speed: 1.3,  front: 62,  vz: 0, scrape: 62  };
+  const pushLow = { min: 200, max: 258, h: PUSH_H, y: LOW_Y, t: 1.6, speed: 0.9,  front: 200, vz: 0, scrape: 200 };
+
+  const DOOR_X = [64, 168, 272, 376];                // drop-zone centres across the width
+  const DOOR_W = 92;
+
+  /* --- camera: perspective, elevated, looking into the machine --- */
+  const CAMX = MW / 2, CAMY = 340, CAMZ = 760, F = 700, CX = W / 2, CY = 255;
+  const PITCH = 0.34, P_C = Math.cos(PITCH), P_S = Math.sin(PITCH);
+  function proj(x, y, z){
+    const dy = y - CAMY, d0 = CAMZ - z;
+    const yr = dy * P_C + d0 * P_S;
+    const dr = d0 * P_C - dy * P_S;
+    const s = F / dr;
+    return { x: CX + (x - CAMX) * s, y: CY - yr * s, s };
+  }
+  const ZONES = DOOR_X.map(x => proj(x, 250, 8).x);  // canvas-x of each door, for clicks/hover
+
+  let coins = [];
+  let nextId = 1;
+  let onCollect = null;   // callback(coin)
+  let onBoom = null;      // callback(coin) — explosive counter detonated
+  let hoverZone = -1;
+
+  // run-mode modifiers (roguelike power-ups); classic mode leaves these at defaults
+  let speedMult = 1;      // pusher speed multiplier (Shelf Surge / boss rounds)
+  let pushersOn = true;   // when false the pushers hold still (run mode trivia phase)
+  let frictionMult = 1;   // <1 = stickier decks (Sticky Shelf)
+  let dropSpread = 24;    // x jitter on drops (Widen Drop Zone tightens this)
+
+  function makeCoin(x, y, z, opts = {}){
+    return {
+      id: nextId++, x, y, z,
+      px: x - (opts.vx || 0), py: y - (opts.vy || 0), pz: z - (opts.vz || 0),
+      r: opts.jackpot ? JACKPOT_R : R,
+      h: opts.jackpot ? JACKPOT_CH : CH,
+      jackpot: !!opts.jackpot,
+      owner: opts.owner ?? null,
+      kind: opts.kind || null,          // 'golden' | 'mystery' | 'double' | 'explosive' | 'magnet'
+      det: false,                       // explosive already detonated?
+      magT: opts.kind === 'magnet' ? 6 : 0, // magnet pull time remaining (s)
+      hue: opts.jackpot ? null : (opts.hue ?? (Math.random() < 0.5 ? 0 : 1)),
+    };
+  }
+
+  function prefill(runOpts){
+    coins = [];
+    speedMult = runOpts?.speed ?? 1;
+    frictionMult = runOpts?.friction ?? 1;
+    dropSpread = runOpts?.spread ?? 24;
+    const jig = () => Math.random() * 6 - 3;
+    // lower deck: two ragged rows creeping up on tipping point 2, plus a few stacked
+    for(const z of [303, 272]){
+      for(let x = 34; x <= MW - 34; x += 36) coins.push(makeCoin(x + jig(), LOW_Y + CH, z + jig()));
+    }
+    for(let i = 0; i < 6; i++){
+      coins.push(makeCoin(50 + Math.random() * (MW - 100), LOW_Y + CH * 3 + 1, 289 + jig()));
+    }
+    // a handful riding the lower shelf pusher
+    for(let x = 60; x <= MW - 60; x += 64) coins.push(makeCoin(x + jig(), LOW_Y + PUSH_H + CH, 218 + jig()));
+    // top deck: rows waiting between the pusher and tipping point 1
+    for(const z of [208, 176]){
+      for(let x = 40; x <= MW - 40; x += 38) coins.push(makeCoin(x + jig(), TOP_Y + CH, z + jig()));
+    }
+    for(let i = 0; i < 4; i++){
+      coins.push(makeCoin(60 + Math.random() * (MW - 120), TOP_Y + CH * 3 + 1, 192 + jig()));
+    }
+    // a couple riding the top pusher
+    for(let x = 90; x <= MW - 90; x += 110) coins.push(makeCoin(x + jig(), TOP_Y + PUSH_H + CH, 96 + jig()));
+
+    // roguelike run: boss rounds thin the machine out
+    if(runOpts?.bossCut){
+      for(let i = coins.length - 1; i >= 0 && coins.length > 30; i--){
+        if(Math.random() < 0.25) coins.splice(i, 1);
+      }
+    }
+    // roguelike run: scatter randomised special counters through the piles
+    if(runOpts?.specials){
+      const kinds = shuffleKinds(['mystery','mystery','mystery','double','double','golden']);
+      const idxs = new Set();
+      while(idxs.size < Math.min(kinds.length, coins.length)) idxs.add(Math.floor(Math.random() * coins.length));
+      let k = 0;
+      for(const i of idxs){ coins[i].kind = kinds[k++]; coins[i].magT = 0; }
+    }
+  }
+  function shuffleKinds(a){ for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+  function drop(zone, owner, jackpot = false, kind = null){
+    const x = DOOR_X[zone] + (Math.random() * dropSpread - dropSpread / 2);
+    const z = jackpot ? 54 : 68 + Math.random() * 12;
+    coins.push(makeCoin(x, 268, z, { owner, jackpot, kind, vx: Math.random() * 1.2 - 0.6, vz: 0.45 }));
+    playSound('drop');
+  }
+
+  function kineticEnergy(){
+    let e = 0;
+    for(const c of coins){
+      const vx = c.x - c.px, vy = c.y - c.py, vz = c.z - c.pz;
+      e += vx * vx + vy * vy + vz * vz;
+    }
+    return e;
+  }
+
+  /* --- physics step (verlet) --- */
+  const GRAV = 0.34, DAMP = 0.992, ITER = 4;
+
+  function step(dt){
+    // pushers oscillate along z
+    for(const p of [pushTop, pushLow]){
+      if(!pushersOn){ p.vz = 0; continue; }   // held still: coins still settle, nothing gets shoved off
+      p.t += dt * p.speed * speedMult;
+      const s = (Math.sin(p.t) + 1) / 2;
+      const prev = p.front;
+      p.front = p.min + (p.max - p.min) * s;
+      p.vz = p.front - prev;
+    }
+
+    for(const c of coins){
+      const vx = (c.x - c.px) * DAMP, vy = (c.y - c.py) * DAMP, vz = (c.z - c.pz) * DAMP;
+      c.px = c.x; c.py = c.y; c.pz = c.z;
+      c.x += vx; c.y += vy - GRAV; c.z += vz;
+    }
+
+    // magnet counters: while charged, pull nearby counters gently forward
+    for(const m of coins){
+      if(m.kind === 'magnet' && m.magT > 0){
+        m.magT -= dt;
+        for(const c of coins){
+          if(c === m || c.jackpot) continue;
+          const dx = c.x - m.x, dz = c.z - m.z, d2 = dx * dx + dz * dz;
+          if(d2 < 8100){ c.pz -= 0.05 * (1 - d2 / 8100); } // +vz toward the tipping point
+        }
+      }
+    }
+
+    for(let it = 0; it < ITER; it++){
+      collideCoins();
+      collideWorld();
+    }
+
+    // speed limit: positional corrections must never turn into launches
+    const VMAX = 9;
+    for(const c of coins){
+      const vx = c.x - c.px, vy = c.y - c.py, vz = c.z - c.pz;
+      const sp = Math.hypot(vx, vy, vz);
+      if(sp > VMAX){
+        const k = VMAX / sp;
+        c.px = c.x - vx * k; c.py = c.y - vy * k; c.pz = c.z - vz * k;
+      }
+    }
+
+    // collection + cleanup
+    for(let i = coins.length - 1; i >= 0; i--){
+      const c = coins[i];
+      if(c.z > LOW_EDGE - 2 && c.y < LOW_Y - DECK_T - 6){
+        coins.splice(i, 1);
+        if(onCollect) onCollect(c);
+      } else if(c.y < -80 || c.x < -60 || c.x > MW + 60 || c.z > Z_MAX + 60){
+        coins.splice(i, 1);
+      }
+    }
+  }
+
+  function collideCoins(){
+    for(let i = 0; i < coins.length; i++){
+      const a = coins[i];
+      for(let j = i + 1; j < coins.length; j++){
+        const b = coins[j];
+        const dyv = b.y - a.y, hh = a.h + b.h;
+        if(Math.abs(dyv) >= hh) continue;
+        const dx = b.x - a.x, dz = b.z - a.z;
+        const rr = a.r + b.r, d2 = dx * dx + dz * dz;
+        if(d2 >= rr * rr) continue;
+        const d = Math.sqrt(d2) || 0.001;
+        const pH = rr - d;                       // horizontal penetration
+        const pV = hh - Math.abs(dyv);           // vertical penetration
+        const ma = a.r ** 3, mb = b.r ** 3;      // heavier jackpot moves less
+        const wa = mb / (ma + mb), wb = 1 - wa;
+        if(pV < pH && Math.abs(dyv) > hh * 0.72){
+          // one coin sits on the other → resolve vertically (stacking)
+          const s = dyv > 0 ? 1 : -1;
+          a.y -= s * pV * wa; b.y += s * pV * wb;
+          const up = dyv > 0 ? b : a, lo = dyv > 0 ? a : b;
+          // friction: the upper coin tends to ride the lower one
+          up.px += ((up.x - up.px) - (lo.x - lo.px)) * 0.35;
+          up.pz += ((up.z - up.pz) - (lo.z - lo.pz)) * 0.35;
+        } else {
+          const nx = dx / d, nz = dz / d, o = pH / 2;
+          a.x -= nx * o * 2 * wa; a.z -= nz * o * 2 * wa;
+          b.x += nx * o * 2 * wb; b.z += nz * o * 2 * wb;
+        }
+      }
+    }
+  }
+
+  function floorHit(c, surfY, zBack, zFront){
+    // land on a deck surface; support requires the coin's CENTRE over the deck,
+    // so counters shoved past the front edge tip off and fall
+    if(c.z < zBack || c.z > zFront) return false;
+    if(c.y - c.h < surfY && c.py - c.h >= surfY - 14 && c.y + c.h > surfY - DECK_T){
+      c.y = surfY + c.h;
+      // explosive counter: detonate on first landing, shoving neighbours (with a forward bias)
+      if(c.kind === 'explosive' && !c.det){
+        c.det = true;
+        for(const o of coins){
+          if(o === c) continue;
+          const dx = o.x - c.x, dz = o.z - c.z, d = Math.hypot(dx, dz) || 1;
+          if(d < 110){
+            const k = (1 - d / 110) * 3.6;
+            o.px -= (dx / d) * k * 0.6;
+            o.pz -= (dz / d) * k + (1 - d / 110) * 1.6;
+          }
+        }
+        if(onBoom) onBoom(c);
+      }
+      const vy = c.y - c.py;
+      if(vy < 0) c.py = c.y + vy * 0.25;         // small bounce
+      // strong flat-counter friction + rest threshold (frictionMult<1 = sticky shelf)
+      let vx = c.x - c.px, vz = c.z - c.pz;
+      const f = (c.jackpot ? 0.35 : 0.6) * frictionMult;
+      vx *= f; vz *= f;
+      if(Math.hypot(vx, vz) < (c.jackpot ? 0.12 : 0.05)){ vx = 0; vz = 0; }
+      c.px = c.x - vx; c.pz = c.z - vz;
+      return true;
+    }
+    return false;
+  }
+
+  function pusherHit(c, p){
+    const top = p.y + p.h;
+    // land / ride on the pusher's top plate
+    if(c.z < p.front && c.z > 0 && c.y - c.h < top && c.py - c.h >= top - 14 && c.y + c.h > top){
+      c.y = top + c.h;
+      let vx = (c.x - c.px) * 0.5;
+      if(Math.abs(vx) < 0.05) vx = 0;
+      c.px = c.x - vx;
+      c.pz = c.z - (c.z - c.pz) * 0.5 - p.vz * 0.7;   // ride along
+      // fixed scraper: riders can't be carried back past it, so a retracting
+      // pusher slides out from under them and they fall onto the deck in front
+      if(c.z - c.r < p.scrape){ c.z = p.scrape + c.r; c.pz = c.z; }
+      return;
+    }
+    // sunk rider (knocked down into the plate by a coin landing on it): lift back up
+    if(c.z < p.front && c.z > 0 && c.y - c.h < top && c.y - c.h > top - p.h * 0.45){
+      c.y = top + c.h;
+      return;
+    }
+    // block body: shove out through the leading face — incrementally, never a snap
+    if(c.y + c.h > p.y && c.y - c.h < top - 3 && c.z < p.front + c.r && c.z > -c.r){
+      const prevV = c.z - c.pz;
+      c.z = Math.min(p.front + c.r, c.z + 3.5);
+      c.pz = c.z - Math.max(p.vz > 0 ? p.vz * 1.1 : 0, Math.min(prevV, 2.2));
+    }
+  }
+
+  function collideWorld(){
+    for(const c of coins){
+      // side walls + back wall — inelastic: kill outward velocity so
+      // counters pile up pressed against the wall instead of jittering
+      if(c.x - c.r < WALL_L){ c.x = WALL_L + c.r; if(c.px > c.x) c.px = c.x; }
+      if(c.x + c.r > WALL_R){ c.x = WALL_R - c.r; if(c.px < c.x) c.px = c.x; }
+      if(c.z - c.r < 0){ c.z = c.r; if(c.pz > c.z) c.pz = c.z; }
+
+      // decks
+      floorHit(c, TOP_Y, TOP_BACK, TOP_EDGE);
+      floorHit(c, LOW_Y, LOW_BACK, LOW_EDGE);
+
+      // underside of the top deck (coins bounced up beneath it)
+      if(c.z < TOP_EDGE && c.py + c.h < TOP_Y - DECK_T + 2 && c.y + c.h > TOP_Y - DECK_T){
+        c.y = TOP_Y - DECK_T - c.h;
+      }
+
+      // pushers
+      pusherHit(c, pushTop);
+      pusherHit(c, pushLow);
+    }
+  }
+
+  /* --- rendering: perspective studio front view --- */
+  let displayValue = 0;
+  function setDisplay(v){ displayValue = Math.max(0, Math.round(v)); }
+
+  // pre-rendered dot-grid pattern for the black studio panels
+  const dotPattern = (() => {
+    const t = document.createElement('canvas'); t.width = t.height = 18;
+    const c = t.getContext('2d');
+    c.fillStyle = 'rgba(255,255,255,0.055)';
+    c.beginPath(); c.arc(9, 9, 1.4, 0, 7); c.fill();
+    return ctx.createPattern(t, 'repeat');
+  })();
+
+  function roundRect(x, y, w, h, r){
+    ctx.beginPath();
+    ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  }
+
+  function star(cx, cy, ro, ri, points = 5){
+    ctx.beginPath();
+    for(let i = 0; i < points * 2; i++){
+      const r = i % 2 === 0 ? ro : ri;
+      const a = -Math.PI / 2 + i * Math.PI / points;
+      const px = cx + Math.cos(a) * r, py = cy + Math.sin(a) * r;
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+  }
+
+  function quad(a, b, c2, d, fill){
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.lineTo(c2.x, c2.y); ctx.lineTo(d.x, d.y);
+    ctx.closePath();
+    if(fill){ ctx.fillStyle = fill; ctx.fill(); }
+  }
+
+  function draw(){
+    ctx.clearRect(0, 0, W, H);
+
+    // studio backdrop — black panels with dot grid
+    const bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, '#101018'); bg.addColorStop(1, '#08080d');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = dotPattern; ctx.fillRect(0, 0, W, H);
+
+    // dark panel behind the drop doors
+    quad(proj(WALL_L - 8, 346, 4), proj(WALL_R + 8, 346, 4),
+         proj(WALL_R + 8, 184, 4), proj(WALL_L - 8, 184, 4), '#151019');
+
+    // yellow drop-zone doors
+    for(let i = 0; i < 4; i++) drawDoor3D(i);
+
+    // gold side pillars framing the stage — drawn BEFORE the decks and
+    // counters: the camera looks at the walls' inner faces, so everything
+    // inside the machine is nearer and must paint over them, otherwise
+    // counters pushed against a wall vanish into the pillar
+    drawSideWall(true);
+    drawSideWall(false);
+
+    // lower deck, its pusher, then everything sitting below top-deck level
+    drawDeck3D(LOW_BACK, LOW_EDGE, LOW_Y);
+    drawPusher3D(pushLow);
+
+    const topGroup = [], lowGroup = [];
+    for(const c of coins) (c.y >= TOP_Y - 2 ? topGroup : lowGroup).push(c);
+    const byDepth = (a, b) => (a.z - b.z) || (a.y - b.y);
+    lowGroup.sort(byDepth); topGroup.sort(byDepth);
+    for(const c of lowGroup) drawCoin3D(c);
+
+    // top deck + its pusher + counters on it
+    drawDeck3D(TOP_BACK, TOP_EDGE, TOP_Y);
+    drawPusher3D(pushTop);
+    for(const c of topGroup) drawCoin3D(c);
+
+    // hover guide down the chosen zone
+    if(hoverZone >= 0) drawGuide(hoverZone);
+
+    // win tray — warm lit floor at the front
+    const t1 = proj(WALL_L - 4, TRAY_Y, LOW_EDGE + 2), t2 = proj(WALL_R + 4, TRAY_Y, LOW_EDGE + 2);
+    const t3 = proj(WALL_R + 4, TRAY_Y, Z_MAX), t4 = proj(WALL_L - 4, TRAY_Y, Z_MAX);
+    const tg = ctx.createLinearGradient(0, t1.y, 0, t3.y);
+    tg.addColorStop(0, 'rgba(255,190,70,0.28)'); tg.addColorStop(1, 'rgba(255,190,70,0.04)');
+    quad(t1, t2, t3, t4, tg);
+    ctx.strokeStyle = 'rgba(255,200,90,0.5)'; ctx.lineWidth = 1; ctx.stroke();
+    const wt = proj(MW / 2, TRAY_Y, 374);
+    ctx.fillStyle = '#ffd77a';
+    ctx.font = 'bold 12px Archivo, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+    ctx.fillText('WIN ZONE', wt.x, wt.y);
+
+    // fronton header + lit base
+    drawHeader();
+    drawBase();
+
+    // glass sheen
+    ctx.strokeStyle = 'rgba(255,220,140,0.16)';
+    ctx.lineWidth = 3;
+    roundRect(6, 4, W - 12, H - 8, 14); ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(90, 130); ctx.lineTo(260, 92); ctx.stroke();
+  }
+
+  function drawDoor3D(i){
+    const cx = DOOR_X[i], x0 = cx - DOOR_W / 2, x1 = cx + DOOR_W / 2;
+    const zD = 8, y0 = 192, y1 = 344;
+    const tl = proj(x0, y1, zD), tr = proj(x1, y1, zD);
+    const br = proj(x1, y0, zD), bl = proj(x0, y0, zD);
+    const hl = hoverZone === i;
+    const g = ctx.createLinearGradient(tl.x, 0, tr.x, 0);
+    g.addColorStop(0, '#c8940a'); g.addColorStop(0.2, '#ffd42a'); g.addColorStop(0.6, '#f2b60c'); g.addColorStop(1, '#b07c06');
+    quad(tl, tr, br, bl, g);
+    ctx.strokeStyle = hl ? '#fff0b0' : '#7a5200';
+    ctx.lineWidth = hl ? 2.5 : 1.5;
+    ctx.stroke();
+    // rivet dots like the studio doors
+    ctx.fillStyle = 'rgba(90,60,0,0.75)';
+    for(const ry of [262, 232]){
+      const p = proj(cx, ry, zD);
+      ctx.beginPath(); ctx.arc(p.x, p.y, 2.3, 0, 7); ctx.fill();
+    }
+    // counter slot at the bottom of the door
+    const s0 = proj(x0 + 12, y0 + 15, zD), s1 = proj(x1 - 12, y0 + 6, zD);
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    roundRect(s0.x, s0.y, s1.x - s0.x, Math.max(4, s1.y - s0.y), 3); ctx.fill();
+    // zone number
+    const np = proj(cx, 208, zD);
+    ctx.fillStyle = hl ? '#fff' : 'rgba(122,82,0,0.9)';
+    ctx.font = 'bold 14px Archivo, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+    ctx.fillText(String(i + 1), np.x, np.y - 4);
+    if(hl){
+      ctx.fillStyle = 'rgba(255,255,255,0.18)';
+      quad(tl, tr, br, bl); ctx.fill();
+    }
+  }
+
+  function drawGuide(i){
+    ctx.strokeStyle = 'rgba(255,220,120,0.65)';
+    ctx.setLineDash([5, 7]); ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    let first = true;
+    for(let z = 56; z <= 224; z += 8){
+      const p = proj(DOOR_X[i], TOP_Y + 2, z);
+      first ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+      first = false;
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  function drawDeck3D(zBack, zEdge, surfY){
+    const bl = proj(WALL_L, surfY, zBack), br = proj(WALL_R, surfY, zBack);
+    const fl = proj(WALL_L, surfY, zEdge), fr = proj(WALL_R, surfY, zEdge);
+    // deck surface — deep red, brighter toward the front
+    const g = ctx.createLinearGradient(0, bl.y, 0, fl.y);
+    g.addColorStop(0, '#7d0f12'); g.addColorStop(1, '#c81e1e');
+    quad(bl, br, fr, fl, g);
+    // chrome tipping lip along the front of the surface
+    const ll = proj(WALL_L, surfY, zEdge - 6), lr = proj(WALL_R, surfY, zEdge - 6);
+    quad(ll, lr, fr, fl, '#e9edf4');
+    // front face
+    const fbl = proj(WALL_L, surfY - DECK_T, zEdge), fbr = proj(WALL_R, surfY - DECK_T, zEdge);
+    const fg = ctx.createLinearGradient(0, fl.y, 0, fbl.y);
+    fg.addColorStop(0, '#e83030'); fg.addColorStop(1, '#7a0d0d');
+    quad(fl, fr, fbr, fbl, fg);
+    // pink LED under-glow
+    const gl = proj(WALL_L, surfY - DECK_T - 9, zEdge), gr = proj(WALL_R, surfY - DECK_T - 9, zEdge);
+    quad(fbl, fbr, gr, gl, 'rgba(255,70,190,0.30)');
+  }
+
+  function drawPusher3D(p){
+    const top = p.y + p.h;
+    const tbL = proj(WALL_L, top, 0), tbR = proj(WALL_R, top, 0);
+    const tfL = proj(WALL_L, top, p.front), tfR = proj(WALL_R, top, p.front);
+    const bfL = proj(WALL_L, p.y, p.front), bfR = proj(WALL_R, p.y, p.front);
+    // chrome top plate
+    const tg = ctx.createLinearGradient(0, tbL.y, 0, tfL.y);
+    tg.addColorStop(0, '#f4f7fb'); tg.addColorStop(1, '#c3cad6');
+    quad(tbL, tbR, tfR, tfL, tg);
+    // red leading face
+    const fg = ctx.createLinearGradient(0, tfL.y, 0, bfL.y);
+    fg.addColorStop(0, '#ff6a5a'); fg.addColorStop(0.25, '#d81f1f'); fg.addColorStop(1, '#7a0d0d');
+    quad(tfL, tfR, bfR, bfL, fg);
+    // leading-edge highlight
+    ctx.strokeStyle = '#ffd7cf'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(tfL.x, tfL.y); ctx.lineTo(tfR.x, tfR.y); ctx.stroke();
+  }
+
+  function drawSideWall(left){
+    // inner face sits exactly on the physics boundary so counters
+    // clamped at WALL_L / WALL_R visibly rest against the gold face
+    const x = left ? WALL_L : WALL_R;
+    const a = proj(x, 344, 0), b = proj(x, 344, Z_MAX);
+    const c2 = proj(x, 0, Z_MAX), d = proj(x, 0, 0);
+    const g = ctx.createLinearGradient(0, b.y, 0, c2.y);
+    g.addColorStop(0, '#8a5c05'); g.addColorStop(0.45, '#f5b62e'); g.addColorStop(0.75, '#ffe9a8'); g.addColorStop(1, '#b97f10');
+    quad(a, b, c2, d, g);
+    // chrome trim along the inner top edge
+    ctx.strokeStyle = '#d9dee8'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    // pink LED wash spilling onto the stage
+    ctx.strokeStyle = 'rgba(255,80,190,0.15)'; ctx.lineWidth = 7;
+    ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(c2.x, c2.y); ctx.stroke();
+  }
+
+  function drawCoin3D(c){
+    const yt = c.y + c.h;
+    const pl = proj(c.x - c.r, yt, c.z), pr = proj(c.x + c.r, yt, c.z);
+    const pf = proj(c.x, yt, c.z - c.r), pn = proj(c.x, yt, c.z + c.r);
+    const rx = Math.max(2, (pr.x - pl.x) / 2);
+    const ry = Math.max(1.6, (pn.y - pf.y) / 2);
+    const cx = (pl.x + pr.x) / 2, cy = (pf.y + pn.y) / 2;
+    const pb = proj(c.x, c.y - c.h, c.z);
+    const thick = Math.max(1.4, pb.y - proj(c.x, yt, c.z).y);
+
+    // side / rim of the counter
+    const KIND_SIDE = { golden:'#8a5f00', mystery:'#3a1670', double:'#0b5e6e', explosive:'#7a2404', magnet:'#123a8a' };
+    ctx.fillStyle = c.jackpot ? '#5c0614' : (c.kind ? KIND_SIDE[c.kind] : (c.hue === 0 ? '#9aa0ac' : '#050508'));
+    ctx.beginPath();
+    ctx.ellipse(cx, cy + thick, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillRect(cx - rx, cy, rx * 2, thick);
+
+    // top face (foreshortened disc)
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(1, ry / rx);
+    if(c.jackpot){
+      const g = ctx.createRadialGradient(-rx * 0.3, -rx * 0.3, 2, 0, 0, rx);
+      g.addColorStop(0, '#ff8a7a'); g.addColorStop(0.5, '#e01830'); g.addColorStop(1, '#83081a');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(0, 0, rx, 0, 7); ctx.fill();
+      ctx.strokeStyle = '#ffd7dd'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(0, 0, rx - 2.5, 0, 7); ctx.stroke();
+      ctx.fillStyle = '#fff';
+      star(0, 0.5, rx * 0.55, rx * 0.22); ctx.fill();
+    } else if(c.kind){
+      const KIND_FACE = {
+        golden:    ['#fff3c2', '#f5b62e', '#8a5f00', '★', '#7a4e00'],
+        mystery:   ['#c9a6ff', '#6c3df4', '#2a0d5e', '?', '#f4ecff'],
+        double:    ['#aef4ff', '#25c2df', '#08414e', '2×', '#04333d'],
+        explosive: ['#ffc9a0', '#ff6d3d', '#6e1e02', '✸', '#fff1e6'],
+        magnet:    ['#a8c6ff', '#3d6df4', '#0c2a70', 'U', '#eaf1ff'],
+      }[c.kind];
+      const g = ctx.createRadialGradient(-rx * 0.3, -rx * 0.35, 2, 0, 0, rx);
+      g.addColorStop(0, KIND_FACE[0]); g.addColorStop(0.55, KIND_FACE[1]); g.addColorStop(1, KIND_FACE[2]);
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(0, 0, rx, 0, 7); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.arc(0, 0, rx - 1.5, 0, 7); ctx.stroke();
+      ctx.fillStyle = KIND_FACE[4];
+      ctx.font = `800 ${Math.max(8, rx * 0.95)}px Archivo, sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(KIND_FACE[3], 0, 1);
+      ctx.textBaseline = 'alphabetic';
+    } else if(c.hue === 0){
+      // white studio counter
+      const g = ctx.createRadialGradient(-rx * 0.3, -rx * 0.35, 2, 0, 0, rx);
+      g.addColorStop(0, '#ffffff'); g.addColorStop(0.6, '#e6e9ef'); g.addColorStop(1, '#a9afbb');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(0, 0, rx, 0, 7); ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.20)'; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.arc(0, 0, rx - 0.8, 0, 7); ctx.stroke();
+      ctx.strokeStyle = 'rgba(0,0,0,0.08)';
+      ctx.beginPath(); ctx.arc(0, 0, rx - 4, 0, 7); ctx.stroke();
+    } else {
+      // black studio counter
+      const g = ctx.createRadialGradient(-rx * 0.3, -rx * 0.35, 2, 0, 0, rx);
+      g.addColorStop(0, '#5c5c68'); g.addColorStop(0.5, '#26262e'); g.addColorStop(1, '#0a0a10');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(0, 0, rx, 0, 7); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.28)'; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.arc(0, 0, rx - 0.8, 0, 7); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.beginPath(); ctx.arc(0, 0, rx - 4, 0, 7); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawHeader(){
+    // gold beam across the top
+    const g = ctx.createLinearGradient(0, 0, 0, 66);
+    g.addColorStop(0, '#ffe08a'); g.addColorStop(0.5, '#f2ae14'); g.addColorStop(1, '#a86e06');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, 66);
+    ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.fillRect(0, 0, W, 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fillRect(0, 63, W, 3);
+
+    // money display with chrome bezel
+    const sx = W / 2 - 190, sw = 380, sy = 6, sh = 52;
+    ctx.fillStyle = '#c9cfda';
+    roundRect(sx - 5, sy - 3, sw + 10, sh + 6, 9); ctx.fill();
+    const sg = ctx.createLinearGradient(0, sy, 0, sy + sh);
+    sg.addColorStop(0, '#0a0f22'); sg.addColorStop(1, '#03040c');
+    ctx.fillStyle = sg;
+    roundRect(sx, sy, sw, sh, 6); ctx.fill();
+    ctx.fillStyle = 'rgba(80,200,255,0.05)';
+    roundRect(sx, sy, sw, sh * 0.45, 6); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = '30px Bungee, "Arial Black", sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(255,255,255,0.55)'; ctx.shadowBlur = 10;
+    ctx.fillText('£' + displayValue.toLocaleString(), sx + sw / 2, sy + sh / 2 + 3);
+    ctx.shadowBlur = 0;
+    ctx.textBaseline = 'alphabetic';
+  }
+
+  function drawBase(){
+    const g = ctx.createLinearGradient(0, H - 16, 0, H);
+    g.addColorStop(0, '#f2ae14'); g.addColorStop(1, '#7a4e04');
+    ctx.fillStyle = g; ctx.fillRect(0, H - 16, W, 16);
+    // warm marquee bulbs along the lip
+    ctx.shadowColor = 'rgba(255,190,80,0.9)'; ctx.shadowBlur = 8;
+    ctx.fillStyle = '#ffdf9a';
+    for(let x = 18; x < W - 8; x += 28){
+      ctx.beginPath(); ctx.arc(x, H - 8, 2.6, 0, 7); ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+  }
+
+  /* --- loop --- */
+  let last = performance.now();
+  function frame(now){
+    const dt = Math.min((now - last) / 1000, 0.05);
+    last = now;
+    // substeps for stability
+    step(dt * 0.5); step(dt * 0.5);
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  // zone density heuristic for CPU picks: coins on the top deck score their
+  // nearest zone, weighted by how close they are to tipping point 1
+  function zoneScores(){
+    const scores = [0, 0, 0, 0];
+    for(const c of coins){
+      if(c.y > TOP_Y && c.y < TOP_Y + 60 && c.z < TOP_EDGE + 4){
+        let best = 0, bd = 1e9;
+        DOOR_X.forEach((zx, i) => { const d = Math.abs(c.x - zx); if(d < bd){ bd = d; best = i; } });
+        scores[best] += 1 + (c.z / TOP_EDGE);
+      }
+    }
+    return scores;
+  }
+
+  function jackpotOnBoard(){ return coins.some(c => c.jackpot); }
+  function jackpotZ(){ const j = coins.find(c => c.jackpot); return j ? j.z : -1; }
+  function coinCount(){ return coins.length; }
+
+  function setHover(z){ hoverZone = z; }
+
+  return {
+    canvas, prefill, drop, kineticEnergy, zoneScores, jackpotOnBoard, jackpotZ, coinCount,
+    setHover, setDisplay, ZONES,
+    setPushers(on){ pushersOn = !!on; },
+    set onCollect(fn){ onCollect = fn; },
+    set onBoom(fn){ onBoom = fn; },
+    reset(runOpts){ prefill(runOpts); },
+    start(){ prefill(); requestAnimationFrame(frame); }
+  };
+})();
+
+/* ---------------------------------------------------------------
+   4. SOUND (tiny WebAudio blips, mutable)
+---------------------------------------------------------------- */
+let audioCtx=null, muted=false;
+function playSound(kind){
+  if(muted) return;
+  try{
+    if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    const t=audioCtx.currentTime;
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    if(kind==='correct'){ o.type='sine'; o.frequency.setValueAtTime(660,t); o.frequency.setValueAtTime(880,t+0.09); g.gain.setValueAtTime(0.12,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.3); o.start(t); o.stop(t+0.3); }
+    else if(kind==='wrong'){ o.type='square'; o.frequency.setValueAtTime(200,t); o.frequency.linearRampToValueAtTime(120,t+0.25); g.gain.setValueAtTime(0.07,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.3); o.start(t); o.stop(t+0.32); }
+    else if(kind==='coin'){ o.type='triangle'; o.frequency.setValueAtTime(1200+Math.random()*300,t); g.gain.setValueAtTime(0.1,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.18); o.start(t); o.stop(t+0.2); }
+    else if(kind==='drop'){ o.type='sine'; o.frequency.setValueAtTime(400,t); o.frequency.linearRampToValueAtTime(240,t+0.12); g.gain.setValueAtTime(0.06,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.15); o.start(t); o.stop(t+0.16); }
+    else if(kind==='jackpot'){ [660,830,990,1320].forEach((f,i)=>{ const o2=audioCtx.createOscillator(),g2=audioCtx.createGain(); o2.connect(g2);g2.connect(audioCtx.destination); o2.type='sine'; o2.frequency.setValueAtTime(f,t+i*0.12); g2.gain.setValueAtTime(0.12,t+i*0.12); g2.gain.exponentialRampToValueAtTime(0.001,t+i*0.12+0.35); o2.start(t+i*0.12); o2.stop(t+i*0.12+0.4); }); }
+  }catch(e){}
+}
+document.getElementById('muteBtn').addEventListener('click',e=>{
+  muted=!muted; e.currentTarget.textContent = muted?'🔇':'🔊';
+});
+
+/* ---------------------------------------------------------------
+   5. HOST BEN — dialogue pools
+---------------------------------------------------------------- */
+const BEN = {
+  intro: [
+    "Welcome to Tipping Point! Four players, one machine, and thousands of pounds on the line. Let's get started!",
+  ],
+  askPlayer: [
+    "Here's your question, {name}…",
+    "Fingers on buzzers, {name} — this one's for you.",
+    "OK {name}, let's see what you make of this.",
+    "{name}, for a counter in the machine…",
+    "Deep breath, {name}. Here we go.",
+  ],
+  askCpu: [
+    "Over to you, {name}.",
+    "{name}, your question…",
+    "Let's see how {name} handles this one.",
+    "{name}, for a counter…",
+  ],
+  correct: [
+    "That's the right answer! {n} counter{s} for the machine.",
+    "Well played — correct! Grab your counter{s}.",
+    "Spot on! {n} counter{s} coming up.",
+    "You know your stuff — that's right!",
+    "Correct! Now, where's it going to go?",
+  ],
+  wrong: [
+    "Oh, unlucky — the answer was {ans}.",
+    "Not this time. It was {ans}.",
+    "I'm afraid not — {ans} was what we wanted.",
+    "So close, but the answer was {ans}.",
+  ],
+  timeout: [
+    "Out of time! The answer was {ans}.",
+    "The clock beat you there — it was {ans}.",
+  ],
+  cpuCorrect: [
+    "{name} gets it right and takes {n} counter{s}!",
+    "Correct from {name} — counters at the ready.",
+    "{name} knows that one!",
+  ],
+  cpuWrong: [
+    "{name} gets it wrong — the answer was {ans}.",
+    "Not for {name} this time. It was {ans}.",
+  ],
+  nominate: [
+    "{name} hands the counters to {target} — a bold move!",
+    "{name} nominates {target} to face the machine!",
+    "Interesting! {name} passes the counters over to {target}.",
+  ],
+  keepDrop: [
+    "{name} keeps the counters — over to the machine!",
+    "{name} is dropping these ones personally.",
+  ],
+  dropPrompt: [
+    "Pick your drop zone — where's that pile looking ripe?",
+    "Choose a zone. Look for counters hanging over the tipping point!",
+    "Zone 1 to 4 — where's it going?",
+  ],
+  bigWin: [
+    "Look at that cascade — the machine is paying out!",
+    "That's what we call a tipping point!",
+    "Counters everywhere! Brilliant drop.",
+  ],
+  smallWin: [
+    "A couple over the edge — every counter counts.",
+    "That'll nudge the bank along nicely.",
+  ],
+  noWin: [
+    "Nothing over the edge this time — but that pile is building.",
+    "The machine holds on to them… for now.",
+    "No counters that time, but they've got to fall eventually.",
+  ],
+  elimination: [
+    "{name} has the lowest bank… and that means, {name}, your time with the machine is over.",
+  ],
+  finalIntro: [
+    "It's just you and the machine now, {who}! The £10,000 jackpot counter goes in first — then six questions to push it over BOTH tipping points.",
+  ],
+  jackpotWin: [
+    "THE JACKPOT COUNTER HAS DROPPED! £10,000!!!",
+  ],
+  runIntro: [
+    "Welcome to the Machine Gauntlet, {name}! Eight rounds, rising targets, and a machine that only gets meaner. Good luck!",
+  ],
+  runRound: [
+    "Round {r}. The machine wants £{t} this time — earn your tokens!",
+    "Target's £{t} now, {name}. Answer up, drop smart.",
+    "£{t} to survive round {r}. No pressure…",
+  ],
+  runBoss: [
+    "BOSS ROUND! The jackpot counter is going in — tip it over the edge, or grind out £{t} the hard way!",
+  ],
+  runDrop: [
+    "Tokens in hand — pick your zones and chase those combos!",
+    "Time to spend those tokens. Look for a pile ready to tip!",
+  ],
+  runCombo: [
+    "{combo}! The machine is paying out!",
+    "That's a {combo} — lovely stuff!",
+  ],
+  runPass: [
+    "Target smashed! Pick yourself a power-up.",
+    "You've beaten the machine this round — choose your reward!",
+  ],
+  runFail: [
+    "Out of tokens and short of the target… the run ends here, {name}.",
+  ],
+  runWin: [
+    "EIGHT ROUNDS CLEARED! You've conquered the machine, {name}!",
+  ],
+};
+function ben(pool, vars={}){
+  const line = BEN[pool][Math.floor(Math.random()*BEN[pool].length)];
+  const txt = line.replace(/\{(\w+)\}/g,(m,k)=>vars[k]??m);
+  const el=document.getElementById('hostSpeech');
+  el.textContent=txt;
+  return txt;
+}
+
+/* ---------------------------------------------------------------
+   6. GAME STATE + FLOW
+---------------------------------------------------------------- */
+const $ = id=>document.getElementById(id);
+const sleep = ms=>new Promise(r=>setTimeout(r,ms));
+
+const state = {
+  players: [],          // {name, cpu, skill, bank, counters, out}
+  qOrder: [],           // shuffled indices into QUESTION_POOL
+  qPtr: 0,
+  round: 0,
+  humanIdx: 0,
+  phase: 'title',
+  dropQueue: 0,
+  currentDropper: null,
+  jackpotWon: false,
+};
+
+const ROUNDS = [
+  { name:"Round 1", questionsEach:3, countersPerCorrect:1, nominate:true },
+  { name:"Round 2", questionsEach:3, countersPerCorrect:2 },
+  { name:"Head to Head", questionsEach:3, countersPerCorrect:3, nominate:true },
+];
+const FINAL_QUESTIONS = 6;
+const FINAL_COUNTERS = 3;
+const COUNTER_VALUE = 50;
+const JACKPOT_VALUE = 10000;
+
+const CPU_ROSTER = [
+  {name:"Margaret", skill:0.58},
+  {name:"Dev", skill:0.66},
+  {name:"Sophie", skill:0.74},
+];
+
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function nextQuestion(){
+  if(state.qPtr>=state.qOrder.length){ state.qOrder=shuffle([...Array(QUESTION_POOL.length).keys()]); state.qPtr=0; }
+  return QUESTION_POOL[state.qOrder[state.qPtr++]];
+}
+
+/* --- UI helpers --- */
+function renderPlayers(activeIdx=-1){
+  const strip=$('playersStrip');
+  strip.innerHTML='';
+  state.players.forEach((p,i)=>{
+    const div=document.createElement('div');
+    div.className='pod'+(i===activeIdx?' active':'')+(p.out?' out':'');
+    div.innerHTML=`${!p.cpu?'<span class="you-tag">YOU</span>':''}
+      <div class="pname">${p.name}</div>
+      <div class="bank">£${p.bank.toLocaleString()}</div>
+      <div class="sub">${p.counters} counter${p.counters===1?'':'s'} won</div>
+      ${p.out?'<div class="out-stamp">ELIMINATED</div>':''}`;
+    strip.appendChild(div);
+  });
+  const you=state.players[state.humanIdx];
+  $('bankChip').textContent = 'Bank: £'+(you?you.bank.toLocaleString():'0');
+  const disp = state.currentDropper!=null && state.players[state.currentDropper] ? state.players[state.currentDropper] : you;
+  Machine.setDisplay(disp ? disp.bank : 0);
+}
+
+function setRoundChip(txt){ $('roundChip').textContent=txt; }
+
+/* --- stage focus: spotlight the question card or the machine --- */
+function focusOn(target){
+  const machine=document.querySelector('.machine-wrap');
+  const qcard=$('qcard');
+  const host=document.querySelector('.host');
+  [machine,qcard,host].forEach(el=>el.classList.remove('focus-glow','focus-dim'));
+  if(target==='question'){
+    qcard.classList.add('focus-glow');
+    machine.classList.add('focus-dim');
+    // bring the question into view (matters on stacked/mobile layouts)
+    setTimeout(()=>qcard.scrollIntoView({behavior:'smooth', block:'nearest'}), 60);
+  } else if(target==='machine'){
+    machine.classList.add('focus-glow');
+    qcard.classList.add('focus-dim');
+    host.classList.add('focus-dim');
+    setTimeout(()=>machine.scrollIntoView({behavior:'smooth', block:'nearest'}), 60);
+  }
+}
+
+async function showBanner(txt, ms=1700){
+  $('bannerText').textContent=txt;
+  $('banner').classList.add('show');
+  await sleep(ms);
+  $('banner').classList.remove('show');
+}
+
+function showMsg(title, body, btn='CONTINUE'){
+  return new Promise(res=>{
+    $('msgTitle').textContent=title;
+    $('msgBody').innerHTML=body;
+    $('msgBtn').textContent=btn;
+    $('msgOverlay').classList.add('show');
+    $('msgBtn').onclick=()=>{ $('msgOverlay').classList.remove('show'); res(); };
+  });
+}
+
+function winFlash(text){
+  const wrap=document.querySelector('.machine-wrap');
+  const el=document.createElement('div');
+  el.className='win-flash';
+  el.textContent=text;
+  el.style.left=(58+Math.random()*20)+'%';
+  el.style.top='72%';
+  wrap.appendChild(el);
+  setTimeout(()=>el.remove(),1200);
+}
+
+/* --- machine collection wiring --- */
+let collectedThisDrop=0;
+const classicCollect = (coin)=>{
+  const owner = state.currentDropper!=null ? state.players[state.currentDropper] : null;
+  if(coin.jackpot){
+    state.jackpotWon=true;
+    if(owner){ owner.bank+=JACKPOT_VALUE; }
+    playSound('jackpot');
+    winFlash('£10,000 JACKPOT!');
+    ben('jackpotWin');
+  } else if(owner){
+    owner.bank+=COUNTER_VALUE;
+    collectedThisDrop++;
+    playSound('coin');
+    winFlash('+£50');
+  } else {
+    // ambient settle before game start: no one owns it
+    playSound('coin');
+  }
+  renderPlayers(state.currentDropper??-1);
+};
+Machine.onCollect = classicCollect;
+
+function waitForSettle(maxMs=6500){
+  return new Promise(res=>{
+    const t0=performance.now();
+    const iv=setInterval(()=>{
+      const t=performance.now()-t0;
+      if((t>1600 && Machine.kineticEnergy()<2.2) || t>maxMs){ clearInterval(iv); res(); }
+    },150);
+  });
+}
+
+/* --- questions --- */
+function askHuman(question, seconds=15, extra={}){
+  return new Promise(res=>{
+    const card=$('qcard'); card.classList.add('show');
+    focusOn('question');
+    $('qCat').textContent=question.cat.toUpperCase();
+    $('qFor').textContent='Your question';
+    $('qText').textContent=question.q;
+    const opts=shuffle([question.a, ...question.d]);
+    const box=$('qOpts'); box.innerHTML='';
+    let done=false, timerId=null, tick=null;
+    const oldSkip=card.querySelector('.q-skip'); if(oldSkip) oldSkip.remove();
+
+    const finish=(picked, skipped=false)=>{
+      if(done) return; done=true;
+      clearTimeout(timerId); clearInterval(tick);
+      const sk=card.querySelector('.q-skip'); if(sk) sk.remove();
+      if(skipped){ card.classList.remove('show'); res({correct:false, timeout:false, skipped:true}); return; }
+      [...box.children].forEach(b=>{
+        b.disabled=true;
+        if(b.textContent===question.a) b.classList.add('correct');
+        else if(picked!==null && b.textContent===picked && picked!==question.a) b.classList.add('wrong');
+        else b.classList.add('dim');
+      });
+      playSound(picked===question.a?'correct':'wrong');
+      setTimeout(()=>{ card.classList.remove('show'); res({correct:picked===question.a, timeout:picked===null}); }, 1300);
+    };
+
+    opts.forEach(o=>{
+      const b=document.createElement('button');
+      b.className='opt'; b.textContent=o;
+      b.onclick=()=>finish(o);
+      box.appendChild(b);
+    });
+
+    // Category Insight power-up: grey out one wrong option
+    if(extra.insight){
+      const wrongBtns=[...box.children].filter(b=>b.textContent!==question.a);
+      const dud=wrongBtns[Math.floor(Math.random()*wrongBtns.length)];
+      dud.classList.add('dim'); dud.disabled=true;
+    }
+    // Skip Question power-up: once per round, swap the question
+    if(extra.canSkip){
+      const sk=document.createElement('button');
+      sk.className='q-skip'; sk.textContent='⏭ SKIP THIS QUESTION (1 per round)';
+      sk.onclick=()=>finish(null,true);
+      card.appendChild(sk);
+    }
+
+    const bar=$('timerBar');
+    bar.style.width='100%';
+    const t0=performance.now();
+    tick=setInterval(()=>{
+      const remain=Math.max(0,1-(performance.now()-t0)/(seconds*1000));
+      bar.style.width=(remain*100)+'%';
+    },120);
+    timerId=setTimeout(()=>finish(null), seconds*1000);
+  });
+}
+
+async function askCpu(question, player){
+  const card=$('qcard'); card.classList.add('show');
+  focusOn('question');
+  $('qCat').textContent=question.cat.toUpperCase();
+  $('qFor').textContent=`Question for ${player.name}`;
+  $('qText').textContent=question.q;
+  const opts=shuffle([question.a, ...question.d]);
+  const box=$('qOpts'); box.innerHTML='';
+  opts.forEach(o=>{
+    const b=document.createElement('button');
+    b.className='opt'; b.textContent=o; b.disabled=true;
+    box.appendChild(b);
+  });
+  $('timerBar').style.width='100%';
+  await sleep(1300+Math.random()*1400);
+  const correct=Math.random()<player.skill;
+  const picked = correct?question.a:question.d[Math.floor(Math.random()*3)];
+  [...box.children].forEach(b=>{
+    if(b.textContent===question.a) b.classList.add('correct');
+    else if(b.textContent===picked && !correct) b.classList.add('wrong');
+    else b.classList.add('dim');
+  });
+  playSound(correct?'correct':'wrong');
+  await sleep(1300);
+  card.classList.remove('show');
+  return correct;
+}
+
+/* --- drops --- */
+const zoneBtns=[...document.querySelectorAll('.zone-btn')];
+function setZonesEnabled(on){ zoneBtns.forEach(b=>b.disabled=!on); }
+
+function humanPickZone(){
+  return new Promise(res=>{
+    setZonesEnabled(true);
+    const canvas=Machine.canvas;
+    const onCanvas=(e)=>{
+      const rect=canvas.getBoundingClientRect();
+      const x=(e.clientX-rect.left)/rect.width*Machine.canvas.width;
+      let best=0,bd=1e9;
+      Machine.ZONES.forEach((z,i)=>{const d=Math.abs(x-z); if(d<bd){bd=d;best=i;}});
+      cleanup(); res(best);
+    };
+    const onMove=(e)=>{
+      const rect=canvas.getBoundingClientRect();
+      const x=(e.clientX-rect.left)/rect.width*Machine.canvas.width;
+      let best=0,bd=1e9;
+      Machine.ZONES.forEach((z,i)=>{const d=Math.abs(x-z); if(d<bd){bd=d;best=i;}});
+      Machine.setHover(best);
+    };
+    const handlers=zoneBtns.map((b,i)=>{
+      const h=()=>{ cleanup(); res(i); };
+      b.addEventListener('click',h);
+      return h;
+    });
+    canvas.addEventListener('click',onCanvas);
+    canvas.addEventListener('mousemove',onMove);
+    function cleanup(){
+      setZonesEnabled(false);
+      Machine.setHover(-1);
+      zoneBtns.forEach((b,i)=>b.removeEventListener('click',handlers[i]));
+      canvas.removeEventListener('click',onCanvas);
+      canvas.removeEventListener('mousemove',onMove);
+    }
+  });
+}
+
+function cpuPickZone(){
+  const scores=Machine.zoneScores();
+  // favour busiest zone, with randomness
+  let total=0; const w=scores.map(s=>{const v=1+s*s; total+=v; return v;});
+  let r=Math.random()*total;
+  for(let i=0;i<4;i++){ r-=w[i]; if(r<=0) return i; }
+  return 3;
+}
+
+/* --- nomination: correct answerer chooses who drops the counters --- */
+function humanChooseDropper(selfIdx, count){
+  return new Promise(res=>{
+    const alive=state.players.map((p,i)=>({p,i})).filter(x=>!x.p.out);
+    $('nomBody').innerHTML=`You've won <b>${count} counter${count>1?'s':''}</b> — who plays ${count>1?'them':'it'}? `+
+      `Whoever drops keeps whatever falls.`;
+    const box=$('nomBtns'); box.innerHTML='';
+    alive.forEach(({p,i})=>{
+      const b=document.createElement('button');
+      b.className='big-btn nom-btn'+(i===selfIdx?'':' alt');
+      b.textContent = i===selfIdx ? 'DROP THEM MYSELF' : `GIVE TO ${p.name.toUpperCase()} (£${p.bank.toLocaleString()})`;
+      b.onclick=()=>{ $('nomOverlay').classList.remove('show'); res(i); };
+      box.appendChild(b);
+    });
+    $('nomOverlay').classList.add('show');
+    // make sure the choices are in view even if the page was scrolled elsewhere
+    box.scrollIntoView({block:'nearest'});
+  });
+}
+
+function cpuChooseDropper(selfIdx){
+  // CPUs usually keep their counters, but occasionally hand them off for drama
+  if(Math.random()<0.85) return selfIdx;
+  const others=state.players.map((p,i)=>({p,i})).filter(x=>!x.p.out && x.i!==selfIdx);
+  if(!others.length) return selfIdx;
+  return others[Math.floor(Math.random()*others.length)].i;
+}
+
+async function performDrops(playerIdx, count, jackpotFirst=false){
+  const p=state.players[playerIdx];
+  state.currentDropper=playerIdx;
+  collectedThisDrop=0;
+  focusOn('machine');
+
+  if(jackpotFirst){
+    $('dropsLeft').innerHTML='Place the <b>£10,000 JACKPOT COUNTER</b> — pick a zone!';
+    const z = p.cpu? cpuPickZone() : await humanPickZone();
+    Machine.drop(z, playerIdx, true);
+    await waitForSettle();
+  }
+
+  for(let i=0;i<count;i++){
+    $('dropsLeft').innerHTML=`<b>${p.name}</b> — counter ${i+1} of ${count}. ${p.cpu?'':'Pick a drop zone!'}`;
+    if(p.cpu){
+      await sleep(700);
+      Machine.drop(cpuPickZone(), playerIdx);
+    } else {
+      ben('dropPrompt');
+      const z=await humanPickZone();
+      Machine.drop(z, playerIdx);
+    }
+    await waitForSettle();
+    if(state.jackpotWon) break;
+  }
+  $('dropsLeft').textContent='';
+  const got=collectedThisDrop;
+  if(got>0) p.counters+=got;
+  if(!state.jackpotWon){
+    if(got>=4) ben('bigWin');
+    else if(got>=1) ben('smallWin');
+    else ben('noWin');
+  }
+  renderPlayers(playerIdx);
+  await sleep(1400);
+  state.currentDropper=null;
+  focusOn(null);
+  return got;
+}
+
+/* --- rounds --- */
+async function playRound(roundIdx){
+  const cfg=ROUNDS[roundIdx];
+  const alive=state.players.map((p,i)=>({p,i})).filter(x=>!x.p.out);
+  setRoundChip(cfg.name);
+  await showBanner(cfg.name.toUpperCase());
+  await showMsg(cfg.name,
+    `${alive.length} players remain. Everyone gets <b>${cfg.questionsEach} questions</b>. ` +
+    `A correct answer earns <b>${cfg.countersPerCorrect} counter${cfg.countersPerCorrect>1?'s':''}</b> for the machine. ` +
+    (cfg.nominate ? `Answer correctly and <b>you choose who drops the counters</b> — yourself, or an opponent. ` : ``) +
+    `When the round ends, the player with the <b>lowest bank is eliminated</b>.`, 'START ROUND');
+
+  for(let qn=0; qn<cfg.questionsEach; qn++){
+    for(const {p,i} of alive){
+      if(p.out) continue;
+      renderPlayers(i);
+      const question=nextQuestion();
+      let correct;
+      if(p.cpu){
+        ben('askCpu',{name:p.name});
+        await sleep(900);
+        correct=await askCpu(question,p);
+        if(correct) ben('cpuCorrect',{name:p.name, n:cfg.countersPerCorrect, s:cfg.countersPerCorrect>1?'s':''});
+        else ben('cpuWrong',{name:p.name, ans:question.a});
+      } else {
+        ben('askPlayer',{name:p.name});
+        await sleep(900);
+        const r=await askHuman(question);
+        correct=r.correct;
+        if(correct) ben('correct',{n:cfg.countersPerCorrect, s:cfg.countersPerCorrect>1?'s':''});
+        else ben(r.timeout?'timeout':'wrong',{ans:question.a});
+      }
+      await sleep(1100);
+      if(correct){
+        let dropIdx=i;
+        if(cfg.nominate){
+          dropIdx = p.cpu ? cpuChooseDropper(i) : await humanChooseDropper(i, cfg.countersPerCorrect);
+          if(dropIdx!==i){
+            ben('nominate',{name:p.name, target:state.players[dropIdx].name});
+            await sleep(1400);
+          } else if(p.cpu){
+            ben('keepDrop',{name:p.name});
+            await sleep(1000);
+          }
+        }
+        await performDrops(dropIdx, cfg.countersPerCorrect);
+      }
+    }
+  }
+
+  // elimination
+  const stillIn=state.players.map((p,i)=>({p,i})).filter(x=>!x.p.out);
+  let lowest=stillIn[0];
+  for(const x of stillIn){
+    if(x.p.bank < lowest.p.bank) lowest=x;
+    else if(x.p.bank===lowest.p.bank){
+      // tie-break: prefer keeping the human, then fewer counters
+      if(lowest.i===state.humanIdx && x.i!==state.humanIdx) lowest=x;
+      else if(x.i!==state.humanIdx && x.p.counters<lowest.p.counters) lowest=x;
+    }
+  }
+  lowest.p.out=true;
+  renderPlayers();
+  ben('elimination',{name:lowest.p.name});
+  await sleep(600);
+  await showBanner(lowest.p.name.toUpperCase()+' IS ELIMINATED', 2100);
+
+  if(lowest.i===state.humanIdx){
+    return 'human_out';
+  }
+  await showMsg('Elimination',
+    `<b>${lowest.p.name}</b> leaves with nothing — their £${lowest.p.bank.toLocaleString()} goes back to the machine. ` +
+    `${stillIn.length-1} players remain.`, 'CONTINUE');
+  return 'continue';
+}
+
+/* --- final --- */
+async function playFinal(){
+  const you=state.players[state.humanIdx];
+  setRoundChip('THE FINAL');
+  await showBanner('THE FINAL', 2000);
+  ben('finalIntro',{who:you.name});
+  await showMsg('The Final',
+    `You made it, <b>${you.name}</b>! The <b>£10,000 jackpot counter</b> goes into the machine first. ` +
+    `Then you face <b>${FINAL_QUESTIONS} questions</b> — each correct answer earns <b>${FINAL_COUNTERS} counters</b>. ` +
+    `Get that jackpot counter over both tipping points and £10,000 is yours, on top of everything it knocks over!`,
+    "LET'S DO IT");
+
+  // place the jackpot counter
+  state.currentDropper=state.humanIdx;
+  focusOn('machine');
+  $('dropsLeft').innerHTML='Place the <b>£10,000 JACKPOT COUNTER</b> — pick a zone!';
+  const z=await humanPickZone();
+  Machine.drop(z, state.humanIdx, true);
+  await waitForSettle();
+  $('dropsLeft').textContent='';
+  state.currentDropper=null;
+  focusOn(null);
+
+  for(let qn=0; qn<FINAL_QUESTIONS && !state.jackpotWon; qn++){
+    renderPlayers(state.humanIdx);
+    ben('askPlayer',{name:you.name});
+    await sleep(800);
+    const question=nextQuestion();
+    const r=await askHuman(question);
+    if(r.correct){ ben('correct',{n:FINAL_COUNTERS,s:'s'}); await sleep(1000); await performDrops(state.humanIdx, FINAL_COUNTERS); }
+    else { ben(r.timeout?'timeout':'wrong',{ans:question.a}); await sleep(1400); }
+  }
+
+  // ending
+  renderPlayers();
+  if(state.jackpotWon){
+    await sleep(800);
+    endGame(true);
+  } else {
+    endGame(false);
+  }
+}
+
+function endGame(jackpot){
+  const you=state.players[state.humanIdx];
+  const t=$('endTitle'), b=$('endBody');
+  if(jackpot){
+    t.textContent='JACKPOT!';
+    b.innerHTML=`The jackpot counter dropped! You leave with a stunning <b style="color:var(--gold);font-size:22px">£${you.bank.toLocaleString()}</b>.<br><br>Ben: "Incredible! The machine finally gave it up. Take care of that money — you've earned every counter of it!"`;
+  } else {
+    t.textContent='WHAT A GAME!';
+    b.innerHTML=`The jackpot counter stays teetering on the edge… but you beat three rivals and bank <b style="color:var(--gold);font-size:22px">£${you.bank.toLocaleString()}</b>.<br><br>Ben: "The machine holds on to its jackpot — but that's a brilliant day's work. See you next time on Tipping Point!"`;
+  }
+  $('endOverlay').classList.add('show');
+}
+
+function gameOverEliminated(){
+  const you=state.players[state.humanIdx];
+  $('endTitle').textContent='ELIMINATED';
+  $('endBody').innerHTML=`You had the lowest bank at the end of the round, and on Tipping Point that means going home with nothing.<br><br>Ben: "So sorry, ${you.name} — the machine can be cruel. Come back and have another go!"`;
+  $('endOverlay').classList.add('show');
+}
+
+/* --- main flow --- */
+async function startGame(name){
+  Machine.setPushers(true);
+  state.players=[
+    {name:name||'You', cpu:false, skill:1, bank:0, counters:0, out:false},
+    ...CPU_ROSTER.map(c=>({...c, cpu:true, bank:0, counters:0, out:false})),
+  ];
+  // small shuffle of seats but track human
+  state.humanIdx=0;
+  state.qOrder=shuffle([...Array(QUESTION_POOL.length).keys()]);
+  state.qPtr=0;
+  state.round=0;
+  state.jackpotWon=false;
+  renderPlayers();
+  ben('intro');
+  await sleep(400);
+
+  for(let r=0;r<ROUNDS.length;r++){
+    const result=await playRound(r);
+    if(result==='human_out'){ gameOverEliminated(); return; }
+  }
+  await playFinal();
+}
+
+/* ---------------------------------------------------------------
+   7. ROGUELIKE RUN MODE — "Machine Gauntlet"
+   Balatro-style solo run: escalating cash targets, physics combos
+   that act like hands (with multipliers), and draftable power-ups
+   between rounds. Fail a target and the run ends.
+---------------------------------------------------------------- */
+const RUN_TARGETS   = [40, 90, 160, 260, 380, 540, 760, 1050];
+const BOSS_ROUNDS   = new Set([3, 7]);            // rounds 4 and 8 (0-based)
+const RUN_QUESTIONS = 6;                          // trivia questions per round
+const RUN_BASE      = 10;                         // £ per plain counter
+const RUN_JACKPOT_BONUS = 250;                    // boss reward for tipping the jackpot
+
+const KIND_VALUE = { golden: 20, double: 20, mystery: 10, explosive: 10, magnet: 10 };
+const KIND_LABEL = { golden: 'GOLDEN', double: 'DOUBLE', mystery: 'MYSTERY', explosive: 'EXPLOSIVE', magnet: 'MAGNET' };
+
+const POWERUPS = [
+  { id:'surge',       icon:'⚡', name:'Shelf Surge',        cat:'Machine', desc:'Pushers sweep 40% faster for the rest of the run.' },
+  { id:'widen',       icon:'🎯', name:'Widen Drop Zone',    cat:'Machine', desc:'Counters fall dead-centre in the zone — precision drops.' },
+  { id:'sticky',      icon:'🕸️', name:'Sticky Shelf',       cat:'Machine', desc:'Counters cling together on the shelves, building bigger cascades.' },
+  { id:'golden',      icon:'🥇', name:'Golden Counter',     cat:'Counter', desc:'The first counter you drop each round is GOLDEN (double value).' },
+  { id:'explosive',   icon:'💥', name:'Explosive Counter',  cat:'Counter', desc:'Every 4th counter you drop detonates on impact, shoving the pile.' },
+  { id:'magnet',      icon:'🧲', name:'Magnet Counter',     cat:'Counter', desc:'Every 3rd counter you drop pulls its neighbours toward the edge.' },
+  { id:'cascmult',    icon:'🌊', name:'Cascade Multiplier', cat:'Score',   desc:'Cascade combos grant +1 extra multiplier.' },
+  { id:'mystboost',   icon:'🔮', name:'Mystery Boost',      cat:'Score',   desc:'Mystery counter rewards are doubled.' },
+  { id:'combosaver',  icon:'🔗', name:'Combo Saver',        cat:'Score',   desc:'Half of each drop\'s bonus multiplier carries into your next drop.' },
+  { id:'doubledrops', icon:'🎟️', name:'Double Drops',       cat:'Trivia',  desc:'Back-to-back correct answers earn 2 Drop Tokens instead of 1.' },
+  { id:'skip',        icon:'⏭️', name:'Skip Question',      cat:'Trivia',  desc:'Once per round, swap a question you don\'t fancy for a fresh one.' },
+  { id:'insight',     icon:'💡', name:'Category Insight',   cat:'Trivia',  desc:'One wrong answer is greyed out on every question.' },
+];
+
+const run = {
+  active:false, name:'You', round:0, dollars:0, tokens:0,
+  relics:[], dropNo:0, streak:0, skipUsed:false, savedMult:0,
+  collected:[], dropStart:0, dropping:false, jackpotTipped:false, payLive:false,
+  stats:{ correct:0, combos:0, counters:0 },
+};
+const hasRelic = id => run.relics.includes(id);
+const bossRound = () => BOSS_ROUNDS.has(run.round);
+const runTarget = () => Math.round(RUN_TARGETS[run.round] * (bossRound() ? 1 : 1));
+
+/* --- run HUD --- */
+function renderRunHud(){
+  $('runRound').innerHTML = `ROUND ${run.round+1} / ${RUN_TARGETS.length}` + (bossRound() ? ' · <em>BOSS</em>' : '');
+  $('runMoney').innerHTML = `£${run.dollars.toLocaleString()} <small>/ £${runTarget().toLocaleString()}</small>`;
+  $('runBar').style.width = Math.min(100, run.dollars / runTarget() * 100) + '%';
+  $('runTokens').textContent = run.tokens;
+  $('runMult').textContent = '×' + (1 + run.savedMult).toFixed(1).replace(/\.0$/,'');
+  const bar = $('relicBar');
+  if(run.relics.length){
+    bar.innerHTML = '';
+    run.relics.forEach(id=>{
+      const p = POWERUPS.find(x=>x.id===id);
+      const d = document.createElement('div');
+      d.className='relic'; d.textContent=p.icon; d.title=`${p.name} — ${p.desc}`;
+      bar.appendChild(d);
+    });
+  } else {
+    bar.innerHTML = '<span class="relic-empty">No power-ups yet — clear a round to earn one.</span>';
+  }
+  setRoundChip(`Run · Round ${run.round+1}/${RUN_TARGETS.length}`);
+  $('bankChip').textContent = `£${run.dollars.toLocaleString()} / £${runTarget().toLocaleString()}`;
+  Machine.setDisplay(run.dollars);
+}
+
+function comboFlash(text){
+  const wrap=document.querySelector('.machine-wrap');
+  const el=document.createElement('div');
+  el.className='combo-flash'; el.textContent=text;
+  wrap.appendChild(el);
+  setTimeout(()=>el.remove(),1300);
+}
+
+/* --- run collection handler (replaces classic handler while a run is live) --- */
+const runCollect = (coin)=>{
+  // Cash is only ever earned by spending a Drop Token. Anything that tips over
+  // outside the drop phase (settling after a machine reset, a late dribble while
+  // a message is open) pays nothing — otherwise the target filled itself up
+  // during the trivia phase and you could clear a round without dropping at all.
+  if(!run.payLive){ playSound('coin'); return; }
+  if(coin.jackpot){
+    run.jackpotTipped = true;
+    playSound('jackpot');
+    winFlash(`+£${RUN_JACKPOT_BONUS} JACKPOT!`);
+    return;
+  }
+  const v = coin.kind ? KIND_VALUE[coin.kind] : RUN_BASE;
+  if(run.dropping){
+    // during an active drop: counters are held for combo scoring
+    run.collected.push({ kind: coin.kind, t: performance.now() - run.dropStart });
+  } else {
+    // between drops the pushers keep working — those counters pay base value, no combos
+    run.dollars += v;
+    run.stats.counters++;
+    renderRunHud();
+  }
+  playSound('coin');
+  winFlash(`+£${v}${coin.kind ? ' ' + KIND_LABEL[coin.kind] : ''}`);
+};
+
+/* --- which special kind does the player's next dropped counter get? --- */
+function nextDropKind(){
+  run.dropNo++;
+  if(hasRelic('golden') && run.dropNo === 1) return 'golden';
+  if(hasRelic('explosive') && run.dropNo % 4 === 0) return 'explosive';
+  if(hasRelic('magnet') && run.dropNo % 3 === 0) return 'magnet';
+  return null;
+}
+
+/* --- score one drop: combos → multiplier, counters → cash --- */
+function scoreDrop(jackpotZ0){
+  const got = run.collected;
+  const n = got.length;
+  let mult = 1 + run.savedMult;
+  const combos = [];
+
+  if(n >= 3){ mult += hasRelic('cascmult') ? 2 : 1; combos.push('CASCADE'); }
+  if(n >= 4 && got.some(c=>c.kind==='double')){ mult += 2; combos.push('DOUBLE STRIKE'); }
+  if(got.some(c=>c.t > 3000)){ mult += 0.5; combos.push('TEETER'); }
+  if(bossRound() && !run.jackpotTipped && jackpotZ0 > 0){
+    const dz = Machine.jackpotZ() - jackpotZ0;
+    if(dz >= 10){ mult += 1; combos.push('JACKPOT NUDGE'); }
+  }
+
+  // mystery chains: each mystery collected pays a random bonus
+  let bonusTxt = [];
+  for(const c of got){
+    if(c.kind !== 'mystery') continue;
+    combos.push('MYSTERY CHAIN');
+    const boost = hasRelic('mystboost') ? 2 : 1;
+    const roll = Math.random();
+    if(roll < 0.4){ run.dollars += 15 * boost; bonusTxt.push(`+£${15*boost}`); }
+    else if(roll < 0.75){ run.tokens += 1 * boost; bonusTxt.push(`+${boost} token${boost>1?'s':''}`); }
+    else { mult += 0.5 * boost; bonusTxt.push(`+${(0.5*boost).toFixed(1)} mult`); }
+  }
+
+  let haul = 0;
+  for(const c of got) haul += c.kind ? KIND_VALUE[c.kind] : RUN_BASE;
+  const earned = Math.round(haul * mult);
+  run.dollars += earned;
+  run.stats.counters += n;
+  run.stats.combos += combos.length;
+  run.savedMult = hasRelic('combosaver') ? (mult - 1) / 2 : 0;
+
+  return { n, mult, earned, combos, bonusTxt };
+}
+
+/* --- one full drop (pick zone → physics → score) --- */
+async function runDrop(){
+  const kind = nextDropKind();
+  const jz0 = bossRound() ? Machine.jackpotZ() : -1;
+  $('dropsLeft').innerHTML = kind
+    ? `Dropping a <b>${KIND_LABEL[kind]} counter</b> — pick a zone!`
+    : `<b>${run.tokens}</b> token${run.tokens===1?'':'s'} left — pick a drop zone!`;
+  const z = await humanPickZone();
+  run.tokens--;
+  run.collected = [];
+  run.dropStart = performance.now();
+  run.dropping = true;
+  Machine.drop(z, 0, false, kind);
+  renderRunHud();
+  await waitForSettle(7500);
+  run.dropping = false;
+
+  const r = scoreDrop(jz0);
+  if(run.jackpotTipped) run.dollars += RUN_JACKPOT_BONUS;
+  renderRunHud();
+
+  if(r.combos.length){
+    comboFlash(r.combos[0] + (r.combos.length>1 ? ` +${r.combos.length-1}` : '') + ` ×${r.mult.toFixed(1).replace(/\.0$/,'')}`);
+    ben('runCombo', { combo: r.combos[0].toLowerCase().replace(/^\w/,ch=>ch.toUpperCase()) });
+    playSound('correct');
+  }
+  if(r.n > 0){
+    $('dropsLeft').innerHTML = `<b>${r.n}</b> counter${r.n>1?'s':''} × mult <b>×${r.mult.toFixed(1).replace(/\.0$/,'')}</b> = <b style="color:var(--gold)">+£${r.earned.toLocaleString()}</b>` +
+      (r.bonusTxt.length ? ` &nbsp;·&nbsp; Mystery: ${r.bonusTxt.join(', ')}` : '');
+  } else {
+    $('dropsLeft').textContent = 'Nothing over the edge — the pile is building…';
+    if(!r.combos.length) ben('noWin');
+  }
+  await sleep(1500);
+}
+
+/* --- between-round shop: draft 1 of 3 power-ups --- */
+function runShop(){
+  return new Promise(res=>{
+    const unowned = POWERUPS.filter(p=>!hasRelic(p.id));
+    if(!unowned.length){ res(); return; }
+    const offer = shuffle([...unowned]).slice(0,3);
+    $('shopTitle').textContent = `ROUND ${run.round+1} CLEARED!`;
+    $('shopBody').innerHTML = `You banked <b>£${run.dollars.toLocaleString()}</b> against a target of £${runTarget().toLocaleString()}. Choose <b>one power-up</b> for the rest of the run:`;
+    const box=$('shopCards'); box.innerHTML='';
+    offer.forEach(p=>{
+      const card=document.createElement('button');
+      card.className='shop-card';
+      card.innerHTML=`<div class="sc-icon">${p.icon}</div><div class="sc-name">${p.name}</div><div><span class="sc-cat">${p.cat}</span></div><div class="sc-desc">${p.desc}</div>`;
+      card.onclick=()=>{ run.relics.push(p.id); playSound('correct'); $('shopOverlay').classList.remove('show'); res(); };
+      box.appendChild(card);
+    });
+    $('shopOverlay').classList.add('show');
+  });
+}
+
+/* --- run over screens --- */
+function runEnd(victory){
+  run.active=false;
+  run.payLive=false;
+  Machine.setPushers(true);
+  const tickets = run.round + (victory ? 1 : 0);
+  const meta = `<br><br><span style="font-size:13px;color:var(--muted)">Meta rewards earned — ` +
+    `🎫 <b style="color:var(--text)">${tickets}</b> Tickets · ` +
+    `📚 <b style="color:var(--text)">${run.stats.correct}</b> Knowledge Points · ` +
+    `⚙️ <b style="color:var(--text)">${run.stats.combos}</b> Machine Parts</span>`;
+  if(victory){
+    $('endTitle').textContent='RUN COMPLETE!';
+    $('endBody').innerHTML=`All ${RUN_TARGETS.length} rounds cleared with <b style="color:var(--gold);font-size:22px">£${run.dollars.toLocaleString()}</b> banked in the final round.` +
+      `<br><br>Ben: "You've beaten everything the machine could throw at you — cascades, bosses, the lot. Magnificent!"` + meta;
+  } else {
+    $('endTitle').textContent='RUN OVER';
+    $('endBody').innerHTML=`You reached <b>Round ${run.round+1}</b> but fell short: <b style="color:var(--gold)">£${run.dollars.toLocaleString()}</b> of the £${runTarget().toLocaleString()} target.` +
+      `<br><br>Ben: "The machine wins this time — but every run teaches you something. Go again!"` + meta;
+  }
+  $('endOverlay').classList.add('show');
+}
+
+/* --- one round of the run --- */
+async function playRunRound(){
+  const boss = bossRound();
+  run.tokens = 0; run.dollars = 0; run.dropNo = 0;
+  run.streak = 0; run.skipUsed = false; run.jackpotTipped = false;
+
+  // the machine idles between phases: pushers held, no payouts
+  run.payLive = false;
+  Machine.setPushers(false);
+
+  // fresh machine layout each round, with randomised special counters
+  Machine.reset({
+    specials: true,
+    bossCut: boss,
+    speed: (hasRelic('surge') ? 1.4 : 1) * (boss ? 1.25 : 1),
+    friction: hasRelic('sticky') ? 0.72 : 1,
+    spread: hasRelic('widen') ? 8 : 24,
+  });
+  renderRunHud();
+
+  await showBanner(boss ? `BOSS ROUND ${run.round+1}` : `ROUND ${run.round+1}`);
+  ben(boss ? 'runBoss' : 'runRound', { r: run.round+1, t: runTarget().toLocaleString(), name: run.name });
+  await showMsg(boss ? `Boss Round ${run.round+1}` : `Round ${run.round+1}`,
+    `Target: <b>£${runTarget().toLocaleString()}</b>. Answer <b>${RUN_QUESTIONS} questions</b> to earn Drop Tokens — questions pay no money on their own. ` +
+    `The machine only pays when <b>you</b> drop a counter: plain counters are worth <b>£${RUN_BASE}</b>, and combos multiply each drop's haul.` +
+    (boss ? `<br><br>💀 <b>Boss modifiers:</b> faster shelf, fewer counters. The <b>jackpot counter</b> goes in first — tip it over both edges for <b>+£${RUN_JACKPOT_BONUS}</b>!` : ''),
+    boss ? 'FACE THE BOSS' : 'START ROUND');
+
+  // boss: place the jackpot counter first
+  if(boss){
+    focusOn('machine');
+    $('dropsLeft').innerHTML='Place the <b>JACKPOT COUNTER</b> — pick a zone!';
+    const z=await humanPickZone();
+    run.payLive = true; Machine.setPushers(true);
+    Machine.drop(z, 0, true);
+    await waitForSettle();
+    run.payLive = false; Machine.setPushers(false);
+    $('dropsLeft').textContent='';
+    focusOn(null);
+  }
+
+  // --- trivia phase: earn tokens ---
+  for(let qn=0; qn<RUN_QUESTIONS; qn++){
+    ben('askPlayer',{name:run.name});
+    await sleep(700);
+    let question=nextQuestion();
+    let r=await askHuman(question, 15, {
+      insight: hasRelic('insight'),
+      canSkip: hasRelic('skip') && !run.skipUsed,
+    });
+    if(r.skipped){
+      run.skipUsed=true;
+      question=nextQuestion();
+      r=await askHuman(question, 15, { insight: hasRelic('insight') });
+    }
+    if(r.correct){
+      run.stats.correct++;
+      run.streak++;
+      const gained = (hasRelic('doubledrops') && run.streak>=2) ? 2 : 1;
+      run.tokens += gained;
+      ben('correct',{n:gained, s:gained>1?'s':''});
+    } else {
+      run.streak=0;
+      ben(r.timeout?'timeout':'wrong',{ans:question.a});
+    }
+    renderRunHud();
+    await sleep(900);
+  }
+
+  // --- drop phase: spend tokens ---
+  if(run.tokens===0){
+    await showMsg('No Tokens!','You answered nothing correctly — no drops this round.','OH NO');
+  } else {
+    ben('runDrop');
+    focusOn('machine');
+    run.payLive = true; Machine.setPushers(true);
+    while(run.tokens>0 && run.dollars<runTarget() && !run.jackpotTipped){
+      await runDrop();
+    }
+    run.payLive = false; Machine.setPushers(false);
+    focusOn(null);
+    $('dropsLeft').textContent='';
+  }
+
+  // boss auto-clear on jackpot tip
+  if(run.jackpotTipped && run.dollars < runTarget()){
+    run.dollars = Math.max(run.dollars, runTarget());
+    renderRunHud();
+    await showBanner('JACKPOT TIPPED — BOSS DOWN!', 2000);
+  }
+
+  return run.dollars >= runTarget();
+}
+
+/* --- run entry point --- */
+async function startRun(name){
+  run.active=true; run.name=name||'You';
+  run.round=0; run.dollars=0; run.tokens=0;
+  run.relics.length=0; run.savedMult=0;
+  run.stats={correct:0, combos:0, counters:0};
+
+  Machine.onCollect = runCollect;
+  Machine.onBoom = (c)=>{ playSound('drop'); comboFlash('💥 BOOM!'); };
+
+  $('playersStrip').style.display='none';
+  $('runHud').classList.add('show');
+  $('machineSub').textContent=`Plain counter = £${RUN_BASE} · combos multiply your haul`;
+
+  ben('runIntro',{name:run.name});
+  renderRunHud();
+  await sleep(600);
+
+  for(run.round=0; run.round<RUN_TARGETS.length; run.round++){
+    const passed = await playRunRound();
+    if(!passed){ runEnd(false); return; }
+    ben('runPass');
+    playSound('jackpot');
+    if(run.round < RUN_TARGETS.length-1) await runShop();
+    renderRunHud();
+  }
+  runEnd(true);
+}
+
+/* --- boot --- */
+$('poolInfo').textContent=`Question bank loaded: ${QUESTION_POOL.length.toLocaleString()} questions across ${new Set(QUESTION_POOL.map(q=>q.cat)).size} categories.`;
+Machine.start();
+
+$('startBtn').addEventListener('click',()=>{
+  const name=$('nameInput').value.trim()||'You';
+  $('titleOverlay').classList.remove('show');
+  if(audioCtx===null){ try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+  startGame(name);
+});
+$('runBtn').addEventListener('click',()=>{
+  const name=$('nameInput').value.trim()||'You';
+  $('titleOverlay').classList.remove('show');
+  if(audioCtx===null){ try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+  startRun(name);
+});
+$('nameInput').addEventListener('keydown',e=>{ if(e.key==='Enter') $('startBtn').click(); });
+$('againBtn').addEventListener('click',()=>location.reload());
+
+</script>
+</body>
+</html>
