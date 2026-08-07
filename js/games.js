@@ -105,6 +105,17 @@ const GAMES = [
     accentColor: "#2ecc71",
     status: "playable",
   },
+  {
+    id: "fcm",
+    title: "Food Chain Magnate",
+    subtitle: "Sell the Fast Food",
+    category: "board",
+    players: "1",
+    duration: "30–45 min",
+    icon: "🃏",
+    accentColor: "#2ecc71",
+    status: "playable",
+  },
      {
     id: "for-sale",
     title: "For Sale",
