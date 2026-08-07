@@ -1,0 +1,2909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Food Chain Magnate — Fan Tabletop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Pacifico&family=Rubik:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#FBF2DE; --cream2:#F6E8C9; --paper:#FFF9EC;
+  --red:#C22F3C; --red-dk:#8E1F2A;
+  --teal:#7ED0C8; --teal-dk:#39A79E;
+  --ink:#211E18; --ink-soft:#4A443A;
+  --plum:#7C3051; --road:#C2C1BA; --road-line:#FFFDF4;
+  --grass:#7FA05B;
+  --c-black:#211E18; --c-purple:#B79EC7; --c-pink:#F2A48F; --c-grey:#A9A296;
+  --c-buyer:#9CCB86; --c-kitchen:#8FA25B; --c-blue:#84C9DB; --c-red:#C22F3C;
+  --gold:#E8B23A;
+  --shadow: 0 3px 0 rgba(33,30,24,.28);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+body{
+  font-family:'Rubik',sans-serif; background:var(--cream); color:var(--ink);
+  background-image:radial-gradient(rgba(194,47,60,.045) 1.2px, transparent 1.2px);
+  background-size:22px 22px;
+  overflow:hidden;
+}
+button{font-family:inherit; cursor:pointer;}
+h1,h2,h3,.disp{font-family:'Lilita One', 'Rubik', sans-serif; letter-spacing:.5px;}
+.script{font-family:'Pacifico',cursive; font-weight:400;}
+
+/* ---------- top bar ---------- */
+#topbar{
+  height:58px; display:flex; align-items:center; gap:14px; padding:0 14px;
+  background:var(--red); color:var(--cream); box-shadow:0 3px 0 var(--red-dk);
+  position:relative; z-index:30;
+}
+#topbar .logo{font-family:'Lilita One'; font-size:22px; line-height:1; text-shadow:2px 2px 0 var(--red-dk);}
+#topbar .logo .script{font-size:15px; color:var(--teal); display:block; margin-top:-2px; text-shadow:none;}
+.pill{
+  background:var(--cream); color:var(--ink); border-radius:999px; padding:5px 12px;
+  font-weight:700; font-size:13px; box-shadow:var(--shadow); white-space:nowrap;
+}
+.pill b{color:var(--red);}
+#phasePill{background:var(--ink); color:var(--cream);}
+#phasePill b{color:var(--teal);}
+#turnOrderPill span.tp{display:inline-block; width:15px;height:15px;border-radius:50%;
+  vertical-align:-3px; margin:0 2px; border:2px solid var(--ink);}
+#topbar .spacer{flex:1;}
+.tbbtn{
+  background:var(--ink); color:var(--cream); border:none; border-radius:8px; padding:7px 12px;
+  font-family:'Lilita One'; font-size:13px; letter-spacing:.5px; box-shadow:0 2px 0 #000;
+}
+.tbbtn:hover{transform:translateY(-1px);}
+
+/* ---------- layout ---------- */
+#main{display:flex; height:calc(100% - 58px);}
+#boardWrap{flex:1; overflow:auto; position:relative; padding:22px;}
+#sidebar{
+  width:430px; min-width:430px; background:var(--paper); border-left:4px solid var(--ink);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+#tabs{display:flex; background:var(--cream2); border-bottom:3px solid var(--ink);}
+#tabs button{
+  flex:1; border:none; background:transparent; padding:9px 4px; font-family:'Lilita One';
+  font-size:12.5px; color:var(--ink-soft); border-right:1px solid rgba(33,30,24,.15);
+}
+#tabs button.on{background:var(--red); color:var(--cream);}
+#tabBody{flex:1; overflow-y:auto; padding:12px;}
+
+/* ---------- action bar ---------- */
+#actionBar{
+  border-top:4px solid var(--ink); background:var(--teal); padding:10px 12px; min-height:86px;
+}
+#actionMsg{font-weight:700; font-size:13.5px; margin-bottom:8px;}
+#actionBtns{display:flex; flex-wrap:wrap; gap:7px;}
+.abtn{
+  background:var(--red); color:var(--cream); border:2px solid var(--ink); border-radius:9px;
+  padding:7px 13px; font-family:'Lilita One'; font-size:13px; box-shadow:var(--shadow);
+}
+.abtn.alt{background:var(--paper); color:var(--ink);}
+.abtn.ghost{background:transparent; box-shadow:none; color:var(--ink);}
+.abtn:disabled{opacity:.45; cursor:not-allowed;}
+.abtn:not(:disabled):hover{transform:translateY(-1px);}
+
+/* ---------- board ---------- */
+#board{
+  position:relative; margin:auto;
+  background:var(--cream2); border:5px solid var(--ink); border-radius:6px;
+  box-shadow:8px 8px 0 rgba(33,30,24,.18);
+}
+.cell{position:absolute; width:34px; height:34px;}
+.cell.road{background:var(--road);}
+.cell.road::after{
+  content:""; position:absolute; inset:0;
+}
+.cell.road.rh::after{border-top:2px dashed var(--road-line); top:50%;}
+.cell.road.rv::before{content:""; position:absolute; left:50%; top:0; bottom:0; border-left:2px dashed var(--road-line);}
+.cell.house{background:var(--plum);}
+.cell.garden{background:var(--grass);}
+.cell.empty{background:transparent;}
+.tileborder{position:absolute; border:1.5px dashed rgba(33,30,24,.28); pointer-events:none;}
+.good{width:12px;height:12px;border-radius:3px; border:1.5px solid rgba(0,0,0,.45); box-shadow:0 1px 0 rgba(0,0,0,.3);}
+.good.burger{background:#8A5A2B; border-radius:50% 50% 40% 40%;}
+.good.pizza{background:#E8842C; clip-path:polygon(50% 0, 100% 100%, 0 100%); border:none;}
+.good.soda{background:#C22F3C; border-radius:4px 4px 2px 2px;}
+.good.beer{background:#1F5B3C; border-radius:4px 4px 2px 2px;}
+.good.lemonade{background:#EFC22F; border-radius:4px 4px 2px 2px;}
+.srcIcon{position:absolute; z-index:4; display:flex; align-items:center; justify-content:center; pointer-events:none;}
+.srcIcon .good{width:16px;height:16px; outline:2px solid var(--paper);}
+.restaurant{
+  position:absolute; z-index:8; border:3px solid var(--ink); border-radius:8px;
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  font-family:'Lilita One'; font-size:11px; line-height:1.05; color:var(--ink);
+  box-shadow:2px 2px 0 rgba(0,0,0,.35); padding:2px;
+}
+.restaurant .ent{position:absolute; width:13px; height:13px; background:var(--ink); border-radius:50%;
+  display:flex;align-items:center;justify-content:center;}
+.restaurant .ent::after{content:""; width:5px;height:5px;background:var(--cream);border-radius:50%;}
+.restaurant.coming::before{
+  content:"COMING SOON"; position:absolute; top:-11px; left:50%; transform:translateX(-50%) rotate(-4deg);
+  background:var(--gold); border:2px solid var(--ink); font-size:8px; padding:0 4px; border-radius:4px; white-space:nowrap;
+}
+.markTile{
+  position:absolute; z-index:7; background:var(--teal); border:2.5px solid var(--ink); border-radius:6px;
+  overflow:visible;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-family:'Lilita One'; font-size:10px; box-shadow:2px 2px 0 rgba(0,0,0,.3); overflow:hidden;
+}
+.markTile.eternal{outline:3px solid var(--gold);}
+.cellHit{position:absolute; z-index:20; cursor:pointer;}
+.cellHit:hover{outline:3px solid var(--red); outline-offset:-3px; background:rgba(194,47,60,.15);}
+.ghostOK{background:rgba(94,164,84,.4)!important;}
+.ghostBad{background:rgba(194,47,60,.4)!important;}
+
+/* ---------- dinnertime animation ---------- */
+@keyframes spotPulse{0%,100%{box-shadow:0 0 0 3px var(--gold),0 0 14px 4px rgba(232,178,58,.55);}
+  50%{box-shadow:0 0 0 5px var(--gold),0 0 22px 9px rgba(232,178,58,.75);}}
+@keyframes cashRise{0%{opacity:0;transform:translateY(6px) scale(.7);}
+  18%{opacity:1;transform:translateY(-2px) scale(1.12);}
+  70%{opacity:1;transform:translateY(-22px) scale(1);}
+  100%{opacity:0;transform:translateY(-40px) scale(.95);}}
+@keyframes lineDraw{0%{opacity:0;transform-origin:0 50%;}
+  25%{opacity:.95;}80%{opacity:.7;}100%{opacity:0;}}
+.spotRing{
+  position:absolute; z-index:11; border-radius:10px; pointer-events:none;
+  animation:spotPulse 1s ease-in-out infinite;
+}
+.houseArt.spot .body{background:#9A4068;}
+.houseArt.spot .num{background:var(--gold);}
+.cashPop{
+  position:absolute; z-index:25; pointer-events:none; text-align:center;
+  font-family:'Lilita One'; font-size:20px;
+  text-shadow:2px 2px 0 var(--ink), -1px -1px 0 var(--ink), 1px -1px 0 var(--ink), -1px 1px 0 var(--ink);
+  animation:cashRise 1.5s ease-out forwards;
+}
+.servedLine{
+  position:absolute; z-index:10; height:4px; border-radius:2px; pointer-events:none;
+  transform-origin:0 50%; opacity:0; animation:lineDraw 1.5s ease-out forwards;
+  box-shadow:0 0 0 1.5px var(--ink);
+}
+
+/* ---------- idle-action strip ---------- */
+.idleStrip{
+  border:2.5px solid var(--ink); border-radius:8px; background:#FBE6C8;
+  padding:5px 7px; margin:6px 0; font-size:11px; font-weight:700; line-height:1.5;
+}
+.idleStrip.ok{background:#E8F3DC;}
+.ichip{
+  display:inline-block; background:var(--paper); border:1.5px solid var(--ink); border-radius:5px;
+  padding:1px 6px; margin:2px 3px 0 0; font-weight:500;
+}
+.ichip.now{background:var(--gold);}
+
+/* ---------- board art: houses, diners, signage ---------- */
+.cell.house{background:transparent;}
+.cell.garden{
+  background:var(--grass);
+  background-image:radial-gradient(circle at 30% 65%, #8FA25B 26%, transparent 27%),
+                   radial-gradient(circle at 72% 40%, #8FA25B 22%, transparent 23%);
+}
+.houseArt{position:absolute; z-index:5; pointer-events:auto; cursor:help;}
+.houseArt .roof{
+  position:absolute; left:-2px; right:-2px; top:0; height:16px;
+  background:var(--red-dk); clip-path:polygon(50% 0, 100% 100%, 0 100%);
+}
+.houseArt .body{
+  position:absolute; left:2px; right:2px; top:15px; bottom:1px; background:var(--plum);
+  border:2px solid var(--ink); border-top:none; border-radius:0 0 5px 5px;
+  box-shadow:2px 2px 0 rgba(0,0,0,.28);
+}
+.houseArt .num{
+  position:absolute; left:-2px; top:-1px; width:18px; height:18px; border-radius:50%;
+  background:var(--paper); border:2px solid var(--ink); z-index:3;
+  font-family:'Lilita One'; font-size:11px; display:flex; align-items:center; justify-content:center;
+}
+.houseArt .wins{position:absolute; left:0; right:0; top:21px; display:flex; gap:3px; justify-content:center;}
+.houseArt .w{width:11px; height:11px; background:#3A3630; border:1.5px solid var(--ink); border-radius:1px;}
+.houseArt .w.lit{background:var(--gold); box-shadow:0 0 5px rgba(232,178,58,.8);}
+.houseArt .dm{
+  position:absolute; left:2px; right:2px; bottom:2px; display:flex; gap:2px;
+  flex-wrap:wrap; justify-content:center; align-content:flex-end;
+}
+.houseArt.sated .body{background:#5C4A52;}
+.restaurant{
+  position:absolute; z-index:8; border:none!important; background:transparent!important;
+  box-shadow:none!important; padding:0;
+}
+.restaurant .sign{
+  position:absolute; left:5px; right:5px; top:0; height:16px; z-index:3;
+  border:2px solid var(--ink); border-radius:4px; box-shadow:1px 2px 0 rgba(0,0,0,.35);
+  font-family:'Lilita One'; font-size:9.5px; line-height:1;
+  display:flex; align-items:center; justify-content:center; overflow:hidden; padding:0 2px;
+}
+.restaurant .awn{
+  position:absolute; left:0; right:0; top:15px; height:11px; z-index:2;
+  border:2px solid var(--ink); border-radius:4px 4px 2px 2px;
+}
+.restaurant .bldg{
+  position:absolute; left:2px; right:2px; top:25px; bottom:1px; background:var(--cream2);
+  border:2px solid var(--ink); border-top:none; border-radius:0 0 5px 5px;
+  box-shadow:2px 2px 0 rgba(0,0,0,.3);
+}
+.restaurant .win{
+  position:absolute; left:4px; top:4px; width:40%; height:14px; background:var(--teal);
+  border:1.5px solid var(--ink); border-radius:2px;
+}
+.restaurant .door{
+  position:absolute; right:5px; bottom:0; width:14px; height:19px; background:var(--red-dk);
+  border:1.5px solid var(--ink); border-bottom:none; border-radius:3px 3px 0 0;
+}
+.restaurant.coming .bldg{background:repeating-linear-gradient(45deg,var(--cream2) 0 6px,#E4D3AC 6px 12px);}
+.srcIcon .shed{
+  position:relative; width:24px; height:21px; background:var(--cream2);
+  border:2px solid var(--ink); border-radius:2px; display:flex; align-items:center; justify-content:center;
+  box-shadow:1px 2px 0 rgba(0,0,0,.3);
+}
+.srcIcon .shedRoof{
+  position:absolute; top:-9px; left:-4px; width:32px; height:10px; background:var(--red-dk);
+  clip-path:polygon(50% 0, 100% 100%, 0 100%);
+}
+.mkPost{position:absolute; left:50%; transform:translateX(-50%); bottom:0; width:5px; background:#4A443A; border:1px solid var(--ink);}
+.mkBoard{
+  position:relative; border:2px solid var(--ink); border-radius:3px; background:var(--paper);
+  box-shadow:2px 2px 0 rgba(0,0,0,.3); overflow:hidden; width:100%;
+}
+.mkBoard .cap{background:var(--red); color:var(--paper); font-size:8px; font-family:'Lilita One'; text-align:center; line-height:1.35;}
+.mkBoard .face{display:flex; align-items:center; justify-content:center; gap:2px; padding:2px 0;}
+.mkTurns{font-size:8.5px; font-family:'Lilita One'; color:var(--ink); text-align:center; line-height:1.2;}
+.mkTower{width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:16px solid var(--ink);position:relative;}
+.mkTower::after{content:""; position:absolute; left:-5px; top:4px; width:10px; height:10px; border:2px solid var(--red); border-radius:50%; border-left-color:transparent; border-right-color:transparent;}
+.mkMail{width:20px;height:15px;background:var(--teal-dk);border:2px solid var(--ink);border-radius:8px 8px 2px 2px;position:relative;}
+.mkMail::after{content:""; position:absolute; right:-4px; top:2px; width:3px; height:7px; background:var(--red); border:1px solid var(--ink);}
+.mkPlane{display:flex; align-items:center; gap:4px;}
+.mkPlane .fus{width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:16px solid var(--ink);}
+.mkPlane .banner{background:var(--paper); border:2px solid var(--ink); border-radius:3px; padding:1px 6px;
+  display:flex; align-items:center; gap:3px; font-family:'Lilita One'; font-size:9px;}
+
+/* zoomed-out map: drop the fine detail so shapes still read */
+#board.tiny .houseArt .wins,
+#board.tiny .restaurant .win,
+#board.tiny .restaurant .door,
+#board.tiny .mkTurns,
+#board.tiny .mkBoard .cap{display:none;}
+#board.tiny .houseArt .num{width:14px;height:14px;font-size:9px;border-width:1.5px;}
+#board.tiny .houseArt .roof{height:11px;}
+#board.tiny .houseArt .body{top:10px;}
+#board.tiny .restaurant .sign{height:12px;font-size:7px;border-width:1.5px;}
+#board.tiny .restaurant .awn{top:11px;height:8px;}
+#board.tiny .restaurant .bldg{top:18px;}
+#board.tiny .good{width:9px;height:9px;border-width:1px;}
+#board.tiny .distNum{font-size:9px;}
+#board.tiny .srcIcon .shed{width:17px;height:15px;}
+#board.tiny .srcIcon .shedRoof{top:-6px;left:-3px;width:23px;height:7px;}
+#board.micro .houseArt .dm,
+#board.micro .restaurant .sign,
+#board.micro .spotRing{display:none;}
+#board.micro .houseArt .num{width:12px;height:12px;font-size:8px;}
+#board.micro .distNum{font-size:8px;}
+
+/* ---------- board tools & distance overlay ---------- */
+#boardTools{
+  position:sticky; top:0; left:0; z-index:40; display:flex; align-items:center; gap:6px;
+  margin-bottom:10px; flex-wrap:wrap;
+}
+.btool{
+  background:var(--ink); color:var(--cream); border:none; border-radius:7px; padding:5px 10px;
+  font-family:'Lilita One'; font-size:11.5px; letter-spacing:.5px; box-shadow:0 2px 0 rgba(0,0,0,.4);
+}
+.btool:hover{transform:translateY(-1px);}
+#distBadge{
+  display:none; background:var(--gold); border:2px solid var(--ink); border-radius:7px;
+  padding:3px 9px; font-size:11px; font-weight:700;
+}
+#distLayer{position:absolute; inset:0; z-index:9; pointer-events:none;}
+.distNum{
+  position:absolute; display:flex; align-items:center; justify-content:center;
+  font-family:'Lilita One'; font-size:12px; color:var(--paper);
+  text-shadow:1px 1px 0 rgba(0,0,0,.75);
+}
+.distNum.zero{background:rgba(232,178,58,.85); color:var(--ink); text-shadow:none;}
+.distNum.near{background:rgba(45,140,90,.72);}
+.distNum.mid{background:rgba(232,140,45,.62);}
+.distNum.far{background:rgba(140,60,60,.5);}
+
+/* ---------- dinner preview ---------- */
+.dhouse{
+  border:2.5px solid var(--ink); border-radius:8px; background:var(--paper);
+  padding:6px 7px; margin-bottom:8px; box-shadow:var(--shadow); cursor:help;
+}
+.dhouse.win{background:#F3F9EC; border-color:var(--grass);}
+.dhouse .dh{font-family:'Lilita One'; font-size:13px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;}
+.dhouse .dh .si{display:inline-flex; align-items:center; gap:2px; font-family:'Rubik'; font-size:11px; font-weight:700;}
+.drow{display:flex; align-items:center; gap:6px; font-size:11.5px; padding:2px 0; border-top:1px dashed rgba(33,30,24,.18);}
+.drow .dn{flex:1; font-weight:500;}
+.drow .dsc{font-family:'Lilita One'; font-size:12px;}
+.drow.lead{font-weight:700;}
+.drow.out{opacity:.55;}
+.drow .dwhy{font-style:italic; font-size:10.5px; color:var(--red-dk);}
+.drow.none{font-style:italic; color:var(--ink-soft);}
+.drow .dot{width:11px;height:11px;border-radius:50%;border:1.5px solid var(--ink); flex-shrink:0;}
+
+/* ---------- cards ---------- */
+.ecard{
+  width:118px; min-height:96px; border-radius:8px; border:2.5px solid var(--ink);
+  background:var(--paper); box-shadow:var(--shadow); overflow:hidden; position:relative;
+  display:flex; flex-direction:column; flex-shrink:0;
+}
+.ecard .hd{
+  padding:4px 5px 3px; font-family:'Lilita One'; font-size:10.5px; text-transform:uppercase;
+  line-height:1.05; color:var(--paper); text-shadow:1px 1px 0 rgba(0,0,0,.35); min-height:26px;
+  display:flex; align-items:center;
+}
+.ecard .bd{padding:4px 5px; font-size:9.5px; line-height:1.25; color:var(--ink-soft); flex:1;}
+.ecard .ft{display:flex; align-items:center; gap:4px; padding:2px 5px 4px; font-size:9px;}
+.ecard .badge{font-size:9px; background:var(--ink); color:var(--paper); border-radius:4px; padding:1px 4px; font-weight:700;}
+.ecard.busyC{opacity:.75;}
+.ecard .busyChip{
+  position:absolute; top:4px; right:4px; width:22px; height:22px; background:var(--teal);
+  border:2px solid var(--ink); border-radius:4px; font-family:'Lilita One'; font-size:12px;
+  display:flex; align-items:center; justify-content:center; z-index:2;
+}
+.ecard.sel{outline:4px solid var(--gold); outline-offset:1px;}
+.ecard.clickable{cursor:pointer;}
+.ecard.clickable:hover{transform:translateY(-2px);}
+.ecard.mini{width:96px; min-height:78px;}
+.ecard.mini .hd{font-size:9px; min-height:22px;}
+.ecard.mini .bd{font-size:8.5px;}
+.cardRow{display:flex; flex-wrap:wrap; gap:8px; margin:6px 0;}
+.hc-black{background:var(--c-black);} .hc-purple{background:var(--c-purple);}
+.hc-pink{background:var(--c-pink); color:var(--ink)!important; text-shadow:none!important;}
+.hc-grey{background:var(--c-grey);} .hc-buyer{background:var(--c-buyer); color:var(--ink)!important; text-shadow:none!important;}
+.hc-kitchen{background:var(--c-kitchen);} .hc-blue{background:var(--c-blue); color:var(--ink)!important; text-shadow:none!important;}
+.hc-red{background:var(--c-red);}
+
+/* milestone cards */
+.mcard{
+  width:128px; border-radius:8px; border:2.5px solid var(--ink); box-shadow:var(--shadow);
+  padding:7px 7px 9px; font-size:9.5px; line-height:1.25; position:relative;
+}
+.mcard h4{font-family:'Lilita One'; font-size:10.5px; text-transform:uppercase; margin-bottom:4px; line-height:1.1;}
+.mcard.gone{opacity:.35; filter:grayscale(.8);}
+.mcard .owner{position:absolute; bottom:-7px; right:-5px; display:flex; gap:2px;}
+.mcard .owner span{width:16px;height:16px;border-radius:50%;border:2px solid var(--ink); display:block;}
+
+/* starburst section header */
+.burst{
+  display:inline-block; background:var(--red); color:var(--cream); font-family:'Lilita One';
+  padding:7px 18px; font-size:15px; letter-spacing:1px; margin:4px 0 10px;
+  clip-path:polygon(3% 20%, 8% 8%, 16% 14%, 24% 2%, 31% 12%, 40% 4%, 48% 13%, 57% 2%, 64% 12%, 73% 5%, 80% 14%, 89% 7%, 94% 19%, 100% 30%, 95% 42%, 100% 55%, 94% 66%, 99% 79%, 90% 87%, 82% 82%, 74% 94%, 65% 86%, 56% 97%, 48% 87%, 39% 96%, 31% 86%, 23% 95%, 16% 85%, 8% 91%, 4% 78%, 0 65%, 4% 52%, 0 38%);
+}
+
+/* sidebar sections */
+.sect{margin-bottom:14px;}
+.sect h3{font-size:14px; color:var(--red); margin-bottom:5px; text-transform:uppercase;}
+.kv{font-size:12.5px; margin:2px 0;}
+.kv b{color:var(--red);}
+.playerBox{border:2.5px solid var(--ink); border-radius:9px; background:var(--paper); padding:8px; margin-bottom:9px; box-shadow:var(--shadow);}
+.playerBox .pname{font-family:'Lilita One'; font-size:13px; display:flex; align-items:center; gap:6px;}
+.dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--ink); display:inline-block;}
+.stockRow{display:flex; gap:6px; align-items:center; margin-top:4px; flex-wrap:wrap; font-size:11px;}
+.stockRow .si{display:flex; align-items:center; gap:2px; font-weight:700;}
+#log{font-size:11.5px; line-height:1.45;}
+#log .lt{color:var(--red); font-family:'Lilita One'; margin-top:8px; font-size:12px; text-transform:uppercase;}
+#log .li{margin:1px 0 1px 8px; border-left:2px solid rgba(33,30,24,.15); padding-left:6px;}
+#log .li.money{color:#1F5B3C; font-weight:600;}
+#log .li.mile{color:var(--red); font-weight:700;}
+
+/* structure pyramid */
+.pyr{display:flex; flex-direction:column; align-items:center; gap:6px;}
+.pyrRow{display:flex; gap:6px; flex-wrap:wrap; justify-content:center;}
+.slotBox{
+  width:96px; min-height:78px; border:2.5px dashed rgba(33,30,24,.4); border-radius:8px;
+  display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--ink-soft);
+  background:rgba(255,255,255,.35);
+}
+
+/* ---------- modal ---------- */
+#modalBack{
+  position:fixed; inset:0; background:rgba(33,30,24,.55); z-index:100; display:none;
+  align-items:center; justify-content:center;
+}
+#modal{
+  background:var(--paper); border:5px solid var(--ink); border-radius:12px; max-width:860px;
+  width:min(860px, 94vw); max-height:88vh; overflow-y:auto; padding:18px 20px;
+  box-shadow:10px 10px 0 rgba(33,30,24,.35);
+}
+#modal h2{color:var(--red); font-size:20px; margin-bottom:8px; text-transform:uppercase;}
+#modal .mbody{font-size:13px; line-height:1.45;}
+#modal .mbtns{display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;}
+
+/* setup screen */
+#setup{
+  position:fixed; inset:0; background:var(--cream); z-index:200; overflow-y:auto;
+  background-image:radial-gradient(rgba(194,47,60,.05) 1.2px, transparent 1.2px); background-size:22px 22px;
+  display:flex; align-items:center; justify-content:center;
+}
+#setupCard{
+  background:var(--paper); border:5px solid var(--ink); border-radius:14px; padding:28px 34px;
+  width:min(640px,94vw); box-shadow:12px 12px 0 rgba(33,30,24,.25); text-align:center;
+}
+#setupCard .bigtitle{font-family:'Lilita One'; font-size:52px; color:var(--red); line-height:.95; text-shadow:3px 3px 0 rgba(142,31,42,.35);}
+#setupCard .script{font-size:30px; color:var(--teal-dk); display:block; margin-top:2px;}
+#setupCard .sub{font-size:12px; color:var(--ink-soft); margin:10px 0 18px;}
+.chainOpt{display:flex; align-items:center; gap:9px; border:2.5px solid var(--ink); border-radius:9px;
+  padding:8px 10px; margin:6px 0; background:var(--cream2); cursor:pointer; font-weight:700; font-size:14px; text-align:left;}
+.chainOpt.on{background:var(--teal); box-shadow:var(--shadow);}
+.optRow{display:flex; gap:8px; justify-content:center; margin:8px 0 4px; flex-wrap:wrap;}
+.optRow button{
+  border:2.5px solid var(--ink); background:var(--cream2); border-radius:9px; padding:9px 16px;
+  font-family:'Lilita One'; font-size:15px;
+}
+.optRow button.on{background:var(--red); color:var(--cream); box-shadow:var(--shadow);}
+.startBtn{margin-top:18px; background:var(--red); color:var(--cream); font-family:'Lilita One'; font-size:20px;
+  padding:12px 34px; border:3px solid var(--ink); border-radius:12px; box-shadow:0 5px 0 var(--red-dk);}
+.startBtn:hover{transform:translateY(-2px);}
+.smallnote{font-size:10.5px; color:var(--ink-soft); margin-top:14px;}
+.tag{display:inline-block; background:var(--ink); color:var(--cream); font-size:10px; border-radius:4px; padding:1px 6px; margin-left:4px; vertical-align:2px;}
+::-webkit-scrollbar{width:11px;height:11px;} ::-webkit-scrollbar-thumb{background:var(--red); border-radius:6px; border:2px solid var(--cream);}
+::-webkit-scrollbar-track{background:var(--cream2);}
+@media (max-width:1100px){ #sidebar{width:340px;min-width:340px;} }
+
+/* =====================================================================
+   PHONE LAYOUT — the sidebar becomes a draggable bottom sheet so the
+   board can own the screen when you're placing something.
+   ===================================================================== */
+#sheetHandle{display:none;}
+@media (max-width:820px){
+  html,body{height:100dvh; overscroll-behavior:none;}
+  #topbar{
+    height:auto; min-height:46px; padding:5px 8px; gap:6px;
+    flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none;
+  }
+  #topbar::-webkit-scrollbar{display:none;}
+  #topbar .logo{font-size:15px;}
+  #topbar .logo .script{display:none;}
+  .pill{font-size:11px; padding:4px 9px;}
+  .tbbtn{font-size:11px; padding:6px 9px; flex-shrink:0;}
+  #topbar .spacer{min-width:2px;}
+
+  #main{flex-direction:column; height:calc(100dvh - 56px); position:relative;}
+  #boardWrap{
+    flex:1; padding:8px; min-height:0;
+    -webkit-overflow-scrolling:touch; touch-action:pan-x pan-y;
+  }
+  #board{margin:0; user-select:none;}
+
+  #sidebar{
+    width:100%; min-width:0; border-left:none; border-top:4px solid var(--ink);
+    border-radius:16px 16px 0 0; box-shadow:0 -6px 0 rgba(33,30,24,.18);
+    flex-shrink:0; max-height:88dvh; transition:height .22s ease;
+  }
+  #sheetHandle{
+    display:flex; align-items:center; gap:8px; padding:6px 12px 4px;
+    background:var(--cream2); border-radius:12px 12px 0 0; cursor:grab;
+    touch-action:none; user-select:none; flex-shrink:0;
+  }
+  #sheetHandle .grip{
+    width:44px; height:5px; border-radius:3px; background:var(--ink); opacity:.45; margin:0 auto;
+  }
+  #sheetHandle .hint{
+    position:absolute; right:12px; font-family:'Lilita One'; font-size:11px; color:var(--ink-soft);
+  }
+  #sheetHandle{position:relative;}
+
+  body.sheet-min #sidebar{height:auto;}
+  body.sheet-min #tabs, body.sheet-min #tabBody{display:none;}
+  body.sheet-half #sidebar{height:50dvh;}
+  body.sheet-max #sidebar{height:82dvh;}
+
+  #tabs button{font-size:11px; padding:11px 2px;}
+  #tabBody{padding:10px;}
+  #actionBar{min-height:0; padding:9px 11px calc(9px + env(safe-area-inset-bottom));}
+  #actionMsg{font-size:13px;}
+  .abtn{padding:11px 14px; font-size:14px; min-height:44px; touch-action:manipulation;}
+  .btool{padding:10px 13px; font-size:13px; min-height:44px; touch-action:manipulation;}
+  #boardTools{gap:7px; margin-bottom:8px;}
+  #distBadge{font-size:11px; padding:5px 9px;}
+
+  .ecard{width:calc(50% - 5px); min-width:0;}
+  .ecard.mini{width:calc(50% - 5px); min-width:0;}
+  .cardRow{gap:8px;}
+  .ecard .bd{font-size:10px;}
+  .ecard.mini .bd{font-size:9.5px;}
+
+  #modalBack{padding:10px;}
+  #modal{width:96vw; max-height:86dvh; overflow-y:auto; padding:16px;}
+  #modal .mbtns .abtn{flex:1 1 44%;}
+  #setupCard{padding:20px 16px; width:96vw;}
+  #setupCard .bigtitle{font-size:38px;}
+  #setupCard .script{font-size:22px;}
+  .optRow button{padding:11px 15px; min-height:46px;}
+  .startBtn{width:100%; padding:15px 10px;}
+  .mcard{width:calc(50% - 5px);}
+  .drow{font-size:12.5px; padding:4px 0;}
+  .dhouse{padding:8px;}
+}
+@media (max-width:820px) and (orientation:landscape){
+  body.sheet-half #sidebar{height:62dvh;}
+  #topbar{min-height:40px;}
+}
+</style>
+</head>
+<body>
+<div id="setup">
+  <div id="setupCard">
+    <div class="bigtitle">FOOD CHAIN<span class="script">Magnate</span></div>
+    <div class="sub">A fan-made digital tabletop for personal play — based on the Splotter Spellen classic.<br>Own the original? Even better. Don't cook tonight.</div>
+    <h3 style="color:var(--red)">Players at the table</h3>
+    <div class="optRow" id="pcountRow"></div>
+    <h3 style="color:var(--red); margin-top:12px;">Pick your chain</h3>
+    <div id="chainList"></div>
+    <div class="optRow" style="margin-top:14px;">
+      <label style="font-size:13px; font-weight:700; display:flex; align-items:center; gap:6px;">
+        <input type="checkbox" id="introMode"> Introductory game (no milestones, no salaries, shorter)
+      </label>
+    </div>
+    <button class="startBtn" onclick="startGame()">OPEN FOR BUSINESS</button>
+    <div class="smallnote">You control one chain; the rest are run by AI managers of questionable talent.</div>
+  </div>
+</div>
+
+<div id="topbar">
+  <div class="logo">FOOD CHAIN<span class="script">Magnate</span></div>
+  <div class="pill">Bank <b id="bankAmt">$0</b></div>
+  <div class="pill">Turn <b id="turnNum">1</b></div>
+  <div class="pill" id="phasePill">Phase <b id="phaseName">—</b></div>
+  <div class="pill" id="turnOrderPill">Order </div>
+  <div class="spacer"></div>
+  <button class="tbbtn" onclick="showHelp()">RULES</button>
+  <button class="tbbtn" onclick="showMilestones()">MILESTONES</button>
+</div>
+
+<div id="main">
+  <div id="boardWrap">
+    <div id="boardTools">
+      <button class="btool" onclick="showChainDist()" title="Show road distance from your restaurants">DISTANCES</button>
+      <button class="btool" onclick="zoomBoard(-1)" title="Zoom out">&minus;</button>
+      <button class="btool" onclick="zoomBoard(1)" title="Zoom in">+</button>
+      <button class="btool" onclick="fitBoard()" title="Fit the whole map on screen">FIT</button>
+      <button class="btool" onclick="scrollToMyChain()" title="Centre the view on your chain">MY CHAIN</button>
+      <div id="distBadge"></div>
+    </div>
+    <div id="board"></div>
+  </div>
+  <div id="sidebar">
+    <div id="sheetHandle" onclick="cycleSheet()"><div class="grip"></div><span class="hint" id="sheetHint">tap to expand</span></div>
+    <div id="tabs">
+      <button data-tab="phase" class="on" onclick="setTab('phase')">PHASE</button>
+      <button data-tab="company" onclick="setTab('company')">MY CO.</button>
+      <button data-tab="dinner" onclick="setTab('dinner')">DINNER</button>
+      <button data-tab="players" onclick="setTab('players')">RIVALS</button>
+      <button data-tab="log" onclick="setTab('log')">LOG</button>
+    </div>
+    <div id="tabBody"></div>
+    <div id="actionBar">
+      <div id="actionMsg">Welcome.</div>
+      <div id="actionBtns"></div>
+    </div>
+  </div>
+</div>
+
+<div id="modalBack"><div id="modal"></div></div>
+<script>
+/* =====================================================================
+   FOOD CHAIN MAGNATE — fan implementation
+   ===================================================================== */
+"use strict";
+const $=id=>document.getElementById(id);
+const rnd=n=>Math.floor(Math.random()*n);
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const clone=o=>JSON.parse(JSON.stringify(o));
+const GOODS=["burger","pizza","soda","beer","lemonade"];
+const GOOD_LABEL={burger:"Burger",pizza:"Pizza",soda:"Soda",beer:"Beer",lemonade:"Lemonade"};
+const DRINKS=["soda","beer","lemonade"];
+
+/* ------------------ EMPLOYEE CARD DEFINITIONS ------------------ */
+/* color: black purple pink grey buyer kitchen blue red */
+const EMP = {
+  ceo:{name:"CEO", color:"black", text:"Hire 1 person. Always at work.", slots:3, entry:false, salary:false, count:0},
+
+  waitress:{name:"Waitress", color:"purple", entry:true, salary:false, count:12,
+    text:"Get $3 cash after dinnertime. Win ties against chains with fewer waitresses."},
+  mgmt_trainee:{name:"Management Trainee", color:"black", entry:true, salary:false, count:15, slots:2,
+    text:"Manager: 2 slots.", trains:["jvp","nbd","lux_mgr"]},
+  pricing_mgr:{name:"Pricing Manager", color:"pink", entry:true, salary:false, count:9,
+    text:"Unit price −$1 while at work (mandatory)."},
+  recruit_girl:{name:"Recruiting Girl", color:"grey", entry:true, salary:false, count:9,
+    text:"Hire 1 person."},
+  trainer:{name:"Trainer", color:"grey", entry:true, salary:false, count:9,
+    text:"Train 1 person one step."},
+  errand_boy:{name:"Errand Boy", color:"buyer", entry:true, salary:false, count:12,
+    text:"Get 1 drink of any type.", trains:["cart_op"]},
+  mkt_trainee:{name:"Marketing Trainee", color:"blue", entry:true, salary:false, count:12, range:2, dur:2,
+    text:"Place a billboard. Range 2, max duration 2.", trains:["camp_mgr"]},
+  kitchen_trainee:{name:"Kitchen Trainee", color:"kitchen", entry:true, salary:false, count:12,
+    text:"Produce 1 burger or 1 pizza.", trains:["burger_cook","pizza_cook"]},
+
+  nbd:{name:"New Business Developer", color:"purple", salary:true, count:6,
+    text:"Place a new house (with garden) or add a garden to a house."},
+  jvp:{name:"Junior Vice President", color:"black", salary:true, count:9, slots:3,
+    text:"Manager: 3 slots.", trains:["vp","local_mgr","discount_mgr","recruit_mgr","coach"]},
+  lux_mgr:{name:"Luxuries Manager", color:"pink", salary:true, once:true, count:5,
+    text:"Unit price +$10 while at work (mandatory)."},
+  local_mgr:{name:"Local Manager", color:"red", salary:true, count:6, range:3,
+    text:"Place a new restaurant within range 3 ('COMING SOON', opens end of turn). Your chain has drive-ins this turn."},
+  vp:{name:"Vice President", color:"black", salary:true, count:6, slots:4,
+    text:"Manager: 4 slots.", trains:["svp","regional_mgr","guru"]},
+  discount_mgr:{name:"Discount Manager", color:"pink", salary:true, count:6,
+    text:"Unit price −$3 while at work (mandatory)."},
+  recruit_mgr:{name:"Recruiting Manager", color:"grey", salary:true, count:6,
+    text:"2×: Hire 1 person or $5 less salary."},
+  coach:{name:"Coach", color:"grey", salary:true, count:6,
+    text:"2 training slots. May train the same person two steps."},
+  cart_op:{name:"Cart Operator", color:"buyer", salary:true, count:6, range:2,
+    text:"Get 2 drinks from each source on a route of range 2.", trains:["truck_driver"]},
+  camp_mgr:{name:"Campaign Manager", color:"blue", salary:true, count:6, range:3, dur:3,
+    text:"Place a mailbox or billboard. Range 3, max duration 3.", trains:["brand_mgr"]},
+  burger_cook:{name:"Burger Cook", color:"kitchen", salary:true, count:9,
+    text:"Produce 3 burgers.", trains:["burger_chef"]},
+  pizza_cook:{name:"Pizza Cook", color:"kitchen", salary:true, count:9,
+    text:"Produce 3 pizzas.", trains:["pizza_chef"]},
+
+  regional_mgr:{name:"Regional Manager", color:"red", salary:true, once:true, count:5,
+    text:"Place or move a restaurant anywhere, opens immediately. Your chain has drive-ins this turn."},
+  svp:{name:"Senior Vice President", color:"black", salary:true, count:5, slots:5,
+    text:"Manager: 5 slots.", trains:["evp","cfo","hr_dir"]},
+  guru:{name:"Guru", color:"grey", salary:true, once:true, count:5,
+    text:"3 training slots. May train the same person up to three steps."},
+  truck_driver:{name:"Truck Driver", color:"buyer", salary:true, count:6, range:3,
+    text:"Get 3 drinks from each source on a route of range 3.", trains:["zeppelin"]},
+  brand_mgr:{name:"Brand Manager", color:"blue", salary:true, count:6, dur:4,
+    text:"Place an airplane, mailbox or billboard. Unlimited range, max duration 4.", trains:["brand_dir"]},
+  burger_chef:{name:"Burger Chef", color:"kitchen", salary:true, once:true, count:5,
+    text:"Produce 8 burgers."},
+  pizza_chef:{name:"Pizza Chef", color:"kitchen", salary:true, once:true, count:5,
+    text:"Produce 8 pizzas."},
+
+  evp:{name:"Executive Vice President", color:"black", salary:true, once:true, count:5, slots:10,
+    text:"Manager: 10 slots."},
+  cfo:{name:"CFO", color:"purple", salary:true, once:true, count:5,
+    text:"+50% to all cash earned this round (mandatory)."},
+  hr_dir:{name:"HR Director", color:"grey", salary:true, once:true, count:5,
+    text:"4×: Hire 1 person or $5 less salary."},
+  zeppelin:{name:"Zeppelin Pilot", color:"buyer", salary:true, once:true, count:5, range:4,
+    text:"Get 2 drinks from each source on a 5-tile flight, ignoring roads."},
+  brand_dir:{name:"Brand Director", color:"blue", salary:true, once:true, count:5, dur:5,
+    text:"Place any campaign (radio too). Unlimited range, max duration 5."},
+};
+const RECRUITERS={recruit_girl:1, recruit_mgr:2, hr_dir:4};
+const TRAIN_CAP={trainer:1, coach:2, guru:3};
+const MARKETEERS={mkt_trainee:["billboard"], camp_mgr:["billboard","mailbox"],
+  brand_mgr:["billboard","mailbox","airplane"], brand_dir:["billboard","mailbox","airplane","radio"]};
+const KITCHEN={kitchen_trainee:{choice:["burger","pizza"],n:1}, burger_cook:{good:"burger",n:3},
+  pizza_cook:{good:"pizza",n:3}, burger_chef:{good:"burger",n:8}, pizza_chef:{good:"pizza",n:8}};
+const BUYERS={errand_boy:1, cart_op:1, truck_driver:1, zeppelin:1};
+
+/* ------------------ MILESTONES ------------------ */
+const MILESTONES = {
+  m_hire3:{name:"First to hire 3 people in 1 turn", text:"+2 Management Trainees (immediately, on the beach)."},
+  m_train:{name:"First to train someone", text:"$15 discount on salaries every payday (obligatory)."},
+  m_billboard:{name:"First billboard placed", text:"No salaries for marketeers. Your campaigns are eternal (never end)."},
+  m_throw:{name:"First to throw away drink/food", text:"Freezer: keep up to 10 food/drink items through cleanup."},
+  m_burger_prod:{name:"First burger produced", text:"Receive a free Burger Cook."},
+  m_burger_mkt:{name:"First burger marketed", text:"+$5 for every burger sold."},
+  m_waitress:{name:"First waitress played", text:"Each waitress pays $5 instead of $3."},
+  m_pizza_prod:{name:"First pizza produced", text:"Receive a free Pizza Cook."},
+  m_pizza_mkt:{name:"First pizza marketed", text:"+$5 for every pizza sold."},
+  m_20:{name:"First to have $20", text:"You may peek at the bank reserve cards."},
+  m_errand:{name:"First errand boy played", text:"All your buyers get +1 drink from each source."},
+  m_drink_mkt:{name:"First drink marketed", text:"+$5 for every drink sold (any type)."},
+  m_100:{name:"First to have $100", text:"Your CEO counts as a CFO (+50% cash). You may not (also) have a CFO."},
+  m_cart:{name:"First cart operator played", text:"Your buyers get +1 range."},
+  m_airplane:{name:"First airplane campaign", text:"Count +2 open slots when determining order of play."},
+  m_lower:{name:"First to lower prices", text:"Your unit price is permanently −$1."},
+  m_salary20:{name:"First to pay $20 or more in salaries", text:"May use multiple trainers on the same person."},
+  m_radio:{name:"First radio campaign", text:"Your radios market 2 goods per house instead of 1."},
+};
+
+/* ------------------ CHAINS ------------------ */
+const CHAINS=[
+ {name:"Fried Geese & Donkey", color:"#C9B7D6", ink:"#211E18"},
+ {name:"Golden Duck Diner", color:"#3F7BB6", ink:"#FFF9EC"},
+ {name:"Santa Maria Pizza", color:"#F0A793", ink:"#211E18"},
+ {name:"Xango Blues Bar", color:"#8CBF7A", ink:"#211E18"},
+ {name:"Gluttony Inc. Burgers", color:"#C22F3C", ink:"#FFF9EC"},
+];
+
+/* ------------------ MAP TILES ------------------
+   Each tile is 5x5. All tiles have the central cross of roads
+   (row 2 and col 2) so any rotation always connects. Some tiles
+   add extra road spurs. h = 2x2 house at quadrant, drinks sit
+   adjacent to roads. Quadrants: 0=TL 1=TR 2=BL 3=BR          */
+const QPOS={0:[0,0],1:[0,3],2:[3,0],3:[3,3]};
+const TILE_DEFS=[
+ {house:1, hq:0, drinks:[["soda",3]]},
+ {house:2, hq:1, drinks:[["beer",2]]},
+ {house:3, hq:3, drinks:[["lemonade",0]]},
+ {house:4, hq:2, drinks:[["soda",1]]},
+ {house:5, hq:0, drinks:[["beer",3],["lemonade",1]]},
+ {house:6, hq:1, drinks:[]},
+ {house:7, hq:2, drinks:[["lemonade",3]]},
+ {house:8, hq:3, drinks:[["beer",0]]},
+ {house:9, hq:0, drinks:[["soda",3]]},
+ {house:10,hq:3, drinks:[["soda",0],["beer",1]]},
+ {house:11,hq:1, drinks:[["lemonade",2]]},
+ {house:12,hq:2, drinks:[["beer",1]]},
+ {house:0, hq:-1, drinks:[["soda",0],["lemonade",3]]},
+ {house:0, hq:-1, drinks:[["beer",0],["beer",3]]},
+ {house:0, hq:-1, drinks:[["soda",2]]},
+ {house:0, hq:-1, drinks:[["lemonade",1]]},
+ {house:0, hq:-1, drinks:[["soda",1],["beer",2]]},
+ {house:0, hq:-1, drinks:[]},
+ {house:0, hq:-1, drinks:[["lemonade",0],["soda",3]]},
+ {house:0, hq:-1, drinks:[["beer",2]]},
+];
+/* drink placement spot inside a quadrant (adjacent to cross roads) */
+const DRINK_SPOT={0:[1,1],1:[1,3],2:[3,1],3:[3,3]};
+
+/* =====================================================================
+   GAME STATE
+   ===================================================================== */
+let G=null;
+function newGame(numPlayers, humanChain, intro){
+  const tilesW={2:3,3:3,4:4,5:5}[numPlayers], tilesH={2:3,3:4,4:4,5:4}[numPlayers];
+  const onceCopies={2:1,3:1,4:2,5:3}[numPlayers];
+  const stock={};
+  for(const k in EMP){ if(k==="ceo") continue;
+    stock[k]=EMP[k].once? onceCopies : EMP[k].count; }
+  // milestones
+  const miles={};
+  for(const k in MILESTONES) miles[k]={claimedBy:[], firstTurn:0, gone:intro};
+  const billboardsRemoved={2:[12,15,16],3:[15,16],4:[16],5:[]}[numPlayers];
+  const marks=[];
+  const M_SIZES={1:{kind:"radio"},2:{kind:"radio"},3:{kind:"radio"},
+    4:{kind:"airplane",size:1},5:{kind:"airplane",size:3},6:{kind:"airplane",size:5},
+    7:{kind:"mailbox"},8:{kind:"mailbox"},9:{kind:"mailbox"},10:{kind:"mailbox"},
+    11:{kind:"billboard"},12:{kind:"billboard"},13:{kind:"billboard"},
+    14:{kind:"billboard"},15:{kind:"billboard"},16:{kind:"billboard"}};
+  for(let n=1;n<=16;n++){ if(billboardsRemoved.includes(n)) continue;
+    marks.push({num:n, kind:M_SIZES[n].kind, size:M_SIZES[n].size||0, inUse:false}); }
+
+  G={numPlayers, intro, players:[], bank:(intro?75:50)*numPlayers, bankBroken:0, gameOver:false,
+     stock, miles, marketTiles:marks, campaigns:[],
+     turn:0, phase:"setup", turnOrder:[], prevOrder:[],
+     board:makeBoard(tilesW,tilesH), houseTilesUsed:0, pendingReserve:[],
+     hiredThisTurn:{}, milesClaimedThisTurn:new Set()};
+  // players
+  const chainIdxs=shuffle([...Array(5).keys()]).filter(i=>i!==humanChain).slice(0,numPlayers-1);
+  const order=shuffle([humanChain,...chainIdxs]);
+  order.forEach((ci,i)=>{
+    G.players.push({id:i, chain:ci, name:CHAINS[ci].name, color:CHAINS[ci].color, ink:CHAINS[ci].ink,
+      human:ci===humanChain, cash:0, cards:[], ceoSlots:3, uid:1,
+      stockGoods:{burger:0,pizza:0,soda:0,beer:0,lemonade:0}, freezer:{burger:0,pizza:0,soda:0,beer:0,lemonade:0},
+      restaurants:[], milestones:new Set(), reserve:null, aiPlan:null, driveIn:false,
+      atWork:new Set(), lastOrderPos:i});
+    G.turnOrder.push(i);
+  });
+  G.prevOrder=[...G.turnOrder];
+  return G;
+}
+function P(i){return G.players[i];}
+function human(){return G.players.find(p=>p.human);}
+function chainStock(p,good){return p.stockGoods[good]+p.freezer[good];}
+function totalMoney(p){return p.cash;}
+function addCard(p,key){ if(G.stock[key]<=0) return null;
+  G.stock[key]--; const c={uid:p.uid++, key, busy:0}; p.cards.push(c); return c; }
+function removeCard(p,c){ p.cards=p.cards.filter(x=>x!==c); G.stock[c.key]++; }
+
+/* =====================================================================
+   BOARD  (squares grid; tiles of 5x5)
+   ===================================================================== */
+function makeBoard(TW,TH){
+  const W=TW*5, H=TH*5;
+  const cells=[];
+  for(let y=0;y<H;y++){cells.push([]);for(let x=0;x<W;x++)cells[y].push({t:"empty"});}
+  const board={TW,TH,W,H,cells,houses:[],sources:[],nextHouseNum:13};
+  const defs=shuffle([...TILE_DEFS]).slice(0,TW*TH);
+  let d=0;
+  for(let ty=0;ty<TH;ty++)for(let tx=0;tx<TW;tx++){
+    placeTile(board,tx,ty,defs[d++]);
+  }
+  return board;
+}
+function placeTile(board,tx,ty,def){
+  const ox=tx*5, oy=ty*5, cells=board.cells;
+  // central cross roads
+  for(let i=0;i<5;i++){ cells[oy+2][ox+i]={t:"road"}; cells[oy+i][ox+2]={t:"road"}; }
+  // random spur roads for variety (stay connected to cross)
+  if(Math.random()<.35){ const r=rnd(2)?0:4;
+    for(let i=1;i<4;i++) if(cells[oy+r][ox+i].t==="empty") cells[oy+r][ox+i]={t:"road"}; }
+  // rotate quadrant assignment randomly
+  const rot=rnd(4);
+  const rotQ=q=>q<0?q:[[0,1,2,3],[1,3,0,2],[3,2,1,0],[2,0,3,1]][rot][q];
+  const hq=rotQ(def.hq);
+  if(def.house>0){
+    const [qy,qx]=QPOS[hq];
+    const houseCells=[];
+    for(let dy=0;dy<2;dy++)for(let dx=0;dx<2;dx++){
+      cells[oy+qy+dy][ox+qx+dx]={t:"house",house:def.house};
+      houseCells.push([ox+qx+dx,oy+qy+dy]);
+    }
+    board.houses.push({num:def.house, cells:houseCells, garden:[], demand:[], fromNBD:false});
+  }
+  for(const [type,q0] of def.drinks){
+    const q=rotQ(q0); if(q===hq) continue;
+    const [sy,sx]=DRINK_SPOT[q];
+    if(cells[oy+sy][ox+sx].t!=="empty") continue;
+    cells[oy+sy][ox+sx]={t:"source",good:type};
+    board.sources.push({x:ox+sx,y:oy+sy,good:type});
+  }
+}
+const inB=(x,y)=>x>=0&&y>=0&&x<G.board.W&&y<G.board.H;
+const cellAt=(x,y)=>inB(x,y)?G.board.cells[y][x]:null;
+const tileOf=(x,y)=>[Math.floor(x/5),Math.floor(y/5)];
+const N4=[[1,0],[-1,0],[0,1],[0,-1]];
+
+/* 0-1 BFS over road squares: cost 1 when crossing a tile border.
+   starts: [[x,y],...] road squares. Returns dist map (W*H array). */
+function roadDist(starts){
+  const dist=new Array(G.board.W*G.board.H).fill(Infinity);
+  const dq=[];
+  for(const [x,y] of starts){ const c=cellAt(x,y); if(c&&c.t==="road"){dist[y*G.board.W+x]=0; dq.push([x,y]);} }
+  while(dq.length){
+    dq.sort((a,b)=>dist[a[1]*G.board.W+a[0]]-dist[b[1]*G.board.W+b[0]]);
+    const [x,y]=dq.shift(); const d0=dist[y*G.board.W+x];
+    for(const [dx,dy] of N4){
+      const nx=x+dx, ny=y+dy; const c=cellAt(nx,ny);
+      if(!c||c.t!=="road") continue;
+      const cross=(Math.floor(nx/5)!==Math.floor(x/5)||Math.floor(ny/5)!==Math.floor(y/5))?1:0;
+      const nd=d0+cross, idx=ny*G.board.W+nx;
+      if(nd<dist[idx]){dist[idx]=nd; dq.push([nx,ny]);}
+    }
+  }
+  return dist;
+}
+/* road squares orthogonally adjacent to a set of cells */
+function adjacentRoads(cellsList){
+  const set=new Set(), out=[];
+  for(const [x,y] of cellsList) for(const [dx,dy] of N4){
+    const nx=x+dx,ny=y+dy,c=cellAt(nx,ny);
+    if(c&&c.t==="road"&&!set.has(ny*1000+nx)){set.add(ny*1000+nx);out.push([nx,ny]);}
+  }
+  return out;
+}
+/* entrance road squares of a restaurant (drive-in => all corners) */
+function restEntranceRoads(p,r){
+  const corners=p.driveIn?[[r.x,r.y],[r.x+1,r.y],[r.x,r.y+1],[r.x+1,r.y+1]]:[r.entCell];
+  return adjacentRoads(corners);
+}
+/* distance (tile crossings) from a house to nearest restaurant of player p; Infinity if none */
+function houseToChainDist(house,p){
+  const starts=adjacentRoads([...house.cells,...house.garden]);
+  if(!starts.length) return Infinity;
+  const dist=roadDist(starts);
+  let best=Infinity;
+  for(const r of p.restaurants){
+    if(!r.placed||r.coming) continue;
+    for(const [x,y] of restEntranceRoads(p,r)){
+      best=Math.min(best,dist[y*G.board.W+x]);
+    }
+  }
+  return best;
+}
+/* distances from a player's restaurant entrances (for marketing range etc.) */
+function chainRoadDist(p){
+  let starts=[];
+  for(const r of p.restaurants){ if(!r.placed||r.coming) continue;
+    starts=starts.concat(restEntranceRoads(p,r)); }
+  return roadDist(starts);
+}
+
+/* can a 2x2 block at (x,y) be placed on empty squares? */
+function blockFree(x,y,w,h){
+  for(let dy=0;dy<h;dy++)for(let dx=0;dx<w;dx++){
+    const c=cellAt(x+dx,y+dy);
+    if(!c||c.t!=="empty") return false;
+  }
+  return true;
+}
+/* =====================================================================
+   RENDERING
+   ===================================================================== */
+let CS=34; // cell px (adjustable via the zoom buttons)
+let clickHandler=null, ghostFn=null;
+function renderBoard(){
+  if(typeof document==="undefined")return;
+  const b=$("board"); b.innerHTML="";
+  b.style.width=(G.board.W*CS)+"px"; b.style.height=(G.board.H*CS)+"px";
+  if(b.classList){ b.classList.toggle("tiny",CS<24); b.classList.toggle("micro",CS<19); }
+  const frag=document.createDocumentFragment();
+  for(let y=0;y<G.board.H;y++)for(let x=0;x<G.board.W;x++){
+    const c=G.board.cells[y][x];
+    const d=document.createElement("div");
+    d.className="cell "+(c.t==="road"?"road":c.t==="house"?"house":c.t==="garden"?"garden":"empty");
+    if(c.t==="road"){
+      const l=cellAt(x-1,y),r=cellAt(x+1,y),u=cellAt(x,y-1),dn=cellAt(x,y+1);
+      if((l&&l.t==="road")||(r&&r.t==="road"))d.classList.add("rh");
+      if((u&&u.t==="road")||(dn&&dn.t==="road"))d.classList.add("rv");
+    }
+    d.style.left=(x*CS)+"px"; d.style.top=(y*CS)+"px";
+    frag.appendChild(d);
+  }
+  // tile borders
+  for(let ty=0;ty<G.board.TH;ty++)for(let tx=0;tx<G.board.TW;tx++){
+    const tb=document.createElement("div"); tb.className="tileborder";
+    tb.style.left=(tx*5*CS)+"px"; tb.style.top=(ty*5*CS)+"px";
+    tb.style.width=(5*CS-2)+"px"; tb.style.height=(5*CS-2)+"px";
+    frag.appendChild(tb);
+  }
+  // sources
+  for(const s of G.board.sources){
+    const c=G.board.cells[s.y][s.x]; if(c.t!=="source")continue;
+    const d=document.createElement("div"); d.className="srcIcon";
+    d.style.left=(s.x*CS)+"px"; d.style.top=(s.y*CS)+"px"; d.style.width=CS+"px"; d.style.height=CS+"px";
+    d.innerHTML=`<div class="shed"><div class="shedRoof"></div><span class="good ${s.good}"></span></div>`;
+    d.title=`${GOOD_LABEL[s.good]} source`;
+    frag.appendChild(d);
+  }
+  // houses: pitched roof, lit windows (one per demand token), order strip
+  for(const h of G.board.houses){
+    const xs=h.cells.map(c=>c[0]), ys=h.cells.map(c=>c[1]);
+    const x0=Math.min(...xs), y0=Math.min(...ys);
+    const cap=houseCap(h), lit=h.demand.length;
+    const spot=G.dinner&&G.dinner.spot===h.num;
+    const a=document.createElement("div"); a.className="houseArt"+(lit?"":" sated")+(spot?" spot":"");
+    a.style.left=(x0*CS)+"px"; a.style.top=(y0*CS)+"px";
+    a.style.width=(2*CS)+"px"; a.style.height=(2*CS)+"px";
+    const winCount=Math.min(cap,3);
+    let wins=""; for(let i=0;i<winCount;i++) wins+=`<div class="w${i<lit?" lit":""}"></div>`;
+    a.innerHTML=`<div class="roof"></div><div class="body"></div>
+      <div class="num">${h.num}</div>
+      <div class="wins">${wins}</div>
+      <div class="dm">${h.demand.map(g=>`<span class="good ${g}"></span>`).join("")}</div>`;
+    a.title=lit?`House #${h.num} wants ${h.demand.map(g=>GOOD_LABEL[g]).join(", ")}`
+               :`House #${h.num} — no demand right now`;
+    a.onmouseenter=()=>{ if(!isMobile())showDistFrom(h.num); };
+    a.onmouseleave=()=>{ if(!isMobile())clearDist(); };
+    a.onclick=(e)=>{ e.stopPropagation(); tapHouse(h.num); };
+    frag.appendChild(a);
+  }
+  // restaurants
+  for(const p of G.players)for(const r of p.restaurants){
+    if(!r.placed)continue;
+    const d=document.createElement("div");
+    d.className="restaurant"+(r.coming?" coming":"");
+    d.style.left=(r.x*CS+2)+"px"; d.style.top=(r.y*CS+2)+"px";
+    d.style.width=(2*CS-4)+"px"; d.style.height=(2*CS-4)+"px";
+    d.title=`${p.name}${r.coming?" (COMING SOON — opens at clean-up)":""} — unit price $${unitPrice(p)}`;
+    d.innerHTML=`<div class="sign" style="background:${p.color};color:${p.ink}">${shortName(p.name)}</div>
+      <div class="awn" style="background:repeating-linear-gradient(90deg,${p.color} 0 7px,var(--paper) 7px 14px)"></div>
+      <div class="bldg"><div class="win"></div><div class="door"></div></div>`;
+    const ent=document.createElement("div"); ent.className="ent"; ent.style.zIndex=4;
+    const ex=r.entCell[0]-r.x, ey=r.entCell[1]-r.y;
+    ent.style.left=ex? "auto":"-4px"; ent.style.right=ex? "-4px":"auto";
+    ent.style.top=ey? "auto":"-4px"; ent.style.bottom=ey? "-4px":"auto";
+    d.appendChild(ent);
+    frag.appendChild(d);
+  }
+  // marketing campaigns
+  for(const cp of G.campaigns){
+    const d=document.createElement("div"); d.className="markTile"+(cp.eternal?" eternal":"");
+    let x=cp.x,y=cp.y,w=1,h=1;
+    if(cp.kind==="airplane"){
+      if(cp.orient==="rows"){x=0;y=cp.idx;w=G.board.W;h=cp.size;}
+      else{x=cp.idx;y=0;w=cp.size;h=G.board.H;}
+      d.style.opacity=.55;
+    }
+    d.style.left=(x*CS+1)+"px"; d.style.top=(y*CS+1)+"px";
+    d.style.width=(w*CS-2)+"px"; d.style.height=(h*CS-2)+"px";
+    const own=P(cp.owner);
+    const life=cp.eternal?"eternal":`${cp.tokens} turn${cp.tokens>1?"s":""} left`;
+    const goodChip=`<span class="good ${cp.good}"></span>`;
+    if(cp.kind==="airplane"){
+      d.style.background="rgba(126,208,200,.28)";
+      d.style.border="2px dashed var(--ink)";
+      d.innerHTML=`<div class="mkPlane"><div class="fus"></div>
+        <div class="banner">${goodChip}<span>#${cp.num} · ${life}</span></div></div>`;
+    } else if(cp.kind==="billboard"){
+      d.style.background="transparent"; d.style.border="none"; d.style.boxShadow="none";
+      d.innerHTML=`<div class="mkPost" style="height:38%"></div>
+        <div class="mkBoard" style="margin-bottom:38%; box-shadow:0 0 0 2px ${own.color}, 2px 2px 0 rgba(0,0,0,.3)">
+          <div class="cap">EAT!</div>
+          <div class="face">${goodChip}<span class="mkTurns">#${cp.num}</span></div>
+        </div>
+        <div class="mkTurns" style="position:absolute;bottom:0;left:0;right:0">${life}</div>`;
+    } else if(cp.kind==="mailbox"){
+      d.style.background="transparent"; d.style.border="none"; d.style.boxShadow="none";
+      d.innerHTML=`<div class="mkPost" style="height:34%"></div>
+        <div class="mkMail" style="box-shadow:0 0 0 2px ${own.color}; margin-bottom:30%"></div>
+        <div class="face">${goodChip}</div>
+        <div class="mkTurns" style="position:absolute;bottom:0;left:0;right:0">#${cp.num} · ${life}</div>`;
+    } else { // radio
+      d.style.background="transparent"; d.style.border="none"; d.style.boxShadow="none";
+      d.innerHTML=`<div class="mkTower" style="border-bottom-color:${own.color}"></div>
+        <div class="face">${goodChip}</div>
+        <div class="mkTurns">#${cp.num} · ${life}</div>`;
+    }
+    d.title=`${cp.kind} #${cp.num} — ${own.name} advertising ${GOOD_LABEL[cp.good]} (${life})`;
+    frag.appendChild(d);
+  }
+  const dl=document.createElement("div"); dl.id="distLayer"; b.appendChild(dl);
+  b.appendChild(frag);
+  renderDistLayer();
+  if(G.dinner) renderDinnerFX(b);
+  // click layer
+  if(clickHandler){
+    for(let y=0;y<G.board.H;y++)for(let x=0;x<G.board.W;x++){
+      const hit=document.createElement("div"); hit.className="cellHit";
+      hit.style.left=(x*CS)+"px"; hit.style.top=(y*CS)+"px"; hit.style.width=CS+"px"; hit.style.height=CS+"px";
+      hit.onclick=()=>clickHandler(x,y);
+      if(ghostFn){const g=ghostFn(x,y); if(g==="ok")hit.classList.add("ghostOK"); else if(g==="bad")hit.classList.add("ghostBad"); else if(g==="hide"){continue;}}
+      b.appendChild(hit);
+    }
+  }
+}
+/* ---- road-distance overlay ----------------------------------------------
+   Distance is the number the whole game turns on, and it is invisible on a
+   plain map. Hovering a house paints every road square with its distance from
+   that house; the toolbar toggle does the same from your own restaurants. */
+let distSource=null;   // {kind:'house'|'chain', num, label}
+function showDistFrom(num){
+  const h=G.board.houses.find(h=>h.num===num); if(!h)return;
+  distSource={kind:"house",num,label:`Road distance from house #${num}`};
+  renderDistLayer();
+}
+function showChainDist(){
+  const me=human();
+  if(!me||!me.restaurants.some(r=>r.placed&&!r.coming)){
+    setAction("You have no open restaurant to measure from yet."); return;
+  }
+  distSource=distSource&&distSource.kind==="chain"?null:{kind:"chain",label:"Road distance from your restaurants"};
+  renderDistLayer(); renderTop();
+}
+function clearDist(){
+  if(distSource&&(distSource.kind==="chain"||distSource.sticky))return; // stays until switched off
+  distSource=null; renderDistLayer();
+}
+/* touch has no hover, so tapping a house pins its distances and shows the order */
+function tapHouse(num){
+  if(distSource&&distSource.kind==="house"&&distSource.num===num){
+    distSource=null; renderDistLayer(); setAction("Tap another house to measure from it."); return;
+  }
+  const h=G.board.houses.find(h=>h.num===num); if(!h)return;
+  distSource={kind:"house",num,sticky:true,label:`Road distance from house #${num}`};
+  renderDistLayer();
+  const {cands}=houseBids(h);
+  const able=cands.filter(c=>c.score<Infinity);
+  const order=h.demand.length
+    ? h.demand.map(g=>GOOD_LABEL[g]).join(", ")
+    : "nothing right now";
+  const lead=able.length?`${able[0].p.human?"You":able[0].p.name} would win at ${able[0].score}`
+                        :"nobody can serve it";
+  setAction(`<b>House #${num}</b> wants ${order}${h.garden.length?" (garden ×2)":""} — ${lead}.
+    Numbers on the roads are the distance from this house.`);
+}
+function distField(){
+  if(!distSource)return null;
+  if(distSource.kind==="chain")return chainRoadDist(human());
+  const h=G.board.houses.find(h=>h.num===distSource.num); if(!h)return null;
+  const starts=adjacentRoads([...h.cells,...h.garden]);
+  return starts.length?roadDist(starts):null;
+}
+function renderDistLayer(){
+  if(typeof document==="undefined")return;
+  const dl=$("distLayer"); if(!dl)return;
+  dl.innerHTML="";
+  const badge=$("distBadge");
+  const f=distField();
+  if(!f){ if(badge)badge.style.display="none"; return; }
+  if(badge){ badge.style.display="block"; badge.textContent=distSource.label; }
+  for(let y=0;y<G.board.H;y++)for(let x=0;x<G.board.W;x++){
+    const c=G.board.cells[y][x]; if(c.t!=="road")continue;
+    const d=f[y*G.board.W+x];
+    if(d===undefined||d===Infinity)continue;
+    const n=document.createElement("div");
+    n.className="distNum"+(d===0?" zero":d<=2?" near":d<=5?" mid":" far");
+    n.style.left=(x*CS)+"px"; n.style.top=(y*CS)+"px";
+    n.style.width=CS+"px"; n.style.height=CS+"px";
+    n.textContent=d;
+    dl.appendChild(n);
+  }
+}
+/* the diner nearest the house being served — where the money lands */
+function nearestRestaurant(h,p){
+  const starts=adjacentRoads([...h.cells,...h.garden]);
+  if(!starts.length)return null;
+  const dist=roadDist(starts);
+  let best=null;
+  for(const r of p.restaurants){
+    if(!r.placed||r.coming)continue;
+    for(const [x,y] of restEntranceRoads(p,r)){
+      const d=dist[y*G.board.W+x];
+      if(d!==undefined&&d!==Infinity&&(!best||d<best.d))best={r,d};
+    }
+  }
+  return best&&best.r;
+}
+function renderDinnerFX(b){
+  const D=G.dinner;
+  if(D.spot!=null){
+    const h=G.board.houses.find(x=>x.num===D.spot);
+    if(h){
+      const xs=h.cells.map(c=>c[0]), ys=h.cells.map(c=>c[1]);
+      const ring=document.createElement("div"); ring.className="spotRing";
+      ring.style.left=(Math.min(...xs)*CS-6)+"px"; ring.style.top=(Math.min(...ys)*CS-6)+"px";
+      ring.style.width=(2*CS+12)+"px"; ring.style.height=(2*CS+12)+"px";
+      b.appendChild(ring);
+    }
+  }
+  if(D.payout){
+    const h=G.board.houses.find(x=>x.num===D.payout.house);
+    const r=h&&nearestRestaurant(h,D.payout.player);
+    if(r){
+      const f=document.createElement("div"); f.className="cashPop";
+      f.style.left=(r.x*CS)+"px"; f.style.top=(r.y*CS)+"px"; f.style.width=(2*CS)+"px";
+      f.style.color=D.payout.player.color;
+      f.textContent="+$"+D.payout.amount;
+      b.appendChild(f);
+      const trail=document.createElement("div"); trail.className="servedLine";
+      const hx=(Math.min(...h.cells.map(c=>c[0]))+1)*CS, hy=(Math.min(...h.cells.map(c=>c[1]))+1)*CS;
+      const rx=(r.x+1)*CS, ry=(r.y+1)*CS;
+      const len=Math.hypot(rx-hx,ry-hy);
+      trail.style.left=hx+"px"; trail.style.top=hy+"px"; trail.style.width=len+"px";
+      trail.style.transform=`rotate(${Math.atan2(ry-hy,rx-hx)}rad)`;
+      trail.style.background=D.payout.player.color;
+      b.appendChild(trail);
+    }
+  }
+}
+/* =====================================================================
+   PHONE SUPPORT
+   ===================================================================== */
+function isMobile(){ return typeof window!=="undefined" && window.matchMedia
+  && window.matchMedia("(max-width:820px)").matches; }
+const SHEET=["sheet-min","sheet-half","sheet-max"];
+let sheetIx=1;
+function setSheet(ix){
+  sheetIx=Math.max(0,Math.min(2,ix));
+  if(typeof document==="undefined"||!document.body)return;
+  SHEET.forEach((c,i)=>document.body.classList.toggle(c,i===sheetIx));
+  const hint=$("sheetHint");
+  if(hint)hint.textContent=["tap to expand","drag to resize","tap to shrink"][sheetIx];
+}
+function cycleSheet(){ setSheet(sheetIx>=2?0:sheetIx+1); }
+/* while the board is waiting for a tap, get the sheet out of the way */
+function sheetForBoardInput(on){
+  if(!isMobile())return;
+  if(on){ if(sheetIx>0){sheetIx_restore=sheetIx; setSheet(0);} }
+  else if(sheetIx_restore!=null){ setSheet(sheetIx_restore); sheetIx_restore=null; }
+}
+let sheetIx_restore=null;
+
+/* drag the handle to resize the sheet */
+function initSheetDrag(){
+  const h=$("sheetHandle"); if(!h||!h.addEventListener)return;
+  let start=null;
+  h.addEventListener("pointerdown",e=>{ start={y:e.clientY,ix:sheetIx,moved:false}; h.setPointerCapture(e.pointerId); });
+  h.addEventListener("pointermove",e=>{
+    if(!start)return;
+    const dy=start.y-e.clientY;
+    if(Math.abs(dy)>26){
+      start.moved=true;
+      setSheet(start.ix+(dy>0?1:-1));
+      start.y=e.clientY; start.ix=sheetIx;
+    }
+  });
+  h.addEventListener("pointerup",e=>{ if(start&&start.moved)h.dataset.drag="1"; else h.dataset.drag=""; start=null; });
+  h.addEventListener("click",e=>{ if(h.dataset.drag){h.dataset.drag="";e.stopPropagation();} },true);
+}
+
+/* pinch to zoom the board; scale live, then commit to a crisp re-render */
+function initBoardPinch(){
+  const wrap=$("boardWrap"), bd=$("board");
+  if(!wrap||!bd||!wrap.addEventListener)return;
+  const gap=t=>Math.hypot(t[0].clientX-t[1].clientX, t[0].clientY-t[1].clientY);
+  let pinch=null;
+  wrap.addEventListener("touchstart",e=>{
+    if(e.touches.length===2){ pinch={d0:gap(e.touches),cs0:CS,r:1}; e.preventDefault(); }
+  },{passive:false});
+  wrap.addEventListener("touchmove",e=>{
+    if(!pinch||e.touches.length!==2)return;
+    e.preventDefault();
+    pinch.r=Math.max(.5,Math.min(2.2,gap(e.touches)/pinch.d0));
+    bd.style.transformOrigin="0 0";
+    bd.style.transform="scale("+pinch.r+")";
+  },{passive:false});
+  const end=()=>{
+    if(!pinch)return;
+    const before=CS;
+    bd.style.transform=""; bd.style.transformOrigin="";
+    CS=Math.max(16,Math.min(56,Math.round(pinch.cs0*pinch.r)));
+    const f=CS/before;
+    renderBoard();
+    wrap.scrollLeft*=f; wrap.scrollTop*=f;
+    pinch=null;
+  };
+  wrap.addEventListener("touchend",end);
+  wrap.addEventListener("touchcancel",end);
+}
+/* size the board so the whole map fits the screen width */
+/* put the player's own restaurant in view — easy to lose on a big map */
+function scrollToMyChain(){
+  const wrap=$("boardWrap"), me=human();
+  if(!wrap||!me||!wrap.clientWidth)return;
+  const r=me.restaurants.find(r=>r.placed);
+  if(!r)return;
+  wrap.scrollLeft=Math.max(0,(r.x+1)*CS-wrap.clientWidth/2);
+  wrap.scrollTop=Math.max(0,(r.y+1)*CS-wrap.clientHeight/2);
+}
+function fitBoard(){
+  const wrap=$("boardWrap"); if(!wrap||!G||!G.board||!wrap.clientWidth)return;
+  const avail=wrap.clientWidth-24;
+  if(avail>40) CS=Math.max(14,Math.min(52,Math.floor(avail/G.board.W)));
+  renderBoard();
+}
+function zoomBoard(dir){
+  CS=Math.max(22,Math.min(52,CS+dir*4));
+  renderBoard();
+}
+function shortName(n){return n.split(" ").map(w=>w[0]).join("");}
+function setBoardClick(fn,ghost){
+  clickHandler=fn; ghostFn=ghost||null;
+  if(distSource&&distSource.sticky){distSource=null;}
+  sheetForBoardInput(true);
+  renderBoard();
+}
+function clearBoardClick(){clickHandler=null; ghostFn=null; sheetForBoardInput(false); renderBoard();}
+
+/* ------------------ top bar / tabs ------------------ */
+function renderTop(){
+  if(typeof document==="undefined")return;
+  $("bankAmt").textContent="$"+G.bank;
+  $("turnNum").textContent=G.turn;
+  $("phaseName").textContent=G.phaseLabel||"—";
+  $("turnOrderPill").innerHTML="Order "+G.turnOrder.map(i=>`<span class="tp" title="${P(i).name}" style="background:${P(i).color}"></span>`).join("");
+}
+let curTab="phase";
+function setTab(t){curTab=t;
+  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));
+  renderTab();}
+function renderTab(){
+  if(typeof document==="undefined")return;
+  const el=$("tabBody");
+  if(curTab==="phase") el.innerHTML=phaseTabHTML();
+  else if(curTab==="company") el.innerHTML=companyHTML(human());
+  else if(curTab==="dinner") el.innerHTML=dinnerPreviewHTML();
+  else if(curTab==="players") el.innerHTML=G.players.map(p=>playerBoxHTML(p)).join("");
+  else if(curTab==="log") { el.innerHTML=`<div id="log">${G.logHTML||""}</div>`; el.scrollTop=el.scrollHeight; }
+}
+/* ---- dinnertime preview: who wins each house, and why ---- */
+function dinnerPreviewHTML(){
+  const me=human();
+  const houses=[...G.board.houses].sort((a,b)=>a.num-b.num).filter(h=>h.demand.length);
+  let out=`<span class="burst">Tonight's orders</span>
+    <div class="kv">Resolved lowest house number first. Each house buys from the chain that can serve
+    the <b>whole order</b> at the lowest <b>unit price + road distance</b>. Ties go to more waitresses,
+    then earlier turn order. Hover a row to light up the roads on the map.</div>`;
+  if(!houses.length) return out+`<div class="kv"><i>No house has demand right now. Marketing at the end of
+    this turn will add some.</i></div>`;
+  let mine=0;
+  for(const h of houses){
+    const {need,cands}=houseBids(h);
+    const able=cands.filter(c=>c.score<Infinity);
+    const winner=able[0];
+    if(winner&&winner.p===me)mine++;
+    const order=Object.keys(need).map(g=>`<span class="si"><span class="good ${g}"></span>${need[g]}</span>`).join("");
+    out+=`<div class="dhouse ${winner&&winner.p===me?"win":""}" onmouseenter="if(!isMobile())showDistFrom(${h.num})"
+      onmouseleave="if(!isMobile())clearDist()" onclick="tapHouse(${h.num});if(isMobile())setSheet(0)">
+      <div class="dh"><b>House #${h.num}</b> ${order}
+        ${h.garden.length?'<span class="tag" style="background:var(--grass)">garden ×2</span>':""}</div>`;
+    if(!able.length) out+=`<div class="drow none">Nobody can serve this whole order — it goes unfilled.</div>`;
+    out+=cands.map((c,i)=>{
+      const lead=i===0&&!c.blocked;
+      const why=c.blocked==="short of stock"
+        ? "needs "+c.missing.map(m=>m.n+" more "+GOOD_LABEL[m.good]).join(", ")
+        : c.blocked||"";
+      return `<div class="drow ${lead?"lead":""} ${c.blocked?"out":""}">
+        <span class="dot" style="background:${c.p.color}"></span>
+        <span class="dn">${c.p.human?"You":c.p.name}</span>
+        ${c.blocked
+          ? `<span class="dwhy">${why}</span>`
+          : `<span class="dsc">$${c.price} + ${c.d} = <b>${c.score}</b></span>`}
+        ${lead?'<span class="tag" style="background:var(--gold);color:var(--ink)">wins</span>':""}
+      </div>`;
+    }).join("");
+    out+=`</div>`;
+  }
+  out+=`<div class="kv" style="margin-top:8px;">You currently win <b>${mine}</b> of ${houses.length} order(s).
+    Lower your unit price, move closer, or stock the missing items to take more.</div>`;
+  return out;
+}
+function cardHTML(c,opts={}){
+  const e=EMP[c.key];
+  const badges=[];
+  if(e.slots&&c.key!=="ceo")badges.push(`<span class="badge">${e.slots} slots</span>`);
+  if(e.range)badges.push(`<span class="badge">rng ${e.range}</span>`);
+  if(e.salary)badges.push(`<span class="badge" style="background:var(--red)">$5</span>`);
+  if(e.once)badges.push(`<span class="badge" style="background:var(--gold);color:var(--ink)">1×</span>`);
+  return `<div class="ecard ${opts.mini?'mini':''} ${c.busy?'busyC':''} ${opts.sel?'sel':''} ${opts.click?'clickable':''}"
+      ${opts.click?`onclick="${opts.click}"`:""} data-uid="${c.uid}">
+    ${c.busy?`<div class="busyChip">${c.busy}</div>`:""}
+    <div class="hd hc-${e.color}">${e.name}</div>
+    <div class="bd">${e.text}</div>
+    <div class="ft">${badges.join("")}</div>
+  </div>`;
+}
+function goodsHTML(st,showZero){
+  return GOODS.filter(g=>showZero||st[g]>0).map(g=>`<span class="si"><span class="good ${g}"></span>${st[g]}</span>`).join("");
+}
+function playerBoxHTML(p){
+  const rest=p.restaurants.filter(r=>r.placed).length;
+  const ms=[...p.milestones].map(m=>`<div style="font-size:10px">★ ${MILESTONES[m].name}</div>`).join("");
+  return `<div class="playerBox">
+    <div class="pname"><span class="dot" style="background:${p.color}"></span>${p.name} ${p.human?'<span class="tag">YOU</span>':'<span class="tag" style="background:var(--teal-dk)">AI</span>'}</div>
+    <div class="kv">Cash <b>$${p.cash}</b> · Restaurants ${rest} · Employees ${p.cards.length} · Price $${unitPrice(p)}</div>
+    <div class="stockRow">${goodsHTML(p.stockGoods)||'<span style="color:var(--ink-soft)">no stock</span>'}
+      ${Object.values(p.freezer).some(v=>v)?` · ❄ ${goodsHTML(p.freezer)}`:""}</div>
+    ${ms}
+    <div class="cardRow">${p.cards.map(c=>cardHTML(c,{mini:true})).join("")||'<span style="font-size:11px;color:var(--ink-soft)">Only the CEO so far.</span>'}</div>
+  </div>`;
+}
+function companyHTML(p){
+  const atW=p.cards.filter(c=>p.atWork.has(c.uid));
+  const beach=p.cards.filter(c=>!p.atWork.has(c.uid)&&!c.busy);
+  const busy=p.cards.filter(c=>c.busy>0);
+  return `<div class="sect"><span class="burst">Your Chain</span>
+    <div class="kv">Cash <b>$${p.cash}</b> · Unit price <b>$${unitPrice(p)}</b> · CEO slots <b>${p.ceoSlots}</b></div>
+    <div class="stockRow">Stock: ${goodsHTML(p.stockGoods,true)}</div>
+    ${Object.values(p.freezer).some(v=>v)?`<div class="stockRow">❄ Freezer: ${goodsHTML(p.freezer)}</div>`:""}
+    <div class="kv">Milestones: ${[...p.milestones].map(m=>"★ "+MILESTONES[m].name).join(", ")||"none yet"}</div></div>
+    <div class="sect"><h3>At work (${atW.length})</h3><div class="cardRow">${atW.map(c=>cardHTML(c,{mini:true})).join("")||'<i style="font-size:11px">Nobody (CEO always works).</i>'}</div></div>
+    <div class="sect"><h3>On the beach (${beach.length})</h3><div class="cardRow">${beach.map(c=>cardHTML(c,{mini:true})).join("")||'<i style="font-size:11px">Empty.</i>'}</div></div>
+    ${busy.length?`<div class="sect"><h3>Busy marketeers</h3><div class="cardRow">${busy.map(c=>cardHTML(c,{mini:true})).join("")}</div></div>`:""}`;
+}
+function phaseTabHTML(){ return G.phaseTab||""; }
+
+/* ------------------ log ------------------ */
+function log(msg,cls){
+  G.logHTML=(G.logHTML||"")+`<div class="li ${cls||""}">${msg}</div>`;
+  if(typeof document!=="undefined" && curTab==="log") renderTab();
+}
+function logTitle(t){ G.logHTML=(G.logHTML||"")+`<div class="lt">${t}</div>`; }
+
+/* ------------------ modal ------------------ */
+function modal(html){ $("modal").innerHTML=html; $("modalBack").style.display="flex"; }
+function closeModal(){ $("modalBack").style.display="none"; }
+let _lastBtns=[];
+function setAction(msg,btns){
+  $("actionMsg").innerHTML=msg;
+  if(btns===undefined) btns=_lastBtns; // message-only updates keep the current buttons
+  _lastBtns=btns||[];
+  $("actionBtns").innerHTML="";
+  (btns||[]).forEach(b=>{
+    const el=document.createElement("button");
+    el.className="abtn"+(b.alt?" alt":"")+(b.ghost?" ghost":"");
+    el.innerHTML=b.label; el.disabled=!!b.disabled; el.onclick=b.fn;
+    $("actionBtns").appendChild(el);
+  });
+}
+function refreshAll(){renderTop();renderBoard();renderTab();}
+/* =====================================================================
+   RULE HELPERS
+   ===================================================================== */
+function unitPrice(p){
+  let u=10;
+  for(const c of p.cards) if(p.atWork.has(c.uid)){
+    if(c.key==="pricing_mgr")u-=1;
+    if(c.key==="discount_mgr")u-=3;
+    if(c.key==="lux_mgr")u+=10;
+  }
+  if(p.milestones.has("m_lower"))u-=1;
+  return Math.max(0,u);
+}
+function waitressCount(p){ let n=0; for(const c of p.cards) if(c.key==="waitress"&&p.atWork.has(c.uid))n++; return n; }
+function atWorkCards(p){ return p.cards.filter(c=>p.atWork.has(c.uid)); }
+function isManager(key){ return key!=="ceo" && EMP[key].color==="black"; }
+function slotInfo(p){
+  const cards=atWorkCards(p);
+  const mgrs=cards.filter(c=>isManager(c.key));
+  const staff=cards.filter(c=>!isManager(c.key));
+  const total=p.ceoSlots+mgrs.reduce((s,c)=>s+EMP[c.key].slots,0);
+  const used=cards.length;
+  return {mgrs:mgrs.length, staff:staff.length, total, used,
+    valid: mgrs.length<=p.ceoSlots && staff.length<=(p.ceoSlots-mgrs.length)+mgrs.reduce((s,c)=>s+EMP[c.key].slots,0),
+    open: total-used};
+}
+function openSlots(p){
+  const s=slotInfo(p);
+  return s.open + (p.milestones.has("m_airplane")?2:0);
+}
+function claimMilestone(p,key,why){
+  if(G.intro)return false;
+  const m=G.miles[key];
+  if(m.gone||p.milestones.has(key))return false;
+  if(m.claimedBy.length && m.firstTurn!==G.turn)return false; // only same turn
+  m.claimedBy.push(p.id); if(!m.firstTurn)m.firstTurn=G.turn;
+  p.milestones.add(key); G.milesClaimedThisTurn.add(key);
+  log(`★ <b>${p.name}</b> claims milestone: <b>${MILESTONES[key].name}</b>${why?` (${why})`:""}`,"mile");
+  // immediate effects
+  if(key==="m_hire3"){ for(let i=0;i<2;i++){const c=addCard(p,"mgmt_trainee"); if(c)log(`${p.name} receives a free Management Trainee.`);} }
+  if(key==="m_burger_prod"){ const c=addCard(p,"burger_cook"); if(c)log(`${p.name} receives a free Burger Cook.`); }
+  if(key==="m_pizza_prod"){ const c=addCard(p,"pizza_cook"); if(c)log(`${p.name} receives a free Pizza Cook.`); }
+  if(key==="m_100"){ // fire CFO if any
+    const cfo=p.cards.find(c=>c.key==="cfo");
+    if(cfo){removeCard(p,cfo); log(`${p.name}'s CFO is let go — the CEO does that job now.`);}
+  }
+  return true;
+}
+function payFromBank(p,amt,what){
+  if(amt<=0)return;
+  let remaining=amt, broke=false;
+  while(remaining>0){
+    if(G.bank>=remaining){ G.bank-=remaining; remaining=0; }
+    else{
+      remaining-=G.bank; G.bank=0; broke=true;
+      if(G.bankBroken<2) breakBank();
+      if(G.bankBroken>=2){ break; } // remainder paid on paper
+    }
+  }
+  p.cash+=amt;
+  log(`${p.name} earns <b>$${amt}</b> ${what||""}${broke?" — <b>the bank breaks!</b>":""}`,"money");
+  checkCashMilestone(p);
+}
+function checkCashMilestone(p){
+  if(p.cash>=20) claimMilestone(p,"m_20");
+}
+function breakBank(){
+  G.bankBroken++;
+  if(G.intro){
+    logTitle("THE BANK BREAKS");
+    log("Intro game: this ends the game after this dinnertime.");
+    G.bankBroken=2; // intro ends on the first break
+    return;
+  }
+  if(G.bankBroken===1){
+    let sum=0, slots=[];
+    for(const p of G.players){ sum+=p.reserve.amt; slots.push(p.reserve.slots); }
+    G.bank+=sum;
+    // most common slot count; ties -> highest
+    const cnt={}; slots.forEach(s=>cnt[s]=(cnt[s]||0)+1);
+    let best=3,bc=0;
+    for(const s of Object.keys(cnt).map(Number)){ if(cnt[s]>bc||(cnt[s]===bc&&s>best)){best=s;bc=cnt[s];} }
+    logTitle("THE BANK BREAKS (1st time)");
+    log(`Reserve cards revealed: ${G.players.map(p=>p.name+" +$"+p.reserve.amt+" ("+p.reserve.slots+" slots)").join(", ")}.`);
+    log(`<b>$${sum}</b> added to the bank. From next turn, every CEO has <b>${best} slots</b>.`);
+    G.newCeoSlots=best;
+  } else if(G.bankBroken===2){
+    logTitle("THE BANK BREAKS AGAIN — final dinnertime!");
+    log("The game ends at the end of this dinnertime phase. Remaining payouts go on paper.");
+    G.gameOver=true;
+  }
+}
+
+/* =====================================================================
+   PHASE ENGINE
+   ===================================================================== */
+function startGame(){
+  const numPlayers=setupSel.count, humanChain=setupSel.chain, intro=$("introMode").checked;
+  newGame(numPlayers,humanChain,intro);
+  $("setup").style.display="none";
+  logTitle("SETTING UP");
+  log(`${numPlayers} chains, map ${G.board.TW}×${G.board.TH} tiles. Bank starts with $${G.bank}.${intro?" Introductory rules.":""}`);
+  log(`Initial order: ${G.turnOrder.map(i=>P(i).name).join(" → ")}.`);
+  refreshAll();
+  if(isMobile()){ CS=26; renderBoard(); setSheet(1); }
+  chooseReserve();
+}
+/* --- reserve cards --- */
+function chooseReserve(){
+  if(G.intro){ G.players.forEach(p=>p.reserve={amt:0,slots:3}); placeFirstRestaurants(); return; }
+  const h=human();
+  G.players.forEach(p=>{ if(!p.human){ const o=[[100,2],[200,3],[300,4]][rnd(3)]; p.reserve={amt:o[0],slots:o[1]}; }});
+  modal(`<h2>Set your goals</h2><div class="mbody">
+    Pick one bank reserve card and discard the others unseen. All chosen cards (yours + the AIs')
+    are added to the bank when it first breaks — bigger reserves mean a longer game. Each card also
+    votes on how many slots every CEO will have afterwards.</div>
+    <div class="mbtns">
+      <button class="abtn" onclick="pickReserve(100,2)">+$100 · 2 slots</button>
+      <button class="abtn" onclick="pickReserve(200,3)">+$200 · 3 slots</button>
+      <button class="abtn" onclick="pickReserve(300,4)">+$300 · 4 slots</button>
+    </div>`);
+}
+function pickReserve(a,s){ human().reserve={amt:a,slots:s}; closeModal();
+  log(`Each chain secretly banked a reserve card.`);
+  placeFirstRestaurants(); }
+
+/* --- initial restaurants --- */
+let placeQueue=[];
+function placeFirstRestaurants(){
+  G.phaseLabel="Setup — first restaurants"; renderTop();
+  // last in turn order first
+  placeQueue=[...G.turnOrder].reverse();
+  G.players.forEach(p=>{ p.restaurants=[{id:0,placed:false},{id:1,placed:false},{id:2,placed:false}]; });
+  nextFirstPlacement();
+}
+function nextFirstPlacement(){
+  if(!placeQueue.length){
+    logTitle("TURN 1");
+    if(isMobile())scrollToMyChain();
+    beginTurn(); return;
+  }
+  const pi=placeQueue.shift(), p=P(pi);
+  if(p.human) humanPlaceRestaurant(p, p.restaurants[0], true, ()=>nextFirstPlacement());
+  else { aiPlaceRestaurant(p, p.restaurants[0], true); refreshAll(); setTimeout(nextFirstPlacement,60); }
+}
+/* legality of restaurant placement: 2x2 free; entrance corner adjacent to road;
+   initial: entrance not on same tile as another entrance */
+function restPlacementOK(x,y,rot,initial){
+  if(!blockFree(x,y,2,2))return false;
+  const ent=entCellFor(x,y,rot);
+  const roads=adjacentRoads([ent]);
+  if(!roads.length)return false;
+  if(initial){
+    const [tx,ty]=tileOf(ent[0],ent[1]);
+    for(const q of G.players)for(const r of q.restaurants){
+      if(!r.placed)continue;
+      const [ox,oy]=tileOf(r.entCell[0],r.entCell[1]);
+      if(ox===tx&&oy===ty)return false;
+    }
+  }
+  return true;
+}
+function entCellFor(x,y,rot){ // rot 0..3 => TL,TR,BR,BL corner
+  return [[x,y],[x+1,y],[x+1,y+1],[x,y+1]][rot];
+}
+function commitRestaurant(p,r,x,y,rot,coming){
+  r.placed=true; r.x=x; r.y=y; r.entCell=entCellFor(x,y,rot); r.coming=!!coming;
+  log(`${p.name} ${coming?"announces a new restaurant (COMING SOON)":"opens a restaurant"} at (${x},${y}).`);
+}
+function humanPlaceRestaurant(p,r,initial,done,rangeLimit){
+  let rot=0;
+  const msg=()=>setAction(`<b>Place your restaurant.</b> Click a 2×2 spot (top-left square). Entrance is at the <b>${["top-left","top-right","bottom-right","bottom-left"][rot]}</b> corner — it must touch a road.`,
+    [{label:"Rotate entrance ⟳",alt:true,fn:()=>{rot=(rot+1)%4; msg(); renderBoard();}},
+     ...(initial?[]:[{label:"Cancel",ghost:true,fn:()=>{clearBoardClick();done(false);}}])]);
+  msg();
+  setBoardClick((x,y)=>{
+    if(!restPlacementOK(x,y,rot,initial)) return;
+    if(rangeLimit!=null && !withinChainRange(p,x,y,rot,rangeLimit)) { setAction("Too far — a Local Manager can only reach range 3 from an existing restaurant. Try again."); return; }
+    commitRestaurant(p,r,x,y,rot,!initial);
+    clearBoardClick(); refreshAll(); done(true);
+  },(x,y)=>restPlacementOK(x,y,rot,initial)?"ok":null);
+}
+function withinChainRange(p,x,y,rot,range){
+  const dist=chainRoadDist(p);
+  const ent=entCellFor(x,y,rot);
+  for(const [rx,ry] of adjacentRoads([ent])){
+    if(dist[ry*G.board.W+rx]<=range)return true;
+  }
+  return false;
+}
+/* =====================================================================
+   TURN LOOP
+   ===================================================================== */
+function beginTurn(){
+  G.turn++;
+  G.milesClaimedThisTurn=new Set();
+  G.hiredThisTurn={};
+  G.players.forEach(p=>{p.driveIn=false; p.usedDiscount=0;});
+  if(G.newCeoSlots!=null){ G.players.forEach(p=>p.ceoSlots=G.newCeoSlots); }
+  logTitle(`TURN ${G.turn}`);
+  phaseRestructuring();
+}
+
+/* ---------- PHASE 1: RESTRUCTURING ---------- */
+function phaseRestructuring(){
+  G.phaseLabel="1 · Restructuring"; renderTop();
+  if(G.turn>1) for(const p of G.players) if(!p.human) aiRestructure(p);
+  if(G.turn===1){
+    G.players.forEach(p=>p.atWork=new Set());
+    log("Turn 1: only the CEO is at work for everyone.");
+    phaseOrderOfBusiness(); return;
+  }
+  const h=human();
+  if(!h){ phaseOrderOfBusiness(); return; }
+  humanRestructureUI(h);
+}
+function humanRestructureUI(p){
+  const sel=new Set([...p.atWork].filter(uid=>p.cards.some(c=>c.uid===uid&&!c.busy)));
+  // default: keep last selection if valid, else empty
+  const render=()=>{
+    p.atWork=new Set(sel);
+    const info=slotInfo(p);
+    const avail=p.cards.filter(c=>!c.busy);
+    G.phaseTab=`<span class="burst">Restructuring</span>
+      <div class="kv">Click cards to send them <b>to work</b>. Everyone else waits on the beach
+      (still paid, can be trained). Managers (black) sit under the CEO; only they add slots.</div>
+      <div class="kv">CEO slots: <b>${p.ceoSlots}</b> · Managers played: <b>${info.mgrs}</b> ·
+        Staff played: <b>${info.staff}</b> · Capacity: <b>${info.total}</b> ·
+        Open slots: <b>${Math.max(0,info.open)}</b> ${info.valid?"":"<b style='color:var(--red)'>— DOESN'T FIT!</b>"}</div>
+      <div class="cardRow">${avail.map(c=>cardHTML(c,{mini:true,sel:sel.has(c.uid),click:`toggleWork(${c.uid})`})).join("")||"<i>You own no other employees yet — hire in phase 3!</i>"}</div>`;
+    setTab("phase");
+    setAction(info.valid?`Company structure OK. Open slots decide turn order.`:
+      `<b style="color:var(--red)">Too many employees for your structure!</b> Managers ≤ CEO slots; staff fill CEO + manager slots.`,
+      [{label:"Confirm structure ✓",disabled:!info.valid,fn:()=>{
+          log(`${p.name} sends ${sel.size} employee(s) to work.`);
+          phaseOrderOfBusiness();
+      }},
+      {label:"Beach everyone",alt:true,fn:()=>{sel.clear();render();}}]);
+  };
+  window.toggleWork=(uid)=>{ if(sel.has(uid))sel.delete(uid); else sel.add(uid); render(); };
+  render();
+}
+
+/* ---------- PHASE 2: ORDER OF BUSINESS ---------- */
+function phaseOrderOfBusiness(){
+  G.phaseLabel="2 · Order of Business"; renderTop();
+  G.players.forEach(p=>{p.driveIn = atWorkCards(p).some(c=>c.key==="local_mgr"||c.key==="regional_mgr");});
+  // milestones triggered by playing cards into the structure (previous turn order breaks ties)
+  for(const pi of G.prevOrder){ const p=P(pi), keys=atWorkCards(p).map(c=>c.key);
+    if(keys.includes("waitress")) claimMilestone(p,"m_waitress","waitress at work");
+    if(keys.includes("errand_boy")) claimMilestone(p,"m_errand","errand boy at work");
+    if(keys.includes("cart_op")) claimMilestone(p,"m_cart","cart operator at work");
+    if(keys.includes("pricing_mgr")||keys.includes("discount_mgr")) claimMilestone(p,"m_lower","prices lowered");
+  }
+  const prevPos={}; G.prevOrder.forEach((pi,idx)=>prevPos[pi]=idx);
+  const ranked=[...G.players].sort((a,b)=>{
+    const d=openSlots(b)-openSlots(a);
+    return d!==0?d:(prevPos[a.id]-prevPos[b.id]);
+  });
+  log(`Open slots: ${ranked.map(p=>`${p.name} ${openSlots(p)}`).join(", ")}.`);
+  const slots=new Array(G.numPlayers).fill(null);
+  const queue=[...ranked];
+  const next=()=>{
+    if(!queue.length){
+      G.prevOrder=[...G.turnOrder];
+      G.turnOrder=slots.map(p=>p.id);
+      log(`New turn order: ${G.turnOrder.map(i=>P(i).name).join(" → ")}.`);
+      renderTop(); phaseWorking(); return;
+    }
+    const p=queue.shift();
+    if(p.human){
+      const free=slots.map((s,i)=>s?null:i).filter(i=>i!==null);
+      G.phaseTab=`<span class="burst">Order of business</span>
+        <div class="kv">Most open slots picks first. Choose your spot on the turn order track.</div>
+        <div class="kv">${slots.map((s,i)=>`<b>${i+1}:</b> ${s?s.name:"—"}`).join(" · ")}</div>`;
+      setTab("phase");
+      setAction(`<b>Pick your position</b> (you have ${openSlots(p)} open slots).`,
+        free.map(i=>({label:"Position "+(i+1),fn:()=>{slots[i]=p; log(`${p.name} takes turn-order position ${i+1}.`); next();}})));
+    } else {
+      const i=aiPickOrder(p,slots);
+      slots[i]=p; log(`${p.name} takes turn-order position ${i+1}.`);
+      setTimeout(next,40);
+    }
+  };
+  next();
+}
+
+/* ---------- PHASE 3: WORKING 9:00–5:00 ---------- */
+let workQueue=[];
+function phaseWorking(){
+  G.phaseLabel="3 · Working 9:00–5:00"; renderTop();
+  workQueue=[...G.turnOrder];
+  nextWorker();
+}
+function nextWorker(){
+  if(!workQueue.length){ phaseDinnertime(); return; }
+  const p=P(workQueue.shift());
+  logTitle(`${p.name} works`);
+  if(p.human) humanWork(p,()=>nextWorker());
+  else { aiWork(p); refreshAll(); setTimeout(nextWorker,80); }
+}
+/* --- shared working helpers --- */
+function recruitActions(p){
+  let n=1; // CEO free action
+  for(const c of atWorkCards(p)) if(RECRUITERS[c.key]) n+=RECRUITERS[c.key];
+  return n;
+}
+function hireEmployee(p,key){
+  const c=addCard(p,key);
+  if(!c)return null;
+  G.hiredThisTurn[p.id]=(G.hiredThisTurn[p.id]||0)+1;
+  log(`${p.name} hires a ${EMP[key].name}.`);
+  if(G.hiredThisTurn[p.id]>=3) claimMilestone(p,"m_hire3");
+  return c;
+}
+function trainCard(p,c,toKey){
+  if(!trainTargets(p,c).includes(toKey))return false; // must follow the career tree
+  if(G.stock[toKey]<=0)return false;
+  if(EMP[toKey].once && p.cards.some(x=>x.key===toKey))return false;
+  G.stock[c.key]++; G.stock[toKey]--;
+  log(`${p.name} trains ${EMP[c.key].name} → <b>${EMP[toKey].name}</b>.`);
+  c.key=toKey;
+  claimMilestone(p,"m_train");
+  return true;
+}
+function trainTargets(p,c){
+  const t=(EMP[c.key].trains||[]).filter(k=>G.stock[k]>0 && !(EMP[k].once&&p.cards.some(x=>x.key===k)));
+  if(c.key==="svp"&&p.milestones.has("m_100")) return t.filter(k=>k!=="cfo");
+  return t;
+}
+function produce(p,good,n){
+  const take=Math.min(n, 40); p.stockGoods[good]+=take;
+  log(`${p.name} produces ${take} ${good}${take>1?"s":""}.`);
+  if(good==="burger") claimMilestone(p,"m_burger_prod");
+  if(good==="pizza") claimMilestone(p,"m_pizza_prod");
+}
+/* buyers: collect drinks from sources within route range of entrances */
+function buyerCollect(p,c){
+  const bonus=p.milestones.has("m_errand")?1:0;
+  if(c.key==="errand_boy"){
+    // choose most useful drink: AI/auto picks type advertised/demanded most; human chooses via UI
+    return {type:"choice", n:1+bonus};
+  }
+  const range=EMP[c.key].range + (p.milestones.has("m_cart")?1:0);
+  const per={cart_op:2,truck_driver:3,zeppelin:2}[c.key]+bonus;
+  let got={soda:0,beer:0,lemonade:0};
+  if(c.key==="zeppelin"){
+    // best path of up to range+1 tiles from a restaurant tile, no repeats
+    let best=null;
+    for(const r of p.restaurants){ if(!r.placed||r.coming)continue;
+      const [tx,ty]=tileOf(r.entCell[0],r.entCell[1]);
+      const res=bestZepPath(tx,ty,range);
+      if(!best||res.score>best.score)best=res;
+    }
+    if(best) for(const s of best.sources) got[s.good]+=per;
+  } else {
+    const dist=chainRoadDist(p);
+    const counted=new Set();
+    for(const s of G.board.sources){
+      if(G.board.cells[s.y][s.x].t!=="source")continue;
+      for(const [rx,ry] of adjacentRoads([[s.x,s.y]])){
+        if(dist[ry*G.board.W+rx]<=range){ if(!counted.has(s.y*1000+s.x)){counted.add(s.y*1000+s.x);
+          got[s.good]+=per;} break; }
+      }
+    }
+  }
+  return {type:"map",got};
+}
+function bestZepPath(tx,ty,range){
+  const srcByTile={};
+  for(const s of G.board.sources){ if(G.board.cells[s.y][s.x].t!=="source")continue;
+    const k=Math.floor(s.x/5)+","+Math.floor(s.y/5); (srcByTile[k]=srcByTile[k]||[]).push(s); }
+  let best={score:-1,sources:[]};
+  const dfs=(x,y,left,visited,srcs)=>{
+    const sc=srcs.length;
+    if(sc>best.score)best={score:sc,sources:[...srcs]};
+    if(left<=0)return;
+    for(const [dx,dy] of N4){
+      const nx=x+dx,ny=y+dy;
+      if(nx<0||ny<0||nx>=G.board.TW||ny>=G.board.TH)continue;
+      const k=nx+","+ny; if(visited.has(k))continue;
+      visited.add(k);
+      dfs(nx,ny,left-1,visited,srcs.concat(srcByTile[k]||[]));
+      visited.delete(k);
+    }
+  };
+  const k0=tx+","+ty;
+  dfs(tx,ty,range,new Set([k0]),srcByTile[k0]?[...srcByTile[k0]]:[]);
+  return best;
+}
+function applyCollect(p,got){
+  for(const g of DRINKS) if(got[g]>0){ p.stockGoods[g]+=got[g]; }
+  const parts=DRINKS.filter(g=>got[g]>0).map(g=>got[g]+" "+g);
+  if(parts.length) log(`${p.name}'s buyer brings back ${parts.join(", ")}.`);
+  else log(`${p.name}'s buyer finds no drink sources in range.`);
+}
+/* ---------- marketing placement (shared logic) ---------- */
+function marketRangeDist(p){ return chainRoadDist(p); }
+function billboardSpotOK(p,x,y,range){ // also used for mailbox/radio (range null => unlimited)
+  const c=cellAt(x,y); if(!c||c.t!=="empty")return false;
+  const roads=adjacentRoads([[x,y]]);
+  if(!roads.length)return false;
+  if(range==null)return true;
+  const dist=marketRangeDist(p);
+  const [tx,ty]=tileOf(x,y);
+  for(const [rx,ry] of roads){
+    if(dist[ry*G.board.W+rx]===Infinity)continue;
+    // tile itself must be in range: dist to road + crossing into tile if road is on another tile
+    let d=dist[ry*G.board.W+rx];
+    const [rtx,rty]=tileOf(rx,ry);
+    if(rtx!==tx||rty!==ty)d+=1;
+    if(d<=range)return true;
+  }
+  return false;
+}
+function placeCampaign(p,marketeerCard,kind,opts){
+  // opts: {x,y} or airplane {orient,idx,size,num?}; good; dur
+  const tile=G.marketTiles.find(t=>t.kind===kind&&!t.inUse&&(kind!=="airplane"||t.size===opts.size));
+  if(!tile)return false;
+  tile.inUse=true;
+  const eternal=p.milestones.has("m_billboard")||false;
+  const cp={num:tile.num, kind, owner:p.id, good:opts.good, tokens:opts.dur, eternal:false,
+    x:opts.x, y:opts.y, orient:opts.orient, idx:opts.idx, size:opts.size, marketeerUid:marketeerCard?marketeerCard.uid:null};
+  // milestone claims BEFORE eternal flag (first billboard applies to this one)
+  if(kind==="billboard") claimMilestone(p,"m_billboard");
+  if(kind==="airplane") claimMilestone(p,"m_airplane");
+  if(kind==="radio") claimMilestone(p,"m_radio");
+  if(opts.good==="burger") claimMilestone(p,"m_burger_mkt");
+  if(opts.good==="pizza") claimMilestone(p,"m_pizza_mkt");
+  if(DRINKS.includes(opts.good)) claimMilestone(p,"m_drink_mkt");
+  if(p.milestones.has("m_billboard")){ cp.eternal=true; cp.tokens=1; }
+  G.campaigns.push(cp);
+  if(marketeerCard){
+    marketeerCard.busy=cp.eternal?99:opts.dur;
+    p.atWork.delete(marketeerCard.uid);
+  }
+  log(`${p.name} launches ${cp.eternal?"an <b>eternal</b> ":""}${kind} campaign #${tile.num} advertising <b>${opts.good}</b>${cp.eternal?"":" for "+opts.dur+" turn(s)"}.`);
+  return true;
+}
+function availMarketTiles(kind){ return G.marketTiles.filter(t=>t.kind===kind&&!t.inUse); }
+
+/* ---------- houses & gardens (NBD) ---------- */
+function housePlacementOK(x,y){ // 2x3 (house 2x2 + garden 1x2 below); simplified footprint horizontal house+garden
+  if(!blockFree(x,y,2,3))return false;
+  const cellsList=[]; for(let dy=0;dy<3;dy++)for(let dx=0;dx<2;dx++)cellsList.push([x+dx,y+dy]);
+  return adjacentRoads(cellsList).length>0;
+}
+function commitHouse(p,x,y){
+  const num=G.board.nextHouseNum++;
+  const hcells=[],gcells=[];
+  for(let dy=0;dy<2;dy++)for(let dx=0;dx<2;dx++){G.board.cells[y+dy][x+dx]={t:"house",house:num};hcells.push([x+dx,y+dy]);}
+  for(let dx=0;dx<2;dx++){G.board.cells[y+2][x+dx]={t:"garden",house:num};gcells.push([x+dx,y+2]);}
+  G.board.houses.push({num,cells:hcells,garden:gcells,demand:[],fromNBD:true});
+  log(`${p.name} develops new house <b>#${num}</b> (with garden).`);
+}
+function gardenTargets(){
+  return G.board.houses.filter(h=>!h.fromNBD&&h.garden.length===0);
+}
+function gardenSpotsFor(h){
+  // 2 squares adjacent to the house forming a 2x3 rectangle: try 4 sides
+  const xs=h.cells.map(c=>c[0]),ys=h.cells.map(c=>c[1]);
+  const x0=Math.min(...xs),y0=Math.min(...ys);
+  const opts=[];
+  const tryS=(cells)=>{ if(cells.every(([x,y])=>{const c=cellAt(x,y);return c&&c.t==="empty";}))opts.push(cells); };
+  tryS([[x0,y0-1],[x0+1,y0-1]]); tryS([[x0,y0+2],[x0+1,y0+2]]);
+  tryS([[x0-1,y0],[x0-1,y0+1]]); tryS([[x0+2,y0],[x0+2,y0+1]]);
+  return opts;
+}
+function commitGarden(p,h,cells){
+  for(const [x,y] of cells){G.board.cells[y][x]={t:"garden",house:h.num};h.garden.push([x,y]);}
+  log(`${p.name} adds a garden to house #${h.num}.`);
+}
+
+/* =====================================================================
+   HUMAN WORKING PHASE UI
+   ===================================================================== */
+function humanWork(p,done){
+  const S={ recruitsLeft:recruitActions(p),
+    trainSlots: atWorkCards(p).filter(c=>TRAIN_CAP[c.key]).map(c=>({uid:c.uid,key:c.key,left:TRAIN_CAP[c.key],lastTrained:null})),
+    marketeers: atWorkCards(p).filter(c=>MARKETEERS[c.key]).map(c=>c.uid),
+    kitchen: atWorkCards(p).filter(c=>KITCHEN[c.key]).map(c=>c.uid),
+    buyers: atWorkCards(p).filter(c=>BUYERS[c.key]).map(c=>c.uid),
+    nbd: atWorkCards(p).filter(c=>c.key==="nbd").map(c=>c.uid),
+    restMgr: atWorkCards(p).filter(c=>c.key==="local_mgr"||c.key==="regional_mgr").map(c=>c.uid),
+    trainedThisTurn:{}, step:0 };
+  const STEPS=["Recruit","Train","Marketing","Food & Drinks","Houses & Gardens","Restaurants"];
+  const render=()=>{
+    const stepName=STEPS[S.step];
+    G.phaseTab=`<span class="burst">Working — ${stepName}</span>
+      <div class="kv">Actions run in fixed order: ${STEPS.map((s,i)=>i===S.step?`<b style="color:var(--red)">${s}</b>`:s).join(" → ")}</div>
+      ${idleStripHTML(p,S)}
+      ${workStepHTML(p,S)}`;
+    setTab("phase");
+    const btns=[];
+    btns.push({label:S.step<STEPS.length-1?("Next: "+STEPS[S.step+1]+" →"):"Finish my work day ✓",fn:()=>{
+      if(S.step===0){ // convert leftover recruiter actions into salary discounts
+        let left=S.recruitsLeft-1; // CEO's free action never discounts
+        for(const c of atWorkCards(p)) if(c.key==="recruit_mgr"||c.key==="hr_dir"){
+          const share=Math.max(0,Math.min(left,RECRUITERS[c.key])); c.recruitsUnused=share; left-=share;
+        }
+      }
+      if(S.step<STEPS.length-1){S.step++;render();return;}
+      const idle=idleActions(p,S);
+      if(idle.length){ confirmIdle(p,S,idle,()=>{window.WS=null;clearBoardClick();done();},render); return; }
+      window.WS=null; clearBoardClick(); done();
+    }});
+    setAction(workStepMsg(p,S), btns);
+    refreshAll(); setTab("phase");
+  };
+  window.WS={p,S,render,done};
+  render();
+}
+/* Which employees at work still have an action left? Leaving a cook or a
+   marketeer idle is invisible otherwise — you pay them either way. */
+function idleActions(p,S){
+  const out=[];
+  const nm=uid=>{const c=p.cards.find(x=>x.uid===uid);return c?EMP[c.key].name:"employee";};
+  // only flag an action if it is actually still possible — false alarms are worse than none
+  const ceoHire=S.recruitsLeft-atWorkCards(p).reduce((n,c)=>n+(RECRUITERS[c.key]||0),0);
+  const canHire=Object.keys(EMP).some(k=>EMP[k].entry&&G.stock[k]>0);
+  if(ceoHire>0&&canHire) out.push({step:0,what:"CEO hire",text:"your free CEO hire is unused"});
+  const tleft=S.trainSlots.reduce((n,t)=>n+t.left,0);
+  const canTrain=p.cards.some(c=>!p.atWork.has(c.uid)&&!c.busy&&trainTargets(p,c).length);
+  if(tleft>0&&canTrain) out.push({step:1,what:"training",text:`${tleft} training step(s) unused`});
+  for(const uid of S.marketeers){
+    const c=p.cards.find(x=>x.uid===uid);
+    if(c&&MARKETEERS[c.key].some(k=>availMarketTiles(k).length))
+      out.push({step:2,what:nm(uid),text:`${nm(uid)} has launched no campaign`});
+  }
+  for(const uid of S.kitchen) out.push({step:3,what:nm(uid),text:`${nm(uid)} has cooked nothing`});
+  for(const uid of S.buyers) out.push({step:3,what:nm(uid),text:`${nm(uid)} has fetched no drinks`});
+  for(const uid of S.nbd) out.push({step:4,what:nm(uid),text:`${nm(uid)} has built nothing`});
+  if(p.restaurants.some(r=>!r.placed))
+    for(const uid of S.restMgr) out.push({step:5,what:nm(uid),text:`${nm(uid)} has opened no restaurant`});
+  return out;
+}
+function idleStripHTML(p,S){
+  const idle=idleActions(p,S);
+  if(!idle.length) return `<div class="idleStrip ok">Every employee at work has acted. Nothing wasted.</div>`;
+  return `<div class="idleStrip">Still idle:
+    ${idle.map(i=>`<span class="ichip${i.step===S.step?" now":""}">${i.text}</span>`).join("")}</div>`;
+}
+function confirmIdle(p,S,idle,finish,render){
+  const STEPS=["Recruit","Train","Marketing","Food & Drinks","Houses & Gardens","Restaurants"];
+  const first=Math.min(...idle.map(i=>i.step));
+  modal(`<h2>Hold on — unused actions</h2>
+    <div class="mbody">These people are at work and will be paid this turn, but haven't done anything yet:
+      <ul style="margin:8px 0 0 18px;">${idle.map(i=>`<li>${i.text}</li>`).join("")}</ul>
+      <br>Actions run in a fixed order, so going back means redoing the later steps.</div>
+    <div class="mbtns">
+      <button class="abtn" onclick="closeModal();window._idleBack(${first})">Go back to ${STEPS[first]}</button>
+      <button class="abtn alt" onclick="closeModal();window._idleGo()">Finish anyway</button>
+    </div>`);
+  window._idleBack=(st)=>{S.step=st;render();};
+  window._idleGo=()=>finish();
+  // mirror the choice in the action bar so the turn can never dead-end on a modal
+  setAction(`<b style="color:var(--red-dk)">${idle.length} unused action(s).</b> Go back and use them, or finish anyway.`,
+    [{label:"Go back to "+STEPS[first],fn:()=>{closeModal();window._idleBack(first);}},
+     {label:"Finish anyway ✓",alt:true,fn:()=>{closeModal();window._idleGo();}}]);
+}
+function workStepMsg(p,S){
+  switch(S.step){
+    case 0:return `<b>Recruit.</b> ${S.recruitsLeft} hire action(s) left (CEO gives 1 free). Unused Recruiting Manager / HR Director actions become salary discounts.`;
+    case 1:return `<b>Train.</b> Trainers at work can upgrade people on the beach (incl. new hires).`;
+    case 2:return `<b>Marketing.</b> Each marketeer at work may launch one campaign, then goes busy.`;
+    case 3:return `<b>Food & drinks.</b> Kitchen staff produce; buyers fetch drinks from map sources.`;
+    case 4:return `<b>Houses & gardens.</b> New Business Developers build demand capacity.`;
+    case 5:return `<b>Restaurants.</b> Local / Regional Managers expand the chain. Drive-in active this turn.`;
+  }
+}
+function workStepHTML(p,S){
+  const beach=p.cards.filter(c=>!p.atWork.has(c.uid)&&!c.busy);
+  switch(S.step){
+    case 0:{
+      const entries=Object.keys(EMP).filter(k=>EMP[k].entry);
+      return `<div class="kv">Hires left: <b>${S.recruitsLeft}</b></div><div class="cardRow">${
+        entries.map(k=>`<div class="ecard mini clickable ${G.stock[k]<=0?'busyC':''}" onclick="uiHire('${k}')">
+          <div class="hd hc-${EMP[k].color}">${EMP[k].name}</div>
+          <div class="bd">${EMP[k].text}</div>
+          <div class="ft"><span class="badge">${G.stock[k]} left</span></div></div>`).join("")}</div>`;
+    }
+    case 1:{
+      const caps=S.trainSlots.map(t=>`${EMP[t.key].name}: ${t.left} step(s)`).join(" · ")||"No trainers at work.";
+      return `<div class="kv">${caps}</div>
+        <div class="kv">Click a beach card, then a career option:</div>
+        <div class="cardRow">${beach.map(c=>{
+          const opts=trainTargets(p,c);
+          if(!opts.length)return cardHTML(c,{mini:true});
+          return `<div style="border:2px dashed var(--ink);border-radius:9px;padding:5px;">
+            ${cardHTML(c,{mini:true})}
+            <div style="display:flex;flex-direction:column;gap:3px;margin-top:4px;">
+            ${opts.map(k=>`<button class="abtn alt" style="font-size:10px;padding:3px 6px" onclick="uiTrain(${c.uid},'${k}')">→ ${EMP[k].name}</button>`).join("")}
+            </div></div>`;
+        }).join("")||"<i>Beach is empty.</i>"}</div>`;
+    }
+    case 2:{
+      const ms=S.marketeers.map(uid=>p.cards.find(c=>c.uid===uid)).filter(Boolean);
+      return `<div class="cardRow">${ms.map(c=>`<div>${cardHTML(c,{mini:true})}
+        <div style="display:flex;flex-direction:column;gap:3px;margin-top:3px;">
+          ${MARKETEERS[c.key].map(k=>{
+            const n=availMarketTiles(k).length;
+            return `<button class="abtn alt" style="font-size:10px;padding:3px 6px" ${n?"":"disabled"}
+              onclick="uiCampaign(${c.uid},'${k}')">${k} (${n} left)</button>`;}).join("")}
+        </div></div>`).join("")||"<i>No marketeers at work.</i>"}</div>`;
+    }
+    case 3:{
+      const ks=S.kitchen.map(uid=>p.cards.find(c=>c.uid===uid)).filter(Boolean);
+      const bs=S.buyers.map(uid=>p.cards.find(c=>c.uid===uid)).filter(Boolean);
+      return `<h3 style="font-size:12px;color:var(--red)">Kitchen</h3><div class="cardRow">${
+        ks.map(c=>{const K=KITCHEN[c.key];
+          if(K.choice)return `<div>${cardHTML(c,{mini:true})}<div style="display:flex;gap:3px;margin-top:3px;">
+            <button class="abtn alt" style="font-size:10px;padding:3px 6px" onclick="uiProduce(${c.uid},'burger')">🍔 1</button>
+            <button class="abtn alt" style="font-size:10px;padding:3px 6px" onclick="uiProduce(${c.uid},'pizza')">🍕 1</button></div></div>`;
+          return `<div>${cardHTML(c,{mini:true})}<button class="abtn alt" style="font-size:10px;padding:3px 6px;margin-top:3px;"
+            onclick="uiProduce(${c.uid},'${K.good}')">Make ${K.n} ${K.good}s</button></div>`;
+        }).join("")||"<i>No kitchen staff at work.</i>"}</div>
+        <h3 style="font-size:12px;color:var(--red)">Buyers</h3><div class="cardRow">${
+        bs.map(c=>{
+          if(c.key==="errand_boy")return `<div>${cardHTML(c,{mini:true})}<div style="display:flex;gap:3px;margin-top:3px;">
+            ${DRINKS.map(g=>`<button class="abtn alt" style="font-size:10px;padding:3px 5px" onclick="uiErrand(${c.uid},'${g}')"><span class="good ${g}"></span></button>`).join("")}</div></div>`;
+          return `<div>${cardHTML(c,{mini:true})}<button class="abtn alt" style="font-size:10px;padding:3px 6px;margin-top:3px;"
+            onclick="uiBuyer(${c.uid})">Drive route</button></div>`;
+        }).join("")||"<i>No buyers at work.</i>"}</div>`;
+    }
+    case 4:{
+      const ns=S.nbd.map(uid=>p.cards.find(c=>c.uid===uid)).filter(Boolean);
+      return `<div class="cardRow">${ns.map(c=>`<div>${cardHTML(c,{mini:true})}
+        <div style="display:flex;flex-direction:column;gap:3px;margin-top:3px;">
+        <button class="abtn alt" style="font-size:10px;padding:3px 6px" onclick="uiHouse(${c.uid})">Place new house</button>
+        <button class="abtn alt" style="font-size:10px;padding:3px 6px" ${gardenTargets().length?"":"disabled"} onclick="uiGarden(${c.uid})">Add a garden</button>
+        </div></div>`).join("")||"<i>No New Business Developer at work.</i>"}</div>`;
+    }
+    case 5:{
+      const rs=S.restMgr.map(uid=>p.cards.find(c=>c.uid===uid)).filter(Boolean);
+      const spare=p.restaurants.some(r=>!r.placed);
+      return `<div class="cardRow">${rs.map(c=>`<div>${cardHTML(c,{mini:true})}
+        <button class="abtn alt" style="font-size:10px;padding:3px 6px;margin-top:3px;" ${spare?"":"disabled"}
+        onclick="uiRest(${c.uid})">Place restaurant</button></div>`).join("")||"<i>No restaurant managers at work.</i>"}
+        ${rs.length&&!spare?"<div class='kv'>All 3 restaurants already on the board.</div>":""}</div>`;
+    }
+  }
+  return "";
+}
+/* --- working UI callbacks --- */
+function uiHire(k){
+  const {p,S,render}=window.WS;
+  if(S.step!==0||S.recruitsLeft<=0||G.stock[k]<=0)return;
+  hireEmployee(p,k); S.recruitsLeft--; checkCashMilestone(p); render();
+}
+function uiTrain(uid,toKey){
+  const {p,S,render}=window.WS;
+  if(S.step!==1)return;
+  const c=p.cards.find(x=>x.uid===uid); if(!c)return;
+  const multi=k=>k==="coach"||k==="guru"; // only these may give the same person several steps
+  const prev=S.trainedThisTurn[uid]; // uid of the trainer who already trained this card (if any)
+  let t=null;
+  if(prev!=null){
+    t=S.trainSlots.find(t=>t.uid===prev && t.left>0 && multi(t.key));
+    if(!t){ setAction("That person was already trained this turn — only a Coach or Guru can add more steps to the same person."); return; }
+  } else {
+    t=S.trainSlots.find(t=>t.left>0);
+    if(!t){ setAction("No training capacity left this turn."); return; }
+  }
+  if(trainCard(p,c,toKey)){ t.left--; S.trainedThisTurn[uid]=t.uid; }
+  render();
+}
+function uiProduce(uid,good){
+  const {p,S,render}=window.WS;
+  if(S.step!==3||!S.kitchen.includes(uid))return;
+  const c=p.cards.find(x=>x.uid===uid); if(!c)return;
+  const K=KITCHEN[c.key];
+  produce(p,good,K.n||1);
+  S.kitchen=S.kitchen.filter(u=>u!==uid);
+  render();
+}
+function uiErrand(uid,good){
+  const {p,S,render}=window.WS;
+  if(S.step!==3||!S.buyers.includes(uid))return;
+  const n=1+(p.milestones.has("m_errand")?1:0);
+  p.stockGoods[good]+=n;
+  log(`${p.name}'s errand boy fetches ${n} ${good}.`);
+  S.buyers=S.buyers.filter(u=>u!==uid);
+  render();
+}
+function uiBuyer(uid){
+  const {p,S,render}=window.WS;
+  if(S.step!==3||!S.buyers.includes(uid))return;
+  const c=p.cards.find(x=>x.uid===uid); if(!c)return;
+  const res=buyerCollect(p,c);
+  applyCollect(p,res.got);
+  S.buyers=S.buyers.filter(u=>u!==uid);
+  render();
+}
+function uiHouse(uid){
+  const {p,S,render}=window.WS;
+  if(S.step!==4||!S.nbd.includes(uid))return;
+  setAction("<b>Place a new house.</b> Click the top-left square of a free 2×3 area (house + garden) touching a road.",
+    [{label:"Cancel",ghost:true,fn:()=>{clearBoardClick();render();}}]);
+  setBoardClick((x,y)=>{ if(!housePlacementOK(x,y))return;
+    commitHouse(p,x,y); S.nbd=S.nbd.filter(u=>u!==uid); clearBoardClick(); render();
+  },(x,y)=>housePlacementOK(x,y)?"ok":null);
+}
+function uiGarden(uid){
+  const {p,S,render}=window.WS;
+  if(S.step!==4||!S.nbd.includes(uid))return;
+  const targets=gardenTargets().filter(h=>gardenSpotsFor(h).length);
+  if(!targets.length){setAction("No printed house has room for a garden.");return;}
+  setAction("<b>Add a garden.</b> Click a house without one.",[{label:"Cancel",ghost:true,fn:()=>{clearBoardClick();render();}}]);
+  setBoardClick((x,y)=>{
+    const c=cellAt(x,y); if(!c||c.t!=="house")return;
+    const h=G.board.houses.find(h=>h.num===c.house);
+    if(!h||h.garden.length||h.fromNBD)return;
+    const spots=gardenSpotsFor(h); if(!spots.length){setAction("No room around that house.");return;}
+    commitGarden(p,h,spots[0]); S.nbd=S.nbd.filter(u=>u!==uid); clearBoardClick(); render();
+  });
+}
+function uiRest(uid){
+  const {p,S,render}=window.WS;
+  if(S.step!==5||!S.restMgr.includes(uid))return;
+  const c=p.cards.find(x=>x.uid===uid); if(!c)return;
+  const r=p.restaurants.find(r=>!r.placed); if(!r)return;
+  const isLocal=c.key==="local_mgr";
+  humanPlaceRestaurant(p,r,false,(ok)=>{
+    if(ok){ S.restMgr=S.restMgr.filter(u=>u!==uid); }
+    render();
+  }, isLocal?3:null);
+}
+function uiCampaign(uid,kind){
+  const {p,S,render}=window.WS;
+  if(S.step!==2||!S.marketeers.includes(uid))return;
+  const c=p.cards.find(x=>x.uid===uid); if(!c)return;
+  const e=EMP[c.key];
+  const maxDur=e.dur;
+  let good="burger", dur=maxDur;
+  const pickUI=()=>{
+    modal(`<h2>${kind} campaign</h2><div class="mbody">Choose what to advertise and for how long. Then click the map.</div>
+    <h3 style="margin-top:8px;">Advertise</h3><div class="mbtns">${GOODS.map(g=>
+      `<button class="abtn ${g===good?"":"alt"}" onclick="window._cg('${g}')"><span class="good ${g}"></span> ${GOOD_LABEL[g]}</button>`).join("")}</div>
+    <h3 style="margin-top:8px;">Duration</h3><div class="mbtns">${Array.from({length:maxDur},(_,i)=>i+1).map(d=>
+      `<button class="abtn ${d===dur?"":"alt"}" onclick="window._cd(${d})">${d} turn${d>1?"s":""}</button>`).join("")}</div>
+    <div class="mbtns"><button class="abtn" onclick="window._cok()">Place on map →</button>
+    <button class="abtn ghost" onclick="closeModal()">Cancel</button></div>`);
+  };
+  window._cg=g=>{good=g;pickUI();};
+  window._cd=d=>{dur=d;pickUI();};
+  window._cok=()=>{
+    closeModal();
+    if(kind==="airplane"){ airplanePlaceUI(p,c,good,dur,render); return; }
+    const range=(c.key==="brand_mgr"||c.key==="brand_dir")?null:e.range;
+    setAction(`<b>Place the ${kind}.</b> Click an empty square next to a road${range!=null?` within range ${range} of your restaurants`:""}.`,
+      [{label:"Cancel",ghost:true,fn:()=>{clearBoardClick();render();}}]);
+    setBoardClick((x,y)=>{
+      if(!billboardSpotOK(p,x,y,range))return;
+      if(placeCampaign(p,c,kind,{x,y,good,dur})){
+        S.marketeers=S.marketeers.filter(u=>u!==uid);
+        clearBoardClick(); render();
+      }
+    },(x,y)=>billboardSpotOK(p,x,y,range)?"ok":null);
+  };
+  pickUI();
+}
+function airplanePlaceUI(p,c,good,dur,render){
+  const sizes=[...new Set(availMarketTiles("airplane").map(t=>t.size))].sort((a,b)=>a-b);
+  if(!sizes.length){setAction("No airplanes left.");render();return;}
+  const btns=[];
+  for(const size of sizes){
+    for(let idx=0;idx<=G.board.H-size;idx++)btns.push({label:`✈ rows ${idx+1}–${idx+size}`,alt:true,fn:()=>fin("rows",idx,size)});
+    for(let idx=0;idx<=G.board.W-size;idx++)btns.push({label:`✈ cols ${idx+1}–${idx+size}`,alt:true,fn:()=>fin("cols",idx,size)});
+  }
+  const fin=(orient,idx,size)=>{
+    closeModal();
+    if(placeCampaign(p,c,"airplane",{orient,idx,size,good,dur})){
+      const S=window.WS.S; S.marketeers=S.marketeers.filter(u=>u!==c.uid);
+    }
+    render();
+  };
+  modal(`<h2>Airplane fly-over</h2><div class="mbody">Pick the strip of board squares the plane flies over
+    (available plane sizes: ${sizes.join(", ")}).</div>
+    <div class="mbtns" style="max-height:300px;overflow:auto;">${""}</div>`);
+  // build buttons into modal
+  const holder=document.querySelector("#modal .mbtns");
+  btns.forEach(b=>{const el=document.createElement("button");el.className="abtn alt";el.textContent=b.label;el.onclick=b.fn;holder.appendChild(el);});
+  const cancel=document.createElement("button");cancel.className="abtn ghost";cancel.textContent="Cancel";
+  cancel.onclick=()=>{closeModal();render();};holder.appendChild(cancel);
+}
+/* =====================================================================
+   PHASE 4: DINNERTIME
+   ===================================================================== */
+/* Everything needed to judge one house's order — shared by dinnertime and the
+   preview panel, so what you see beforehand is exactly what resolves. */
+function houseBids(h){
+  const orderPos={}; G.turnOrder.forEach((pi,idx)=>orderPos[pi]=idx);
+  const need={}; h.demand.forEach(g=>need[g]=(need[g]||0)+1);
+  const cands=[];
+  for(const p of G.players){
+    const open=p.restaurants.some(r=>r.placed&&!r.coming);
+    const missing=[];
+    for(const g in need){ const short=need[g]-chainStock(p,g); if(short>0)missing.push({good:g,n:short}); }
+    const d=open?houseToChainDist(h,p):Infinity;
+    const blocked=!open?"no open restaurant":missing.length?"short of stock":d===Infinity?"no road connection":null;
+    cands.push({p,d,missing,blocked,price:unitPrice(p),
+      score:blocked?Infinity:unitPrice(p)+d});
+  }
+  cands.sort((a,b)=> a.score-b.score
+    || waitressCount(b.p)-waitressCount(a.p)
+    || orderPos[a.p.id]-orderPos[b.p.id]);
+  return {need,cands};
+}
+/* ---------------------------------------------------------------------
+   Dinnertime runs as a visible sequence: each house lights up in turn,
+   the competing bids are shown, then the winner is paid. The maths is
+   identical to the DINNER preview — this just makes it watchable.
+   --------------------------------------------------------------------- */
+const DINNER_REVEAL=900, DINNER_SETTLE=700;
+function dinnerPace(ms){ return G.dinnerSkip?0:ms; }
+function phaseDinnertime(){
+  G.phaseLabel="4 · Dinnertime"; renderTop();
+  logTitle("DINNERTIME");
+  G.dinnerSkip=false;
+  G.dinner={ queue:[...G.board.houses].sort((a,b)=>a.num-b.num).filter(h=>h.demand.length),
+             i:0, done:[], spot:null, bids:null, payout:null };
+  if(!G.dinner.queue.length){ dinnerFinish(); return; }
+  setAction("<b>Dinnertime.</b> Houses order in number sequence — watch who wins each one.",
+    [{label:"Skip to the end ⏭",alt:true,fn:()=>{G.dinnerSkip=true; dinnerFlush();}}]);
+  setTab("phase");
+  dinnerStep();
+}
+/* resolve everything still pending at once (the skip button) */
+function dinnerFlush(){
+  const D=G.dinner;
+  if(!D||D.flushed)return;
+  D.flushed=true;
+  while(D.i<D.queue.length){
+    const h=D.queue[D.i];
+    const {need,cands}=houseBids(h);
+    const able=cands.filter(c=>c.score<Infinity);
+    if(!able.length){
+      log(`House #${h.num} finds nobody who can serve its full order — the family stays hungry.`);
+      D.done.push({num:h.num,none:true});
+    } else {
+      const w=able[0];
+      D.done.push({num:h.num,winner:w.p,amount:serveHouse(h,w,need),score:w.score});
+    }
+    D.i++;
+  }
+  D.spot=null; D.bids=null; D.payout=null;
+  refreshAll();
+  dinnerFinish();
+}
+function dinnerStep(){
+  const D=G.dinner;
+  if(!D||D.flushed)return;
+  if(D.i>=D.queue.length){ D.spot=null; D.bids=null; refreshAll(); dinnerFinish(); return; }
+  const h=D.queue[D.i];
+  const {need,cands}=houseBids(h);
+  const able=cands.filter(c=>c.score<Infinity);
+  D.spot=h.num; D.bids=cands; D.payout=null;
+  G.phaseTab=dinnerTabHTML();
+  refreshAll(); setTab("phase");
+  setTimeout(()=>{
+    if(!G.dinner||G.dinner.flushed)return; // skipped while this reveal was in flight
+    if(!able.length){
+      log(`House #${h.num} finds nobody who can serve its full order — the family stays hungry.`);
+      D.done.push({num:h.num,none:true});
+    } else {
+      const w=able[0];
+      const income=serveHouse(h,w,need);
+      D.payout={player:w.p,amount:income,house:h.num};
+      D.done.push({num:h.num,winner:w.p,amount:income,score:w.score});
+    }
+    G.phaseTab=dinnerTabHTML();
+    refreshAll(); setTab("phase");
+    D.i++;
+    setTimeout(()=>{ if(G.dinner&&!G.dinner.flushed) dinnerStep(); },dinnerPace(DINNER_SETTLE));
+  },dinnerPace(DINNER_REVEAL));
+}
+/* the actual transaction — unchanged rules, just extracted */
+function serveHouse(h,w,need){
+  const p=w.p; let income=0; const u=unitPrice(p); const parts=[];
+  for(const g in need){
+    for(let i=0;i<need[g];i++){
+      if(p.stockGoods[g]>0)p.stockGoods[g]--; else p.freezer[g]--;
+      let it=u*(h.garden.length?2:1);
+      if(g==="burger"&&p.milestones.has("m_burger_mkt"))it+=5;
+      if(g==="pizza"&&p.milestones.has("m_pizza_mkt"))it+=5;
+      if(DRINKS.includes(g)&&p.milestones.has("m_drink_mkt"))it+=5;
+      income+=it;
+    }
+    parts.push(need[g]+" "+GOOD_LABEL[g]);
+  }
+  h.demand=[];
+  log(`House #${h.num} orders ${parts.join(", ")} from <b>${p.name}</b> (price $${u} + distance ${w.d}${h.garden.length?", garden ×2":""}).`);
+  p.earnedThisRound=(p.earnedThisRound||0)+income;
+  payFromBank(p,income,"from house #"+h.num);
+  return income;
+}
+function dinnerTabHTML(){
+  const D=G.dinner; if(!D)return "";
+  let out=`<span class="burst">Dinnertime</span>
+    <div class="kv">House ${Math.min(D.i+1,D.queue.length)} of ${D.queue.length} — lowest number first.</div>`;
+  if(D.spot!=null&&D.bids){
+    const h=G.board.houses.find(x=>x.num===D.spot);
+    const settled=D.done.find(r=>r.num===D.spot);
+    out+=`<div class="dhouse ${settled&&settled.winner&&settled.winner.human?"win":""}">
+      <div class="dh"><b>House #${D.spot}</b>
+        ${settled?"":h.demand.map(g=>`<span class="si"><span class="good ${g}"></span></span>`).join("")}
+        ${h.garden.length?'<span class="tag" style="background:var(--grass)">garden ×2</span>':""}</div>
+      ${D.bids.map((c,i)=>{
+        const lead=i===0&&!c.blocked;
+        return `<div class="drow ${lead?"lead":""} ${c.blocked?"out":""}">
+          <span class="dot" style="background:${c.p.color}"></span>
+          <span class="dn">${c.p.human?"You":c.p.name}</span>
+          ${c.blocked?`<span class="dwhy">${c.blocked==="short of stock"
+              ?"needs "+c.missing.map(m=>m.n+" more "+GOOD_LABEL[m.good]).join(", "):c.blocked}</span>`
+            :`<span class="dsc">$${c.price} + ${c.d} = <b>${c.score}</b></span>`}
+          ${lead?`<span class="tag" style="background:var(--gold);color:var(--ink)">${settled?"paid $"+settled.amount:"wins"}</span>`:""}
+        </div>`;}).join("")}
+    </div>`;
+  }
+  const past=D.done.filter(r=>r.num!==D.spot);
+  if(past.length) out+=`<div class="kv" style="margin-top:6px;"><b>Already served</b></div>
+    ${past.map(r=>`<div class="drow">
+      <span class="dn">House #${r.num}</span>
+      ${r.none?'<span class="dwhy">unfilled</span>'
+        :`<span class="dot" style="background:${r.winner.color}"></span>
+          <span class="dsc">$${r.amount}</span>`}</div>`).join("")}`;
+  return out;
+}
+function dinnerFinish(){
+  G.dinner=null; G.dinnerSkip=false;
+  // waitresses
+  for(const pi of G.turnOrder){
+    const p=P(pi), n=waitressCount(p);
+    if(n>0){
+      const per=p.milestones.has("m_waitress")?5:3;
+      const amt=n*per;
+      p.earnedThisRound=(p.earnedThisRound||0)+amt;
+      payFromBank(p,amt,`in waitress tips (${n} × $${per})`);
+    }
+  }
+  // CFO
+  for(const pi of G.turnOrder){
+    const p=P(pi);
+    const hasCFO=atWorkCards(p).some(c=>c.key==="cfo")||p.milestones.has("m_100");
+    if(hasCFO && (p.earnedThisRound||0)>0){
+      const bonus=Math.ceil(p.earnedThisRound*0.5);
+      payFromBank(p,bonus,"as CFO bonus (+50%)");
+    }
+    p.earnedThisRound=0;
+  }
+  // $100 milestone at end of phase 4
+  for(const p of G.players) if(p.cash>=100) claimMilestone(p,"m_100","$100 at end of dinnertime");
+  refreshAll();
+  if(G.gameOver){ endGame(); return; }
+  phasePayday();
+}
+function endGame(){
+  G.phaseLabel="GAME OVER"; renderTop();
+  const orderPos={}; G.turnOrder.forEach((pi,idx)=>orderPos[pi]=idx);
+  const rank=[...G.players].sort((a,b)=>b.cash-a.cash||orderPos[a.id]-orderPos[b.id]);
+  logTitle("FINAL RESULTS");
+  rank.forEach((p,i)=>log(`${i+1}. <b>${p.name}</b> — $${p.cash}${p.human?" (you)":""}`));
+  const w=rank[0];
+  modal(`<h2>${w.human?"🏆 You are the Food Chain Magnate!":"Game over"}</h2>
+    <div class="mbody"><b>${w.name}</b> wins with <b>$${w.cash}</b>.<br><br>
+    ${rank.map((p,i)=>`${i+1}. ${p.name} — $${p.cash}${p.human?" <b>(you)</b>":""}`).join("<br>")}</div>
+    <div class="mbtns"><button class="abtn" onclick="location.reload()">Play again</button>
+    <button class="abtn alt" onclick="closeModal()">Inspect the board</button></div>`);
+  setAction("Game over. "+w.name+" wins with $"+w.cash+".",[{label:"New game",fn:()=>location.reload()}]);
+}
+
+/* =====================================================================
+   PHASE 5: PAYDAY
+   ===================================================================== */
+function phasePayday(){
+  if(G.intro){ phaseCampaigns(); return; }
+  G.phaseLabel="5 · Payday"; renderTop();
+  logTitle("PAYDAY");
+  // AI fire decisions first, then human UI
+  for(const p of G.players) if(!p.human) aiPayday(p);
+  const h=human();
+  if(!h){ phaseCampaigns(); return; }
+  humanPaydayUI(h);
+}
+function salaryDue(p){
+  let due=0;
+  for(const c of p.cards){
+    if(!EMP[c.key].salary)continue;
+    if(p.milestones.has("m_billboard") && MARKETEERS[c.key])continue;
+    due+=5;
+  }
+  let disc=0;
+  for(const c of atWorkCards(p)){
+    if(c.key==="recruit_mgr")disc+=5*(c.recruitsUnused||0);
+    if(c.key==="hr_dir")disc+=5*(c.recruitsUnused||0);
+  }
+  if(p.milestones.has("m_train"))disc+=15;
+  return {due,disc,pay:Math.max(0,due-disc)};
+}
+function humanPaydayUI(p){
+  const render=()=>{
+    const s=salaryDue(p);
+    G.phaseTab=`<span class="burst">Payday</span>
+      <div class="kv">Every card with a <b style="color:var(--red)">$5</b> badge costs $5 (at work or on the beach).
+        Busy marketeers must be paid too${p.milestones.has("m_billboard")?" — but your marketeers are free (milestone)":""}.
+        Click a card to fire it (returned to stock).</div>
+      <div class="kv">Salaries: <b>$${s.due}</b> − discounts <b>$${s.disc}</b> = <b style="color:var(--red)">$${s.pay}</b> · Your cash: <b>$${p.cash}</b></div>
+      <div class="cardRow">${p.cards.map(c=>{
+        const canFire=!(c.busy&&!allSalariedFired(p,c));
+        return `<div style="text-align:center">${cardHTML(c,{mini:true,click:`uiFire(${c.uid})`})}
+          <div style="font-size:9px;color:var(--ink-soft)">${EMP[c.key].salary?"$5":"free"}${c.busy?" · busy":""}</div></div>`;
+      }).join("")||"<i>No employees.</i>"}</div>`;
+    setTab("phase");
+    const s2=salaryDue(p);
+    setAction(p.cash>=s2.pay?`Pay <b>$${s2.pay}</b> in salaries?`:
+      `<b style="color:var(--red)">You can't afford $${s2.pay}!</b> Fire people until you can.`,
+      [{label:`Pay $${s2.pay} & continue ✓`,disabled:p.cash<s2.pay,fn:()=>{
+        finishPayday(p,s2); phaseCampaigns();
+      }}]);
+    refreshAll(); setTab("phase");
+  };
+  window.uiFire=(uid)=>{
+    const c=p.cards.find(x=>x.uid===uid); if(!c)return;
+    if(c.busy && !allSalariedFired(p,c)){ setAction("Busy marketeers may only be fired if every other salaried employee is already gone."); return; }
+    fireCard(p,c); render();
+  };
+  render();
+}
+function allSalariedFired(p,except){
+  return !p.cards.some(c=>c!==except && EMP[c.key].salary && !c.busy);
+}
+function fireCard(p,c){
+  if(c.busy){ // campaign stays on board
+    const cp=G.campaigns.find(x=>x.owner===p.id&&x.marketeerUid===c.uid);
+    if(cp)cp.marketeerUid=null;
+  }
+  p.atWork.delete(c.uid);
+  removeCard(p,c);
+  log(`${p.name} fires a ${EMP[c.key].name}.`);
+}
+function finishPayday(p,s){
+  if(s.pay>=20) claimMilestone(p,"m_salary20",`paid $${s.pay} in salaries`);
+  p.cash-=s.pay; G.bank+=s.pay;
+  log(`${p.name} pays <b>$${s.pay}</b> in salaries${s.disc?` ($${s.disc} discounted)`:""}.`);
+}
+
+/* =====================================================================
+   PHASE 6: MARKETING CAMPAIGNS RUN
+   ===================================================================== */
+function houseCap(h){ return h.garden.length?5:3; }
+function addDemand(h,good,n){
+  let added=0;
+  while(n-->0 && h.demand.length<houseCap(h)){ h.demand.push(good); added++; }
+  return added;
+}
+function housesReachedBy(cp){
+  const out=[];
+  for(const h of G.board.houses){
+    const cellsList=[...h.cells,...h.garden];
+    let hit=false;
+    if(cp.kind==="billboard"){
+      for(const [x,y] of cellsList)for(const [dx,dy] of N4){
+        if(x+dx===cp.x&&y+dy===cp.y){hit=true;break;}
+      }
+    } else if(cp.kind==="mailbox"){
+      hit=mailboxBlock(cp).has(h.num);
+    } else if(cp.kind==="airplane"){
+      for(const [x,y] of cellsList){
+        if(cp.orient==="rows"&&y>=cp.idx&&y<cp.idx+cp.size)hit=true;
+        if(cp.orient==="cols"&&x>=cp.idx&&x<cp.idx+cp.size)hit=true;
+      }
+    } else if(cp.kind==="radio"){
+      const [ctx,cty]=tileOf(cp.x,cp.y);
+      for(const [x,y] of cellsList){
+        const [tx,ty]=tileOf(x,y);
+        if(Math.abs(tx-ctx)<=1&&Math.abs(ty-cty)<=1){hit=true;break;}
+      }
+    }
+    if(hit)out.push(h);
+  }
+  return out;
+}
+function mailboxBlock(cp){
+  // flood fill over non-road squares from mailbox position
+  const seen=new Set(), houses=new Set(), q=[[cp.x,cp.y]];
+  seen.add(cp.y*1000+cp.x);
+  while(q.length){
+    const [x,y]=q.pop();
+    const c=cellAt(x,y);
+    if(!c||c.t==="road")continue;
+    if(c.t==="house"||c.t==="garden")houses.add(c.house);
+    for(const [dx,dy] of N4){
+      const nx=x+dx,ny=y+dy,k=ny*1000+nx;
+      if(!inB(nx,ny)||seen.has(k))continue;
+      seen.add(k);
+      const nc=cellAt(nx,ny);
+      if(nc.t!=="road")q.push([nx,ny]);
+    }
+  }
+  return houses;
+}
+function phaseCampaigns(){
+  G.phaseLabel="6 · Marketing"; renderTop();
+  logTitle("MARKETING CAMPAIGNS RUN");
+  const cps=[...G.campaigns].sort((a,b)=>a.num-b.num);
+  for(const cp of cps){
+    const p=P(cp.owner);
+    const perHouse=(cp.kind==="radio"&&p.milestones.has("m_radio"))?2:1;
+    const hs=housesReachedBy(cp);
+    let tot=0;
+    for(const h of hs)tot+=addDemand(h,cp.good,perHouse);
+    log(`Campaign #${cp.num} (${cp.kind}, ${p.name}) advertises ${cp.good}: ${tot?tot+" demand added":"no effect"}${hs.length?"":" — reaches no houses"}.`);
+    if(!cp.eternal){
+      cp.tokens--;
+      if(cp.tokens<=0){
+        // return tile & free marketeer
+        const tile=G.marketTiles.find(t=>t.num===cp.num); if(tile)tile.inUse=false;
+        if(cp.marketeerUid!=null){
+          const c=p.cards.find(x=>x.uid===cp.marketeerUid);
+          if(c)c.busy=0;
+        }
+        G.campaigns=G.campaigns.filter(x=>x!==cp);
+        log(`Campaign #${cp.num} ends.`);
+      }
+    }
+  }
+  refreshAll();
+  phaseCleanup();
+}
+
+/* =====================================================================
+   PHASE 7: CLEAN UP
+   ===================================================================== */
+function phaseCleanup(){
+  G.phaseLabel="7 · Clean up"; renderTop();
+  logTitle("CLEAN UP");
+  // COMING SOON restaurants open
+  for(const p of G.players)for(const r of p.restaurants) if(r.placed&&r.coming){ r.coming=false; log(`${p.name}'s new restaurant opens its doors.`); }
+  // milestones claimed become unavailable
+  for(const k of G.milesClaimedThisTurn){ G.miles[k].gone=true; }
+  // freezer / discard
+  const doDiscard=(p)=>{
+    for(const g of GOODS){ if(p.stockGoods[g]>0){ log(`${p.name} throws away ${p.stockGoods[g]} ${g}${p.stockGoods[g]>1?"s":""}.`);
+        claimMilestone(p,"m_throw"); p.stockGoods[g]=0; } }
+  };
+  const finish=()=>{
+    for(const p of G.players) if(!p.human){
+      if(p.milestones.has("m_throw")) aiFreezer(p); else doDiscard(p);
+    }
+    refreshAll();
+    if(G.gameOver){ endGame(); return; }
+    beginTurn();
+  };
+  const h=human();
+  if(!h){ finish(); return; }
+  const hasStock=GOODS.some(g=>h.stockGoods[g]>0);
+  if(h.milestones.has("m_throw") && hasStock){
+    humanFreezerUI(h,finish);
+  } else {
+    if(hasStock){ const hadMile=h.milestones.has("m_throw"); doDiscard(h); }
+    finish();
+  }
+}
+function humanFreezerUI(p,done){
+  const render=()=>{
+    const inF=GOODS.reduce((s,g)=>s+p.freezer[g],0);
+    G.phaseTab=`<span class="burst">Clean up — Freezer</span>
+      <div class="kv">Your freezer keeps up to <b>10</b> items across turns (currently ${inF}). Everything left in stock is thrown away.</div>
+      <div class="kv">Stock: ${goodsHTML(p.stockGoods,true)}</div>
+      <div class="kv">Freezer: ${goodsHTML(p.freezer,true)}</div>
+      <div class="cardRow">${GOODS.map(g=>`
+        <button class="abtn alt" ${p.stockGoods[g]>0&&inF<10?"":"disabled"} onclick="uiFreeze('${g}',1)">❄ +1 ${g}</button>
+        <button class="abtn ghost" ${p.freezer[g]>0?"":"disabled"} onclick="uiFreeze('${g}',-1)">↩ ${g}</button>`).join("")}</div>`;
+    setTab("phase");
+    setAction("Move items into the freezer, then finish clean-up.",
+      [{label:"Done — trash the rest ✓",fn:()=>{
+        for(const g of GOODS)if(p.stockGoods[g]>0){log(`${p.name} throws away ${p.stockGoods[g]} ${g}.`);p.stockGoods[g]=0;}
+        done();
+      }}]);
+  };
+  window.uiFreeze=(g,d)=>{
+    if(d>0&&p.stockGoods[g]>0&&GOODS.reduce((s,x)=>s+p.freezer[x],0)<10){p.stockGoods[g]--;p.freezer[g]++;}
+    if(d<0&&p.freezer[g]>0){p.freezer[g]--;p.stockGoods[g]++;}
+    render();
+  };
+  render();
+}
+/* =====================================================================
+   AI PLAYERS
+   ===================================================================== */
+function aiPlaceRestaurant(p,r,initial){
+  // score every legal spot: near houses (dist), near sources
+  let best=null;
+  for(let y=0;y<G.board.H-1;y++)for(let x=0;x<G.board.W-1;x++)for(let rot=0;rot<4;rot++){
+    if(!restPlacementOK(x,y,rot,initial))continue;
+    const ent=entCellFor(x,y,rot);
+    const dist=roadDist(adjacentRoads([ent]));
+    let sc=0;
+    for(const h of G.board.houses){
+      let d=Infinity;
+      for(const [rx,ry] of adjacentRoads([...h.cells,...h.garden]))
+        d=Math.min(d,dist[ry*G.board.W+rx]);
+      if(d<Infinity)sc+=Math.max(0,6-d)*(h.garden.length?1.6:1);
+    }
+    for(const s of G.board.sources){
+      let d=Infinity;
+      for(const [rx,ry] of adjacentRoads([[s.x,s.y]]))d=Math.min(d,dist[ry*G.board.W+rx]);
+      if(d<=3)sc+=1.2;
+    }
+    sc+=Math.random()*1.5;
+    if(!best||sc>best.sc)best={x,y,rot,sc};
+  }
+  if(best)commitRestaurant(p,r,best.x,best.y,best.rot,!initial);
+}
+/* AI strategy plans: burgers / pizza / drinks-luxury */
+function aiEnsurePlan(p){
+  if(p.aiPlan)return;
+  const plans=[
+    {food:"burger", cook:"burger_cook", chef:"burger_chef"},
+    {food:"pizza", cook:"pizza_cook", chef:"pizza_chef"},
+  ];
+  p.aiPlan=plans[rnd(plans.length)];
+  p.aiPlan.wantWaitress=Math.random()<.7;
+}
+function aiRestructure(p){
+  aiEnsurePlan(p);
+  // Greedy: play managers first (capacity), then priority staff
+  const avail=p.cards.filter(c=>!c.busy);
+  const mgrs=avail.filter(c=>isManager(c.key)).sort((a,b)=>EMP[b.key].slots-EMP[a.key].slots);
+  const staff=avail.filter(c=>!isManager(c.key));
+  const prio=c=>({
+    burger_chef:10,pizza_chef:10,burger_cook:9,pizza_cook:9,kitchen_trainee:6,
+    mkt_trainee:8,camp_mgr:8,brand_mgr:8,brand_dir:8,
+    errand_boy:7,cart_op:7,truck_driver:7,zeppelin:7,
+    waitress:5,recruit_girl:4,trainer:4,recruit_mgr:4,hr_dir:4,coach:4,guru:4,
+    nbd:6,local_mgr:6,regional_mgr:6,cfo:9,
+    pricing_mgr:3,discount_mgr:2,lux_mgr:2,
+  }[c.key]||1);
+  // need production+demand; if no stock and no kitchen, prioritize kitchen; keep some open slots early
+  staff.sort((a,b)=>prio(b)-prio(a));
+  p.atWork=new Set();
+  let mgrsPlayed=0;
+  for(const m of mgrs){ if(mgrsPlayed<p.ceoSlots-1||staff.length>p.ceoSlots){ // keep 1 CEO slot for staff early
+      if(mgrsPlayed<p.ceoSlots){p.atWork.add(m.uid);mgrsPlayed++;} } }
+  const cap=()=>{const s=slotInfo(p);return s.total-s.used;};
+  for(const c of staff){
+    if(cap()<=0)break;
+    // don't play price managers unless we can sell
+    if((c.key==="pricing_mgr"||c.key==="discount_mgr")&&G.turn<4&&Math.random()<.5)continue;
+    if(c.key==="lux_mgr"&&Math.random()<.4)continue;
+    p.atWork.add(c.uid);
+  }
+  // bench a trainee when we want to develop houses / restaurants and have a trainer at work
+  const trainerWorking=[...p.atWork].some(uid=>{const c=p.cards.find(c=>c.uid===uid);return c&&TRAIN_CAP[c.key];});
+  const ownedK=k=>p.cards.filter(c=>c.key===k).length;
+  if(G.turn>=5&&trainerWorking){
+    if(ownedK("nbd")<1&&Math.random()<.6){
+      const c=p.cards.find(c=>c.key==="mgmt_trainee"&&p.atWork.has(c.uid)); if(c)p.atWork.delete(c.uid);
+    }
+    if(p.restaurants.some(r=>!r.placed)&&ownedK("local_mgr")+ownedK("regional_mgr")<1&&Math.random()<.6){
+      const c=p.cards.find(c=>c.key==="jvp"&&p.atWork.has(c.uid));
+      if(c){
+        const removed=[c.uid]; p.atWork.delete(c.uid);
+        // shed low-priority staff until the structure fits again
+        let guard=0;
+        while(!slotInfo(p).valid&&guard++<20){
+          const shed=[...p.atWork].map(uid=>p.cards.find(x=>x.uid===uid))
+            .filter(x=>x&&!isManager(x.key)&&!KITCHEN[x.key]&&!MARKETEERS[x.key])[0]
+            ||[...p.atWork].map(uid=>p.cards.find(x=>x.uid===uid)).filter(x=>x&&!isManager(x.key))[0];
+          if(!shed)break;
+          p.atWork.delete(shed.uid); removed.push(shed.uid);
+        }
+        if(!slotInfo(p).valid) removed.forEach(uid=>p.atWork.add(uid)); // give up, revert
+      }
+    }
+  }
+  // validate
+  if(!slotInfo(p).valid)p.atWork=new Set();
+  log(`${p.name} sends ${p.atWork.size} employee(s) to work.`);
+}
+function aiPickOrder(p,slots){
+  const free=slots.map((s,i)=>s?null:i).filter(i=>i!==null);
+  // marketers & hirers like going early; sellers like going late-ish; keep simple: pick earliest
+  return free[0];
+}
+function aiWork(p){
+  aiEnsurePlan(p);
+  const plan=p.aiPlan;
+  /* RECRUIT */
+  let hires=recruitActions(p);
+  const owned=k=>p.cards.filter(c=>c.key===k).length;
+  const wish=[];
+  if(owned("mgmt_trainee")+owned("jvp")+owned("vp")+owned("svp")+owned("evp")<1)wish.push("mgmt_trainee");
+  if(owned("kitchen_trainee")+owned(plan.cook)+owned(plan.chef)<1)wish.push("kitchen_trainee");
+  if(owned("mkt_trainee")+owned("camp_mgr")+owned("brand_mgr")+owned("brand_dir")<1)wish.push("mkt_trainee");
+  if(G.turn>=2&&owned("trainer")+owned("coach")+owned("guru")<1)wish.push("trainer");
+  if(G.turn>=2&&owned("errand_boy")+owned("cart_op")<1&&Math.random()<.8)wish.push("errand_boy");
+  if(plan.wantWaitress&&owned("waitress")<1)wish.push("waitress");
+  if(G.turn>=3&&owned("recruit_girl")<1&&Math.random()<.4)wish.push("recruit_girl");
+  if(G.turn>=4&&owned("pricing_mgr")<2&&Math.random()<.5)wish.push("pricing_mgr");
+  if(G.turn>=3&&owned("kitchen_trainee")<2&&Math.random()<.5)wish.push("kitchen_trainee");
+  if(G.turn>=3&&owned("mkt_trainee")<2&&Math.random()<.4)wish.push("mkt_trainee");
+  const freeMkt=p.cards.some(c=>MARKETEERS[c.key]&&!c.busy);
+  if(G.turn>=4&&!freeMkt&&Math.random()<.7)wish.push("mkt_trainee");
+  if(G.turn>=5&&owned("mgmt_trainee")<1&&(owned("nbd")<1||owned("local_mgr")+owned("regional_mgr")<1)&&Math.random()<.5)wish.push("mgmt_trainee");
+  if(owned("waitress")<3&&Math.random()<.35)wish.push("waitress");
+  for(const k of wish){ if(hires<=0)break; if(G.stock[k]>0){hireEmployee(p,k);hires--;} }
+  // store unused for salary discount
+  for(const c of atWorkCards(p)) if(c.key==="recruit_mgr"||c.key==="hr_dir"){
+    const share=Math.min(hires,RECRUITERS[c.key]); c.recruitsUnused=share; hires-=share;
+  }
+  /* TRAIN (one step per person per turn unless the trainer is a Coach/Guru) */
+  const trainers=atWorkCards(p).filter(c=>TRAIN_CAP[c.key]).map(c=>({uid:c.uid,key:c.key,left:TRAIN_CAP[c.key]}));
+  const trainedBy={};
+  const beach=()=>p.cards.filter(c=>!p.atWork.has(c.uid)&&!c.busy);
+  const tryTrain=(fromKey,toKey)=>{
+    const c=beach().find(x=>x.key===fromKey); if(!c)return false;
+    let t;
+    if(trainedBy[c.uid]!=null){
+      t=trainers.find(t=>t.uid===trainedBy[c.uid]&&t.left>0&&(t.key==="coach"||t.key==="guru"));
+    } else t=trainers.find(t=>t.left>0);
+    if(!t)return false;
+    if(trainCard(p,c,toKey)){t.left--;trainedBy[c.uid]=t.uid;return true;}
+    return false;
+  };
+  // development trains take priority once the engine is running
+  const owned2=k=>p.cards.filter(c=>c.key===k).length;
+  if(G.turn>=5&&owned2("nbd")<1&&Math.random()<.7) tryTrain("mgmt_trainee","nbd");
+  if(G.turn>=5&&p.restaurants.some(r=>!r.placed)&&owned2("local_mgr")+owned2("regional_mgr")<1&&Math.random()<.7)
+    tryTrain("jvp","local_mgr");
+  tryTrain("kitchen_trainee",plan.cook);
+  tryTrain("mgmt_trainee","jvp");
+  tryTrain("mkt_trainee","camp_mgr");
+  tryTrain("errand_boy","cart_op");
+  tryTrain(plan.cook,plan.chef);
+  tryTrain("jvp","vp");
+  tryTrain("camp_mgr","brand_mgr");
+  /* MARKETING */
+  for(const c of atWorkCards(p).filter(c=>MARKETEERS[c.key])){
+    aiPlaceCampaignFor(p,c);
+  }
+  /* FOOD & DRINKS */
+  for(const c of atWorkCards(p)){
+    const K=KITCHEN[c.key];
+    if(K){ produce(p, K.good||plan.food, K.n||1); }
+  }
+  for(const c of atWorkCards(p)) if(BUYERS[c.key]){
+    if(c.key==="errand_boy"){
+      // fetch drink most demanded on houses / advertised
+      const cnt={soda:0,beer:0,lemonade:0};
+      for(const h of G.board.houses)for(const g of h.demand)if(cnt[g]!=null)cnt[g]++;
+      const g=DRINKS.sort((a,b)=>cnt[b]-cnt[a])[0];
+      const n=1+(p.milestones.has("m_errand")?1:0);
+      p.stockGoods[g]+=n;
+      log(`${p.name}'s errand boy fetches ${n} ${g}.`);
+    } else {
+      applyCollect(p,buyerCollect(p,c).got||{soda:0,beer:0,lemonade:0});
+    }
+  }
+  /* HOUSES */
+  for(const c of atWorkCards(p)) if(c.key==="nbd"){
+    const t=gardenTargets().filter(h=>gardenSpotsFor(h).length);
+    if(t.length&&Math.random()<.6){ const h=t[rnd(t.length)]; commitGarden(p,h,gardenSpotsFor(h)[0]); }
+    else{
+      // place house near own restaurant
+      let best=null; const dist=chainRoadDist(p);
+      for(let y=0;y<G.board.H-2;y++)for(let x=0;x<G.board.W-1;x++){
+        if(!housePlacementOK(x,y))continue;
+        let d=Infinity;
+        for(const [rx,ry] of adjacentRoads([[x,y],[x+1,y],[x,y+1],[x+1,y+1],[x,y+2],[x+1,y+2]]))
+          d=Math.min(d,dist[ry*G.board.W+rx]);
+        const sc=-d+Math.random();
+        if(!best||sc>best.sc)best={x,y,sc};
+      }
+      if(best)commitHouse(p,best.x,best.y);
+    }
+  }
+  /* RESTAURANTS */
+  for(const c of atWorkCards(p)) if(c.key==="local_mgr"||c.key==="regional_mgr"){
+    const r=p.restaurants.find(r=>!r.placed);
+    if(r&&Math.random()<.85){
+      aiPlaceRestaurant(p,r,false);
+    }
+  }
+  checkCashMilestone(p);
+}
+function aiPlaceCampaignFor(p,c){
+  const kinds=MARKETEERS[c.key];
+  const e=EMP[c.key];
+  const good=aiPickGood(p);
+  const dur=e.dur;
+  // prefer billboard next to fattest house cluster in range
+  const range=(c.key==="brand_mgr"||c.key==="brand_dir")?null:e.range;
+  if(kinds.includes("radio")&&availMarketTiles("radio").length&&Math.random()<.5){
+    // radio near centre
+    const x=Math.floor(G.board.W/2), y=Math.floor(G.board.H/2);
+    const spot=findEmptyNear(x,y,(sx,sy)=>billboardSpotOK(p,sx,sy,null));
+    if(spot&&placeCampaign(p,c,"radio",{x:spot[0],y:spot[1],good,dur}))return;
+  }
+  if(kinds.includes("airplane")&&availMarketTiles("airplane").length&&Math.random()<.4){
+    const t=availMarketTiles("airplane")[0];
+    // choose row band covering most houses
+    let best=null;
+    for(let idx=0;idx<=G.board.H-t.size;idx++){
+      let n=0;for(const h of G.board.houses)if(h.cells.some(([x,y])=>y>=idx&&y<idx+t.size))n++;
+      if(!best||n>best.n)best={orient:"rows",idx,n};
+    }
+    for(let idx=0;idx<=G.board.W-t.size;idx++){
+      let n=0;for(const h of G.board.houses)if(h.cells.some(([x,y])=>x>=idx&&x<idx+t.size))n++;
+      if(!best||n>best.n)best={orient:"cols",idx,n};
+    }
+    if(best&&placeCampaign(p,c,"airplane",{orient:best.orient,idx:best.idx,size:t.size,good,dur}))return;
+  }
+  const kind=kinds.includes("mailbox")&&availMarketTiles("mailbox").length&&Math.random()<.5?"mailbox":
+    (availMarketTiles("billboard").length?"billboard":kinds.find(k=>availMarketTiles(k).length));
+  if(!kind)return;
+  // best spot: adjacent (billboard) or same block (mailbox) houses, weighted by garden
+  let best=null;
+  for(let y=0;y<G.board.H;y++)for(let x=0;x<G.board.W;x++){
+    if(!billboardSpotOK(p,x,y,range))continue;
+    const fake={kind,x,y};
+    const hs=housesReachedBy(fake);
+    let sc=0;
+    for(const h of hs)sc+=(houseCap(h)-h.demand.length)*(h.garden.length?1.4:1);
+    sc+=Math.random();
+    if(!best||sc>best.sc)best={x,y,sc};
+  }
+  if(best&&best.sc>0.5)placeCampaign(p,c,kind,{x:best.x,y:best.y,good,dur});
+}
+function aiPickGood(p){
+  aiEnsurePlan(p);
+  // advertise what we can (or will) produce; sometimes drinks we hold
+  const opts=[p.aiPlan.food];
+  for(const g of DRINKS)if(chainStock(p,g)>0)opts.push(g);
+  return opts[rnd(opts.length)];
+}
+function findEmptyNear(cx,cy,ok){
+  for(let rad=0;rad<Math.max(G.board.W,G.board.H);rad++){
+    for(let y=cy-rad;y<=cy+rad;y++)for(let x=cx-rad;x<=cx+rad;x++){
+      if(inB(x,y)&&ok(x,y))return [x,y];
+    }
+  }
+  return null;
+}
+function aiPayday(p){
+  let s=salaryDue(p);
+  // fire useless cards if broke
+  const useless=()=>p.cards.filter(c=>EMP[c.key].salary&&!c.busy)
+    .sort((a,b)=>aiKeepScore(p,a)-aiKeepScore(p,b));
+  while(p.cash<s.pay){
+    const list=useless();
+    if(list.length){ fireCard(p,list[0]); }
+    else{ const busyC=p.cards.find(c=>c.busy&&EMP[c.key].salary); if(busyC)fireCard(p,busyC); else break; }
+    s=salaryDue(p);
+  }
+  finishPayday(p,s);
+}
+function aiKeepScore(p,c){
+  return {burger_chef:9,pizza_chef:9,burger_cook:8,pizza_cook:8,brand_dir:7,brand_mgr:6,camp_mgr:5,
+    cart_op:5,truck_driver:6,zeppelin:6,jvp:4,vp:5,svp:5,evp:6,cfo:8,nbd:4,local_mgr:4,regional_mgr:5,
+    recruit_mgr:3,hr_dir:4,coach:3,guru:4,discount_mgr:2,lux_mgr:3}[c.key]||2;
+}
+function aiFreezer(p){
+  let cap=10-GOODS.reduce((s,g)=>s+p.freezer[g],0);
+  for(const g of GOODS){
+    while(cap>0&&p.stockGoods[g]>0){p.stockGoods[g]--;p.freezer[g]++;cap--;}
+    if(p.stockGoods[g]>0){log(`${p.name} throws away ${p.stockGoods[g]} ${g}.`);p.stockGoods[g]=0;}
+  }
+}
+/* =====================================================================
+   HELP / MILESTONES / SETUP SCREEN
+   ===================================================================== */
+function showMilestones(){
+  modal(`<h2>Milestones</h2><div class="mbody">First chain to do each thing wins the card (others can match it in the same turn).
+    Once claimed, unclaimed copies leave the game at clean-up.</div>
+    <div class="cardRow" style="margin-top:10px;">${Object.entries(MILESTONES).map(([k,m])=>{
+      const st=G?G.miles[k]:{claimedBy:[],gone:false};
+      const cols=["#B79EC7","#A9A296","#F2A48F","#8FA25B","#84C9DB","#9CCB86"];
+      return `<div class="mcard ${st.gone&&!st.claimedBy.length?"gone":""}" style="background:${cols[k.length%cols.length]}44">
+        <h4>${m.name}</h4>${m.text}
+        <div class="owner">${st.claimedBy.map(i=>`<span title="${P(i).name}" style="background:${P(i).color}"></span>`).join("")}</div>
+      </div>`;}).join("")}</div>
+    <div class="mbtns"><button class="abtn" onclick="closeModal()">Close</button></div>`);
+}
+function showHelp(){
+  modal(`<h2>How a turn works</h2><div class="mbody">
+  <b>1 · Restructuring.</b> Pick which employees go to work; the rest wait on the beach (still paid, trainable). Managers (black cards) report to the CEO and add slots; staff fill CEO or manager slots.<br><br>
+  <b>2 · Order of business.</b> Whoever has the most <i>open</i> (unused) slots picks their turn-order position first.<br><br>
+  <b>3 · Working.</b> In turn order, each chain acts with its cards, always in this order: recruit → train → marketing → food &amp; drinks → houses &amp; gardens → restaurants. The CEO always gives one free hire.<br><br>
+  <b>Planning tools.</b> The <b>DINNER</b> tab shows every house with demand, who can serve its whole
+  order, and each chain's price + distance — exactly the numbers that resolve later. Hover a row (or a
+  house on the map) to paint the road distances; the <b>DISTANCES</b> button does the same from your own
+  restaurants. All of this is public information at a physical table, so nothing is hidden from you.<br><br>
+  <b>4 · Dinnertime.</b> Houses with demand (lowest number first) buy from the chain that can serve their whole order, reachable by road, with the lowest <i>unit price + distance</i>. Ties: more waitresses, then earlier turn order. Gardens double the unit price. Waitress tips and CFO bonus follow.<br><br>
+  <b>5 · Payday.</b> $5 per employee with a salary badge (working, beached or busy). You may fire people first. Unused Recruiting Manager / HR Director actions give $5 discounts each.<br><br>
+  <b>6 · Marketing.</b> Campaigns run in number order, adding demand to houses (max 3, or 5 with a garden). Each campaign loses one token, then expires and frees its marketeer.<br><br>
+  <b>7 · Clean up.</b> Leftover food is binned (unless you own the freezer milestone), COMING SOON restaurants open, claimed milestones remove their unclaimed copies.<br><br>
+  The game ends when the bank runs dry twice. <b>Richest chain wins.</b><br><br>
+  <i>Fan adaptation notes: buyer routes and marketing range use a simplified "reachable within N tile-crossings" rule (no U-turn restriction); the company chart auto-arranges — only slot capacity and open-slot counts are enforced; the hire-then-immediately-train trick and mid-turn card inspection are not implemented.</i>
+  </div><div class="mbtns"><button class="abtn" onclick="closeModal()">Got it</button></div>`);
+}
+/* setup screen wiring */
+const setupSel={count:3, chain:0};
+function renderSetup(){
+  $("pcountRow").innerHTML=[2,3,4,5].map(n=>
+    `<button class="${setupSel.count===n?"on":""}" onclick="setupSel.count=${n};renderSetup()">${n} players<br><span style="font-size:10px;font-family:Rubik">you + ${n-1} AI</span></button>`).join("");
+  $("chainList").innerHTML=CHAINS.map((c,i)=>
+    `<div class="chainOpt ${setupSel.chain===i?"on":""}" onclick="setupSel.chain=${i};renderSetup()">
+      <span class="dot" style="background:${c.color}"></span>${c.name}</div>`).join("");
+}
+if(typeof document!=="undefined"){
+  renderSetup();
+  setSheet(1);
+  initSheetDrag();
+  initBoardPinch();
+  // a phone that rotates or a desktop window that shrinks should re-fit the map
+  let rzT=null;
+  window.addEventListener("resize",()=>{
+    clearTimeout(rzT);
+    rzT=setTimeout(()=>{ if(G&&G.board&&isMobile())fitBoard(); },250);
+  });
+}
+window.setupSel=setupSel;
+</script>
+</body>
+</html>
