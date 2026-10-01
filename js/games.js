@@ -95,6 +95,17 @@ const GAMES = [
     status: "playable",
   },
   {
+    id: "nations",
+    title: "Nations",
+    subtitle: "Solo — build a civilisation against the computer, on your phone",
+    category: "strategy",
+    players: "1",
+    duration: "45–90 min",
+    icon: "🏛️",
+    accentColor: "#e8b94a",
+    status: "playable",
+  },
+  {
     id: "five-hundred",
     title: "500",
     subtitle: "The classic trick-taking game",

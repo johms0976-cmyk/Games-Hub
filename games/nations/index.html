@@ -1,0 +1,1012 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>Nations — Solo</title>
+<meta name="theme-color" content="#13100c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style>
+:root{
+  --bg:#13100c; --panel:#211b14; --panel2:#18130e; --line:#3b3125; --ink:#f3ecdc; --dim:#b2a58c;
+  --gold:#e8b94a; --good:#62c47e; --bad:#e5544d;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden],.hide{display:none !important}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font:16px/1.4 ui-rounded,-apple-system,"Segoe UI",system-ui,sans-serif;
+  padding:env(safe-area-inset-top) 12px calc(86px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;gap:8px;padding:10px 0 6px;position:sticky;top:0;background:var(--bg);z-index:5;flex-wrap:wrap}
+#brand{font:700 17px/1 "Palatino Linotype",Palatino,Georgia,serif;letter-spacing:.16em;color:var(--gold)}
+#chip{font-size:12px;color:var(--dim);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+#chip b{color:var(--ink)}
+#menuBtn{margin-left:auto;background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:10px;padding:6px 10px;font-size:14px}
+#tabs{display:flex;gap:4px;width:100%;margin-top:4px}
+#tabs button{flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--dim);border-radius:10px;padding:8px 2px;font-size:13px;font-weight:700;position:relative}
+#tabs button.on{background:var(--gold);border-color:var(--gold);color:#1a140a}
+#tabs button .pip{position:absolute;top:-4px;right:-3px;width:10px;height:10px;border-radius:50%;background:var(--bad);border:2px solid var(--bg)}
+#sheet{position:fixed;inset:0;z-index:40;background:rgba(8,6,4,.82);display:flex;align-items:flex-end;justify-content:center;padding:12px 12px calc(12px + env(safe-area-inset-bottom))}
+#sheet .card{width:100%;max-width:520px;max-height:86vh;overflow:auto}
+#sheet li{margin:4px 0;font-size:13px;color:var(--dim)}
+#sheet h3{margin:12px 0 4px;font-size:13px;color:var(--gold)}
+.loglist{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--dim)}
+.loglist .lr{padding:6px 0;border-top:1px solid var(--line)}
+.loglist .lr:first-child{border-top:0;color:var(--ink)}
+.loglist .lrh{color:var(--gold);font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;padding-top:10px}
+.think{display:inline-flex;gap:3px;margin-left:6px;vertical-align:middle}
+.think i{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:blink 1.2s infinite}
+.think i:nth-child(2){animation-delay:.2s}.think i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,100%{opacity:.25}50%{opacity:1}}
+.nfull{border-top:1px solid var(--line);padding-top:10px;margin-top:10px}
+.nfull:first-child{border-top:0;padding-top:0;margin-top:0}
+table.fin{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+table.fin th,table.fin td{padding:5px 3px;text-align:right;border-bottom:1px solid var(--line)}
+table.fin th{color:var(--dim);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+table.fin .nm{text-align:left}
+table.fin tr.win td{color:var(--gold);font-weight:800}
+table.fin tr.me td.nm{text-decoration:underline;text-decoration-color:var(--gold)}
+#name{display:flex;gap:8px;margin-top:8px}
+
+#dot{width:12px;height:12px;border-radius:50%;background:var(--gold);flex:none}
+#who{font-weight:800;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+h2{margin:16px 0 6px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:8px}
+h2 small{letter-spacing:0;text-transform:none;font-weight:400}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:8px}
+.card.mine{border-color:var(--gold)}
+.title{font-weight:800;font-size:19px;color:var(--gold)}
+.sub{color:var(--dim);font-size:13px;margin-top:2px}
+button{font:inherit}
+.btn{display:block;width:100%;background:var(--gold);border:0;color:#1a140a;font-weight:800;font-size:17px;border-radius:14px;padding:14px;margin-top:10px}
+.btn:disabled{opacity:.4}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--dim);font-weight:600;font-size:15px}
+.btn.small{font-size:14px;padding:10px;margin-top:6px}
+.btn.armed{background:var(--bad);color:#fff}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.menu button{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:12px 10px;text-align:left;display:flex;flex-direction:column;gap:3px;min-height:64px}
+.menu button b{font-size:15px}
+.menu button small{color:var(--dim);font-size:12px;line-height:1.25}
+.menu button:disabled{opacity:.38}
+.menu button.wide{grid-column:span 2}
+.opts{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.opt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:11px 12px;font-size:15px}
+.opt:disabled{opacity:.4}
+.opt.on{border-color:var(--gold);background:rgba(232,185,74,.13)}
+.opt .lab{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.opt .lab small{color:var(--dim);font-size:12px;line-height:1.25}
+.opt .val{display:flex;align-items:center;gap:3px;font-weight:800;color:var(--gold);flex:none}
+.res{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.res span{display:inline-flex;align-items:center;gap:3px;font-weight:800;font-size:18px}
+.res span.warn{background:rgba(229,84,77,.2);border-radius:6px;padding:0 4px}
+.stat{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;font-size:13px;color:var(--dim);align-items:center}
+.stat span{display:inline-flex;align-items:center;gap:3px}
+.stat b{color:var(--ink)}
+.stat .neg b{color:var(--bad)}
+.faces{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px}
+.faces.f4{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.face{position:relative;min-width:0;display:flex;flex-direction:column;gap:3px;background:transparent;border:0;padding:0;color:var(--ink);text-align:center}
+.face .cap{font-size:12px;font-weight:700;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.face .cap2{font-size:11px;color:var(--dim);line-height:1.15}
+.face.no{opacity:.45}
+.face.sel .nc{outline:3px solid var(--gold);outline-offset:1px}
+.face .badge{position:absolute;top:-5px;right:-4px;z-index:2;background:var(--gold);color:#1a140a;font:900 13px/1 system-ui;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.5)}
+.face .btn.small{font-size:13px;padding:9px 4px;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:3px;margin-top:4px}
+.face.empty{border:1px dashed var(--line);border-radius:10px;aspect-ratio:693/1071;display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:12px}
+.big{display:flex;gap:12px;align-items:flex-start;margin-top:8px}
+.big .bf{width:44%;flex:none}
+.big .bt{flex:1;min-width:0;font-size:14px}
+.big .bt .why{color:#ffb4ae;margin-top:6px}
+.brow-h{font-size:12px;color:var(--gold);font-weight:800;margin:10px 0 2px;display:flex;align-items:center;gap:4px}
+.stepper{display:flex;align-items:center;gap:10px;margin-top:8px}
+.stepper span.l{flex:1;display:flex;align-items:center;gap:6px;font-weight:700}
+.stepper button{width:44px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:20px;font-weight:800}
+.stepper button:disabled{opacity:.35}
+.stepper b{min-width:1.5em;text-align:center;font-size:18px}
+.prow{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--dim);flex-wrap:wrap;padding:6px 0;border-top:1px solid var(--line)}
+.prow:first-child{border-top:0}
+.prow i.d{width:10px;height:10px;border-radius:50%;flex:none}
+.prow b{color:var(--ink)}
+.prow .sc{margin-left:auto;font-weight:800;color:var(--gold)}
+.chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.pc{display:inline-flex;align-items:center;gap:3px;padding:1px 6px 1px 4px;border-radius:6px;background:#efe6d2;color:#2b2216;font-weight:700;font-size:12px;border-left:5px solid var(--c);white-space:nowrap}
+.track{display:inline-flex;gap:2px;align-items:center}
+.track i{width:7px;height:12px;border-radius:2px;background:#6a5a44}
+.track i.t{background:transparent;border:1px solid #6a5a44}
+#flash{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));background:#2a1220;border:1px solid var(--bad);color:#ffd9de;border-radius:12px;padding:11px 13px;font-size:14px;z-index:20}
+#flash.ok{background:#1d2a1c;border-color:var(--good);color:#d8f3dc}
+#name input{flex:1;font:inherit;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:12px}
+#bar{position:fixed;left:0;right:0;bottom:0;z-index:10;background:rgba(19,16,12,.96);border-top:1px solid var(--line);
+  padding:8px 12px calc(8px + env(safe-area-inset-bottom));display:flex;gap:8px}
+#bar button{flex:1;margin:0}
+.wg{display:inline-flex;align-items:center;gap:1px;font-weight:800;color:var(--good);white-space:nowrap}
+.wg.neg{color:var(--bad)}
+.since{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:9px 11px;margin-top:6px;font-size:13px;color:var(--dim);display:flex;flex-direction:column;gap:4px}
+.since .sh{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+.since .sl.new{color:var(--ink)}
+.since .more{align-self:flex-start;background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:9px;padding:4px 10px;font-size:12px}
+.upnext{border-color:var(--gold)!important}
+/* the round card */
+.rcard .rc-h{font-weight:800;font-size:22px;color:var(--gold);line-height:1.15;font-family:"Palatino Linotype",Palatino,Georgia,serif}
+.rcard .rc-sub{font-size:13px;margin-top:3px}
+.rc-sc{display:flex;flex-direction:column;gap:6px;margin:10px 0 4px}
+.rc-p{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:7px 10px;font-size:15px;min-width:0;flex-wrap:wrap}
+.rc-p i{width:11px;height:11px;border-radius:50%;flex:none}
+.rc-p b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.rc-p .rc-t{margin-left:auto;display:flex;align-items:baseline;gap:3px;font-weight:900;color:var(--gold)}
+.rc-p .rc-t small{font-size:.6em;color:var(--dim);font-weight:600}
+.rc-p .rc-d{font-size:12px;color:var(--good);white-space:nowrap}
+.rc-p .rc-d.neg{color:var(--bad)}
+.rc-sec{margin-top:10px}
+.rc-sec h4{margin:0 0 3px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.rc-tab{border-collapse:collapse;font-size:14px}
+.rc-tab td{padding:1px 10px 1px 0;white-space:nowrap}
+.rc-tab em{color:var(--bad);font-style:normal;font-size:12px}
+.rc-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;font-size:14px;margin:3px 0}
+.rc-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.rc-w{text-align:center;margin-top:10px}
+/* where the round is */
+.phs{display:flex;flex-wrap:wrap;align-items:center;gap:4px 4px}
+.phs .phg{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-left:4px}
+.phs .phg:first-child{margin-left:0}
+.phs .ph{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:1px 7px;color:var(--dim);white-space:nowrap}
+.phs .ph.done{color:#7d705b;border-color:transparent;text-decoration:line-through}
+.phs .ph.on{background:var(--gold);border-color:var(--gold);color:#1a140a;font-weight:800}
+.phbar{margin-top:6px}
+.phbar .says{font-size:12px;color:var(--dim);margin-top:4px}
+.rc-page .phs{margin-bottom:10px}
+.rc-page .rc-sub{color:var(--dim)}
+.rc-note{color:var(--dim);font-size:12px}
+.rc-ord{display:inline-flex;align-items:center;gap:4px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:4px 8px;margin:0 4px 4px 0}
+.rc-ord>b{color:var(--gold)}
+.rc-ord small{color:var(--dim)}
+.rc-evs{display:flex;gap:10px;align-items:flex-start;margin-top:8px}
+.rc-evc{width:36%;flex:none}
+.rc-evl{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.rc-evh>b{font:700 16px/1.15 "Palatino Linotype",Palatino,Georgia,serif;color:var(--gold)}
+.rc-evh .rc-row{font-size:13px}
+.evmini{display:flex;gap:10px;align-items:flex-start}
+.evmini .bf{width:30%;flex:none}
+.evmini .bt{flex:1;min-width:0;font-size:13px;display:flex;flex-direction:column;gap:5px}
+.evmini .bt b{color:var(--gold)}
+.sp{justify-content:space-between;color:var(--ink)!important}
+.sp small{font-weight:600;color:var(--dim);font-size:11px}
+.sp small.full{color:#ffb4ae}
+.sp>span{white-space:nowrap;margin-right:8px}
+.sp small{text-align:right}
+.face.empty.slim{aspect-ratio:auto;min-height:48px;padding:6px;text-align:center}
+</style>
+</head>
+<body>
+
+<header>
+  <span id="brand">NATIONS</span><span id="chip"></span>
+  <button id="menuBtn" aria-label="Menu">☰ Menu</button>
+  <nav id="tabs" class="hide"></nav>
+</header>
+
+<div id="main"></div>
+<div id="bar" class="hide"></div>
+<div id="flash" class="hide"></div>
+<div id="sheet" class="hide"></div>
+
+<script src="nations-data.js"></script>
+<script src="nations-engine.js"></script>
+<script src="nations-bots.js"></script>
+<script src="nations-art.js"></script>
+<script src="nations-words.js"></script>
+<script src="solo-host.js"></script>
+<script>
+'use strict';
+(function checkVersions() {
+  const missing = [];
+  if (!window.NationsData || !window.NationsData.MANIFEST) missing.push('nations-data.js');
+  if (!window.NationsArt || window.NationsArt.VERSION !== 1) missing.push('nations-art.js');
+  if (!window.NationsWords || window.NationsWords.VERSION !== 2) missing.push('nations-words.js');
+  if (!window.NationsEngine || window.NationsEngine.VERSION !== 1) missing.push('nations-engine.js');
+  if (!window.NationsBots || window.NationsBots.VERSION !== 1) missing.push('nations-bots.js');
+  if (!window.NationsSolo) missing.push('solo-host.js');
+  if (!missing.length) return;
+  const show = () => {
+    document.body.innerHTML = '<div style="padding:12vw 8vw;text-align:center;font:600 18px/1.5 system-ui;color:#f3ecdc">' +
+      '<div style="font-size:26px;color:#e8b94a;margin-bottom:12px">This page is out of date</div>' +
+      'Your phone kept an old copy of ' + missing.join(' and ') + '. Reload the page (pull down, or close the tab and open it again).</div>';
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', show); else show();
+  throw new Error('stale assets: ' + missing.join(', '));
+})();
+
+const D = window.NationsData, A = window.NationsArt, W = window.NationsWords;
+const $ = id => document.getElementById(id);
+const esc = A.esc;
+A.install();
+const C = id => D.card(id);
+
+const Solo = window.NationsSolo;
+const HUB_URL = '../../index.html';
+/* Phones synthesise a click ~300ms after a touch: everything is inert this
+   long after a send, and after the screen changes shape. */
+const LOCK_MS = 380;
+
+const S = {
+  id: Solo.ME, hex: '#e8b94a',
+  pub: null, me: null,
+  tab: 'play',     // play | board | nations | log
+  panel: null,     // board | deploy | galileo | special
+  sel: null,       // the card or action being set up
+  armed: null,     // pass, waiting for its second tap
+  sideA: false,    // the nation picker's side toggle
+  sinceAll: false, detail: null, sheet: null,
+  lockUntil: 0, shape: '', wasTurn: false, greeted: false
+};
+window.__NATIONSPHONE = S;
+const locked = () => Date.now() < S.lockUntil;
+const lock = () => { S.lockUntil = Date.now() + LOCK_MS; };
+const buzz = ms => { if (navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) {} } };
+
+/* ---------- the table runs in this page (solo-host.js) ---------- */
+const send = m => { Solo.send(m); return true; };
+/* A move, a page of the round card and the house's answers all arrive as two
+   messages (the table, then your half of it): paint once for both. */
+let paintQueued = false;
+const paintSoon = () => { if (paintQueued) return; paintQueued = S.paintPending = true; setTimeout(() => { paintQueued = S.paintPending = false; paint(); }, 0); };
+function handle(m) {
+  if (m.t === 'hello-ok') return;
+  if (m.t !== 'msg' || !m.msg) return;
+  const msg = m.msg;
+  if (msg.t === 'flash') { flash(msg.text); return; }
+  if (msg.t === 'nations') {
+    S.pub = msg; if (!msg.game) S.me = null;
+    if (!S.greeted && msg.screen === 'play' && Solo.S.resumed) { S.greeted = true; flash('Welcome back — your game was saved and picks up where you left it.', 'ok'); }
+    paintSoon(); return;
+  }
+  if (msg.t === 'nations-me') { S.me = msg.me; S.undo = msg.undo || null; paintSoon(); }
+}
+let flashTimer = null;
+function flash(text, tone) {
+  clearTimeout(flashTimer);
+  $('flash').textContent = text;
+  $('flash').className = tone || '';
+  $('flash').classList.remove('hide');
+  buzz(40);
+  flashTimer = setTimeout(() => $('flash').classList.add('hide'), Math.max(2600, String(text).length * 45));
+}
+
+/* ---------- helpers ---------- */
+const game = () => S.pub && S.pub.game;
+const mine = () => { const g = game(); return g ? g.players.find(p => p.id === S.id) : null; };
+const pl = id => { const g = game(); return g ? g.players.find(p => p.id === id) : null; };
+const pname = id => { const p = pl(id); return p ? p.name : '?'; };
+const isRemote = () => S.pub && S.pub.remote === S.id;
+const nationName = id => (D.NATIONS.find(n => n.id === id) || {}).name || '';
+const myPrompt = () => {
+  if (!S.me || !S.me.prompts || !S.me.prompts.length) return null;
+  const pr = S.me.prompts[0];
+  /* The public state and this seat's own half arrive as two messages: only
+     draw a question the table itself still lists as open. */
+  const g = game();
+  if (!g || !g.prompts.some(x => x.n === pr.n && x.seat === S.id)) return 'stale';
+  return pr;
+};
+const act = a => { if (locked()) return; lock(); S.armed = null; send({ t: 'do', a }); };
+const R = { gold: 'gold', stone: 'stone', food: 'food', book: 'books', vp: 'VP', stab: 'stability', str: 'strength' };
+const ic = (k, px) => A.res(k, px || 18);
+
+/* ================================================================
+   Painting
+   ================================================================ */
+function paint() {
+  const pr = myPrompt();
+  const h = S.pub && S.pub.hold;
+  const holdKey = h ? 'hold' + (h.kind || '') + h.round + ':' + (h.page || 0) + (h.waiting.indexOf(S.id) >= 0 ? 'w' : 'd') + ((h.nexted || []).indexOf(S.id) >= 0 ? 'n' : '') + (h.grace ? 'g' : '') : '';
+  const shape = [S.pub && S.pub.screen, pr && pr !== 'stale' ? pr.t + pr.n : '-', holdKey].join('|');
+  if (shape !== S.shape) {
+    const turnNow = pr && pr !== 'stale' && pr.t === 'turn';
+    /* A free action (taking a worker off a card) re-asks the turn with a new
+       number: the panel you were in stays open. Anything else starts over. */
+    const keep = turnNow && S.wasTurn && S.panel === 'deploy';
+    if (!keep) { S.panel = null; S.sel = null; }
+    S.armed = null;
+    if (turnNow && !S.wasTurn) buzz([60, 60, 60]);
+    /* A new question for you brings you back to Play, wherever you were. */
+    if (pr && pr !== 'stale' && !keep && !(turnNow && S.wasTurn)) { S.tab = 'play'; S.detail = null; }
+    S.wasTurn = !!turnNow;
+    const wasHold = S.shape.indexOf('|hold') >= 0;
+    const newScreen = S.shape.split('|')[0] !== shape.split('|')[0];
+    S.shape = shape; lock();
+    if (!!h !== wasHold || (turnNow && !keep) || newScreen) window.scrollTo(0, 0);
+  }
+  const m = $('main');
+  $('bar').classList.add('hide');
+  paintHeader(pr);
+  paintSheet();
+  if (!S.pub) { m.innerHTML = waitCard('Setting the table…', ''); return; }
+  if (S.pub.screen === 'lobby') { m.innerHTML = lobbyHtml(); wire(); return; }
+  if (S.pub.screen === 'over') { m.innerHTML = S.tab === 'log' ? logTabHtml() : overHtml(); wire(); return; }
+  if (!game()) { m.innerHTML = waitCard('Hold tight', ''); return; }
+  if (!mine() || !S.me) { m.innerHTML = waitCard('Dealing you in', ''); return; }
+  if (S.detail) { m.innerHTML = detailHtml(); wire(); return; }
+  /* The round card and the new event come first, whatever tab you were on. */
+  if (h) m.innerHTML = holdHtml() + nationHtml() + (h.kind === 'event' ? '' : eventHtml());
+  else if (S.tab === 'board') m.innerHTML = phaseHtml() + boardTabHtml(pr);
+  else if (S.tab === 'nations') m.innerHTML = nationsTabHtml();
+  else if (S.tab === 'log') m.innerHTML = logTabHtml();
+  else m.innerHTML = phaseHtml() + sinceHtml(pr) + askHtml(pr) + undoHtml() + eventHtml() + nationHtml();
+  wire();
+}
+
+/* ---------------- header, tabs and the menu ---------------- */
+const TABS = [['play', 'Play'], ['board', 'Board'], ['nations', 'Nations'], ['log', 'Log']];
+function paintHeader(pr) {
+  const g = game();
+  const playing = S.pub && S.pub.screen !== 'lobby' && g;
+  $('chip').innerHTML = playing ? (g.phase === 'over' ? '<b>Final score</b>' : '<b>' + esc(D.AGE_NAME[g.age]) + '</b> · round <b>' + g.round + '</b>/' + g.lastRound) : '';
+  const tabs = $('tabs');
+  if (!playing || (S.pub.hold && S.pub.screen === 'play')) { tabs.classList.add('hide'); return; }
+  const myTurn = pr && pr !== 'stale';
+  const tabList = S.pub.screen === 'over' ? [['play', 'Result'], ['log', 'Log']] : TABS;
+  tabs.innerHTML = tabList.map(([k, l]) => '<button data-tab="' + k + '" class="' + (S.tab === k ? 'on' : '') + '">' + l +
+    (k === 'play' && myTurn && S.tab !== 'play' ? '<span class="pip"></span>' : '') + '</button>').join('');
+  tabs.classList.remove('hide');
+  tabs.querySelectorAll('[data-tab]').forEach(b => { b.onclick = () => { if (locked()) return; S.tab = b.dataset.tab; S.detail = null; lock(); paint(); window.scrollTo(0, 0); }; });
+}
+function paintSheet() {
+  const el = $('sheet');
+  if (!S.sheet) { el.classList.add('hide'); el.innerHTML = ''; return; }
+  const playing = S.pub && S.pub.screen === 'play';
+  let body;
+  if (S.sheet === 'about') {
+    const M = D.MANIFEST;
+    const list = xs => '<ul>' + xs.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>';
+    body = '<div class="title">About this build</div>' +
+      '<div class="sub">You against the house: computer nations fill the other chairs. The game is saved on this phone after every move.</div>' +
+      '<h3>How a round goes</h3><ul><li>Growth: a worker, or a few of one resource.</li><li>The event is turned over — it sets the architects; the rest happens at the end of the round.</li>' +
+      '<li>Actions, round the table: buy a card, put a worker to work, hire an architect, or use a card. Pass when you have done enough.</li>' +
+      '<li>Then production, the War, the events and the famine. Every second round ends an age and scores books.</li></ul>' +
+      '<h3>What is built</h3>' + list(M.real) + '<h3>Not built yet</h3>' + list(M.notBuilt) +
+      '<h3>Rulings where the book is silent</h3>' + list(M.decisions) +
+      '<h3>Credits</h3><ul><li>Nations is designed by Rustan Håkansson, Nina Håkansson, Einar Rosén and Robert Rosén and published by Lautapelit.fi. ' +
+      'The rules are theirs; card text here is written fresh. It is built to sit beside a copy of the game rather than replace one.</li></ul>' +
+      '<button class="btn ghost" id="sheetClose">Close</button>';
+  } else if (S.sheet === 'abandon') {
+    body = '<div class="title">Abandon this game?</div><div class="sub">The saved game on this phone is thrown away and you go back to the setup screen.</div>' +
+      '<button class="btn armed" id="abandonGo">Abandon the game</button><button class="btn ghost" id="sheetClose">Keep playing</button>';
+  } else {
+    body = '<div class="title">Menu</div>' +
+      '<button class="btn ghost" id="sheetAbout">About this build</button>' +
+      (playing ? '<button class="btn ghost" id="sheetAbandon">Abandon this game</button>' : '') +
+      '<button class="btn ghost" id="sheetHub">' + (playing ? 'Back to the Game Hub (your game is saved)' : 'Back to the Game Hub') + '</button>' +
+      '<button class="btn" id="sheetClose">Close</button>';
+  }
+  el.innerHTML = '<div class="card">' + body + '</div>';
+  el.classList.remove('hide');
+  const on = (id, fn) => { const b = $(id); if (b) b.onclick = () => { if (!locked()) { lock(); fn(); } }; };
+  on('sheetClose', () => { S.sheet = null; paint(); });
+  on('sheetAbout', () => { S.sheet = 'about'; paint(); });
+  on('sheetAbandon', () => { S.sheet = 'abandon'; paint(); });
+  on('sheetHub', () => { location.href = HUB_URL; });
+  on('abandonGo', () => { S.sheet = null; S.tab = 'play'; S.panel = null; S.sel = null; S.detail = null; send({ t: 'abandon' }); });
+  el.onclick = e => { if (e.target === el && !locked()) { S.sheet = null; paint(); } };
+}
+/* `title` is HTML: callers escape names themselves. */
+function waitCard(title, sub, cls) {
+  return '<div class="card' + (cls ? ' ' + cls : '') + '"><div class="title">' + title + '</div>' + (sub ? '<div class="sub">' + sub + '</div>' : '') + '</div>';
+}
+
+/* ---------------- the round card ---------------- */
+function holdHtml() {
+  const h = S.pub && S.pub.hold;
+  if (!h) return '';
+  const others = h.waiting.filter(id => id !== S.id);
+  const waitingMe = h.waiting.indexOf(S.id) >= 0;
+  if (h.kind === 'event') {
+    const foot = waitingMe ? '<button class="btn" id="cont">Got it</button><div class="sub rc-w">The first turn of the round waits for you.</div>'
+      : '<div class="sub rc-w">' + (others.length ? 'Waiting for ' + esc(others.map(pname).join(', ')) + '.' : 'Off we go.') + '</div>';
+    return '<div class="card mine rcard">' + W.eventRevealHtml(h.ev, game(), A) + foot + '</div>';
+  }
+  if (h.pages && h.page < h.pages.length - 1) {
+    const nexted = h.nexted || [];
+    const iDid = nexted.indexOf(S.id) >= 0;
+    const still = h.waiting.filter(id => id !== S.id && nexted.indexOf(id) < 0);
+    const foot = (waitingMe && !iDid ? '<button class="btn" id="hnext">Next</button>' : '') +
+      '<div class="sub rc-w">Step ' + (h.page + 1) + ' of ' + (h.pages.length - 1) +
+      (iDid && still.length ? ' · waiting for ' + esc(still.map(pname).join(', ')) : '') + '</div>';
+    return '<div class="card mine rcard">' + W.roundPageHtml(h.card, game(), A, h.pages[h.page]) + foot + '</div>';
+  }
+  let foot = '';
+  if (h.waiting.indexOf(S.id) >= 0) foot = '<button class="btn" id="cont">Continue</button><div class="sub rc-w">The game waits until you have read this.</div>';
+  else if (others.length) foot = '<div class="sub rc-w">Waiting for ' + esc(others.map(pname).join(', ')) + ' to read it.</div>' +
+    (h.grace && h.done.indexOf(S.id) >= 0 ? '<button class="btn ghost" id="nowait">Don’t wait for ' + esc(others.map(pname).join(' and ')) + '</button>' : '');
+  return '<div class="card mine rcard">' + W.roundCardHtml(h.card, game(), A) + foot + '</div>';
+}
+
+/* ---------------- where the round is ---------------- */
+function phaseHtml() {
+  const g = game();
+  if (!g || g.phase === 'nations') return '';
+  const now = W.phaseNow(g, S.pub.hold);
+  return '<div class="phbar">' + W.phaseStripHtml(now, g.round) + (W.PHASE_SAYS[now] && now !== 'actions' ? '<div class="says">' + esc(W.PHASE_SAYS[now]) + '</div>' : '') + '</div>';
+}
+/* Your move, until somebody else moves or the round moves on. */
+function undoHtml() {
+  if (!S.undo) return '';
+  return '<button class="btn ghost" id="undo">↶ Take back: ' + esc(S.undo.what.replace(/\.$/, '')) + '</button>';
+}
+
+/* ---------------- since your last turn ---------------- */
+function sinceLines() {
+  const g = game();
+  if (!g || !g.log || !g.log.length) return null;
+  const base = (g.logN || g.log.length) - g.log.length;
+  const all = W.lines(g.log, g, base);
+  let i = all.length - 1;
+  while (i >= 0 && all[i].by === S.id) i--;
+  const out = [];
+  let reached = false;
+  for (; i >= 0; i--) {
+    const l = all[i];
+    if (l.by === S.id) { if (W.HEAD[l.t]) { reached = true; break; } continue; }
+    out.unshift(l);
+  }
+  return { lines: out, cut: !reached && base > 0, first: !reached && base === 0 };
+}
+function sinceHtml(pr) {
+  const s = sinceLines();
+  if (!s || !s.lines.length) return '';
+  const MAX = 6;
+  const shown = S.sinceAll ? s.lines : s.lines.slice(-MAX);
+  const hidden = s.lines.length - shown.length;
+  return '<div class="since"><div class="sh">' + (s.first ? 'So far' : 'Since your last turn') + '</div>' +
+    (hidden ? '<button class="more" id="sinceMore">' + hidden + ' earlier</button>' : '') +
+    shown.map((l, k) => '<div class="sl' + (k === shown.length - 1 ? ' new' : '') + '">' + W.html(l, A) + '</div>').join('') +
+    (S.sinceAll && s.lines.length > MAX ? '<button class="more" id="sinceLess">Show fewer</button>' : '') + '</div>';
+}
+
+/* ---------------- lobby and the end ---------------- */
+const LOBBY_OPTS = {
+  decks: [['base', 'Base cards', 'For a first game'], ['adv', '+ Advanced', 'More interaction'], ['exp', '+ Expert', 'Everything']],
+  side: [['A', 'A sides', 'Every nation the same'], ['B', 'B sides', 'Each nation different']],
+  diff: D.DIFFICULTY.map(d => [d.id, d.name, 'Growth gives ' + d.bonus]),
+  ages: [[4, 'Full game', 'Four ages, eight rounds'], [2, 'Short game', 'Two ages, four rounds']],
+  pace: [['slow', 'Slow', ''], ['relaxed', 'Relaxed', ''], ['brisk', 'Brisk', '']]
+};
+function lobbyHtml() {
+  const lv = S.pub.lobby || { seated: [], house: [], size: 0 };
+  const rows = lv.seated.map(p => '<div class="prow"><i class="d" style="background:' + esc(p.hex) + '"></i><b>' + esc(p.name) + '</b><span class="sc">you</span></div>').join('') +
+    lv.house.map(p => '<div class="prow"><i class="d" style="background:' + esc(p.hex) + '"></i>' + esc(p.name) + '<span class="sc">computer</span></div>').join('');
+  const sizes = [2, 3, 4, 5].map(k => '<button class="opt' + (k === lv.size ? ' on' : '') + '" data-opt="table" data-v="' + k + '" style="justify-content:center">' + k + '</button>').join('');
+  const seg = key => LOBBY_OPTS[key].map(([v, l, d]) => '<button class="opt' + (String(v) === String(lv[key]) ? ' on' : '') + '" data-opt="' + key + '" data-v="' + v + '"' +
+    (key === 'decks' && v === 'base' && lv.size === 5 ? ' disabled' : '') + '><span class="lab"><b>' + esc(l) + '</b>' + (d ? '<small>' + esc(d) + '</small>' : '') + '</span></button>').join('');
+  return '<div class="card"><div class="title">Nations — solo</div>' +
+    '<div class="sub">Eight rounds from the first cities to 1913, against computer nations. Each turn, one action: buy a card, put a worker to work, hire an architect, or use a card — then pass when you have done enough. Keep your people fed and stable; the events arrive every round.</div>' +
+    '<h2 style="margin-top:12px">Your name <small>as the log says it</small></h2><div id="name" style="margin-top:0"><input id="nameIn" placeholder="Your name" maxlength="14" autocomplete="off" value="' + esc(lv.name || '') + '"></div>' +
+    '<div class="card" style="background:var(--panel2)">' + rows + '</div></div>' +
+    '<h2>Nations at the table <small>you + ' + (lv.size - 1) + ' computer' + (lv.size > 2 ? 's' : '') + '</small></h2><div class="row2" style="grid-template-columns:repeat(4,1fr)">' + sizes + '</div>' +
+    '<h2>Progress cards</h2><div class="opts" style="margin-top:0">' + seg('decks') + '</div>' +
+    '<h2>Player boards</h2><div class="row2">' + seg('side') + '</div>' +
+    '<h2>Difficulty</h2><div class="row2">' + seg('diff') + '</div>' +
+    '<h2>Length</h2><div class="row2">' + seg('ages') + '</div>' +
+    '<h2>How fast the computers play</h2><div class="row3">' + seg('pace') + '</div>' +
+    '<button class="btn" id="go">Begin history</button>' +
+    '<button class="btn ghost" id="menu">Back to the Game Hub</button>';
+}
+function overHtml() {
+  const g = game();
+  const me = mine();
+  const rows = g && g.result ? g.result.rows : [];
+  const mineRow = rows.find(r => r.id === S.id);
+  const won = mineRow && mineRow.won;
+  const ord = k => k + (k === 1 ? 'st' : k === 2 ? 'nd' : k === 3 ? 'rd' : 'th');
+  return '<div class="card mine"><div class="title">' + (won ? 'Yours is the greatest nation' : rows.length ? esc(rows[0].name) + ' is the greatest nation' : 'History is written') + '</div>' +
+    '<div class="sub">' + (mineRow ? 'You finished ' + ord(mineRow.place) + ' with ' + mineRow.total + ' VP' + (me ? ' as ' + esc(nationName(me.nation)) : '') + '.' : '') + '</div>' +
+    '<table class="fin"><tr><th class="nm">Nation</th><th>VP</th><th>Col</th><th>Won</th><th>Wkr</th><th>Res</th><th>Total</th></tr>' +
+    rows.map(r => { const p = pl(r.id); return '<tr class="' + (r.won ? 'win' : '') + (r.id === S.id ? ' me' : '') + '"><td class="nm"><i class="d" style="display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;background:' + esc(p ? p.hex : '#888') + '"></i>' + esc(r.name) +
+      '<div style="font-size:11px;color:var(--dim)">' + esc(nationName(r.nation)) + '</div></td><td>' + r.vp + '</td><td>' + r.colonies + '</td><td>' + r.wonders + '</td><td>' + r.bm + '</td><td>' + r.resources + '</td><td><b>' + r.total + '</b></td></tr>'; }).join('') +
+    '</table><div class="sub" style="margin-top:8px">VP tokens, colonies, wonders, workers on your buildings and military, and every 10 resources (gold, stone, food, books, strength and stability together) is worth a VP. A tie goes to the earlier player in turn order.</div></div>' +
+    '<button class="btn" id="again">Play again</button>' +
+    '<button class="btn ghost" id="menu">Back to the Game Hub</button>';
+}
+
+/* ================================================================
+   The question at the top
+   ================================================================ */
+function askHtml(pr) {
+  const g = game();
+  if (pr === 'stale') return waitCard('Hold on', 'The table is moving on.');
+  if (!pr) {
+    const open = g.prompts;
+    const dots = '<span class="think"><i></i><i></i><i></i></span>';
+    if (!open.length) return waitCard('The round is resolving', g.phase === 'resolution' ? 'Production, the War and the events.' : '');
+    if (open.every(x => x.t === 'growth')) return waitCard('Growth' + dots, 'Waiting for ' + esc(Array.from(new Set(open.map(x => pname(x.seat)))).join(', ')) + '.');
+    const x = open[0];
+    const upNext = g.phase === 'action' && nextUp() === S.id;
+    return waitCard(esc(pname(x.seat)) + (x.t === 'turn' ? '’s turn' : ' is choosing') + dots,
+      esc(x.t === 'turn' ? (upNext ? 'You are up next. Look at the Board while you wait.' : 'Taking a turn.') : (x.why || '')), upNext ? 'upnext' : '');
+  }
+  switch (pr.t) {
+    case 'growth': return growthHtml(pr);
+    case 'nation': return nationPickHtml(pr);
+    case 'choice': return choiceHtml(pr);
+    case 'mix': return mixHtml(pr);
+    case 'turn': return turnHtml(pr);
+  }
+  return waitCard('Your move', esc(pr.why || ''));
+}
+/* Who plays after the nation now taking its turn. */
+function nextUp() {
+  const g = game();
+  const ord = g.order;
+  const i = ord.indexOf(g.active);
+  if (i < 0) return null;
+  for (let k = 1; k <= ord.length; k++) { const p = pl(ord[(i + k) % ord.length]); if (p && !p.passed && p.id !== g.active) return p.id; }
+  return null;
+}
+function growthHtml(pr) {
+  const me = mine();
+  const ev = game().event;
+  return '<div class="card mine"><div class="title">Growth — round ' + game().round + '</div>' +
+    '<div class="sub">A worker, or resources. A worker off the Food track costs 3 food every round; off the Stability track, 3 stability. This round’s event is drawn after everybody chooses.</div>' +
+    '<div class="opts">' + pr.options.map(o => '<button class="opt" data-grow="' + esc(o.id) + '"><span class="lab"><b>' + esc(o.label) + '</b>' + (o.sub ? '<small>' + esc(o.sub) + '</small>' : '') + '</span>' +
+      (o.res ? '<span class="val">' + ic(o.res, 22) + '</span>' : '<span class="val">' + A.res('worker', 22, S.hex) + '</span>') + '</button>').join('') + '</div>' +
+    '<div class="stat">You make ' + prodLine(me) + ' a round now.</div></div>';
+}
+function nationPickHtml(pr) {
+  return '<div class="card mine"><div class="title">Choose your nation</div><div class="sub">Later players choose first. The B side is different for every nation; the A side is the same board for all.</div>' +
+    '<div class="row2" style="margin-top:8px"><button class="opt' + (!S.sideA ? ' on' : '') + '" data-side="B">B side</button><button class="opt' + (S.sideA ? ' on' : '') + '" data-side="A">A side</button></div>' +
+    '<div class="opts">' + pr.options.map(o => {
+      const n = D.NATIONS.find(x => x.id === o.id);
+      const b = S.sideA ? D.A_SIDE : n.B;
+      return '<button class="opt" data-nation="' + o.id + '"><span class="lab"><b>' + esc(n.name) + '</b><small>' +
+        (S.sideA ? 'The standard board' : esc(n.B.specialText)) + ' · starts ' + b.res.gold + ' gold, ' + b.res.stone + ' stone, ' + b.res.food + ' food, ' + b.res.vp + ' VP, ' + b.workers + ' workers</small></span></button>';
+    }).join('') + '</div></div>';
+}
+function choiceHtml(pr) {
+  return '<div class="card mine"><div class="title">' + esc(pr.why || 'Choose') + '</div>' +
+    '<div class="opts">' + pr.options.map(o => '<button class="opt" data-pick="' + esc(o.id) + '"><span class="lab"><b>' + esc(o.label) + '</b></span></button>').join('') + '</div></div>';
+}
+function mixHtml(pr) {
+  const me = mine();
+  const owe = Math.min(pr.owe, pr.from.reduce((t, r) => t + me.res[r], 0));
+  if (!S.sel || S.sel.kind !== 'mix') S.sel = { kind: 'mix', pay: { gold: 0, stone: 0, food: 0, book: 0 } };
+  const tot = D.RES.reduce((t, r) => t + S.sel.pay[r], 0);
+  return '<div class="card mine"><div class="title">' + esc(pr.why) + '</div>' +
+    pr.from.map(r => '<div class="stepper"><span class="l">' + ic(r, 22) + R[r] + ' <small class="sub">(have ' + me.res[r] + ')</small></span>' +
+      '<button data-mix="' + r + '|-1"' + (S.sel.pay[r] ? '' : ' disabled') + '>−</button><b>' + S.sel.pay[r] + '</b>' +
+      '<button data-mix="' + r + '|1"' + (S.sel.pay[r] < me.res[r] && tot < owe ? '' : ' disabled') + '>+</button></div>').join('') +
+    '<button class="btn" id="mixGo"' + (tot === owe ? '' : ' disabled') + '>Pay ' + owe + '</button></div>';
+}
+
+/* ---------------- the turn ---------------- */
+function turnHtml(pr) {
+  const can = S.me.can;
+  if (!can) return waitCard('Your turn', '');
+  const me = mine();
+  if (can.skipOnly) return '<div class="card mine"><div class="title">Buddha: this turn is skipped</div><div class="sub">Your first turn every round is lost while Buddha is your advisor.</div>' +
+    '<button class="btn" id="skipTurn">Skip this turn</button></div>';
+  switch (S.panel) {
+    case 'board': return boardPanel(can, false);
+    case 'galileo': return boardPanel(can, true);
+    case 'deploy': return deployPanel(can);
+    case 'special': return specialPanel(can);
+  }
+  const buyable = can.board.filter(b => b.ok).length;
+  const deployable = can.deploy.filter(d => d && d.ok).length;
+  const movable = can.deploy.some(d => d && d.canMove && d.canMove.length);
+  const hire = can.hire;
+  const hireOk = hire && (hire.public || hire.private);
+  const specials = can.specials.filter(s => s.act !== 'galileo' || true);
+  setBar();
+  return '<div class="card mine"><div class="title">Your turn</div>' +
+    '<div class="sub">One action, then play moves on. Taking a worker off a card is free and does not end your turn.</div>' +
+    '<div class="menu">' +
+    '<button data-panel="board"' + (can.board.length ? '' : ' disabled') + '><b>Buy a card</b><small>' + (buyable ? buyable + ' you can afford' : 'nothing you can buy') + ' · ' + me.res.gold + ' gold</small></button>' +
+    '<button data-panel="deploy"><b>Workers</b><small>' + (me.idle ? me.idle + ' idle · ' : 'none idle · ') + (deployable ? deployable + ' cards to staff' : movable ? 'move one' : 'take off, or none to place') + '</small></button>' +
+    (hire ? '<button id="hire"' + (hireOk ? '' : ' disabled') + '><b>Hire an architect</b><small>' + esc(C(hire.card).name) + ' ' + hire.built + '/' + C(hire.card).cost.length +
+      (hireOk ? ' · next section ' + hire.cost + ' stone' + (hire.private ? ' · private one ready' : '') : ' · ' + esc(hire.why)) + '</small></button>' :
+      '<button disabled><b>Hire an architect</b><small>Buy a wonder first</small></button>') +
+    (specials.length ? '<button data-panel="special"><b>Card actions</b><small>' + esc(specials.map(s => C(s.card) ? C(s.card).name : 'Nation').join(', ')) + '</small></button>' : '<button disabled><b>Card actions</b><small>None on your board</small></button>') +
+    '</div>' +
+    (hire && hire.public && hire.private ? '<div class="row2"><button class="btn small ghost" data-hire="public">Use a public architect</button><button class="btn small ghost" data-hire="private">Use your private one</button></div>' : '') +
+    '</div>';
+}
+function setBar() {
+  const bar = $('bar');
+  bar.innerHTML = '<button class="btn' + (S.armed === 'pass' ? ' armed' : ' ghost') + '" id="pass">' + (S.armed === 'pass' ? 'Tap again to pass for the round' : 'Pass for the round') + '</button>';
+  bar.classList.remove('hide');
+}
+const back = '<button class="btn ghost small" id="back">Back</button>';
+
+/* The progress board, by price. Tap a card to see it and buy it. */
+function boardPanel(can, galileo) {
+  const g = game();
+  if (S.sel && S.sel.kind === 'buy') return buySheet(can, galileo);
+  const list = galileo ? can.galileo : can.board;
+  const at = (r, c) => list.find(b => b.r === r && b.c === c);
+  const rows = [0, 1, 2].map(r => {
+    const cells = g.board[r].map((id, c) => {
+      if (!id) return '';
+      const b = at(r, c);
+      const ok = galileo ? !!b : b && b.ok;
+      const card = C(id);
+      return '<button class="face' + (ok ? '' : ' no') + '" data-buycard="' + r + '|' + c + '">' + (galileo ? '' : '<span class="badge">' + (b ? b.price : D.ROW_PRICE[r]) + '</span>') + A.card(id, { small: true }) +
+        '<span class="cap">' + esc(card.name) + '</span><span class="cap2">' + esc(A.TYPE_NAME[card.type]) + (card.age < g.age ? ' · older' : '') + '</span></button>';
+    }).join('');
+    return cells ? '<div class="brow-h">' + (galileo ? '' : D.ROW_PRICE[r] + ' ' + ic('gold', 14)) + (galileo ? 'Row ' + (r + 1) : '') + '</div><div class="faces f4">' + cells + '</div>' : '';
+  }).join('');
+  return '<div class="card mine"><div class="title">' + (galileo ? 'Galileo: a Golden Age or a Wonder, free' : 'Buy a card') + '</div>' +
+    '<div class="sub">' + (galileo ? '' : 'You have ' + mine().res.gold + ' gold. Greyed cards you cannot take right now — tap one to see why.') + '</div>' + rows + back + '</div>';
+}
+function buySheet(can, galileo) {
+  const me = mine();
+  const sel = S.sel;
+  const g = game();
+  const id = g.board[sel.r] && g.board[sel.r][sel.c];
+  const b = (galileo ? can.galileo : can.board).find(x => x.r === sel.r && x.c === sel.c);
+  if (!id || !b) { S.sel = null; return boardPanel(can, galileo); }
+  const card = C(id);
+  const need = b.need || {};
+  const ok = galileo ? true : b.ok;
+  let ask = '', ready = ok;
+  if (ok && need.slot && (card.type === 'building' || card.type === 'military')) {
+    ask += '<h2>Which space?</h2><div class="opts">' + need.slot.map(k => {
+      const s = me.bm[k];
+      const lab = s ? 'Over ' + C(s.card).name + (s.w ? ' — its ' + s.w + ' worker' + (s.w > 1 ? 's go' : ' goes') + ' back to idle' : '') : 'An empty space';
+      return '<button class="opt' + (sel.slot === k ? ' on' : '') + '" data-slot="' + k + '"><span class="lab"><b>Space ' + (k + 1) + '</b><small>' + esc(lab) + '</small></span></button>';
+    }).join('') + '</div>';
+    if (sel.slot == null) ready = false;
+  }
+  if (ok && need.slot && card.type === 'colony') {
+    ask += '<h2>Your colony spaces are full — give up</h2><div class="opts">' + need.slot.map(k => '<button class="opt' + (sel.slot === k ? ' on' : '') + '" data-slot="' + k + '"><span class="lab"><b>' + esc(C(me.colonies[k]).name) + '</b><small>' + esc(A.summary(me.colonies[k])) + '</small></span></button>').join('') + '</div>';
+    if (sel.slot == null) ready = false;
+  }
+  if (ok && need.slot && card.type === 'advisor') {
+    ask += '<h2>Which advisor space?</h2><div class="opts">' + need.slot.map(k => '<button class="opt' + (sel.slot === k ? ' on' : '') + '" data-slot="' + k + '"><span class="lab"><b>' + (k === 0 ? 'Your advisor space' : 'The Porcelain Tower') + '</b><small>' + (me.advisors[k] ? 'Replaces ' + esc(C(me.advisors[k]).name) : 'Empty') + '</small></span></button>').join('') + '</div>';
+    if (sel.slot == null) ready = false;
+  }
+  if (ok && card.type === 'advisor' && !need.slot && me.advisors[0]) ask += '<div class="sub" style="margin-top:6px">Replaces ' + esc(C(me.advisors[0]).name) + '.</div>';
+  if (ok && card.type === 'wonder' && me.uc) ask += '<div class="sub" style="margin-top:6px;color:#ffb4ae">Replaces ' + esc(C(me.uc.card).name) + ' under construction — its ' + me.uc.built + ' built section' + (me.uc.built === 1 ? ' is' : 's are') + ' lost.</div>';
+  if (ok && card.type === 'battle') {
+    ask += '<h2>Raid for (' + me.raid + ')</h2><div class="row3">' + ['book', 'food', 'stone'].map(r => '<button class="opt' + (sel.pick === r ? ' on' : '') + '" data-pickr="' + r + '" style="justify-content:center">' + ic(r, 22) + ' +' + me.raid + '</button>').join('') + '</div>';
+    if (!sel.pick) ready = false;
+  }
+  if (ok && card.type === 'golden') {
+    ask += '<h2>Take</h2><div class="opts"><button class="opt' + (sel.pick === 'res' ? ' on' : '') + '" data-pickr="res"><span class="lab"><b>+' + need.gaGain + ' ' + R[card.res] + '</b></span><span class="val">' + ic(card.res, 22) + '</span></button>' +
+      '<button class="opt' + (sel.pick === 'vp' ? ' on' : '') + '" data-pickr="vp"><span class="lab"><b>1 VP for ' + need.vpCost + ' resource' + (need.vpCost === 1 ? '' : 's') + '</b><small>Any mix of gold, stone, food and books</small></span><span class="val">' + A.vp('+1', '26px') + '</span></button></div>';
+    if (!sel.pick) ready = false;
+    if (sel.pick === 'vp' && need.vpCost > 0) {
+      sel.pay = sel.pay || { gold: 0, stone: 0, food: 0, book: 0 };
+      const tot = D.RES.reduce((t, r) => t + sel.pay[r], 0);
+      const price = galileo ? 0 : b.price;
+      ask += D.RES.map(r => { const have = me.res[r] - (r === 'gold' ? price : 0); return '<div class="stepper"><span class="l">' + ic(r, 20) + R[r] + ' <small class="sub">(' + have + ')</small></span>' +
+        '<button data-gpay="' + r + '|-1"' + (sel.pay[r] ? '' : ' disabled') + '>−</button><b>' + sel.pay[r] + '</b><button data-gpay="' + r + '|1"' + (sel.pay[r] < have && tot < need.vpCost ? '' : ' disabled') + '>+</button></div>'; }).join('');
+      if (tot !== need.vpCost) ready = false;
+    }
+  }
+  if (ok && card.type === 'war') {
+    const under = g.players.filter(p => p.id !== S.id && p.str < me.str);
+    ask += '<div class="sub" style="margin-top:6px">The War is fought at your strength now: <b>' + me.str + '</b>. Anybody still weaker at the end of the round is defeated' + (under.length ? ' — right now that is ' + esc(under.map(p => p.name).join(', ')) : '') + '. Keep your own strength up too.</div>';
+  }
+  if (ok && card.type === 'colony') ask += '<div class="sub" style="margin-top:6px">You have ' + me.str + ' strength.</div>';
+  const price = galileo ? 0 : b.price;
+  return '<div class="card mine"><div class="big"><div class="bf">' + A.card(id) + '</div><div class="bt"><div class="title" style="font-size:17px">' + esc(card.name) + '</div>' +
+    '<div class="sub">' + esc(A.TYPE_NAME[card.type]) + ' · ' + D.AGE_NAME[card.age] + (card.set !== 'base' ? (card.set === 'adv' ? ' · advanced' : ' · expert') : '') + '</div>' +
+    '<div style="margin-top:6px">' + esc(A.summary(id)) + '</div>' + (ok ? '' : '<div class="why">' + esc(b.why) + '</div>') + '</div></div>' + ask +
+    (ok ? '<button class="btn" id="buyGo"' + (ready ? '' : ' disabled') + '>' + (galileo ? 'Take it with Galileo' : 'Buy for ' + price + ' gold') + '</button>' : '') +
+    '<button class="btn ghost small" id="unsel">Back to the board</button></div>';
+}
+
+/* Workers: onto a card, moved between cards, taken off. */
+function deployPanel(can) {
+  const me = mine();
+  const royal = S.sel && S.sel.royal;
+  const cells = me.bm.map((s, k) => {
+    if (!s) return '<div class="face empty">empty</div>';
+    const d = can.deploy[k];
+    const card = C(s.card);
+    const cost = royal ? 0 : d.cost;
+    const canAdd = royal ? me.idle > 0 : d.ok;
+    const moves = (royal ? [] : d.canMove) || [];
+    return '<div class="face">' + A.card(s.card, { w: s.w, hex: S.hex, small: true }) +
+      '<span class="cap">' + esc(card.name) + '</span>' +
+      '<button class="btn small" data-dep="' + k + '"' + (canAdd ? '' : ' disabled') + '>+ worker' + (cost ? ' ' + cost + ic('stone', 13) : ' free') + '</button>' +
+      (!me.idle && moves.length && !royal ? '<button class="btn small ghost" data-move="' + k + '">Move here</button>' : '') +
+      (s.w && !royal ? '<button class="btn small ghost" data-undep="' + k + '">− take off</button>' : '') + (!canAdd && !royal && d.why && !(!me.idle && moves.length) ? '<span class="cap2">' + esc(d.why) + '</span>' : '') + '</div>';
+  }).join('');
+  let pickFrom = '';
+  if (S.sel && S.sel.moveTo != null) {
+    const d = can.deploy[S.sel.moveTo];
+    pickFrom = '<div class="card"><div class="title" style="font-size:16px">Move a worker onto ' + esc(C(me.bm[S.sel.moveTo].card).name) + ' — from which card?</div><div class="opts">' +
+      d.canMove.map(j => '<button class="opt" data-from="' + j + '"><span class="lab"><b>' + esc(C(me.bm[j].card).name) + '</b><small>' + me.bm[j].w + ' worker' + (me.bm[j].w > 1 ? 's' : '') + ' there</small></span></button>').join('') + '</div></div>';
+  }
+  return '<div class="card mine"><div class="title">' + (royal ? 'Royal Society: a worker, free' : 'Workers') + '</div>' +
+    '<div class="sub">' + me.idle + ' idle · ' + me.res.stone + ' stone. Putting a worker on a card is your action; taking one off is free.</div>' + pickFrom +
+    '<div class="faces">' + cells + '</div>' + back + '</div>';
+}
+
+/* A card's own action, with whatever it needs chosen here. */
+const SPECIAL_OPTS = {
+  petra: { why: 'Pay 1 food for 3 of one', opts: [['book', '+3 books'], ['gold', '+3 gold'], ['stone', '+3 stone']] },
+  piazza: { why: 'Pay 2 gold for 5 of one', opts: [['book', '+5 books'], ['food', '+5 food'], ['stone', '+5 stone']] },
+  marco: { why: 'Pay 2 food or 2 stone for 4 gold', opts: [['food', 'Pay 2 food'], ['stone', 'Pay 2 stone']] },
+  lincoln: { why: 'Take a worker', opts: [['food', 'From the Food track'], ['stab', 'From the Stability track']] },
+  suleiman: { why: 'Take a worker', opts: [['food', 'From the Food track'], ['stab', 'From the Stability track']] }
+};
+function specialPanel(can) {
+  const me = mine();
+  const g = game();
+  const sel = S.sel;
+  if (sel && sel.act === 'alhazen') {
+    const pos = sel.a;
+    return '<div class="card mine"><div class="title">Alhazen: swap two places</div><div class="sub">' + (pos ? 'Now the second place.' : 'Tap the first card.') + '</div>' +
+      [0, 1, 2].map(r => '<div class="brow-h">' + D.ROW_PRICE[r] + ' ' + ic('gold', 14) + '</div><div class="faces f4">' + g.board[r].map((id, c) =>
+        '<button class="face' + (pos && pos[0] === r && pos[1] === c ? ' sel' : '') + '" data-swap="' + r + '|' + c + '">' + (id ? A.card(id, { small: true }) + '<span class="cap">' + esc(C(id).name) + '</span>' : '<div class="face empty">empty</div>') + '</button>').join('') + '</div>').join('') +
+      '<button class="btn ghost small" id="unsel">Back</button></div>';
+  }
+  if (sel && sel.act) {
+    const o = SPECIAL_OPTS[sel.act];
+    let opts;
+    if (sel.act === 'bolivar') opts = me.colonies.map((c, k) => c ? [String(k), 'Give up ' + C(c).name] : null).filter(Boolean);
+    else opts = o.opts.filter(([v]) => !((sel.act === 'lincoln' || sel.act === 'suleiman') && me.taken[v] >= me.track[v] && !me.freeTop));
+    return '<div class="card mine"><div class="title">' + esc(C(sel.card).name) + '</div><div class="sub">' + esc(o ? o.why : 'Give up a colony for 4 gold and 4 stone') + '</div><div class="opts">' +
+      opts.map(([v, l]) => '<button class="opt" data-sp="' + v + '"><span class="lab"><b>' + esc(l) + '</b></span></button>').join('') + '</div><button class="btn ghost small" id="unsel">Back</button></div>';
+  }
+  return '<div class="card mine"><div class="title">Card actions</div><div class="opts">' + can.specials.map(s => {
+    const card = C(s.card);
+    return '<button class="opt" data-special="' + esc(s.card) + '"' + (s.ok ? '' : ' disabled') + '><span class="lab"><b>' + esc(card ? card.name : s.card) + '</b><small>' +
+      esc(s.ok ? (card ? card.text : '') : s.why) + (s.once ? ' · once a round' : '') + '</small></span></button>';
+  }).join('') + '</div>' + back + '</div>';
+}
+
+/* ================================================================
+   Your nation, the round's event, the other nations
+   ================================================================ */
+function prodLine(p) {
+  const ks = ['gold', 'stone', 'food', 'book'].filter(k => p.prod[k]);
+  return ks.length ? ks.map(k => '<span class="wg' + (p.prod[k] < 0 ? ' neg' : '') + '">' + (p.prod[k] > 0 ? '+' : '') + p.prod[k] + ic(k, 15) + '</span>').join(' ') : 'nothing';
+}
+function nationHtml() {
+  const me = mine();
+  const g = game();
+  if (!me.nation) return '';
+  const ev = g.event ? D.event(g.event) : null;
+  const res = ['gold', 'stone', 'food', 'book'].map(k => {
+    const after = me.res[k] + (me.prod[k] || 0) - (k === 'food' && ev ? ev.famine : 0);
+    return '<span class="' + (after < 0 ? 'warn' : '') + '">' + ic(k, 22) + me.res[k] + '</span>';
+  }).join('') + '<span>' + A.vp(null, '24px') + me.res.vp + '</span>';
+  const tags = [];
+  const rk = g.rank;
+  if (rk.mostStr.indexOf(S.id) >= 0) tags.push('strongest');
+  if (rk.leastStr.indexOf(S.id) >= 0) tags.push('weakest');
+  if (rk.mostStab.indexOf(S.id) >= 0) tags.push('most stable');
+  if (rk.leastStab.indexOf(S.id) >= 0) tags.push('least stable');
+  const track = k => '<span class="track">' + Array.from({ length: me.track[k] }, (x, i) => '<i class="' + (i < me.taken[k] ? 't' : '') + '"></i>').join('') + '</span>';
+  const face = id => '<button class="face" data-detail="' + esc(id) + '">' + A.card(id, { small: true }) + '<span class="cap">' + esc(C(id).name) + '</span></button>';
+  const bm = me.bm.map((s, k) => s ? '<button class="face" data-detail="' + esc(s.card) + '">' + A.card(s.card, { w: s.w, hex: S.hex, small: true }) + '<span class="cap">' + esc(C(s.card).name) + '</span></button>' : '<div class="face empty">empty</div>').join('');
+  /* Every space on the board, the free ones drawn as free: how much room is
+     left is what a buy decision turns on. */
+  const used = xs => xs.filter(Boolean).length;
+  const head = (label, free, of, note) => '<div class="brow-h sp"><span>' + label + '</span><small class="' + (of && !free ? 'full' : '') + '">' +
+    (of ? (free ? free + ' of ' + of + ' free' : 'all ' + of + ' used') : '') + (note ? (of ? ' · ' : '') + note : '') + '</small></div>';
+  const colFree = me.colonies.length - used(me.colonies);
+  const advFree = me.advisors.length - used(me.advisors);
+  const wonUsed = used(me.wonders);
+  const wonFree = me.wonderCap - wonUsed;
+  const sections =
+    head('Buildings &amp; military', 0, 0, me.bm.length + ' spaces — a new one goes over an old one') + '<div class="faces">' + bm + '</div>' +
+    head('Colonies', colFree, me.colonies.length, colFree ? '' : 'a new one replaces one') +
+    '<div class="faces">' + me.colonies.map(c => c ? face(c) : '<div class="face empty slim">free colony space</div>').join('') + '</div>' +
+    head('Advisor', advFree, me.advisors.length, advFree ? '' : 'a new one replaces yours') +
+    '<div class="faces">' + me.advisors.map(a => a ? face(a) : '<div class="face empty slim">free advisor space</div>').join('') + '</div>' +
+    head('Wonders', wonFree, me.wonderCap, me.uc ? '1 being built' : '') +
+    '<div class="faces">' + me.wonders.filter(Boolean).map(face).join('') +
+    (me.uc ? '<button class="face" data-detail="' + esc(me.uc.card) + '">' + A.card(me.uc.card, { small: true, built: me.uc.built }) + '<span class="cap">' + esc(C(me.uc.card).name) + '</span><span class="cap2">building ' + me.uc.built + '/' + C(me.uc.card).cost.length + '</span></button>' : '') +
+    (wonFree > 0 ? '<div class="face empty slim">' + (wonFree === 1 ? '1 free wonder space' : wonFree + ' free wonder spaces') + '</div>' : '') + '</div>';
+  const growLeft = me.freeTop + (me.track.food - me.taken.food) + (me.track.stab - me.taken.stab);
+  return '<h2>' + esc(nationName(me.nation)) + (me.side === 'B' ? ' (B)' : '') + ' <small>' + (g.order.indexOf(S.id) + 1) + ' in turn order' + (me.passed ? ' · passed' : '') + '</small></h2>' +
+    '<div class="card"><div class="res">' + res + '</div>' +
+    '<div class="stat"><span>' + ic('str', 18) + '<b>' + me.str + '</b></span><span class="' + (me.stab < 0 ? 'neg' : '') + '">' + ic('stab', 18) + '<b>' + me.stab + '</b></span>' +
+    '<span>' + A.res('worker', 16, S.hex) + '<b>' + me.idle + '</b> idle of ' + me.workers + '</span>' + (me.raid ? '<span>raid <b>' + me.raid + '</b></span>' : '') +
+    (tags.length ? '<span>· ' + tags.join(', ') + '</span>' : '') + '</div>' +
+    '<div class="stat">Each round you make ' + prodLine(me) + (ev ? ' · famine ' + ev.famine + ic('food', 14) : '') + '</div>' +
+    '<div class="stat">' + ic('food', 14) + track('food') + ic('stab', 14) + track('stab') + '<span>' + (growLeft ? growLeft + ' more worker' + (growLeft > 1 ? 's' : '') + ' to grow' : 'no workers left to grow') + '</span>' +
+    (me.privArch ? '<span>' + A.arch('14px', true) + ' ' + me.privArch + ' private</span>' : '') + '</div>' +
+    (me.specialText ? '<div class="stat">' + esc(me.specialText) + '</div>' : '') +
+    sections + '</div>';
+}
+function eventHtml() {
+  const g = game();
+  /* During growth the card on the table is last round's: the new one is
+     turned over when everybody has grown. */
+  if (!g.event || g.phase === 'growth' || g.phase === 'nations') return '';
+  const ev = D.event(g.event);
+  const w = g.war;
+  return '<h2>This round’s event <small>happens at the end of the round</small></h2><div class="card"><div class="evmini"><button class="bf face" data-evbig="1">' + A.event(g.event) + '</button><div class="bt">' +
+    '<div><b>' + esc(ev.a.name) + '</b> — ' + esc(ev.a.text) + '</div>' +
+    '<div><b>' + esc(ev.b.name) + '</b> — ' + esc(ev.b.text) + '</div>' +
+    '<div><b>Famine</b> — ' + ev.famine + ' food each</div>' +
+    '<div class="sub">Architects left: ' + g.arch + ' · The War: ' + (w ? esc(C(w.card).name) + ' at strength ' + w.str + ' (by ' + esc(pname(w.by)) + ')' : 'none bought yet') + '</div>' +
+    '</div></div></div>';
+}
+/* ---------------- the Board tab: what the telly showed ---------------- */
+function boardTabHtml(pr) {
+  const g = game();
+  if (!g || g.phase === 'nations') return waitCard('The nations are being chosen', '');
+  const can = pr && pr !== 'stale' && pr.t === 'turn' && S.me.can && !S.me.can.skipOnly ? S.me.can : null;
+  const at = (r, c) => can ? can.board.find(b => b.r === r && b.c === c) : null;
+  const rows = [0, 1, 2].map(r => {
+    const cells = g.board[r].map((id, c) => {
+      if (!id) return '<div class="face empty">taken</div>';
+      const card = C(id);
+      const b = at(r, c);
+      return '<button class="face' + (can && !(b && b.ok) ? ' no' : '') + '" data-boardcard="' + r + '|' + c + '"><span class="badge">' + D.ROW_PRICE[r] + '</span>' + A.card(id, { small: true }) +
+        '<span class="cap">' + esc(card.name) + '</span><span class="cap2">' + esc(A.TYPE_NAME[card.type]) + (card.age < g.age ? ' · older' : '') + '</span></button>';
+    }).join('');
+    return '<div class="brow-h">' + D.ROW_PRICE[r] + ' ' + ic('gold', 14) + ' a card</div><div class="faces f4">' + cells + '</div>';
+  }).join('');
+  const w = g.war;
+  const under = w ? g.players.filter(p => p.str < w.str) : [];
+  return '<h2>The progress board <small>' + g.deckN + ' ' + esc(D.AGE_NAME[g.age]) + ' cards left in the deck</small></h2>' +
+    '<div class="card' + (can ? ' mine' : '') + '"><div class="sub">' + (can ? 'Your turn — tap a card to buy it. You have ' + mine().res.gold + ' gold.' : 'Tap a card to read it.') + '</div>' + rows + '</div>' +
+    '<h2>The War</h2><div class="card">' + (w ? '<div><b>' + esc(C(w.card).name) + '</b> at strength <b>' + w.str + '</b>, bought by ' + esc(pname(w.by)) + '</div>' +
+      '<div class="sub" style="color:' + (under.length ? '#ffb4ae' : 'var(--dim)') + '">' + (under.length ? 'Weaker right now: ' + esc(under.map(p => p.id === S.id ? 'you' : p.name).join(', ')) : 'Nobody is weaker yet.') + '</div>'
+      : '<div class="sub">None bought yet this round.</div>') +
+    '<div class="stat">Architects left to hire this round: <b>' + g.arch + '</b></div></div>' +
+    eventHtml();
+}
+
+/* ---------------- the Nations tab: every board in full ---------------- */
+function nationsTabHtml() {
+  const g = game();
+  if (!g || g.phase === 'nations') return waitCard('The nations are being chosen', '');
+  const rk = g.rank;
+  return '<h2>Turn order <small>tap a card to read it</small></h2>' + g.order.map(id => pl(id)).map((p, k) => {
+    const nat = D.NATIONS.find(n => n.id === p.nation);
+    const tags = [];
+    if (rk.mostStr.indexOf(p.id) >= 0) tags.push('strongest');
+    if (rk.leastStr.indexOf(p.id) >= 0) tags.push('weakest');
+    if (rk.mostStab.indexOf(p.id) >= 0) tags.push('most stable');
+    if (rk.leastStab.indexOf(p.id) >= 0) tags.push('least stable');
+    const face = (id, o) => '<button class="face" data-detail="' + esc(id) + '">' + A.card(id, Object.assign({ small: true }, o || {})) + '<span class="cap">' + esc(C(id).name) + '</span></button>';
+    const faces = p.bm.filter(Boolean).map(s => face(s.card, { w: s.w, hex: p.hex }))
+      .concat(p.advisors.concat(p.colonies, p.wonders).filter(Boolean).map(id => face(id)));
+    if (p.uc) faces.push('<button class="face" data-detail="' + esc(p.uc.card) + '">' + A.card(p.uc.card, { small: true, built: p.uc.built }) + '<span class="cap">' + esc(C(p.uc.card).name) + '</span><span class="cap2">building ' + p.uc.built + '/' + C(p.uc.card).cost.length + '</span></button>');
+    const prod = ['gold', 'stone', 'food', 'book'].filter(r => p.prod[r]).map(r => '<span class="wg' + (p.prod[r] < 0 ? ' neg' : '') + '">' + (p.prod[r] > 0 ? '+' : '') + p.prod[r] + ic(r, 14) + '</span>').join(' ');
+    return '<div class="card' + (p.id === S.id ? ' mine' : '') + '">' +
+      '<div style="display:flex;align-items:center;gap:8px"><b style="color:var(--dim)">' + (k + 1) + '</b><i style="width:11px;height:11px;border-radius:50%;flex:none;background:' + esc(p.hex) + '"></i>' +
+      '<b>' + esc(p.id === S.id ? p.name + ' (you)' : p.name) + '</b><span class="sc" style="margin-left:auto;font-weight:800;color:var(--gold)">' + p.res.vp + ' VP <small style="color:var(--dim);font-weight:600">· ' + p.score.total + ' in all</small></span></div>' +
+      '<div class="sub">' + esc(nat ? nat.name : '') + (p.side === 'B' ? ' (B)' : '') + (p.passed ? ' · passed' : '') + (p.id === g.active ? ' · <b style="color:var(--gold)">on turn</b>' : '') + (tags.length ? ' · ' + esc(tags.join(', ')) : '') + '</div>' +
+      '<div class="stat">' + ['gold', 'stone', 'food', 'book'].map(r => '<span>' + ic(r, 16) + '<b>' + p.res[r] + '</b></span>').join('') +
+      '<span>' + ic('str', 16) + '<b>' + p.str + '</b></span><span class="' + (p.stab < 0 ? 'neg' : '') + '">' + ic('stab', 16) + '<b>' + p.stab + '</b></span>' +
+      '<span>' + A.res('worker', 15, p.hex) + '<b>' + p.idle + '</b>/' + p.workers + '</span></div>' +
+      '<div class="stat">makes ' + (prod || 'nothing') + (p.specialText ? ' · ' + esc(p.specialText) : '') + '</div>' +
+      (faces.length ? '<div class="faces f4">' + faces.join('') + '</div>' : '') + '</div>';
+  }).join('');
+}
+
+/* ---------------- the Log tab: the whole game, newest first ---------------- */
+function logTabHtml() {
+  const g = Solo.S.g;
+  if (!g) return waitCard('Nothing yet', '');
+  const all = W.lines(g.log, g, 0);
+  let round = null;
+  const out = [];
+  for (let k = all.length - 1; k >= 0; k--) {
+    const e = g.log[all[k].i];
+    const r = e && e.round;
+    if (r != null && r !== round) { round = r; out.push('<div class="lrh">Round ' + r + '</div>'); }
+    out.push('<div class="lr">' + W.html(all[k], A) + '</div>');
+  }
+  return '<h2>What has happened <small>newest first</small></h2><div class="card"><div class="loglist">' + (out.join('') || 'Nothing yet.') + '</div></div>';
+}
+function detailHtml() {
+  const id = S.detail;
+  if (id === 'event') {
+    const g = game();
+    return '<div class="card">' + (g && g.event ? W.eventRevealHtml({ round: g.round, event: g.event, arch: g.arch }, g, A) : '') + '<button class="btn ghost" id="closeDetail">Close</button></div>';
+  }
+  const c = C(id);
+  return '<div class="card"><div class="big"><div class="bf" style="width:56%">' + A.card(id) + '</div><div class="bt"><div class="title" style="font-size:17px">' + esc(c.name) + '</div>' +
+    '<div class="sub">' + esc(A.TYPE_NAME[c.type]) + (c.age ? ' · ' + D.AGE_NAME[c.age] : ' · printed on your board') + '</div><div style="margin-top:6px">' + esc(A.summary(id)) + '</div></div></div>' +
+    '<button class="btn ghost" id="closeDetail">Close</button></div>';
+}
+
+/* ================================================================
+   Taps
+   ================================================================ */
+function wire() {
+  const m = $('main');
+  const all = [m, $('bar')];
+  const on = (sel, fn) => all.forEach(root => root.querySelectorAll(sel).forEach(el => { el.onclick = () => { if (!locked() && !el.disabled) fn(el); }; }));
+  const pr = myPrompt();
+  const n = pr && pr !== 'stale' ? pr.n : undefined;
+  const again = () => { lock(); paint(); };
+
+  on('#menu', () => { location.href = HUB_URL; });
+  on('#cont', () => { lock(); const h = S.pub && S.pub.hold; send({ t: 'cont', round: h ? h.round : undefined }); });
+  on('#hnext', () => { lock(); const h = S.pub && S.pub.hold; send({ t: 'hnext', round: h ? h.round : undefined }); });
+  on('#undo', () => { lock(); S.undo = null; send({ t: 'undo' }); paint(); });
+  on('[data-evbig]', () => { S.detail = 'event'; paint(); window.scrollTo(0, 0); });
+  on('#sinceMore', () => { S.sinceAll = true; paint(); });
+  on('#sinceLess', () => { S.sinceAll = false; paint(); });
+  on('#go', () => { lock(); S.tab = 'play'; send({ t: 'start' }); });
+  on('#again', () => { lock(); S.tab = 'play'; send({ t: 'again' }); });
+  const nameIn = $('nameIn');
+  if (nameIn) nameIn.onchange = () => send({ t: 'opt', key: 'name', value: nameIn.value });
+  /* The Board tab: on your turn a tap is the start of a buy, otherwise a read. */
+  on('[data-boardcard]', el => {
+    const [r, c] = el.dataset.boardcard.split('|').map(Number);
+    const pr2 = myPrompt();
+    const can = pr2 && pr2 !== 'stale' && pr2.t === 'turn' && S.me.can && !S.me.can.skipOnly ? S.me.can : null;
+    if (can && can.board.some(b => b.r === r && b.c === c)) { S.tab = 'play'; S.panel = 'board'; S.sel = { kind: 'buy', r, c }; again(); window.scrollTo(0, 0); return; }
+    const id = game().board[r][c];
+    if (id) { S.detail = id; paint(); window.scrollTo(0, 0); }
+  });
+  on('[data-opt]', el => { lock(); send({ t: 'opt', key: el.dataset.opt, value: el.dataset.v }); });
+  on('[data-detail]', el => { S.detail = el.dataset.detail; paint(); window.scrollTo(0, 0); });
+  on('#closeDetail', () => { S.detail = null; again(); });
+
+  on('[data-grow]', el => act({ t: 'growth', pick: el.dataset.grow, n }));
+  on('[data-side]', el => { S.sideA = el.dataset.side === 'A'; again(); });
+  on('[data-nation]', el => act({ t: 'nation', nation: el.dataset.nation, side: S.sideA ? 'A' : 'B', n }));
+  on('[data-pick]', el => act({ t: 'pick', pick: el.dataset.pick, n }));
+  on('[data-mix]', el => { const [r, d] = el.dataset.mix.split('|'); S.sel.pay[r] = Math.max(0, S.sel.pay[r] + (+d)); paint(); });
+  on('#mixGo', () => act({ t: 'mix', pay: S.sel.pay, n }));
+
+  /* The turn. */
+  on('#skipTurn', () => act({ t: 'skip', n }));
+  on('#pass', () => { if (S.armed !== 'pass') { S.armed = 'pass'; lock(); paint(); return; } act({ t: 'pass', n }); });
+  on('[data-panel]', el => { S.panel = el.dataset.panel; S.sel = null; again(); window.scrollTo(0, 0); });
+  on('#back', () => { S.panel = null; S.sel = null; again(); });
+  on('#hire', () => act({ t: 'hire', n }));
+  on('[data-hire]', el => act({ t: 'hire', src: el.dataset.hire, n }));
+  on('[data-buycard]', el => { const [r, c] = el.dataset.buycard.split('|').map(Number); S.sel = { kind: 'buy', r, c }; again(); window.scrollTo(0, 0); });
+  on('#unsel', () => { S.sel = null; if (S.panel === 'special') S.sel = null; again(); });
+  on('[data-slot]', el => { S.sel.slot = +el.dataset.slot; paint(); });
+  on('[data-pickr]', el => { S.sel.pick = el.dataset.pickr; paint(); });
+  on('[data-gpay]', el => { const [r, d] = el.dataset.gpay.split('|'); S.sel.pay[r] = Math.max(0, S.sel.pay[r] + (+d)); paint(); });
+  on('#buyGo', () => {
+    const s = S.sel;
+    const a = { t: 'buy', r: s.r, c: s.c, slot: s.slot, pick: s.pick, pay: s.pick === 'vp' ? s.pay : undefined, n };
+    if (S.panel === 'galileo') { a.t = 'special'; a.card = S.sel.galileo; }
+    act(a);
+  });
+  on('[data-dep]', el => {
+    const k = +el.dataset.dep;
+    if (S.sel && S.sel.royal) { act({ t: 'special', card: S.sel.royal, slot: k, n }); return; }
+    act({ t: 'deploy', slot: k, n });
+  });
+  on('[data-move]', el => { S.sel = { moveTo: +el.dataset.move }; paint(); });
+  on('[data-from]', el => act({ t: 'deploy', slot: S.sel.moveTo, from: +el.dataset.from, n }));
+  on('[data-undep]', el => { if (locked()) return; lock(); send({ t: 'do', a: { t: 'undeploy', slot: +el.dataset.undep, n } }); });
+  on('[data-special]', el => {
+    const s = S.me.can.specials.find(x => x.card === el.dataset.special);
+    if (!s) return;
+    if (s.act === 'galileo') { S.panel = 'galileo'; S.sel = null; S.galileoCard = s.card; again(); return; }
+    if (s.act === 'royal') { S.panel = 'deploy'; S.sel = { royal: s.card }; again(); return; }
+    if (s.act === 'alhazen') { S.sel = { act: 'alhazen', card: s.card, a: null }; again(); return; }
+    const me = mine();
+    if ((s.act === 'lincoln' || s.act === 'suleiman') && (me.freeTop || ['food', 'stab'].filter(k => me.taken[k] < me.track[k]).length === 1)) {
+      act({ t: 'special', card: s.card, pick: me.freeTop ? undefined : ['food', 'stab'].find(k => me.taken[k] < me.track[k]), n }); return;
+    }
+    S.sel = { act: s.act, card: s.card }; again();
+  });
+  on('[data-sp]', el => {
+    const s = S.sel;
+    if (s.act === 'bolivar') act({ t: 'special', card: s.card, slot: +el.dataset.sp, n });
+    else act({ t: 'special', card: s.card, pick: el.dataset.sp, n });
+  });
+  on('[data-swap]', el => {
+    const pos = el.dataset.swap.split('|').map(Number);
+    if (!S.sel.a) { S.sel.a = pos; paint(); return; }
+    act({ t: 'special', card: S.sel.card, a: S.sel.a, b: pos, n });
+  });
+  /* Galileo's board: the tapped card becomes a buy with no price. */
+  if (S.panel === 'galileo' && S.sel && S.sel.kind === 'buy') S.sel.galileo = S.galileoCard;
+}
+
+$('menuBtn').onclick = () => { if (locked()) return; S.sheet = S.sheet ? null : 'menu'; lock(); paint(); };
+Solo.attach(handle);
+paint();
+</script>
+</body>
+</html>
