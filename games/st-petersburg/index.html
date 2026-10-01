@@ -1,0 +1,1268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>Saint Petersburg — Solo</title>
+<meta name="theme-color" content="#0a1322">
+<style>
+:root{
+  --bg:#0a1322; --panel:#141d33; --panel2:#0f1728; --line:#26304d;
+  --ink:#f3efe4; --dim:#9aa7c4; --gold:#e8c267; --good:#4ac08a; --bad:#e5484d;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);
+  font:16px/1.4 ui-rounded,-apple-system,"Segoe UI",system-ui,sans-serif;
+  padding:env(safe-area-inset-top) 12px calc(18px + env(safe-area-inset-bottom))}
+.hide{display:none !important}
+[hidden]{display:none !important}
+header{display:flex;align-items:center;gap:8px;padding:10px 0 8px;position:sticky;top:0;background:var(--bg);z-index:5}
+#dot{width:12px;height:12px;border-radius:50%;background:var(--gold);flex:none}
+#who{font-weight:800}
+#menuBtn{margin-left:auto;background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:10px;padding:6px 10px;font-size:14px}
+#sheet{position:fixed;inset:0;z-index:40;background:rgba(6,10,20,.85);display:flex;align-items:flex-end;justify-content:center;
+  padding:12px 12px calc(12px + env(safe-area-inset-bottom))}
+#sheet .pane{width:100%;max-width:480px}
+#flash.ok{background:#12291f;border-color:var(--good);color:#d3f5e4}
+.undo{display:block;width:100%;margin-top:8px;background:transparent;border:1px solid var(--line);color:var(--dim);
+  border-radius:12px;padding:11px;font-weight:700;font-size:14px}
+h2{margin:14px 0 6px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.pane{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px}
+.title{font-weight:800;font-size:19px;color:var(--gold)}
+.sub{color:var(--dim);font-size:13px;margin-top:2px}
+button{font:inherit}
+.btn{display:block;width:100%;background:var(--gold);border:0;color:#0b1020;font-weight:800;font-size:17px;
+  border-radius:14px;padding:15px;margin-top:10px}
+.btn:disabled{opacity:.4}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--dim);font-weight:600;font-size:15px}
+.btn.warn{background:transparent;border:1px solid var(--bad);color:#ffb4bb;font-weight:700;font-size:15px}
+
+/* the purse */
+#purse{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;background:var(--panel2);
+  border:1px solid var(--line);border-radius:12px;padding:9px 12px;margin-bottom:8px}
+#purse b{font-size:21px;color:var(--gold)}
+#purse span{font-size:12px;color:var(--dim)}
+#purse .sp{margin-left:auto}
+#purse .proj{flex-basis:100%;font-size:11px;color:var(--dim)}
+#purse .proj b{font-size:11px}
+#purse .asst{font-size:11px;color:var(--gold);border:1px solid var(--gold);border-radius:999px;padding:2px 8px}
+
+/* a card, on a phone */
+.spc{--c:#888;border-radius:11px;padding:7px 9px;background:var(--panel2);border:1px solid var(--line);
+  border-left:5px solid var(--c);display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}
+.spc .chead{display:flex;align-items:center;gap:5px;color:var(--c)}
+.spc .cost{font-weight:800;font-size:15px;color:var(--ink);background:rgba(0,0,0,.3);border-radius:5px;padding:0 6px}
+.spc .pr{margin-left:auto;font-weight:800;font-size:14px;color:var(--gold)}
+.spc .pr.no{color:var(--dim)}
+.spc .cname{font-size:13px;font-weight:700;line-height:1.2}
+.spc .ctag{font-size:11px;color:var(--gold)}
+.spc .cinc{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.spc .cinc .nix{font-size:11px;color:var(--dim)}
+.spc .per{display:flex;align-items:center;gap:2px}
+.spc .per em{font-style:normal;font-size:10px;color:var(--dim)}
+.spc.trade{box-shadow:inset 0 0 0 1px rgba(232,194,103,.4)}
+.spc.purple{background:linear-gradient(180deg,#241b3d,#1a1430)}
+.spc.dim{opacity:.45}
+
+.offer{display:flex;gap:7px;align-items:stretch;margin-bottom:7px}
+.acts{display:flex;flex-direction:column;gap:5px;width:78px;flex:none}
+.acts button{flex:1;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);
+  font-weight:700;font-size:13px;padding:0 4px}
+.acts button.go{background:var(--gold);border-color:var(--gold);color:#0b1020}
+.acts button:disabled{opacity:.3}
+.rowlab{font-size:11px;color:var(--dim);margin:10px 0 5px;letter-spacing:.08em;text-transform:uppercase}
+
+/* the phase banner — loud, and it never covers a control */
+#phase{--c:var(--gold);display:flex;align-items:center;gap:9px;border-radius:14px;padding:11px 13px;
+  margin-bottom:8px;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 34%,transparent),
+  color-mix(in srgb,var(--c) 8%,transparent));border:1px solid var(--c)}
+#phase .pn{font-weight:800;font-size:18px;color:var(--ink)}
+#phase .ps{font-size:11px;color:var(--dim);margin-left:auto;text-align:right;line-height:1.3}
+#phase.fresh{animation:phaseIn 1.6s ease-out}
+@keyframes phaseIn{0%{transform:scale(.94);filter:brightness(2)}100%{transform:none;filter:none}}
+
+/* market roundels and the tracks */
+.good{display:inline-flex;align-items:center;gap:1px;color:var(--g);flex:none}
+.good svg{display:block}
+.good i{font-style:normal;font-weight:800;font-size:.85em;color:var(--ink)}
+.spc.orange{box-shadow:inset 0 0 0 1px rgba(224,140,40,.8)}
+.mkt{display:flex;flex-direction:column;gap:4px}
+.mkthead{display:flex;align-items:baseline;gap:5px;font-size:11px;color:var(--dim)}
+.mkthead b{color:var(--gold);font-size:15px}
+.mkthead u{text-decoration:none}
+.mktrow{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);
+  border-radius:10px;padding:5px 9px}
+.mktname{font-size:12px;color:var(--dim);width:7ch;flex:none}
+.mktbars{display:flex;gap:4px;flex-wrap:wrap}
+.mktbars i{font-style:normal;font-weight:800;font-size:12px;min-width:22px;text-align:center;
+  border-radius:6px;padding:1px 5px;background:var(--panel);border:1px solid var(--p);color:var(--p)}
+.mktbars i.one{background:var(--p);color:#0b1020}
+.mktbars i.two{box-shadow:inset 0 0 0 1px var(--p)}
+.mktbars em{font-style:normal;font-size:11px;color:#5a6690}
+
+/* the stacks, and the stones */
+.stacks{display:flex;gap:5px}
+.stacks div{flex:1;background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+  padding:6px 2px;text-align:center}
+.stacks div.low{border-color:var(--bad)}
+.stacks div.low b{color:var(--bad)}
+.stacks b{display:block;font-size:17px;font-weight:800}
+.stacks span{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.04em}
+.stones{display:flex;flex-direction:column;gap:4px}
+.stones .st{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);
+  border-radius:10px;padding:5px 9px;font-size:13px}
+.stones .st.mine{border-color:var(--gold)}
+.stones .st .ph{flex:1;color:var(--dim)}
+.stones .st.mine .ph{color:var(--ink);font-weight:700}
+.stones .st i{width:10px;height:10px;border-radius:50%;flex:none}
+
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{background:var(--panel2);border:1px solid var(--line);color:var(--dim);border-radius:11px;
+  padding:11px 15px;font-weight:700}
+.seg button.on{background:var(--gold);border-color:var(--gold);color:#0b1020}
+.seg button:disabled{opacity:.3}
+.seg.swatches{gap:10px}
+.seg.swatches .swatch{width:38px;height:38px;padding:0;border-radius:50%;background:var(--sw);
+  border:2px solid transparent}
+.seg.swatches .swatch.on{border-color:#fff;box-shadow:0 0 0 2px var(--sw)}
+
+.row{display:flex;align-items:center;gap:8px;padding:7px 2px;border-top:1px solid var(--line);font-size:14px}
+.row:first-child{border-top:0}
+.row i{width:11px;height:11px;border-radius:50%;flex:none}
+.row em{margin-left:auto;font-style:normal;color:var(--dim);font-size:12px}
+.row b{color:var(--gold)}
+.row .rm{flex:none;margin-left:8px;background:transparent;border:1px solid var(--line);color:var(--dim);
+  border-radius:9px;padding:5px 10px;font-size:12px;font-weight:700}
+.row .rm.push{margin-left:auto}
+.row .rm:disabled{opacity:.35}
+.addbot{display:block;width:100%;margin-top:10px;background:transparent;border:1px dashed var(--gold);
+  color:var(--gold);border-radius:11px;padding:12px;font-weight:800;font-size:15px}
+.addbot:disabled{border:1px solid var(--line);color:var(--dim);font-weight:600}
+
+#flash{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));
+  background:#2a1220;border:1px solid var(--bad);color:#ffd9de;border-radius:12px;padding:11px 13px;
+  font-size:14px;z-index:20}
+
+/* The end-of-phase notice. Unlike the phase banner, this ONE overlay is meant
+   to take the tap: the phase has genuinely stopped moving until it is
+   dismissed, so it is the one place on this handset a full-screen stop is the
+   right shape rather than the ghost-click bug this codebase already knows. */
+#notice{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;
+  background:rgba(6,10,20,.92);padding:24px}
+#notice .noticeCard{background:var(--panel);border:1px solid var(--gold);border-radius:18px;
+  padding:26px 22px;text-align:center;max-width:340px;width:100%}
+#notice .noticeTitle{font-weight:800;font-size:22px;color:var(--gold)}
+#notice .noticeSub{margin-top:6px;color:var(--dim);font-size:14px}
+#notice .btn{margin-top:16px}
+/* the move pop-up */
+#notice .noticeCard.mv{max-width:440px;max-height:100%;display:flex;flex-direction:column;text-align:left;
+  padding:16px 14px 14px}
+.mvTitle{font-weight:800;font-size:20px;color:var(--gold);margin-bottom:10px;flex:none}
+.mvList{overflow-y:auto;display:flex;flex-direction:column;gap:12px;min-height:0;-webkit-overflow-scrolling:touch}
+.mvRow{display:flex;gap:9px;align-items:flex-start}
+.mvRow > i{width:11px;height:11px;border-radius:50%;flex:none;margin-top:6px}
+.mvRow > i.sys{background:var(--dim)}
+.mvRow.early{color:var(--dim);font-size:13px}
+.mvBody{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.mvText{font-size:16px;line-height:1.35;color:var(--dim)}
+.mvRow:last-child .mvText{color:var(--ink);font-weight:700}
+.mvSub{font-size:12px;color:var(--dim)}
+#notice .mv .btn{margin-top:14px;flex:none}
+/* the pause: a phase's payout, or the end of a round */
+#notice{padding:12px}
+#notice .noticeCard.pz{max-width:440px;max-height:100%;overflow-y:auto;text-align:left;padding:16px 14px 0;
+  -webkit-overflow-scrolling:touch}
+.pzHead{--c:var(--gold);display:flex;align-items:center;gap:10px;padding-bottom:10px;margin-bottom:4px;
+  border-bottom:2px solid var(--c)}
+.pzHead .stone{flex:none}
+.pzTitle{font-weight:800;font-size:21px;color:var(--gold);line-height:1.15}
+.pzSub{font-size:13px;color:var(--dim);margin-top:2px}
+.pzRound{margin-left:auto;align-self:flex-start;font-size:11px;color:var(--dim);white-space:nowrap}
+.pzNote{font-size:13px;color:var(--dim);margin:8px 0;line-height:1.5}
+.pzNote b{color:var(--ink)}
+.pzNote b.low{color:var(--bad)}
+.pzNote .warn{color:#ffb4bb;font-weight:700}
+.pzRow{padding:10px 0;border-top:1px solid var(--line)}
+.pzHead + .pzRow, .pzNote + .pzRow{border-top:0}
+.pzRow.mine{background:rgba(232,194,103,.07);border-radius:10px;padding:10px 8px;margin:0 -8px}
+.pzWho{display:flex;align-items:center;gap:8px}
+.pzWho i{width:11px;height:11px;border-radius:50%;flex:none}
+.pzWho b{font-size:16px}
+.pzTake{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.am{font-weight:800;font-size:16px;color:var(--dim)}
+.am.r{color:#f0c552}
+.am.v{color:#ff9f4a}
+.pzItems{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.it{display:inline-flex;align-items:center;gap:4px;font-size:12px;background:var(--panel2);border:1px solid var(--line);
+  border-radius:999px;padding:2px 5px 2px 9px}
+.it svg{display:block;flex:none}
+.it.bad{color:#ffb4bb;border-color:rgba(229,72,77,.5);padding-right:9px}
+.pzItems .none{font-size:12px;color:var(--dim)}
+.pzNow{font-size:12px;color:var(--dim);margin-top:6px}
+.pzNow b{color:var(--gold)}
+.pzNow .am{font-size:12px;margin:0 3px}
+.pzBig{margin-left:auto;font-weight:800;font-size:22px;color:var(--ink)}
+.pzBig u{text-decoration:none;font-size:11px;color:var(--dim);margin-left:4px;font-weight:600}
+.pzBig.lead{color:var(--gold)}
+.pzFirsts{display:flex;flex-direction:column;gap:4px}
+.pzFirsts div{display:flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);
+  border-radius:10px;padding:6px 8px;font-size:12px;min-width:0}
+.pzFirsts span{color:var(--dim);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pzFirsts i{width:9px;height:9px;border-radius:50%;flex:none}
+.pzFirsts b{white-space:nowrap}
+.pzGo{position:sticky;bottom:0;display:flex;align-items:center;gap:10px;padding:12px 0 14px;margin-top:6px;
+  background:linear-gradient(rgba(20,29,51,0),var(--panel) 28%)}
+.pzGo span{font-size:12px;color:var(--dim);white-space:nowrap}
+#notice .pzGo .btn{margin-top:0}
+/* the crier, four lines of it */
+.feed{margin:8px 0 2px;padding:8px 11px;border-left:3px solid var(--line);font-size:13px;color:var(--dim)}
+.feed div{padding:1px 0}
+.feed div.new{color:var(--ink);font-weight:600}
+/* the lobby's join address */
+.joinpane{margin-top:10px}
+.joinurl{font:700 19px/1.3 ui-monospace,Menlo,Consolas,monospace;color:var(--gold);margin-top:6px;word-break:break-all}
+/* everybody's city */
+.city{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:8px;overflow:hidden}
+.city summary{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:10px 12px;cursor:pointer;list-style:none}
+.city summary::-webkit-details-marker{display:none}
+.city summary > i{width:11px;height:11px;border-radius:50%;flex:none}
+.city .nm{font-weight:800}
+.city .tag{font-size:10px;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:0 6px}
+.city .tag.on{color:#0b1020;background:var(--gold);border-color:var(--gold);font-weight:800}
+.city .stn{display:flex;gap:2px}
+.city .pts{margin-left:auto;font-size:12px;color:var(--dim)}
+.city .pts b{color:var(--gold);font-size:14px}
+.city .clist{padding:0 12px 10px;display:flex;flex-direction:column;gap:3px}
+.ch{display:flex;align-items:baseline;gap:6px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--c);margin-top:6px}
+.ch b{color:var(--dim)}
+.stk{--c:#888;display:flex;align-items:center;gap:6px;min-height:24px;border-radius:6px;padding:2px 8px;
+  font-size:13px;background:var(--panel2);border-left:4px solid var(--c)}
+.stk.trade{box-shadow:inset 0 0 0 1px rgba(232,194,103,.4)}
+.stk .c{font-weight:800;color:var(--dim);min-width:1.6em;text-align:right}
+.stk .n{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+.stk .x{color:var(--gold);font-weight:800}
+.stk .i{display:flex;gap:4px;align-items:center;white-space:nowrap}
+.stk .i b{font-weight:800}
+.stk .i b.r-r{color:#f0c552}
+.stk .i b.r-vp{color:#ff9f4a}
+.stk .i i{font-style:normal;color:var(--dim);font-size:.85em}
+.stk.orange{background:linear-gradient(90deg,rgba(224,140,40,.28),rgba(224,140,40,.06))}
+/* the final count */
+.final .brk{font-size:12px;color:var(--dim);margin-top:2px}
+#name{display:flex;gap:8px;margin:10px 0}
+#name input{flex:1;font:inherit;background:var(--panel2);border:1px solid var(--line);color:var(--ink);
+  border-radius:12px;padding:12px}
+</style>
+</head>
+<body>
+
+<header>
+  <span id="dot"></span><span id="who">Saint Petersburg</span>
+  <button id="menuBtn" aria-label="Menu">☰ Menu</button>
+</header>
+
+<div id="main"></div>
+<div id="flash" class="hide"></div>
+<div id="notice" class="hide"></div>
+<div id="sheet" class="hide"></div>
+
+<script src="sp-data.js"></script>
+<script src="sp-engine.js"></script>
+<script src="sp-bots.js"></script>
+<script src="sp-art.js"></script>
+<script src="solo-host.js"></script>
+<script>
+'use strict';
+(function checkVersions() {
+  const missing = [];
+  if (!window.SPData || !window.SPData.MANIFEST) missing.push('sp-data.js');
+  if (!window.SPEngine || window.SPEngine.VERSION !== 1) missing.push('sp-engine.js');
+  if (!window.SPArt || !window.SPArt.card) missing.push('sp-art.js');
+  if (!window.SPBots) missing.push('sp-bots.js');
+  if (!window.SPSolo) missing.push('solo-host.js');
+  if (!missing.length) return;
+  const show = () => {
+    document.body.innerHTML = '<div style="padding:12vw 8vw;text-align:center;font:600 18px/1.5 system-ui;color:#f3efe4">' +
+      '<div style="font-size:26px;color:#e8c267;margin-bottom:12px">This page is out of date</div>' +
+      'Your phone kept an old copy of ' + missing.join(' and ') + '. Reload the page (or close the tab and open it again).</div>';
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', show); else show();
+  throw new Error('stale assets: ' + missing.join(', '));
+})();
+
+const D = window.SPData, A = window.SPArt;
+const $ = id => document.getElementById(id);
+const esc = A.esc;
+
+const Solo = window.SPSolo;
+const HUB_URL = '../../index.html';
+
+/* Phones synthesise a click ~300ms after a touch. Everything is inert for this
+   long after a send, so the tap that bought a card cannot land on whatever is
+   drawn under the finger next. */
+const LOCK_MS = 380;
+
+const S = { id: Solo.ME, name: '', hex: '#e8c267',
+  pub: null, me: null, lockUntil: 0, shape: '', sheet: null, armed: null, greeted: false,
+  /* This phone's own progress through the pause the table is holding: which
+     card it is on, whether it has said it is done, and when. */
+  pz: { id: 0, at: 0, sent: false, doneAt: 0 },
+  /* The move pop-up: how far through the game log this phone has read, the
+     lines not yet dismissed, and where each player's last drawn card came
+     from (the Observatory or the discard pile — the log says so only once). */
+  mv: { game: 0, seen: -1, lines: [], dropped: 0, freshAt: 0, src: {} },
+  folded: {} };
+window.__SPPHONE = S;
+const locked = () => Date.now() < S.lockUntil;
+const lock = () => { S.lockUntil = Date.now() + LOCK_MS; };
+const buzz = ms => { if (navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) {} } };
+
+/* ---------- the table runs in this page (solo-host.js) ---------- */
+const send = m => { Solo.send(m); return true; };
+/* The table and your half of it arrive as two messages: paint once for both. */
+let paintQueued = false;
+const paintSoon = () => { if (paintQueued) return; paintQueued = S.paintPending = true; setTimeout(() => { paintQueued = S.paintPending = false; paint(); }, 0); };
+
+function handle(m) {
+  if (m.t !== 'msg' || !m.msg) return;
+  const msg = m.msg;
+  if (msg.t === 'hello-ok') { S.name = msg.name; S.hex = msg.hex || S.hex; return; }
+  if (msg.t === 'flash') { flash(msg.text); return; }
+  if (msg.t === 'sp') {
+    S.pub = msg;
+    if (msg.lobby) { S.hex = msg.lobby.seated[0].hex; S.name = msg.lobby.seated[0].name; }
+    $('dot').style.background = S.hex;
+    if (!msg.game) { S.me = null; S.mv.lines = []; S.mv.dropped = 0; S.mv.game = 0; }
+    else scanMoves(msg);
+    if (!S.greeted && msg.screen === 'play' && Solo.S.resumed) { S.greeted = true; flash('Welcome back — your game was saved and picks up where you left it.', 'ok'); }
+    paintSoon();
+    return;
+  }
+  if (msg.t === 'sp-me') { S.me = msg.me; paintSoon(); return; }
+}
+
+/* ================================================================
+   The move pop-up.
+   Whenever somebody else does something — buys a card, takes one in hand,
+   plays one from their hand, passes — every other phone gets it in words, in
+   a pop-up that stays until it is dismissed. Moves that land while it is up
+   (three computers in a row, say) join the same pop-up rather than stacking
+   pop-ups a tap each, so nothing is missed and nothing costs more than one tap.
+   Everything in it comes off the public log: a card taken in hand is named
+   because it came off the face-up board in front of everybody, while the card
+   the Observatory turns up is never named unless it is bought or thrown away.
+   Payouts are not here — the pause cards after each phase carry those.
+   ================================================================ */
+const MV_KEY = 'sp.moves';
+function scanMoves(msg) {
+  const mv = S.mv;
+  /* The broadcast carries only the LAST 60 events of the log, so positions
+     are counted over the whole game: `total` events so far, of which `log`
+     is the tail, starting at event number `base`. */
+  const log = msg.game.log || [];
+  const total = typeof msg.logTotal === 'number' ? msg.logTotal : log.length;
+  const base = total - log.length;
+  if (mv.game !== msg.gameNo) {
+    /* A game this page has not been following. If it is the one a reload
+       interrupted, pick up where it left off; otherwise start from now rather
+       than replaying the whole game as pop-ups. */
+    let saved = null;
+    try { saved = JSON.parse(sessionStorage.getItem(MV_KEY) || 'null'); } catch (e) {}
+    mv.game = msg.gameNo; mv.lines = []; mv.dropped = 0; mv.missed = false; mv.src = {};
+    mv.seen = saved && saved.game === msg.gameNo && saved.seen <= total ? saved.seen : total;
+  }
+  if (total < mv.seen) mv.seen = total;
+  /* Asleep through more than the 60 the broadcast keeps: some moves are gone
+     for good, and the pop-up says so rather than pretending otherwise. */
+  if (mv.seen < base) { mv.missed = true; mv.seen = base; }
+  const fresh = [];
+  /* The one time your OWN move is news to you: when the table stopped
+     waiting for you and the computer played it. */
+  let playedForMe = false;
+  for (let n = mv.seen; n < total; n++) {
+    const e = log[n - base];
+    if (e.t === 'hurried' && e.who.indexOf(S.id) >= 0) playedForMe = true;
+    const line = moveLine(e, playedForMe);
+    if (line) fresh.push(line);
+  }
+  mv.seen = total;
+  try { sessionStorage.setItem(MV_KEY, JSON.stringify({ game: mv.game, seen: mv.seen })); } catch (e) {}
+  if (!fresh.length) return;
+  if (!mv.lines.length) buzz(25);
+  mv.lines = mv.lines.concat(fresh);
+  /* A phone that slept through a lot gets the latest dozen, and a count. */
+  if (mv.lines.length > 12) { mv.dropped += mv.lines.length - 12; mv.lines = mv.lines.slice(-12); }
+  mv.freshAt = Date.now();
+}
+
+const aCard = k => { const n = cardName(k); return (/^[aeiou]/i.test(n) ? 'an ' : 'a ') + n; };
+const rubles = n => n + (n === 1 ? ' ruble' : ' rubles');
+function moveLine(e, playedForMe) {
+  const mv = S.mv;
+  /* Where a drawn card came from is said once, when it is drawn — remember it
+     for the keep / buy / throw away that follows. */
+  if (e.t === 'observe') mv.src[e.by] = 'obs';
+  else if (e.t === 'prison') mv.src[e.by] = 'discard';
+  else if (e.t === 'purple' && D.card(e.key) && D.card(e.key).fn === 'blackmarket') mv.src[e.by] = 'discard';
+  if (e.t === 'hurried') {
+    return { by: null, t: 'hurried', text: 'The table stopped waiting for ' +
+      e.who.map(id => (id === S.id ? 'you' : pname(id))).join(' and ') + ' — the computer played the turn.' };
+  }
+  if (!e.by) return null;
+  const mine = e.by === S.id;
+  if (mine && !playedForMe) return null;
+  const P = mine ? 'You' : pname(e.by);
+  const their = mine ? 'your' : 'their';
+  const they = mine ? 'you' : 'they';
+  const discard = mv.src[e.by] === 'discard';
+  const N = cardName;
+  let text = null, key = null, sub = null;
+  switch (e.t) {
+    case 'build': {
+      key = e.key;
+      const over = e.over ? ', building it over ' + their + ' ' + N(e.over) : '';
+      if (e.from === 'hand') text = P + ' played ' + aCard(e.key) + ' from ' + their + ' hand for ' + rubles(e.price) + over + '.';
+      else if (e.from === 'obs') text = P + ' bought ' + (discard ? aCard(e.key) + ' from the discard pile'
+        : 'the ' + N(e.key) + ' ' + they + ' drew with the Observatory') + ' for ' + rubles(e.price) + over + '.';
+      else text = P + ' bought ' + aCard(e.key) + ' for ' + rubles(e.price) + over + '.';
+      break;
+    }
+    case 'hold': key = e.key || null; text = P + ' added ' + (e.key ? aCard(e.key) : 'a card') + ' to ' + their + ' hand.'; break;
+    case 'pass': text = P + ' passed ' + their + ' turn.'; break;
+    case 'observe': text = P + ' used the Observatory to look at the top of the ' + e.deck + ' stack.'; break;
+    case 'prison': text = P + ' used the Debtor’s Prison to search the discard pile.'; break;
+    case 'obs-hand': text = discard ? P + ' took a card from the discard pile into ' + their + ' hand.'
+      : P + ' kept the card ' + they + ' drew with the Observatory, in ' + their + ' hand.'; break;
+    case 'obs-drop': key = e.key; text = discard ? P + ' left the ' + N(e.key) + ' on the discard pile.'
+      : P + ' threw away the ' + N(e.key) + ' ' + they + ' drew with the Observatory.'; break;
+    case 'purple': key = e.key; text = P + ' played the ' + N(e.key) + '.'; sub = (D.card(e.key) || {}).text || null; break;
+    case 'moneycollector': key = e.key; text = P + ' took ' + aCard(e.key) + ' off the board at half price, for ' + rubles(e.price) + '.'; break;
+    case 'moocher': {
+      key = e.key;
+      const got = [e.r ? rubles(e.r) : '', e.vp ? e.vp + ' point' + (e.vp === 1 ? '' : 's') : ''].filter(Boolean).join(' and ');
+      text = P + ' used the Moocher on ' + (e.from === S.id ? 'your' : pname(e.from) + '’s') + ' ' + N(e.key) +
+        (got ? ', taking ' + got : '') + '.';
+      break;
+    }
+    case 'awaywithit': key = e.key; text = P + ' discarded ' + aCard(e.key) + ' from ' + their + ' hand.'; break;
+    case 'jester': key = e.key; text = P + ' put the Jester on ' + their + ' ' + N(e.key) + ': next time it pays rubles as points and points as rubles.'; break;
+    case 'banquet': key = e.key; text = P + ' put the Banquet on ' + their + ' ' + N(e.key) + ': next time it pays double.'; break;
+    case 'wild': text = (mine ? 'Your' : P + '’s') + ' Czar brings ' + A.goodName(e.good).toLowerCase() + ' to market.'; break;
+  }
+  return text ? { by: e.by, t: e.t, text, key, sub } : null;
+}
+
+function paintMoves() {
+  const el = $('notice');
+  const mv = S.mv;
+  const lines = mv.lines;
+  const bys = lines.map(l => l.by);
+  const one = bys.every(b => b && b === bys[0]);
+  const title = one ? (bys[0] === S.id ? 'Played for you' : pname(bys[0]) + (lines.length > 1 ? '’s moves' : '’s move'))
+    : 'What just happened';
+  let h = '<div class="noticeCard mv"><div class="mvTitle">' + esc(title) + '</div><div class="mvList">';
+  if (mv.missed) h += '<div class="mvRow early">…and some earlier moves, while this phone was away.</div>';
+  else if (mv.dropped) h += '<div class="mvRow early">…and ' + mv.dropped + ' earlier move' + (mv.dropped === 1 ? '' : 's') + ' before these.</div>';
+  for (const l of lines) {
+    h += '<div class="mvRow">' + (l.by ? '<i style="background:' + esc(hexOf(l.by)) + '"></i>' : '<i class="sys"></i>') +
+      '<div class="mvBody"><div class="mvText">' + esc(l.text) + '</div>' +
+      (l.key ? A.spine(l.key, 1) : '') + (l.sub ? '<div class="mvSub">' + esc(l.sub) + '</div>' : '') + '</div></div>';
+  }
+  h += '</div><button class="btn" id="mvOk">OK</button></div>';
+  el.innerHTML = h;
+  el.classList.remove('hide');
+  /* The newest move is the one at the bottom; keep it in view. */
+  const list = el.querySelector('.mvList');
+  if (list) list.scrollTop = list.scrollHeight;
+  $('mvOk').onclick = () => {
+    /* A tap that was already on its way when a new line landed must not
+       dismiss a line nobody has read yet. */
+    if (Date.now() - mv.freshAt < 400 || locked()) return;
+    lock();
+    mv.lines = []; mv.dropped = 0; mv.missed = false;
+    paint();
+  };
+}
+
+/* One overlay, two things it can show: somebody's move comes first, because
+   it happened first — the pause after a phase always follows the move that
+   ended it. */
+function paintOverlay() {
+  if (S.mv.lines.length && game()) return paintMoves();
+  paintPause();
+}
+
+/* ================================================================
+   The pause.
+   After every phase that pays, and at the end of every round, the server
+   holds the whole game — the computers and the other phones included — until
+   each person at the table has read what happened and tapped Continue. These
+   are the cards it holds on: the same for everybody, all of it public.
+   This is the one full-screen stop on the handset. It takes the taps rather
+   than losing them, it ignores a tap landing inside the lock window of the
+   one before (so the Pass that ended a phase cannot fall through onto
+   Continue, and a double tap cannot skip a card), and it only goes away when
+   asked to.
+   ================================================================ */
+const PAY_HEAD = {
+  worker: ['Payday', 'The workers pay their rubles.'],
+  market: ['Market day', 'Market cards pay rubles, then the goods tracks pay points.'],
+  building: ['The buildings score', 'Buildings pay their points.'],
+  aristocrat: ['The aristocrats pay out', 'Aristocrats pay rubles and points.']
+};
+const signed = n => (n > 0 ? '+' : '−') + Math.abs(n);
+const who = id => (id === S.id ? 'You' : pname(id));
+const hexOf = id => { const g = game(); const q = g && g.players.find(x => x.id === id); return q ? q.hex : '#888'; };
+const cardName = k => { const c = D.card(k); return c ? c.name : k; };
+
+/* A player's take for the phase, in words: the thing to read first. */
+function takeHtml(r, vp) {
+  const out = [];
+  if (r) out.push('<span class="am r">' + signed(r) + ' ruble' + (Math.abs(r) === 1 ? '' : 's') + '</span>');
+  if (vp) out.push('<span class="am v">' + signed(vp) + ' point' + (Math.abs(vp) === 1 ? '' : 's') + '</span>');
+  return out.join('') || '<span class="am">nothing</span>';
+}
+/* And where it came from, a chip a card — coins and shields, as printed. */
+function chip(label, r, vp) {
+  return '<span class="it">' + esc(label) +
+    (r ? ' ' + A.coin(r > 0 ? r : signed(r), 18) : '') + (vp ? ' ' + A.vp(vp > 0 ? vp : signed(vp), 18) : '') + '</span>';
+}
+function itemHtml(it) {
+  switch (it.k) {
+    case 'card': return chip(cardName(it.key) + (it.n > 1 ? ' ×' + it.n : ''), it.r, it.vp);
+    case 'pub': return chip('the pub', it.r, it.vp);
+    case 'tradinghouse': return chip('Trading House', it.r, it.vp);
+    case 'guildhall': return chip('Guild Hall', it.r, it.vp);
+    case 'sycophant': return it.paid ? chip('Sycophant', it.r, 0) : '<span class="it bad">Sycophant — couldn’t pay, so it’s gone</span>';
+    case 'rent': return chip('rent on the ' + cardName(it.key), it.r, 0);
+    case 'rentno': return '<span class="it bad">gave up the ' + esc(cardName(it.key)) + '</span>';
+    case 'market': return '<span class="it">' + A.good(it.good, 16) + ' ' + (it.place === 1 ? 'first' : 'second') +
+      ' with ' + esc(A.goodName(it.good).toLowerCase()) + ' ' + A.vp(it.vp, 18) + '</span>';
+  }
+  return '';
+}
+const DECK_WORDS = { worker: 'workers', market: 'market', building: 'buildings', aristocrat: 'aristocrats', trading: 'trading' };
+const meFirst = rows => rows.slice().sort((a, b) => (b.id === S.id) - (a.id === S.id));
+
+function paidCardHtml(c) {
+  const def = D.PHASE[c.phase] || { name: c.phase };
+  const head = PAY_HEAD[c.phase] || [def.name + ' pay out', ''];
+  const col = def.color ? D.COLORS[def.color].hex : '#e8c267';
+  let h = '<div class="pzHead" style="--c:' + col + '">' + A.stone(c.phase, 34) +
+    '<div><div class="pzTitle">' + esc(head[0]) + '</div><div class="pzSub">' + esc(head[1]) + '</div></div>' +
+    '<span class="pzRound">Round ' + c.round + '</span></div>';
+  if (c.value) h += '<div class="pzNote">This round the market pays <b>' + c.value[0] + '</b> for first place and <b>' +
+    c.value[1] + '</b> for second.</div>';
+  for (const row of meFirst(c.rows)) {
+    h += '<div class="pzRow' + (row.id === S.id ? ' mine' : '') + '">' +
+      '<div class="pzWho"><i style="background:' + esc(hexOf(row.id)) + '"></i><b>' + esc(who(row.id)) + '</b>' +
+        '<span class="pzTake">' + takeHtml(row.r, row.vp) + '</span></div>' +
+      '<div class="pzItems">' + (row.items.map(itemHtml).join('') ||
+        '<span class="none">' + (row.id === S.id ? 'You have' : 'They have') + ' nothing of this colour yet.</span>') + '</div>' +
+      '<div class="pzNow">' + row.vpNow + ' points on the board' +
+        (row.id === S.id && S.me ? ' · <b>' + S.me.rubles + '</b> rubles in your purse' : '') + '</div></div>';
+  }
+  return h;
+}
+
+function roundCardHtml(c) {
+  let h = '<div class="pzHead" style="--c:#e8c267"><div><div class="pzTitle">End of round ' + c.round + '</div>' +
+    '<div class="pzSub">Where everybody stands, and what this round brought them.</div></div></div>';
+  const lead = c.rows.reduce((m, r) => Math.max(m, r.vpNow), 0);
+  for (const row of meFirst(c.rows)) {
+    const hand = row.id === S.id && S.me ? S.me.hand.length : row.hand;
+    h += '<div class="pzRow' + (row.id === S.id ? ' mine' : '') + '">' +
+      '<div class="pzWho"><i style="background:' + esc(hexOf(row.id)) + '"></i><b>' + esc(who(row.id)) + '</b>' +
+        '<span class="pzBig' + (row.vpNow === lead && lead > 0 ? ' lead' : '') + '">' + row.vpNow + '<u>points</u></span></div>' +
+      '<div class="pzNow">This round ' + takeHtml(row.r, row.vp) +
+        (hand ? ' · ' + hand + ' card' + (hand === 1 ? '' : 's') + ' in hand' : '') +
+        (row.id === S.id && S.me ? ' · <b>' + S.me.rubles + '</b> rubles in your purse' : '') + '</div></div>';
+  }
+  h += '<div class="rowlab">Next round, first to play</div><div class="pzFirsts">' +
+    c.firsts.map(f => '<div>' + A.stone(f.phase, 18) + '<span>' + esc(D.PHASE[f.phase].name) + '</span>' +
+      '<i style="background:' + esc(hexOf(f.id)) + '"></i><b>' + esc(who(f.id)) + '</b></div>').join('') + '</div>';
+  const decks = Object.keys(c.decks || {});
+  h += '<div class="rowlab">Cards left in each stack</div><div class="pzNote">' +
+    decks.map(d => '<b' + (c.decks[d] <= 8 ? ' class="low"' : '') + '>' + c.decks[d] + '</b> ' + esc(DECK_WORDS[d] || d)).join(' · ') +
+    '<br>' + (c.lastRound ? '<span class="warn">The ' + esc(c.endedBy || 'last') + ' stack is out — the next round is the last.</span>'
+      : 'The game ends after the round in which any stack runs out.') + '</div>';
+  return h;
+}
+
+function lastCardHtml(c) {
+  return '<div class="pzHead" style="--c:#e5484d"><div><div class="pzTitle">The last round</div>' +
+    '<div class="pzSub">The last ' + esc(c.deck) + ' card is on the table.</div></div></div>' +
+    '<div class="pzNote">This round is the final one. When it’s over, the city is counted: points on the board, ' +
+    'a bonus for different aristocrats, a point for every ten rubles, and five off for each card left in hand.</div>';
+}
+
+/* What the main screen says while the game is paused. */
+function pauseHeadline(pz) {
+  const others = pz.waiting.filter(id => id !== S.id).map(pname);
+  if (pz.waiting.indexOf(S.id) >= 0 && !S.pz.sent) return 'The scores are in';
+  return others.length ? 'Waiting for ' + others.join(' and ') + ' to read the scores' : 'Carrying on…';
+}
+/* A phone that has gone quiet cannot hold everybody else up for ever: once
+   you have read the cards yourself and the others have had a fair while,
+   you may carry on without them. */
+function canStopWaiting(pz) {
+  return S.pz.id === pz.id && S.pz.sent && pz.waiting.some(id => id !== S.id) &&
+    Date.now() - S.pz.doneAt >= (pz.graceMs || 20000);
+}
+
+function paintPause() {
+  const el = $('notice');
+  const hide = () => { el.classList.add('hide'); el.innerHTML = ''; };
+  const pz = S.pub && S.pub.pause;
+  const g = game();
+  if (!pz || !g || !g.players.some(q => q.id === S.id)) return hide();
+  if (S.pz.id !== pz.id) S.pz = { id: pz.id, at: 0, sent: false, doneAt: 0 };
+  const mine = pz.waiting.indexOf(S.id) >= 0;
+  /* Said "done" but the server never heard (a dropped socket): say it again. */
+  if (S.pz.sent && mine) send({ t: 'ready', pause: pz.id });
+  if (S.pz.sent || !mine) return hide();
+  const i = Math.min(S.pz.at, pz.cards.length - 1);
+  const c = pz.cards[i];
+  const last = i === pz.cards.length - 1;
+  const body = c.k === 'paid' ? paidCardHtml(c) : c.k === 'round' ? roundCardHtml(c) : lastCardHtml(c);
+  el.innerHTML = '<div class="noticeCard pz">' + body +
+    '<div class="pzGo">' + (pz.cards.length > 1 ? '<span>' + (i + 1) + ' of ' + pz.cards.length + '</span>' : '') +
+    '<button class="btn" id="noticeGo">' + (last ? 'Continue' : 'Next') + '</button></div></div>';
+  el.classList.remove('hide');
+  $('noticeGo').onclick = () => {
+    if (locked()) return;
+    lock();
+    if (!last) { S.pz.at = i + 1; paintPause(); return; }
+    S.pz.sent = true; S.pz.doneAt = Date.now();
+    send({ t: 'ready', pause: pz.id });
+    paint();
+    /* Look again once the others have had long enough that you may stop
+       waiting for them. */
+    setTimeout(paint, (pz.graceMs || 20000) + 150);
+  };
+}
+
+let flashTimer = null;
+function flash(text, tone) {
+  clearTimeout(flashTimer);
+  $('flash').textContent = text;
+  $('flash').className = tone || '';
+  $('flash').classList.remove('hide');
+  buzz(40);
+  flashTimer = setTimeout(() => $('flash').classList.add('hide'), Math.max(2600, String(text).length * 45));
+}
+
+/* ---------- helpers ---------- */
+const game = () => S.pub && S.pub.game;
+const pname = id => { const g = game(); const p = g && g.players.find(x => x.id === id); return p ? p.name : '?'; };
+const act = pick => {
+  if (locked()) return;
+  const me = S.me;
+  if (!me || !me.prompt) return;
+  lock();
+  send({ t: 'do', a: { t: me.prompt.t, pick } });
+  /* The display's answer is a round trip away, so the controls die the instant
+     the order is sent rather than when it comes back. Otherwise a nervous
+     thumb buys two cards with one turn.
+     Only if nothing newer has landed in the meantime, though: blanking the
+     prompt unconditionally throws away a reply that has already arrived, which
+     over a socket that answers instantly leaves the handset holding nothing
+     while the table waits on it. */
+  if (S.me === me) S.me = Object.assign({}, me, { prompt: null, sent: true });
+  paint();
+};
+const tell = m => { if (locked()) return; lock(); send(m); };
+
+/* ================================================================
+   Painting
+   ================================================================ */
+function paint() {
+  paintOverlay();
+  paintSheet();
+  const p = S.pub;
+  if (!p) { $('main').innerHTML = '<div class="pane"><div class="title">Setting the table…</div></div>'; return; }
+  if (p.screen === 'lobby') return paintLobby(p);
+  if (p.screen === 'over') return paintOver(p);
+  return paintPlay(p);
+}
+
+function paintLobby(p) {
+  const lv = p.lobby || { seated: [], house: [], size: 0, colors: [] };
+  const myself = lv.seated[0] || { name: '', hex: S.hex };
+  const nBots = lv.house.length;
+  const o = p.opts || {};
+  const onoff = (attr, val, extra) => [['off', false], ['on', true]].map(([lab, v]) => '<button data-' + attr + '="' + v + '"' +
+    (v === !!val ? ' class="on"' : '') + (extra ? extra(v) : '') + '>' + lab + '</button>').join('');
+  let h = '<div class="pane"><div class="title">Saint Petersburg — solo</div>' +
+    '<div class="sub">Twenty-five rubles, four phases a round, and eight cards everybody can see — against the computer.</div>' +
+    '<div class="rowlab" style="margin-top:12px">Your name</div><div id="name" style="margin:0"><input id="nameIn" placeholder="Your name" maxlength="14" autocomplete="off" value="' + esc(myself.name) + '"></div></div>';
+  h += '<h2>At the table</h2><div class="pane">' +
+    '<div class="row"><i style="background:' + esc(myself.hex) + '"></i>' + esc(myself.name) + '<em>you</em></div>' +
+    lv.house.map((s, k) => '<div class="row"><i style="background:' + esc(s.hex) + '"></i>' + esc(s.name) + '<em>computer</em>' +
+      (k === nBots - 1 ? '<button class="rm" data-bots="' + (nBots - 1) + '"' + (nBots > (lv.botsMin || 1) ? '' : ' disabled') + '>Remove</button>' : '') + '</div>').join('') +
+    '<button class="addbot" data-bots="' + (nBots + 1) + '"' + (nBots < (lv.botsMax || 3) ? '' : ' disabled') + '>' +
+      (nBots < (lv.botsMax || 3) ? '+ Add a computer player' : 'The table is full — four is the most') + '</button>' +
+    (lv.shape ? '<div class="sub" style="margin-top:8px">' + esc(lv.shape) + '</div>' : '') + '</div>';
+  h += '<h2>Your colour</h2><div class="pane"><div class="seg swatches" id="segColor">' +
+    (lv.colors || []).map(hex => '<button class="swatch' + (hex === myself.hex ? ' on' : '') + '" data-hex="' + hex + '" style="--sw:' + hex + '"></button>').join('') + '</div></div>';
+  h += '<h2>The Market</h2><div class="pane"><div class="seg" id="segMarket">' + onoff('market', o.market) +
+    '</div><div class="sub" style="margin-top:8px">A fifth phase between the workers and the buildings, 35 more cards, and five goods to be first to market with.</div></div>';
+  h += '<h2>Module 1 · The Banquet</h2><div class="pane"><div class="seg" id="segBanquet">' + onoff('banquet', o.banquet) +
+    '</div><div class="sub" style="margin-top:8px">Three replacement cards, plus twelve free purple ones — a double turn, a jester, a black market and more.</div>' +
+    '<div class="seg" id="segPurple" style="margin-top:8px">' +
+    [['without purple', false], ['with purple', true]].map(([lab, v]) => '<button data-purple="' + v + '"' + (v === !!o.banquetPurple ? ' class="on"' : '') +
+      (o.banquet ? '' : ' disabled') + '>' + lab + '</button>').join('') + '</div></div>';
+  h += '<h2>Module 2 · In Good Company</h2><div class="pane"><div class="seg" id="segCompany">' + onoff('company', o.company) +
+    '</div><div class="sub" style="margin-top:8px">Twelve more cards: three buildings, an aristocrat, seven exchange cards.</div></div>';
+  h += '<h2>Module 3 · The Assistants</h2><div class="pane"><div class="seg" id="segAssistants">' +
+    onoff('assistants', o.assistants, v => (v && !o.market ? ' disabled' : '')) +
+    '</div><div class="sub" style="margin-top:8px">One helper a seat, discounting a colour of card — needs the Market.</div></div>';
+  h += '<h2>How fast the computer plays</h2><div class="pane"><div class="seg" id="segPace">' +
+    ['slow', 'relaxed', 'brisk'].map(k => '<button data-pace="' + k + '"' + (k === o.pace ? ' class="on"' : '') + '>' + k + '</button>').join('') + '</div></div>';
+  h += '<button class="btn" id="goStart">Lay out the workers</button>' +
+    '<button class="btn ghost" id="goHub">Back to the Game Hub</button>';
+  $('main').innerHTML = h;
+  const nameIn = $('nameIn');
+  nameIn.onchange = () => send({ t: 'opt', key: 'name', value: nameIn.value });
+  document.querySelectorAll('#segColor button').forEach(b => { b.onclick = () => tell({ t: 'color', hex: b.dataset.hex }); });
+  document.querySelectorAll('[data-bots]').forEach(b => { if (!b.disabled) b.onclick = () => tell({ t: 'opt', key: 'bots', value: +b.dataset.bots }); });
+  document.querySelectorAll('#segPace button').forEach(b => { b.onclick = () => tell({ t: 'opt', key: 'pace', value: b.dataset.pace }); });
+  document.querySelectorAll('#segMarket button').forEach(b => { b.onclick = () => tell({ t: 'opt', key: 'market', value: b.dataset.market === 'true' }); });
+  document.querySelectorAll('#segBanquet button').forEach(b => { b.onclick = () => tell({ t: 'opt', key: 'banquet', value: b.dataset.banquet === 'true' }); });
+  document.querySelectorAll('#segPurple button').forEach(b => { if (!b.disabled) b.onclick = () => tell({ t: 'opt', key: 'banquetPurple', value: b.dataset.purple === 'true' }); });
+  document.querySelectorAll('#segCompany button').forEach(b => { b.onclick = () => tell({ t: 'opt', key: 'company', value: b.dataset.company === 'true' }); });
+  document.querySelectorAll('#segAssistants button').forEach(b => { if (!b.disabled) b.onclick = () => tell({ t: 'opt', key: 'assistants', value: b.dataset.assistants === 'true' }); });
+  $('goStart').onclick = () => {
+    if (locked()) return;
+    lock();
+    S.mv = { game: 0, seen: -1, lines: [], dropped: 0, freshAt: 0, src: {} };
+    send({ t: 'start' });
+    window.scrollTo(0, 0);
+  };
+  $('goHub').onclick = () => { location.href = HUB_URL; };
+}
+
+/* ---------------- the menu ---------------- */
+function paintSheet() {
+  const el = $('sheet');
+  if (!S.sheet) { el.classList.add('hide'); el.innerHTML = ''; return; }
+  const playing = S.pub && S.pub.screen === 'play';
+  el.innerHTML = '<div class="pane">' + (S.sheet === 'abandon'
+    ? '<div class="title">Abandon this game?</div><div class="sub">The saved game on this phone is thrown away and you go back to the setup screen.</div>' +
+      '<button class="btn warn" id="shAbandonGo">Abandon the game</button><button class="btn ghost" id="shClose">Keep playing</button>'
+    : '<div class="title">Menu</div>' +
+      (playing ? '<button class="btn ghost" id="shAbandon">Abandon this game</button>' : '') +
+      '<button class="btn ghost" id="shHub">' + (playing ? 'Back to the Game Hub (your game is saved)' : 'Back to the Game Hub') + '</button>' +
+      '<button class="btn" id="shClose">Close</button>') + '</div>';
+  el.classList.remove('hide');
+  const on = (id, fn) => { const b = $(id); if (b) b.onclick = () => { if (!locked()) { lock(); fn(); } }; };
+  on('shClose', () => { S.sheet = null; paint(); });
+  on('shAbandon', () => { S.sheet = 'abandon'; paint(); });
+  on('shHub', () => { location.href = HUB_URL; });
+  on('shAbandonGo', () => { S.sheet = null; send({ t: 'abandon' }); });
+  el.onclick = e => { if (e.target === el && !locked()) { S.sheet = null; paint(); } };
+}
+
+function paintPlay(p) {
+  const g = p.game, me = S.me;
+  if (!g || !me) { $('main').innerHTML = '<div class="pane"><div class="title">Watching</div>' +
+    '<div class="sub">The table is full — this one is being played by the people already seated.</div></div>'; return; }
+  /* While the table is reading the scores, nothing on this phone is live —
+     the server would refuse it anyway. */
+  const pz = p.pause;
+  const pr = pz ? null : me.prompt;
+  /* The phase, loud, at the top of every screen. NOT a modal: a full-screen
+     card on a handset either covers the buttons or gets tapped through, and a
+     phone that steals a tap at the moment a phase changes is the ghost-click
+     bug this whole codebase has learned about the hard way. The telly gets the
+     modal; the phone gets a banner it cannot miss and cannot be hurt by. */
+  const def = D.PHASE[g.phase] || { name: g.phase, color: null };
+  const pcol = def.color ? D.COLORS[def.color].hex : '#8a7cc4';
+  const k = g.phases.indexOf(g.phase);
+  const firstId = g.order && g.order[0];
+  const fresh = S.sawPhase !== (g.round + ':' + g.phase);
+  S.sawPhase = g.round + ':' + g.phase;
+  let h = '<div id="phase" class="' + (fresh ? 'fresh' : '') + '" style="--c:' + pcol + '">' +
+    A.stone(g.phase, 26) + '<span class="pn">' + esc(def.name) + '</span>' +
+    '<span class="ps">Round ' + g.round + ' · phase ' + (k + 1) + ' of ' + g.phases.length +
+    (firstId ? '<br>' + esc(pname(firstId)) + ' went first' : '') +
+    (g.lastRound ? '<br><b style="color:var(--bad)">last round</b>' : '') + '</span></div>';
+  /* The points you have actually scored, which is the number the printed board
+     tracks — and, underneath, what the end bonuses would make of it. */
+  const myPub = g.players.find(x => x.id === S.id);
+  h += '<div id="purse"><b>' + me.rubles + '</b><span>rubles</span>' +
+    '<b class="sp">' + me.vp + '</b><span>points</span>' +
+    (myPub && myPub.assistant ? '<span class="asst" title="' + esc(D.ASSISTANTS[myPub.assistant].note) + '">' +
+      esc(D.ASSISTANTS[myPub.assistant].name) + '</span>' : '') +
+    '<span class="proj"><b>' + me.score.total + '</b> if the game ended now — ' +
+    me.score.nobles + ' for ' + me.score.nobleKinds + ' different aristocrats, ' +
+    me.score.money + ' for your rubles' +
+    (me.score.hand ? ', ' + me.score.hand + ' for your hand' : '') + '</span></div>';
+
+  h += '<div class="pane"><div class="title">' +
+    (pz ? esc(pauseHeadline(pz)) : pr ? headline(pr) : (g.phase === 'over' ? 'Counting up' : esc(pname(g.turn) + ' is playing'))) + '</div>' +
+    '<div class="sub">' + esc(pz ? 'The next phase starts when everybody has read the scores.' : (def.blurb || '')) + '</div>' +
+    '</div>' +
+    (!pz && p.undo ? '<button class="undo" id="goUndo">↶ Undo ' + esc(p.undo.what) + '</button>' : '');
+  h += feedPane(g);
+
+  if (pr && pr.t === 'turn') h += turnPane(g, me, pr);
+  else if (pr && pr.t === 'trade') h += tradePane(me, pr);
+  else if (pr && pr.t === 'pub') h += pubPane(me, pr);
+  else if (pr && pr.t === 'obs') h += obsPane(me, pr);
+  else if (pr && pr.t === 'wild') h += wildPane(me, pr);
+  else if (pr && pr.t === 'upkeep') h += upkeepPane(me, pr);
+  else if (pr && pr.t === 'tradinghouse') h += tradingHousePane(me, pr);
+  else if (pr && pr.t === 'guildhall') h += guildHallPane(pr);
+  else if (pr && pr.t === 'salvage') h += salvagePane(pr);
+  else if (pr && pr.t === 'moneycollector') h += moneyCollectorPane(me, pr);
+  else if (pr && pr.t === 'jester') h += assignPane(g, pr, 'jester');
+  else if (pr && pr.t === 'banquet') h += assignPane(g, pr, 'banquet');
+  else if (pr && pr.t === 'moocher') h += moocherPane(g, pr);
+  else if (pr && pr.t === 'awaywithit') h += awayWithItPane(me, pr);
+  else h += handPane(me, null) + boardPane(me) + waitPane(p, g);
+  h += citiesPane(g, me);
+  h += tablePane(g, me);
+
+  /* Which cities are folded away is this phone's own business, and has to
+     survive the repaint that every move triggers. */
+  const y = window.scrollY;
+  $('main').innerHTML = h;
+  window.scrollTo(0, y);
+  document.querySelectorAll('details[data-city]').forEach(d => {
+    d.ontoggle = () => { S.folded[d.dataset.city] = !d.open; };
+  });
+  wire();
+}
+
+/* ================================================================
+   What the telly used to show, now that there isn't one.
+   ================================================================ */
+
+/* The last few things that happened, in words — the crier, on a phone. */
+function words(g, e) {
+  const P = id => (id === S.id ? 'You' : pname(id));
+  const NAME = k => { const c = D.card(k); return c ? c.name : k; };
+  const you = id => id === S.id;
+  switch (e.t) {
+    case 'phase': return (D.PHASE[e.phase] ? D.PHASE[e.phase].name : e.phase) + ' — ' + P(e.first) + ' first.';
+    case 'build': return P(e.by) + (you(e.by) ? ' pay ' : ' pays ') + e.price + ' for the ' + NAME(e.key) +
+      (e.over ? ', over the ' + NAME(e.over) : '') + '.';
+    case 'hold': return P(e.by) + (you(e.by) ? ' take' : ' takes') + ' a card in hand.';
+    case 'purple': return P(e.by) + (you(e.by) ? ' play ' : ' plays ') + 'the ' + NAME(e.key) + '.';
+    case 'moneycollector': return P(e.by) + ' took the ' + NAME(e.key) + ' at half price (' + e.price + ').';
+    case 'moocher': return P(e.by) + ' mooched the ' + NAME(e.key) + ' off ' + P(e.from) + '.';
+    case 'pass': return P(e.by) + (you(e.by) ? ' pass.' : ' passes.');
+    case 'score': return P(e.by) + (you(e.by) ? ' score ' : ' scores ') +
+      [e.r ? e.r + ' rubles' : '', e.vp ? e.vp + ' points' : ''].filter(Boolean).join(' and ') + '.';
+    case 'pub': return P(e.by) + (you(e.by) ? ' buy ' : ' buys ') + e.points + ' point' + (e.points > 1 ? 's' : '') + ' at the pub for ' + e.paid + '.';
+    case 'observe': return P(e.by) + (you(e.by) ? ' look' : ' looks') + ' at the top of the ' + e.deck + ' stack.';
+    case 'obs-hand': return P(e.by) + (you(e.by) ? ' keep' : ' keeps') + ' what the observatory turned up.';
+    case 'obs-drop': return P(e.by) + (you(e.by) ? ' throw' : ' throws') + ' the ' + NAME(e.key) + ' away.';
+    case 'market': {
+      if (!e.first || !e.first.length) return null;
+      const who = ids => ids.map(P).join(' and ');
+      return A.goodName(e.good) + ': ' + who(e.first) + ' ' + e.value[0] +
+        (e.second && e.second.length ? ', ' + who(e.second) + ' ' + e.value[1] : '') + '.';
+    }
+    case 'wild': return P(e.by) + ' sent the Czar to market with the ' + A.goodName(e.good).toLowerCase() + '.';
+    case 'rent': return P(e.by) + ' paid ' + e.paid + ' rent on the ' + NAME(e.key) + '.';
+    case 'rent-no': return P(e.by) + ' gave up the ' + NAME(e.key) + '.';
+    case 'lastcard': return 'The last ' + e.deck + ' card is out — this is the last round.';
+    case 'round': return e.ending ? null : 'Round ' + e.round + ' is done. The stones move on.';
+    case 'hurried': return 'The table stopped waiting for ' + e.who.map(P).join(' and ') + '.';
+  }
+  return null;
+}
+function feedPane(g) {
+  const lines = [];
+  const log = g.log || [];
+  for (let i = log.length - 1; i >= 0 && lines.length < 4; i--) {
+    /* Scores are on the notice card already; here they would push the moves
+       that matter off the bottom of a four-line window. */
+    if (log[i].t === 'score') continue;
+    const w = words(g, log[i]);
+    if (w) lines.push(w);
+  }
+  if (!lines.length) return '';
+  return '<div class="feed">' + lines.map((w, k) => '<div' + (k ? '' : ' class="new"') + '>' + esc(w) + '</div>').join('') + '</div>';
+}
+
+/* The board while it is somebody else's go: the same cards at the prices this
+   phone would pay, with no buttons — so you can plan while you wait. */
+function boardPane(me) {
+  const rows = { top: [], bottom: [] };
+  for (const o of me.board || []) rows[o.row].push(o);
+  const draw = o => '<div class="offer">' + A.card(o.key, { price: o.price, tag: D.card(o.key).text || '' }) + '</div>';
+  return '<div class="rowlab">On the table</div>' + (rows.top.map(draw).join('') || '<div class="sub">none</div>') +
+    (rows.bottom.length ? '<div class="rowlab">Left over — a ruble cheaper</div>' + rows.bottom.map(draw).join('') : '');
+}
+
+/* Everybody's city — what the telly's four play areas were. Identical cards
+   stack into one line with a count, as they do on a real table. */
+function citiesPane(g, me) {
+  const order = g.players.slice().sort((a, b) => (b.id === S.id) - (a.id === S.id));
+  let h = '<h2>Cities</h2>';
+  for (const q of order) {
+    const mine = q.id === S.id;
+    const cols = D.COLOR_IDS.map(c => {
+      const list = (q.area && q.area[c]) || [];
+      if (!list.length) return '';
+      const groups = [];
+      for (const i of list) {
+        const x = groups.find(y => y.key === i.key && y.wild === (i.good || null));
+        if (x) x.n++; else groups.push({ key: i.key, n: 1, wild: i.good || null });
+      }
+      return '<div class="ch" style="--c:' + D.COLORS[c].hex + '"><span>' + esc(D.COLORS[c].name) + '</span><b>' + list.length + '</b></div>' +
+        groups.map(x => A.spine(x.key, x.n, x.wild)).join('');
+    }).join('');
+    const stones = (q.markers || []).map(m => A.stone(m, 15)).join('');
+    const handCount = mine ? me.hand.length : q.hand;
+    h += '<details class="city" data-city="' + esc(q.id) + '"' + (S.folded[q.id] ? '' : ' open') + '>' +
+      '<summary><i style="background:' + esc(q.hex) + '"></i><span class="nm">' + esc(mine ? 'You' : q.name) + '</span>' +
+      (q.bot ? '<span class="tag">computer</span>' : '') +
+      (q.id === g.turn && g.phase !== 'over' ? '<span class="tag on">to play</span>' : '') +
+      '<span class="stn">' + stones + '</span>' +
+      '<span class="pts"><b>' + q.vp + '</b> pts' + (mine ? ' · <b>' + me.rubles + '</b> r' : ' · ? r') +
+      ' · ' + handCount + ' in hand</span></summary>' +
+      '<div class="clist">' + (cols || '<div class="sub">Nothing built yet.</div>') + '</div></details>';
+  }
+  return h;
+}
+
+function headline(pr) {
+  if (pr.t === 'turn') return 'Your turn';
+  if (pr.t === 'trade') return 'What does it go over?';
+  if (pr.t === 'pub') return 'The pub';
+  if (pr.t === 'obs') return 'The observatory';
+  if (pr.t === 'wild') return 'What does the Czar bring?';
+  if (pr.t === 'upkeep') return 'Rent at the market';
+  if (pr.t === 'tradinghouse') return 'The Trading House';
+  if (pr.t === 'guildhall') return 'The Guild Hall';
+  if (pr.t === 'salvage') return 'The discard pile';
+  if (pr.t === 'moneycollector') return 'The Money Collector';
+  if (pr.t === 'jester') return 'The Jester';
+  if (pr.t === 'banquet') return 'The Banquet';
+  if (pr.t === 'moocher') return 'The Moocher';
+  if (pr.t === 'awaywithit') return 'Away With It!';
+  return 'Your turn';
+}
+
+/* The Czar's roundel is whichever good its owner names, once, out of whatever
+   tiles are still in the supply. */
+function wildPane(me, pr) {
+  let h = '<div class="pane"><div class="sub">The Czar can do it all. Name a good and he brings it to ' +
+    'market for the rest of the game — and that good’s tile leaves the supply for good.</div></div>' +
+    '<div class="seg" style="margin-top:10px">';
+  for (const o of pr.options) {
+    const mine = (me.goods && me.goods[o]) || 0;
+    h += '<button data-go="' + esc(o) + '">' + A.good(o, 20) + ' ' + esc(A.goodName(o)) +
+      (mine ? ' <b style="color:var(--gold)">' + mine + '</b>' : '') + '</button>';
+  }
+  return h + '</div>';
+}
+
+/* Rent on an orange crate, every market scoring, at the market's rising value.
+   Stop paying and all four roundels go back. */
+function upkeepPane(me, pr) {
+  const c = pr.card ? D.card(pr.card.key) : null;
+  const good = c && c.good;
+  const mine = (good && me.goods && me.goods[good]) || 0;
+  let h = '<div class="pane"><div class="sub">The <b>' + esc(c ? c.name : 'crate') + '</b> wants <b>' +
+    pr.rent + ' rubles</b> of rent. You have ' + me.rubles + '. Give it up and the four ' +
+    esc(A.goodName(good).toLowerCase()) + ' it is holding go straight back — you would drop from <b>' +
+    mine + '</b> to <b>' + Math.max(0, mine - 4) + '</b>.</div></div>';
+  if (c) h += '<div class="rowlab">The crate</div><div class="offer">' + A.card(c.key, {}) + '</div>';
+  h += '<div class="seg" style="margin-top:10px">' +
+    '<button data-go="pay"' + (pr.options.includes('pay') ? '' : ' disabled') + '>Pay ' + pr.rent + '</button>' +
+    '<button data-go="drop">Give it up</button></div>';
+  return h;
+}
+
+/* Module 2's Trading House: the same shape as the pub, at its own rate and
+   its own once-a-round cap. */
+function tradingHousePane(me, pr) {
+  let h = '<div class="pane"><div class="sub">3 rubles for 2 points, up to ' + pr.max +
+    ' time' + (pr.max === 1 ? '' : 's') + '. You have ' + me.rubles + '.</div></div><div class="seg" style="margin-top:10px">';
+  for (const o of pr.options) h += '<button data-go="' + o + '">' + o + '×</button>';
+  return h + '</div>';
+}
+
+/* Module 2's Guild Hall: four points of income, split however you like. */
+function guildHallPane(pr) {
+  let h = '<div class="pane"><div class="sub">The Guild Hall: split 4 between rubles and points, ' +
+    'however you like.</div></div><div class="seg" style="margin-top:10px">';
+  for (const o of pr.options) {
+    const r = +o, vp = 4 - r;
+    h += '<button data-go="' + o + '">' + r + 'r / ' + vp + 'vp</button>';
+  }
+  return h + '</div>';
+}
+
+/* Module 2's Debtor's Prison and Module 1's Black Market: search the discard
+   pile. The list is only ever sent to the seat actually searching it — see
+   the `discard` field seatView() adds just for this prompt. */
+function salvagePane(pr) {
+  let h = '<div class="pane"><div class="sub">Choose 1 card from the discard pile.</div></div>';
+  for (const c of pr.discard || []) {
+    h += '<div class="offer">' + A.card(c.key, {}) +
+      '<div class="acts"><button data-go="' + c.uid + '" class="go">Choose</button></div></div>';
+  }
+  return h;
+}
+
+/* Module 1's Money Collector: half price, off the board, worth no points and
+   never replaceable — the price shown on the board is the FULL price, so the
+   half is worked out here rather than sent twice. */
+function moneyCollectorPane(me, pr) {
+  let h = '<div class="pane"><div class="sub">Pay half the cost, rounded down. It will be worth no ' +
+    'points, and nobody can ever build over it.</div></div><div class="rowlab">Off the board</div>';
+  for (const uid of pr.options) {
+    const o = me.board.find(x => x.uid === uid);
+    if (!o) continue;
+    h += '<div class="offer">' + A.card(o.key, { price: Math.floor(o.price / 2), tag: 'half price' }) +
+      '<div class="acts"><button data-go="' + uid + '" class="go">Take</button></div></div>';
+  }
+  return h;
+}
+
+/* Cards on the board are the whole room's business, so both the Jester and
+   the Moocher can be answered straight off the public `g.players` the phone
+   already has — no extra half of the wire just for these. */
+function findOwnCard(g, uid) {
+  const mine = g.players.find(x => x.id === S.id);
+  if (!mine) return null;
+  for (const col of D.COLOR_IDS) { const hit = (mine.area[col] || []).find(i => i.uid === uid); if (hit) return hit; }
+  return null;
+}
+function findAnyCard(g, uid) {
+  for (const q of g.players) for (const col of D.COLOR_IDS) {
+    const hit = (q.area[col] || []).find(i => i.uid === uid);
+    if (hit) return { inst: hit, owner: q };
+  }
+  return null;
+}
+
+/* Module 1's Jester and Banquet: assign to one of this seat's own cards, for
+   exactly its next scoring. */
+function assignPane(g, pr, which) {
+  const verb = which === 'jester' ? 'swap' : 'double';
+  let h = '<div class="pane"><div class="sub">Choose one of your own cards to ' + verb +
+    ' its ruble and point value, next time it scores.</div></div>';
+  for (const uid of pr.options) {
+    const hit = findOwnCard(g, uid);
+    if (!hit) continue;
+    const c = D.card(hit.key);
+    const preview = which === 'jester' ? (c.vp + 'r / ' + c.r + 'vp') : ((c.r * 2) + 'r / ' + (c.vp * 2) + 'vp');
+    h += '<div class="offer">' + A.card(c.key, { tag: 'becomes ' + preview }) +
+      '<div class="acts"><button data-go="' + uid + '" class="go">Choose</button></div></div>';
+  }
+  return h;
+}
+
+/* Module 1's Moocher: an opponent's card, scored for the thief instead. */
+function moocherPane(g, pr) {
+  let h = '<div class="pane"><div class="sub">Choose an opponent’s card. Score its income for ' +
+    'yourself instead — right now.</div></div>';
+  for (const uid of pr.options) {
+    const hit = findAnyCard(g, uid);
+    if (!hit) continue;
+    h += '<div class="offer">' + A.card(hit.inst.key, { tag: 'from ' + esc(hit.owner.name) }) +
+      '<div class="acts"><button data-go="' + uid + '" class="go">Take</button></div></div>';
+  }
+  return h;
+}
+
+/* Module 1's Away With It!: any card left in this seat's own hand. */
+function awayWithItPane(me, pr) {
+  let h = '<div class="pane"><div class="sub">Discard a card from your hand.</div></div>';
+  for (const uid of pr.options) {
+    const o = me.hand.find(x => x.uid === uid);
+    if (!o) continue;
+    h += '<div class="offer">' + A.card(o.key, {}) +
+      '<div class="acts"><button data-go="' + uid + '" class="go">Discard</button></div></div>';
+  }
+  return h;
+}
+
+/* What everybody else can see: the tracks, the stacks and the stones. Drawn
+   under whatever is being asked, so it is never in the way of a tap but is
+   always one thumb-scroll away. */
+function tablePane(g, me) {
+  let h = '';
+  if (g.market) {
+    h += '<h2>The market</h2>' + A.marketPanel(g);
+  }
+  h += '<h2>Cards left in each stack</h2><div class="stacks">';
+  const thin = g.phases.map(ph => D.PHASE[ph].deck)
+    .reduce((m, d) => (g.decks[d] < g.decks[m] ? d : m), D.PHASE[g.phases[0]].deck);
+  for (const ph of g.phases) {
+    const d = D.PHASE[ph].deck;
+    h += '<div class="' + (d === thin && g.decks[d] <= 8 ? 'low' : '') + '"><b>' + g.decks[d] + '</b>' +
+      '<span>' + esc(shortDeck(d)) + '</span></div>';
+  }
+  h += '</div>';
+  h += '<h2>Who goes first each round</h2><div class="stones">';
+  for (const ph of g.phases) {
+    const holder = g.players.find(q => q.markers.indexOf(ph) >= 0);
+    h += '<div class="st' + (holder && holder.id === S.id ? ' mine' : '') + '">' + A.stone(ph, 20) +
+      '<span class="ph">' + esc(D.PHASE[ph].name) + '</span>' +
+      (holder ? '<i style="background:' + esc(holder.hex) + '"></i>' +
+        '<span>' + esc(holder.id === S.id ? 'you' : holder.name) + '</span>' : '') + '</div>';
+  }
+  return h + '</div>';
+}
+const shortDeck = d => ({ worker: 'workers', market: 'market', building: 'buildings',
+  aristocrat: 'nobles', trading: 'trading' }[d] || d);
+
+/* The board, as prices only this phone knows. Every card gets the two buttons
+   it could ever have, and the one that is not legal right now is simply off —
+   a button that vanishes between repaints is how a thumb ends up pressing the
+   thing that took its place. */
+function turnPane(g, me, pr) {
+  const opts = pr.options;
+  const rows = { top: [], bottom: [] };
+  for (const o of me.board) rows[o.row].push(o);
+  let h = '';
+  const draw = (o) => {
+    const c = D.card(o.key);
+    /* A purple card is never bought straight onto the board — it has to go
+       to hand first, same as everything else, so there is no Buy button for
+       it at all rather than one sitting there disabled. */
+    const tag = c.purple ? 'free — take it in hand, play it later'
+      : c.group === 'trading'
+      ? (o.targets ? 'over one of yours' : 'nothing to build it over')
+      : (c.text || '');
+    return '<div class="offer">' +
+      A.card(o.key, { price: o.price, afford: o.canBuy || o.canPlay, tag: tag,
+        cls: (o.canBuy || o.canHand || o.canPlay) ? '' : 'dim' }) +
+      '<div class="acts">' +
+      (c.purple ? '' : '<button data-go="buy:' + o.uid + '" class="go"' + (o.canBuy ? '' : ' disabled') + '>Buy</button>') +
+      '<button data-go="hand:' + o.uid + '"' + (o.canHand ? '' : ' disabled') + '>Hand</button>' +
+      '</div></div>';
+  };
+  h += handPane(me, pr);
+  h += '<div class="rowlab">This round’s cards</div>' + (rows.top.map(draw).join('') || '<div class="sub">none</div>');
+  h += '<div class="rowlab">Left over — a ruble cheaper</div>' + (rows.bottom.map(draw).join('') || '<div class="sub">none</div>');
+
+  const obs = opts.filter(o => o.slice(0, 4) === 'obs:');
+  if (obs.length) {
+    h += '<div class="rowlab">The observatory — look at a stack</div><div class="seg" id="segObs">' +
+      obs.map(o => '<button data-go="' + o + '">' + o.slice(4) + '</button>').join('') + '</div>';
+  }
+  const prison = opts.find(o => o.slice(0, 7) === 'prison:');
+  if (prison) h += '<button class="btn ghost" data-go="' + prison + '">The Debtor’s Prison — search the discard pile</button>';
+  if (opts.includes('pass')) h += '<button class="btn ghost" data-go="pass">Pass</button>';
+  return h;
+}
+
+/* The hand is the only thing on this page nobody else can see. It is drawn
+   whether or not it is this phone's turn, because holding three cards and not
+   being able to look at them is the one thing a handset must never do. */
+function handPane(me, pr) {
+  if (!me.hand.length) return '<div class="rowlab">Your hand — empty (' + me.handLimit + ' slots)</div>';
+  /* A purple card left in hand does not cost the usual five points — it is
+     free either way, so the penalty note only applies if something else is
+     in there too. */
+  const penalised = me.hand.some(o => !D.card(o.key).purple);
+  let h = '<div class="rowlab">Your hand — ' + me.hand.length + ' of ' + me.handLimit +
+    (penalised ? ', minus five points each at the end' : ' — free, none of it costs you at the end') + '</div>';
+  for (const o of me.hand) {
+    const c = D.card(o.key);
+    h += '<div class="offer">' +
+      A.card(o.key, { price: o.price, afford: o.canPlay, tag: c.text || '', cls: o.canPlay ? '' : 'dim' }) +
+      '<div class="acts"><button data-go="play:' + o.uid + '" class="go"' +
+      (pr && o.canPlay ? '' : ' disabled') + '>Play</button></div></div>';
+  }
+  return h;
+}
+
+function tradePane(me, pr) {
+  const list = pr.targets || [];
+  let h = '<div class="pane"><div class="sub">The ' + esc(D.card(pr.card.key).name) +
+    ' is bought. It is built over one of your own cards, and the one you choose sets what it costs — ' +
+    'the bigger the card you cover, the less you pay for it.</div></div>';
+  h += '<div class="rowlab">Yours</div>';
+  for (const t of list) {
+    h += '<div class="offer">' + A.card(t.key, { price: t.price, tag: 'pay ' + t.price }) +
+      '<div class="acts"><button data-go="' + t.uid + '" class="go">Build</button></div></div>';
+  }
+  return h;
+}
+
+function pubPane(me, pr) {
+  let h = '<div class="pane"><div class="sub">Two rubles a point, up to ' + pr.max +
+    ' of them. You have ' + me.rubles + '.</div></div><div class="seg" style="margin-top:10px">';
+  for (const o of pr.options) h += '<button data-go="' + o + '">' + o + (o === '1' ? ' pt' : ' pts') + '</button>';
+  return h + '</div>';
+}
+
+function obsPane(me, pr) {
+  const o = me.pending;
+  let h = '<div class="pane"><div class="sub">The top of the stack, and nobody else has seen it. ' +
+    'Buy it, keep it behind your hand, or throw it away — and the observatory scores nothing this round either way.</div></div>';
+  if (o) h += '<div class="rowlab">Turned up</div><div class="offer">' +
+    A.card(o.key, { price: o.price, afford: pr.options.includes('buy') }) + '</div>';
+  h += '<div class="seg" style="margin-top:10px">' +
+    ['buy', 'hand', 'discard'].map(k => '<button data-go="' + k + '"' +
+      (pr.options.includes(k) ? '' : ' disabled') + '>' +
+      (k === 'buy' ? 'Buy it' : k === 'hand' ? 'In hand' : 'Throw it away') + '</button>').join('') + '</div>';
+  return h;
+}
+
+function waitPane(p, g) {
+  let h = '<h2>The table</h2><div class="pane">';
+  for (const q of g.players) {
+    h += '<div class="row"><i style="background:' + esc(q.hex) + '"></i>' + esc(q.name) +
+      (q.id === g.turn ? ' <b>·</b>' : '') + '<em>' +
+      /* Everybody's points, and nobody's purse but your own. */
+      (q.id === S.id && S.me ? S.me.rubles + 'r · ' : '') + q.score.open + 'pts</em></div>';
+  }
+  h += '</div>';
+  return h;
+}
+
+/* The final count, with the working shown: at a real table everybody watches
+   the purses come out, so this is the moment the money stops being secret. */
+function paintOver(p) {
+  const g = p.game;
+  const rows = (g && g.result && g.result.rows) || [];
+  let h = '<div class="pane"><div class="title">The city is counted</div>' +
+    (rows.length ? '<div class="sub">' + esc(rows.filter(r => r.won).map(r => r.id === S.id ? 'You' : r.name).join(' and ')) +
+      (rows.filter(r => r.won).length > 1 ? ' share the win.' : (rows[0].id === S.id ? ' win!' : ' wins.')) + '</div>' : '') +
+    '</div>';
+  for (const r of rows) {
+    h += '<div class="pane final" style="margin-top:8px"><div class="row"><i style="background:' + esc(r.hex) + '"></i>' +
+      '<b>' + ord(r.place) + '</b>&nbsp;' + esc(r.id === S.id ? 'You' : r.name) + (r.bot ? '<em>computer</em>' : '') +
+      '<em><b>' + r.total + '</b> points</em></div>' +
+      '<div class="brk">' + r.played + ' on the board · ' + r.nobles + ' for ' + r.nobleKinds + ' kinds of aristocrat · ' +
+      r.money + ' from ' + r.rubles + ' rubles' + (r.hand ? ' · ' + r.hand + ' for cards in hand' : '') + '</div></div>';
+  }
+  if (g && S.me) h += citiesPane(g, S.me);
+  const played = !!(g && g.players.some(q => q.id === S.id));
+  if (played) h += '<button class="btn" id="goAgain">Play again</button>';
+  h += '<button class="btn ghost" id="goHub">Back to the Game Hub</button>';
+  $('main').innerHTML = h;
+  if (played) $('goAgain').onclick = () => tell({ t: 'again' });
+  $('goHub').onclick = () => { location.href = HUB_URL; };
+}
+const ord = k => k + (k === 1 ? 'st' : k === 2 ? 'nd' : k === 3 ? 'rd' : 'th');
+
+function wire() {
+  document.querySelectorAll('[data-go]').forEach(b => {
+    if (b.disabled) return;
+    b.onclick = () => act(b.dataset.go);
+  });
+  const undo = $('goUndo');
+  if (undo) undo.onclick = () => { if (locked()) return; lock(); S.mv.lines = []; send({ t: 'undo' }); };
+}
+
+$('menuBtn').onclick = () => { if (locked()) return; lock(); S.sheet = S.sheet ? null : 'menu'; paint(); };
+document.body.insertAdjacentHTML('afterbegin', A.defs());
+paint();
+Solo.attach(handle);
+</script>
+</body>
+</html>

@@ -106,6 +106,17 @@ const GAMES = [
     status: "playable",
   },
   {
+    id: "st-petersburg",
+    title: "Saint Petersburg",
+    subtitle: "Solo — build the city against the computer, on your phone",
+    category: "card",
+    players: "1",
+    duration: "30–45 min",
+    icon: "⛪",
+    accentColor: "#e8c267",
+    status: "playable",
+  },
+  {
     id: "five-hundred",
     title: "500",
     subtitle: "The classic trick-taking game",
