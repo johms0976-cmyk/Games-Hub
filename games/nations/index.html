@@ -175,6 +175,15 @@ button{font:inherit}
 .sp>span{white-space:nowrap;margin-right:8px}
 .sp small{text-align:right}
 .face.empty.slim{aspect-ratio:auto;min-height:48px;padding:6px;text-align:center}
+/* Dynasties */
+.dyns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+.dyns .face{gap:4px}
+.npick{display:flex;flex-direction:column;gap:8px}
+.npick .opt{flex-direction:column;align-items:stretch}
+.npick .board{width:100%;border-radius:8px;display:block;aspect-ratio:3000/1583;background:#2a2219 center/cover no-repeat}
+.npick .dl{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--dim);margin-top:2px}
+.npick .dl b{color:var(--ink)}
+.tag-dyn{display:inline-block;background:#2a4f8f;color:#fff;border-radius:6px;padding:0 6px;font-size:11px;font-weight:800;margin-left:4px;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -201,8 +210,8 @@ button{font:inherit}
 (function checkVersions() {
   const missing = [];
   if (!window.NationsData || !window.NationsData.MANIFEST) missing.push('nations-data.js');
-  if (!window.NationsArt || window.NationsArt.VERSION !== 1) missing.push('nations-art.js');
-  if (!window.NationsWords || window.NationsWords.VERSION !== 2) missing.push('nations-words.js');
+  if (!window.NationsArt || window.NationsArt.VERSION !== 2) missing.push('nations-art.js');
+  if (!window.NationsWords || window.NationsWords.VERSION !== 3) missing.push('nations-words.js');
   if (!window.NationsEngine || window.NationsEngine.VERSION !== 1) missing.push('nations-engine.js');
   if (!window.NationsBots || window.NationsBots.VERSION !== 1) missing.push('nations-bots.js');
   if (!window.NationsSolo) missing.push('solo-host.js');
@@ -466,6 +475,8 @@ function sinceHtml(pr) {
 const LOBBY_OPTS = {
   decks: [['base', 'Base cards', 'For a first game'], ['adv', '+ Advanced', 'More interaction'], ['exp', '+ Expert', 'Everything']],
   side: [['A', 'A sides', 'Every nation the same'], ['B', 'B sides', 'Each nation different']],
+  dyn: [['off', 'Base game', ''], ['on', 'Dynasties', '12 more nations, dynasties, Turmoil, Natural Wonders']],
+  promo: [['off', 'No promos', ''], ['on', 'Promo cards', 'Kremlin, Tesla, Mechanical Turk and more']],
   diff: D.DIFFICULTY.map(d => [d.id, d.name, 'Growth gives ' + d.bonus]),
   ages: [[4, 'Full game', 'Four ages, eight rounds'], [2, 'Short game', 'Two ages, four rounds']],
   pace: [['slow', 'Slow', ''], ['relaxed', 'Relaxed', ''], ['brisk', 'Brisk', '']]
@@ -476,14 +487,16 @@ function lobbyHtml() {
     lv.house.map(p => '<div class="prow"><i class="d" style="background:' + esc(p.hex) + '"></i>' + esc(p.name) + '<span class="sc">computer</span></div>').join('');
   const sizes = [2, 3, 4, 5].map(k => '<button class="opt' + (k === lv.size ? ' on' : '') + '" data-opt="table" data-v="' + k + '" style="justify-content:center">' + k + '</button>').join('');
   const seg = key => LOBBY_OPTS[key].map(([v, l, d]) => '<button class="opt' + (String(v) === String(lv[key]) ? ' on' : '') + '" data-opt="' + key + '" data-v="' + v + '"' +
-    (key === 'decks' && v === 'base' && lv.size === 5 ? ' disabled' : '') + '><span class="lab"><b>' + esc(l) + '</b>' + (d ? '<small>' + esc(d) + '</small>' : '') + '</span></button>').join('');
+    ((key === 'decks' && v === 'base' && lv.size === 5) || (key === 'side' && v === 'A' && lv.dyn === 'on') ? ' disabled' : '') + '><span class="lab"><b>' + esc(l) + '</b>' + (d ? '<small>' + esc(d) + '</small>' : '') + '</span></button>').join('');
   return '<div class="card"><div class="title">Nations — solo</div>' +
     '<div class="sub">Eight rounds from the first cities to 1913, against computer nations. Each turn, one action: buy a card, put a worker to work, hire an architect, or use a card — then pass when you have done enough. Keep your people fed and stable; the events arrive every round.</div>' +
     '<h2 style="margin-top:12px">Your name <small>as the log says it</small></h2><div id="name" style="margin-top:0"><input id="nameIn" placeholder="Your name" maxlength="14" autocomplete="off" value="' + esc(lv.name || '') + '"></div>' +
     '<div class="card" style="background:var(--panel2)">' + rows + '</div></div>' +
     '<h2>Nations at the table <small>you + ' + (lv.size - 1) + ' computer' + (lv.size > 2 ? 's' : '') + '</small></h2><div class="row2" style="grid-template-columns:repeat(4,1fr)">' + sizes + '</div>' +
     '<h2>Progress cards</h2><div class="opts" style="margin-top:0">' + seg('decks') + '</div>' +
-    '<h2>Player boards</h2><div class="row2">' + seg('side') + '</div>' +
+    '<h2>Expansion</h2><div class="opts" style="margin-top:0">' + seg('dyn') + '</div>' +
+    '<h2>Player boards</h2><div class="row2">' + seg('side') + '</div>' + (lv.dyn === 'on' ? '<div class="sub">Dynasties is played on the B sides.</div>' : '') +
+    '<h2>Promos</h2><div class="row2">' + seg('promo') + '</div>' +
     '<h2>Difficulty</h2><div class="row2">' + seg('diff') + '</div>' +
     '<h2>Length</h2><div class="row2">' + seg('ages') + '</div>' +
     '<h2>How fast the computers play</h2><div class="row3">' + seg('pace') + '</div>' +
@@ -551,6 +564,20 @@ function growthHtml(pr) {
     '<div class="stat">You make ' + prodLine(me) + ' a round now.</div></div>';
 }
 function nationPickHtml(pr) {
+  const g = game();
+  /* A Dynasties game is played on the B sides, and shows each nation's two dynasties. */
+  if (g && g.dyn) {
+    S.sideA = false;
+    return '<div class="card mine"><div class="title">Choose your nation</div><div class="sub">Later players choose first. Each nation has a special rule, and two dynasties: take a Turmoil card as an action to play one — it replaces the special rule.</div>' +
+      '<div class="opts npick">' + pr.options.map(o => {
+        const n = D.NATIONS.find(x => x.id === o.id);
+        const b = n.B;
+        const dyns = (o.dynasties || []).map(id => D.dynasty(id)).map(d => '<span><b>' + esc(d.name) + '</b> — ' + esc(d.text) + '</span>').join('');
+        return '<button class="opt" data-nation="' + o.id + '">' + (n.dyn ? '<span class="board" style="background-image:url(' + A.boardUrl(n.id) + ')"></span>' : '') +
+          '<span class="lab"><b>' + esc(n.name) + (n.dyn ? '<span class="tag-dyn">D</span>' : '') + '</b><small>' + esc(b.specialText) + ' · starts ' + b.res.gold + ' gold, ' + b.res.stone + ' stone, ' + b.res.food + ' food, ' + b.res.vp + ' VP, ' + b.workers + ' workers</small>' +
+          '<span class="dl">' + dyns + '</span></span></button>';
+      }).join('') + '</div></div>';
+  }
   return '<div class="card mine"><div class="title">Choose your nation</div><div class="sub">Later players choose first. The B side is different for every nation; the A side is the same board for all.</div>' +
     '<div class="row2" style="margin-top:8px"><button class="opt' + (!S.sideA ? ' on' : '') + '" data-side="B">B side</button><button class="opt' + (S.sideA ? ' on' : '') + '" data-side="A">A side</button></div>' +
     '<div class="opts">' + pr.options.map(o => {
@@ -583,11 +610,23 @@ function turnHtml(pr) {
   const me = mine();
   if (can.skipOnly) return '<div class="card mine"><div class="title">Buddha: this turn is skipped</div><div class="sub">Your first turn every round is lost while Buddha is your advisor.</div>' +
     '<button class="btn" id="skipTurn">Skip this turn</button></div>';
+  /* A Natural Wonder being explored: that is the whole turn until it is found. */
+  if (can.explore && S.panel !== 'deploy') {
+    const x = can.explore;
+    return '<div class="card mine"><div class="title">Explore ' + esc(C(x.card).name) + '</div>' +
+      '<div class="big"><div class="bf">' + A.card(x.card, { built: x.built }) + '</div><div class="bt">' +
+      '<div>' + x.built + ' of ' + x.of + ' spyglasses. Exploring is your only action until it is discovered — no passing either.</div>' +
+      '<div class="sub" style="margin-top:6px">' + esc(A.summary(x.card)) + '</div></div></div>' +
+      '<button class="btn" id="explore">Explore' + (x.built + 1 >= x.of ? ' — and discover it' : '') + '</button>' +
+      '<div class="sub">You may still take workers off cards first (Workers below are free moves).</div>' +
+      (me.bm.some(s => s && s.w) ? '<button class="btn ghost small" data-panel="deploy">Workers</button>' : '') + '</div>';
+  }
   switch (S.panel) {
     case 'board': return boardPanel(can, false);
     case 'galileo': return boardPanel(can, true);
     case 'deploy': return deployPanel(can);
     case 'special': return specialPanel(can);
+    case 'turmoil': return turmoilPanel(can);
   }
   const buyable = can.board.filter(b => b.ok).length;
   const deployable = can.deploy.filter(d => d && d.ok).length;
@@ -604,15 +643,30 @@ function turnHtml(pr) {
     (hire ? '<button id="hire"' + (hireOk ? '' : ' disabled') + '><b>Hire an architect</b><small>' + esc(C(hire.card).name) + ' ' + hire.built + '/' + C(hire.card).cost.length +
       (hireOk ? ' · next section ' + hire.cost + ' stone' + (hire.private ? ' · private one ready' : '') : ' · ' + esc(hire.why)) + '</small></button>' :
       '<button disabled><b>Hire an architect</b><small>Buy a wonder first</small></button>') +
-    (specials.length ? '<button data-panel="special"><b>Card actions</b><small>' + esc(specials.map(s => C(s.card) ? C(s.card).name : 'Nation').join(', ')) + '</small></button>' : '<button disabled><b>Card actions</b><small>None on your board</small></button>') +
+    (specials.length ? '<button data-panel="special"><b>Card actions</b><small>' + esc(specials.map(s => (C(s.card) ? C(s.card).name : 'Nation') + (s.owner ? ' (' + pname(s.owner) + ')' : '')).join(', ')) + '</small></button>' : '<button disabled><b>Card actions</b><small>None on your board</small></button>') +
+    (can.turmoil ? '<button data-panel="turmoil" class="wide"' + (can.turmoil.ok ? '' : ' disabled') + '><b>Take a Turmoil card</b><small>' +
+      (can.turmoil.ok ? can.turmoil.left + ' left · −2 stability this round · ' + (can.turmoil.dynasties.length ? 'play a dynasty or take 2 gold' : 'take 2 gold') : esc(can.turmoil.why)) + '</small></button>' : '') +
     '</div>' +
     (hire && hire.public && hire.private ? '<div class="row2"><button class="btn small ghost" data-hire="public">Use a public architect</button><button class="btn small ghost" data-hire="private">Use your private one</button></div>' : '') +
     '</div>';
 }
 function setBar() {
   const bar = $('bar');
-  bar.innerHTML = '<button class="btn' + (S.armed === 'pass' ? ' armed' : ' ghost') + '" id="pass">' + (S.armed === 'pass' ? 'Tap again to pass for the round' : 'Pass for the round') + '</button>';
+  const pr = myPrompt();
+  /* The Jagiellonians' bought action may be let go, never passed on. */
+  if (pr && pr !== 'stale' && pr.extraOnly) bar.innerHTML = '<button class="btn ghost" id="skipExtra">Let the extra action go</button>';
+  else bar.innerHTML = '<button class="btn' + (S.armed === 'pass' ? ' armed' : ' ghost') + '" id="pass">' + (S.armed === 'pass' ? 'Tap again to pass for the round' : 'Pass for the round') + '</button>';
   bar.classList.remove('hide');
+}
+/* Turmoil: a dynasty, or 2 gold. */
+function turmoilPanel(can) {
+  const t = can.turmoil;
+  const me = mine();
+  return '<div class="card mine"><div class="title">Turmoil</div>' +
+    '<div class="sub">Your stability drops by 2 until the end of the round (you are on ' + me.stab + '). ' + t.left + ' Turmoil card' + (t.left === 1 ? '' : 's') + ' left this round.</div>' +
+    (t.dynasties.length ? '<h2>Play a dynasty <small>it replaces ' + (me.dynasty ? 'the ' + esc(D.dynasty(me.dynasty).name) : 'your special rule') + '</small></h2><div class="dyns">' +
+      t.dynasties.map(id => '<button class="face" data-turm="' + esc(id) + '">' + A.dynasty(id) + '<span class="btn small">Play ' + esc(D.dynasty(id).name) + '</span></button>').join('') + '</div>' : '') +
+    '<button class="btn' + (t.dynasties.length ? ' ghost' : '') + '" data-turm="gold">Take 2 gold instead' + (t.goldFree ? ' (Sassanid: no stability lost)' : '') + '</button>' + back + '</div>';
 }
 const back = '<button class="btn ghost small" id="back">Back</button>';
 
@@ -622,16 +676,18 @@ function boardPanel(can, galileo) {
   if (S.sel && S.sel.kind === 'buy') return buySheet(can, galileo);
   const list = galileo ? can.galileo : can.board;
   const at = (r, c) => list.find(b => b.r === r && b.c === c);
-  const rows = [0, 1, 2].map(r => {
-    const cells = g.board[r].map((id, c) => {
+  const toll = id => (g.tolls || []).find(t => t.card === id);
+  const rows = g.board.map((row, r) => {
+    const cells = row.map((id, c) => {
       if (!id) return '';
       const b = at(r, c);
       const ok = galileo ? !!b : b && b.ok;
       const card = C(id);
-      return '<button class="face' + (ok ? '' : ' no') + '" data-buycard="' + r + '|' + c + '">' + (galileo ? '' : '<span class="badge">' + (b ? b.price : D.ROW_PRICE[r]) + '</span>') + A.card(id, { small: true }) +
-        '<span class="cap">' + esc(card.name) + '</span><span class="cap2">' + esc(A.TYPE_NAME[card.type]) + (card.age < g.age ? ' · older' : '') + '</span></button>';
+      const t = toll(id);
+      return '<button class="face' + (ok ? '' : ' no') + '" data-buycard="' + r + '|' + c + '">' + (galileo ? '' : '<span class="badge">' + (b ? b.price : (r === 3 ? 4 : D.ROW_PRICE[r])) + '</span>') + A.card(id, { small: true }) +
+        '<span class="cap">' + esc(card.name) + '</span><span class="cap2">' + esc(A.TYPE_NAME[card.type]) + (card.age < g.age ? ' · older' : '') + (t && t.by !== S.id ? ' · +3 to ' + esc(pname(t.by)) : t ? ' · your token' : '') + '</span></button>';
     }).join('');
-    return cells ? '<div class="brow-h">' + (galileo ? '' : D.ROW_PRICE[r] + ' ' + ic('gold', 14)) + (galileo ? 'Row ' + (r + 1) : '') + '</div><div class="faces f4">' + cells + '</div>' : '';
+    return cells ? '<div class="brow-h">' + (galileo ? 'Row ' + (r + 1) : (r === 3 ? 'Victoria Falls · 4 ' : D.ROW_PRICE[r] + ' ') + ic('gold', 14)) + '</div><div class="faces f4">' + cells + '</div>' : '';
   }).join('');
   return '<div class="card mine"><div class="title">' + (galileo ? 'Galileo: a Golden Age or a Wonder, free' : 'Buy a card') + '</div>' +
     '<div class="sub">' + (galileo ? '' : 'You have ' + mine().res.gold + ' gold. Greyed cards you cannot take right now — tap one to see why.') + '</div>' + rows + back + '</div>';
@@ -655,29 +711,47 @@ function buySheet(can, galileo) {
     }).join('') + '</div>';
     if (sel.slot == null) ready = false;
   }
-  if (ok && need.slot && card.type === 'colony') {
+  if (ok && card.type === 'colony' && (need.wonderSpot || need.discardOpt)) {
+    ask += '<h2>Where does it go?</h2><div class="opts">' +
+      (need.slot ? '' : '<button class="opt' + (sel.slot == null && sel.pick !== 'discard' ? ' on' : '') + '" data-colwhere="space"><span class="lab"><b>A colony space</b></span></button>') +
+      (need.wonderSpot ? '<button class="opt' + (sel.slot === -2 ? ' on' : '') + '" data-colwhere="wonder"><span class="lab"><b>A free wonder space</b><small>Portuguese Empire</small></span></button>' : '') +
+      (need.discardOpt ? '<button class="opt' + (sel.pick === 'discard' ? ' on' : '') + '" data-colwhere="discard"><span class="lab"><b>Discard it for ' + esc(Object.keys(need.discardOpt).map(k => need.discardOpt[k] + ' ' + R[k]).join(' and ')) + '</b><small>Domains of the Sea</small></span></button>' : '') + '</div>';
+  }
+  if (ok && need.slot && card.type === 'colony' && sel.slot !== -2 && sel.pick !== 'discard') {
     ask += '<h2>Your colony spaces are full — give up</h2><div class="opts">' + need.slot.map(k => '<button class="opt' + (sel.slot === k ? ' on' : '') + '" data-slot="' + k + '"><span class="lab"><b>' + esc(C(me.colonies[k]).name) + '</b><small>' + esc(A.summary(me.colonies[k])) + '</small></span></button>').join('') + '</div>';
     if (sel.slot == null) ready = false;
   }
-  if (ok && need.slot && card.type === 'advisor') {
-    ask += '<h2>Which advisor space?</h2><div class="opts">' + need.slot.map(k => '<button class="opt' + (sel.slot === k ? ' on' : '') + '" data-slot="' + k + '"><span class="lab"><b>' + (k === 0 ? 'Your advisor space' : 'The Porcelain Tower') + '</b><small>' + (me.advisors[k] ? 'Replaces ' + esc(C(me.advisors[k]).name) : 'Empty') + '</small></span></button>').join('') + '</div>';
+  if (ok && card.type === 'advisor' && need.emperor) ask += '<div class="sub" style="margin-top:6px">The Emperor: it is discarded at once, and he gains a token — +1 strength for good (he has ' + (me.emperor || 0) + ').</div>';
+  if (ok && (need.slot || need.wonderSpot) && card.type === 'advisor') {
+    const spots = (need.slot || [0]).map(k => '<button class="opt' + (sel.slot === k ? ' on' : '') + '" data-slot="' + k + '"><span class="lab"><b>' + (k === 0 ? 'Your advisor space' : me.advisors[k] === 'zhuxi' ? 'Zhu Xi’s space' : 'The Porcelain Tower') + '</b><small>' + (me.advisors[k] ? 'Replaces ' + esc(C(me.advisors[k]).name) + (me.advisors[k] === 'zhuxi' && k === 0 ? ' — but Zhu Xi stays the first time' : '') : 'Empty') + '</small></span></button>').join('');
+    ask += '<h2>Which advisor space?</h2><div class="opts">' + spots +
+      (need.wonderSpot ? '<button class="opt' + (sel.slot === -2 ? ' on' : '') + '" data-slot="-2"><span class="lab"><b>A free wonder space</b><small>Polish–Lithuanian Commonwealth — others may buy it from you there</small></span></button>' : '') + '</div>';
     if (sel.slot == null) ready = false;
   }
-  if (ok && card.type === 'advisor' && !need.slot && me.advisors[0]) ask += '<div class="sub" style="margin-top:6px">Replaces ' + esc(C(me.advisors[0]).name) + '.</div>';
+  if (ok && card.type === 'advisor' && !need.slot && !need.wonderSpot && !need.emperor && me.advisors[0]) ask += '<div class="sub" style="margin-top:6px">Replaces ' + esc(C(me.advisors[0]).name) + (me.advisors[0] === 'zhuxi' ? ' — but Zhu Xi stays on the first time he is replaced' : '') + '.</div>';
+  if (ok && card.type === 'natural') ask += '<div class="sub" style="margin-top:6px">A Natural Wonder: you explore it, one spyglass a turn (' + card.spy + ' in all) — and while you do, exploring is your only action.' +
+    (me.uc ? ' <span style="color:#ffb4ae">It replaces ' + esc(C(me.uc.card).name) + ' under construction.</span>' : '') + '</div>';
+  if (ok && need.toll) ask += '<div class="sub" style="margin-top:6px;color:#ffb4ae">This card carries an Axumite token: ' + need.toll + ' more gold goes to its owner.</div>';
   if (ok && card.type === 'wonder' && me.uc) ask += '<div class="sub" style="margin-top:6px;color:#ffb4ae">Replaces ' + esc(C(me.uc.card).name) + ' under construction — its ' + me.uc.built + ' built section' + (me.uc.built === 1 ? ' is' : 's are') + ' lost.</div>';
+  if (ok && card.type === 'war' && need.pick) {
+    ask += '<h2>Kingdom of León: raid for (' + me.raid + ')</h2><div class="row3">' + need.pick.map(r => '<button class="opt' + (sel.pick === r ? ' on' : '') + '" data-pickr="' + r + '" style="justify-content:center">' + ic(r, 22) + ' +' + me.raid + '</button>').join('') + '</div>';
+    if (!sel.pick) ready = false;
+  }
   if (ok && card.type === 'battle') {
     ask += '<h2>Raid for (' + me.raid + ')</h2><div class="row3">' + ['book', 'food', 'stone'].map(r => '<button class="opt' + (sel.pick === r ? ' on' : '') + '" data-pickr="' + r + '" style="justify-content:center">' + ic(r, 22) + ' +' + me.raid + '</button>').join('') + '</div>';
     if (!sel.pick) ready = false;
   }
   if (ok && card.type === 'golden') {
-    ask += '<h2>Take</h2><div class="opts"><button class="opt' + (sel.pick === 'res' ? ' on' : '') + '" data-pickr="res"><span class="lab"><b>+' + need.gaGain + ' ' + R[card.res] + '</b></span><span class="val">' + ic(card.res, 22) + '</span></button>' +
-      '<button class="opt' + (sel.pick === 'vp' ? ' on' : '') + '" data-pickr="vp"><span class="lab"><b>1 VP for ' + need.vpCost + ' resource' + (need.vpCost === 1 ? '' : 's') + '</b><small>Any mix of gold, stone, food and books</small></span><span class="val">' + A.vp('+1', '26px') + '</span></button></div>';
+    const first = card.alt ? '<button class="opt' + (sel.pick === 'alt' ? ' on' : '') + '" data-pickr="alt"><span class="lab"><b>' + esc(card.text) + '</b></span></button>'
+      : '<button class="opt' + (sel.pick === 'res' ? ' on' : '') + '" data-pickr="res"><span class="lab"><b>+' + need.gaGain + ' ' + R[card.res] + '</b></span><span class="val">' + ic(card.res, 22) + '</span></button>';
+    ask += '<h2>Take</h2><div class="opts">' + first +
+      '<button class="opt' + (sel.pick === 'vp' ? ' on' : '') + '" data-pickr="vp"><span class="lab"><b>' + (need.vpGain || 1) + ' VP for ' + need.vpCost + ' resource' + (need.vpCost === 1 ? '' : 's') + '</b><small>Any mix of gold, stone, food and books</small></span><span class="val">' + A.vp('+' + (need.vpGain || 1), '26px') + '</span></button></div>';
     if (!sel.pick) ready = false;
     if (sel.pick === 'vp' && need.vpCost > 0) {
       sel.pay = sel.pay || { gold: 0, stone: 0, food: 0, book: 0 };
       const tot = D.RES.reduce((t, r) => t + sel.pay[r], 0);
       const price = galileo ? 0 : b.price;
-      ask += D.RES.map(r => { const have = me.res[r] - (r === 'gold' ? price : 0); return '<div class="stepper"><span class="l">' + ic(r, 20) + R[r] + ' <small class="sub">(' + have + ')</small></span>' +
+      ask += D.RES.map(r => { const have = me.res[r] - (r === 'gold' ? price + (need.toll || 0) : 0); return '<div class="stepper"><span class="l">' + ic(r, 20) + R[r] + ' <small class="sub">(' + have + ')</small></span>' +
         '<button data-gpay="' + r + '|-1"' + (sel.pay[r] ? '' : ' disabled') + '>−</button><b>' + sel.pay[r] + '</b><button data-gpay="' + r + '|1"' + (sel.pay[r] < have && tot < need.vpCost ? '' : ' disabled') + '>+</button></div>'; }).join('');
       if (tot !== need.vpCost) ready = false;
     }
@@ -689,9 +763,9 @@ function buySheet(can, galileo) {
   if (ok && card.type === 'colony') ask += '<div class="sub" style="margin-top:6px">You have ' + me.str + ' strength.</div>';
   const price = galileo ? 0 : b.price;
   return '<div class="card mine"><div class="big"><div class="bf">' + A.card(id) + '</div><div class="bt"><div class="title" style="font-size:17px">' + esc(card.name) + '</div>' +
-    '<div class="sub">' + esc(A.TYPE_NAME[card.type]) + ' · ' + D.AGE_NAME[card.age] + (card.set !== 'base' ? (card.set === 'adv' ? ' · advanced' : ' · expert') : '') + '</div>' +
+    '<div class="sub">' + esc(A.TYPE_NAME[card.type]) + ' · ' + D.AGE_NAME[card.age] + (card.set !== 'base' ? ({ adv: ' · advanced', exp: ' · expert', dyn: ' · Dynasties', promo: ' · promo' })[card.set] || '' : '') + '</div>' +
     '<div style="margin-top:6px">' + esc(A.summary(id)) + '</div>' + (ok ? '' : '<div class="why">' + esc(b.why) + '</div>') + '</div></div>' + ask +
-    (ok ? '<button class="btn" id="buyGo"' + (ready ? '' : ' disabled') + '>' + (galileo ? 'Take it with Galileo' : 'Buy for ' + price + ' gold') + '</button>' : '') +
+    (ok ? '<button class="btn" id="buyGo"' + (ready ? '' : ' disabled') + '>' + (galileo ? 'Take it with Galileo' : 'Buy for ' + (price + (need.toll || 0)) + ' gold') + '</button>' : '') +
     '<button class="btn ghost small" id="unsel">Back to the board</button></div>';
 }
 
@@ -729,8 +803,11 @@ const SPECIAL_OPTS = {
   piazza: { why: 'Pay 2 gold for 5 of one', opts: [['book', '+5 books'], ['food', '+5 food'], ['stone', '+5 stone']] },
   marco: { why: 'Pay 2 food or 2 stone for 4 gold', opts: [['food', 'Pay 2 food'], ['stone', 'Pay 2 stone']] },
   lincoln: { why: 'Take a worker', opts: [['food', 'From the Food track'], ['stab', 'From the Stability track']] },
-  suleiman: { why: 'Take a worker', opts: [['food', 'From the Food track'], ['stab', 'From the Stability track']] }
+  suleiman: { why: 'Take a worker', opts: [['food', 'From the Food track'], ['stab', 'From the Stability track']] },
+  joseon: { why: 'Store up to 3 of one resource: after the round you get twice that back', opts: [['food', 'Food'], ['stone', 'Stone'], ['gold', 'Gold']] }
 };
+/* Actions that need nothing chosen: tap and done. */
+const SPECIAL_NOW = { shwedagon: 1, reef: 1, uppsala: 1, duchy: 1, tesla: 1, romanrep: 1, demrep: 1, chopin: 1, plcbuy: 1 };
 function specialPanel(can) {
   const me = mine();
   const g = game();
@@ -744,15 +821,20 @@ function specialPanel(can) {
   }
   if (sel && sel.act) {
     const o = SPECIAL_OPTS[sel.act];
-    let opts;
+    let opts, why = o ? o.why : 'Give up a colony for 4 gold and 4 stone';
     if (sel.act === 'bolivar') opts = me.colonies.map((c, k) => c ? [String(k), 'Give up ' + C(c).name] : null).filter(Boolean);
-    else opts = o.opts.filter(([v]) => !((sel.act === 'lincoln' || sel.act === 'suleiman') && me.taken[v] >= me.track[v] && !me.freeTop));
-    return '<div class="card mine"><div class="title">' + esc(C(sel.card).name) + '</div><div class="sub">' + esc(o ? o.why : 'Give up a colony for 4 gold and 4 stone') + '</div><div class="opts">' +
+    else if (sel.act === 'turk') { opts = (S.me.can.specials.find(s => s.card === sel.card).targets || []).map(id => [id, 'Give it to ' + pname(id)]); why = 'Give the Mechanical Turk (and its −4 gold a round) to a less stable nation'; }
+    else if (sel.act === 'qin') { opts = (me.idle ? [['idle', 'An idle worker']] : []).concat(me.bm.map((s, k) => s && s.w ? ['s' + k, 'Off ' + C(s.card).name] : null).filter(Boolean)); why = 'Which worker goes home? The next section of ' + (me.uc ? C(me.uc.card).name : 'your wonder') + ' is built free'; }
+    else if (sel.act === 'oldkingdom' || sel.act === 'maliempire') { opts = me.advisors.map((a, k) => a && !C(a).permanent ? ['a' + k, 'Give up ' + C(a).name] : null).concat(me.wonders.map((w, k) => w && C(w).type === 'advisor' ? ['w' + k, 'Give up ' + C(w).name] : null)).filter(Boolean); why = sel.act === 'oldkingdom' ? 'Give up an advisor for a token: +2 books a round per token' : 'Give up an advisor and 2 gold for 3 books and 1 VP'; }
+    else if (sel.act === 'joseon') opts = o.opts.filter(([v]) => me.res[v] > 0).map(([v, l]) => [v, l + ' — store ' + Math.min(3, me.res[v])]);
+    else opts = o.opts.filter(([v]) => !((sel.act === 'lincoln' || sel.act === 'suleiman') && (me.taken[v] || 0) >= (me.track[v] || 0) && !me.freeTop));
+    return '<div class="card mine"><div class="title">' + esc(C(sel.card).name) + '</div><div class="sub">' + esc(why) + '</div><div class="opts">' +
       opts.map(([v, l]) => '<button class="opt" data-sp="' + v + '"><span class="lab"><b>' + esc(l) + '</b></span></button>').join('') + '</div><button class="btn ghost small" id="unsel">Back</button></div>';
   }
   return '<div class="card mine"><div class="title">Card actions</div><div class="opts">' + can.specials.map(s => {
     const card = C(s.card);
-    return '<button class="opt" data-special="' + esc(s.card) + '"' + (s.ok ? '' : ' disabled') + '><span class="lab"><b>' + esc(card ? card.name : s.card) + '</b><small>' +
+    const head = s.act === 'chopin' ? 'Buy Chopin from ' + pname(s.owner) + ' — 5 gold' : s.act === 'plcbuy' ? 'Buy ' + card.name + ' from ' + pname(s.owner) + ' — 3 gold to them' : (card ? card.name : s.card);
+    return '<button class="opt" data-special="' + esc(s.card) + '"' + (s.ok ? '' : ' disabled') + '><span class="lab"><b>' + esc(head) + '</b><small>' +
       esc(s.ok ? (card ? card.text : '') : s.why) + (s.once ? ' · once a round' : '') + '</small></span></button>';
   }).join('') + '</div>' + back + '</div>';
 }
@@ -779,9 +861,19 @@ function nationHtml() {
   if (rk.leastStr.indexOf(S.id) >= 0) tags.push('weakest');
   if (rk.mostStab.indexOf(S.id) >= 0) tags.push('most stable');
   if (rk.leastStab.indexOf(S.id) >= 0) tags.push('least stable');
-  const track = k => '<span class="track">' + Array.from({ length: me.track[k] }, (x, i) => '<i class="' + (i < me.taken[k] ? 't' : '') + '"></i>').join('') + '</span>';
+  const track = k => me.track[k] ? ic(k, 14) + '<span class="track">' + Array.from({ length: me.track[k] }, (x, i) => '<i class="' + (i < (me.taken[k] || 0) ? 't' : '') + '"></i>').join('') + '</span>' : '';
   const face = id => '<button class="face" data-detail="' + esc(id) + '">' + A.card(id, { small: true }) + '<span class="cap">' + esc(C(id).name) + '</span></button>';
   const bm = me.bm.map((s, k) => s ? '<button class="face" data-detail="' + esc(s.card) + '">' + A.card(s.card, { w: s.w, hex: S.hex, small: true }) + '<span class="cap">' + esc(C(s.card).name) + '</span></button>' : '<div class="face empty">empty</div>').join('');
+  /* Dynasties: the dynasty in play, the one(s) still in hand, Turmoil held. */
+  const dynRow = () => (me.dynasty || (me.dynasties && me.dynasties.length)) ?
+    head('Dynasties', 0, 0, (me.turmoil ? me.turmoil + ' Turmoil held · −' + 2 * me.turmoil + ' stability till the round ends' : 'take a Turmoil card to play one')) +
+    '<div class="faces">' + (me.dynasty ? '<button class="face" data-detail="' + esc(me.dynasty) + '">' + A.dynasty(me.dynasty) + '<span class="cap">in play</span></button>' : '') +
+    me.dynasties.map(id => '<button class="face" data-detail="' + esc(id) + '">' + A.dynasty(id, { used: false }) + '<span class="cap2">in hand</span></button>').join('') + '</div>' : '';
+  const toks = [];
+  if (me.emperor) toks.push('Emperor ' + me.emperor + ' token' + (me.emperor > 1 ? 's' : '') + ' (+' + me.emperor + ' strength)');
+  if (me.tok && me.tok.hypatia && me.advisors.indexOf('hypatia') >= 0) toks.push('Hypatia ' + me.tok.hypatia + ' token' + (me.tok.hypatia > 1 ? 's' : ''));
+  if (me.tok && me.tok.oldkingdom) toks.push('Old Kingdom ' + me.tok.oldkingdom + ' token' + (me.tok.oldkingdom > 1 ? 's' : ''));
+  if (me.joseon) toks.push('Joseon holds ' + me.joseon.n + ' ' + R[me.joseon.res] + ' (back ×2 after the round)');
   /* Every space on the board, the free ones drawn as free: how much room is
      left is what a buy decision turns on. */
   const used = xs => xs.filter(Boolean).length;
@@ -799,19 +891,20 @@ function nationHtml() {
     '<div class="faces">' + me.advisors.map(a => a ? face(a) : '<div class="face empty slim">free advisor space</div>').join('') + '</div>' +
     head('Wonders', wonFree, me.wonderCap, me.uc ? '1 being built' : '') +
     '<div class="faces">' + me.wonders.filter(Boolean).map(face).join('') +
-    (me.uc ? '<button class="face" data-detail="' + esc(me.uc.card) + '">' + A.card(me.uc.card, { small: true, built: me.uc.built }) + '<span class="cap">' + esc(C(me.uc.card).name) + '</span><span class="cap2">building ' + me.uc.built + '/' + C(me.uc.card).cost.length + '</span></button>' : '') +
+    (me.uc ? '<button class="face" data-detail="' + esc(me.uc.card) + '">' + A.card(me.uc.card, { small: true, built: me.uc.built }) + '<span class="cap">' + esc(C(me.uc.card).name) + '</span><span class="cap2">' + (me.uc.natural ? 'exploring ' + me.uc.built + '/' + C(me.uc.card).spy : 'building ' + me.uc.built + '/' + C(me.uc.card).cost.length) + '</span></button>' : '') +
     (wonFree > 0 ? '<div class="face empty slim">' + (wonFree === 1 ? '1 free wonder space' : wonFree + ' free wonder spaces') + '</div>' : '') + '</div>';
-  const growLeft = me.freeTop + (me.track.food - me.taken.food) + (me.track.stab - me.taken.stab);
+  const growLeft = me.freeTop + Object.keys(me.track).reduce((t, k) => t + Math.max(0, (me.track[k] || 0) - (me.taken[k] || 0)), 0);
   return '<h2>' + esc(nationName(me.nation)) + (me.side === 'B' ? ' (B)' : '') + ' <small>' + (g.order.indexOf(S.id) + 1) + ' in turn order' + (me.passed ? ' · passed' : '') + '</small></h2>' +
     '<div class="card"><div class="res">' + res + '</div>' +
     '<div class="stat"><span>' + ic('str', 18) + '<b>' + me.str + '</b></span><span class="' + (me.stab < 0 ? 'neg' : '') + '">' + ic('stab', 18) + '<b>' + me.stab + '</b></span>' +
     '<span>' + A.res('worker', 16, S.hex) + '<b>' + me.idle + '</b> idle of ' + me.workers + '</span>' + (me.raid ? '<span>raid <b>' + me.raid + '</b></span>' : '') +
     (tags.length ? '<span>· ' + tags.join(', ') + '</span>' : '') + '</div>' +
     '<div class="stat">Each round you make ' + prodLine(me) + (ev ? ' · famine ' + ev.famine + ic('food', 14) : '') + '</div>' +
-    '<div class="stat">' + ic('food', 14) + track('food') + ic('stab', 14) + track('stab') + '<span>' + (growLeft ? growLeft + ' more worker' + (growLeft > 1 ? 's' : '') + ' to grow' : 'no workers left to grow') + '</span>' +
+    '<div class="stat">' + track('food') + track('stab') + track('str') + '<span>' + (growLeft ? growLeft + ' more worker' + (growLeft > 1 ? 's' : '') + ' to grow' : 'no workers left to grow') + '</span>' +
     (me.privArch ? '<span>' + A.arch('14px', true) + ' ' + me.privArch + ' private</span>' : '') + '</div>' +
     (me.specialText ? '<div class="stat">' + esc(me.specialText) + '</div>' : '') +
-    sections + '</div>';
+    (toks.length ? '<div class="stat">' + esc(toks.join(' · ')) + '</div>' : '') +
+    dynRow() + sections + '</div>';
 }
 function eventHtml() {
   const g = game();
@@ -822,9 +915,9 @@ function eventHtml() {
   const w = g.war;
   return '<h2>This round’s event <small>happens at the end of the round</small></h2><div class="card"><div class="evmini"><button class="bf face" data-evbig="1">' + A.event(g.event) + '</button><div class="bt">' +
     '<div><b>' + esc(ev.a.name) + '</b> — ' + esc(ev.a.text) + '</div>' +
-    '<div><b>' + esc(ev.b.name) + '</b> — ' + esc(ev.b.text) + '</div>' +
+    (ev.b ? '<div><b>' + esc(ev.b.name) + '</b> — ' + esc(ev.b.text) + '</div>' : '') +
     '<div><b>Famine</b> — ' + ev.famine + ' food each</div>' +
-    '<div class="sub">Architects left: ' + g.arch + ' · The War: ' + (w ? esc(C(w.card).name) + ' at strength ' + w.str + ' (by ' + esc(pname(w.by)) + ')' : 'none bought yet') + '</div>' +
+    '<div class="sub">Architects left: ' + g.arch + (g.dyn ? ' · Turmoil cards left: ' + g.turmoil : '') + ' · The War: ' + (w ? esc(C(w.card).name) + ' at strength ' + w.str + ' (by ' + esc(pname(w.by)) + ')' : 'none bought yet') + '</div>' +
     '</div></div></div>';
 }
 /* ---------------- the Board tab: what the telly showed ---------------- */
@@ -833,15 +926,19 @@ function boardTabHtml(pr) {
   if (!g || g.phase === 'nations') return waitCard('The nations are being chosen', '');
   const can = pr && pr !== 'stale' && pr.t === 'turn' && S.me.can && !S.me.can.skipOnly ? S.me.can : null;
   const at = (r, c) => can ? can.board.find(b => b.r === r && b.c === c) : null;
-  const rows = [0, 1, 2].map(r => {
-    const cells = g.board[r].map((id, c) => {
-      if (!id) return '<div class="face empty">taken</div>';
+  const toll = id => (g.tolls || []).find(t => t.card === id);
+  const rows = g.board.map((row, r) => {
+    if (r === 3 && !row.some(Boolean)) return '';
+    const cells = row.map((id, c) => {
+      if (!id) return r === 3 ? '' : '<div class="face empty">taken</div>';
       const card = C(id);
       const b = at(r, c);
-      return '<button class="face' + (can && !(b && b.ok) ? ' no' : '') + '" data-boardcard="' + r + '|' + c + '"><span class="badge">' + D.ROW_PRICE[r] + '</span>' + A.card(id, { small: true }) +
-        '<span class="cap">' + esc(card.name) + '</span><span class="cap2">' + esc(A.TYPE_NAME[card.type]) + (card.age < g.age ? ' · older' : '') + '</span></button>';
+      const t = toll(id);
+      return '<button class="face' + (can && !(b && b.ok) ? ' no' : '') + '" data-boardcard="' + r + '|' + c + '"><span class="badge">' + (b ? b.price : r === 3 ? 4 : D.ROW_PRICE[r]) + '</span>' + A.card(id, { small: true }) +
+        '<span class="cap">' + esc(card.name) + '</span><span class="cap2">' + esc(A.TYPE_NAME[card.type]) + (card.age < g.age ? ' · older' : '') +
+        (t ? (t.by === S.id ? ' · your token' : ' · +' + t.n + ' to ' + esc(pname(t.by))) : '') + '</span></button>';
     }).join('');
-    return '<div class="brow-h">' + D.ROW_PRICE[r] + ' ' + ic('gold', 14) + ' a card</div><div class="faces f4">' + cells + '</div>';
+    return '<div class="brow-h">' + (r === 3 ? 'Victoria Falls · 4 ' : D.ROW_PRICE[r] + ' ') + ic('gold', 14) + ' a card</div><div class="faces f4">' + cells + '</div>';
   }).join('');
   const w = g.war;
   const under = w ? g.players.filter(p => p.str < w.str) : [];
@@ -850,7 +947,7 @@ function boardTabHtml(pr) {
     '<h2>The War</h2><div class="card">' + (w ? '<div><b>' + esc(C(w.card).name) + '</b> at strength <b>' + w.str + '</b>, bought by ' + esc(pname(w.by)) + '</div>' +
       '<div class="sub" style="color:' + (under.length ? '#ffb4ae' : 'var(--dim)') + '">' + (under.length ? 'Weaker right now: ' + esc(under.map(p => p.id === S.id ? 'you' : p.name).join(', ')) : 'Nobody is weaker yet.') + '</div>'
       : '<div class="sub">None bought yet this round.</div>') +
-    '<div class="stat">Architects left to hire this round: <b>' + g.arch + '</b></div></div>' +
+    '<div class="stat">Architects left to hire this round: <b>' + g.arch + '</b>' + (g.dyn ? ' · Turmoil cards left: <b>' + g.turmoil + '</b>' : '') + '</div></div>' +
     eventHtml();
 }
 
@@ -869,12 +966,16 @@ function nationsTabHtml() {
     const face = (id, o) => '<button class="face" data-detail="' + esc(id) + '">' + A.card(id, Object.assign({ small: true }, o || {})) + '<span class="cap">' + esc(C(id).name) + '</span></button>';
     const faces = p.bm.filter(Boolean).map(s => face(s.card, { w: s.w, hex: p.hex }))
       .concat(p.advisors.concat(p.colonies, p.wonders).filter(Boolean).map(id => face(id)));
-    if (p.uc) faces.push('<button class="face" data-detail="' + esc(p.uc.card) + '">' + A.card(p.uc.card, { small: true, built: p.uc.built }) + '<span class="cap">' + esc(C(p.uc.card).name) + '</span><span class="cap2">building ' + p.uc.built + '/' + C(p.uc.card).cost.length + '</span></button>');
+    if (p.uc) faces.push('<button class="face" data-detail="' + esc(p.uc.card) + '">' + A.card(p.uc.card, { small: true, built: p.uc.built }) + '<span class="cap">' + esc(C(p.uc.card).name) + '</span><span class="cap2">' +
+      (p.uc.natural ? 'exploring ' + p.uc.built + '/' + C(p.uc.card).spy : 'building ' + p.uc.built + '/' + C(p.uc.card).cost.length) + '</span></button>');
+    if (p.dynasty) faces.unshift('<button class="face" data-detail="' + esc(p.dynasty) + '">' + A.dynasty(p.dynasty) + '<span class="cap">dynasty</span></button>');
+    const dy = p.dynasty ? D.dynasty(p.dynasty) : null;
     const prod = ['gold', 'stone', 'food', 'book'].filter(r => p.prod[r]).map(r => '<span class="wg' + (p.prod[r] < 0 ? ' neg' : '') + '">' + (p.prod[r] > 0 ? '+' : '') + p.prod[r] + ic(r, 14) + '</span>').join(' ');
     return '<div class="card' + (p.id === S.id ? ' mine' : '') + '">' +
       '<div style="display:flex;align-items:center;gap:8px"><b style="color:var(--dim)">' + (k + 1) + '</b><i style="width:11px;height:11px;border-radius:50%;flex:none;background:' + esc(p.hex) + '"></i>' +
       '<b>' + esc(p.id === S.id ? p.name + ' (you)' : p.name) + '</b><span class="sc" style="margin-left:auto;font-weight:800;color:var(--gold)">' + p.res.vp + ' VP <small style="color:var(--dim);font-weight:600">· ' + p.score.total + ' in all</small></span></div>' +
-      '<div class="sub">' + esc(nat ? nat.name : '') + (p.side === 'B' ? ' (B)' : '') + (p.passed ? ' · passed' : '') + (p.id === g.active ? ' · <b style="color:var(--gold)">on turn</b>' : '') + (tags.length ? ' · ' + esc(tags.join(', ')) : '') + '</div>' +
+      '<div class="sub">' + esc(nat ? nat.name : '') + (p.side === 'B' && !(nat && nat.dyn) ? ' (B)' : '') + (dy ? ' · ' + esc(dy.name) : '') +
+      (g.dyn ? ' · ' + p.dynasties.length + ' dynast' + (p.dynasties.length === 1 ? 'y' : 'ies') + ' in hand' : '') + (p.turmoil ? ' · Turmoil ×' + p.turmoil : '') + (p.emperor ? ' · Emperor +' + p.emperor : '') + (p.passed ? ' · passed' : '') + (p.id === g.active ? ' · <b style="color:var(--gold)">on turn</b>' : '') + (tags.length ? ' · ' + esc(tags.join(', ')) : '') + '</div>' +
       '<div class="stat">' + ['gold', 'stone', 'food', 'book'].map(r => '<span>' + ic(r, 16) + '<b>' + p.res[r] + '</b></span>').join('') +
       '<span>' + ic('str', 16) + '<b>' + p.str + '</b></span><span class="' + (p.stab < 0 ? 'neg' : '') + '">' + ic('stab', 16) + '<b>' + p.stab + '</b></span>' +
       '<span>' + A.res('worker', 15, p.hex) + '<b>' + p.idle + '</b>/' + p.workers + '</span></div>' +
@@ -905,6 +1006,8 @@ function detailHtml() {
     return '<div class="card">' + (g && g.event ? W.eventRevealHtml({ round: g.round, event: g.event, arch: g.arch }, g, A) : '') + '<button class="btn ghost" id="closeDetail">Close</button></div>';
   }
   const c = C(id);
+  if (c && c.type === 'dynasty') return '<div class="card"><div class="big"><div class="bf" style="width:56%">' + A.dynasty(id) + '</div><div class="bt"><div class="title" style="font-size:17px">' + esc(c.name) + '</div>' +
+    '<div class="sub">Dynasty · ' + esc((D.NATIONS.find(n => n.id === c.nation) || {}).name || '') + '</div><div style="margin-top:6px">' + esc(c.text) + '</div></div></div><button class="btn ghost" id="closeDetail">Close</button></div>';
   return '<div class="card"><div class="big"><div class="bf" style="width:56%">' + A.card(id) + '</div><div class="bt"><div class="title" style="font-size:17px">' + esc(c.name) + '</div>' +
     '<div class="sub">' + esc(A.TYPE_NAME[c.type]) + (c.age ? ' · ' + D.AGE_NAME[c.age] : ' · printed on your board') + '</div><div style="margin-top:6px">' + esc(A.summary(id)) + '</div></div></div>' +
     '<button class="btn ghost" id="closeDetail">Close</button></div>';
@@ -954,6 +1057,10 @@ function wire() {
 
   /* The turn. */
   on('#skipTurn', () => act({ t: 'skip', n }));
+  on('#skipExtra', () => act({ t: 'skip', n }));
+  on('#explore', () => act({ t: 'explore', n }));
+  on('[data-turm]', el => act({ t: 'turmoil', pick: el.dataset.turm, n }));
+  on('[data-colwhere]', el => { const w = el.dataset.colwhere; S.sel.slot = w === 'wonder' ? -2 : null; S.sel.pick = w === 'discard' ? 'discard' : undefined; paint(); });
   on('#pass', () => { if (S.armed !== 'pass') { S.armed = 'pass'; lock(); paint(); return; } act({ t: 'pass', n }); });
   on('[data-panel]', el => { S.panel = el.dataset.panel; S.sel = null; again(); window.scrollTo(0, 0); });
   on('#back', () => { S.panel = null; S.sel = null; again(); });
@@ -984,15 +1091,23 @@ function wire() {
     if (s.act === 'galileo') { S.panel = 'galileo'; S.sel = null; S.galileoCard = s.card; again(); return; }
     if (s.act === 'royal') { S.panel = 'deploy'; S.sel = { royal: s.card }; again(); return; }
     if (s.act === 'alhazen') { S.sel = { act: 'alhazen', card: s.card, a: null }; again(); return; }
+    if (SPECIAL_NOW[s.act]) { act({ t: 'special', card: s.card, n }); return; }
+    if ((s.act === 'oldkingdom' || s.act === 'maliempire')) {
+      const me = mine();
+      const have = me.advisors.filter(a => a && !C(a).permanent).length + me.wonders.filter(w => w && C(w).type === 'advisor').length;
+      if (have === 1) { act({ t: 'special', card: s.card, n }); return; }
+    }
     const me = mine();
-    if ((s.act === 'lincoln' || s.act === 'suleiman') && (me.freeTop || ['food', 'stab'].filter(k => me.taken[k] < me.track[k]).length === 1)) {
-      act({ t: 'special', card: s.card, pick: me.freeTop ? undefined : ['food', 'stab'].find(k => me.taken[k] < me.track[k]), n }); return;
+    const open = ['food', 'stab', 'str'].filter(k => (me.taken[k] || 0) < (me.track[k] || 0));
+    if ((s.act === 'lincoln' || s.act === 'suleiman') && (me.freeTop || open.length === 1)) {
+      act({ t: 'special', card: s.card, pick: me.freeTop ? undefined : open[0], n }); return;
     }
     S.sel = { act: s.act, card: s.card }; again();
   });
   on('[data-sp]', el => {
     const s = S.sel;
     if (s.act === 'bolivar') act({ t: 'special', card: s.card, slot: +el.dataset.sp, n });
+    else if (s.act === 'joseon') act({ t: 'special', card: s.card, pick: el.dataset.sp, slot: 3, n });
     else act({ t: 'special', card: s.card, pick: el.dataset.sp, n });
   });
   on('[data-swap]', el => {

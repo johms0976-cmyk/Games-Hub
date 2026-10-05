@@ -102,16 +102,30 @@
     chichenitza: 1, angkorwat: -2, greatwall: 2, piazza: 6, royalsociety: 4, uraniborg: 2, potala: 2,
     forbidden: 2, himeji: 1, redfort: 2, bigben: 1, mit: 2, liberty: 1, versailles: -3,
     stonehenge: 9, colosseum: -2, sankore: 6, tajmahal: 11, darwin: 13, southpole: -5, moai: 10,
-    terracotta: 1, britishmuseum: 2, brandenburg: 5, titanic: 0
+    terracotta: 1, britishmuseum: 2, brandenburg: 5, titanic: 0,
+    /* Nations: Dynasties */
+    hypatia: 4, zhuxi: 2, linnaeus: 2, chopin: 4, tesla: 2, greatlibrary: 3, shwedagon: 2, oresund: 3, wardenclyffe: 6,
+    turk: 2, kremlin: 3, pillar: 2, siwa: 2, ararat: 2, aurora: 2, sahara: 3, hawaii: 3, spiceislands: 4, greatplains: 3,
+    capegoodhope: 2, grandcanyon: 2, reef: 3, victoria: 2, uluru: 3, titusville: 3, northwest: -2, vesuvius: -2
+  };
+  /* What a dynasty is worth to play, roughly, in the same units. */
+  const DYN_GUESS = {
+    qin: 5, ming: 5, newkingdom: 3, oldkingdom: 4, sparta: 4, athens: 4, achaemenid: 3, sassanid: 2, romanempire: 5, romanrepublic: 3,
+    leon: 4, portugueseempire: 3, jagellonian: 3, plc: 3, umayyad: 4, abbasid: 3, federalist: 5, demrep: 3, mauryan: 5, mughalempire: 4,
+    axumite: 4, sheba: 2, domains: 3, pactum: 4, varangians: 3, normans: 4, koryo: 5, joseon: 5, heian: 3, edo: 5,
+    goldenhorde: 4, yuan: 7, songhai: 3, maliempire: 3
   };
   const fxValue = (x, id) => (FX_GUESS[id] || 0) * Math.min(1.5, x.R / 3 + 0.4);
 
   function wonderValue(x, card) {
     return flatValue(x, card) + (card.vp || 0) * VPV + fxValue(x, card.id);
   }
+  /* A turn spent exploring is a turn not spent on anything else. */
+  const ACTION_V = 2.5;
 
   /* ---------------- the turn ---------------- */
   function turn(pub, me, can) {
+    if (can.explore) return { t: 'explore' };
     const x = ctx(pub, me);
     const p = x.p;
     const opts = [];
@@ -179,8 +193,13 @@
           break;
         }
         case 'colony': {
-          let v = flatValue(x, card) + (card.vp || 0) * VPV;
+          let v = flatValue(x, card) + (card.vp || 0) * VPV + fxValue(x, card.id);
           let slot;
+          if (need.discardOpt) {
+            const d = need.discardOpt;
+            add(VPV * (d.vp || 0) + (d.gold || 0) * goldV - cost, { t: 'buy', r: b.r, c: b.c, pick: 'discard' });
+          }
+          if (need.wonderSpot) { add(v - cost, { t: 'buy', r: b.r, c: b.c, slot: -2 }); break; }
           if (need.slot) {
             let worst = null;
             for (const k of need.slot) { const w = flatValue(x, C(p.colonies[k])) + (C(p.colonies[k]).vp || 0) * VPV; if (!worst || w < worst.w) worst = { k, w }; }
@@ -190,11 +209,20 @@
           break;
         }
         case 'advisor': {
+          if (need.emperor) { add(x.strGain(p.str, p.str + 1) + 0.25 * x.R - cost, { t: 'buy', r: b.r, c: b.c }); break; }
+          let v = flatValue(x, card) + fxValue(x, card.id);
+          if (need.wonderSpot) { add(v - cost, { t: 'buy', r: b.r, c: b.c, slot: -2 }); break; }
           const slot = need.slot ? need.slot[need.slot.length - 1] : undefined;
           const oldId = p.advisors[slot || 0];
-          let v = flatValue(x, card) + fxValue(x, card.id);
           if (oldId) v -= flatValue(x, C(oldId)) + fxValue(x, oldId);
           add(v - cost, { t: 'buy', r: b.r, c: b.c, slot });
+          break;
+        }
+        case 'natural': {
+          let v = wonderValue(x, card) - card.spy * ACTION_V - (card.spaces > 1 ? 4 : 0);
+          if (x.R < 2) v -= 20;
+          if (p.uc) v -= wonderValue(x, C(p.uc.card)) * (p.uc.built / Math.max(1, (C(p.uc.card).cost || []).length || C(p.uc.card).spy || 1)) + 3;
+          add(v * 0.9 - cost, { t: 'buy', r: b.r, c: b.c });
           break;
         }
         case 'wonder': {
@@ -208,11 +236,13 @@
           break;
         }
         case 'golden': {
-          const resV = need.gaGain * x.val[card.res];
+          const ALT_V = { arabian: 2.5 * x.val.book, levite: p.uc ? 3 : 0.5, powergrid: 2 * goldV + 0.5, antikythera: 4, uncletom: -4 };
+          const resV = card.alt ? ALT_V[card.alt] || 0 : need.gaGain * x.val[card.res];
           const pay = canPayMix(p, need.vpCost, b.price) ? payMix(p, need.vpCost, b.price, x) : null;
           const vpV = pay ? VPV - RES.reduce((t, r) => t + pay[r] * x.val[r], 0) : -99;
-          if (vpV > resV) add(vpV - cost, { t: 'buy', r: b.r, c: b.c, pick: 'vp', pay });
-          else add(resV - cost, { t: 'buy', r: b.r, c: b.c, pick: 'res' });
+          const vpAll = vpV + (need.vpGain > 1 ? (need.vpGain - 1) * VPV : 0);
+          if (vpAll > resV) add(vpAll - cost, { t: 'buy', r: b.r, c: b.c, pick: 'vp', pay });
+          else add(resV - cost, { t: 'buy', r: b.r, c: b.c, pick: card.alt ? 'alt' : 'res' });
           break;
         }
         case 'battle': {
@@ -228,6 +258,7 @@
           }
           /* A War bought here is one a stronger nation cannot buy at us. */
           if (x.others.some(o => o.str > p.str)) v += 2;
+          if (need.pick) { const r = ['book', 'food', 'stone'].sort((a, c) => x.val[c] - x.val[a])[0]; add(v + p.raid * x.val[r] - cost, { t: 'buy', r: b.r, c: b.c, pick: r }); break; }
           add(v - cost, { t: 'buy', r: b.r, c: b.c });
           break;
         }
@@ -262,13 +293,42 @@
         case 'galileo': {
           for (const b of can.galileo || []) {
             const card = C(b.card);
-            if (card.type === 'golden') add(Math.max(b.need.gaGain * x.val[card.res], 0), { t: 'special', card: s.card, r: b.r, c: b.c, pick: 'res' });
+            if (card.type === 'golden' && card.alt) add(2, { t: 'special', card: s.card, r: b.r, c: b.c, pick: 'alt' });
+            else if (card.type === 'golden') add(Math.max(b.need.gaGain * x.val[card.res], 0), { t: 'special', card: s.card, r: b.r, c: b.c, pick: 'res' });
             else if (!p.uc) add(wonderValue(x, card) * 0.8, { t: 'special', card: s.card, r: b.r, c: b.c });
           }
           break;
         }
         case 'bolivar': break;
+        case 'shwedagon': case 'romanrep': if (p.stab <= 1) add(x.stabV * 1.5, { t: 'special', card: s.card }); break;
+        case 'reef': if (p.res.food - x.famine + (p.prod.food || 0) < 0) add(5 * x.val.food - VPV, { t: 'special', card: s.card }); break;
+        case 'uppsala': add(x.strGain(p.str, p.str + 3) - x.val.food, { t: 'special', card: s.card }); break;
+        case 'tesla': add(x.strGain(p.str, p.str + 3.5) - 2 * goldV, { t: 'special', card: s.card }); break;
+        case 'turk': if (s.targets && s.targets.length && x.R >= 2) add(4 * goldV * (x.R - 1) - VPV, { t: 'special', card: s.card, pick: s.targets[0] }); break;
+        case 'qin': if (p.idle > 0) add(4, { t: 'special', card: s.card, pick: 'idle' }); break;
+        case 'oldkingdom': case 'maliempire': {
+          const adv = p.advisors.find(a => a && !C(a).permanent);
+          const lose = adv ? flatValue(x, C(adv)) + fxValue(x, adv) : 0;
+          const v = s.act === 'oldkingdom' ? 2 * x.val.book * (x.R - 1) : 3 * x.val.book + VPV - 2 * goldV;
+          if (adv) add(v - lose, { t: 'special', card: s.card, pick: 'a' + p.advisors.indexOf(adv) });
+          break;
+        }
+        case 'joseon': {
+          const r = ['food', 'stone', 'gold'].sort((a, c) => (p.res[c] - x.val[c] * 2) - (p.res[a] - x.val[a] * 2))[0];
+          const k = Math.min(3, p.res[r]);
+          if (k) add(k * x.val[r] * 0.9, { t: 'special', card: s.card, pick: r, slot: k });
+          break;
+        }
+        case 'demrep': add((s.hit || []).length * 3 * x.val.book, { t: 'special', card: s.card }); break;
+        case 'chopin': add(Math.max(0, p.prod.book) * x.val.book * x.R - 5 * goldV, { t: 'special', card: s.card }); break;
+        case 'plcbuy': add(flatValue(x, C(s.card)) + fxValue(x, s.card) - 3 * goldV - (p.advisors[0] ? 3 : 0), { t: 'special', card: s.card }); break;
       }
+    }
+    /* Turmoil: play a dynasty (−2 stability this round), or 2 gold. */
+    if (can.turmoil && can.turmoil.ok) {
+      const stabCost = p.stab - 2 < 0 ? 6 : (p.stab - 2 < 2 ? 1.5 : 0.6);
+      for (const d of can.turmoil.dynasties) add((DYN_GUESS[d] || 3) * Math.min(1, x.R / 4 + 0.3) + (p.dynasties.length === 2 ? 1.5 : 0) - stabCost, { t: 'turmoil', pick: d });
+      add(2 * goldV - (can.turmoil.goldFree ? 0 : stabCost) - 0.5, { t: 'turmoil', pick: 'gold' });
     }
     /* Passing while a War can still be bought by somebody stronger. */
     let passCost = 0;
@@ -298,12 +358,19 @@
   function answer(pub, me, pr) {
     const p = pub.players.find(x => x.id === me.id);
     switch (pr.t) {
-      case 'turn': return !me.can ? { n: pr.n, t: 'pass' } : me.can.skipOnly ? { n: pr.n, t: 'skip' } : Object.assign({ n: pr.n }, turn(pub, me, me.can));
+      case 'turn': {
+        if (!me.can) return { n: pr.n, t: 'pass' };
+        if (me.can.skipOnly) return { n: pr.n, t: 'skip' };
+        const a = turn(pub, me, me.can);
+        /* An extra action may not be a pass. */
+        if (pr.extraOnly && a.t === 'pass') return { n: pr.n, t: 'skip' };
+        return Object.assign({ n: pr.n }, a);
+      }
       case 'nation': return { n: pr.n, t: 'nation', nation: pr.options[0].id, side: 'B' };
       case 'growth': {
         const x = ctx(pub, me);
         const food = pr.options.find(o => o.id === 'worker:food');
-        const st = pr.options.find(o => o.id === 'worker:stab');
+        const st = pr.options.find(o => o.id === 'worker:stab') || (p.str >= 9 ? pr.options.find(o => o.id === 'worker:str') : null);
         const top = pr.options.find(o => o.id === 'worker:top');
         const idleUse = p.bm.some(s => s && s.card && C(s.card).type === 'building');
         if (top) return { n: pr.n, t: 'growth', pick: top.id };
@@ -314,7 +381,7 @@
         if (x.R >= 3 && idleUse && room > p.idle) {
           const famine = 2;
           if (food && p.prod.food - 3 - famine >= -1 && p.res.food >= 5) return { n: pr.n, t: 'growth', pick: food.id };
-          if (st && p.stab - 3 >= 0) return { n: pr.n, t: 'growth', pick: st.id };
+          if (st && (st.id === 'worker:str' || p.stab - 3 >= 0)) return { n: pr.n, t: 'growth', pick: st.id };
           if (food && p.prod.food - 3 >= 0) return { n: pr.n, t: 'growth', pick: food.id };
         }
         const want = ['gold', 'stone', 'food'].sort((a, b) => x.val[b] - x.val[a])[0];
@@ -342,10 +409,10 @@
     switch (pr.what) {
       case 'mayPay': return 'yes';
       case 'mayLast': return p.str < Math.max(...x.others.map(o => o.str)) ? 'yes' : 'no';
-      case 'take': return has('food') && p.prod.food >= 3 ? 'food' : (has('stab') && p.stab >= 4 ? 'stab' : (has('no') ? 'no' : ids[0]));
+      case 'take': return has('food') && p.prod.food >= 3 ? 'food' : (has('stab') && p.stab >= 4 ? 'stab' : (has('str') && p.str >= 9 ? 'str' : (has('no') ? 'no' : ids[0])));
       case 'undeploy': return has('no') ? 'no' : ids[0];
       case 'freeArch': case 'freeMil': return has('yes') ? 'yes' : ids[0];
-      case 'returnTo': return p.stab < 3 ? 'stab' : 'food';
+      case 'returnTo': return (p.stab < 3 ? ['stab', 'str', 'food'] : ['food', 'str', 'stab']).find(has) || ids[0];
       case 'returnFrom': return has('idle') ? 'idle' : ids[ids.length - 1];
       case 'either': {
         /* The cheapest-looking option. */
@@ -364,6 +431,21 @@
         return best ? best.id : ids[0];
       }
       case 'peter': return ['stone', 'gold', 'book'].sort((a, b) => x.val[b] - x.val[a]).find(has) || ids[0];
+      /* Which space a dynasty card or a free building lies over: an empty
+         one, else the one whose loss hurts least. */
+      case 'coverSpace': case 'freeSlot': {
+        const cost = id => {
+          const k = +id.slice(1);
+          if (id[0] === 'c') return flatValue(x, C(p.colonies[k])) + (C(p.colonies[k]).vp || 0) * VPV;
+          const s = p.bm[k];
+          if (!s) return -1;
+          return perWorker(x, C(s.card)) * Math.max(1, s.w) * x.R + (C(s.card).type === 'military' ? C(s.card).str * s.w : 0);
+        };
+        return ids.slice().sort((a, b) => cost(a) - cost(b))[0];
+      }
+      case 'vikingTax': return ['food', 'gold', 'stone', 'book'].find(has) || ids[0];
+      case 'jagiello': return p.res.gold >= 3 ? 'yes' : 'no';
+      case 'abbasid': return 'yes';
       case 'event': return ids[Math.floor(Math.random() * ids.length) % ids.length];
       default: return ids[0];
     }
@@ -371,7 +453,7 @@
   /* An answer that is always legal, for when the engine refuses the first. */
   function fallback(pub, me, pr) {
     switch (pr.t) {
-      case 'turn': return { n: pr.n, t: me.can && me.can.skipOnly ? 'skip' : 'pass' };
+      case 'turn': return { n: pr.n, t: me.can && me.can.explore ? 'explore' : (me.can && me.can.skipOnly) || pr.extraOnly ? 'skip' : 'pass' };
       case 'growth': return { n: pr.n, t: 'growth', pick: pr.options[pr.options.length - 1].id };
       case 'nation': return { n: pr.n, t: 'nation', nation: pr.options[0].id, side: 'A' };
       case 'choice': return { n: pr.n, t: 'pick', pick: pr.options[pr.options.length - 1].id };

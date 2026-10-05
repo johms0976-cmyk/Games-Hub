@@ -97,7 +97,7 @@ const GAMES = [
   {
     id: "nations",
     title: "Nations",
-    subtitle: "Solo — build a civilisation against the computer, on your phone",
+    subtitle: "Solo — build a civilisation against the computer, on your phone. Now with the Dynasties expansion",
     category: "strategy",
     players: "1",
     duration: "45–90 min",

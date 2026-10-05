@@ -9,22 +9,31 @@
  */
 (function (root) {
   const D = (typeof module !== 'undefined' && module.exports) ? require('./nations-data.js') : root.NationsData;
-  const VERSION = 2;
+  const VERSION = 3;
   const ROMAN = D.ROMAN;
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const NAME = { gold: 'gold', stone: 'stone', food: 'food', book: 'books', vp: 'VP', stab: 'stability', str: 'strength' };
   const ORDER = ['vp', 'gold', 'stone', 'food', 'book'];
-  const HEAD = { buy: 1, deploy: 1, hire: 1, special: 1, pass: 1, skip: 1, growth: 1, worker: 1, nation: 1 };
+  const HEAD = { buy: 1, deploy: 1, hire: 1, special: 1, pass: 1, skip: 1, growth: 1, worker: 1, nation: 1, turmoil: 1, explore: 1 };
   const TABLE = { round: 1, event: 1, war: 1, books: 1, over: 1, hurried: 1, nowait: 1, start: 1, resolution: 1 };
 
   function ctx(src) {
     const names = {};
     for (const p of (src.players || [])) names[p.id] = p.name;
-    const C = id => { const c = D.card(id); return c ? c.name : 'a card'; };
+    const C = id => { if (id === 'nation') return 'their nation'; const c = D.card(id); return c ? c.name : 'a card'; };
     return { P: id => names[id] || '?', C };
   }
   const plural = (n, one, many) => n + ' ' + (n === 1 ? one : many);
-  const REMOVED_WHY = { leastStab: 'the least stable', leastStr: 'the weakest', milWorker: 'a worker on military', defeated: 'defeated in the War', tower: 'the Porcelain Tower is gone', event: '' };
+  const REMOVED_WHY = { leastStab: 'the least stable', leastStr: 'the weakest', milWorker: 'a worker on military', defeated: 'defeated in the War', tower: 'the Porcelain Tower is gone', event: '',
+    stabOver2: 'above 2 stability', uncletom: 'Uncle Tom’s Cabin', dynasty: 'the old dynasty’s', noRoom: 'no wonder space for it', replaced: 'replaced' };
+  const SPECIAL_SAYS = {
+    alhazen: () => ' to swap two cards on the board', lincoln: () => ' to take a worker', suleiman: () => ' to take a worker',
+    tesla: e => ' and rolls ' + e.roll + ' — +' + e.roll + ' strength this round', duchy: () => ' to skip a turn',
+    uppsala: () => ' — +3 strength this round', shwedagon: () => ' — +1 stability this round', romanrep: () => ' — an architect for +1 stability this round',
+    qin: () => ': a worker goes home and a wonder section is built free', demrep: (e, x) => ': ' + (e.hit || []).map(x.P).join(' and ') + ' must change dynasty',
+    joseon: e => ' to store ' + Object.keys(e.stored || {}).map(r => e.stored[r] + ' ' + NAME[r]).join(''),
+    oldkingdom: (e, x) => ', giving up ' + x.C(e.advisor), maliempire: (e, x) => ', giving up ' + x.C(e.advisor)
+  };
 
   function headText(x, e) {
     const who = x.P(e.by);
@@ -32,19 +41,31 @@
       case 'buy': {
         const c = D.card(e.card);
         let s = who + ' buys ' + x.C(e.card) + (e.price ? ' for ' + e.price + ' gold' : ' for nothing');
-        if (c && c.type === 'war') s = who + ' declares ' + x.C(e.card) + ' at strength ' + e.str + (e.price ? ' (' + e.price + ' gold)' : '');
+        if (c && c.type === 'war') s = who + ' declares ' + x.C(e.card) + ' at strength ' + e.str + (e.price ? ' (' + e.price + ' gold)' : '') + (e.leon ? ', raiding ' + e.n + ' ' + NAME[e.pick] : '');
         if (c && c.type === 'battle') s += ', raiding ' + e.n + ' ' + NAME[e.pick];
+        if (c && c.type === 'natural') s += ' to explore';
         if (c && c.type === 'golden' && e.pick === 'vp') s += ' and pays for a VP';
+        if (c && c.type === 'golden' && e.alt) s += ({ arabian: ' — books each time play passes them this round', levite: ' — 3 more architects', uncletom: ' — buildings that cost 1 stone to staff go, everybody’s', powergrid: ' — the board refilled', antikythera: ' — turning up the next age' })[e.alt] || '';
+        if (e.emperor) s += ' — the Emperor takes it (+1 strength)';
+        if (e.discarded) s += ' and lets it go';
+        if (e.onWonder) s += ' into a wonder space';
+        if (e.kept) s += ' — Zhu Xi stays on';
+        if (e.toll) s += ' (+' + e.toll.n + ' gold to ' + x.P(e.toll.to) + ')';
         if (e.replaced) s += ', over ' + x.C(e.replaced);
         return s;
       }
       case 'deploy': return who + (e.free ? ' puts a worker on ' + x.C(e.card) + ' for free' : ' puts a worker on ' + x.C(e.card) + (e.cost ? ' (' + e.cost + ' stone)' : ''));
       case 'hire': return who + (e.src === 'free' ? ' builds a section of ' : ' hires an architect for ') + x.C(e.card) + ' — ' + e.built + ' of ' + e.of + (e.cost ? ' (' + e.cost + ' stone)' : '');
-      case 'special': return who + ' uses ' + x.C(e.card) + (e.act === 'alhazen' ? ' to swap two cards on the board' : e.act === 'lincoln' || e.act === 'suleiman' ? ' to take a worker' : e.act === 'bolivar' ? ' and gives up ' + x.C(e.colony) : '');
+      case 'special':
+        if (e.act === 'chopin' || e.act === 'plcbuy') return who + ' buys ' + x.C(e.card) + ' from ' + x.P(e.from) + (e.replaced ? ', over ' + x.C(e.replaced) : '');
+        if (e.act === 'turk') return who + ' gives ' + x.C(e.card) + ' to ' + x.P(e.to);
+        return who + ' uses ' + x.C(e.card) + (SPECIAL_SAYS[e.act] ? SPECIAL_SAYS[e.act](e, x) : e.act === 'bolivar' ? ' and gives up ' + x.C(e.colony) : '');
+      case 'turmoil': return who + ' takes a Turmoil card' + (e.forced ? ' (' + e.forced + ')' : '') + (e.dyn ? ' and plays ' + x.C(e.dyn) : ' and 2 gold' + (e.discarded ? ' — the Sassanids send it straight back' : ''));
+      case 'explore': return who + ' explores ' + x.C(e.card) + ' — ' + e.built + ' of ' + e.of;
       case 'pass': return who + ' passes' + (e.k === 1 ? ' first' : '');
-      case 'skip': return who + '’s first turn is skipped';
+      case 'skip': return e.extra ? who + ' lets the extra action go' : who + '’s first turn is skipped';
       case 'growth': return who + ' takes ' + e.n + ' ' + NAME[e.res];
-      case 'worker': return who + ' grows' + (e.section === 'food' ? ' (a worker off the Food track)' : e.section === 'stab' ? ' (a worker off the Stability track)' : '');
+      case 'worker': return who + ' grows' + (e.section === 'food' ? ' (a worker off the Food track)' : e.section === 'stab' ? ' (a worker off the Stability track)' : e.section === 'str' ? ' (a worker off the Strength track)' : e.section === 'free' ? ' (a worker with no upkeep)' : '');
       case 'nation': return who + ' will play ' + (D.NATIONS.find(n => n.id === e.nation) || {}).name + ' (' + e.side + ' side)';
     }
     return null;
@@ -55,11 +76,26 @@
       case 'covered': return 'it covers ' + x.C(e.card);
       case 'removed': return 'loses ' + x.C(e.card) + (REMOVED_WHY[e.why] ? ' (' + REMOVED_WHY[e.why] + ')' : '');
       case 'short': return 'runs short of ' + NAME[e.res];
-      case 'spared': return e.why === 'greatwall' ? 'the Great Wall spares the VP' : 'Florence Nightingale spares the VP';
+      case 'spared': return e.why === 'greatwall' ? 'the Great Wall spares the VP' : e.why === 'edo' ? 'is defeated, but the Edo Period loses nothing' : 'Florence Nightingale spares the VP';
       case 'versailles': return 'is least stable for the rest of the round';
       case 'undeploy': return e.moving ? null : 'takes a worker off ' + x.C(e.card);
       case 'returned': return 'returns a worker to the population track';
       case 'archLost': return 'loses an architect off ' + x.C(e.card);
+      case 'discovered': return 'discovers ' + x.C(e.card);
+      case 'dynasty': return 'now rules as the ' + x.C(e.dyn);
+      case 'spaceCovered': return 'the dynasty card covers a ' + (e.kind === 'bm' ? 'building/military' : 'colony') + ' space' + (e.card ? ' (' + x.C(e.card) + ' goes)' : '');
+      case 'victoria': return 'Victoria Falls turns up ' + e.n + ' cards: ' + (e.colonies.length ? e.colonies.map(x.C).join(', ') + ' make a fourth row, 4 gold each' : 'not one colony');
+      case 'moreActions': return x.C(e.card) + ' gives ' + e.n + ' more actions';
+      case 'tempStr': return '+' + e.n + ' strength this round';
+      case 'newSpace': return 'gains a building/military space';
+      case 'tokenLost': return 'the defeat costs the Old Kingdom a token';
+      case 'noUpkeep': return 'no military upkeep this round';
+      case 'freeCard': return 'takes ' + x.C(e.card) + ' free (' + e.why + ')';
+      case 'placed': return 'puts it in space ' + (e.slot + 1);
+      case 'gaAlt': return x.C(e.card) + ' does its own thing';
+      case 'axumite': return 'marks ' + x.C(e.card) + ' — 3 gold to them if anybody else buys it';
+      case 'jagiello': return 'pays ' + x.P(e.to) + ' 1 gold for an action before everybody';
+      case 'vikingTax': return 'takes a levy: everybody else loses 1 ' + NAME[e.res];
     }
     return null;
   }
@@ -69,7 +105,7 @@
       case 'round': return (e.n % 2 ? 'The ' + D.AGE_NAME[e.age] + ' age begins. ' : '') + 'Round ' + e.n + ' of 8: growth.';
       case 'event': {
         const ev = D.event(e.ev);
-        return 'This round’s events: ' + ev.a.name + ' and ' + ev.b.name + ' · famine ' + ev.famine + ' food' + (e.chosenBy ? ' (' + x.P(e.chosenBy) + ' chose)' : '');
+        return 'This round’s event' + (ev.b ? 's: ' + ev.a.name + ' and ' + ev.b.name : ': ' + ev.a.name) + ' · famine ' + ev.famine + ' food' + (e.chosenBy ? ' (' + x.P(e.chosenBy) + ' chose)' : '');
       }
       case 'resolution': return 'Everybody has passed. Production, the War and the events.';
       case 'war': return e.none ? 'No War this round.' : 'The War: ' + x.C(e.card) + ' at strength ' + e.str + (e.defeated.length ? ' — ' + e.defeated.map(x.P).join(', ') + ' defeated.' : ' — nobody is defeated.');
@@ -129,7 +165,7 @@
         return;
       }
       if (e.t === 'revolt') {
-        out.push(open = { i, by: e.by, t: 'revolt', head: x.P(e.by) + ' is in revolt', gains: {}, bits: [], bare: true });
+        out.push(open = { i, by: e.by, t: 'revolt', head: x.P(e.by) + ' is in revolt' + (e.str != null ? ' (strength below 0)' : ''), gains: {}, bits: [], bare: true });
         addGains(open, e.got);
         return;
       }
@@ -336,7 +372,7 @@
         const bits = ids.map(id => dot(id) + esc(P(id).name) + ' ' + gainsHtml(e.who[id], A));
         if (e.moved) bits.push(e.moved.who.map(id => esc(P(id).name)).join(', ') + ' go' + (e.moved.who.length === 1 ? 'es' : '') + ' ' + e.moved.where);
         for (const l of (e.lost || [])) bits.push(esc(P(l.id).name) + ' loses ' + esc(x.C(l.card)));
-        const half = ev ? [ev.a, ev.b].find(h => h.name === e.name) : null;
+        const half = ev ? [ev.a, ev.b].filter(Boolean).find(h => h.name === e.name) : null;
         return '<div class="rc-evh"><b>' + esc(e.name) + '</b>' + (half ? '<div class="rc-note">' + esc(half.text) + '</div>' : '') +
           '<div class="rc-row">' + (bits.length ? bits.join(' · ') : 'Nobody was touched by it.') + '</div></div>';
       }).join('');
@@ -363,7 +399,7 @@
       '<div class="rc-h">Round ' + info.round + ' — the event' + (info.chosenBy ? ' <small>(' + esc(ctx(pub).P(info.chosenBy)) + ' chose it)</small>' : '') + '</div>' +
       '<div class="rc-sub rc-says">It stays beside the board all round. Nothing on it happens yet: both events and the famine come at the end, after production and the War.</div>' +
       '<div class="rc-evs"><div class="rc-evc">' + (A ? A.event(info.event) : '') + '</div><div class="rc-evl">' +
-      half(ev.a) + half(ev.b) +
+      half(ev.a) + (ev.b ? half(ev.b) : '') +
       '<div class="rc-evh"><b>Famine</b><div class="rc-row">At the end of the round every nation pays ' + ev.famine + ' food.</div></div>' +
       '<div class="rc-evh"><b>Architects</b><div class="rc-row">' + info.arch + ' to hire this round' + (ev.arch ? ' (' + ev.arch + ' of them from this card)' : '') + '.</div></div>' +
       '</div></div></div>';

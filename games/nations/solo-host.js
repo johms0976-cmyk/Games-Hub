@@ -35,12 +35,12 @@
   const DECKS = { base: ['base'], adv: ['base', 'adv'], exp: ['base', 'adv', 'exp'] };
   const OPTS = {
     decks: ['base', 'adv', 'exp'], side: ['A', 'B'], diff: D.DIFFICULTY.map(d => d.id),
-    pace: ['slow', 'relaxed', 'brisk']
+    pace: ['slow', 'relaxed', 'brisk'], dyn: ['off', 'on'], promo: ['off', 'on']
   };
 
   const S = {
     screen: 'lobby', g: null,
-    opts: Object.assign({ table: 3, decks: 'base', side: 'A', diff: 'prince', pace: 'relaxed', ages: 4 }, readJSON(OPTS_KEY) || {}),
+    opts: Object.assign({ table: 3, decks: 'base', side: 'A', diff: 'prince', pace: 'relaxed', ages: 4, dyn: 'off', promo: 'off' }, readJSON(OPTS_KEY) || {}),
     /* Lines read "<name> buys …", so the default must take a verb in the third person. */
     name: (get(NAME_KEY) || 'Your Majesty').slice(0, 14),
     gameOpts: null, thinking: {}, hold: null, lastRound: 0, lastEvent: 0, roundVP: {},
@@ -77,7 +77,7 @@
     return {
       seated: [{ id: ME, name: S.name, hex: YOU_HEX }],
       house: HOUSE.slice(0, size - 1).map(b => ({ name: b.name, hex: b.hex, house: true })),
-      size, decks: S.opts.decks, side: S.opts.side, diff: S.opts.diff, pace: S.opts.pace, ages: S.opts.ages,
+      size, decks: S.opts.decks, side: S.opts.side, diff: S.opts.diff, pace: S.opts.pace, ages: S.opts.ages, dyn: S.opts.dyn, promo: S.opts.promo,
       watching: [], minSize: 2, name: S.name
     };
   }
@@ -86,8 +86,14 @@
     if (key === 'table') { const v = +value; if (v < 2 || v > 5) return; S.opts.table = v; }
     else if (key === 'ages') { const v = +value; if (v !== 2 && v !== 4) return; S.opts.ages = v; }
     else if (key === 'name') { const v = String(value || '').trim().slice(0, 14); S.name = v && !/^(you|me|i)$/i.test(v) ? v : 'Your Majesty'; set(NAME_KEY, S.name); }
-    else if (OPTS[key]) { if (OPTS[key].indexOf(String(value)) < 0) return; S.opts[key] = String(value); }
+    else if (OPTS[key]) {
+      if (OPTS[key].indexOf(String(value)) < 0) return;
+      /* Nations: Dynasties is played on the B sides. */
+      if (key === 'side' && value === 'A' && S.opts.dyn === 'on') return;
+      S.opts[key] = String(value);
+    }
     else return;
+    if (S.opts.dyn === 'on') S.opts.side = 'B';
     /* Five nations need the advanced cards too (the base deck is too thin). */
     if (tableSize() === 5 && S.opts.decks === 'base') S.opts.decks = 'adv';
     set(OPTS_KEY, JSON.stringify(S.opts));
@@ -100,7 +106,7 @@
     const lv = lobbyView();
     const players = [{ id: ME, name: S.name, hex: YOU_HEX }]
       .concat(lv.house.map((b, k) => ({ id: 'house' + (k + 1), name: b.name, hex: b.hex, bot: true })));
-    S.createOpts = { players, sets: DECKS[S.opts.decks], side: S.opts.side, difficulty: S.opts.diff, ages: S.opts.ages,
+    S.createOpts = { players, sets: DECKS[S.opts.decks], side: S.opts.side, difficulty: S.opts.diff, ages: S.opts.ages, dyn: S.opts.dyn === 'on', promo: S.opts.promo === 'on',
       seed: (Date.now() ^ (Math.random() * 1e9)) >>> 0, show: true };
     S.g = E.create(S.createOpts);
     S.gameOpts = Object.assign({}, S.opts, { table: players.length });
@@ -253,6 +259,8 @@
     let deck = 0;
     for (const a in g.decks) deck += g.decks[a].length;
     for (const a in g.evDecks) deck += g.evDecks[a].length;
+    /* A die rolled (Nikola Tesla) is as seen as a card turned over. */
+    deck += 1000 * (g.rolls || 0);
     return { round: g.round, phase: g.phase, deck, logN: g.log.length };
   }
   function play(g, seat, a) {
