@@ -1,0 +1,930 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>Blood Rage — Solo</title>
+<meta name="theme-color" content="#0f0c0b">
+<style>
+:root{
+  --bg:#0f0c0b; --panel:#1b1512; --panel2:#130f0d; --line:#3a2e27;
+  --ink:#f3e9d8; --dim:#b3a28c; --gold:#e8c267; --blood:#c8413b; --good:#6cc07a;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);
+  font:16px/1.4 ui-rounded,-apple-system,"Segoe UI",system-ui,sans-serif;
+  padding:env(safe-area-inset-top) 12px calc(18px + env(safe-area-inset-bottom))}
+.hide{display:none !important}
+header{display:flex;align-items:center;gap:8px;padding:10px 0 8px;position:sticky;top:0;background:var(--bg);z-index:5}
+#dot{width:12px;height:12px;border-radius:50%;background:var(--gold);flex:none}
+#who{font-weight:800;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+h2{margin:14px 0 6px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px}
+.card.ask{border-color:var(--gold)}
+.title{font-weight:800;font-size:19px;color:var(--gold)}
+.sub{color:var(--dim);font-size:13px;margin-top:2px}
+button{font:inherit}
+.btn{display:block;width:100%;background:var(--blood);border:0;color:#fff;font-weight:800;font-size:17px;
+  border-radius:14px;padding:14px;margin-top:10px}
+.btn:disabled{opacity:.4}
+.btn.gold{background:var(--gold);color:#140e0b}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--dim);font-weight:600;font-size:15px}
+.opts{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.opt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--panel2);
+  border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:11px 12px;font-size:15px}
+.opt:disabled{opacity:.35}
+.opt.on{border-color:var(--gold);background:rgba(232,194,103,.12)}
+.opt .lab{flex:1;min-width:0}
+.opt .lab b{display:block}
+.opt .lab small{color:var(--dim);font-size:12px;display:block;line-height:1.25}
+.opt .val{font-weight:800;color:var(--gold);white-space:nowrap}
+.opt .figimg,.row .figimg,h2 .figimg{flex:none;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
+h2 .figimg{vertical-align:middle;margin:-12px 6px -6px 0}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.acts button{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:12px 8px;
+  font-weight:800;font-size:15px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.acts button small{font-weight:500;font-size:11px;color:var(--dim)}
+.acts button:disabled{opacity:.3}
+.acts button.pass{grid-column:1/-1;border-color:#5a2a26}
+.acts button.pass.arm{background:var(--blood);color:#fff}
+.cards{display:flex;flex-direction:column;gap:7px;margin-top:8px}
+.cards .bcard.pick{outline:3px solid var(--gold)}
+.cards button.cardbtn{all:unset;display:block}
+.clanpick{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.clanpick .cp{--c:#888;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px 7px;border-radius:12px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);font:inherit;border-top:6px solid var(--c);min-width:0}
+.clanpick .cp b{font-size:13px}.clanpick .cp small{font-size:10px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.clanpick .cp.on{border-color:var(--c);box-shadow:0 0 0 2px var(--c) inset}
+.clanpick .cp[disabled]{opacity:.35}
+.clanpick .cp .figimg{height:52px;width:auto}
+.qlead{font-size:13px;line-height:1.35;margin:-2px 0 2px;padding:6px 10px;border-radius:0 0 10px 10px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-top:0;color:var(--dim)}
+.qlead b{color:var(--ink)}
+.qlead.ok{border-color:#6cc07a88;color:#cfe8d3}
+.qlead.ok b{color:#8fe09c}
+.qlead s{opacity:.6}
+.map{margin-top:10px;border-radius:12px;overflow:hidden;border:1px solid var(--line);aspect-ratio:1/1}
+.row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--dim);padding:3px 0}
+.row i{width:10px;height:10px;border-radius:50%;flex:none}
+.row em{margin-left:auto;font-style:normal;color:var(--ink);font-weight:700}
+.sheet{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.sheet div{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:6px;text-align:center;font-size:11px;color:var(--dim)}
+.sheet div b{display:block;font-size:20px;color:var(--ink)}
+.sheet div.rage b{color:#ff8a80}
+.ups{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.ups span{font-size:11.5px;border:1px solid var(--line);border-radius:7px;padding:2px 7px}
+.tot{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.tot span{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:4px 9px;font-size:13px}
+.tot span b{color:var(--gold)}
+#flash{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));
+  background:#2a1210;border:1px solid var(--blood);color:#ffd9d4;border-radius:12px;padding:11px 13px;font-size:14px;z-index:20}
+/* ---------- since your last turn, and the end of an Age ---------- */
+.since{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:9px 11px;margin-top:8px;font-size:13px;color:var(--dim);display:flex;flex-direction:column;gap:4px}
+.since .sh{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+.since .sl{line-height:1.35}
+.since .sl.new{color:var(--ink)}
+.since .more{align-self:flex-start;background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:9px;padding:4px 10px;font-size:12px}
+.next{margin-top:6px;font-weight:800;color:var(--gold);font-size:15px}
+.agec .mine{margin-top:8px;background:var(--panel2);border:1px solid var(--gold);border-radius:12px;padding:9px 11px}
+.agec .mine .big{font:900 28px/1 Georgia,serif;color:var(--gold)}
+.agec .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.agec .chips span{font-size:12px;border:1px solid var(--line);border-radius:8px;padding:2px 7px}
+.agec .chips span b{color:var(--gold)}
+.agec .line{font-size:13px;margin-top:8px;line-height:1.4}
+.agec .line b{color:var(--ink)}
+.agec .rag{border-left:3px solid var(--blood);padding-left:8px}
+#name{display:flex;gap:8px;margin:10px 0}
+#name input{flex:1;font:inherit;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:12px}
+#menuBtn{margin-left:auto;background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:10px;padding:6px 10px;font-size:14px}
+#sheet{position:fixed;inset:0;z-index:40;background:rgba(8,6,5,.85);display:flex;align-items:flex-end;justify-content:center;
+  padding:12px 12px calc(12px + env(safe-area-inset-bottom))}
+#sheet .card{width:100%;max-width:520px;max-height:86vh;overflow:auto}
+#sheet li{margin:4px 0;font-size:13px;color:var(--dim)}
+#flash.ok{background:#14241a;border-color:var(--good);color:#d6f2dc}
+.btn.small{font-size:14px;padding:10px;margin-top:8px}
+.undo{margin-top:8px}
+.row.me{color:var(--ink)}
+/* the battlefield box */
+#fieldBox{margin:2px 0 10px}
+#field{position:relative;z-index:0;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#07090b}
+#field.bfield{opacity:1 !important}
+#field .bf-banners,#field .bf-title,#field .bf-verdict{display:none !important}
+.pf-title{font:900 21px/1.15 Georgia,serif;color:#f6ecd8;margin-top:8px}
+.pf-line{font-size:13px;color:var(--dim);margin-top:3px}
+.pf-verdict{margin-top:8px;padding:9px 11px;border-radius:12px;background:var(--panel);border:1px solid var(--gold);animation:pfIn .5s ease-out}
+.pf-verdict h3{margin:0;font:900 20px/1.1 Georgia,serif;color:var(--gold)}
+.pf-verdict.rag h3{color:#ff9a62}
+.pf-verdict.tie h3{color:#ff8a80}
+.pf-verdict p{margin:4px 0 0;font-size:14px;font-weight:700}
+.pf-verdict small{display:block;margin-top:2px;font-size:12px;color:var(--dim)}
+@keyframes pfIn{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
+.pf-rows{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.pf-rows .bf-banner{flex:none;gap:8px;padding:6px 9px 6px 6px;border-radius:12px;border-top-width:4px;font-size:13px;box-shadow:none}
+.pf-rows .bf-banner.win{transform:none;box-shadow:0 0 0 2px #e8c267}
+.pf-rows .bf-banner .bn-fig{width:34px;height:42px}
+.pf-rows .bf-banner .bn-fig img{height:44px !important;width:auto !important;margin-top:0}
+.pf-rows .bf-banner .bn-name{font-size:15px}
+.pf-rows .bf-banner .bn-clan{font-size:11px}
+.pf-rows .bf-banner .bn-str small{font-size:9px}
+.pf-rows .bf-banner .bn-str b{font-size:22px}
+.pf-rows .bf-banner .bn-tot{font-size:26px}
+.pf-rows .cslot{width:38px;height:52px;font-size:9px;border-radius:6px}
+.pf-rows .cslot.back::after{font-size:20px}
+.pf-rows .cslot.face b{font-size:16px}
+.pf-rows .cslot.face span{font-size:8px}
+
+</style>
+</head>
+<body>
+
+<header>
+  <span id="dot"></span><span id="who">Blood Rage</span>
+  <button id="menuBtn" aria-label="Menu">☰ Menu</button>
+</header>
+
+<div id="fieldBox" class="hide"><div id="field"></div><div id="fieldInfo"></div></div>
+<div id="main"></div>
+<div id="flash" class="hide"></div>
+<div id="sheet" class="hide"></div>
+
+<script src="br-data.js"></script>
+<script src="br-engine.js"></script>
+<script src="br-bots.js"></script>
+<script src="br-words.js"></script>
+<script src="art/figs/manifest.js"></script>
+<script src="art/board/manifest.js"></script>
+<script src="art/regions/manifest.js"></script>
+<script src="br-art.js"></script>
+<script src="br-scene.js"></script>
+<script src="solo-host.js"></script>
+<script>
+'use strict';
+(function checkVersions() {
+  const missing = [];
+  if (!window.BRData || !window.BRData.MANIFEST) missing.push('br-data.js');
+  if (!window.BREngine || window.BREngine.VERSION !== 2 || !window.BREngine.viewStr || !window.BREngine.questLead) missing.push('br-engine.js');
+  if (!window.BRWords || !window.BRWords.since) missing.push('br-words.js');
+  if (!window.BRArt || !window.BRArt.board) missing.push('br-art.js');
+  if (!window.BRBots) missing.push('br-bots.js');
+  if (!window.BRScene) missing.push('br-scene.js');
+  if (!window.BRSolo) missing.push('solo-host.js');
+  if (!missing.length) return;
+  const show = () => {
+    document.body.innerHTML = '<div style="padding:12vw 8vw;text-align:center;font:600 18px/1.5 system-ui;color:#f3e9d8">' +
+      '<div style="font-size:26px;color:#e8c267;margin-bottom:12px">This page is out of date</div>' +
+      'Your phone kept an old copy of ' + missing.join(' and ') + '. Reload the page (or close the tab and open it again).</div>';
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', show); else show();
+  throw new Error('stale assets: ' + missing.join(', '));
+})();
+
+const D = window.BRData, E = window.BREngine, A = window.BRArt, W = window.BRWords;
+document.head.insertAdjacentHTML('beforeend', '<style>' + A.GOD_CSS + '</style>');
+const $ = id => document.getElementById(id);
+const esc = A.esc;
+document.head.insertAdjacentHTML('beforeend', '<style>' + A.MAP_CSS + A.CARD_CSS + window.BRScene.CSS + '</style>');
+
+const Solo = window.BRSolo;
+const HUB_URL = '../../index.html';
+
+/* Phones synthesise a click ~300ms after a touch. Everything is inert for
+   this long after a send or a new question, so the tap that answered one
+   cannot land on whatever is drawn under the finger next. */
+const LOCK_MS = 450;
+
+const S = {
+  id: Solo.ME, name: '', hex: '#e8c267',
+  pub: null, me: null,
+  ui: {}, uiFor: null,
+  lockUntil: 0, shape: '',
+  buzzedFor: null,        // the prompt this phone last buzzed for
+  sinceAll: false,        // the whole "since your last turn" list, or just the latest
+  sheet: null, greeted: false, fieldKey: ''
+};
+window.__BRPHONE = S;
+const locked = () => Date.now() < S.lockUntil;
+const lock = () => { S.lockUntil = Date.now() + LOCK_MS; };
+const buzz = ms => { if (navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) {} } };
+
+/* ---------- the table runs in this page (solo-host.js) ---------- */
+const send = m => { Solo.send(m); return true; };
+/* The table and your half of it arrive as two messages: paint once for both. */
+let paintQueued = false;
+const paintSoon = () => { if (paintQueued) return; paintQueued = S.paintPending = true; setTimeout(() => { paintQueued = S.paintPending = false; paint(); }, 0); };
+
+function handle(m) {
+  if (m.t !== 'msg' || !m.msg) return;
+  const msg = m.msg;
+  if (msg.t === 'hello-ok') { S.name = msg.name; return; }
+  if (msg.t === 'flash') { flash(msg.text); return; }
+  if (msg.t === 'br') {
+    S.pub = msg; if (!msg.game) S.me = null;
+    if (msg.lobby) S.name = msg.lobby.seated[0].name;
+    if (!S.greeted && msg.screen === 'play' && Solo.S.resumed) { S.greeted = true; flash('Welcome back — your game was saved and picks up where you left it.', 'ok'); }
+    paintSoon(); return;
+  }
+  if (msg.t === 'br-me') { S.me = msg.me; paintSoon(); }
+}
+
+let flashTimer = null;
+function flash(text, tone) {
+  clearTimeout(flashTimer);
+  $('flash').textContent = text;
+  $('flash').className = tone || '';
+  buzz(40);
+  flashTimer = setTimeout(() => $('flash').classList.add('hide'), Math.max(2600, String(text).length * 45));
+}
+
+/* ---------- the battlefield, at the top of the phone ----------
+   The scene (br-scene.js) is the telly's: a 1920x1080 stage scaled into the
+   box. Its own banners and titles would be a few pixels tall here, so they
+   are hidden and the same words are set underneath at phone size. The box is
+   outside #main, so the repaint every move makes never interrupts a fight. */
+function paintField(F) {
+  const box = $('fieldBox');
+  if (!F) { box.classList.add('hide'); S.fieldKey = ''; return; }
+  const was = box.classList.contains('hide');
+  box.classList.remove('hide');
+  if (was && Solo.S.scene) Solo.S.scene.fit();
+  const rows = F.rows.map(r => '<div class="bf-banner ' + (r.cls || '') + '" style="--hex:' + esc(r.hex) + '">' + r.html + '</div>').join('');
+  const html = '<div class="pf-title">' + esc(F.title) + '</div><div class="pf-line">' + esc(F.line) + '</div>' +
+    (F.verdict ? '<div class="pf-verdict ' + esc(F.verdict.cls || '') + '">' + F.verdict.html + '</div>' : '') +
+    '<div class="pf-rows">' + rows + '</div>' +
+    (F.canSkip ? '<button class="btn ghost small" id="fieldOn">Back to the map</button>' : '');
+  /* only touch the words when they change, or every card slot replays its flip */
+  if (html !== S.fieldKey) {
+    S.fieldKey = html;
+    $('fieldInfo').innerHTML = html;
+    const b = $('fieldOn');
+    if (b) b.onclick = () => { if (!locked()) { lock(); send({ t: 'skipfield' }); } };
+  }
+  if (was) window.scrollTo(0, 0);
+}
+
+/* ---------- the menu ---------- */
+function paintSheet() {
+  const el = $('sheet');
+  if (!S.sheet) { el.classList.add('hide'); el.innerHTML = ''; return; }
+  const playing = S.pub && S.pub.screen === 'play';
+  let body;
+  if (S.sheet === 'abandon') {
+    body = '<div class="title">Abandon this game?</div><div class="sub">The saved game on this phone is thrown away and you go back to the setup screen.</div>' +
+      '<button class="btn" id="shAbandonGo">Abandon the game</button><button class="btn ghost" id="shClose">Keep playing</button>';
+  } else if (S.sheet === 'about') {
+    const li = xs => '<ul>' + xs.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>';
+    body = '<div class="title">About this build</div><div class="sub">You against the house: computer clans fill the other seats. The game is saved on this phone after every move.</div>' +
+      '<h2>What is built</h2>' + li(D.MANIFEST.built) + '<h2>What is not</h2>' + li(D.MANIFEST.not) +
+      '<h2>On the wording</h2><ul><li>Blood Rage is designed by Eric M. Lang and published by CMON and Guillotine Games. The rules are theirs; every line of card text here is written fresh, the board is drawn rather than scanned, and this is built to sit beside a copy of the game rather than replace one.</li></ul>' +
+      '<button class="btn ghost" id="shClose">Close</button>';
+  } else {
+    body = '<div class="title">Menu</div>' +
+      '<button class="btn ghost" id="shAbout">About this build</button>' +
+      (playing ? '<button class="btn ghost" id="shAbandon">Abandon this game</button>' : '') +
+      '<button class="btn ghost" id="shHub">' + (playing ? 'Back to the Game Hub (your game is saved)' : 'Back to the Game Hub') + '</button>' +
+      '<button class="btn gold" id="shClose">Close</button>';
+  }
+  el.innerHTML = '<div class="card">' + body + '</div>';
+  el.classList.remove('hide');
+  const on = (id, fn) => { const b = $(id); if (b) b.onclick = () => { if (!locked()) { lock(); fn(); } }; };
+  on('shClose', () => { S.sheet = null; paint(); });
+  on('shAbout', () => { S.sheet = 'about'; paint(); });
+  on('shAbandon', () => { S.sheet = 'abandon'; paint(); });
+  on('shHub', () => { location.href = HUB_URL; });
+  on('shAbandonGo', () => { S.sheet = null; S.ui = {}; send({ t: 'abandon' }); });
+  el.onclick = e => { if (e.target === el && !locked()) { S.sheet = null; paint(); } };
+}
+
+/* Your turn, until somebody pillages or the phase moves on. */
+function undoHtml() {
+  const u = S.pub && S.pub.undo;
+  return u ? '<button class="btn ghost undo" id="undo">↶ Undo: ' + esc(u.what.replace(/\.$/, '')) + '</button>' : '';
+}
+
+/* ---------- helpers ---------- */
+const game = () => S.pub && S.pub.game;
+const mine = () => { const g = game(); return g ? g.players.find(p => p.id === S.id) : null; };
+const pname = id => { const g = game(); const p = g && g.players.find(x => x.id === id); return p ? p.name : '?'; };
+const isRemote = () => S.pub && S.pub.remote === S.id;
+const locName = id => (D.prov(id) || {}).name || (D.fjord(id) || {}).name || id;
+const act = a => { if (locked()) return; lock(); send({ t: 'do', a }); };
+const prompt = () => S.me && S.me.prompt;
+const cardById = id => {
+  if (!S.me) return null;
+  return S.me.hand.concat(S.me.quests, S.me.pack, S.me.promptCards || []).find(c => c.id === id) || null;
+};
+const figLabel = f => f.kind === 'monster' ? D.CARDS[f.key].name : f.kind === 'leader' ? 'Leader' : f.kind === 'ship' ? 'Ship' : f.kind === 'mystic' ? 'Mystic' : 'Warrior';
+
+/* ================================================================
+   Painting
+   ================================================================ */
+function paint() {
+  const pr = prompt();
+  const g = game();
+  /* The public state and this seat's own half arrive as two messages. There
+     is always a moment holding the new table and the old question; the
+     question's number tells the two apart. */
+  const held = g && g.hold && g.hold.t === 'age' ? 'age' + g.hold.n : '';
+  const shape = [S.pub && S.pub.screen, g && g.phase, pr && pr.n, held].join('|');
+  if (shape !== S.shape) {
+    /* the Age card arrives unasked, over whatever was just tapped: hold taps a little longer */
+    const wasHeld = S.shape.split('|')[3];
+    S.shape = shape; lock();
+    if (held && held !== wasHeld) S.lockUntil = Date.now() + 700;
+  }
+  if (!pr || S.uiFor !== pr.n) { S.ui = {}; S.uiFor = pr ? pr.n : null; }
+  /* something is being asked of this phone: say so in the pocket too */
+  if (pr && S.buzzedFor !== pr.n) { S.buzzedFor = pr.n; buzz(pr.t === 'turn' ? 90 : 40); }
+  const m = $('main');
+  const p = mine();
+  if (p) $('dot').style.background = p.clanHex;
+  paintSheet();
+  paintField(S.pub && S.pub.screen === 'play' ? Solo.S.fieldShow : null);
+  if (!S.pub) { m.innerHTML = '<div class="card"><div class="title">Setting the table…</div></div>'; return; }
+  if (S.pub.screen === 'lobby') { m.innerHTML = lobbyHtml(); wire(); return; }
+  if (S.pub.screen === 'over') { m.innerHTML = overHtml() + sheetHtml(); wire(); return; }
+  if (!g) { m.innerHTML = '<div class="card"><div class="title">Hold tight</div></div>'; return; }
+  if (!p) {
+    m.innerHTML = '<div class="card"><div class="title">Watching</div><div class="sub">The table was full when this game started. You are in for the next one.</div></div>' +
+      (held ? ageHtml() : '') + '<div class="map">' + A.board(g, { small: true }) + '</div>';
+    return;
+  }
+  if (held) { m.innerHTML = ageHtml() + sheetHtml() + handHtml() + tableHtml(); wire(); return; }
+  m.innerHTML = askHtml() + undoHtml() + sinceHtml() + mapHtml() + sheetHtml() + handHtml() + tableHtml();
+  wire();
+}
+
+/* ---------- the end of an Age: the card the whole table is held on ---------- */
+function ageHtml() {
+  const g = game(), A0 = g.ageShow, a = S.pub.age;
+  if (!A0) return waitCard('The Age ends', '');
+  const AGE = ['', 'First', 'Second', 'Third'];
+  const rows = A0.rows.slice().sort((x, y) => y.glory - x.glory);
+  const me = A0.rows.find(r => r.id === S.id);
+  const chip = (label, v) => v ? '<span>' + label + ' <b>' + (v > 0 ? '+' : '') + v + '</b></span>' : '';
+  let mineHtml = '';
+  if (me) {
+    const place = rows.indexOf(me) + 1;
+    mineHtml = '<div class="mine"><span class="big">' + (me.gained >= 0 ? '+' : '') + me.gained + '</span> Glory this Age · <b>' + me.glory + '</b> in all, ' +
+      ['', '1st', '2nd', '3rd', '4th', '5th'][place] + ' of ' + rows.length +
+      '<div class="chips">' + (chip('Action phase', me.from.war) + chip('Quests', me.from.quests) + chip('Ragnarök', me.from.ragnarok) + chip('Valhalla', me.from.valhalla) || '<span>nothing this Age</span>') +
+      '<span>battles won <b>' + me.won + '/' + me.fought + '</b></span>' + (me.dead ? '<span>fell <b>' + me.dead + '</b></span>' : '') + '</div></div>';
+  }
+  const R = A0.ragnarok;
+  const rag = R ? '<div class="line rag">Ragnarök: ' + (R.already ? esc(locName(R.prov)) + ' was already gone.'
+    : '<b>' + esc(locName(R.prov)) + '</b> is swallowed. ' + (A0.rows.some(r => r.ragDead)
+      ? 'Into Valhalla, ' + R.per + ' Glory a figure: ' + A0.rows.filter(r => r.ragDead).map(r => esc(r.name) + ' ' + r.ragDead).join(', ') + '.'
+      : 'Nobody was standing there.')) + '</div>' : '';
+  const qs = A0.quests.length ? '<div class="line">Quests: ' + A0.quests.map(q => esc(pname(q.by)) + ' ' +
+    esc((D.CARDS[q.key] || {}).name || q.key) + (q.ok ? ' <b>✓ +' + q.got + '</b>' : ' ✗')).join(' · ') + '</div>' : '';
+  const table = '<div class="line">' + rows.map(r => '<span style="color:' + esc(r.clanHex) + '">●</span> ' + esc(r.name) +
+    ' <b>' + r.glory + '</b> <span style="color:var(--dim)">(' + (r.gained >= 0 ? '+' : '') + r.gained + ')</span>').join(' · ') + '</div>';
+  const N = A0.next;
+  const next = '<div class="line">' + (N ? 'Next: the ' + AGE[N.age] + ' Age. ' + esc(pname(N.first)) + ' leads; Ragnarök will take <b>' + esc(locName(N.doom)) + '</b>.'
+    : 'Next: the final count.') + '</div>';
+  let foot = '';
+  if (a && a.waiting.indexOf(S.id) >= 0) foot = '<button class="btn gold" id="cont">Continue</button>';
+  else if (a && a.waiting.length) {
+    foot = '<div class="sub" style="margin-top:10px">Waiting for ' + esc(a.waiting.map(pname).join(', ')) + ' to tap Continue.</div>' +
+      (a.grace && a.done.indexOf(S.id) >= 0 ? '<button class="btn ghost" id="nowait">Don’t wait for ' + esc(a.waiting.map(pname).join(' and ')) + '</button>' : '');
+  } else foot = '<div class="sub" style="margin-top:10px">The next Age is about to begin.</div>';
+  return '<div class="card ask agec"><div class="title">The ' + AGE[A0.age] + ' Age ends</div>' + mineHtml + rag + qs + table + next + foot + '</div>';
+}
+
+/* ---------- since your last turn: the lines the telly said, from the broadcast ---------- */
+function sinceHtml() {
+  const said = S.pub && S.pub.said;
+  if (!said || !said.length) return '';
+  const s = W.since(said, S.id);
+  if (!s.lines.length) return '';
+  const MAX = prompt() ? 3 : 6;           // on your own turn, keep the buttons near the top
+  const all = s.lines;
+  const shown = S.sinceAll ? all : all.slice(-MAX);
+  const hidden = all.length - shown.length;
+  return '<div class="since"><div class="sh">' + (s.first && !s.cut ? 'This Age so far' : 'Since your last turn') + '</div>' +
+    (hidden ? '<button class="more" id="sinceMore">' + hidden + ' earlier</button>' : '') +
+    (S.sinceAll && s.cut ? '<div class="sl">…and earlier moves.</div>' : '') +
+    shown.map((l, i) => '<div class="sl' + (i >= shown.length - 2 ? ' new' : '') + '">' + esc(l.text) + '</div>').join('') +
+    (S.sinceAll && all.length > MAX ? '<button class="more" id="sinceLess">Show fewer</button>' : '') + '</div>';
+}
+
+/* Who moves after the clan whose turn it is: round the table from them,
+   skipping anyone out of Rage (the engine's own rule in nextTurn). */
+function upNext() {
+  const g = game();
+  if (!g || g.phase !== 'action' || !g.turn) return null;
+  const n = g.players.length, i = g.players.findIndex(p => p.id === g.turn);
+  for (let k = 1; k < n; k++) { const p = g.players[(i + k) % n]; if (p.rage > 0) return p.id; }
+  return null;
+}
+function turnNote() {
+  const g = game(), p = mine();
+  if (!g || g.phase !== 'action' || !p) return '';
+  if (p.rage <= 0) return '<div class="sub" style="margin-top:6px">You have no Rage left — you are done until the next Age.</div>';
+  const nx = upNext();
+  if (nx === S.id) return '<div class="next">You’re up next.</div>';
+  return nx ? '<div class="sub" style="margin-top:6px">Then ' + esc(pname(nx)) + '.</div>' : '';
+}
+
+function lobbyHtml() {
+  const lv = S.pub.lobby || { seated: [], house: [], size: 0 };
+  const me = lv.seated[0] || {};
+  const rows = '<div class="row">' + A.figImg((me.clanId || 'wolf') + '_leader', 34) + '<i style="background:' + esc(me.hex || '#888') + '"></i>' + esc(me.name || '') + ' — ' + esc(me.clan || '') + '<em>you</em></div>' +
+    lv.house.map(p => '<div class="row">' + A.figImg(p.clanId + '_leader', 34) + '<i style="background:' + esc(p.hex) + '"></i>' + esc(p.name) + ' — ' + esc(p.clan) + '<em>computer · ' + esc(p.level || 'medium') + '</em></div>').join('');
+  const pick = '<h2>Your clan</h2><div class="clanpick">' + (lv.clans || []).map(c =>
+    '<button class="cp' + (me.clanId === c.id ? ' on' : '') + '" data-clan="' + c.id + '" style="--c:' + esc(c.hex) + '">' +
+      A.figImg(c.id + '_leader', 52) + '<b>' + esc(c.name) + '</b><small>' + (me.clanId === c.id ? (me.picked ? 'yours' : 'dealt to you') : '') + '</small></button>').join('') + '</div>';
+  const sizes = [2, 3, 4, 5].map(k => '<button class="opt' + (k === lv.size ? ' on' : '') + '" data-size="' + k + '" style="justify-content:center">' + k + '</button>').join('');
+  const levels = ['easy', 'medium', 'hard'].map(k => '<button class="opt' + (k === (lv.level || 'medium') ? ' on' : '') + '" data-level="' + k +
+    '" style="justify-content:center">' + k[0].toUpperCase() + k.slice(1) + '</button>').join('');
+  const paces = ['relaxed', 'brisk'].map(k => '<button class="opt' + (k === (lv.pace || 'relaxed') ? ' on' : '') + '" data-pace="' + k +
+    '" style="justify-content:center">' + k[0].toUpperCase() + k.slice(1) + '</button>').join('');
+  const tog = (key, on, title, sub) => '<button class="opt' + (on ? ' on' : '') + '" data-opt="' + key + '" data-v="' + (on ? '0' : '1') + '"><span class="lab"><b>' + title + ': ' + (on ? 'on' : 'off') + '</b><small>' + sub + '</small></span></button>';
+  return '<div class="card"><div class="title">Blood Rage — solo</div>' +
+    '<div class="sub">Invade, pillage, and die gloriously before Ragnarök — against computer clans.</div>' +
+    '<h2 style="margin-top:12px">Your name <small style="text-transform:none;letter-spacing:0">as the saga tells it</small></h2>' +
+    '<div id="name" style="margin:0"><input id="nameIn" placeholder="Your name" maxlength="14" autocomplete="off" value="' + esc(lv.name || '') + '"></div>' +
+    '<div style="margin-top:8px">' + rows + '</div></div>' + pick +
+    '<h2>Clans at the table <small style="text-transform:none;letter-spacing:0">you + ' + (lv.size - 1) + ' computer' + (lv.size > 2 ? 's' : '') + '</small></h2>' +
+    '<div class="acts" style="grid-template-columns:repeat(4,1fr)">' + sizes + '</div>' +
+    '<div class="sub" style="margin-top:6px">' + esc(lv.shape || '') + '</div>' +
+    '<h2>Computer clans</h2><div class="acts" style="grid-template-columns:repeat(3,1fr)">' + levels + '</div>' +
+    '<div class="sub" style="margin-top:6px">Easy slips up; hard plays for the end-of-game stat bonuses.</div>' +
+    '<h2>How fast they play</h2><div class="acts">' + paces + '</div>' +
+    '<h2>Options</h2><div class="opts">' +
+      tog('draft1', lv.draft1, 'Draft in Age 1', 'The rulebook suggests off for a first game.') +
+      tog('ks', lv.ks, 'Kickstarter monsters', 'Mountain Giant, Fenrir, Wolfman, Mystic Troll.') +
+      tog('mystics', lv.mystics, 'Mystics of Midgard', 'Two Mystics a clan, brought in by the Chosen cards.') +
+      tog('gods', lv.gods, 'Gods of Asgard', 'Two of the six gods walk the land and change its battles.') + '</div>' +
+    '<button class="btn" id="go">Begin the First Age</button>' +
+    '<button class="btn ghost" id="menu">Back to the Game Hub</button>';
+}
+
+function overHtml() {
+  const g = game();
+  const R = g && g.result;
+  const me = R && R.rows.find(r => r.id === S.id);
+  const won = R ? R.rows.filter(r => r.won) : [];
+  const rows = R ? R.rows.map(r => {
+    const p = g.players.find(x => x.id === r.id);
+    return '<div class="row' + (r.id === S.id ? ' me' : '') + '"><i style="background:' + esc(p ? p.clanHex : '#888') + '"></i><b style="color:var(--ink)">' + ord(r.place) + '</b>&nbsp;' + esc(r.name) +
+      ' <small>' + esc(r.clan) + (r.bot ? ' · computer' : '') + '</small><em>' + r.total + '</em></div>' +
+      '<div class="sub" style="margin:-2px 0 6px 18px">' + r.before + ' Glory in play · +' + r.stats.rage + ' Rage, +' + r.stats.axes + ' Axes, +' + r.stats.horns + ' Horns · +' + r.conquest + ' Conquest</div>';
+  }).join('') : '';
+  const title = me && me.won ? (won.length > 1 ? 'You share the seat beside Odin' : 'You sit beside Odin') : (won.length ? esc(won.map(r => r.name).join(' and ')) + (won.length > 1 ? ' share the seat beside Odin' : ' sits beside Odin') : 'Ragnarök');
+  return '<div class="card ask"><div class="title">' + title + '</div>' +
+    '<div class="sub">' + (me ? 'You finished ' + ord(me.place) + ' with ' + me.total + ' Glory.' : '') + ' A stat on its 4th or 5th step is worth 10 at the end, the last step 20.</div>' +
+    '<div style="margin-top:8px">' + rows + '</div></div>' +
+    '<button class="btn" id="again">Play again</button>' +
+    '<button class="btn ghost" id="menu">Back to the Game Hub</button>';
+}
+const ord = k => k + (k === 1 ? 'st' : k === 2 ? 'nd' : k === 3 ? 'rd' : 'th');
+
+
+function waitCard(title, sub) {
+  return '<div class="card"><div class="title">' + esc(title) + '</div>' + (sub ? '<div class="sub">' + esc(sub) + '</div>' : '') + '</div>';
+}
+/* The card at the top: whatever this seat has to do right now. */
+function askHtml() {
+  const g = game(), pr = prompt();
+  if (!pr) {
+    /* the telly is playing a battle out; nobody knows how it went yet */
+    if (g.hold && g.hold.t === 'clash') return waitCard('⚔ The clash at ' + locName(g.hold.prov), 'Nobody knows who won until the dust settles.');
+    /* Ragnarök is burning on the telly; the Age card follows it */
+    if (g.hold && g.hold.t === 'ragnarok') return waitCard('Ragnarök takes ' + locName(g.hold.prov), 'The end of the Age. The Age card follows.');
+    /* the table says it is this seat's turn but its own half has not landed
+       yet (two messages): never "watch the telly" for a moment */
+    if (g.turn === S.id) return waitCard('Your turn', '');
+    const open = g.prompts.filter(x => x.seat !== S.id);
+    /* somebody else's turn: say whose, and where this seat stands after it
+       (their prompt's own words are addressed to them, never shown here) */
+    const turn = open.find(x => x.t === 'turn');
+    if (turn && open.length === 1) {
+      return '<div class="card"><div class="title">' + esc(pname(turn.seat)) + '’s turn</div>' + turnNote() + '</div>';
+    }
+    if (open.length) {
+      const names = open.map(x => x.seat).filter((id, i, a) => a.indexOf(id) === i).map(pname);
+      const why = open.some(x => x.t === 'turn') ? '' : (open[0].why || '');
+      return '<div class="card"><div class="title">' + esc(g.phase === 'draft' ? 'Waiting for the others to choose' : names.join(', ') + (names.length > 1 ? ' are' : ' is') + ' deciding') + '</div>' +
+        (why ? '<div class="sub">' + esc(why) + '</div>' : '') + turnNote() + '</div>';
+    }
+    return '<div class="card"><div class="title">' + (g.battle ? 'The battle is on' : 'The table is moving') + '</div>' + turnNote() + '</div>';
+  }
+  switch (pr.t) {
+    case 'draft': return draftHtml(pr);
+    case 'turn': return turnHtml(pr);
+    case 'card': return battleCardHtml(pr);
+    case 'late': return lateHtml(pr);
+    case 'join': return figChoiceHtml(pr, 'Call to battle', o => 'Send your ' + o.name + ' from ' + locName(o.from), 'join', true);
+    case 'tide': return figChoiceHtml(pr, 'Odin’s Tide', o => 'Keep your ' + o.name + (o.at ? ' (' + locName(o.at) + ')' : ''), 'keep', false);
+    case 'protect': return multiFigHtml(pr);
+    case 'stat': return statHtml(pr);
+    case 'keep': return cardPickHtml(pr, 'Keep one card', 'The rest are discarded. It comes back with you next Age.', 'keep');
+    case 'prowess': return prowessHtml(pr);
+    case 'place': return placeHtml(pr);
+    case 'retreat': return '<div class="card ask"><div class="title">' + esc(pr.why) + '</div><div class="sub">Tap the map or below.</div><div class="opts">' +
+      pr.options.map(t => '<button class="opt" data-retreat="' + t + '"><span class="lab"><b>Retreat to ' + esc(locName(t)) + '</b><small>' + esc(placeNote(t)) + '</small></span></button>').join('') +
+      '</div><button class="btn ghost" id="stayDie">Stay, and go to Valhalla</button></div>';
+    case 'god': return '<div class="card ask"><div class="title">' + esc(pr.why) + '</div><div class="sub">' + esc(D.DEITIES[pr.god].name + ' — ' + D.DEITIES[pr.god].text) +
+      ' Not a province with a god, a pillaged one or a lost one. Tap the map or below.</div><div class="opts">' +
+      pr.options.map(t => '<button class="opt" data-godto="' + t + '"><span class="lab"><b>' + esc(locName(t)) + '</b><small>' + esc(placeNote(t)) + '</small></span></button>').join('') + '</div></div>';
+    case 'yesno': return '<div class="card ask"><div class="title">' + esc(pr.why) + '</div>' +
+      '<button class="btn gold" data-yes="yes">Yes</button><button class="btn ghost" data-yes="no">No</button></div>';
+  }
+  return waitCard('Your turn', pr.why || '');
+}
+
+/* ---------- the draft ---------- */
+function draftHtml(pr) {
+  const sel = S.ui.cards || [];
+  const cards = (S.me.promptCards || []).map(c => '<button class="cardbtn" data-pickcard="' + esc(c.id) + '">' +
+    A.cardFace(c, { cls: sel.indexOf(c.id) >= 0 ? 'pick' : '' }) + '</button>').join('');
+  const ready = sel.length === pr.need;
+  return '<div class="card ask"><div class="title">Gods’ Gifts — keep ' + pr.need + '</div>' +
+    '<div class="sub">' + esc(pr.why) + '. The rest pass to the left.</div>' +
+    '<div class="cards">' + cards + '</div>' +
+    '<button class="btn gold" id="sendDraft"' + (ready ? '' : ' disabled') + '>' + (ready ? 'Keep ' + (pr.need === 1 ? 'this card' : 'these two') : 'Tap ' + pr.need + ' card' + (pr.need === 1 ? '' : 's')) + '</button></div>';
+}
+
+/* ---------- a turn ---------- */
+function turnHtml(pr) {
+  const L = pr.legal, ui = S.ui, p = mine();
+  if (!ui.mode) {
+    const b = (mode, label, n, sub) => '<button data-mode="' + mode + '"' + (n ? '' : ' disabled') + '>' + label + '<small>' + sub + '</small></button>';
+    const minCost = L.invade.length ? Math.min.apply(null, [].concat(...L.invade.map(x => x.costs))) : 0;
+    return '<div class="card ask"><div class="title">Your turn</div>' +
+      '<div class="sub">' + p.rage + ' Rage left. One action, then the next clan.</div>' +
+      '<div class="acts">' +
+      b('invade', 'Invade', L.invade.length, L.invade.length ? 'from ' + minCost + ' Rage' : 'nothing can go') +
+      b('march', 'March', L.march.length, '1 Rage') +
+      b('upgrade', 'Upgrade', L.upgrade.length, L.upgrade.length + ' affordable') +
+      b('quest', 'Quest', L.quest.length, 'free, face down') +
+      b('pillage', 'Pillage', L.pillage.length + L.repillage.length, 'free' + (L.repillage.length ? ' · again 2' : '')) +
+      (L.valhalla.length ? b('valhalla', 'Valhalla', 1, 'Frigga’s Domain, 1 Rage') : '') +
+      (L.sacrifice ? b('sacrifice', 'Sacrifice', 1, 'two figures → a stat') : '') +
+      '<button class="pass' + (ui.arm ? ' arm' : '') + '" id="pass">' + (ui.arm ? 'Tap again to pass' : 'Pass') +
+      '<small>' + (p.rage ? 'gives up your last ' + p.rage + ' Rage this Age' : '') + '</small></button>' +
+      '</div></div>';
+  }
+  const back = '<button class="btn ghost" id="back">Back</button>';
+  const head = t => '<div class="card ask"><div class="title">' + esc(t) + '</div>';
+  if (ui.mode === 'invade') {
+    if (!ui.fig) {
+      return head('Invade with…') + '<div class="opts">' + L.invade.map(x => {
+        const lo = Math.min.apply(null, x.costs), hi = Math.max.apply(null, x.costs);
+        return '<button class="opt" data-fig="' + esc(x.fig) + '">' + A.figImg(A.figKey(x, p.clan), 46) + '<span class="lab"><b>' + esc(x.name) + '</b><small>' +
+          (x.kind === 'ship' || (x.key && D.CARDS[x.key].fx === 'isShip') ? 'fjords only' : x.to.length + ' places it can go') + '</small></span>' +
+          '<span class="val">' + (lo === hi ? lo : lo + '–' + hi) + ' Rage</span></button>';
+      }).join('') + '</div>' + back + '</div>';
+    }
+    const x = L.invade.find(y => y.fig === ui.fig);
+    const vs = ui.to && x.victims && x.victims[ui.to];
+    if (vs) {
+      const P = game().provs.find(q => q.id === ui.to);
+      return head('Invade ' + locName(ui.to) + ' with your Mystic') + '<div class="sub">Odin’s Chosen: take a village from an enemy Warrior or Mystic — it dies.</div><div class="opts">' +
+        (P && P.room > 0 ? '<button class="opt" data-victim=""><span class="lab"><b>An empty village</b><small>' + P.room + ' free</small></span></button>' : '') +
+        vs.map(v => '<button class="opt" data-victim="' + esc(v.fig) + '"><span class="lab"><b>Take ' + esc(pname(v.owner)) + '’s ' + (v.kind === 'mystic' ? 'Mystic' : 'Warrior') + '’s village</b><small>it goes to Valhalla</small></span></button>').join('') +
+        '</div>' + back + '</div>';
+    }
+    return head('Invade: ' + x.name) + '<div class="sub">Tap a place on the map or below.</div><div class="opts">' +
+      x.to.map((t, i) => '<button class="opt' + (ui.to === t ? ' on' : '') + '" data-to="' + t + '"><span class="lab"><b>' + esc(locName(t)) + '</b><small>' +
+        esc(placeNote(t)) + '</small></span><span class="val">' + x.costs[i] + ' Rage</span></button>').join('') + '</div>' +
+      (ui.to ? '<button class="btn gold" id="doInvade">Invade ' + esc(locName(ui.to)) + '</button>' : '') + back + '</div>';
+  }
+  if (ui.mode === 'march') {
+    if (!ui.from) {
+      return head('March from…') + '<div class="sub">1 Rage. Any number of figures, from one province to one other.</div><div class="opts">' +
+        L.march.map(m => '<button class="opt" data-from="' + m.from + '"><span class="lab"><b>' + esc(locName(m.from)) + '</b><small>' + m.figs.length + ' of yours can move</small></span></button>').join('') +
+        '</div>' + back + '</div>';
+    }
+    const m = L.march.find(y => y.from === ui.from);
+    if (!ui.to) {
+      return head('March from ' + locName(ui.from) + ' to…') + '<div class="sub">No need to be next door. Tap the map or below.</div><div class="opts">' +
+        m.to.map(t => '<button class="opt" data-to="' + t.prov + '"><span class="lab"><b>' + esc(locName(t.prov)) + '</b><small>' + esc(placeNote(t.prov)) + '</small></span>' +
+          '<span class="val">' + (t.room >= 99 ? 'no limit' : t.room + ' room') + '</span></button>').join('') + '</div>' + back + '</div>';
+    }
+    const t = m.to.find(y => y.prov === ui.to);
+    if (!ui.figs) ui.figs = m.figs.slice(0, t.room);
+    const g = game();
+    return head(locName(ui.from) + ' → ' + locName(ui.to)) + '<div class="sub">Who marches? Room for ' + (t.room >= 99 ? 'any number' : t.room) + '.</div><div class="opts">' +
+      m.figs.map(id => { const f = g.figs.find(z => z.id === id); return '<button class="opt' + (ui.figs.indexOf(id) >= 0 ? ' on' : '') + '" data-mfig="' + esc(id) + '"><span class="lab"><b>' + esc(figLabel(f)) + '</b></span><span class="val">' + (ui.figs.indexOf(id) >= 0 ? '✓' : '') + '</span></button>'; }).join('') +
+      '</div><button class="btn gold" id="doMarch"' + (ui.figs.length && ui.figs.length <= t.room ? '' : ' disabled') + '>March ' + ui.figs.length + ' (1 Rage)</button>' + back + '</div>';
+  }
+  if (ui.mode === 'upgrade') {
+    if (!ui.card) {
+      return head('Upgrade with…') + '<div class="cards">' + L.upgrade.map(u => {
+        const c = cardById(u.card);
+        return '<button class="cardbtn" data-upcard="' + esc(u.card) + '">' + A.cardFace(c, { cost: u.cost }) + '</button>';
+      }).join('') + '</div>' + back + '</div>';
+    }
+    const u = L.upgrade.find(y => y.card === ui.card);
+    const c = cardById(u.card);
+    const kind = D.CARDS[c.key].kind;
+    return head('Those slots are full') + '<div class="sub">' + esc(D.CARDS[c.key].name) + ' replaces which ' + (A.KIND_NAME[kind] || '').toLowerCase() + '?' +
+      (kind === 'monster' ? ' A replaced Monster leaves the game.' : '') + '</div><div class="opts">' +
+      u.replace.map(r => { const k = mine().up[kind].find(z => z.id === r); return '<button class="opt" data-replace="' + esc(r) + '"><span class="lab"><b>' + esc(D.CARDS[k.key].name) + '</b><small>' + esc(D.cardText(k)) + '</small></span></button>'; }).join('') +
+      '</div>' + back + '</div>';
+  }
+  if (ui.mode === 'quest') {
+    return head('Commit to a Quest') + '<div class="sub">Face down, free. Counted at the end of the Age.</div><div class="cards">' +
+      L.quest.map(id => '<button class="cardbtn" data-quest="' + esc(id) + '">' + A.cardFace(cardById(id)) + questLine(cardById(id)) + '</button>').join('') + '</div>' + back + '</div>';
+  }
+  if (ui.mode === 'pillage') {
+    const all = L.pillage.map(x => ({ prov: x, again: false })).concat(L.repillage.map(x => ({ prov: x, again: true })));
+    return head('Pillage…') + '<div class="sub">Neighbours may join before the fight. Tap the map or below.</div><div class="opts">' +
+      all.map(x => '<button class="opt' + (ui.to === x.prov ? ' on' : '') + '" data-pill="' + x.prov + '" data-again="' + (x.again ? 1 : 0) + '"><span class="lab"><b>' + esc(locName(x.prov)) +
+        (x.again ? ' — again, 2 Rage' : '') + '</b><small>' + esc(placeNote(x.prov)) + '</small></span><span class="val">' + esc(rewardOf(x.prov)) + '</span></button>').join('') +
+      '</div>' + (ui.to ? '<button class="btn" id="doPillage">Pillage ' + esc(locName(ui.to)) + '</button>' : '') + back + '</div>';
+  }
+  if (ui.mode === 'valhalla') {
+    if (!ui.fig) return head('Out of Valhalla') + '<div class="opts">' + L.valhalla.map(v => '<button class="opt" data-vfig="' + esc(v.fig) + '"><span class="lab"><b>' + esc(v.name) + '</b></span><span class="val">1 Rage</span></button>').join('') + '</div>' + back + '</div>';
+    const v = L.valhalla.find(y => y.fig === ui.fig);
+    return head(v.name + ' returns to…') + '<div class="opts">' + v.to.map(t => '<button class="opt" data-vto="' + t + '"><span class="lab"><b>' + esc(locName(t)) + '</b><small>' + esc(placeNote(t)) + '</small></span></button>').join('') + '</div>' + back + '</div>';
+  }
+  if (ui.mode === 'sacrifice') {
+    const g = game();
+    const figs = g.figs.filter(f => f.owner === S.id);
+    ui.figs = ui.figs || [];
+    return head('Frigga’s Sacrifice') + '<div class="sub">Two of your figures go to Valhalla; one clan stat rises.</div><div class="opts">' +
+      figs.map(f => '<button class="opt' + (ui.figs.indexOf(f.id) >= 0 ? ' on' : '') + '" data-sfig="' + esc(f.id) + '"><span class="lab"><b>' + esc(figLabel(f)) + '</b><small>' + esc(locName(f.at)) + '</small></span></button>').join('') +
+      '</div><button class="btn" id="doSac"' + (ui.figs.length === 2 ? '' : ' disabled') + '>Sacrifice these two</button>' + back + '</div>';
+  }
+  return '';
+}
+function rewardOf(prov) {
+  const g = game();
+  const P = g.provs.find(x => x.id === prov);
+  return D.PILLAGE_NAMES[P.token] || '';
+}
+/* What a place looks like from here: your strength, the best rival's, room. */
+function placeNote(loc) {
+  const g = game();
+  if (E.isFjord(loc)) {
+    const f = D.fjord(loc);
+    return 'supports ' + f.supports.map(locName).join(' and ');
+  }
+  const mineS = E.viewStr(g, S.id, loc, false);
+  let foe = 0, foeName = '';
+  for (const q of g.players) if (q.id !== S.id) { const s = E.viewStr(g, q.id, loc, false); if (s > foe) { foe = s; foeName = q.name; } }
+  const P = g.provs.find(x => x.id === loc);
+  const bits = [];
+  bits.push('you ' + mineS + (foe ? ' v ' + foeName + ' ' + foe : ''));
+  if (P.room != null) bits.push(P.room + ' empty village' + (P.room === 1 ? '' : 's'));
+  if (P.pillaged) bits.push('pillaged'); else bits.push(D.PILLAGE_NAMES[P.token]);
+  if (g.doom === loc) bits.push('doomed this Age');
+  const god = (g.gods || []).find(d => d.at === loc);
+  if (god) bits.push(D.DEITIES[god.id].name + ' is here');
+  return bits.join(' · ');
+}
+
+/* ---------- battles ---------- */
+function battleHead() {
+  const g = game(), b = g.battle;
+  if (!b) return '';
+  return '<div class="tot">' + b.parts.map(id => {
+    const t = b.totals[id] || {};
+    return '<span>' + esc(pname(id)) + ' <b>' + (t.total != null ? t.total : t.figs) + '</b></span>';
+  }).join('') + '</div>';
+}
+function battleCardHtml(pr) {
+  const sel = S.ui.card;
+  const cards = S.me.hand.map(c => '<button class="cardbtn" data-bcard="' + esc(c.id) + '">' + A.cardFace(c, { cls: sel === c.id ? 'pick' : '' }) + '</button>').join('');
+  const b = game().battle;
+  const down = pr.open && b && b.played ? b.parts.filter(id => (b.played[id] || []).length).map(id => esc(pname(id)) + ': ' + b.played[id].map(x => esc(D.CARDS[x.key].name) + ' +' + x.value).join(', ')).join(' · ') : '';
+  return '<div class="card ask"><div class="title">⚔ ' + esc(locName(pr.prov)) + '</div>' +
+    (pr.open ? '<div class="sub"><b>Heimdall watches:</b> play one card FACE UP. ' + (down ? 'Already down — ' + down : 'You are first.') + '</div>'
+      : '<div class="sub">Play one card face down. Figures’ strength so far:</div>') + battleHead() +
+    '<div class="sub" style="margin-top:6px">Lose, and your card comes back to your hand. Win, and it is spent.</div>' +
+    '<div class="cards">' + cards + '</div>' +
+    '<button class="btn" id="sendCard"' + (sel ? '' : ' disabled') + '>' + (sel ? (pr.open ? 'Play it face up' : 'Play it face down') : 'Tap a card') + '</button></div>';
+}
+function lateHtml(pr) {
+  const T = pr.totals || {};
+  return '<div class="card ask"><div class="title">Heimdall watches</div>' +
+    '<div class="sub">The cards are showing. Add a Heimdall card now?</div>' +
+    '<div class="tot">' + Object.keys(T).map(id => '<span>' + esc(pname(id)) + ' <b>' + T[id].total + '</b></span>').join('') + '</div>' +
+    '<div class="cards">' + (S.me.promptCards || []).map(c => '<button class="cardbtn" data-late="' + esc(c.id) + '">' + A.cardFace(c) + '</button>').join('') + '</div>' +
+    '<button class="btn ghost" id="passLate">No — let it stand</button></div>';
+}
+function figChoiceHtml(pr, title, label, t, optional) {
+  return '<div class="card ask"><div class="title">' + esc(title) + '</div><div class="sub">' + esc(pr.why) + '</div>' + battleHead() +
+    '<div class="opts">' + pr.options.map(o => '<button class="opt" data-figans="' + esc(o.fig) + '" data-t="' + t + '" data-from="' + esc(o.from || '') + '"><span class="lab"><b>' + esc(label(o)) + '</b></span></button>').join('') + '</div>' +
+    (optional ? '<button class="btn ghost" id="passJoin">Stay out of it</button>' : '') + '</div>';
+}
+function multiFigHtml(pr) {
+  const g = game();
+  const sel = S.ui.figs || (S.ui.figs = []);
+  return '<div class="card ask"><div class="title">Frigga’s Protection</div><div class="sub">' + esc(pr.why) + ' — up to ' + pr.max + '.</div><div class="opts">' +
+    pr.options.map(id => { const f = g.figs.find(z => z.id === id) || { kind: 'warrior' }; return '<button class="opt' + (sel.indexOf(id) >= 0 ? ' on' : '') + '" data-pfig="' + esc(id) + '"><span class="lab"><b>' + esc(figLabel(f)) + '</b></span><span class="val">' + (sel.indexOf(id) >= 0 ? 'saved' : '') + '</span></button>'; }).join('') +
+    '</div><button class="btn gold" id="sendProtect">' + (sel.length ? 'Save ' + sel.length + ' for ' + sel.length + ' Rage' : 'Save none') + '</button></div>';
+}
+function statHtml(pr) {
+  const p = mine();
+  return '<div class="card ask"><div class="title">' + esc(pr.why) + '</div><div class="opts">' +
+    pr.options.map(s => {
+      const step = p.stats[s], now = D.STATS[s][step], next = D.STATS[s][step + 1];
+      const note = step + 1 === 5 ? 'the last step: +20 at the end' : step + 1 >= 3 ? 'a legendary step: +10 at the end' : '';
+      return '<button class="opt" data-stat="' + s + '"><span class="lab"><b>' + D.STAT_NAMES[s] + '</b><small>' + note + '</small></span><span class="val">' + now + ' → ' + next + '</span></button>';
+    }).join('') + '</div></div>';
+}
+function cardPickHtml(pr, title, sub, t) {
+  return '<div class="card ask"><div class="title">' + esc(title) + '</div><div class="sub">' + esc(sub) + '</div><div class="cards">' +
+    (S.me.promptCards || []).map(c => '<button class="cardbtn" data-keep="' + esc(c.id) + '">' + A.cardFace(c) + '</button>').join('') + '</div></div>';
+}
+function prowessHtml(pr) {
+  const sel = S.ui.cards || (S.ui.cards = []);
+  return '<div class="card ask"><div class="title">Tyr’s Prowess</div><div class="sub">' + esc(pr.why) + ' (you have ' + mine().rage + ').</div><div class="cards">' +
+    (S.me.promptCards || []).map(c => '<button class="cardbtn" data-prow="' + esc(c.id) + '">' + A.cardFace(c, { cls: sel.indexOf(c.id) >= 0 ? 'pick' : '' }) + '</button>').join('') +
+    '</div><button class="btn gold" id="sendProwess">' + (sel.length ? 'Keep ' + sel.length + ' for ' + sel.length + ' Rage' : 'Keep none') + '</button></div>';
+}
+function placeHtml(pr) {
+  return '<div class="card ask"><div class="title">' + esc(pr.why) + '</div><div class="sub">Tap the map or below.</div><div class="opts">' +
+    pr.options.map(t => '<button class="opt' + (S.ui.to === t ? ' on' : '') + '" data-place="' + t + '"><span class="lab"><b>' + esc(locName(t)) + '</b><small>' + esc(placeNote(t)) + '</small></span></button>').join('') +
+    '</div>' + (S.ui.to ? '<button class="btn gold" id="doPlace">' + esc(locName(S.ui.to)) + '</button>' : '') +
+    '<button class="btn ghost" id="skipPlace">No thanks</button></div>';
+}
+
+/* ---------- the map, which is also a picker ---------- */
+function pickable() {
+  const pr = prompt(), ui = S.ui;
+  if (!pr) return [];
+  if (pr.t === 'place' || pr.t === 'retreat' || pr.t === 'god') return pr.options;
+  if (pr.t !== 'turn') return [];
+  const L = pr.legal;
+  if (ui.mode === 'invade' && ui.fig) return L.invade.find(x => x.fig === ui.fig).to;
+  if (ui.mode === 'march' && !ui.from) return L.march.map(m => m.from);
+  if (ui.mode === 'march' && ui.from && !ui.to) return L.march.find(m => m.from === ui.from).to.map(t => t.prov);
+  if (ui.mode === 'pillage') return L.pillage.concat(L.repillage);
+  return [];
+}
+function mapHtml() {
+  const g = game();
+  return '<div class="map" id="map">' + A.board(g, { pick: pickable(), sel: S.ui.to || S.ui.from || null, small: true }) + '</div>';
+}
+function mapTap(loc) {
+  const pr = prompt(), ui = S.ui;
+  if (pickable().indexOf(loc) < 0) return;
+  if (pr.t === 'place') { ui.to = loc; paint(); return; }
+  if (pr.t === 'retreat') { act({ t: 'retreat', to: loc }); return; }
+  if (pr.t === 'god') { act({ t: 'god', to: loc }); return; }
+  if (ui.mode === 'march' && !ui.from) { ui.from = loc; paint(); return; }
+  ui.to = loc; paint();
+}
+
+/* ---------- my clan sheet, always on screen ---------- */
+function sheetHtml() {
+  const p = mine();
+  if (!p) return '';
+  const st = s => '<div class="' + s + '"><b>' + (s === 'rage' ? p.rage + '/' + p.vals.rage : s === 'horns' ? p.onBoard + '/' + p.vals.horns : p.vals.axes) + '</b>' +
+    D.STAT_NAMES[s] + ' · step ' + (p.stats[s] + 1) + '</div>';
+  const ups = D.UPGRADE_KINDS.map(k => p.up[k].map(c => '<span>' + esc(D.CARDS[c.key].name) + '</span>').join('')).join('');
+  return '<h2>' + A.figImg(p.clan + '_leader', 40) + esc(p.clanName) + ' clan · ' + p.glory + ' Glory</h2><div class="card">' +
+    '<div class="sheet">' + st('rage') + st('axes') + st('horns') + '</div>' +
+    '<div class="sub" style="margin-top:8px">' + p.reserve.length + ' in reserve · ' + p.valhalla.length + ' in Valhalla' +
+      (p.reserve.some(f => f.kind === 'mystic') ? ' · Mystics ready: ' + p.reserve.filter(f => f.kind === 'mystic').length + ' (invade for free, STR 2)' : '') + '</div>' +
+    (ups ? '<div class="ups">' + ups + '</div>' : '') + '</div>';
+}
+function handHtml() {
+  if (!S.me) return '';
+  const pr = prompt();
+  const busy = pr && (pr.t === 'card' || (pr.t === 'turn' && (S.ui.mode === 'upgrade' || S.ui.mode === 'quest')) || pr.t === 'draft');
+  const hand = busy ? '' : S.me.hand.map(c => A.cardFace(c) + questLine(c)).join('');
+  const qs = S.me.quests.map(c => '<div>' + A.cardFace(c) + questLine(c) + '</div>').join('');
+  return (busy ? '' : '<h2>Your hand · ' + S.me.hand.length + '</h2><div class="cards">' + (hand || '<div class="sub">empty</div>') + '</div>') +
+    (qs ? '<h2>Your quests, face down</h2><div class="cards">' + qs + '</div>' : '');
+}
+/* A Quest as it stands on the board right now — from the public view, the
+   same rule the Quest phase uses (E.questLead is held to it by the tests). */
+function questLine(c) {
+  const g = game(), d = D.CARDS[c.key];
+  if (!g || !d || d.kind !== 'quest') return '';
+  const L = E.questLead(g, S.id, c.key);
+  if (!L) return '';
+  const nm = id => esc(locName(id));
+  let t;
+  if (L.fx === 'death') t = L.done ? '<b>Done if counted now:</b> ' + L.valhalla + ' in Valhalla.' : '<b>' + L.valhalla + ' of 4</b> in Valhalla so far.';
+  else if (L.fx === 'wide') t = L.done ? '<b>Done if counted now:</b> you lead in ' + L.lead.map(nm).join(', ') + '.'
+    : (L.lead.length ? 'You lead in <b>' + nm(L.lead[0]) + '</b> — one more province needed.' : 'You lead nowhere yet — you need two provinces.');
+  else {
+    const open = L.provs.filter(id => L.lost.indexOf(id) < 0);
+    t = L.done ? '<b>Done if counted now:</b> you lead in ' + L.lead.map(nm).join(', ') + '.'
+      : (open.length ? 'Not yet — you need the most STR in ' + open.map(nm).join(' or ') + '.' : 'Every province it names is gone.');
+    if (L.lost.length) t += ' <s>' + L.lost.map(nm).join(', ') + '</s> lost to Ragnarök.';
+  }
+  return '<div class="qlead' + (L.done ? ' ok' : '') + '">' + t + '</div>';
+}
+function tableHtml() {
+  const g = game();
+  const rows = g.players.filter(p => p.id !== S.id).map(p => '<div class="row"><i style="background:' + esc(p.clanHex) + '"></i>' + esc(p.name) +
+    ' <small>' + p.hand + ' cards · ' + p.quests + ' quests · Rage ' + p.rage + '</small><em>' + p.glory + '</em></div>').join('');
+  const gods = (g.gods || []).map(d => A.godCard(d.id, { h: 44 }).replace('<span>', '<span><b style="color:#f6ecd8">' + (d.at ? 'In ' + esc(locName(d.at)) + '. ' : 'Nowhere this Age. ') + '</b>')).join('');
+  return '<h2>The table</h2><div class="card">' + rows +
+    '<div class="sub" style="margin-top:6px">Age ' + g.age + ' · doomed: ' + esc(g.doom ? locName(g.doom) : '—') + '</div>' +
+    (gods ? '<div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">' + gods + '</div>' : '') + '</div>';
+}
+
+/* ---------- wiring ---------- */
+function wire() {
+  const m = $('main');
+  const on = (sel, fn) => m.querySelectorAll(sel).forEach(el => { el.onclick = ev => { if (!locked()) fn(el, ev); }; });
+  const ui = S.ui;
+  const pr = prompt();
+
+  on('#menu', () => { location.href = HUB_URL; });
+  on('#undo', () => { lock(); S.ui = {}; send({ t: 'undo' }); });
+  const nameIn = $('nameIn');
+  if (nameIn) nameIn.onchange = () => send({ t: 'opt', key: 'name', value: nameIn.value });
+  on('[data-pace]', el => { lock(); send({ t: 'opt', key: 'pace', value: el.dataset.pace }); });
+  on('#cont', () => { lock(); const g = game(); send({ t: 'cont', n: g && g.hold ? g.hold.n : undefined }); });
+  on('#sinceMore', () => { S.sinceAll = true; paint(); });
+  on('#sinceLess', () => { S.sinceAll = false; paint(); });
+  on('#go', () => { lock(); send({ t: 'start' }); });
+  on('#again', () => { lock(); send({ t: 'again' }); });
+  on('[data-size]', el => { lock(); send({ t: 'opt', key: 'table', value: +el.dataset.size }); });
+  on('[data-opt]', el => { lock(); send({ t: 'opt', key: el.dataset.opt, value: el.dataset.v === '1' }); });
+  on('[data-level]', el => { lock(); send({ t: 'opt', key: 'level', value: el.dataset.level }); });
+  on('[data-clan]', el => { lock(); send({ t: 'clan', clan: el.dataset.clan }); });
+
+  const map = $('map');
+  if (map) map.onclick = ev => { if (locked()) return; const g = ev.target.closest('[data-loc]'); if (g) mapTap(g.dataset.loc); };
+
+  /* draft */
+  on('[data-pickcard]', el => {
+    const id = el.dataset.pickcard;
+    ui.cards = ui.cards || [];
+    if (ui.cards.indexOf(id) >= 0) ui.cards = ui.cards.filter(x => x !== id);
+    else { ui.cards.push(id); if (ui.cards.length > pr.need) ui.cards.shift(); }
+    paint();
+  });
+  on('#sendDraft', () => act({ t: 'draft', cards: ui.cards }));
+
+  /* turn */
+  on('[data-mode]', el => { ui.mode = el.dataset.mode; ui.arm = false;
+    const L = pr.legal;
+    if (ui.mode === 'invade' && L.invade.length === 1) ui.fig = L.invade[0].fig;
+    if (ui.mode === 'march' && L.march.length === 1) ui.from = L.march[0].from;
+    paint(); });
+  on('#back', () => { S.ui = {}; paint(); });
+  on('#pass', () => { if (ui.arm) act({ t: 'pass' }); else { ui.arm = true; paint(); } });
+  on('[data-fig]', el => { ui.fig = el.dataset.fig; paint(); });
+  on('[data-to]', el => {
+    if (ui.mode === 'invade') {
+      const x = pr.legal.invade.find(y => y.fig === ui.fig);
+      if (x && x.victims && x.victims[el.dataset.to]) { ui.to = el.dataset.to; paint(); return; }
+      act({ t: 'invade', fig: ui.fig, to: el.dataset.to });
+    } else { ui.to = el.dataset.to; paint(); }
+  });
+  on('#doInvade', () => act({ t: 'invade', fig: ui.fig, to: ui.to }));
+  on('[data-victim]', el => act(Object.assign({ t: 'invade', fig: ui.fig, to: ui.to }, el.dataset.victim ? { victim: el.dataset.victim } : {})));
+  on('[data-retreat]', el => act({ t: 'retreat', to: el.dataset.retreat }));
+  on('#stayDie', () => act({ t: 'stay' }));
+  on('[data-godto]', el => act({ t: 'god', to: el.dataset.godto }));
+  on('[data-from]', el => { if (el.dataset.t) return; ui.from = el.dataset.from; paint(); });
+  on('[data-mfig]', el => { const id = el.dataset.mfig; ui.figs = ui.figs.indexOf(id) >= 0 ? ui.figs.filter(x => x !== id) : ui.figs.concat(id); paint(); });
+  on('#doMarch', () => act({ t: 'march', from: ui.from, to: ui.to, figs: ui.figs }));
+  on('[data-upcard]', el => {
+    const u = pr.legal.upgrade.find(y => y.card === el.dataset.upcard);
+    if (u.replace.length) { ui.card = u.card; paint(); } else act({ t: 'upgrade', card: u.card });
+  });
+  on('[data-replace]', el => act({ t: 'upgrade', card: ui.card, replace: el.dataset.replace }));
+  on('[data-quest]', el => act({ t: 'quest', card: el.dataset.quest }));
+  on('[data-pill]', el => act({ t: el.dataset.again === '1' ? 'repillage' : 'pillage', prov: el.dataset.pill }));
+  on('#doPillage', () => act({ t: pr.legal.pillage.indexOf(ui.to) >= 0 ? 'pillage' : 'repillage', prov: ui.to }));
+  on('[data-vfig]', el => { ui.fig = el.dataset.vfig; paint(); });
+  on('[data-vto]', el => act({ t: 'valhalla', fig: ui.fig, to: el.dataset.vto }));
+  on('[data-sfig]', el => { const id = el.dataset.sfig; ui.figs = ui.figs.indexOf(id) >= 0 ? ui.figs.filter(x => x !== id) : ui.figs.concat(id).slice(-2); paint(); });
+  on('#doSac', () => act({ t: 'sacrifice', figs: ui.figs }));
+
+  /* battle */
+  on('[data-bcard]', el => { ui.card = el.dataset.bcard; paint(); });
+  on('#sendCard', () => act({ t: 'card', card: ui.card }));
+  on('[data-late]', el => act({ t: 'late', card: el.dataset.late }));
+  on('#passLate', () => act({ t: 'pass' }));
+  on('[data-figans]', el => act(el.dataset.t === 'join' ? { t: 'join', fig: el.dataset.figans, from: el.dataset.from } : { t: 'keep', fig: el.dataset.figans }));
+  on('#passJoin', () => act({ t: 'pass' }));
+  on('[data-pfig]', el => {
+    const id = el.dataset.pfig;
+    ui.figs = ui.figs.indexOf(id) >= 0 ? ui.figs.filter(x => x !== id) : (ui.figs.length < pr.max ? ui.figs.concat(id) : ui.figs);
+    paint();
+  });
+  on('#sendProtect', () => act({ t: 'protect', figs: ui.figs || [] }));
+  on('[data-stat]', el => act({ t: 'stat', stat: el.dataset.stat }));
+  on('[data-keep]', el => act({ t: 'keep', card: el.dataset.keep }));
+  on('[data-prow]', el => {
+    const id = el.dataset.prow;
+    ui.cards = ui.cards.indexOf(id) >= 0 ? ui.cards.filter(x => x !== id) : (ui.cards.length < pr.max ? ui.cards.concat(id) : ui.cards);
+    paint();
+  });
+  on('#sendProwess', () => act({ t: 'prowess', cards: ui.cards || [] }));
+  on('[data-place]', el => act({ t: 'place', to: el.dataset.place }));
+  on('#doPlace', () => act({ t: 'place', to: ui.to }));
+  on('#skipPlace', () => act({ t: 'skip' }));
+  on('[data-yes]', el => act({ t: el.dataset.yes }));
+}
+
+$('menuBtn').onclick = () => { if (locked()) return; lock(); S.sheet = S.sheet ? null : 'menu'; paint(); };
+Solo.attachScene($('field'), F => { if (S.pub && S.pub.screen === 'play') paintField(F); });
+Solo.attach(handle);
+paint();
+</script>
+</body>
+</html>

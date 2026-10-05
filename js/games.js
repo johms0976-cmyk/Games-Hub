@@ -117,6 +117,17 @@ const GAMES = [
     status: "playable",
   },
   {
+    id: "blood-rage",
+    title: "Blood Rage",
+    subtitle: "Solo — pillage and die gloriously against computer clans, on your phone",
+    category: "board",
+    players: "1",
+    duration: "45–75 min",
+    icon: "🪓",
+    accentColor: "#c8413b",
+    status: "playable",
+  },
+  {
     id: "five-hundred",
     title: "500",
     subtitle: "The classic trick-taking game",
