@@ -36,7 +36,10 @@
     unopposedMs: 2600,
     ragLookMs: 2600, rag: { rumble: 2200, burn: 3200, fall: 2600, settle: 2200 }, ragAfterMs: 3500,
     /* after your own move the house holds back a moment, so you see it land */
-    afterYouMs: 700
+    afterYouMs: 700,
+    /* each house turn stays on the phone at least this long before the next
+       clan moves — on the telly you watched them; here you read them */
+    houseShowMs: { relaxed: 2800, brisk: 1500 }
   };
   const HOUSE = ['Ragnhild', 'Bjorn', 'Sigrun', 'Ivar'];
   /* "<name> pillages Horgr" — the name must take a verb in the third person. */
@@ -51,6 +54,9 @@
     field: null, fieldSeq: 0, fight: null, held: [],
     teller: new W.Teller(),
     age: null, rag: null, ragHeld: null,
+    /* intro: the card each Age opens on, held until you tap it;
+       reel: the house's latest turn ({k, by, at}), and when it was said */
+    intro: null, reel: null, reelAt: 0,
     fieldShow: null, onField: null, scene: null,
     createOpts: null, moves: [], lastHumanAt: 0,
     listener: null, resumed: false, quiet: false,
@@ -121,6 +127,7 @@
     S.pay = null; S.seen = 0; S.crier = []; S.thinking = {}; S.lastBattle = null;
     S.field = null; S.fight = null; S.held = []; S.teller = new W.Teller();
     S.age = null; S.rag = null; S.ragHeld = null; S.fieldShow = null;
+    S.intro = null; S.reel = null; S.reelAt = 0;
     if (S.scene) S.scene.close();
   }
   function startGame() {
@@ -264,6 +271,8 @@
       hurry: null,
       said: g ? saidView() : null,
       age: ageView(),
+      intro: S.intro ? { age: S.intro.age } : null,
+      reel: S.reel,
       pay: S.pay ? S.pay.map(p => ({ name: p.name, detail: p.detail, bot: p.bot })) : null,
       undo: g ? undoInfo() : null
     });
@@ -289,10 +298,12 @@
     const g = S.g;
     if (!g) return;
     if (msg.t === 'cont') { ageContinue(msg.n); return; }
+    if (msg.t === 'intro') { if (S.intro && (msg.age == null || +msg.age === S.intro.age)) { S.intro = null; S.reelAt = Date.now(); afterChange(); } return; }
     if (msg.t === 'undo') { doUndo(); return; }
     if (msg.t === 'skipfield') { skipField(); return; }
     if (msg.t === 'do' && msg.a && typeof msg.a === 'object') {
       if (S.age) { flash('Read the end of the Age first, then tap Continue.'); publish(); return; }
+      if (S.intro) { flash('Read the start of the Age first, then tap to begin.'); publish(); return; }
       const r = play(g, ME, clean(msg.a));
       if (!r.ok) { flash(r.why); publish(); return; }
       afterChange();
@@ -318,7 +329,7 @@
      kind of question twice running. */
   function houseThinks() {
     const g = S.g;
-    if (!g || g.phase === 'over') return;
+    if (!g || g.phase === 'over' || S.intro) return;
     for (const pr of g.prompts.slice()) {
       const p = g.seat(pr.seat);
       if (!p || !p.bot) continue;
@@ -330,6 +341,9 @@
         (S.field && S.field.stage === 'after' && !g.battle ? Math.max(0, S.field.until - Date.now()) : 0);
       const last = S.moves[S.moves.length - 1];
       if (last && last.human) ms = Math.max(ms, S.lastHumanAt + T.afterYouMs - Date.now());
+      /* a turn (or the free placement an upgrade brings) waits until the
+         move before it has been read */
+      if (pr.t === 'turn' || pr.t === 'place') ms = Math.max(ms, S.reelAt + (T.houseShowMs[(S.gameOpts || S.opts).pace] || T.houseShowMs.relaxed) - Date.now());
       setTimeout(() => {
         if (S.g !== g || g.phase === 'over') return;
         const now = g.promptFor(pr.seat);
@@ -367,7 +381,15 @@
       /* Ragnarök is said when it has been seen — only the one being held now */
       if (S.ragHeld) { S.ragHeld.push(e); continue; }
       if (g.opts.ragShow && e.t === 'ragnarok' && !e.already && i === lastRag && g.hold && g.hold.t === 'ragnarok') { S.ragHeld = [e]; continue; }
-      S.teller.feed(e);
+      /* each Age opens on a card you read before anyone moves */
+      if (e.t === 'age' && !S.quiet) S.intro = { age: e.n };
+      if (e.t === 'action' && !S.quiet) S.reelAt = Date.now();
+      const L = S.teller.feed(e);
+      /* the house's latest turn, for the phone to show while the next clan thinks */
+      if (L && L.turn && L.by && L.by !== ME) {
+        S.reel = { k: L.k, by: L.by, at: e.to || e.prov || null };
+        if (!S.quiet) S.reelAt = Date.now();
+      }
     }
     S.seen = g.log.length;
   }

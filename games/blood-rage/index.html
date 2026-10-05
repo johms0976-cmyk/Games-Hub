@@ -83,6 +83,11 @@ h2 .figimg{vertical-align:middle;margin:-12px 6px -6px 0}
 .since .sh{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
 .since .sl{line-height:1.35}
 .since .sl.new{color:var(--ink)}
+.reel{margin-top:8px;border-left:4px solid var(--hex);background:var(--panel2);border-radius:10px;padding:8px 10px;font-size:15px;line-height:1.35;color:var(--ink);animation:pfIn .3s ease-out}
+.reel small{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:2px}
+.intro .kick{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.intro .steps{margin:10px 0 0 18px;padding:0;font-size:13.5px;line-height:1.4;display:flex;flex-direction:column;gap:6px}
+.intro .btn{margin-top:12px}
 .since .more{align-self:flex-start;background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:9px;padding:4px 10px;font-size:12px}
 .next{margin-top:6px;font-weight:800;color:var(--gold);font-size:15px}
 .agec .mine{margin-top:8px;background:var(--panel2);border:1px solid var(--gold);border-radius:12px;padding:9px 11px}
@@ -323,7 +328,7 @@ function paint() {
   /* The public state and this seat's own half arrive as two messages. There
      is always a moment holding the new table and the old question; the
      question's number tells the two apart. */
-  const held = g && g.hold && g.hold.t === 'age' ? 'age' + g.hold.n : '';
+  const held = g && g.hold && g.hold.t === 'age' ? 'age' + g.hold.n : S.pub && S.pub.intro ? 'intro' + S.pub.intro.age : '';
   const shape = [S.pub && S.pub.screen, g && g.phase, pr && pr.n, held].join('|');
   if (shape !== S.shape) {
     /* the Age card arrives unasked, over whatever was just tapped: hold taps a little longer */
@@ -348,6 +353,7 @@ function paint() {
       (held ? ageHtml() : '') + '<div class="map">' + A.board(g, { small: true }) + '</div>';
     return;
   }
+  if (S.pub.intro && !(g.hold && g.hold.t === 'age')) { m.innerHTML = introHtml() + '<div class="map">' + A.board(g, { small: true, sel: g.doom }) + '</div>' + sheetHtml(); wire(); return; }
   if (held) { m.innerHTML = ageHtml() + sheetHtml() + handHtml() + tableHtml(); wire(); return; }
   m.innerHTML = askHtml() + undoHtml() + sinceHtml() + mapHtml() + sheetHtml() + handHtml() + tableHtml();
   wire();
@@ -390,13 +396,44 @@ function ageHtml() {
   return '<div class="card ask agec"><div class="title">The ' + AGE[A0.age] + ' Age ends</div>' + mineHtml + rag + qs + table + next + foot + '</div>';
 }
 
+/* ---------- the start of an Age: what is coming, before anyone moves ---------- */
+function introHtml() {
+  const g = game(), age = S.pub.intro.age, o = S.pub.opts || {};
+  const AGE = ['', 'First', 'Second', 'Third'];
+  const n = g.players.length, i0 = Math.max(0, g.players.findIndex(p => p.id === g.first));
+  const order = g.players.map((_, k) => g.players[(i0 + k) % n]);
+  const who = p => p.id === S.id ? 'you' : esc(p.name);
+  const per = D.RAGNAROK_GLORY[age];
+  const lead = age === 1
+    ? 'Three Ages, then the world ends. Glory wins it: pillage provinces, win battles, complete Quests — and die well, because every figure Ragnarök takes is worth Glory to its clan.'
+    : age === 2 ? 'Fresh gifts from the Age ' + age + ' deck. The Glory gets bigger from here.'
+    : 'The last Age. When it ends, so does the world — and every stat on its high steps scores at the final count.';
+  const gone = (g.provs || []).filter(p => p.destroyed).map(p => esc(locName(p.id)));
+  const draft = age === 1 && !o.draft1 ? 'No draft this Age: every clan keeps the eight cards it was dealt.'
+    : 'Gods’ Gifts: eight cards each. Keep ' + (n === 2 ? 'two' : 'one') + ', pass the rest to your left, and again, until you hold six.';
+  const clans = order.map(p => '<div class="row"><i style="background:' + esc(p.clanHex) + '"></i>' + esc(p.name) + (p.id === S.id ? ' (you)' : '') + ' <small>' + esc(p.clanName) +
+    ' · Rage ' + p.vals.rage + ' · Axes ' + p.vals.axes + ' · Horns ' + p.vals.horns + '</small><em>' + p.glory + '</em></div>').join('');
+  const gods = (g.gods || []).map(d => esc(D.DEITIES[d.id].name) + (d.at ? ' stands in ' + esc(locName(d.at)) : ' finds nowhere to stand')).join('; ');
+  return '<div class="card ask agec intro"><div class="kick">Age ' + age + ' of 3</div><div class="title">The ' + AGE[age] + ' Age</div>' +
+    '<div class="sub">' + lead + '</div>' +
+    '<div class="line rag">When this Age ends, Ragnarök swallows <b>' + esc(locName(g.doom)) + '</b>. Every figure standing there dies — <b>' + per + ' Glory</b> each to its clan.' +
+      (gone.length ? ' Already lost: ' + gone.join(', ') + '.' : '') + '</div>' +
+    '<ol class="steps"><li>' + draft + '</li>' +
+    '<li>Then the Action phase, one action a turn — invade, march, upgrade, quest or pillage — until every clan’s Rage is spent. <b>' + who(order[0]).replace(/^you$/, 'You') + '</b> lead' + (order[0].id === S.id ? '' : 's') +
+      ', then ' + order.slice(1).map(who).join(', then ') + '.</li>' +
+    '<li>Then Quests are checked, Ragnarök falls, and Valhalla sends its dead back.</li></ol>' +
+    (gods ? '<div class="line">' + gods + '.</div>' : '') +
+    '<div style="margin-top:8px">' + clans + '</div>' +
+    '<button class="btn gold" id="introGo">Begin the ' + AGE[age] + ' Age</button></div>';
+}
+
 /* ---------- since your last turn: the lines the telly said, from the broadcast ---------- */
 function sinceHtml() {
   const said = S.pub && S.pub.said;
   if (!said || !said.length) return '';
   const s = W.since(said, S.id);
   if (!s.lines.length) return '';
-  const MAX = prompt() ? 3 : 6;           // on your own turn, keep the buttons near the top
+  const MAX = 6;
   const all = s.lines;
   const shown = S.sinceAll ? all : all.slice(-MAX);
   const hidden = all.length - shown.length;
@@ -480,6 +517,23 @@ function overHtml() {
 const ord = k => k + (k === 1 ? 'st' : k === 2 ? 'nd' : k === 3 ? 'rd' : 'th');
 
 
+/* The house's latest turn, said large while the next clan thinks (and at the
+   top of your own turn): the solo phone has no telly to watch them on. Shown
+   only until you have moved since. */
+function reelOn() {
+  const r = S.pub && S.pub.reel, said = S.pub && S.pub.said;
+  if (!r || !said) return null;
+  const L = said.find(l => l.k === r.k);
+  if (!L) return null;
+  for (let i = said.length - 1; i >= 0 && said[i].k > r.k; i--) if (said[i].turn && said[i].by === S.id) return null;
+  return { r, L };
+}
+function reelHtml() {
+  const x = reelOn();
+  if (!x) return '';
+  const g = game(), p = g.players.find(q => q.id === x.r.by);
+  return '<div class="reel" style="--hex:' + esc(p ? p.clanHex : '#888') + '"><small>Just now</small>' + esc(x.L.text) + '</div>';
+}
 function waitCard(title, sub) {
   return '<div class="card"><div class="title">' + esc(title) + '</div>' + (sub ? '<div class="sub">' + esc(sub) + '</div>' : '') + '</div>';
 }
@@ -499,15 +553,15 @@ function askHtml() {
        (their prompt's own words are addressed to them, never shown here) */
     const turn = open.find(x => x.t === 'turn');
     if (turn && open.length === 1) {
-      return '<div class="card"><div class="title">' + esc(pname(turn.seat)) + '’s turn</div>' + turnNote() + '</div>';
+      return '<div class="card"><div class="title">' + esc(pname(turn.seat)) + '’s turn</div>' + reelHtml() + turnNote() + '</div>';
     }
     if (open.length) {
       const names = open.map(x => x.seat).filter((id, i, a) => a.indexOf(id) === i).map(pname);
       const why = open.some(x => x.t === 'turn') ? '' : (open[0].why || '');
       return '<div class="card"><div class="title">' + esc(g.phase === 'draft' ? 'Waiting for the others to choose' : names.join(', ') + (names.length > 1 ? ' are' : ' is') + ' deciding') + '</div>' +
-        (why ? '<div class="sub">' + esc(why) + '</div>' : '') + turnNote() + '</div>';
+        (why ? '<div class="sub">' + esc(why) + '</div>' : '') + reelHtml() + turnNote() + '</div>';
     }
-    return '<div class="card"><div class="title">' + (g.battle ? 'The battle is on' : 'The table is moving') + '</div>' + turnNote() + '</div>';
+    return '<div class="card"><div class="title">' + (g.battle ? 'The battle is on' : 'The table is moving') + '</div>' + reelHtml() + turnNote() + '</div>';
   }
   switch (pr.t) {
     case 'draft': return draftHtml(pr);
@@ -551,7 +605,7 @@ function turnHtml(pr) {
   if (!ui.mode) {
     const b = (mode, label, n, sub) => '<button data-mode="' + mode + '"' + (n ? '' : ' disabled') + '>' + label + '<small>' + sub + '</small></button>';
     const minCost = L.invade.length ? Math.min.apply(null, [].concat(...L.invade.map(x => x.costs))) : 0;
-    return '<div class="card ask"><div class="title">Your turn</div>' +
+    return '<div class="card ask"><div class="title">Your turn</div>' + reelHtml() +
       '<div class="sub">' + p.rage + ' Rage left. One action, then the next clan.</div>' +
       '<div class="acts">' +
       b('invade', 'Invade', L.invade.length, L.invade.length ? 'from ' + minCost + ' Rage' : 'nothing can go') +
@@ -758,7 +812,8 @@ function pickable() {
 }
 function mapHtml() {
   const g = game();
-  return '<div class="map" id="map">' + A.board(g, { pick: pickable(), sel: S.ui.to || S.ui.from || null, small: true }) + '</div>';
+  const x = !S.ui.to && !S.ui.from ? reelOn() : null;
+  return '<div class="map" id="map">' + A.board(g, { pick: pickable(), sel: S.ui.to || S.ui.from || (x && x.r.at) || null, small: true }) + '</div>';
 }
 function mapTap(loc) {
   const pr = prompt(), ui = S.ui;
@@ -834,6 +889,7 @@ function wire() {
   const nameIn = $('nameIn');
   if (nameIn) nameIn.onchange = () => send({ t: 'opt', key: 'name', value: nameIn.value });
   on('[data-pace]', el => { lock(); send({ t: 'opt', key: 'pace', value: el.dataset.pace }); });
+  on('#introGo', () => { lock(); send({ t: 'intro', age: S.pub.intro ? S.pub.intro.age : undefined }); });
   on('#cont', () => { lock(); const g = game(); send({ t: 'cont', n: g && g.hold ? g.hold.n : undefined }); });
   on('#sinceMore', () => { S.sinceAll = true; paint(); });
   on('#sinceLess', () => { S.sinceAll = false; paint(); });
