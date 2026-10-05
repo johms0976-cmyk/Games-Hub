@@ -22,7 +22,11 @@
 
   const T = { paceMs: { slow: 2600, relaxed: 1500, brisk: 800 }, thinkMin: 0.4, thinkMax: 1.1,
     /* After your own move the computers hold back a moment, so you see it land. */
-    afterYouMs: 700 };
+    afterYouMs: 700,
+    /* Each computer move stays in the move pop-up at least this long before
+       the next computer takes its turn: there is no telly to watch them on,
+       so they are paced by reading time, one line at a time. */
+    houseShowMs: { slow: 3800, relaxed: 2700, brisk: 1500 } };
   const HOUSE = ['Katya', 'Pyotr', 'Irina'];
   /* The computers take whichever colours you have not, in this order. */
   const HOUSE_COLOR_ORDER = [2, 5, 4, 6, 7, 3, 1, 0];
@@ -37,6 +41,8 @@
     gameOpts: null, thinking: {}, stateKey: '', pay: null,
     pause: null, pauseSeq: 0, logSeen: 0, gameNo: 0,
     createOpts: null, moves: [], lastHumanAt: 0,
+    /* when a computer's move (or a payout card) was last put in front of you */
+    reelAt: 0,
     listener: null, resumed: false,
     pending: 0   // messages on their way, either direction (the tests wait for 0)
   };
@@ -106,7 +112,7 @@
     S.g = E.create(S.createOpts);
     S.gameOpts = Object.assign({}, S.opts, { table: players.length });
     S.pay = null; S.thinking = {}; S.stateKey = ''; S.pause = null; S.logSeen = 0;
-    S.gameNo = S.createOpts.seed; S.moves = []; S.resumed = false;
+    S.gameNo = S.createOpts.seed; S.moves = []; S.resumed = false; S.reelAt = 0;
     S.screen = 'play';
     afterChange();
   }
@@ -163,6 +169,7 @@
   function pauseReady(id) {
     if (!S.pause || S.pause.id !== id) return;
     S.pause = null;
+    S.reelAt = Date.now();     // the first computer turn after the scores waits a beat too
     houseThinks();
     save();
     publish();
@@ -346,10 +353,15 @@
     let ms = paceMs() * (T.thinkMin + Math.random() * (T.thinkMax - T.thinkMin));
     const last = S.moves[S.moves.length - 1];
     if (last && last.human) ms = Math.max(ms, S.lastHumanAt + T.afterYouMs - Date.now());
+    /* a turn waits until the computer move before it has been read; the
+       questions inside a turn (where to build it, the pub) do not */
+    if (g.prompt.t === 'turn') ms = Math.max(ms, S.reelAt + (T.houseShowMs[(S.gameOpts || S.opts).pace] || T.houseShowMs.relaxed) - Date.now());
     setTimeout(() => {
       if (S.g !== g || g.phase === 'over' || !g.prompt || g.prompt.seat !== p.id || g.prompt.n !== n) return;
       if (S.pause) { S.thinking[key] = false; return; }
+      const before = g.log.length;
       play(g, p.id, B.answer(g, g.prompt));
+      if (g.log.length > before) S.reelAt = Date.now();
       afterChange();
     }, ms);
   }
