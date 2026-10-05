@@ -1,0 +1,1438 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>Lost Ruins of Arnak — Solo</title>
+<style>
+:root{
+  --bg:#101611; --panel:#1b241d; --panel2:#141b16; --line:#2f3c31; --ink:#f3eee1; --dim:#a3ad9c;
+  --gold:#e3b54a; --good:#56c07a; --bad:#e5484d;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden],.hide{display:none !important}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font:16px/1.4 ui-rounded,-apple-system,"Segoe UI",system-ui,sans-serif;
+  padding:env(safe-area-inset-top) 12px calc(18px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;gap:8px;padding:10px 0 8px;position:sticky;top:0;background:var(--bg);z-index:5}
+#dot{width:12px;height:12px;border-radius:50%;background:var(--gold);flex:none}
+#who{font-weight:800}
+#link{margin-left:auto;font-size:11px;color:var(--dim)}
+#link.ok{color:var(--good)} #link.bad{color:var(--bad)}
+h2{margin:14px 0 6px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px}
+.card.mine{border-color:var(--gold)}
+.title{font-weight:800;font-size:19px;color:var(--gold)}
+.sub{color:var(--dim);font-size:13px;margin-top:2px}
+button{font:inherit}
+.btn{display:block;width:100%;background:var(--gold);border:0;color:#1a140a;font-weight:800;font-size:17px;border-radius:14px;padding:14px;margin-top:10px}
+.btn:disabled{opacity:.4}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--dim);font-weight:600;font-size:15px}
+.btn.small{font-size:14px;padding:10px;margin-top:6px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.menu button{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:12px 10px;text-align:left;display:flex;flex-direction:column;gap:3px;min-height:64px}
+.menu button b{font-size:15px}
+.menu button small{color:var(--dim);font-size:12px}
+.menu button:disabled{opacity:.38}
+.menu button.wide{grid-column:span 2}
+.opts{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.opt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:10px 11px;font-size:15px}
+.opt:disabled{opacity:.4}
+.opt.on{border-color:var(--gold);background:rgba(227,181,74,.13)}
+.opt .lab{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.opt .lab b{display:block}
+.opt .lab small{color:var(--dim);font-size:12px;line-height:1.25}
+.opt .val{display:flex;align-items:center;gap:2px;font-weight:800;color:var(--gold);flex:none}
+.icons{display:flex;align-items:center;gap:2px;flex-wrap:wrap}
+svg.ic{display:inline-block;vertical-align:middle;flex:none}
+svg.asst.tired{opacity:.4}
+.to,.or{color:var(--dim);font-weight:800;margin:0 2px}
+.res{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.res span{display:flex;align-items:center;gap:3px;font-weight:800;font-size:17px}
+.stat{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:13px;color:var(--dim)}
+.stat span{display:flex;align-items:center;gap:4px}
+.stat b{color:var(--ink)}
+.pool{margin-top:8px;font-size:13px;color:var(--dim);display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.hand{display:flex;flex-direction:column;gap:8px}
+.acard{--c:#8a7a5a;background:linear-gradient(180deg,#f5ebd3,#e6d6b3);color:#2b2216;border-radius:11px;border:2px solid var(--c);padding:8px 9px;display:flex;flex-direction:column;gap:4px}
+.acard.k-art{--c:#4d75c7;background:linear-gradient(180deg,#e9f0fb,#cddcf2)}
+.acard.k-item{--c:#a37a3c}
+.acard.k-fear{--c:#3a2a58;background:linear-gradient(180deg,#352552,#1b1230);color:#eee}
+.acard.k-basic{--c:#6b6b6b;background:linear-gradient(180deg,#eeeae1,#d8d1c1)}
+.acard.sel{box-shadow:0 0 0 3px var(--gold)}
+.chead{display:flex;align-items:center;gap:5px}
+.chead .ctr{display:flex;gap:1px}
+.cnm{font-weight:800;font-size:15px}
+.cfx{display:flex;align-items:center;flex-wrap:wrap;gap:2px}
+.ctext{font-size:13px;line-height:1.3;color:#4a3d2a}
+.acard.k-art .ctext{color:#243a66}
+.acard.k-fear .ctext{color:#ccc}
+.cfoot{display:flex;align-items:center;gap:6px}
+.cfoot .sp{flex:1}
+.price{display:flex;align-items:center;gap:2px;font-weight:800}
+.passw{font-size:10px;font-weight:800;text-transform:uppercase;color:#6b4a1a;border:1px solid #a37a3c;border-radius:4px;padding:0 3px;margin-right:2px}
+.cbtns{display:flex;gap:6px;margin-top:4px}
+.cbtns button{flex:1;border:0;border-radius:10px;padding:9px 6px;font-weight:800;font-size:14px;background:#2b2216;color:#f3eee1}
+.cbtns button.main{background:#6b4a1a}
+.cbtns button:disabled{opacity:.35}
+.cbtns .why{font-size:12px;color:#6b5a44;flex:1;align-self:center}
+.cchip{display:inline-flex;align-items:center;gap:3px;border-radius:7px;padding:2px 6px;font-size:12px;background:#e8dcc0;color:#2b2216;border:1px solid #a37a3c;white-space:nowrap}
+.cchip.k-art{background:#d7e3f6;border-color:#4d75c7}
+.cchip.k-fear{background:#2b1e44;color:#ddd;border-color:#5a4585}
+.cchip.k-basic{background:#e3ded3;border-color:#8a8a8a}
+.cchip .cnm{font-size:12px;font-weight:700}
+.cchip .cfx,.cchip .ctr{display:inline-flex;gap:1px}
+.chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.guard{display:inline-flex;align-items:center;gap:3px;background:#3a2410;color:#ffe3b0;border-radius:9px;padding:2px 6px 2px 2px;font-size:12px}
+.guard .gcost,.guard .gboon{display:inline-flex;align-items:center;gap:1px}
+.guard .gboon{border-left:1px solid rgba(255,227,176,.3);padding-left:3px}
+.guard.used{opacity:.45}
+.asstw{display:inline-flex;align-items:center;gap:5px}
+.asstw.tired{opacity:.5}
+.asstw .aname{font-weight:700;font-size:13px}
+.asstw .afx{display:inline-flex;align-items:center;gap:2px}
+.sname{font-weight:800}
+.sfx{display:inline-flex;align-items:center;gap:2px;flex-wrap:wrap;margin-left:4px}
+.idolt{display:inline-flex;align-items:center;gap:1px}
+.bonust{display:inline-flex;background:#cfb98f;border-radius:5px;padding:0 2px}
+.rows{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.prow{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--dim);flex-wrap:wrap}
+.prow i.d{width:10px;height:10px;border-radius:50%;flex:none}
+.prow b{color:var(--ink)}
+.prow .sc{margin-left:auto}
+.stepper{display:flex;align-items:center;gap:10px;margin-top:8px}
+.stepper button{width:44px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:20px;font-weight:800}
+.stepper button:disabled{opacity:.35}
+.status{margin-top:8px;font-size:14px}
+.status.ok{color:var(--good)} .status.bad{color:#ff9aa0}
+#flash{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));background:#2a1220;border:1px solid var(--bad);color:#ffd9de;border-radius:12px;padding:11px 13px;font-size:14px;z-index:20}
+#name{display:flex;gap:8px;margin:10px 0}
+#name input{flex:1;font:inherit;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:12px}
+.warn{color:#ffb86b;font-size:12px}
+
+/* ---------- since your last turn, and the round card ---------- */
+.wg{display:inline-flex;align-items:center;gap:1px;font-weight:800;color:var(--ink);white-space:nowrap}
+.since{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:9px 11px;margin-top:6px;font-size:13px;color:var(--dim);display:flex;flex-direction:column;gap:4px}
+.since .sh{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+.since .sl{line-height:1.35}
+.since .sl.new{color:var(--ink)}
+.since .more{align-self:flex-start;background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:9px;padding:4px 10px;font-size:12px}
+.rcard .rc-h{font-weight:900;font-size:22px;color:var(--gold);line-height:1.15}
+.rcard .rc-sub{font-size:14px;margin-top:3px}
+.rc-sc{display:flex;flex-direction:column;gap:6px;margin:10px 0 4px}
+.rc-p{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:7px 10px;font-size:15px;min-width:0}
+.rc-p i{width:11px;height:11px;border-radius:50%;flex:none}
+.rc-p b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.rc-p .rc-t{margin-left:auto;display:flex;align-items:center;gap:3px;font-weight:900;color:var(--gold)}
+.rc-p .rc-t small{font-size:.55em;color:var(--dim);font-weight:600}
+.rc-p .rc-d{font-size:12px;color:var(--good);white-space:nowrap}
+.rc-p .rc-d.neg{color:var(--bad)}
+.rc-sec{margin-top:10px}
+.rc-sec h4{margin:0 0 3px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.rc-sec ul{margin:0;padding-left:1.1em;font-size:14px}
+.rc-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:14px;margin:4px 0}
+.rc-w{text-align:center;margin-top:12px}
+/* ---------- the printed pictures (under html.art only) ---------- */
+html.art .acard{display:flow-root}
+html.art .acard>.cpic{float:left;width:98px;margin:0 10px 4px 0;cursor:zoom-in;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+html.art .acard{min-height:150px}
+.asstw .apic{border-radius:6px}
+.guard .gpic{margin:-2px 0}
+#zoom{position:fixed;inset:0;z-index:30;background:rgba(6,9,7,.9);display:flex;align-items:center;justify-content:center;padding:16px}
+#zoom i{display:block;width:min(92vw,62vh);aspect-ratio:330/461;background:var(--pic) center/contain no-repeat}
+#zoom small{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom));left:0;right:0;text-align:center;color:var(--dim)}
+/* ---------- take a move back ---------- */
+.undo{display:flex;align-items:center;gap:8px;width:100%;margin-top:8px;background:var(--panel2);border:1px dashed var(--gold);color:var(--ink);border-radius:12px;padding:10px 12px;font-size:14px;text-align:left}
+.undo b{color:var(--gold);flex:none}
+/* ---------- the round-end keep choice, full screen ---------- */
+#sheet{position:fixed;inset:0;z-index:15;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:calc(12px + env(safe-area-inset-top)) 12px calc(96px + env(safe-area-inset-bottom))}
+#sheet .sh-h{font-weight:900;font-size:22px;color:var(--gold)}
+#sheet .sh-sub{color:var(--dim);font-size:14px;margin:4px 0 10px}
+#sheet .kcard{position:relative;border-radius:13px;margin-top:10px;transition:box-shadow .15s}
+#sheet .kcard.on{box-shadow:0 0 0 3px var(--gold)}
+#sheet .kcard .ktag{position:absolute;top:8px;right:8px;z-index:2;font-size:12px;font-weight:800;border-radius:8px;padding:3px 8px;background:#2b2216;color:#f3eee1}
+#sheet .kcard.on .ktag{background:var(--gold);color:#1a140a}
+#sheet .sh-foot{position:fixed;left:0;right:0;bottom:0;padding:10px 12px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(16,22,17,0),var(--bg) 30%)}
+#sheet .sh-foot .btn{margin-top:0}
+.upnext{margin-top:8px;padding:8px 10px;border-radius:10px;background:rgba(227,181,74,.14);border:1px solid var(--gold);color:var(--gold);font-weight:800}
+
+/* ================================================================
+   Solo: no telly, so the phone carries the island, the row and every
+   expedition itself, on tabs.
+   ================================================================ */
+header{flex-wrap:wrap}
+#menuBtn{margin-left:auto;background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:10px;padding:5px 11px;font-size:14px}
+#tabs{display:flex;gap:4px;width:100%;margin-top:4px}
+#tabs button{flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--dim);border-radius:10px;padding:8px 2px;font-size:13px;font-weight:700;position:relative}
+#tabs button.on{background:var(--gold);border-color:var(--gold);color:#1a140a}
+#tabs button .pip{position:absolute;top:-4px;right:-3px;width:10px;height:10px;border-radius:50%;background:var(--bad);border:2px solid var(--bg)}
+/* the house's latest action, large, while the next one waits */
+.reel{margin-top:8px;border:1px solid var(--line);border-left:5px solid var(--hex);background:var(--panel);border-radius:12px;padding:9px 11px;font-size:15px;line-height:1.38}
+.reel.fresh{animation:reelIn .35s ease-out}
+.reel small{display:block;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:2px}
+.reel .who{display:flex;align-items:center;gap:6px;font-weight:800;color:var(--gold);font-size:13px;margin-bottom:3px}
+.reel .who i{width:10px;height:10px;border-radius:50%;background:var(--hex)}
+@keyframes reelIn{from{transform:translateY(-4px);opacity:.2}to{transform:none;opacity:1}}
+/* the round I card */
+.intro .kick{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.intro .steps{margin:10px 0 0 18px;padding:0;font-size:14px;line-height:1.4;display:flex;flex-direction:column;gap:6px}
+.intro .line{margin-top:10px;font-size:14px}
+/* the menu */
+#menuSheet{position:fixed;inset:0;z-index:25;background:rgba(6,9,7,.86);display:flex;align-items:flex-end;padding:12px}
+#menuSheet .card{width:100%;max-height:86vh;overflow:auto}
+#menuSheet ul{margin:6px 0;padding-left:18px;font-size:13px;color:var(--dim)}
+#menuSheet h2{margin-top:12px}
+.seg2{display:grid;gap:6px;margin-top:4px}
+.colours{display:flex;gap:8px;margin-top:6px}
+.colours button{width:38px;height:38px;border-radius:50%;border:3px solid transparent;background:var(--c)}
+.colours button.on{border-color:var(--ink)}
+#nameIn2{width:100%;font:inherit;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:11px;margin-top:6px}
+
+/* ---------- the island and the research track: the telly's plate,
+   drawn (no printed board in this build), at the phone's width.
+   Everything on it is placed in the plate's own pixels (A.PLATE, 1500 x
+   1567) with container units, so it scales with the plate. ---------- */
+.platebox{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:8px;border-radius:14px}
+#plate{width:100%;aspect-ratio:1500/1567;position:relative;container-type:size;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+#plate.zoom{width:200%}
+#plate>*{position:absolute}
+.pl-bg{inset:0;background:linear-gradient(180deg,#3d3222 0%,#29422a 30%,#1d4a44 70%,#16404e 100%)}
+.pl-bg .trk{position:absolute;left:66.5cqw;top:0;right:0;bottom:0;background:#2b2419;border-left:2px solid #4d3f2a}
+.pl-at{transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;gap:.4cqw}
+.dig{min-width:3.6cqw;min-height:3.6cqw;border-radius:999px}
+.dig>.vec{display:flex;gap:1px;background:rgba(0,0,0,.35);border-radius:999px;padding:.3cqw .5cqw}
+.dig .meeple{position:absolute;left:50%;top:50%;transform:translate(-50%,-66%);width:6.2cqw;height:6.2cqw;filter:drop-shadow(0 0 .25cqw #fff) drop-shadow(0 .3cqw .4cqw rgba(0,0,0,.9))}
+.dig.blocked::after{content:"";position:absolute;inset:-.3cqw;border-radius:50%;background:rgba(10,8,6,.72) repeating-linear-gradient(45deg,rgba(255,255,255,.1) 0 .4cqw,transparent .4cqw .8cqw);border:.2cqw solid rgba(255,255,255,.35)}
+.tile .stile{position:absolute;inset:0;display:block}
+.tile .sface{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4cqw;background:rgba(245,236,214,.94);color:#2b2216;border-radius:1cqw;padding:.5cqw;text-align:center}
+.tile .sname{font-weight:800;font-size:1.9cqw;line-height:1.1}
+.tile .sfx{display:flex;flex-wrap:wrap;justify-content:center;gap:2px}
+.hot{outline:.4cqw solid var(--gold);outline-offset:.2cqw;box-shadow:0 0 2cqw rgba(227,181,74,.7);border-radius:1.2cqw}
+.lit{outline:.6cqw solid #fff;outline-offset:.3cqw;box-shadow:0 0 3cqw rgba(255,255,255,.8);border-radius:1.2cqw;animation:litPulse 1.2s ease-in-out infinite alternate}
+@keyframes litPulse{from{outline-color:#fff}to{outline-color:rgba(255,255,255,.35)}}
+.gtok{width:8.4cqw;height:8.4cqw;transform:translate(-30%,-45%)}
+.gtok .guard{position:absolute;left:0;top:0}
+.idols{gap:.3cqw}
+.badge{background:rgba(10,14,11,.82);color:var(--ink);border:1px solid rgba(233,223,198,.35);border-radius:999px;padding:.2cqw .9cqw;font-size:2.4cqw;font-weight:700;white-space:nowrap;transform:translate(0,-50%);display:flex;align-items:center;gap:.4cqw}
+.sq{z-index:0;display:flex;flex-wrap:wrap;align-content:center;align-items:center;justify-content:center;gap:.3cqw;padding:.4cqw}
+.sq>.vec{position:absolute;inset:0;background:rgba(239,227,199,.9);border-radius:.8cqw;z-index:-1}
+.sq .bcost{position:absolute;left:0;right:0;bottom:-2.2cqw;display:flex;justify-content:center;gap:1px;z-index:1}
+.sq .glass,.sq .book{width:3.6cqw;height:3.6cqw;filter:drop-shadow(0 .2cqw .3cqw rgba(0,0,0,.75))}
+.sq .cnt{font-weight:900;font-size:2.2cqw;color:#2b2216;background:rgba(245,236,214,.9);border-radius:.6cqw;padding:0 .4cqw}
+.tst{display:flex;align-items:flex-end;justify-content:flex-end}
+.tst .cnt{position:relative;font-weight:900;font-size:2.2cqw;color:#fff;background:rgba(0,0,0,.72);border-radius:.6cqw;padding:0 .5cqw}
+.tst.gone{opacity:.25}
+.tst>.vec{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:2.6cqw;color:#f4ecd0;background:rgba(0,0,0,.45);border-radius:.6cqw}
+.arr .glass{width:4.6cqw;height:4.6cqw;filter:drop-shadow(0 .2cqw .3cqw rgba(0,0,0,.75))}
+.rew{display:flex;flex-direction:column;align-items:flex-start;gap:.3cqw;font-size:2cqw;color:var(--ink)}
+.rew span{display:flex;align-items:center;gap:.2cqw}
+.platenote{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12px;color:var(--dim)}
+.platenote button{margin-left:auto;background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:9px;padding:4px 10px;font-size:12px}
+/* ---------- the card row, side-scrolling ---------- */
+.rowbar{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--dim);margin-top:4px}
+.rowbar b{color:var(--ink)}
+.cardrow{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:4px 0 8px;scroll-snap-type:x proximity}
+.cardrow>.slot{flex:0 0 72%;max-width:250px;scroll-snap-align:start;display:flex}
+.cardrow>.slot .acard{flex:1}
+.cardrow>.slot.empty{border:2px dashed #3b4a3d;border-radius:10px;align-items:center;justify-content:center;color:var(--dim);font-size:13px;flex-basis:30%;min-height:120px}
+.cardrow>.staff{flex:0 0 34px;border-radius:10px;display:flex;align-items:flex-end;justify-content:center;color:#f4ecd0;font-weight:900;background:linear-gradient(180deg,#6d5132,#3b2a18);padding-bottom:6px}
+.peek{outline:3px solid var(--gold);outline-offset:-1px}
+/* ---------- every expedition ---------- */
+.pb{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.pb.turn{border-color:var(--gold);box-shadow:0 0 0 2px rgba(227,181,74,.4)}
+.pb.passed{opacity:.75}
+.pb .ph{display:flex;align-items:center;gap:7px;min-width:0}
+.pb .ph i.dot{width:12px;height:12px;border-radius:50%;flex:none}
+.pb .nm{font-weight:800;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.pb .tags{display:flex;gap:4px;flex-wrap:wrap}
+.pb .tag{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:0 7px}
+.pb .sc{margin-left:auto;display:flex;align-items:center;gap:4px;font-weight:900;color:var(--gold);font-size:18px}
+.pb .reso{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:15px}
+.pb .line{display:flex;align-items:center;gap:4px 12px;flex-wrap:wrap;font-size:13px;color:var(--dim)}
+.pb .line b{color:var(--ink)}
+.rs{display:inline-flex;align-items:center;gap:3px}
+.rs b{color:var(--ink)}
+.pb .team{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.pb .played{display:flex;gap:3px;flex-wrap:wrap}
+.logl{font-size:13.5px;line-height:1.38;padding:6px 0;border-bottom:1px solid var(--line);color:var(--dim)}
+.logl.me{color:var(--ink)}
+.logl.tb{color:var(--gold);font-weight:700}
+/* ---------- the winner reveal, on a phone held upright ---------- */
+#finale .hf-wrap{background-color:#0b0f0c}
+#finale .hf-title{font-size:min(6.2vh,9vw)}
+#finale .hf-sub{font-size:min(3.1vh,4.4vw)}
+#finale .hf-stage{gap:3vw;padding:0 3vw 9vh}
+#finale .hf-col{width:21vw}
+#finale .hf-name{font-size:min(3vh,4vw)}
+#finale .hf-tag{font-size:min(2.2vh,3vw)}
+#finale .hf-tot{font-size:min(4.4vh,7vw)}
+#finale .hf-part,#finale .hf-place{font-size:min(2.6vh,3.8vw)}
+#finale .hf-winner{font-size:min(10vh,12vw)}
+#finale .hf-winner small{font-size:min(3.4vh,4.6vw)}
+#finale .hf-skip{font-size:15px;padding:8px 14px}
+table.fin{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+table.fin th,table.fin td{padding:5px 3px;text-align:right;border-bottom:1px solid var(--line)}
+table.fin th{color:var(--dim);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.04em}
+table.fin .nm{text-align:left}
+table.fin tr.win td{color:var(--gold);font-weight:800}
+</style>
+</head>
+<body>
+
+<header>
+  <span id="dot"></span><span id="who">Lost Ruins of Arnak</span>
+  <button id="menuBtn" aria-label="Menu">&#9776; Menu</button>
+  <nav id="tabs" class="hide"></nav>
+</header>
+
+<div id="main"></div>
+<div id="sheet" class="hide"></div>
+<div id="flash" class="hide"></div>
+<div id="zoom" class="hide"></div>
+<div id="menuSheet" class="hide"></div>
+<div id="finale"></div>
+
+<script src="sound.js"></script>
+<script src="finale.js"></script>
+<script src="arnak-data.js"></script>
+<script src="arnak-engine.js"></script>
+<script src="arnak-bots.js"></script>
+<script src="arnak-art.js"></script>
+<script src="arnak-words.js"></script>
+<script src="solo-host.js"></script>
+<script>
+'use strict';
+(function checkVersions() {
+  const missing = [];
+  if (!window.ArnakData || !window.ArnakData.MANIFEST) missing.push('arnak-data.js');
+  if (!window.ArnakEngine || window.ArnakEngine.VERSION !== 1) missing.push('arnak-engine.js');
+  if (!window.ArnakArt || window.ArnakArt.VERSION !== 2) missing.push('arnak-art.js');
+  if (!window.ArnakWords || window.ArnakWords.VERSION !== 1) missing.push('arnak-words.js');
+  if (!window.ArnakBots || !window.ArnakBots.answer) missing.push('arnak-bots.js');
+  if (!window.ArnakSolo) missing.push('solo-host.js');
+  if (!missing.length) return;
+  const show = () => {
+    document.body.innerHTML = '<div style="padding:12vw 8vw;text-align:center;font:600 18px/1.5 system-ui;color:#f3eee1">' +
+      '<div style="font-size:26px;color:#e3b54a;margin-bottom:12px">This page is out of date</div>' +
+      'Your phone kept an old copy of ' + missing.join(' and ') + '. Reload the page (or close the tab and open it again).</div>';
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', show); else show();
+  throw new Error('stale assets: ' + missing.join(', '));
+})();
+
+const D = window.ArnakData, E = window.ArnakEngine, A = window.ArnakArt, W = window.ArnakWords;
+const $ = id => document.getElementById(id);
+const esc = A.esc;
+
+const Solo = window.ArnakSolo;
+const HUB_URL = '../../index.html';
+
+/* Phones synthesise a click ~300ms after a touch. Everything is inert for
+   this long after a send, and after the screen changes shape, so the tap
+   that did one thing cannot land on whatever is drawn under the finger next. */
+const LOCK_MS = 380;
+
+const S = {
+  id: Solo.ME, name: '', hex: '#e3b54a',
+  tab: 'play',        // play | island | table | log
+  menu: null,         // the menu sheet: 'menu' | 'about' | 'abandon'
+  zoomPlate: false,   // the island at twice the phone's width
+  finN: 0, fin: null, // the winner reveal, played on this phone
+  greeted: false, paintPending: false,
+  pub: null, me: null,
+  panel: null,        // which part of the turn is open: dig, discover, research, buy, overcome, idol, pay
+  showDeck: false,    // the list of what is in your deck, opened or not
+  sel: null,          // what is being paid for, and with what
+  multi: [],          // choices ticked on a two-of or a keep
+  armed: null,        // a card whose second tap plays it
+  undo: null,         // { what } when your last move can still be taken back
+  sinceAll: false,    // the whole "since your last turn" list, or just the latest
+  lockUntil: 0, shape: ''
+};
+window.__ARNAKPHONE = S;
+const locked = () => Date.now() < S.lockUntil;
+const lock = () => { S.lockUntil = Date.now() + LOCK_MS; };
+const buzz = ms => { if (navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) {} } };
+
+/* ---------- the table runs in this page (solo-host.js) ---------- */
+const send = m => { Solo.send(m); return true; };
+/* The table and your half of it arrive as two messages: paint once for both. */
+let paintQueued = false;
+const paintSoon = () => { if (paintQueued) return; paintQueued = S.paintPending = true; setTimeout(() => { paintQueued = S.paintPending = false; paint(); }, 0); };
+
+function handle(m) {
+  if (m.t !== 'msg' || !m.msg) return;
+  const msg = m.msg;
+  if (msg.t === 'hello-ok') { S.name = msg.name; S.hex = msg.hex || S.hex; return; }
+  if (msg.t === 'flash') { flash(msg.text); return; }
+  if (msg.t === 'arnak') {
+    S.pub = msg;
+    if (!msg.game) S.me = null;
+    if (msg.lobby) { S.name = msg.lobby.seated[0].name; S.hex = msg.lobby.seated[0].hex; }
+    else if (msg.game) { const p = msg.game.players.find(x => x.id === S.id); if (p) { S.name = p.name; S.hex = p.hex; } }
+    if (!S.greeted && msg.screen === 'play' && Solo.S.resumed) { S.greeted = true; flash('Welcome back — your expedition was saved and picks up where you left it.'); }
+    paintSoon();
+    return;
+  }
+  if (msg.t === 'arnak-me') { S.me = msg.me; S.undo = msg.undo || null; paintSoon(); }
+}
+let flashTimer = null;
+function flash(text) {
+  clearTimeout(flashTimer);
+  $('flash').textContent = text;
+  $('flash').classList.remove('hide');
+  buzz(40);
+  flashTimer = setTimeout(() => $('flash').classList.add('hide'), Math.max(2600, String(text).length * 45));
+}
+
+/* ---------- helpers ---------- */
+const game = () => S.pub && S.pub.game;
+const mine = () => { const g = game(); return g ? g.players.find(p => p.id === S.id) : null; };
+const pname = id => { const g = game(); const p = g && g.players.find(x => x.id === id); return p ? p.name : '?'; };
+const isRemote = () => true;
+const myPrompt = () => {
+  if (!S.me || !S.me.prompts || !S.me.prompts.length) return null;
+  const pr = S.me.prompts[0];
+  /* The public state and this seat's own half arrive as two messages, so
+     there is always a moment holding one side of the change and not the
+     other. Only draw a question the table itself still lists as open. */
+  const g = game();
+  if (!g || !g.prompts.some(x => x.n === pr.n && x.seat === S.id)) return 'stale';
+  return pr;
+};
+const act = a => { if (locked()) return; lock(); S.armed = null; send({ t: 'do', a }); };
+const siteOf = id => { const g = game(); return g ? g.sites.find(s => s.id === id) : null; };
+const siteLabel = s => {
+  if (!s) return '?';
+  if (s.tile) return D.site(s.tile).name;
+  return 'Undiscovered level ' + (s.level === 1 ? 'I' : 'II');
+};
+const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V'];
+
+/* ================================================================
+   Painting
+   ================================================================ */
+function paint() {
+  const pr = myPrompt();
+  const h = S.pub && S.pub.hold;
+  const holdKey = h ? 'hold' + h.round + (h.waiting.indexOf(S.id) >= 0 ? 'w' : 'd') + (h.grace ? 'g' : '') : '';
+  const shape = [S.pub && S.pub.screen, pr && pr !== 'stale' ? pr.t + pr.n : '-', holdKey].join('|');
+  if (shape !== S.shape) {
+    /* A new question: whatever was half-chosen belongs to the old one. */
+    const wasHold = S.shape.indexOf('|hold') >= 0;
+    S.panel = null; S.sel = null;
+    S.shape = shape; S.multi = []; S.armed = null; lock();
+    /* The card going up, and coming down again: either way the top of the
+       page is what to read next (the card, then what happened and your turn). */
+    if (!!h !== wasHold) window.scrollTo(0, 0);
+  }
+  /* A buzz when it becomes your turn — not on every re-ask inside it. */
+  const g0 = game();
+  const mineNow = !!(g0 && g0.phase === 'play' && g0.active === S.id && !h);
+  if (mineNow && !S.myTurn) buzz([90, 60, 90]);
+  S.myTurn = mineNow;
+  /* The reveal reaching the winner: gold and a long buzz for whoever won. */
+  const fst = S.pub && S.pub.finale ? S.pub.finale.n + S.pub.finale.stage : '';
+  if (fst !== S.finStage) {
+    const f = S.pub && S.pub.finale;
+    if (f && f.stage === 'winner' && g0 && g0.result) {
+      const r = g0.result.rows.find(x => x.id === S.id);
+      buzz(r && r.won ? [200, 90, 200, 90, 500] : 120);
+    }
+    S.finStage = fst;
+  }
+  /* Your turn (or a question for you) brings you back to Play, wherever you were looking. */
+  if (pr && pr !== 'stale' && S.askedFor !== pr.n) { S.askedFor = pr.n; if (S.tab !== 'play') { S.tab = 'play'; window.scrollTo(0, 0); } }
+  if (h && S.heldFor !== h.round) { S.heldFor = h.round; S.tab = 'play'; window.scrollTo(0, 0); }
+  $('dot').style.background = S.hex;
+  $('who').textContent = S.pub && S.pub.screen !== 'lobby' && game() ? S.name + ' · round ' + ROMAN[game().round] + ' of V' : 'Lost Ruins of Arnak';
+  paintTabs(pr);
+  paintMenu();
+  const m = $('main');
+  if (!S.pub) { m.innerHTML = waitCard('Setting up camp…', ''); return; }
+  if (S.pub.screen === 'lobby') { m.innerHTML = lobbyHtml(); wire(); return; }
+  if (S.pub.screen === 'over') {
+    finaleWatch();
+    m.innerHTML = S.tab === 'log' ? logTabHtml() : S.tab === 'island' ? islandHtml() : S.tab === 'table' ? expeditionsHtml() : overHtml();
+    wire(); return;
+  }
+  if (!game()) { m.innerHTML = waitCard('Hold tight', ''); return; }
+  if (!S.me) { m.innerHTML = waitCard('Dealing you in', 'Your hand is on its way.'); return; }
+  /* While a round card is up nothing on this phone can move the game:
+     the card, then your expedition and hand to look at, no buttons. */
+  if (h) m.innerHTML = (h.intro ? introHtml() : holdHtml()) + boardHtml() + handHtml(null);
+  else if (S.tab === 'island') m.innerHTML = reelHtml() + islandHtml();
+  else if (S.tab === 'table') m.innerHTML = reelHtml() + expeditionsHtml();
+  else if (S.tab === 'log') m.innerHTML = logTabHtml();
+  else m.innerHTML = undoHtml() + reelHtml() + askHtml(pr) + sinceHtml() + boardHtml() + handHtml(pr);
+  paintSheet(!h && pr && pr !== 'stale' && pr.t === 'keep' ? pr : null);
+  wire();
+}
+
+/* ---------------- tabs and the menu ---------------- */
+function paintTabs(pr) {
+  const tabs = $('tabs');
+  const playing = S.pub && (S.pub.screen === 'play' || S.pub.screen === 'over') && game();
+  if (!playing || (S.pub.hold && S.pub.screen === 'play')) { tabs.classList.add('hide'); return; }
+  tabs.classList.remove('hide');
+  const ask = pr && pr !== 'stale';
+  const list = [['play', S.pub.screen === 'over' ? 'Result' : 'Play'], ['island', 'Island'], ['table', 'Table'], ['log', 'Log']];
+  tabs.innerHTML = list.map(([k, l]) => '<button data-tab="' + k + '" class="' + (S.tab === k ? 'on' : '') + '">' + l +
+    (k === 'play' && ask && S.tab !== 'play' ? '<span class="pip"></span>' : '') + '</button>').join('');
+  tabs.querySelectorAll('[data-tab]').forEach(b => { b.onclick = () => { if (locked()) return; S.tab = b.dataset.tab; lock(); paint(); window.scrollTo(0, 0); }; });
+}
+function paintMenu() {
+  const el = $('menuSheet');
+  if (!S.menu) { el.classList.add('hide'); el.innerHTML = ''; return; }
+  const playing = S.pub && S.pub.screen === 'play';
+  let body;
+  if (S.menu === 'abandon') {
+    body = '<div class="title">Abandon this expedition?</div><div class="sub">The saved game on this phone is thrown away and you go back to the setup screen.</div>' +
+      '<button class="btn" id="mAbandonGo">Abandon the game</button><button class="btn ghost" id="mClose">Keep playing</button>';
+  } else if (S.menu === 'about') {
+    const M = D.MANIFEST;
+    const li = xs => '<ul>' + xs.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>';
+    body = '<div class="title">About this build</div><div class="sub">You against the house: computer explorers fill the other seats. The game is saved on this phone after every move.</div>' +
+      '<h2>What is built</h2>' + li(M.built.filter(x => !/VASSAL/.test(x)).concat(['The board, cards and tiles are drawn here, not the printed art.'])) +
+      '<h2>What is not</h2>' + li(M.notBuilt) +
+      '<h2>On the wording</h2><ul><li>Lost Ruins of Arnak is designed by Mín &amp; Elwen and published by Czech Games Edition. The rules are theirs; every line of card text here is written fresh, and this is built to sit beside a copy of the game rather than replace one.</li></ul>' +
+      '<button class="btn ghost" id="mClose">Close</button>';
+  } else {
+    body = '<div class="title">Menu</div>' +
+      '<button class="btn ghost" id="mAbout">About this build</button>' +
+      (playing ? '<button class="btn ghost" id="mAbandon">Abandon this game</button>' : '') +
+      '<button class="btn ghost" id="mHub">' + (playing ? 'Back to the Game Hub (your game is saved)' : 'Back to the Game Hub') + '</button>' +
+      '<button class="btn" id="mClose">Close</button>';
+  }
+  el.innerHTML = '<div class="card">' + body + '</div>';
+  el.classList.remove('hide');
+  const on = (id, fn) => { const b = $(id); if (b) b.onclick = () => { if (!locked()) { lock(); fn(); } }; };
+  on('mClose', () => { S.menu = null; paint(); });
+  on('mAbout', () => { S.menu = 'about'; paint(); });
+  on('mAbandon', () => { S.menu = 'abandon'; paint(); });
+  on('mHub', () => { location.href = HUB_URL; });
+  on('mAbandonGo', () => { S.menu = null; S.tab = 'play'; S.panel = null; S.sel = null; stopFinale(); send({ t: 'abandon' }); });
+  el.onclick = e => { if (e.target === el && !locked()) { S.menu = null; paint(); } };
+}
+
+/* ================================================================
+   The house's turns, where you can read them
+
+   On the telly you watched the house explorers move. Here their newest
+   line (arnak-words.js, the same words) is set large at the top while the
+   next house action waits (solo-host.js T.houseShowMs), with the site it
+   happened at lit on the island. It stays until you have moved since.
+   ================================================================ */
+function allLines() {
+  const g = game();
+  if (!g || !g.log) return [];
+  const base = (g.logN || g.log.length) - g.log.length;
+  return W.lines(g.log, g, base);
+}
+function reelOn() {
+  const r = S.pub && S.pub.reel, g = game();
+  if (!r || !g) return null;
+  const ls = allLines();
+  const L = ls.find(l => l.i === r.i);
+  if (!L) return null;
+  if (ls.some(l => l.i > r.i && l.by === S.id && W.HEAD[l.t])) return null;
+  /* the site it happened at: where that explorer's newest archaeologist stands, or what it discovered */
+  const e = g.log[r.i - ((g.logN || g.log.length) - g.log.length)] || {};
+  return { r, L, slot: e.site || null };
+}
+function reelHtml() {
+  const x = reelOn();
+  if (!x) return '';
+  const g = game(), p = g.players.find(q => q.id === x.r.by);
+  const up = g.active && g.active !== S.id ? pname(g.active) + ' is up' : (g.active === S.id ? 'your turn' : '');
+  const fresh = S.reelSeen !== x.r.i;
+  S.reelSeen = x.r.i;
+  return '<div class="reel' + (fresh ? ' fresh' : '') + '" style="--hex:' + esc(p ? p.hex : '#888') + '"><small>Just now' + (up ? ' · ' + esc(up) : '') + '</small>' +
+    W.html(x.L, A) + '</div>';
+}
+
+/* ================================================================
+   Round I: the card the expedition opens on
+   ================================================================ */
+function introHtml() {
+  const g = game(), me = mine();
+  const n = g.players.length;
+  const order = g.players.map((_, k) => g.players[(g.start + k) % n]);
+  const who = p => p.id === S.id ? 'you' : esc(p.name);
+  const lead = order[0];
+  return '<div class="card mine intro"><div class="kick">Round I of V · the ' + (g.side === 'snake' ? 'Snake' : 'Bird') + ' Temple</div>' +
+    '<div class="title">The expedition lands</div>' +
+    '<div class="sub">Five rounds on an uncharted island. Most points wins: research up the track toward the Lost Temple, dig for idols, overcome guardians, and buy artifacts and items — Fear cards count against you.</div>' +
+    '<ol class="steps">' +
+      '<li>Each turn, <b>one main action</b> — dig, discover a new site, overcome a guardian, buy a card, play a card’s main effect, research — plus as many free actions as you like. Or pass for the rest of the round.</li>' +
+      '<li>Travel is paid with the icons on the cards you play. What is left over stays good for the rest of your turn.</li>' +
+      '<li>When everybody has passed, every archaeologist comes home, the moon staff takes a card of each kind out of the row, and the next round begins.</li>' +
+    '</ol>' +
+    '<div class="line"><b>' + (lead.id === S.id ? 'You go' : esc(lead.name) + ' goes') + ' first</b>, then ' + order.slice(1).map(who).join(', then ') + '. The house’s moves come up here as they make them.</div>' +
+    (me ? '<div class="line">You start with ' + D.RES.filter(k => me.res[k]).map(k => me.res[k] + ' ' + esc(D.RES_PLURAL ? (me.res[k] === 1 ? D.RES_NAME[k] : D.RES_PLURAL[k]) : k)).join(' and ') + ', and five cards.</div>' : '') +
+    '<button class="btn" id="cont">Set out</button></div>';
+}
+
+/* ================================================================
+   The island: the telly's plate, at the phone's width
+   ================================================================ */
+const PL = A.PLATE;
+const PX = x => (x * 100 / PL.w).toFixed(2) + 'cqw';
+const PY = y => (y * 100 / PL.h).toFixed(2) + 'cqh';
+const at = (x, y) => 'left:' + PX(x) + ';top:' + PY(y);
+const box = r => 'left:' + PX(r[0]) + ';top:' + PY(r[1]) + ';width:' + PX(r[2] - r[0]) + ';height:' + PY(r[3] - r[1]);
+/* Icons are drawn in pixels; on the telly the plate is ~940 px wide. */
+const zf = () => (Math.min(window.innerWidth || 375, 600) - 26) * (S.zoomPlate ? 2 : 1) / 940;
+const Z = n => Math.max(8, Math.round(n * zf()));
+function plateSite(pub, s, lit) {
+  const G = PL.sites[s.id];
+  if (!G) return '';
+  const hexOf = id => { const p = pub.players.find(x => x.id === id); return p ? p.hex : '#888'; };
+  const hot = s.spaces.some(sp => sp.who && sp.who === pub.active);
+  const mark = (hot ? ' hot' : '') + (lit === s.id ? ' lit' : '');
+  let out = '';
+  if (s.level === 0) {
+    const d = D.site(s.tile || s.camp);
+    out += '<div class="camp' + mark + '" style="' + box(G.t) + '">' +
+      (d ? '<div class="tile" style="position:absolute;inset:0"><span class="vec sface">' + A.siteFace(s.tile || s.camp, Z(26)) + '</span></div>' : '') + '</div>';
+  } else if (s.tile) {
+    const [dx, dy] = G.d[0];
+    const w = PL.tileW, h = Math.round(w * 307 / 240);
+    const r = [dx - w / 2, dy - 26 - h, dx + w / 2, dy - 26];
+    out += '<div class="tile' + mark + '" style="' + box(r) + '">' + A.siteTile(s.tile) + '</div>';
+    if (s.guardian) out += '<div class="gtok" style="' + at(dx > 700 ? r[0] - 48 : r[2] - 40, r[1] + 20) + '">' +
+      '<span class="vec">' + A.guardian(s.guardian, { size: Z(22) }) + '</span></div>';
+  } else if (s.idols.length) {
+    out += '<div class="pl-at idols' + (lit === s.id ? ' lit' : '') + '" style="' + at(G.i[0], G.i[1]) + '">' + s.idols.map(r => A.idolTile(r, Z(34))).join('') + '</div>';
+  }
+  s.spaces.forEach((sp, k) => {
+    const d = G.d[k];
+    if (!d) return;
+    out += '<div class="pl-at dig' + (sp.blocked ? ' blocked' : '') + '" style="' + at(d[0], d[1]) + '">' +
+      '<span class="vec">' + A.travels(sp.cost, Z(24)) + '</span>' +
+      (sp.who ? A.meeple(hexOf(sp.who), 40) : '') + '</div>';
+  });
+  return out;
+}
+function rowIcon(r, z) {
+  switch (r) {
+    case 'coin': return A.res('coin', z);
+    case 'coin2': return A.res('coin', z) + A.res('coin', z);
+    case 'compass': return A.res('compass', z);
+    case 'compass3': return A.res('compass', z) + A.res('compass', z) + A.res('compass', z);
+    case 'jewel': return A.res('jewel', z);
+    case 'draw': return A.icon('draw', z);
+    case 'fear': return A.icon('fear', z);
+    case 'exile': return A.icon('exile', z);
+    case 'recruit': return A.assistant(null, false, z);
+    case 'upAsst': return A.assistant(null, true, z);
+    case 'refreshAsst': return A.icon('refresh', z);
+    case 'freeArt': return A.icon('art', z) + A.icon('free', Math.round(z * 0.8));
+    case 'guard': return A.icon('overcome', z);
+    case 'rescue': return A.assistant(null, false, z) + A.icon('pass', Math.round(z * 0.8));
+  }
+  return '';
+}
+function plateTrack(pub) {
+  const TR = D.TRACKS[pub.side];
+  const G = PL.tracks[pub.side];
+  let out = '';
+  const toks = sq => pub.players.map(p => (p.glass === sq.id ? A.glass(p.hex, 40) : '') + (p.book === sq.id ? A.book(p.hex, 38) : '')).join('');
+  for (const sq of TR.squares) {
+    if (sq.temple) continue;
+    const r = G[sq.id];
+    if (!r) continue;
+    const bonus = pub.research.bonus[sq.id] || [];
+    const rescue = sq.rescue && PL.rescue
+      ? (pub.asst.rescueTop ? A.assistant(pub.asst.rescueTop, false, Z(30), { fx: false, name: false }) : '') + '<span class="cnt">×' + pub.asst.rescueN + ' stranded</span>'
+      : '';
+    out += '<div class="sq" style="' + box(r) + '"><span class="vec"></span>' +
+      bonus.map(b => A.bonusTile(b, Z(26))).join('') + rescue + toks(sq) +
+      (sq.id ? '<span class="bcost vec">' + A.cost(sq.cost, Z(20)) + '</span>' : '') + '</div>';
+  }
+  for (let row = 1; row <= 7; row++) {
+    const rs = TR.squares.filter(q => q.row === row).map(q => G[q.id]).filter(Boolean);
+    if (!rs.length) continue;
+    const y = (Math.min.apply(null, rs.map(r => r[1])) + Math.max.apply(null, rs.map(r => r[3]))) / 2;
+    const rw = TR.rows[row];
+    out += '<div class="rew vec" style="' + at(1418, y) + ';transform:translate(0,-50%)">' +
+      '<span>' + A.glass('#d6c08a', Z(16)) + rowIcon(rw.glass.r, Z(16)) + A.vp(rw.glass.vp, Z(18)) + '</span>' +
+      '<span>' + A.book('#d6c08a', Z(16)) + rowIcon(rw.book.r, Z(16)) + A.vp(rw.book.vp, Z(18)) + '</span></div>';
+  }
+  const T = PL.temple;
+  for (const st of D.TEMPLE_STACKS) {
+    const left = pub.research.stacks[st.id] || 0;
+    out += '<div class="tst' + (left ? '' : ' gone') + '" style="' + box(T[st.id]) + '">' +
+      '<span class="vec">' + st.vp + '</span><span class="cnt">×' + left + '</span></div>';
+  }
+  out += '<div class="rew vec" style="' + at(1030, 280) + ';flex-direction:row;gap:2cqw;transform:translate(0,-50%)">' +
+    TR.templeCosts.map(c => '<span>' + A.cost(c, Z(18)) + '</span>').join('') + '</div>';
+  out += '<div class="rew vec" style="' + at(1100, 388) + ';flex-direction:row;transform:translate(0,-50%)">into the temple ' +
+    A.cost(TR.squares[14].cost, Z(18)) + '</div>';
+  const arrived = pub.players.filter(p => p.arrival != null);
+  D.TEMPLE_ARRIVAL.forEach((vp, k) => {
+    const who = arrived.find(p => p.arrival === k);
+    const [x, y] = T.arrive[k];
+    out += '<div class="pl-at arr" style="' + at(x, y) + '">' + (who ? A.glass(who.hex, 40) : '') +
+      '<span class="vec">' + (k < pub.n ? A.vp(vp, Z(22)) : '') + '</span></div>';
+  });
+  return out;
+}
+function plateHtml(pub, lit) {
+  const lv = pub.siteDeckN;
+  return '<div class="platebox"><div id="plate" class="' + (S.zoomPlate ? 'zoom' : '') + '">' +
+    '<div class="pl-bg vec"><div class="trk"></div></div>' +
+    pub.sites.map(s => plateSite(pub, s, lit)).join('') +
+    '<div class="badge" style="' + at(PL.stacks[2][0], PL.stacks[2][1]) + '">' + A.icon('level2', Z(18)) + '<b>' + lv[2] + '</b> left</div>' +
+    '<div class="badge" style="' + at(PL.stacks[1][0], PL.stacks[1][1]) + '">' + A.icon('level1', Z(18)) + '<b>' + lv[1] + '</b> · ' +
+      A.icon('guardian', Z(18)) + '<b>' + pub.guardDeckN + '</b></div>' +
+    plateTrack(pub) + '</div></div>' +
+    '<div class="platenote">' + pub.players.map(p => '<span class="rs">' + A.meeple(p.hex, 16) + esc(p.id === S.id ? 'you' : p.name) + '</span>').join('') +
+    '<button id="zoomPlate">' + (S.zoomPlate ? 'Fit the screen' : 'Zoom in') + '</button></div>';
+}
+function rowHtml(pub) {
+  const cap = { art: pub.round, item: 6 - pub.round };
+  const slotHtml = uid => uid ? '<div class="slot">' + A.card(uid, 'full', { cls: pub.peek === uid ? 'peek' : '' }) + '</div>' : '<div class="slot empty">empty</div>';
+  const arts = [];
+  for (let i = cap.art - 1; i >= 0; i--) arts.push(slotHtml(pub.row.art[i]));
+  const items = [];
+  for (let i = 0; i < cap.item; i++) items.push(slotHtml(pub.row.item[i]));
+  return '<h2>On offer · artifacts, the moon staff, items</h2>' +
+    '<div class="rowbar"><span>' + A.icon('art', 16) + ' Artifacts <b>' + pub.deckN.art + '</b> in the deck</span><span>' + A.icon('item', 16) + ' Items <b>' + pub.deckN.item + '</b> in the deck</span></div>' +
+    '<div class="cardrow">' + (pub.peek && D.kindOf(pub.peek) === 'art' ? slotHtml(pub.peek) : '') + arts.join('') +
+    '<div class="staff"><b>' + ROMAN[pub.round] + '</b></div>' + items.join('') + (pub.peek && D.kindOf(pub.peek) === 'item' ? slotHtml(pub.peek) : '') + '</div>';
+}
+function islandHtml() {
+  const g = game();
+  const x = reelOn();
+  const lit = x && x.slot ? x.slot : null;
+  return '<h2>The island · ' + (g.side === 'snake' ? 'Snake' : 'Bird') + ' Temple</h2>' + plateHtml(g, lit) + rowHtml(g);
+}
+
+/* ================================================================
+   Every expedition, and the log
+   ================================================================ */
+function expeditionsHtml() {
+  const pub = game();
+  const T2 = D.TRACKS[pub.side].squares;
+  const z = 20;
+  return '<h2>The expeditions</h2>' + pub.players.map(p => {
+    const res = D.RES.map(k => '<span class="rs">' + A.res(k, z) + '<b>' + p.res[k] + '</b></span>').join('') +
+      '<span class="rs">' + A.res('idol', z) + '<b>' + p.idols + '</b></span>';
+    const home = p.arch.filter(a => !a).length;
+    const asst = p.asst.map(a => A.assistant(a.id, a.gold, z, { tired: !a.ready, fx: false, name: false })).join('');
+    const guards = p.guardians.map(x => A.guardian(x.id, { small: true, used: x.used, cost: false, size: z })).join('');
+    const tags = (p.bot ? '<span class="tag">house · ' + esc(p.level || 'medium') + '</span>' : '<span class="tag">you</span>') + (p.passed ? '<span class="tag">passed</span>' : '') +
+      (p.id === pub.active ? '<span class="tag" style="color:var(--gold);border-color:var(--gold)">' + (p.id === S.id ? 'your turn' : 'their turn') + '</span>' : '');
+    const s = p.score;
+    return '<div class="pb' + (p.id === pub.active ? ' turn' : '') + (p.passed ? ' passed' : '') + '">' +
+      '<div class="ph"><i class="dot" style="background:' + esc(p.hex) + '"></i><span class="nm">' + esc(p.name) + '</span><span class="sc">' + A.vp(s.total, 22) + '</span></div>' +
+      '<div class="tags">' + tags + '</div>' +
+      '<div class="reso">' + res + '</div>' +
+      '<div class="line"><span class="rs">' + A.meeple(p.hex, 18) + '<b>' + home + '</b> at camp</span><span>slots <b>' + p.slots + '</b>/4</span>' +
+        '<span class="rs">' + A.glass(p.hex, 18) + 'row <b>' + T2[p.glass].row + '</b></span><span class="rs">' + A.book(p.hex, 18) + 'row <b>' + T2[p.book].row + '</b></span>' +
+        (p.temple.length ? '<span class="rs">' + A.icon('temple', 18) + '<b>' + p.temple.reduce((a, b) => a + b, 0) + '</b></span>' : '') + '</div>' +
+      '<div class="line"><span>hand <b>' + p.handN + '</b></span><span>deck <b>' + p.deckN + '</b></span><span class="rs">' + A.icon('fear', 16) + '<b>' + (p.fearN + p.fearTiles) + '</b> fear</span>' +
+        '<span>research <b>' + s.research + '</b> · temple <b>' + s.temple + '</b> · idols <b>' + s.idols + '</b> · guardians <b>' + s.guardians + '</b> · cards <b>' + s.cards + '</b></span></div>' +
+      (asst || guards ? '<div class="team">' + asst + guards + '</div>' : '') +
+      (p.play.length ? '<div class="played">' + p.play.map(uid => A.card(uid, 'chip')).join('') + '</div>' : '') + '</div>';
+  }).join('');
+}
+function logTabHtml() {
+  const ls = allLines().slice().reverse();
+  return '<h2>What has happened · newest first</h2>' + (ls.length ? ls.map(l => '<div class="logl' + (l.table ? ' tb' : l.by === S.id ? ' me' : '') + '">' + W.html(l, A) + '</div>').join('')
+    : '<div class="sub">Nothing yet.</div>') + (game() && game().logN > game().log.length ? '<div class="sub" style="margin-top:8px">…and earlier.</div>' : '');
+}
+
+/* ================================================================
+   Taking a move back — offered until somebody else moves, or something
+   hidden is turned over. The telly decides; this only asks.
+   ================================================================ */
+function undoHtml() {
+  if (!S.undo) return '';
+  return '<button class="undo" id="undo"><b>Take back</b><span>' + esc(S.undo.what.replace(/\.$/, '')) + '</span></button>';
+}
+
+/* ================================================================
+   The round-end keep choice, full screen
+
+   It is the one question that comes to every phone at once, about the
+   whole hand, and a choice you make by reading the cards — so it gets the
+   whole screen and the full card faces, not a list squeezed above the
+   board. Done stays at the bottom of the screen however long the hand.
+   ================================================================ */
+function paintSheet(pr) {
+  const el = $('sheet');
+  if (!pr) {
+    if (!el.classList.contains('hide')) { el.classList.add('hide'); el.innerHTML = ''; document.body.style.overflow = ''; }
+    return;
+  }
+  const kept = S.multi.length;
+  el.innerHTML = '<div class="sh-h">Round ' + ROMAN[game().round] + ' is over</div>' +
+    '<div class="sh-sub">Tap a card to keep it in your hand for next round. The rest go into play and are shuffled under your deck; next round you draw up to five.</div>' +
+    pr.options.map(o => {
+      const on = S.multi.indexOf(o.id) >= 0;
+      return '<div class="kcard' + (on ? ' on' : '') + '" data-keep="' + esc(o.id) + '"><span class="ktag">' + (on ? 'Keeping' : 'Tap to keep') + '</span>' +
+        A.card(o.card, 'full', { noPrice: true }) + '</div>';
+    }).join('') +
+    '<div class="sh-foot"><button class="btn" id="keepGo">' + (kept ? 'Keep ' + kept + ' card' + (kept === 1 ? '' : 's') : 'Keep none') + '</button></div>';
+  if (el.classList.contains('hide')) { el.classList.remove('hide'); el.scrollTop = 0; document.body.style.overflow = 'hidden'; }
+  const on = (sel, fn) => el.querySelectorAll(sel).forEach(x => { x.onclick = () => { if (!locked()) fn(x); }; });
+  on('[data-keep]', x => { toggle(S.multi, x.dataset.keep); paint(); });
+  on('#keepGo', () => act({ t: 'keep', keep: S.multi.slice(), n: pr.n }));
+}
+
+/* ================================================================
+   The round card — the whole table waits on it
+   ================================================================ */
+function holdHtml() {
+  const h = S.pub && S.pub.hold;
+  if (!h) return '';
+  const others = h.waiting.filter(id => id !== S.id);
+  let foot = '';
+  if (h.waiting.indexOf(S.id) >= 0) {
+    foot = '<button class="btn" id="cont">Continue</button>' +
+      '<div class="sub rc-w" style="margin-top:6px">The house waits until you have read this.</div>';
+  } else if (others.length) {
+    foot = '<div class="sub rc-w">Waiting for ' + esc(others.map(pname).join(', ')) + ' to read it.</div>' +
+      (h.grace && h.done.indexOf(S.id) >= 0 ? '<button class="btn ghost" id="nowait">Don’t wait for ' + esc(others.map(pname).join(' and ')) + '</button>' : '');
+  }
+  return '<div class="card mine rcard">' + W.roundCardHtml(h.card, A) + foot + '</div>';
+}
+
+/* ================================================================
+   Since your last turn
+
+   Everybody else's moves since this seat last played, one line each, with
+   what they earned — from the public log, so it says nothing the telly does
+   not. A look, not a stop: nothing here needs a tap. The log on the wire is
+   a sliding window of the last 60 events, so a line's position is counted
+   against logN, never against the window.
+   ================================================================ */
+function sinceLines() {
+  const g = game();
+  if (!g || !g.log || !g.log.length) return null;
+  const base = (g.logN || g.log.length) - g.log.length;
+  const all = W.lines(g.log, g, base);
+  let i = all.length - 1;
+  while (i >= 0 && all[i].by === S.id) i--;          // this turn, so far
+  const out = [];
+  let reached = false;
+  for (; i >= 0; i--) {
+    const l = all[i];
+    if (l.by === S.id) {
+      if (W.HEAD[l.t]) { reached = true; break; }    // the last thing you chose
+      continue;                                      // yours, but not a move (Fear at camp)
+    }
+    out.unshift(l);
+  }
+  return { lines: out, cut: !reached && base > 0, first: !reached && base === 0 };
+}
+function sinceHtml() {
+  const s = sinceLines();
+  if (!s || !s.lines.length) return '';
+  const MAX = 6;
+  const rl = reelOn();
+  const all = rl ? s.lines.filter(l => l.i !== rl.r.i) : s.lines;
+  if (!all.length) return '';
+  const shown = S.sinceAll ? all : all.slice(-MAX);
+  const hidden = all.length - shown.length;
+  return '<div class="since"><div class="sh">' + (s.first ? 'So far' : 'Since your last turn') + '</div>' +
+    (hidden ? '<button class="more" id="sinceMore">' + hidden + ' earlier</button>' : '') +
+    (S.sinceAll && s.cut ? '<div class="sl">…and earlier moves.</div>' : '') +
+    shown.map((l, k) => '<div class="sl' + (k === shown.length - 1 ? ' new' : '') + '">' + W.html(l, A) + '</div>').join('') +
+    (S.sinceAll && all.length > MAX ? '<button class="more" id="sinceLess">Show fewer</button>' : '') +
+    '</div>';
+}
+
+function waitCard(title, sub) {
+  return '<div class="card"><div class="title">' + esc(title) + '</div>' + (sub ? '<div class="sub">' + esc(sub) + '</div>' : '') + '</div>';
+}
+
+function lobbyHtml() {
+  const lv = S.pub.lobby || { seated: [], house: [], size: 3 };
+  const me = lv.seated[0] || {};
+  const rows = '<div class="prow"><i class="d" style="background:' + esc(me.hex || '#888') + '"></i><b>' + esc(me.name || '') + '</b><span class="sc">you</span></div>' +
+    lv.house.map(p => '<div class="prow"><i class="d" style="background:' + esc(p.hex) + '"></i>' + esc(p.name) + '<span class="sc">house · ' + esc(p.level || 'medium') + '</span></div>').join('');
+  const sizes = [2, 3, 4].map(k => '<button class="opt' + (k === lv.size ? ' on' : '') + '" data-size="' + k + '" style="justify-content:center">' + k + '</button>').join('');
+  const sides = [['bird', 'Bird Temple', 'The side for a first game'], ['snake', 'Snake Temple', 'Other costs, and a stranded expedition']]
+    .map(([k, l, d]) => '<button class="opt' + (k === lv.side ? ' on' : '') + '" data-side="' + k + '"><span class="lab"><b>' + l + '</b><small>' + d + '</small></span></button>').join('');
+  const paces = [['slow', 'Slow'], ['relaxed', 'Relaxed'], ['brisk', 'Brisk']]
+    .map(([k, l]) => '<button class="opt' + (k === lv.pace ? ' on' : '') + '" data-pace="' + k + '" style="justify-content:center">' + l + '</button>').join('');
+  const levels = [['easy', 'Easy'], ['medium', 'Medium'], ['hard', 'Hard']]
+    .map(([k, l]) => '<button class="opt' + (k === (lv.level || 'medium') ? ' on' : '') + '" data-level="' + k + '" style="justify-content:center">' + l + '</button>').join('');
+  const sounds = [['on', true], ['off', false]].map(([l, v]) => '<button class="opt' + (v === lv.sound ? ' on' : '') + '" data-sound="' + l + '" style="justify-content:center">' + (v ? 'On' : 'Off') + '</button>').join('');
+  const cols = (lv.colours || []).map(c => '<button class="' + (c.id === lv.colour ? 'on' : '') + '" data-colour="' + c.id + '" style="--c:' + esc(c.hex) + '" aria-label="' + c.id + '"></button>').join('');
+  return '<div class="card"><div class="title">Lost Ruins of Arnak — solo</div>' +
+    '<div class="sub">Five rounds on an uncharted island, against computer explorers. One main action a turn — dig, discover, research, buy, face a guardian — and as many free ones as you like.</div>' +
+    '<h2 style="margin-top:12px">Your name <small style="text-transform:none;letter-spacing:0">as the expedition log tells it</small></h2>' +
+    '<input id="nameIn2" maxlength="14" autocomplete="off" value="' + esc(lv.name || '') + '">' +
+    '<div class="colours">' + cols + '</div>' +
+    '<div class="rows" style="margin-top:10px">' + rows + '</div></div>' +
+    '<h2>Expeditions <small style="text-transform:none;letter-spacing:0">you + ' + (lv.size - 1) + ' computer' + (lv.size > 2 ? 's' : '') + '</small></h2><div class="row2" style="grid-template-columns:repeat(3,1fr)">' + sizes + '</div>' +
+    '<h2>The board</h2><div class="opts" style="margin-top:0">' + sides + '</div>' +
+    '<h2>How well the house plays</h2><div class="row2" style="grid-template-columns:repeat(3,1fr)">' + levels + '</div>' +
+    '<div class="sub" style="margin-top:6px">' + ({ easy: 'Forgetful, and no plan for the research track.', medium: 'A fair opponent who slips now and then.', hard: 'The best the house can do. It still never sees your hand.' })[lv.level || 'medium'] + '</div>' +
+    '<h2>How fast they play</h2><div class="row2" style="grid-template-columns:repeat(3,1fr)">' + paces + '</div>' +
+    '<h2>Sound</h2><div class="row2">' + sounds + '</div>' +
+    '<button class="btn" id="go">Set sail</button>' +
+    '<button class="btn ghost" id="menu">Back to the Game Hub</button>';
+}
+
+/* ================================================================
+   The end: the winner reveal (finale.js, the hub's), played on this phone
+   — the count in the book's order with research held back as the decider,
+   places from the bottom, the final two under a drum roll — then the table.
+   ================================================================ */
+function tiebreakLine(R) {
+  const rows = R.rows, win = rows.filter(r => r.won);
+  const top = rows[0].total;
+  const level = rows.filter(r => r.total === top);
+  if (level.length < 2) return null;
+  const names = level.map(r => r.name).join(' and ');
+  if (win.length > 1) return names + ' are level on ' + top + ' points, the temple and the research track: they share it.';
+  const w = win[0];
+  const others = level.filter(r => r !== w);
+  if (w.arrival != null && others.every(r => r.arrival == null || r.arrival > w.arrival))
+    return names + ' are level on ' + top + ' points. The tie goes to whoever reached the Lost Temple first — ' + w.name + '.';
+  return names + ' are level on ' + top + ' points and neither settles it at the temple. The better researcher takes it — ' + w.name + '.';
+}
+function stopFinale() {
+  if (S.fin && S.fin.ctl) { try { S.fin.ctl.stop(); } catch (e) {} }
+  S.fin = null;
+  $('finale').innerHTML = '';
+}
+function finaleWatch() {
+  const g = game();
+  if (!g || !g.result || S.fin || !window.HubFinale) return;
+  const R = g.result;
+  const fin = S.fin = { n: ++S.finN, stage: 'title', ctl: null };
+  const by = id => R.rows.find(r => r.id === id);
+  const opts = S.pub.opts || {};
+  const scale = ({ slow: 1.3, relaxed: 1, brisk: 0.7 })[opts.pace] || 1;
+  fin.ctl = HubFinale.play({
+    root: $('finale'),
+    title: 'The expedition returns',
+    sub: 'Five rounds on Arnak. Every point, counted the way the book does.',
+    tone: 'temple',
+    categories: [{ key: 'research', label: 'Research' }, { key: 'temple', label: 'Temple tiles' }, { key: 'idols', label: 'Idols and their slots' },
+      { key: 'guardians', label: 'Guardians overcome' }, { key: 'cards', label: 'Artifacts and items' }, { key: 'fear', label: 'Fear' }],
+    decider: 'research',
+    deciderLine: 'And last, the race up the research track',
+    players: g.players.map(p => {
+      const r = by(p.id);
+      return { id: p.id, name: p.name, hex: p.hex, figure: A.meeple(p.hex, 140), parts: r.score || r, total: r.total, place: r.place, won: r.won,
+        tag: p.bot ? 'house · ' + (p.level || 'medium') : 'you' };
+    }),
+    tiebreak: tiebreakLine(R),
+    scale: Solo.T.finaleMul != null ? scale * Solo.T.finaleMul : scale,
+    sound: window.HubSound && opts.sound ? HubSound : null,
+    onStage(stage) { if (S.fin === fin) { fin.stage = stage; if (stage === 'winner') { const r = by(S.id); buzz(r && r.won ? [200, 90, 200, 90, 500] : 120); } } },
+    onDone() {
+      if (S.fin !== fin) return;
+      fin.stage = 'table';
+      setTimeout(() => { if (S.fin === fin && fin.ctl) fin.ctl.stop(); $('finale').innerHTML = ''; paint(); window.scrollTo(0, 0); }, 0);
+    }
+  });
+}
+function overHtml() {
+  const g = game(), R = g && g.result;
+  if (!R) return waitCard('The count', '');
+  if (S.fin && S.fin.stage !== 'table') return waitCard('The count', 'The expedition returns…');
+  const me = R.rows.find(r => r.id === S.id);
+  const win = R.rows.filter(r => r.won);
+  const title = me && me.won ? (win.length > 1 ? 'You share the lead' : 'You lead the expedition home') : esc(win.map(r => r.name).join(' and ')) + (win.length > 1 ? ' share the lead' : ' leads the expedition home');
+  const ord = k => k + (k === 1 ? 'st' : k === 2 ? 'nd' : k === 3 ? 'rd' : 'th');
+  return '<div class="card mine"><div class="title">' + title + '</div>' +
+    '<div class="sub">' + (me ? 'You finished ' + ord(me.place) + ' with ' + me.total + ' points.' : '') + '</div>' +
+    '<table class="fin"><tr><th class="nm">Expedition</th><th>Res.</th><th>Tem.</th><th>Idols</th><th>Gua.</th><th>Cards</th><th>Fear</th><th>Total</th></tr>' +
+    R.rows.map(r => '<tr class="' + (r.won ? 'win' : '') + '"><td class="nm">' + esc(r.name) + (r.id === S.id ? ' (you)' : '') + '</td><td>' + r.research + '</td><td>' + r.temple + '</td><td>' + r.idols +
+      '</td><td>' + r.guardians + '</td><td>' + r.cards + '</td><td>' + r.fear + '</td><td>' + r.total + '</td></tr>').join('') + '</table>' +
+    '<div class="sub" style="margin-top:8px">' + esc(tiebreakLine(R) || 'A tie goes to whoever reached the Lost Temple first, then to the better researcher.') + '</div></div>' +
+    '<button class="btn" id="again">Play again</button>' +
+    '<button class="btn ghost" id="menu">Back to the Game Hub</button>';
+}
+
+/* Whose turn comes after the one being played: the next seat round the
+   table that has not passed. (Everybody else passed: the same player again.) */
+function upNext() {
+  const g = game();
+  if (!g || g.phase !== 'play' || g.active == null || g.active === S.id) return false;
+  const n = g.players.length;
+  const cur = g.players.findIndex(p => p.id === g.active);
+  for (let k = 1; k < n; k++) {
+    const p = g.players[(cur + k) % n];
+    if (!p.passed) return p.id === S.id;
+  }
+  return false;
+}
+
+/* ================================================================
+   The question at the top
+   ================================================================ */
+function askHtml(pr) {
+  const g = game();
+  if (pr === 'stale') return waitCard('Hold on', 'The table is moving on.');
+  /* Paying for something chosen a moment ago, whatever asked for it. */
+  if (pr && S.panel === 'pay' && S.sel && S.sel.send) return payHtml(null);
+  if (!pr) {
+    const open = g.prompts;
+    if (!open.length) return waitCard('Watch the telly', g.phase === 'over' ? 'The expedition is home.' : '');
+    if (open.every(x => x.t === 'keep')) return waitCard('The round is over', 'Waiting for ' + open.map(x => pname(x.seat)).join(', ') + ' to choose what to keep.');
+    const x = open[0];
+    const who = g.players.find(p => p.id === x.seat);
+    return waitCard(pname(x.seat) + (x.t === 'turn' ? '’s turn' : ' is choosing'),
+      x.t === 'turn' ? (who && who.mainDone ? 'Main action done — finishing the turn.' : 'Taking a turn.') : (x.why || '')).replace(/<\/div>$/,
+      (upNext() ? '<div class="upnext" id="upnext">You’re up next — plan your move.</div>' : '') + '</div>');
+  }
+  switch (pr.t) {
+    case 'turn': return turnHtml(pr);
+    case 'pick': return pickHtml(pr);
+    case 'multi': return multiHtml(pr);
+    case 'dig': return digHtml(pr.targets || [], pr.o || {}, pr, true);
+    case 'research': return researchHtml(pr.moves || [], pr, true);
+    case 'buy': return buyHtml(pr.cards || [], pr, true);
+    case 'pay': return payHtml(pr);
+    case 'keep': return waitCard('End of the round', 'Choose what to keep for next round.');
+  }
+  return waitCard('Your move', pr.why || '');
+}
+
+function resHtml(res) {
+  return '<div class="res">' + D.RES.map(k => '<span>' + A.res(k, 22) + (res[k] || 0) + '</span>').join('') + '</div>';
+}
+function poolHtml() {
+  const w = S.me.wallet;
+  return w.pool && w.pool.length ? '<div class="pool">Travel left this turn: ' + A.travels(w.pool, 20) + '</div>' : '';
+}
+
+/* ---------------- the turn ---------------- */
+function turnHtml(pr) {
+  const can = S.me.can;
+  if (!can) return waitCard('Your turn', '');
+  if (S.panel === 'dig') return digHtml(can.dig.filter(t => t.t === 'dig'), {}, pr, false);
+  if (S.panel === 'discover') return digHtml(can.dig.filter(t => t.t === 'discover'), {}, pr, false);
+  if (S.panel === 'research') return researchHtml(can.research, pr, false);
+  if (S.panel === 'buy') return buyHtml(can.buy.map(b => ({ card: b.card, res: b.res, cost: b.cost, ok: b.ok })), pr, false);
+  if (S.panel === 'overcome') return overcomeHtml(can.overcome, pr);
+  if (S.panel === 'idol') return idolHtml(can.idol);
+  if (S.panel === 'pay') return payHtml(null);
+  const g = game();
+  const p = mine();
+  const nDig = can.dig.filter(t => t.t === 'dig'), nDisc = can.dig.filter(t => t.t === 'discover');
+  const okN = list => list.filter(x => x.ok).length;
+  let main = '';
+  if (can.main) {
+    const b = (id, label, sub, n, extra) => '<button data-panel="' + id + '"' + (n ? '' : ' disabled') + (extra || '') + '><b>' + label + '</b><small>' + sub + '</small></button>';
+    main = '<h2>Main action — choose one</h2><div class="menu">' +
+      b('dig', 'Dig at a site', can.campArch ? okN(nDig) + ' you can reach' : 'both archaeologists are out', can.campArch && okN(nDig)) +
+      b('discover', 'Discover a site', can.campArch ? (okN(nDisc) ? okN(nDisc) + ' you can reach' : '3 or 6 compasses and the travel') : 'both archaeologists are out', can.campArch && okN(nDisc)) +
+      b('research', 'Research', okN(can.research) ? okN(can.research) + ' moves you can pay for' : 'you cannot pay for a move', okN(can.research)) +
+      b('buy', 'Buy a card', okN(can.buy) + ' you can afford', okN(can.buy)) +
+      (can.overcome.length ? b('overcome', 'Overcome a guardian', okN(can.overcome) ? 'at your site' : 'you cannot pay yet', okN(can.overcome), ' class="wide"') : '') +
+      '<button class="wide" id="pass"><b>Pass</b><small>' + (S.armed === 'pass' ? 'Tap again to pass — no more turns this round' : 'done for this round') + '</small></button>' +
+      '</div>';
+  }
+  /* Free actions: assistants, idols, boons. Cards are in the hand below. */
+  const free = [];
+  for (const a of can.assist) {
+    const d = D.ASST[a.id];
+    const side = a.gold ? d.gold : d.silver;
+    const face = A.assistant(a.id, a.gold, 26, { tired: !a.ready });
+    if (a.opts) {
+      free.push('<div class="opt" style="flex-direction:column;align-items:stretch">' + face +
+        '<div class="row2">' + a.opts.map(o => '<button class="btn small" data-asst="' + esc(a.id) + '" data-aopt="' + o.i + '"' + (a.ok && o.ok ? '' : ' disabled') + '>' + esc(o.label) + '</button>').join('') + '</div>' +
+        (!a.ok && a.why ? '<small class="warn">' + esc(a.why) + '</small>' : '') + '</div>');
+    } else {
+      free.push('<button class="opt" data-asst="' + esc(a.id) + '"' + (a.ok ? '' : ' disabled') + '><span class="lab">' + face +
+        '<small>' + esc(side.text) + (a.main ? ' (your main action)' : '') + (!a.ok && a.why ? ' — ' + esc(a.why) : '') + '</small></span></button>');
+    }
+  }
+  if (p.idols > 0 && p.slots < 4) {
+    free.push('<button class="opt" data-panel="idol"><span class="lab"><b>' + A.res('idol', 20) + ' Put an idol in a slot</b>' +
+      '<small>Costs ' + can.idol.cost + ' point' + (can.idol.cost === 1 ? '' : 's') + ' at the end — the slot would have scored it</small></span></button>');
+  }
+  for (const b of can.boon) {
+    const gd = D.GUARD[b.id];
+    free.push('<button class="opt" data-boon="' + esc(b.id) + '"><span class="lab"><b>Boon of the ' + esc(gd.name.toLowerCase()) + '</b>' +
+      '<small>' + A.fx(gd.boon.fx, 18) + ' once a game</small></span></button>');
+  }
+  const status = can.main ? 'Your main action is still to come' : (p.passed ? 'You have passed — anything free before you go?' : 'Main action done — anything free?');
+  return '<div class="card mine"><div class="title">Your turn</div><div class="sub">Round ' + ROMAN[g.round] + ' · ' + status + '</div>' +
+    resHtml(p.res) + poolHtml() + main +
+    (free.length ? '<h2>Free actions</h2><div class="opts" style="margin-top:0">' + free.join('') + '</div>' : '') +
+    (can.end ? '<button class="btn" id="end">End turn</button>' : '') + '</div>';
+}
+
+/* ---------------- sending an archaeologist ---------------- */
+function digHtml(targets, o, pr, isPrompt) {
+  const disc = o.disc || null;
+  /* What you can reach first; the rest below it, greyed. */
+  const list = targets.slice().sort((a, b) => (b.ok - a.ok) || (a.level - b.level) || a.slot.localeCompare(b.slot));
+  const rows = list.map(t => {
+    const s = siteOf(t.slot);
+    const guard = s && s.guardian ? '<small class="warn">a guardian waits here: Fear at the end of the round unless you overcome it</small>' : '';
+    const what = t.t === 'dig'
+      ? '<b>' + esc(siteLabel(s)) + '</b><small class="icons">' + A.fx(D.site(s.tile).fx, 18) + (s.level === 0 ? ' · space ' + (t.space + 1) : '') + '</small>'
+      : '<b>Level ' + (t.level === 1 ? 'I' : 'II') + ' site ' + esc(t.slot.toUpperCase()) + '</b><small class="icons">' + s.idols.map(r => A.idolTile(r, 18)).join('') +
+        ' · ' + A.cost({ compass: t.comp }, 16) + (t.comp !== D.DISCOVER[t.level] ? ' (cheaper)' : '') + '</small>';
+    return '<button class="opt" data-target="' + esc(t.t + '|' + t.slot + '|' + t.space) + '"' + (t.ok ? '' : ' disabled') + '>' +
+      '<span class="lab">' + what + guard + '</span><span class="val">' + (t.cost.length ? A.travels(t.cost, 22) : 'free') + '</span></button>';
+  }).join('');
+  const discTxt = disc && disc.length ? '<div class="pool">Discount: ' + A.travels(disc, 20) + (o.comp ? ' and ' + o.comp + ' compasses off a discovery' : '') + '</div>' : '';
+  return '<div class="card mine"><div class="title">' + (isPrompt ? esc(pr.why) : (targets[0] && targets[0].t === 'discover' ? 'Discover a new site' : 'Dig at a site')) + '</div>' +
+    '<div class="sub">Tap where to send your archaeologist; you choose how to pay next.</div>' +
+    poolHtml() + discTxt + '<div class="opts">' + (rows || '<div class="sub">Nowhere you can reach.</div>') + '</div>' +
+    (isPrompt ? (pr.skip ? '<button class="btn ghost" id="skip">Stay at camp</button>' : '') : '<button class="btn ghost" id="back">Back</button>') + '</div>';
+}
+
+/* ---------------- paying travel ---------------- */
+/* S.sel = { kind, cost, disc, coins, send(pay), title, pay:{cards,boons,assts,pilots}, use } */
+function payHtml(pr) {
+  if (pr && pr.t === 'pay' && (!S.sel || S.sel.n !== pr.n)) {
+    startPay({ kind: 'pay', n: pr.n, title: pr.why || 'Pay the travel', cost: pr.cost, disc: null, send: pay => act({ t: 'pay', pay, n: pr.n }) });
+  }
+  const sel = S.sel;
+  if (!sel) return waitCard('Hold on', '');
+  const w = walletNow();
+  const chk = E.checkPay(w, sel.cost, sel.disc, sel.pay, sel.coins);
+  const cards = w.hand.filter(uid => E.cardTravel(uid).length).map(uid =>
+    '<button class="opt' + (sel.pay.cards.indexOf(uid) >= 0 ? ' on' : '') + '" data-paycard="' + esc(uid) + '">' +
+    '<span class="lab">' + A.card(uid, 'chip') + '</span><span class="val">' + A.travels(E.cardTravel(uid), 22) + '</span></button>').join('');
+  const boons = w.boons.filter(b => !b.used && E.boonTravel(b.id).length).map(b =>
+    '<button class="opt' + (sel.pay.boons.indexOf(b.id) >= 0 ? ' on' : '') + '" data-payboon="' + esc(b.id) + '">' +
+    '<span class="lab"><b>Boon of the ' + esc(D.GUARD[b.id].name.toLowerCase()) + '</b><small>once a game</small></span><span class="val">' + A.travels(E.boonTravel(b.id), 22) + '</span></button>').join('');
+  const assts = w.asst.filter(a => a.ready && E.asstTravel(a).length).map(a =>
+    '<button class="opt' + (sel.pay.assts.indexOf(a.id) >= 0 ? ' on' : '') + '" data-payasst="' + esc(a.id) + '">' +
+    '<span class="lab">' + A.assistant(a.id, a.gold, 24, { fx: false }) + '<small>uses the assistant for this round</small></span><span class="val">' + A.travels(E.asstTravel(a), 22) + '</span></button>').join('');
+  const maxPilots = Math.floor((sel.coins == null ? w.res.coin : sel.coins) / 2);
+  const pilots = '<div class="stepper"><button data-pilot="-1">−</button><span>' + A.travel('plane', 22) + ' Hire a pilot: <b>' + sel.pay.pilots + '</b> (2 ' + A.res('coin', 16) + ' each)</span>' +
+    '<button data-pilot="1"' + (sel.pay.pilots >= maxPilots ? ' disabled' : '') + '>+</button></div>';
+  const got = [].concat(sel.disc || [], w.pool);
+  return '<div class="card mine"><div class="title">' + esc(sel.title) + '</div>' +
+    '<div class="sub">Travel to pay: ' + A.travels(sel.cost, 24) + (got.length ? ' · already have ' + A.travels(got, 20) : '') + '</div>' +
+    (sel.note ? '<div class="sub">' + sel.note + '</div>' : '') +
+    '<div class="opts">' + cards + boons + assts + '</div>' + pilots +
+    '<div class="status ' + (chk.ok ? 'ok' : 'bad') + '">' + (chk.ok ? 'That covers it.' : esc(chk.why)) + '</div>' +
+    '<button class="btn" id="paySend"' + (chk.ok ? '' : ' disabled') + '>' + esc(sel.go || 'Go') + '</button>' +
+    '<button class="btn ghost" id="payBack">' + (pr && pr.skip ? 'Do not pay' : 'Back') + '</button></div>';
+}
+function walletNow() {
+  const w = JSON.parse(JSON.stringify(S.me.wallet));
+  if (S.sel && S.sel.use) w.hand = w.hand.filter(x => x !== S.sel.use);
+  return w;
+}
+function startPay(sel) {
+  sel.pay = { cards: [], boons: [], assts: [], pilots: 0 };
+  S.sel = sel;
+  const w = walletNow();
+  const guess = E.suggestPay(w, sel.cost, sel.disc, sel.coins);
+  if (guess) sel.pay = guess;
+  /* Nothing to choose: the pool or a discount covers it all. */
+  if (!sel.cost.length || (guess && !guess.cards.length && !guess.boons.length && !guess.assts.length && !guess.pilots && E.checkPay(w, sel.cost, sel.disc, guess, sel.coins).ok)) {
+    return 'direct';
+  }
+  S.panel = 'pay';
+  return 'panel';
+}
+function toggle(list, x) { const i = list.indexOf(x); if (i >= 0) list.splice(i, 1); else list.push(x); }
+
+/* ---------------- research ---------------- */
+function researchHtml(moves, pr, isPrompt) {
+  const g = game();
+  const T = D.TRACKS[g.side];
+  const p = mine();
+  const rowTxt = (tok, row) => row >= 8 ? 'the Lost Temple' : 'row ' + row;
+  const vpAt = (tok, sqId) => {
+    const row = T.squares[sqId].row;
+    if (row === 0) return 0;
+    if (row === 8) return D.TEMPLE_ARRIVAL[g.players.filter(x => x.arrival != null).length] || 19;
+    return T.rows[row][tok].vp;
+  };
+  const opt = mv => {
+    if (mv.t === 'temple') {
+      return '<button class="opt" data-temple="' + esc(mv.stack) + '"' + (mv.ok ? '' : ' disabled') + '><span class="lab"><b>A ' + mv.vp + '-point temple tile</b>' +
+        '<small>' + (g.research.stacks[mv.stack]) + ' left in that stack</small></span><span class="val">' + A.cost(mv.cost, 18) + '</span></button>';
+    }
+    const sq = T.squares[mv.to];
+    const tok = mv.token;
+    const gain = vpAt(tok, mv.to) - vpAt(tok, p[tok]);
+    const reward = sq.row < 8 ? D.ROW_TEXT[T.rows[sq.row][tok].r] : 'a bonus tile from the temple stack, and the arrival points';
+    const bonus = (g.research.bonus[mv.to] || []);
+    return '<button class="opt" data-research="' + tok + '|' + mv.to + '"' + (mv.ok ? '' : ' disabled') + '>' +
+      '<span class="lab"><b>' + (tok === 'glass' ? A.glass(S.hex, 18) + ' Magnifying glass' : A.book(S.hex, 18) + ' Notebook') + ' → ' + rowTxt(tok, sq.row) + '</b>' +
+      '<small>' + esc(reward) + (bonus.length ? ' · bonus ' : '') + bonus.map(b => A.bonusTile(b, 14)).join('') + ' · +' + gain + ' at the end</small></span>' +
+      '<span class="val">' + (E.isEmpty(mv.cost) ? 'free' : A.cost(mv.cost, 18)) + '</span></button>';
+  };
+  const list = moves.slice().sort((a, b) => (b.ok - a.ok));
+  return '<div class="card mine"><div class="title">' + (isPrompt ? esc(pr.why) : 'Research') + '</div>' +
+    '<div class="sub">Your notebook can never pass your magnifying glass. Only the glass reaches the Lost Temple.</div>' +
+    resHtml(p.res) + '<div class="opts">' + (list.map(opt).join('') || '<div class="sub">No move is open.</div>') + '</div>' +
+    (isPrompt ? (pr.skip ? '<button class="btn ghost" id="skip">Not now</button>' : '') : '<button class="btn ghost" id="back">Back</button>') + '</div>';
+}
+
+/* ---------------- buying ---------------- */
+function buyHtml(cards, pr, isPrompt) {
+  const rows = cards.map(c => {
+    const card = D.card(c.card);
+    const isArt = card.kind === 'art';
+    const btns = isArt
+      ? '<div class="cbtns"><button data-buy="' + esc(c.card) + '" data-use="1"' + (c.ok ? '' : ' disabled') + '>Buy and use it now</button>' +
+        '<button data-buy="' + esc(c.card) + '" data-use="0"' + (c.ok ? '' : ' disabled') + '>Buy, keep</button></div>'
+      : '<div class="cbtns"><button data-buy="' + esc(c.card) + '"' + (c.ok ? '' : ' disabled') + '>Buy — to the bottom of your deck</button></div>';
+    return A.card(c.card, 'full', { cost: c.cost, cls: c.peek ? 'sel' : '' }).replace(/<\/div>$/, btns + '</div>');
+  }).join('');
+  return '<div class="card mine"><div class="title">' + (isPrompt ? esc(pr.why) : 'Buy a card') + '</div>' +
+    '<div class="sub">Items cost coins and go to the bottom of your deck. Artifacts cost compasses and come into play at once.</div>' +
+    resHtml(mine().res) + '<div class="hand" style="margin-top:10px">' + (rows || '<div class="sub">Nothing on offer.</div>') + '</div>' +
+    (isPrompt ? (pr.skip ? '<button class="btn ghost" id="skip">Buy nothing</button>' : '') : '<button class="btn ghost" id="back">Back</button>') + '</div>';
+}
+
+/* ---------------- guardians ---------------- */
+function overcomeHtml(list, pr) {
+  const rows = list.map(o => {
+    const s = siteOf(o.slot);
+    return '<button class="opt" data-overcome="' + esc(o.slot) + '"' + (o.ok ? '' : ' disabled') + '><span class="lab">' + A.guardian(o.guardian, {}) +
+      '<small>at ' + esc(siteLabel(s)) + (o.ok ? '' : ' — ' + esc(o.why)) + ' · worth 5 points, and its boon once</small></span></button>';
+  }).join('');
+  let pickCard = '';
+  if (S.sel && S.sel.kind === 'overcome' && S.sel.needUse) {
+    pickCard = '<h2>Which card goes into play for it?</h2><div class="opts" style="margin-top:0">' + S.me.hand.map(uid =>
+      '<button class="opt" data-usecard="' + esc(uid) + '"><span class="lab">' + A.card(uid, 'chip') + '</span></button>').join('') + '</div>';
+  }
+  return '<div class="card mine"><div class="title">Overcome a guardian</div>' +
+    '<div class="sub">Pay what is along the bottom of the tile. Travel in the cost is paid like any travel.</div>' +
+    resHtml(mine().res) + '<div class="opts">' + rows + '</div>' + pickCard +
+    '<button class="btn ghost" id="back">Back</button></div>';
+}
+
+/* ---------------- idols ---------------- */
+function idolHtml(idol) {
+  const rows = idol.opts.map(o => {
+    const d = D.IDOL_SLOT[o.i];
+    return '<button class="opt" data-idol="' + o.i + '"' + (o.ok ? '' : ' disabled') + '><span class="lab"><b>' + esc(d.label) + '</b></span>' +
+      '<span class="val">' + (d.pay ? A.cost(d.pay, 18) + '<span class="to">▸</span>' : '') + A.fx(d.fx, 20) + '</span></button>';
+  }).join('');
+  return '<div class="card mine"><div class="title">An idol in a slot</div>' +
+    '<div class="sub">The idol still scores its 3 points; the empty slot’s ' + idol.cost + ' is what you give up.</div>' +
+    '<div class="opts">' + rows + '</div><button class="btn ghost" id="back">Back</button></div>';
+}
+
+/* ---------------- a choice inside an effect ---------------- */
+function optionBody(pr, o) {
+  if (o.card) return A.card(o.card, pr.what === 'gain' || pr.what === 'hammer' || /earring/.test(pr.what) ? 'full' : 'chip');
+  if (o.from && o.slot && pr.what === 'relocate') return '<span class="lab"><b>' + esc(siteLabel(siteOf(o.from))) + ' → ' + esc(siteLabel(siteOf(o.slot))) + '</b><small class="icons">' + A.fx(D.site(siteOf(o.slot).tile).fx, 18) + '</small></span>';
+  if (o.from && o.slot && pr.what === 'crown') return '<span class="lab"><b>' + esc(D.GUARD[o.guardian].name) + ': ' + esc(siteLabel(siteOf(o.from))) + ' → ' + esc(siteLabel(siteOf(o.slot))) + '</b><small class="icons">' + A.fx(D.site(siteOf(o.slot).tile).fx, 18) + '</small></span>';
+  if (pr.what === 'recall') return '<span class="lab"><b>From ' + esc(siteLabel(siteOf(o.from))) + '</b></span>';
+  if (o.guardian) return '<span class="lab">' + A.guardian(o.guardian, {}) + '<small>at ' + esc(siteLabel(siteOf(o.slot))) + '</small></span>';
+  if (o.slot) { const s = siteOf(o.slot); return '<span class="lab"><b>' + esc(siteLabel(s)) + '</b><small class="icons">' + (s && s.tile ? A.fx(D.site(s.tile).fx, 18) : '') + '</small></span>'; }
+  if (o.asst && pr.what === 'swapAsst') return '<span class="lab"><b>' + esc(D.ASST[o.give].name) + ' → ' + esc(D.ASST[o.asst].name) + '</b></span>';
+  if (o.asst) { const gold = !!(pr.gold || o.gold); return '<span class="lab">' + A.assistant(o.asst, gold, 26) + '<small>' + esc((gold ? D.ASST[o.asst].gold : D.ASST[o.asst].silver).text) + '</small></span>'; }
+  if (D.REWARD[o.id] && (pr.what === 'tales' || pr.what === 'templeBonus')) return '<span class="lab"><b>' + esc(o.label) + '</b></span><span class="val">' + A.reward(o.id, 22) + '</span>';
+  if (o.fx) return '<span class="lab"><b>' + esc(o.label) + '</b></span><span class="val">' + (o.pay ? A.cost(o.pay, 18) + '<span class="to">▸</span>' : '') + A.fx(o.fx, 20, true) + '</span>';
+  return '<span class="lab"><b>' + esc(o.label || o.id) + '</b></span>';
+}
+function pickHtml(pr) {
+  let rows;
+  if (pr.what === 'gain') {
+    rows = pr.options.map(o => {
+      const c = D.card(o.card);
+      const btns = c.kind === 'art'
+        ? '<div class="cbtns"><button data-pick="' + esc(o.id) + '" data-use="1">Take it and use it</button><button data-pick="' + esc(o.id) + '" data-use="0">Take it, keep</button></div>'
+        : '<div class="cbtns"><button data-pick="' + esc(o.id) + '">Take it</button></div>';
+      return A.card(o.card, 'full').replace(/<\/div>$/, btns + '</div>');
+    }).join('');
+    rows = '<div class="hand" style="margin-top:10px">' + rows + '</div>';
+  } else {
+    rows = '<div class="opts">' + pr.options.map(o => '<button class="opt" data-pick="' + esc(o.id) + '">' + optionBody(pr, o) + '</button>').join('') + '</div>';
+  }
+  const why = pr.what === 'exile' ? 'From your hand or your play area. A Fear card goes back to the board.' :
+    pr.what === 'useCard' ? 'It goes into your play area; its effect and its travel are ignored.' :
+    pr.what === 'rescue' ? 'Only you can see the whole stack. The one you rescue is exhausted until it is refreshed.' :
+    pr.what === 'templeBonus' ? 'Only you see what is left in the stack.' : '';
+  return '<div class="card mine"><div class="title">' + esc(pr.why) + '</div>' + (why ? '<div class="sub">' + esc(why) + '</div>' : '') + rows +
+    (pr.skip ? '<button class="btn ghost" id="skip">' + (pr.what === 'exile' ? 'Exile nothing' : pr.what === 'earringBack' ? 'Put nothing back' : 'Skip') + '</button>' : '') + '</div>';
+}
+function multiHtml(pr) {
+  const rows = pr.options.map(o => '<button class="opt' + (S.multi.indexOf(o.id) >= 0 ? ' on' : '') + '" data-multi="' + esc(o.id) + '">' +
+    '<span class="lab"><b>' + esc(o.label) + '</b></span><span class="val">' + (o.id === 'exile' ? A.icon('exile', 20) : A.res(o.id, 20)) + '</span></button>').join('');
+  const ready = S.multi.length >= pr.min && S.multi.length <= pr.max;
+  return '<div class="card mine"><div class="title">' + esc(pr.why) + '</div><div class="opts">' + rows + '</div>' +
+    '<button class="btn" id="multiGo"' + (ready ? '' : ' disabled') + '>Take ' + S.multi.length + ' of ' + pr.min + '</button></div>';
+}
+
+/* ================================================================
+   My expedition
+   ================================================================ */
+function boardHtml() {
+  const g = game(), p = mine();
+  const T = D.TRACKS[g.side];
+  const s = S.me.score;
+  const home = p.arch.filter(a => !a).length;
+  const asst = p.asst.map(a => A.assistant(a.id, a.gold, 22, { tired: !a.ready })).join(' ');
+  const guards = p.guardians.map(x => A.guardian(x.id, { used: x.used, cost: false })).join(' ');
+  const where = p.arch.filter(Boolean).map(a => esc(siteLabel(siteOf(a.site)))).join(', ');
+  return '<h2>Your expedition</h2><div class="card">' +
+    '<div class="prow"><b style="font-size:16px">' + A.vp(s.total, 26) + ' points</b><span class="sc">research ' + s.research + ' · temple ' + s.temple +
+    ' · idols ' + s.idols + ' · guardians ' + s.guardians + ' · cards ' + s.cards + ' · fear ' + s.fear + '</span></div>' +
+    resHtml(p.res) +
+    '<div class="stat"><span>' + A.res('idol', 18) + '<b>' + p.idols + '</b> in crates · slots <b>' + p.slots + '</b>/4</span>' +
+    '<span>' + A.meeple(S.hex, 18) + '<b>' + home + '</b> at camp' + (where ? ' · out at ' + where : '') + '</span>' +
+    '<span>' + A.glass(S.hex, 18) + 'row <b>' + T.squares[p.glass].row + '</b></span><span>' + A.book(S.hex, 18) + 'row <b>' + T.squares[p.book].row + '</b></span>' +
+    '<span>deck <b>' + p.deckN + '</b></span>' + (p.fearTiles ? '<span>' + A.icon('fear', 16) + ' fear tiles <b>' + p.fearTiles + '</b></span>' : '') + '</div>' +
+    (asst ? '<div class="stat">' + asst + '</div>' : '') + (guards ? '<div class="stat">' + guards + '</div>' : '') +
+    (p.play.length ? '<div class="chips">' + p.play.map(uid => A.card(uid, 'chip')).join('') + '</div>' : '') +
+    '<button class="btn ghost small" id="deck">' + (S.showDeck ? 'Hide what is in your deck' : 'What is in my deck?') + '</button>' +
+    (S.showDeck ? '<div class="chips">' + (S.me.deckList.map(uid => A.card(uid, 'chip')).join('') || '<span class="sub">Empty.</span>') + '</div>' : '') +
+    '</div>';
+}
+
+/* The hand, with play buttons when it is your turn. */
+function handHtml(pr) {
+  const can = pr && pr !== 'stale' && pr.t === 'turn' && !S.panel ? S.me.can : null;
+  const cards = S.me.hand.map(uid => {
+    const c = D.card(uid);
+    let btns = '';
+    if (can) {
+      const chk = can.play.find(x => x.card === uid);
+      if (chk && chk.opts) {
+        btns = '<div class="cbtns">' + chk.opts.map(o => '<button data-play="' + esc(uid) + '" data-opt="' + o.i + '" class="' + (o.pass ? 'main' : '') + '"' + (o.ok ? '' : ' disabled') + '>' +
+          esc(o.label) + (o.free ? '' : ' (your main action)') + '</button>').join('') + '</div>';
+      } else if (chk && c.kind !== 'fear') {
+        const armed = S.armed === uid;
+        btns = '<div class="cbtns">' + (chk.ok
+          ? '<button data-play="' + esc(uid) + '" class="' + (chk.free ? '' : 'main') + '">' + (chk.free ? A.icon('bolt', 15) + ' Play' : (armed ? 'Sure? This is your main action' : 'Play (main action)')) + '</button>'
+          : '<span class="why">' + esc(chk.why) + '</span>') + '</div>';
+      }
+    }
+    return A.card(uid, 'full', { noPrice: true }).replace(/<\/div>$/, btns + '</div>');
+  }).join('');
+  return '<h2>Your hand · ' + S.me.hand.length + '</h2><div class="hand">' + (cards || '<div class="sub">Empty.</div>') + '</div>';
+}
+
+/* ================================================================
+   Wiring
+   ================================================================ */
+function wire() {
+  const m = $('main');
+  const on = (sel, fn) => m.querySelectorAll(sel).forEach(el => { el.onclick = () => { if (!locked() && !el.disabled) fn(el); }; });
+  const pr = myPrompt();
+  const n = pr && pr !== 'stale' ? pr.n : undefined;
+
+  on('#menu', () => { location.href = HUB_URL; });
+  on('#zoomPlate', () => { S.zoomPlate = !S.zoomPlate; paint(); });
+  on('[data-sound]', el => { lock(); if (window.HubSound) HubSound.unlock(); send({ t: 'opt', key: 'sound', value: el.dataset.sound }); });
+  on('[data-colour]', el => { lock(); send({ t: 'opt', key: 'colour', value: el.dataset.colour }); });
+  const nameIn = $('nameIn2');
+  if (nameIn) nameIn.onchange = () => send({ t: 'opt', key: 'name', value: nameIn.value });
+  on('#cont', () => { lock(); const h = S.pub && S.pub.hold; send({ t: 'cont', round: h ? h.round : undefined }); });
+  on('#nowait', () => { lock(); const h = S.pub && S.pub.hold; send({ t: 'nowait', round: h ? h.round : undefined }); });
+  on('#sinceMore', () => { S.sinceAll = true; paint(); });
+  on('#undo', () => { lock(); S.undo = null; send({ t: 'undo' }); paint(); });
+  on('#sinceLess', () => { S.sinceAll = false; paint(); });
+  on('#go', () => { lock(); S.tab = 'play'; if (window.HubSound) HubSound.unlock(); send({ t: 'start' }); });
+  on('#again', () => { lock(); S.tab = 'play'; stopFinale(); send({ t: 'again' }); });
+  on('[data-size]', el => { lock(); send({ t: 'opt', key: 'table', value: +el.dataset.size }); });
+  on('[data-side]', el => { lock(); send({ t: 'opt', key: 'side', value: el.dataset.side }); });
+  on('[data-pace]', el => { lock(); send({ t: 'opt', key: 'pace', value: el.dataset.pace }); });
+  on('[data-level]', el => { lock(); send({ t: 'opt', key: 'level', value: el.dataset.level }); });
+  /* A printed card, large; any tap puts it away. */
+  on('[data-zoom]', el => {
+    const z = $('zoom');
+    z.innerHTML = '<i style="--pic:url(' + A.url(el.dataset.zoom) + ')"></i><small>Tap to close</small>';
+    z.classList.remove('hide');
+    lock();
+    z.onclick = () => { if (!locked()) { z.classList.add('hide'); z.innerHTML = ''; lock(); } };
+  });
+  on('#deck', () => { S.showDeck = !S.showDeck; paint(); });
+
+  /* The turn's menu. */
+  on('[data-panel]', el => { S.panel = el.dataset.panel; S.sel = null; lock(); paint(); window.scrollTo(0, 0); });
+  on('#back', () => { S.panel = null; S.sel = null; lock(); paint(); });
+  on('#pass', () => {
+    if (S.armed !== 'pass') { S.armed = 'pass'; paint(); return; }
+    act({ t: 'pass', n });
+  });
+  on('#end', () => act({ t: 'end', n }));
+  on('#skip', () => act(pr.t === 'pick' ? { t: 'pick', pick: null, n } : { t: 'skip', n }));
+
+  /* Sending an archaeologist: the target first, then the payment. */
+  on('[data-target]', el => {
+    const [kind, slot, space] = el.dataset.target.split('|');
+    const isPrompt = pr && pr.t === 'dig';
+    const o = isPrompt ? pr.o || {} : {};
+    const list = isPrompt ? pr.targets : S.me.can.dig;
+    const t = list.find(x => x.t === kind && x.slot === slot && String(x.space) === space);
+    if (!t) return;
+    const s = siteOf(slot);
+    const go = pay => act({ t: kind, slot, space: +space, pay, n });
+    const how = startPay({ kind: 'dig', cost: t.cost, disc: o.disc || null, title: (kind === 'dig' ? 'Dig at ' : 'Discover ') + siteLabel(s),
+      go: kind === 'dig' ? 'Send the archaeologist' : 'Discover it', note: kind === 'discover' ? 'Plus ' + t.comp + ' compasses.' : '',
+      back: isPrompt ? null : kind, send: go });
+    if (how === 'direct') { go(S.sel.pay); S.sel = null; return; }
+    paint(); window.scrollTo(0, 0);
+  });
+  on('[data-paycard]', el => { toggle(S.sel.pay.cards, el.dataset.paycard); paint(); });
+  on('[data-payboon]', el => { toggle(S.sel.pay.boons, el.dataset.payboon); paint(); });
+  on('[data-payasst]', el => { toggle(S.sel.pay.assts, el.dataset.payasst); paint(); });
+  on('[data-pilot]', el => { S.sel.pay.pilots = Math.max(0, S.sel.pay.pilots + (+el.dataset.pilot)); paint(); });
+  on('#paySend', () => { const sel = S.sel; if (!sel) return; sel.send(sel.pay); });
+  on('#payBack', () => {
+    if (pr && pr.t === 'pay') { act({ t: 'skip', n }); return; }
+    S.panel = S.sel && S.sel.back ? S.sel.back : null; S.sel = null; paint();
+  });
+
+  on('[data-research]', el => { const [token, to] = el.dataset.research.split('|'); act({ t: 'research', token, to: +to, n }); });
+  on('[data-temple]', el => act({ t: 'temple', stack: el.dataset.temple, n }));
+  on('[data-buy]', el => act({ t: 'buy', card: el.dataset.buy, use: el.dataset.use === '1', opt: 0, n }));
+  on('[data-overcome]', el => {
+    const o = S.me.can.overcome.find(x => x.slot === el.dataset.overcome);
+    if (!o) return;
+    const finish = use => {
+      const go = pay => act({ t: 'overcome', slot: o.slot, use: use || undefined, pay, n });
+      if (!o.cost.travel.length) { go(undefined); return; }
+      const how = startPay({ kind: 'overcome', cost: o.cost.travel, disc: null, coins: mine().res.coin - (o.cost.res.coin || 0), use,
+        title: 'Overcome the ' + D.GUARD[o.guardian].name.toLowerCase(), go: 'Overcome it', back: 'overcome', send: go });
+      if (how === 'direct') { go(S.sel.pay); S.sel = null; return; }
+      paint();
+    };
+    if (o.cost.useCard) { S.sel = { kind: 'overcome', needUse: true, slot: o.slot, finish }; paint(); return; }
+    finish(null);
+  });
+  on('[data-usecard]', el => { if (S.sel && S.sel.finish) S.sel.finish(el.dataset.usecard); });
+  on('[data-idol]', el => act({ t: 'idol', opt: +el.dataset.idol, n }));
+  on('[data-boon]', el => act({ t: 'boon', id: el.dataset.boon, n }));
+  on('[data-asst]', el => act({ t: 'assist', id: el.dataset.asst, opt: el.dataset.aopt != null ? +el.dataset.aopt : undefined, n }));
+  on('[data-play]', el => {
+    const uid = el.dataset.play;
+    const chk = S.me.can && S.me.can.play.find(x => x.card === uid);
+    if (el.dataset.opt != null) { act({ t: 'play', card: uid, opt: +el.dataset.opt, n }); return; }
+    /* A main-action card takes two taps: it spends your turn. */
+    if (chk && !chk.free && S.armed !== uid) { S.armed = uid; paint(); return; }
+    act({ t: 'play', card: uid, n });
+  });
+
+  /* Sub-questions. */
+  on('[data-pick]', el => act({ t: 'pick', pick: el.dataset.pick, use: el.dataset.use === '1', opt: 0, n }));
+  on('[data-multi]', el => {
+    const id = el.dataset.multi;
+    if (S.multi.indexOf(id) >= 0) S.multi = S.multi.filter(x => x !== id);
+    else if (S.multi.length < pr.max) S.multi.push(id);
+    paint();
+  });
+  on('#multiGo', () => act({ t: 'multi', picks: S.multi.slice(), n }));
+}
+
+$('menuBtn').onclick = () => { if (locked()) return; lock(); S.menu = S.menu ? null : 'menu'; paint(); };
+document.body.insertAdjacentHTML('afterbegin', A.defs() + A.styles());
+/* No printed pictures in this build: the drawn faces are the game (A.probe
+   is never called, so html.art is never set). A page stays silent until it
+   is touched; the first tap turns the sound on. */
+if (window.HubSound) HubSound.armUnlock();
+Solo.attach(handle);
+paint();
+</script>
+</body>
+</html>

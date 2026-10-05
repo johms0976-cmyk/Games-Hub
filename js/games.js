@@ -128,6 +128,17 @@ const GAMES = [
     status: "playable",
   },
   {
+    id: "arnak",
+    title: "Lost Ruins of Arnak",
+    subtitle: "Solo — dig, research and reach the temple against computer explorers, on your phone",
+    category: "board",
+    players: "1",
+    duration: "45–75 min",
+    icon: "🗿",
+    accentColor: "#e3b54a",
+    status: "playable",
+  },
+  {
     id: "five-hundred",
     title: "500",
     subtitle: "The classic trick-taking game",
