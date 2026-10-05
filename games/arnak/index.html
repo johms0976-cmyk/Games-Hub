@@ -200,12 +200,14 @@ header{flex-wrap:wrap}
 #plate>*{position:absolute}
 .pl-bg{inset:0;background:linear-gradient(180deg,#3d3222 0%,#29422a 30%,#1d4a44 70%,#16404e 100%)}
 .pl-bg .trk{position:absolute;left:66.5cqw;top:0;right:0;bottom:0;background:#2b2419;border-left:2px solid #4d3f2a}
+.pl-board{inset:0;background-size:100% 100% !important}
 .pl-at{transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;gap:.4cqw}
 .dig{min-width:3.6cqw;min-height:3.6cqw;border-radius:999px}
 .dig>.vec{display:flex;gap:1px;background:rgba(0,0,0,.35);border-radius:999px;padding:.3cqw .5cqw}
 .dig .meeple{position:absolute;left:50%;top:50%;transform:translate(-50%,-66%);width:6.2cqw;height:6.2cqw;filter:drop-shadow(0 0 .25cqw #fff) drop-shadow(0 .3cqw .4cqw rgba(0,0,0,.9))}
 .dig.blocked::after{content:"";position:absolute;inset:-.3cqw;border-radius:50%;background:rgba(10,8,6,.72) repeating-linear-gradient(45deg,rgba(255,255,255,.1) 0 .4cqw,transparent .4cqw .8cqw);border:.2cqw solid rgba(255,255,255,.35)}
 .tile .stile{position:absolute;inset:0;display:block}
+.tile .spic{position:absolute;inset:0;background-size:100% 100% !important;filter:drop-shadow(0 .3cqw .6cqw rgba(0,0,0,.7))}
 .tile .sface{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4cqw;background:rgba(245,236,214,.94);color:#2b2216;border-radius:1cqw;padding:.5cqw;text-align:center}
 .tile .sname{font-weight:800;font-size:1.9cqw;line-height:1.1}
 .tile .sfx{display:flex;flex-wrap:wrap;justify-content:center;gap:2px}
@@ -213,15 +215,20 @@ header{flex-wrap:wrap}
 .lit{outline:.6cqw solid #fff;outline-offset:.3cqw;box-shadow:0 0 3cqw rgba(255,255,255,.8);border-radius:1.2cqw;animation:litPulse 1.2s ease-in-out infinite alternate}
 @keyframes litPulse{from{outline-color:#fff}to{outline-color:rgba(255,255,255,.35)}}
 .gtok{width:8.4cqw;height:8.4cqw;transform:translate(-30%,-45%)}
+.gtok .gpic{position:absolute;inset:0;width:auto !important;filter:drop-shadow(0 .3cqw .5cqw rgba(0,0,0,.8))}
 .gtok .guard{position:absolute;left:0;top:0}
 .idols{gap:.3cqw}
+.idols .tpic{width:4.2cqw !important;height:5.1cqw !important;filter:drop-shadow(0 .2cqw .3cqw rgba(0,0,0,.7))}
 .badge{background:rgba(10,14,11,.82);color:var(--ink);border:1px solid rgba(233,223,198,.35);border-radius:999px;padding:.2cqw .9cqw;font-size:2.4cqw;font-weight:700;white-space:nowrap;transform:translate(0,-50%);display:flex;align-items:center;gap:.4cqw}
 .sq{z-index:0;display:flex;flex-wrap:wrap;align-content:center;align-items:center;justify-content:center;gap:.3cqw;padding:.4cqw}
 .sq>.vec{position:absolute;inset:0;background:rgba(239,227,199,.9);border-radius:.8cqw;z-index:-1}
 .sq .bcost{position:absolute;left:0;right:0;bottom:-2.2cqw;display:flex;justify-content:center;gap:1px;z-index:1}
 .sq .glass,.sq .book{width:3.6cqw;height:3.6cqw;filter:drop-shadow(0 .2cqw .3cqw rgba(0,0,0,.75))}
 .sq .cnt{font-weight:900;font-size:2.2cqw;color:#2b2216;background:rgba(245,236,214,.9);border-radius:.6cqw;padding:0 .4cqw}
+.sq .bonust .tpic{width:4cqw !important;height:4cqw !important}
+.sq .asstw .apic{width:5.6cqw !important}
 .tst{display:flex;align-items:flex-end;justify-content:flex-end}
+.tst .tpic{position:absolute;inset:0;width:auto !important;height:auto !important}
 .tst .cnt{position:relative;font-weight:900;font-size:2.2cqw;color:#fff;background:rgba(0,0,0,.72);border-radius:.6cqw;padding:0 .5cqw}
 .tst.gone{opacity:.25}
 .tst>.vec{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:2.6cqw;color:#f4ecd0;background:rgba(0,0,0,.45);border-radius:.6cqw}
@@ -237,6 +244,7 @@ header{flex-wrap:wrap}
 .cardrow>.slot{flex:0 0 72%;max-width:250px;scroll-snap-align:start;display:flex}
 .cardrow>.slot .acard{flex:1}
 .cardrow>.slot.empty{border:2px dashed #3b4a3d;border-radius:10px;align-items:center;justify-content:center;color:var(--dim);font-size:13px;flex-basis:30%;min-height:120px}
+html.art .cardrow>.staff{background:url(art/tokens/staff.webp?v=1) center top/contain no-repeat}
 .cardrow>.staff{flex:0 0 34px;border-radius:10px;display:flex;align-items:flex-end;justify-content:center;color:#f4ecd0;font-weight:900;background:linear-gradient(180deg,#6d5132,#3b2a18);padding-bottom:6px}
 .peek{outline:3px solid var(--gold);outline-offset:-1px}
 /* ---------- every expedition ---------- */
@@ -495,9 +503,10 @@ function paintMenu() {
     const M = D.MANIFEST;
     const li = xs => '<ul>' + xs.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>';
     body = '<div class="title">About this build</div><div class="sub">You against the house: computer explorers fill the other seats. The game is saved on this phone after every move.</div>' +
-      '<h2>What is built</h2>' + li(M.built.filter(x => !/VASSAL/.test(x)).concat(['The board, cards and tiles are drawn here, not the printed art.'])) +
+      '<h2>What is built</h2>' + li(M.built) +
       '<h2>What is not</h2>' + li(M.notBuilt) +
-      '<h2>On the wording</h2><ul><li>Lost Ruins of Arnak is designed by Mín &amp; Elwen and published by Czech Games Edition. The rules are theirs; every line of card text here is written fresh, and this is built to sit beside a copy of the game rather than replace one.</li></ul>' +
+      '<h2>On the wording</h2><ul><li>Lost Ruins of Arnak is designed by Mín &amp; Elwen and published by Czech Games Edition. The rules are theirs; every line of card text here is written fresh, and this is built to sit beside a copy of the game rather than replace one.</li>' +
+        '<li>The board, card, tile and token pictures are Czech Games Edition’s artwork. If one fails to load, the drawn version shows instead.</li></ul>' +
       '<button class="btn ghost" id="mClose">Close</button>';
   } else {
     body = '<div class="title">Menu</div>' +
@@ -603,6 +612,7 @@ function plateSite(pub, s, lit) {
     const r = [dx - w / 2, dy - 26 - h, dx + w / 2, dy - 26];
     out += '<div class="tile' + mark + '" style="' + box(r) + '">' + A.siteTile(s.tile) + '</div>';
     if (s.guardian) out += '<div class="gtok" style="' + at(dx > 700 ? r[0] - 48 : r[2] - 40, r[1] + 20) + '">' +
+      '<i class="gpic art-only" style="--pic:url(' + A.url('guardians/' + s.guardian + '.webp') + ')"></i>' +
       '<span class="vec">' + A.guardian(s.guardian, { size: Z(22) }) + '</span></div>';
   } else if (s.idols.length) {
     out += '<div class="pl-at idols' + (lit === s.id ? ' lit' : '') + '" style="' + at(G.i[0], G.i[1]) + '">' + s.idols.map(r => A.idolTile(r, Z(34))).join('') + '</div>';
@@ -665,6 +675,7 @@ function plateTrack(pub) {
   for (const st of D.TEMPLE_STACKS) {
     const left = pub.research.stacks[st.id] || 0;
     out += '<div class="tst' + (left ? '' : ' gone') + '" style="' + box(T[st.id]) + '">' +
+      '<i class="tpic art-only" style="--pic:url(' + A.url('temple/t' + st.vp + '.webp') + ')"></i>' +
       '<span class="vec">' + st.vp + '</span><span class="cnt">×' + left + '</span></div>';
   }
   out += '<div class="rew vec" style="' + at(1030, 280) + ';flex-direction:row;gap:2cqw;transform:translate(0,-50%)">' +
@@ -684,6 +695,7 @@ function plateHtml(pub, lit) {
   const lv = pub.siteDeckN;
   return '<div class="platebox"><div id="plate" class="' + (S.zoomPlate ? 'zoom' : '') + '">' +
     '<div class="pl-bg vec"><div class="trk"></div></div>' +
+    '<div class="pl-board art-only" style="--pic:url(' + A.url('board-' + pub.side + '.webp') + ')"></div>' +
     pub.sites.map(s => plateSite(pub, s, lit)).join('') +
     '<div class="badge" style="' + at(PL.stacks[2][0], PL.stacks[2][1]) + '">' + A.icon('level2', Z(18)) + '<b>' + lv[2] + '</b> left</div>' +
     '<div class="badge" style="' + at(PL.stacks[1][0], PL.stacks[1][1]) + '">' + A.icon('level1', Z(18)) + '<b>' + lv[1] + '</b> · ' +
@@ -1427,9 +1439,11 @@ function wire() {
 
 $('menuBtn').onclick = () => { if (locked()) return; lock(); S.menu = S.menu ? null : 'menu'; paint(); };
 document.body.insertAdjacentHTML('afterbegin', A.defs() + A.styles());
-/* No printed pictures in this build: the drawn faces are the game (A.probe
-   is never called, so html.art is never set). A page stays silent until it
-   is touched; the first tap turns the sound on. */
+/* The printed pictures (art/, from the hub): A.probe sets html.art once one
+   loads, so a missing folder still leaves the drawn faces. ?noart shows the
+   drawn faces on purpose. A page stays silent until it is touched; the first
+   tap turns the sound on. */
+if (!/[?&]noart/.test(location.search)) A.probe();
 if (window.HubSound) HubSound.armUnlock();
 Solo.attach(handle);
 paint();
