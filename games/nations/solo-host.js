@@ -25,7 +25,10 @@
   const T = {
     paceMs: { slow: 2400, relaxed: 1400, brisk: 600 },
     thinkMin: 0.45, thinkMax: 1.1,
-    afterYouMs: 900
+    afterYouMs: 900,
+    /* each house turn stays on the phone at least this long before the next
+       nation moves — on the telly you watched them; here you read them */
+    houseShowMs: { slow: 3800, relaxed: 2700, brisk: 1500 }
   };
   const HOUSE = [
     { name: 'Hammurabi', hex: '#c8463c' }, { name: 'Cleopatra', hex: '#4a86d9' }, { name: 'Pericles', hex: '#8e5bc4' },
@@ -44,6 +47,8 @@
     /* Lines read "<name> buys …", so the default must take a verb in the third person. */
     name: (get(NAME_KEY) || 'Your Majesty').slice(0, 14),
     gameOpts: null, thinking: {}, hold: null, lastRound: 0, lastEvent: 0, roundVP: {},
+    /* reel: the house's newest line ({i, by}), shown large while the next nation thinks */
+    reel: null, reelAt: 0, linesSeen: 0,
     createOpts: null, moves: [], lastHumanAt: 0, listener: null, resumed: false,
     pending: 0   // messages on their way, either direction (the tests wait for 0)
   };
@@ -112,6 +117,7 @@
     S.gameOpts = Object.assign({}, S.opts, { table: players.length });
     S.thinking = {}; S.hold = null; S.lastRound = 0; S.lastEvent = 0; S.roundVP = {};
     S.moves = []; S.lastHumanAt = 0; S.resumed = false;
+    S.reel = null; S.reelAt = 0; S.linesSeen = 0;
     S.screen = 'play';
     afterChange();
   }
@@ -148,6 +154,7 @@
     S.gameOpts = s.gameOpts || Object.assign({}, S.opts);
     S.hold = s.hold || null; S.lastRound = s.lastRound || 0; S.lastEvent = s.lastEvent || 0; S.roundVP = s.roundVP || {};
     S.thinking = {}; S.screen = 'play'; S.resumed = true;
+    S.reel = null; S.reelAt = 0; S.linesSeen = g.log.length;
     return true;
   }
   function abandon() { resetToLobby(); }
@@ -163,6 +170,7 @@
       hurry: null,
       hold: holdView(),
       pay: null,
+      reel: S.reel,
       thinking: thinkingView()
     });
     if (g && g.idx(ME) >= 0) deliver({ t: 'nations-me', me: g.seatView(ME), undo: undoInfo(ME) });
@@ -202,6 +210,7 @@
   function afterChange() {
     const g = S.g;
     if (!g) return;
+    reelWatch();
     roundWatch();
     if (g.phase === 'over' && S.screen !== 'over') S.screen = 'over';
     houseThinks();
@@ -222,6 +231,8 @@
       let ms = paceMs() * (quick ? 0.5 : 1) * (T.thinkMin + Math.random() * (T.thinkMax - T.thinkMin));
       const last = S.moves[S.moves.length - 1];
       if (last && last.human && g.phase === 'action') ms = Math.max(ms, S.lastHumanAt + T.afterYouMs - Date.now());
+      /* a turn waits until the move before it has been read */
+      if (pr.t === 'turn') ms = Math.max(ms, S.reelAt + (T.houseShowMs[(S.gameOpts || S.opts).pace] || T.houseShowMs.relaxed) - Date.now());
       setTimeout(() => {
         if (S.g !== g || g.phase === 'over') return;
         if (S.hold) { S.thinking[key] = false; return; }
@@ -241,6 +252,21 @@
     try { r = play(g, id, B.answer(g.publicView(), me, view)); } catch (e) { r = { ok: false, why: 'house: ' + e.message }; }
     if (!r.ok) { const first = r.why; try { r = play(g, id, B.fallback(g.publicView(), me, view)); } catch (e) { r = { ok: false, why: 'fallback: ' + e.message }; } if (!r.ok) r.why = first + ' / ' + r.why; }
     return r;
+  }
+
+  /* The newest action line a house nation has said (nations-words.js), for
+     the phone to show large while the next nation's turn waits. Growth and
+     the round's resolution are on their own cards, so only turns count. */
+  function reelWatch() {
+    const g = S.g;
+    if (!g || S.linesSeen >= g.log.length) return;
+    const from = Math.max(0, S.linesSeen - 40);
+    const ls = W.lines(g.log.slice(from), g, from).filter(l => l.i >= S.linesSeen && W.HEAD[l.t] && l.t !== 'growth' && l.t !== 'nation' && l.by && l.by !== ME);
+    S.linesSeen = g.log.length;
+    const L = ls[ls.length - 1];
+    if (!L) return;
+    S.reel = { i: L.i, by: L.by };
+    S.reelAt = Date.now();
   }
 
   /* ================================================================
@@ -307,6 +333,8 @@
       return;
     }
     S.g = ng; S.moves = keep; S.thinking = {};
+    S.linesSeen = ng.log.length;
+    if (S.reel && S.reel.i >= ng.log.length) S.reel = null;
     afterChange();
   }
 
@@ -357,6 +385,8 @@
     const h = S.hold;
     if (!h || (round != null && +round !== h.round)) return;
     S.hold = null;
+    S.reel = null;             // the round just read is on the card; a new one starts clean
+    S.reelAt = Date.now();     // and the first house turn waits a beat too
     afterChange();
   }
 

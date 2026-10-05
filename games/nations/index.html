@@ -125,6 +125,11 @@ button{font:inherit}
 .since .sh{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
 .since .sl.new{color:var(--ink)}
 .since .more{align-self:flex-start;background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:9px;padding:4px 10px;font-size:12px}
+.reel{margin-top:6px;border:1px solid var(--line);border-left:5px solid var(--hex);background:var(--panel);border-radius:12px;padding:9px 11px;font-size:15px;line-height:1.38}
+.reel.fresh{animation:reelIn .35s ease-out}
+.reel small{display:block;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:2px}
+@keyframes reelIn{from{transform:translateY(-4px);opacity:.2}to{transform:none;opacity:1}}
+.face.empty.lit{border:2px solid var(--hex);color:var(--ink);font-weight:700}
 .upnext{border-color:var(--gold)!important}
 /* the round card */
 .rcard .rc-h{font-weight:800;font-size:22px;color:var(--gold);line-height:1.15;font-family:"Palatino Linotype",Palatino,Georgia,serif}
@@ -337,10 +342,10 @@ function paint() {
   if (S.detail) { m.innerHTML = detailHtml(); wire(); return; }
   /* The round card and the new event come first, whatever tab you were on. */
   if (h) m.innerHTML = holdHtml() + nationHtml() + (h.kind === 'event' ? '' : eventHtml());
-  else if (S.tab === 'board') m.innerHTML = phaseHtml() + boardTabHtml(pr);
-  else if (S.tab === 'nations') m.innerHTML = nationsTabHtml();
+  else if (S.tab === 'board') m.innerHTML = phaseHtml() + reelHtml() + boardTabHtml(pr);
+  else if (S.tab === 'nations') m.innerHTML = reelHtml() + nationsTabHtml();
   else if (S.tab === 'log') m.innerHTML = logTabHtml();
-  else m.innerHTML = phaseHtml() + sinceHtml(pr) + askHtml(pr) + undoHtml() + eventHtml() + nationHtml();
+  else m.innerHTML = phaseHtml() + reelHtml() + askHtml(pr) + undoHtml() + sinceHtml(pr) + eventHtml() + nationHtml();
   wire();
 }
 
@@ -461,6 +466,9 @@ function sinceLines() {
 }
 function sinceHtml(pr) {
   const s = sinceLines();
+  /* the newest house line is already set large above (reelHtml) */
+  const x = reelOn();
+  if (s && x) s.lines = s.lines.filter(l => l.i !== x.r.i);
   if (!s || !s.lines.length) return '';
   const MAX = 6;
   const shown = S.sinceAll ? s.lines : s.lines.slice(-MAX);
@@ -469,6 +477,36 @@ function sinceHtml(pr) {
     (hidden ? '<button class="more" id="sinceMore">' + hidden + ' earlier</button>' : '') +
     shown.map((l, k) => '<div class="sl' + (k === shown.length - 1 ? ' new' : '') + '">' + W.html(l, A) + '</div>').join('') +
     (S.sinceAll && s.lines.length > MAX ? '<button class="more" id="sinceLess">Show fewer</button>' : '') + '</div>';
+}
+
+/* ================================================================
+   The house's turns, where you can read them
+
+   On the telly you watched the house nations move. Here their newest line
+   (nations-words.js, the same words) is set large at the top of every tab
+   while the next nation's turn waits (solo-host.js T.houseShowMs). It stays
+   until you have moved since.
+   ================================================================ */
+function reelOn() {
+  const r = S.pub && S.pub.reel, g = game();
+  if (!r || !g || !g.log) return null;
+  const base = (g.logN || g.log.length) - g.log.length;
+  if (r.i < base) return null;
+  const ls = W.lines(g.log, g, base);
+  const L = ls.find(l => l.i === r.i);
+  if (!L) return null;
+  if (ls.some(l => l.i > r.i && l.by === S.id && W.HEAD[l.t])) return null;
+  const e = g.log[r.i - base] || {};
+  return { r, L, slot: e.t === 'buy' && e.row != null ? { r: e.row, c: e.col, card: e.card } : null };
+}
+function reelHtml() {
+  const x = reelOn();
+  if (!x) return '';
+  const g = game(), p = pl(x.r.by);
+  const up = g.active === S.id ? 'your turn' : g.active ? pname(g.active) + ' is up' : '';
+  const fresh = S.reelSeen !== x.r.i;
+  S.reelSeen = x.r.i;
+  return '<div class="reel' + (fresh ? ' fresh' : '') + '" style="--hex:' + esc(p ? p.hex : '#888') + '"><small>Just now' + (up ? ' · ' + esc(up) : '') + '</small>' + W.html(x.L, A) + '</div>';
 }
 
 /* ---------------- lobby and the end ---------------- */
@@ -927,9 +965,12 @@ function boardTabHtml(pr) {
   const can = pr && pr !== 'stale' && pr.t === 'turn' && S.me.can && !S.me.can.skipOnly ? S.me.can : null;
   const at = (r, c) => can ? can.board.find(b => b.r === r && b.c === c) : null;
   const toll = id => (g.tolls || []).find(t => t.card === id);
+  /* the card the house just bought: its empty place, in its colour */
+  const rl = reelOn(), lit = rl && rl.slot, litBy = lit ? pl(rl.r.by) : null;
   const rows = g.board.map((row, r) => {
     if (r === 3 && !row.some(Boolean)) return '';
     const cells = row.map((id, c) => {
+      if (!id && lit && lit.r === r && lit.c === c) return '<div class="face empty lit" style="--hex:' + esc(litBy ? litBy.hex : '#888') + '">' + esc((litBy ? litBy.name : '?') + ' took ' + (C(lit.card) ? C(lit.card).name : 'it')) + '</div>';
       if (!id) return r === 3 ? '' : '<div class="face empty">taken</div>';
       const card = C(id);
       const b = at(r, c);
