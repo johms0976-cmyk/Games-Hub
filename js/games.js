@@ -139,6 +139,17 @@ const GAMES = [
     status: "playable",
   },
   {
+    id: "radlands",
+    title: "Radlands",
+    subtitle: "Solo — a duel in the wasteland: guard three camps and burn all of Rook’s, on your phone",
+    category: "card",
+    players: "1",
+    duration: "20–40 min",
+    icon: "☢️",
+    accentColor: "#ff4fb3",
+    status: "playable",
+  },
+  {
     id: "five-hundred",
     title: "500",
     subtitle: "The classic trick-taking game",

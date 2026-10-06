@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#150b21">
+<title>Radlands — Solo</title>
+<style>
+:root{
+  --bg:#150b21; --panel:#23143a; --panel2:#1a0f2b; --line:#46306c; --ink:#f6eefe; --dim:#b9a8d4;
+  --hot:#ff4fb3; --gold:#ffd24a; --good:#5fd18a; --bad:#ff5a7a;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden],.hide{display:none !important}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font:16px/1.4 ui-rounded,-apple-system,"Segoe UI",system-ui,sans-serif;
+  padding:env(safe-area-inset-top) 12px calc(86px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 0 8px;position:sticky;top:0;background:var(--bg);z-index:5}
+#dot{width:12px;height:12px;border-radius:50%;background:var(--hot);flex:none}
+#who{font-weight:800;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+#menuBtn{background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:10px;padding:5px 11px;font-size:14px;flex:none}
+#tabs{display:flex;gap:4px;width:100%}
+#tabs button{flex:1;background:var(--panel2);border:1px solid var(--line);color:var(--dim);border-radius:10px;padding:8px 2px;font-size:13px;font-weight:700;position:relative}
+#tabs button.on{background:var(--hot);border-color:var(--hot);color:#1a0716}
+#tabs button .pip{position:absolute;top:-4px;right:-3px;width:10px;height:10px;border-radius:50%;background:var(--gold);border:2px solid var(--bg)}
+h2{margin:16px 0 6px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:8px}
+.card.mine{border-color:var(--hot)}
+.title{font-weight:800;font-size:19px;color:var(--hot)}
+.sub{color:var(--dim);font-size:13px;margin-top:2px}
+button{font:inherit}
+.btn{display:block;width:100%;background:var(--hot);border:0;color:#1a0716;font-weight:800;font-size:17px;border-radius:14px;padding:14px;margin-top:10px}
+.btn:disabled{opacity:.4}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--dim);font-weight:600;font-size:15px}
+.opts{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+.opt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:10px 11px;font-size:15px}
+.opt:disabled{opacity:.42}
+.opt.on{border-color:var(--hot);background:rgba(255,79,179,.13)}
+.opt .lab{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.opt .lab small{color:var(--dim);font-size:12px;line-height:1.25}
+.opt .val{display:flex;align-items:center;gap:3px;font-weight:800;color:var(--gold);flex:none}
+.why{color:#ffab9a;font-size:12px}
+.tick{width:22px;height:22px;border-radius:6px;border:2px solid var(--line);flex:none;display:flex;align-items:center;justify-content:center;font-weight:900;color:#1a0716}
+.on .tick{background:var(--hot);border-color:var(--hot)}
+.seg{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.seg button{flex:1;min-width:28%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:11px;padding:10px 6px;font-size:14px}
+.seg button.on{border-color:var(--hot);background:rgba(255,79,179,.15);color:var(--hot);font-weight:800}
+.swatch{display:flex;gap:8px;margin-top:6px}
+.swatch button{width:38px;height:38px;border-radius:50%;border:3px solid transparent}
+.swatch button.on{border-color:#fff}
+.namein{display:flex;gap:8px;margin-top:6px}
+.namein input{flex:1;min-width:0;font:inherit;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:11px}
+.water{display:flex;align-items:center;gap:4px;font-weight:900;font-size:18px;margin-top:4px}
+.hcard{margin-top:10px}
+.hcard .rcard.full{font-size:14px}
+.hcard .rcard.full .rnm{font-size:16px}
+.hcard.sel .rcard{outline:3px solid var(--hot)}
+html.art .hcard .rcard .rpic{opacity:.42}
+.hbtns{display:flex;gap:6px;margin-top:6px}
+.hbtns button{flex:1;border-radius:11px;padding:10px 6px;font-weight:800;font-size:14px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);display:flex;align-items:center;justify-content:center;gap:5px}
+.hbtns button.play{background:var(--hot);border-color:var(--hot);color:#1a0716}
+.hbtns button:disabled{opacity:.38}
+.hbtns small{font-weight:600;font-size:11px;color:inherit;opacity:.85}
+.note{font-size:12px;color:var(--dim);margin-top:3px}
+.ab{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:9px 10px;margin-top:7px;font-size:14px}
+.ab:disabled{opacity:.42}
+.ab .lab{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.ab .lab b{font-size:15px}
+.ab .lab small{color:var(--dim);font-size:12px;line-height:1.25}
+.row2{display:flex;gap:8px;margin-top:10px}
+.row2 .btn{margin-top:0;font-size:14px;padding:12px 8px}
+/* the boards: each card shows its picture, its name and its state */
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}
+.bcol{display:flex;flex-direction:column;gap:5px;min-width:0}
+.mini{position:relative;border-radius:9px;border:1.5px solid #4a3270;background:linear-gradient(160deg,#2b1745,#1a0f2b);padding:5px 6px;min-height:56px;font-size:11.5px;line-height:1.2;overflow:hidden}
+.mini::before{content:"";position:absolute;inset:0;background:var(--pic) center 28%/cover no-repeat;opacity:0;pointer-events:none}
+html.art .mini::before{opacity:.5}
+.mini>*{position:relative}
+.mini b{display:block;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 3px #000,0 0 6px #000}
+.mini.camp{background:linear-gradient(160deg,#22172e,#0f0a16);border-color:#000;box-shadow:inset 0 0 0 1.5px #3a2c49}
+.mini.punk{background:repeating-linear-gradient(45deg,#3a0f2c 0 8px,#2a0b20 8px 16px);border-color:#e0408c}
+.mini.dmg{border-color:var(--bad);transform:rotate(-2deg)}
+.mini.dead{background:#120c18;color:#8a7c99;border-color:#2a2030}
+html.art .mini.dead::before{opacity:.35;filter:grayscale(.7)}
+.mini .st{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;text-shadow:0 1px 3px #000}
+.mini .st.d{color:var(--bad)}.mini .st.r{color:var(--good)}.mini .st.n{color:#e2d6f4}
+.mini.room{border-style:dashed;background:transparent;color:#7d6c98;display:flex;align-items:center;justify-content:center;text-align:center;min-height:30px}
+.mini.room::before{display:none}
+.qrow{display:flex;gap:5px;margin-top:6px}
+.qrow div{flex:1;border:1px dashed rgba(233,196,58,.45);border-radius:8px;padding:5px 6px;font-size:12px;min-height:30px}
+.qrow div.full{border-style:solid;background:rgba(233,196,58,.12)}
+.qrow div i{font-style:normal;color:var(--dim);font-size:10px;display:block}
+.facts{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:6px;font-size:13px;color:var(--dim)}
+.facts b{color:var(--ink)}
+/* the table tab: every card at reading size, column by column */
+.tcol{margin-top:10px;border-left:3px solid var(--line);padding-left:9px}
+.tcol h4{margin:0 0 2px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.tcol .hcard{margin-top:6px}
+.tcol .pos{font-size:11px;color:var(--dim);margin-top:6px}
+.logl{font-size:13.5px;color:var(--dim);padding:6px 0;border-top:1px solid var(--line)}
+.logl:first-child{border-top:0;color:var(--ink)}
+.logl.tl{color:var(--hot);font-weight:800;font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.since{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:9px 11px;margin-top:6px;font-size:13px;color:var(--dim);display:flex;flex-direction:column;gap:4px}
+.since .sh{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+.since .sl.new{color:var(--ink)}
+.since .more{align-self:flex-start;background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:9px;padding:4px 10px;font-size:12px}
+.reel{margin-top:6px;padding:11px 12px;border-radius:12px;background:rgba(255,79,179,.1);border:1px solid rgba(255,79,179,.5);font-size:16px;font-weight:600}
+.reel small{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--hot);font-weight:800}
+.reel.fresh{animation:reelIn .5s ease-out}
+@keyframes reelIn{from{transform:translateY(-6px);opacity:.3}to{transform:none;opacity:1}}
+.upnext{margin-top:8px;padding:8px 10px;border-radius:10px;background:rgba(255,79,179,.14);border:1px solid var(--hot);color:var(--hot);font-weight:800}
+.undo{display:flex;align-items:center;gap:8px;width:100%;margin-top:8px;background:var(--panel2);border:1px dashed var(--hot);color:var(--ink);border-radius:12px;padding:10px 12px;font-size:14px;text-align:left}
+.undo b{color:var(--hot);flex:none}
+/* an event going off: the card turned over, full screen, until Got it */
+#evShow{position:fixed;inset:0;z-index:30;background:rgba(10,4,16,.93);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 16px calc(96px + env(safe-area-inset-bottom))}
+#evShow .eh{font-size:22px;font-weight:900;color:var(--gold);text-align:center;margin-bottom:12px}
+#evShow .eh.raid{color:#9ad43a}
+#evShow .ein{width:min(88vw,380px);animation:evIn .5s ease-out}
+@keyframes evIn{from{transform:scale(.7) rotate(-5deg);opacity:0}to{transform:none;opacity:1}}
+#evShow .epic{width:100%;aspect-ratio:263/366;max-height:46vh;background:var(--pic) center/contain no-repeat;margin-bottom:10px;display:none}
+html.art #evShow .epic{display:block}
+#evShow .rcard{font-size:16px}
+#evShow .ef{font-size:14px;color:var(--dim);margin-top:10px;text-align:center}
+#flash{position:fixed;left:12px;right:12px;bottom:calc(88px + env(safe-area-inset-bottom));background:#2a1220;border:1px solid var(--bad);color:#ffd9de;border-radius:12px;padding:11px 13px;font-size:14px;z-index:40}
+#bar{position:fixed;left:0;right:0;bottom:0;z-index:31;padding:10px 12px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(21,11,33,0),var(--bg) 26%)}
+#bar .btn{margin-top:0}
+#menuSheet{position:fixed;inset:0;z-index:45;background:rgba(8,4,14,.88);display:flex;align-items:flex-end;padding:12px}
+#menuSheet .card{width:100%;max-height:86vh;overflow:auto}
+#menuSheet ul{margin:6px 0;padding-left:18px;font-size:13px;color:var(--dim)}
+.rc-h{font-weight:900;font-style:italic;font-size:22px;color:var(--hot);line-height:1.15}
+.rc-sub{font-size:14px;margin-top:3px}
+.rc-sc{display:flex;flex-direction:column;gap:6px;margin:10px 0 4px}
+.rc-p{display:flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:7px 10px;font-size:13px;flex-wrap:wrap}
+.rc-p i{width:11px;height:11px;border-radius:50%;flex:none}
+.rc-role{font-size:10px;color:var(--dim);text-transform:uppercase}
+.rc-t{flex-basis:100%;color:var(--dim)}
+.rc-d{font-size:11px;color:var(--gold);font-weight:800}
+.rc-sec{margin-top:10px}
+.rc-sec h4{margin:0 0 3px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.rc-sec ul{margin:0;padding-left:1.1em;font-size:13.5px}
+.siteL{display:flex;align-items:center;gap:6px;font-size:14px;padding:6px 0;border-top:1px solid var(--line)}
+.siteL:first-child{border-top:0}
+.siteL b{flex:1}
+#zoom{position:fixed;inset:0;z-index:50;background:rgba(8,4,14,.94);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto}
+#zoom .zin{width:min(92vw,420px)}
+#zoom .zin .rcard{font-size:16px}
+#zoom .zin .rcard .rnm{font-size:20px}
+#zoom .zin .zpic{width:100%;aspect-ratio:263/366;background:var(--pic) center/contain no-repeat;margin-bottom:10px;display:none}
+html.art #zoom .zin .zpic{display:block}
+.camppick{display:grid;grid-template-columns:96px minmax(0,1fr);gap:9px;align-items:start}
+.camppick .cpic{width:96px;aspect-ratio:263/366;border-radius:9px;background:#120c18 var(--pic) center/cover no-repeat;display:none}
+html.art .camppick .cpic{display:block}
+html:not(.art) .camppick{grid-template-columns:minmax(0,1fr)}
+/* the winner reveal, on a phone */
+#finale .hf-wrap{background-color:#0d0716}
+#finale .hf-title{font-size:min(6.2vh,9vw)}
+#finale .hf-sub{font-size:min(3.1vh,4.4vw)}
+#finale .hf-stage{gap:5vw;padding:0 4vw 9vh}
+#finale .hf-col{width:32vw}
+#finale .hf-name{font-size:min(3vh,4.4vw)}
+#finale .hf-tag{font-size:min(2.2vh,3.2vw)}
+#finale .hf-tot{font-size:min(4.4vh,7vw)}
+#finale .hf-part,#finale .hf-place{font-size:min(2.6vh,3.8vw)}
+#finale .hf-winner{font-size:min(10vh,12vw)}
+#finale .hf-winner small{font-size:min(3.4vh,4.6vw)}
+#finale .hf-skip{font-size:15px;padding:8px 14px}
+</style>
+</head>
+<body>
+
+<header>
+  <span id="dot"></span><span id="who">Radlands</span>
+  <button id="menuBtn" aria-label="Menu">&#9776; Menu</button>
+  <nav id="tabs" class="hide"></nav>
+</header>
+<div id="main"></div>
+<div id="evShow" class="hide"></div>
+<div id="bar" class="hide"></div>
+<div id="flash" class="hide"></div>
+<div id="zoom" class="hide"></div>
+<div id="menuSheet" class="hide"></div>
+<div id="finale"></div>
+
+<script src="sound.js"></script>
+<script src="finale.js"></script>
+<script src="rl-data.js"></script>
+<script src="rl-engine.js"></script>
+<script src="rl-bots.js"></script>
+<script src="rl-art.js"></script>
+<script src="rl-words.js"></script>
+<script src="solo-host.js"></script>
+<script>
+'use strict';
+(function checkVersions() {
+  const missing = [];
+  if (!window.RadData || window.RadData.VERSION !== 1) missing.push('rl-data.js');
+  if (!window.RadEngine || window.RadEngine.VERSION !== 1) missing.push('rl-engine.js');
+  if (!window.RadBots || window.RadBots.VERSION !== 1) missing.push('rl-bots.js');
+  if (!window.RadArt || window.RadArt.VERSION !== 1) missing.push('rl-art.js');
+  if (!window.RadWords || window.RadWords.VERSION !== 1) missing.push('rl-words.js');
+  if (!window.RadSolo) missing.push('solo-host.js');
+  if (!missing.length) return;
+  const show = () => {
+    document.body.innerHTML = '<div style="padding:12vw 8vw;text-align:center;font:600 18px/1.5 system-ui;color:#f6eefe">' +
+      '<div style="font-size:26px;color:#ff4fb3;margin-bottom:12px">This page is out of date</div>' +
+      'Your phone kept an old copy of ' + missing.join(' and ') + '. Reload the page (or close the tab and open it again).</div>';
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', show); else show();
+  throw new Error('stale assets: ' + missing.join(', '));
+})();
+
+const D = window.RadData, A = window.RadArt, W = window.RadWords;
+const $ = id => document.getElementById(id);
+const esc = A.esc;
+const Solo = window.RadSolo;
+const HUB_URL = '../../index.html';
+/* Phones synthesise a click ~300ms after a touch. Everything is inert for
+   this long after a send and after the screen changes shape. */
+const LOCK_MS = 420;
+
+const S = {
+  id: Solo.ME, name: '', hex: '#ff4fb3',
+  tab: 'play',         // play | table | log
+  menu: null,          // 'menu' | 'about' | 'abandon'
+  pub: null, me: null, undo: null,
+  sel: null,           // the hand card being played
+  multi: [], sinceAll: false, lockUntil: 0, shape: '', myTurn: false,
+  fin: null, finN: 0, greeted: false, paintPending: false, reelSeen: null
+};
+window.__RADPHONE = S;
+const locked = () => Date.now() < S.lockUntil;
+const lock = () => { S.lockUntil = Date.now() + LOCK_MS; };
+const buzz = ms => { if (navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) {} } };
+
+/* ---------- the table runs in this page (solo-host.js) ---------- */
+const send = m => { Solo.send(m); return true; };
+/* The table and your half of it arrive as two messages: paint once for both. */
+let paintQueued = false;
+const paintSoon = () => { if (paintQueued) return; paintQueued = S.paintPending = true; setTimeout(() => { paintQueued = S.paintPending = false; paint(); }, 0); };
+function handle(m) {
+  if (m.t !== 'msg' || !m.msg) return;
+  const msg = m.msg;
+  if (msg.t === 'hello-ok') { S.name = msg.name; S.hex = msg.hex || S.hex; return; }
+  if (msg.t === 'flash') { flash(msg.text); return; }
+  if (msg.t === 'rad') {
+    S.pub = msg;
+    if (!msg.game) S.me = null;
+    if (msg.lobby) { S.name = msg.lobby.seated[0].name; S.hex = msg.lobby.seated[0].hex; }
+    else if (msg.game) { const p = msg.game.players.find(x => x.id === S.id); if (p) { S.name = p.name; S.hex = p.hex; } }
+    if (!S.greeted && msg.screen === 'play' && Solo.S.resumed) { S.greeted = true; flash('Welcome back — your game was saved and picks up where you left it.'); }
+    paintSoon();
+    return;
+  }
+  if (msg.t === 'rad-me') { S.me = msg.me; S.undo = msg.undo || null; paintSoon(); }
+}
+let flashTimer = null;
+function flash(text) {
+  clearTimeout(flashTimer);
+  $('flash').textContent = text;
+  $('flash').classList.remove('hide');
+  buzz(40);
+  flashTimer = setTimeout(() => $('flash').classList.add('hide'), Math.max(2600, String(text).length * 45));
+}
+
+/* ---------- helpers ---------- */
+const game = () => S.pub && S.pub.game;
+const mine = () => { const g = game(); return g ? g.players.find(p => p.id === S.id) : null; };
+const theirs = () => { const g = game(); return g ? g.players.find(p => p.id !== S.id) : null; };
+const pname = id => { const g = game(); const p = g && g.players.find(x => x.id === id); return p ? p.name : '?'; };
+const myPrompt = () => {
+  if (!S.me || !S.me.prompts || !S.me.prompts.length) return null;
+  const g = game();
+  const open = S.me.prompts.filter(pr => g && g.prompts.some(x => x.n === pr.n && x.seat === S.id));
+  if (!open.length) return 'stale';
+  return open[0];
+};
+const act = a => { if (locked()) return; lock(); send({ t: 'do', a }); };
+const TICK = '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5" stroke="#1a0716" stroke-width="2.4" fill="none"/></svg>';
+const toggle = (arr, v) => { const i = arr.indexOf(v); if (i >= 0) arr.splice(i, 1); else arr.push(v); };
+const drops = n => '<span class="water">' + (n ? Array.from({ length: Math.min(n, 8) }, () => A.icon('water', 20)).join('') : '') + ' ' + n + ' water</span>';
+const picOf = id => { const c = D.card(id); return c ? A.url((c.id === 'silo' ? 'silo' : c.id) + '.webp') : ''; };
+
+/* ================================================================
+   Painting
+   ================================================================ */
+function paint() {
+  const pr = myPrompt();
+  const h = S.pub && S.pub.hold;
+  const show = S.pub && S.pub.show;
+  const shape = [S.pub && S.pub.screen, pr && pr !== 'stale' ? pr.t + pr.n : '-', h ? 'hold' : '', show ? 'ev' + show.n : ''].join('|');
+  if (shape !== S.shape) {
+    const wasTurn = S.shape.split('|')[1] && S.shape.split('|')[1].indexOf('turn') === 0;
+    const isTurn = pr && pr !== 'stale' && pr.t === 'turn';
+    const wasHold = S.shape.indexOf('|hold') >= 0;
+    S.sel = null;
+    if (!(wasTurn && isTurn)) S.multi = [];
+    /* a question for you brings you back to Play, wherever you were looking */
+    if ((pr && pr !== 'stale' && !(wasTurn && isTurn)) || (h && !wasHold)) { if (S.tab !== 'play') { S.tab = 'play'; } window.scrollTo(0, 0); }
+    S.shape = shape; lock();
+  }
+  const g0 = game();
+  const mineNow = !!(g0 && g0.phase !== 'over' && g0.active === S.id && !h);
+  if (mineNow && !S.myTurn) buzz([90, 60, 90]);
+  S.myTurn = mineNow;
+  $('dot').style.background = S.hex;
+  $('who').textContent = S.pub && S.pub.screen !== 'lobby' && g0 ? (g0.phase === 'setup' ? 'Choosing camps' : S.name + ' · turn ' + g0.turnN) : 'Radlands';
+  paintTabs(pr);
+  paintMenu();
+  paintEv();
+  const m = $('main');
+  if (!show) { $('bar').classList.add('hide'); $('bar').innerHTML = ''; }
+  if (!S.pub) { m.innerHTML = waitCard('Setting up the wasteland…', ''); return; }
+  if (S.pub.screen === 'lobby') { stopFinale(); m.innerHTML = lobbyHtml(); wire(); return; }
+  if (S.pub.screen === 'over') {
+    finaleWatch();
+    m.innerHTML = S.tab === 'log' ? logHtml() : S.tab === 'table' ? tableHtml() : overHtml();
+    wire(); return;
+  }
+  if (!g0 || !mine()) { m.innerHTML = waitCard('Hold tight', ''); return; }
+  if (!S.me) { m.innerHTML = waitCard('Dealing you in', ''); return; }
+  if (S.tab === 'table') m.innerHTML = reelHtml(pr) + tableHtml();
+  else if (S.tab === 'log') m.innerHTML = logHtml();
+  else if (h) m.innerHTML = holdHtml() + boardsHtml() + handHtml();
+  else m.innerHTML = reelHtml(pr) + sinceHtml() + undoHtml() + askHtml(pr) + boardsHtml() + (pr && pr !== 'stale' && pr.t === 'turn' ? '' : handHtml());
+  wire();
+}
+function waitCard(title, sub, extra) {
+  return '<div class="card"><div class="title">' + esc(title) + '</div>' + (sub ? '<div class="sub">' + esc(sub) + '</div>' : '') + (extra || '') + '</div>';
+}
+
+/* ---------------- tabs and the menu ---------------- */
+function paintTabs(pr) {
+  const tabs = $('tabs');
+  const playing = S.pub && (S.pub.screen === 'play' || S.pub.screen === 'over') && game() && game().phase !== 'setup';
+  if (!playing || (S.pub.hold && S.pub.screen === 'play')) { tabs.classList.add('hide'); return; }
+  tabs.classList.remove('hide');
+  const ask = pr && pr !== 'stale';
+  const list = [['play', S.pub.screen === 'over' ? 'Result' : 'Play'], ['table', 'Table'], ['log', 'Log']];
+  tabs.innerHTML = list.map(([k, l]) => '<button data-tab="' + k + '" class="' + (S.tab === k ? 'on' : '') + '">' + l +
+    (k === 'play' && ask && S.tab !== 'play' ? '<span class="pip"></span>' : '') + '</button>').join('');
+  tabs.querySelectorAll('[data-tab]').forEach(b => { b.onclick = () => { if (locked()) return; S.tab = b.dataset.tab; lock(); paint(); window.scrollTo(0, 0); }; });
+}
+function paintMenu() {
+  const el = $('menuSheet');
+  if (!S.menu) { el.classList.add('hide'); el.innerHTML = ''; return; }
+  const playing = S.pub && S.pub.screen === 'play';
+  let body;
+  if (S.menu === 'abandon') {
+    body = '<div class="title">Abandon this game?</div><div class="sub">The saved game on this phone is thrown away and you go back to the setup screen.</div>' +
+      '<button class="btn" id="mAbandonGo">Abandon the game</button><button class="btn ghost" id="mClose">Keep playing</button>';
+  } else if (S.menu === 'about') {
+    const M = D.MANIFEST;
+    const li = xs => '<ul>' + xs.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>';
+    body = '<div class="title">About this build</div><div class="sub">You against the house — Rook, a computer player who sees only what a player would. The game is saved on this phone after every move.</div>' +
+      '<h2>What is built</h2>' + li(M.built.filter(x => !/two phones/.test(x))) +
+      '<h2>What is not</h2>' + li(M.notBuilt.filter(x => !/Phones-only/.test(x))) +
+      '<h2>Rulings and readings</h2>' + li(M.decisions) +
+      '<h2>On the wording and the pictures</h2><ul><li>Radlands is designed by Daniel Piechnick and published by Roxley. The rules are theirs; every line of card text here is written fresh, and this is built to sit beside a copy of the game rather than replace one.</li>' +
+        '<li>The card pictures are Roxley’s artwork. If one fails to load, the drawn card shows instead (add ?noart to the address to play without them).</li></ul>' +
+      '<button class="btn ghost" id="mClose">Close</button>';
+  } else {
+    body = '<div class="title">Menu</div>' +
+      '<button class="btn ghost" id="mAbout">About this build</button>' +
+      (playing ? '<button class="btn ghost" id="mAbandon">Abandon this game</button>' : '') +
+      '<button class="btn ghost" id="mHub">' + (playing ? 'Back to the Game Hub (your game is saved)' : 'Back to the Game Hub') + '</button>' +
+      '<button class="btn" id="mClose">Close</button>';
+  }
+  el.innerHTML = '<div class="card">' + body + '</div>';
+  el.classList.remove('hide');
+  const on = (id, fn) => { const b = $(id); if (b) b.onclick = () => { if (!locked()) { lock(); fn(); } }; };
+  on('mClose', () => { S.menu = null; paint(); });
+  on('mAbout', () => { S.menu = 'about'; paint(); });
+  on('mAbandon', () => { S.menu = 'abandon'; paint(); });
+  on('mHub', () => { location.href = HUB_URL; });
+  on('mAbandonGo', () => { S.menu = null; S.tab = 'play'; S.sel = null; stopFinale(); send({ t: 'abandon' }); });
+  el.onclick = e => { if (e.target === el && !locked()) { S.menu = null; paint(); } };
+}
+
+/* ---------- the opening card ---------- */
+function holdHtml() {
+  $('bar').innerHTML = '<button class="btn" id="cont">Continue</button>';
+  $('bar').classList.remove('hide');
+  return '<div class="card mine">' + W.startCardHtml(game()) + '<div class="sub" style="margin-top:8px">The game waits until you have read this.</div></div>';
+}
+/* ---------- an event going off, held until Got it ---------- */
+function paintEv() {
+  const el = $('evShow');
+  const s = S.pub && S.pub.show;
+  if (!s) { el.classList.add('hide'); el.innerHTML = ''; el.dataset.n = ''; return; }
+  if (el.dataset.n === String(s.n)) return;
+  el.dataset.n = String(s.n);
+  const raid = s.card === 'raiders';
+  const q = game() && game().players.find(p => p.id !== s.by);
+  const who = s.by === S.id ? 'Your' : esc(pname(s.by)) + '’s';
+  el.innerHTML = '<div class="eh' + (raid ? ' raid' : '') + '">' + who + (raid ? ' Raiders arrive' : ' ' + esc(D.nameOf(s.card)) + ' goes off') + '</div>' +
+    '<div class="ein"><div class="epic" style="--pic:url(' + A.url((raid ? 'raiders' : D.typeOf(s.card)) + '.webp') + ')"></div>' + A.card(s.card, 'full') + '</div>' +
+    '<div class="ef">' + (raid ? (q && q.id === S.id ? 'You pick which of your camps takes the damage.' : esc(q ? q.name : '') + ' picks the camp that takes the damage.') : 'It goes off now, then into the discard pile.') + '</div>';
+  el.classList.remove('hide');
+  $('bar').innerHTML = '<button class="btn" id="evOk">Got it</button>';
+  $('bar').classList.remove('hide');
+  $('evOk').onclick = () => { if (locked()) return; lock(); send({ t: 'evok', n: s.n }); };
+  buzz(60);
+}
+
+/* ---------- the house's newest move, and since your last turn ---------- */
+function allLines() {
+  const g = game();
+  if (!g || !g.log || !g.log.length) return [];
+  const base = (g.logN || g.log.length) - g.log.length;
+  return W.lines(g.log, g, base);
+}
+function reelLine() {
+  const r = S.pub && S.pub.reel, g = game();
+  if (!r || !g || g.phase === 'over') return null;
+  const ls = allLines();
+  const L = ls.find(l => l.i === r.i);
+  if (!L) return null;
+  /* it stays until you have moved since */
+  if (ls.some(l => l.i > r.i && l.by === S.id && W.CHOSE[l.t])) return null;
+  return L;
+}
+function reelHtml(pr) {
+  const L = reelLine();
+  if (!L) return '';
+  const g = game();
+  const fresh = S.reelSeen !== L.i;
+  S.reelSeen = L.i;
+  const up = g.active === S.id ? (pr && pr !== 'stale' && pr.t === 'turn' ? ' · your turn' : '') : (g.active ? ' · ' + esc(pname(g.active)) + ' is up' : '');
+  return '<div class="reel' + (fresh ? ' fresh' : '') + '"><small>Just now' + up + '</small>' + W.html(L, g) + '</div>';
+}
+function sinceLines() {
+  const all = allLines();
+  let i = all.length - 1;
+  while (i >= 0 && all[i].by === S.id) i--;
+  const out = [];
+  let reached = false;
+  for (; i >= 0; i--) {
+    const l = all[i];
+    if (l.by === S.id) { if (W.CHOSE[l.t] || l.turn) { reached = true; break; } continue; }
+    if (l.turn) continue;
+    out.unshift(l);
+  }
+  return { lines: out, first: !reached };
+}
+function sinceHtml() {
+  const s = sinceLines();
+  const L = reelLine();
+  if (L) s.lines = s.lines.filter(l => l.i !== L.i);
+  if (!s.lines.length) return '';
+  const MAX = 6;
+  const shown = S.sinceAll ? s.lines : s.lines.slice(-MAX);
+  const hidden = s.lines.length - shown.length;
+  const g = game();
+  return '<div class="since"><div class="sh">' + (s.first ? 'So far' : 'Since your last turn') + '</div>' +
+    (hidden ? '<button class="more" id="sinceMore">' + hidden + ' earlier</button>' : '') +
+    shown.map((l, k) => '<div class="sl' + (k === shown.length - 1 ? ' new' : '') + '">' + W.html(l, g) + '</div>').join('') +
+    (S.sinceAll && s.lines.length > MAX ? '<button class="more" id="sinceLess">Show fewer</button>' : '') + '</div>';
+}
+function undoHtml() {
+  if (!S.undo) return '';
+  return '<button class="undo" id="undo"><b>Take back</b><span>' + esc(S.undo.what.replace(/\.$/, '')) + '</span></button>';
+}
+
+/* ================================================================
+   The question at the top
+   ================================================================ */
+function askHtml(pr) {
+  const g = game();
+  if (pr === 'stale') return waitCard('Hold on', 'The table is moving on.');
+  if (!pr) {
+    if (!g.prompts.length) return waitCard(g.phase === 'over' ? 'The game is over' : 'One moment…', '');
+    const x = g.prompts[0];
+    const next = g.active && g.active !== S.id && g.phase !== 'setup';
+    return waitCard(pname(x.seat) + (x.t === 'turn' ? '’s turn' : ''), x.why || '', next ? '<div class="upnext">You’re up next — plan your move.</div>' : '');
+  }
+  if (pr.t === 'turn') return turnHtml(pr);
+  return pickHtml(pr);
+}
+
+/* ---------------- the turn ---------------- */
+function turnHtml(pr) {
+  const c = S.me.can;
+  if (!c) return waitCard('Your turn', '');
+  let out = '<div class="card mine"><div class="title">Your turn</div>' + drops(c.water) +
+    (game().hg === S.id ? '<div class="sub" style="color:var(--gold)">High Ground: every one of their cards is open to you this turn.</div>' : '');
+  /* Playing a person: where it goes. */
+  if (S.sel) {
+    const h = c.hand.find(x => x.card === S.sel.card);
+    if (h && h.play) {
+      out += '<div class="hcard sel">' + A.card(h.card, 'full') + '</div>';
+      if (h.play.full) {
+        out += '<h2>Every column is full — destroy one of your people first</h2><div class="opts">' +
+          h.play.destroy.map(d => optRow('data-destroy="' + esc(d.uid) + '"', esc(d.label), 'then it costs ' + d.cost + ' water', '', true)).join('') + '</div>';
+      } else {
+        out += '<h2>Where does it go?</h2><div class="opts">' +
+          h.play.places.map(o => optRow('data-place="' + o.col + ':' + o.at + '"', esc(o.label), '', A.cost(o.cost, 20), o.cost <= c.water, 'Costs ' + o.cost + ' water there.')).join('') + '</div>';
+      }
+      out += '<button class="btn ghost" id="unsel">Back</button></div>';
+      return out;
+    }
+    S.sel = null;
+  }
+  out += '<h2>Your hand</h2>';
+  if (!c.hand.length) out += '<div class="sub">No cards in hand.</div>';
+  for (const h of c.hand) {
+    let play = '';
+    if (h.play) {
+      const lab = h.kind === 'event' ? (h.play.now ? 'Play — goes off now' : 'Play — space ' + h.play.slot) : 'Play';
+      play = '<button class="play" data-play="' + esc(h.card) + '"' + (h.play.ok ? '' : ' disabled') + '>' + A.cost(h.play.cost, 18) + lab + '</button>';
+    }
+    const junk = h.junk ? '<button data-junk="' + esc(h.card) + '">' + A.icon(h.junk.fx, 18) + 'Junk <small>' + esc(D.JUNK[h.junk.fx]) + '</small></button>' : '';
+    out += '<div class="hcard" data-zoomwrap="' + esc(h.card) + '">' + A.card(h.card, 'full') + '<div class="hbtns">' + play + junk + '</div>' +
+      (h.play && !h.play.ok && h.play.why ? '<div class="note">' + esc(h.play.why) + '</div>' : '') +
+      (h.junk && h.junk.note ? '<div class="note">Junk: ' + esc(h.junk.note) + '</div>' : '') + '</div>';
+  }
+  const use = c.use.slice().sort((a, b) => (b.ok ? 1 : 0) - (a.ok ? 1 : 0));
+  out += '<h2>Use a card</h2>' + (use.length ? use.map(u => '<button class="ab" data-use="' + esc(u.uid) + '" data-k="' + u.k + '"' + (u.ok ? '' : ' disabled') + '>' +
+    A.cost(u.cost, 22) + '<span class="lab"><b>' + esc(u.name) + (u.camp ? ' <span style="font-weight:600;color:var(--dim);font-size:11px">camp</span>' : '') + '</b><small>' + esc(u.text) + '</small>' +
+    (u.ok ? '' : '<span class="why">' + esc(u.why) + '</span>') + '</span></button>').join('') : '<div class="sub">Nothing on your side has an ability.</div>');
+  out += '<div class="row2"><button class="btn ghost" id="buy"' + (c.draw.ok ? '' : ' disabled') + '>Draw a card · 2 water</button>' +
+    '<button class="btn ghost" id="silo"' + (c.silo.ok ? '' : ' disabled') + '>' + (c.silo.ok || c.silo.why !== 'The Water Silo is already in your hand.' ? 'Take the Water Silo · 1' : 'Silo in hand') + '</button></div></div>';
+  const anyLeft = c.water > 0 && (c.use.some(u => u.ok) || c.hand.some(h => h.play && h.play.ok) || c.draw.ok);
+  $('bar').innerHTML = '<button class="btn" id="endTurn"' + (anyLeft ? ' data-warn="1" style="background:var(--panel);color:var(--ink);border:1px solid var(--line)"' : '') + '>End turn' + (c.water ? ' — ' + c.water + ' water goes to waste' : '') + '</button>';
+  $('bar').classList.remove('hide');
+  return out;
+}
+function optRow(attrs, label, small, val, ok, why, on) {
+  return '<button class="opt' + (on ? ' on' : '') + '" ' + attrs + (ok ? '' : ' disabled') + '><span class="lab"><b>' + label + '</b>' + (small ? '<small>' + small + '</small>' : '') +
+    (ok ? '' : '<span class="why">' + esc(why || '') + '</span>') + '</span><span class="val">' + (val || '') + '</span></button>';
+}
+
+/* ---------------- any other question ---------------- */
+function pickHtml(pr) {
+  let out = '<div class="card mine"><div class="title">' + esc(pr.why) + '</div>';
+  const multi = pr.multi;
+  if (multi) out += '<div class="sub">Choose ' + (pr.min === pr.max ? pr.min : (pr.min ? pr.min + ' to ' + pr.max : 'any')) + '.</div>';
+  const withCards = pr.options.some(o => o.card);
+  if (withCards) {
+    out += pr.options.map(o => {
+      const on = multi && S.multi.indexOf(o.id) >= 0;
+      const face = pr.what === 'camps'
+        ? '<div class="camppick"><div class="cpic" data-zoom="' + esc(o.card) + '" style="--pic:url(' + picOf(o.card) + ')"></div>' + A.card(o.card, 'full') + '</div>'
+        : A.card(o.card, 'full');
+      return '<div class="hcard' + (on ? ' sel' : '') + '">' + face +
+        '<div class="hbtns"><button class="' + (on ? '' : 'play') + '" data-pick="' + esc(o.id) + '"' + (o.bad ? ' disabled' : '') + '>' + (multi ? (on ? 'Chosen — tap to undo' : 'Choose') : 'Choose') + '</button></div>' +
+        (o.bad ? '<div class="note">' + esc(o.bad) + '</div>' : '') + '</div>';
+    }).join('');
+  } else {
+    out += '<div class="opts">' + pr.options.map(o => {
+      const on = multi && S.multi.indexOf(o.id) >= 0;
+      return '<button class="opt' + (on ? ' on' : '') + '" data-pick="' + esc(o.id) + '"' + (o.bad ? ' disabled' : '') + '>' + (multi ? '<span class="tick">' + (on ? TICK : '') + '</span>' : '') +
+        '<span class="lab"><b>' + esc(o.label || o.id) + '</b>' + (o.sub ? '<small>' + esc(o.sub) + '</small>' : '') + (o.bad ? '<span class="why">' + esc(o.bad) + '</span>' : '') + '</span>' +
+        (o.cost != null ? '<span class="val">' + A.cost(o.cost, 20) + '</span>' : '') + '</button>';
+    }).join('') + '</div>';
+  }
+  if (multi) {
+    $('bar').innerHTML = '<button class="btn" id="pickGo"' + (S.multi.length >= pr.min && S.multi.length <= pr.max ? '' : ' disabled') + '>' + (pr.what === 'camps' ? 'Keep these three' : 'Confirm') + ' (' + S.multi.length + ' of ' + (pr.min === pr.max ? pr.min : pr.max) + ')</button>';
+    $('bar').classList.remove('hide');
+  }
+  if (pr.skip) out += '<button class="btn ghost" id="skip">' + esc(pr.skip) + '</button>';
+  return out + '</div>';
+}
+
+/* ================================================================
+   The boards: yours, then theirs — each card with its picture
+   ================================================================ */
+function miniOf(p, e, g, myTurn) {
+  if (e.kind === 'camp') {
+    const c = p.camps.find(x => x.uid === e.uid);
+    if (c.dead) return '<div class="mini camp dead" data-zoom="' + esc(c.id) + '" style="--pic:url(' + A.url('camp_back.webp') + ')"><b>' + esc(D.nameOf(c.id)) + '</b><span class="st d">destroyed</span></div>';
+    return '<div class="mini camp' + (c.dmg ? ' dmg' : '') + '" data-zoom="' + esc(c.id) + '" style="--pic:url(' + picOf(c.id) + ')"><b>' + esc(D.nameOf(c.id)) + '</b>' +
+      (c.dmg ? '<span class="st d">damaged</span>' : (myTurn ? (c.ready ? '<span class="st r">ready</span>' : '<span class="st n">used</span>') : '<span class="st n">camp</span>')) + '</div>';
+  }
+  if (e.punk) return '<div class="mini punk' + (e.dmg ? ' dmg' : '') + '" style="--pic:url(' + A.url('punk.webp') + ')"><b>Punk</b><span class="st n">face down</span></div>';
+  return '<div class="mini' + (e.dmg ? ' dmg' : '') + '" data-zoom="' + esc(e.card) + '" style="--pic:url(' + picOf(e.card) + ')"><b>' + esc(D.nameOf(e.card)) + '</b>' +
+    (e.dmg ? '<span class="st d">damaged</span>' : (myTurn ? (e.ready ? '<span class="st r">ready</span>' : '<span class="st n">not ready</span>') : '')) + '</div>';
+}
+function queueHtml(p) {
+  return '<div class="qrow">' + p.q.map((x, k) => '<div class="' + (x ? 'full' : '') + '"' + (x && x !== 'raiders' ? ' data-zoom="' + esc(x) + '"' : '') + '><i>space ' + (k + 1) + (k === 0 ? ' · next' : '') + '</i>' + (x ? esc(D.nameOf(x)) : '') + '</div>').join('') + '</div>';
+}
+function factsHtml(p) {
+  const standing = p.camps.filter(c => !c.dead).length;
+  return '<div class="facts"><span><b>' + standing + '</b>/3 camps</span><span><b>' + p.handN + '</b> in hand</span><span>Silo ' + (p.siloInHand ? '<b>in hand</b>' : 'at home') + '</span><span>Raiders ' + (p.raidersOut ? '<b>out</b>' : 'home') + '</span></div>';
+}
+function sideHtml(p, front, g) {
+  const myTurn = g.active === p.id;
+  const cols = p.cols.map(col => {
+    const list = front ? col.slice().reverse() : col.slice();
+    const room = col.filter(e => e.kind === 'person').length;
+    const free = room < 2 ? '<div class="mini room">' + (2 - room) + ' free</div>' : '';
+    return '<div class="bcol">' + (front ? free + list.map(e => miniOf(p, e, g, myTurn)).join('') : list.map(e => miniOf(p, e, g, myTurn)).join('') + free) + '</div>';
+  }).join('');
+  return factsHtml(p) + '<div class="board">' + cols + '</div>' + queueHtml(p);
+}
+function boardsHtml() {
+  const g = game();
+  if (!g || g.phase === 'setup') return '';
+  const me = mine(), them = theirs();
+  /* theirs on top, as across a table; yours below, nearest your thumb */
+  return '<h2 style="color:' + esc(them.hex) + '">' + esc(them.name) + ' · house · ' + esc(them.level || '') + '</h2>' + sideHtml(them, false, g) +
+    '<h2>Your side</h2>' + sideHtml(me, true, g) +
+    '<div class="sub" style="margin-top:6px">Deck ' + g.deckN + (g.reshuffles ? ' (last pass — run out again and it’s a draw)' : '') + ' · discard ' + g.discN + '. Tap a card to read it.</div>';
+}
+/* Your hand, to plan with while you wait. */
+function handHtml() {
+  if (!S.me || !S.me.hand) return '';
+  const hand = S.me.hand;
+  return '<h2>Your hand · ' + hand.length + '</h2>' + (hand.length ? hand.map(c => '<div class="hcard">' + A.card(c, 'full') + '</div>').join('') : '<div class="sub">Empty.</div>');
+}
+/* The Table tab: the telly, card by card at reading size. */
+function tableHtml() {
+  const g = game();
+  if (!g || g.phase === 'setup') return waitCard('The camps are being chosen', '');
+  const side = (p, mineSide) => {
+    const cols = p.cols.map((col, k) => {
+      const camp = p.camps[k];
+      const people = col.filter(e => e.kind === 'person');
+      const cards = col.slice().reverse().map(e => {
+        if (e.kind === 'camp') { const c = p.camps.find(x => x.uid === e.uid); return '<div class="hcard" data-zoom="' + esc(c.id) + '">' + A.card(c.id, 'full', { dmg: c.dmg, dead: c.dead }) + '</div>'; }
+        const front = col.indexOf(e) === col.length - 1;
+        return '<div class="pos">' + (front ? 'In front' : 'Behind') + '</div><div class="hcard"' + (e.punk ? '' : ' data-zoom="' + esc(e.card) + '"') + '>' + A.card(e.card, 'full', { punk: e.punk, dmg: e.dmg }) + '</div>';
+      }).join('');
+      return '<div class="tcol"><h4>Column ' + (k + 1) + ' · ' + esc(D.nameOf(camp.id)) + ' · ' + people.length + ' of 2</h4>' + cards + '</div>';
+    }).join('');
+    const q = p.q.map((x, k) => x ? '<div class="pos">Event queue, space ' + (k + 1) + '</div><div class="hcard">' + A.card(x, 'full') + '</div>' : '').join('');
+    return '<h2 style="color:' + esc(p.hex) + '">' + (mineSide ? 'Your side' : esc(p.name) + ' · house') + '</h2>' + factsHtml(p) + cols + q;
+  };
+  return side(theirs(), false) + side(mine(), true) +
+    '<h2>The deck</h2><div class="sub">' + g.deckN + ' cards' + (g.reshuffles ? ', the last pass' : '') + '. Discard pile: ' + g.discN + (g.discTop ? ', ' + esc(D.nameOf(g.discTop)) + ' on top' : '') + '.</div>';
+}
+function logHtml() {
+  const g = game();
+  const ls = allLines().slice().reverse();
+  return '<h2>The log</h2><div class="card">' + (ls.length ? ls.map(l => '<div class="logl' + (l.turn ? ' tl' : '') + '">' + W.html(l, g) + '</div>').join('') : '<div class="sub">Nothing yet.</div>') + '</div>';
+}
+
+/* ---------------- lobby ---------------- */
+function lobbyHtml() {
+  const lv = S.pub.lobby;
+  const seg = (key, list, cur) => '<div class="seg">' + list.map(([k, l]) => '<button class="' + (String(k) === String(cur) ? 'on' : '') + '" data-opt="' + key + '" data-v="' + esc(k) + '">' + esc(l) + '</button>').join('') + '</div>';
+  return '<div class="card"><div class="title">Radlands</div><div class="sub">A duel in the wasteland, you against Rook. Guard your three camps with people, tick events down, raid — and burn all three of Rook’s.</div></div>' +
+    '<h2>Your name</h2><div class="namein"><input id="nameIn" maxlength="14" value="' + esc(lv.name) + '" autocomplete="off"><button class="btn" style="width:auto;margin:0;padding:10px 16px" id="nameGo">Save</button></div>' +
+    '<h2>Your colour</h2><div class="swatch">' + lv.colours.map(c => '<button aria-label="' + esc(c.id) + '" data-opt="colour" data-v="' + esc(c.id) + '" class="' + (c.id === lv.colour ? 'on' : '') + '" style="background:' + esc(c.hex) + '"></button>').join('') + '</div>' +
+    '<h2>Camps</h2>' + seg('setup', [['draft', 'Draft: six dealt, keep three'], ['book', 'The book’s first game']], lv.setup) +
+    '<h2>Goes first</h2>' + seg('first', [['random', 'Coin flip'], ['you', 'You'], ['house', 'Rook']], lv.first) +
+    '<h2>How well Rook plays</h2>' + seg('level', [['easy', 'Easy'], ['medium', 'Medium'], ['hard', 'Hard']], lv.level) +
+    '<h2>Pace</h2>' + seg('pace', [['slow', 'Slow'], ['relaxed', 'Relaxed'], ['brisk', 'Brisk']], lv.pace) +
+    '<h2>Sound</h2>' + seg('sound', [['off', 'Off'], ['on', 'On']], lv.sound ? 'on' : 'off') +
+    '<button class="btn" id="go">Into the wasteland</button>' +
+    '<button class="btn ghost" id="toHub">Back to the Game Hub</button>';
+}
+
+/* ---------------- the end ---------------- */
+function stopFinale() {
+  if (S.fin && S.fin.ctl) { try { S.fin.ctl.stop(); } catch (e) {} }
+  S.fin = null;
+  $('finale').innerHTML = '';
+}
+function finaleWatch() {
+  const g = game();
+  if (!g || !g.result || S.fin || !window.HubFinale) return;
+  const R = g.result;
+  const draw = R.how === 'deck';
+  const fin = S.fin = { n: ++S.finN, stage: 'title', ctl: null };
+  const opts = S.pub.opts || {};
+  const scale = (({ slow: 1.3, relaxed: 1, brisk: 0.7 })[opts.pace] || 1) * (Solo.T.finaleMul != null ? Solo.T.finaleMul : 1);
+  const camp = r => '<div style="width:120px;height:120px;border-radius:50%;background:' + esc(r.hex) + ';display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px ' + esc(r.hex) + '">' + A.icon('camp', 80) + '</div>';
+  fin.ctl = HubFinale.play({
+    root: $('finale'), title: draw ? 'The deck runs dry' : 'The last camp falls', sub: draw ? 'Twice through the deck and nobody standing over the other.' : 'Smoke over the wasteland.', tone: draw ? 'confetti' : 'fireworks',
+    categories: [{ key: 'standing', label: 'Camps still standing' }, { key: 'people', label: 'People on the board' }, { key: 'razed', label: 'Their camps burned' }],
+    decider: 'razed', deciderLine: 'And the camps each one burned',
+    players: R.rows.map(r => ({ id: r.id, name: r.name, hex: r.hex, figure: camp(r), parts: { standing: r.standing, people: r.people, razed: r.razed },
+      total: r.standing + r.people + r.razed, place: r.won || r.draw ? 1 : 2, won: r.won || r.draw, tag: r.bot ? 'house · ' + r.level : 'you' })),
+    places: false, winSmall: draw ? 'a draw — the deck ran out twice' : 'burned all three camps',
+    scale, sound: window.HubSound && opts.sound ? HubSound : null,
+    onStage(stage) { if (S.fin === fin) { fin.stage = stage; if (stage === 'winner') { const r = R.rows.find(x => x.id === S.id); buzz(r && r.won ? [200, 90, 200, 90, 500] : 120); } } },
+    onDone() {
+      if (S.fin !== fin) return;
+      fin.stage = 'table';
+      setTimeout(() => { if (S.fin === fin && fin.ctl) fin.ctl.stop(); $('finale').innerHTML = ''; paint(); window.scrollTo(0, 0); }, 0);
+    }
+  });
+}
+function overHtml() {
+  const g = game(), R = g && g.result;
+  if (!R) return waitCard('The count', '');
+  if (S.fin && S.fin.stage !== 'table') return waitCard('The count', 'Smoke over the wasteland…');
+  const me = R.rows.find(r => r.id === S.id);
+  const title = R.how === 'deck' ? 'A draw — the deck ran dry' : me && me.won ? 'You burned all three camps' : esc(R.name) + ' burned all three of your camps';
+  return '<div class="card mine"><div class="title">' + title + '</div>' +
+    '<div class="sub">After ' + R.turnN + ' turns.</div>' +
+    R.rows.map(r => '<div class="siteL"><b style="color:' + esc(r.hex) + '">' + esc(r.name) + (r.id === S.id ? ' (you)' : ' · house · ' + esc(r.level || '')) + '</b><span class="sub">' + r.standing + ' camps standing · burned ' + r.razed + ' · ' + r.people + ' people</span></div>').join('') + '</div>' +
+    '<button class="btn" id="again">Play again</button>' +
+    '<button class="btn ghost" id="toHub">Back to the Game Hub</button>';
+}
+
+/* ================================================================
+   Wiring every button of the current paint
+   ================================================================ */
+function wire() {
+  const on = (sel, fn) => document.querySelectorAll(sel).forEach(x => { x.onclick = ev => { ev.stopPropagation(); if (!locked()) fn(x, ev); }; });
+  const pr = myPrompt();
+  const P = pr && pr !== 'stale' ? pr : null;
+  on('#cont', () => { lock(); send({ t: 'cont' }); });
+  on('#undo', () => { lock(); send({ t: 'undo' }); });
+  on('#sinceMore', () => { S.sinceAll = true; paint(); });
+  on('#sinceLess', () => { S.sinceAll = false; paint(); });
+  on('#toHub', () => { location.href = HUB_URL; });
+  on('#again', () => { lock(); S.tab = 'play'; stopFinale(); send({ t: 'again' }); });
+  on('#go', () => { lock(); S.tab = 'play'; if (window.HubSound) HubSound.unlock(); send({ t: 'start' }); });
+  on('#nameGo', () => { send({ t: 'opt', key: 'name', value: $('nameIn').value }); });
+  const ni = $('nameIn'); if (ni) ni.onchange = () => send({ t: 'opt', key: 'name', value: ni.value });
+  on('[data-opt]', x => send({ t: 'opt', key: x.dataset.opt, value: x.dataset.v }));
+  document.querySelectorAll('[data-zoom]').forEach(x => { x.onclick = ev => { ev.stopPropagation(); zoom(x.dataset.zoom); }; });
+  $('zoom').onclick = () => $('zoom').classList.add('hide');
+  if (!P) return;
+  const n = P.n;
+  if (P.t === 'turn') {
+    on('[data-play]', x => {
+      const c = S.me.can.hand.find(h => h.card === x.dataset.play);
+      if (!c) return;
+      if (c.kind === 'event') return act({ t: 'play', n, card: c.card });
+      if (!c.play.full && c.play.places.filter(o => o.cost <= S.me.can.water).length === 1) { const o = c.play.places.find(o2 => o2.cost <= S.me.can.water); return act({ t: 'play', n, card: c.card, col: o.col, at: o.at }); }
+      S.sel = { card: c.card }; lock(); paint(); window.scrollTo(0, 0);
+    });
+    on('[data-place]', x => { const [col, at] = x.dataset.place.split(':').map(Number); act({ t: 'play', n, card: S.sel.card, col, at }); });
+    on('[data-destroy]', x => act({ t: 'play', n, card: S.sel.card, destroy: x.dataset.destroy }));
+    on('#unsel', () => { S.sel = null; lock(); paint(); });
+    on('[data-junk]', x => {
+      if (x.dataset.armed !== '1' && x.dataset.junk !== 'silo') { x.dataset.armed = '1'; x.innerHTML = 'Tap again to junk it'; return; }
+      act({ t: 'junk', n, card: x.dataset.junk });
+    });
+    on('[data-use]', x => act({ t: 'use', n, uid: x.dataset.use, k: +x.dataset.k }));
+    on('#buy', () => act({ t: 'draw', n }));
+    on('#silo', () => act({ t: 'silo', n }));
+    on('#endTurn', x => {
+      if (x.dataset.warn === '1' && x.dataset.armed !== '1') { x.dataset.armed = '1'; x.textContent = 'Tap again to end your turn'; return; }
+      act({ t: 'end', n });
+    });
+    return;
+  }
+  on('[data-pick]', x => {
+    if (P.multi) {
+      const id = x.dataset.pick;
+      if (S.multi.indexOf(id) < 0 && S.multi.length >= P.max) return;
+      toggle(S.multi, id);
+      return paint();
+    }
+    act({ t: 'pick', n, id: x.dataset.pick });
+  });
+  on('#pickGo', () => act({ t: 'pick', n, ids: S.multi.slice() }));
+  on('#skip', () => act({ t: 'skip', n }));
+}
+function zoom(id) {
+  const z = $('zoom');
+  z.innerHTML = '<div class="zin"><div class="zpic" style="--pic:url(' + picOf(id) + ')"></div>' + A.card(id, 'full') + '<div class="sub" style="text-align:center;margin-top:10px">Tap anywhere to close</div></div>';
+  z.classList.remove('hide');
+}
+
+document.head.insertAdjacentHTML('beforeend', A.styles());
+if (!/[?&]noart/.test(location.search)) A.probe();
+if (window.HubSound) HubSound.armUnlock();
+$('menuBtn').onclick = () => { if (locked()) return; S.menu = S.menu ? null : 'menu'; paint(); };
+/* Put the phone down and the house stops: nothing moves while you are away. */
+document.addEventListener('visibilitychange', () => send({ t: 'vis', hidden: document.visibilityState === 'hidden' }));
+Solo.attach(handle);
+</script>
+</body>
+</html>
