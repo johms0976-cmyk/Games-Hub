@@ -241,7 +241,9 @@
     refill(g, true);
     if (side === 'B') {
       g.phase = 'nations';
-      g.pool = shuffle(D.NATIONS.filter(x => dyn || !x.dyn).map(x => x.id), rng).slice(0, n);
+      /* The rulebook deals as many nations as players; `choose: 'all'` offers
+         every nation (the house then picks at random from what is left). */
+      g.pool = shuffle(D.NATIONS.filter(x => dyn || !x.dyn).map(x => x.id), rng).slice(0, opts.choose === 'all' ? undefined : n);
       /* Reverse player order picks. */
       for (let k = n - 1; k >= 0; k--) g.steps.push({ k: 'pickNation', i: g.order[k] });
     } else {
@@ -1755,9 +1757,10 @@
       const extraFood = all().reduce((t, q) => t + sumFx(q, 'allDefeatFood'), 0);
       /* Mongolia: every defeat costs 2 more of the War's own resource. */
       const extraSame = all().reduce((t, q) => t + sumFx(q, 'allDefeatExtra'), 0);
-      const lost = [];
+      const lost = [], strs = {};
       for (const p of byOrder()) {
         const s = cap(str(p), 40) + sumFx(p, 'warStr') + sumFx(p, 'warStrPerMil') * milWorkersOf(p);
+        strs[p.id] = s;
         if (s >= g.war.str) {
           p.warLoss = null;
           /* Poland: a War, and not defeated. */
@@ -1792,7 +1795,7 @@
         for (const wid of p.wonders.slice()) if (wid && C(wid).fx.some(f => f.removeIfDefeated)) { p.wonders.splice(p.wonders.indexOf(wid), 1); g.discard.push(wid); log({ t: 'removed', by: p.id, card: wid, why: 'defeated' }); }
         syncAdvisors(p);
       }
-      log({ t: 'war', card: g.war.card, str: g.war.str, by: g.war.by, defeated: lost });
+      log({ t: 'war', card: g.war.card, str: g.war.str, by: g.war.by, defeated: lost, strs });
     }
 
     /* ---------------- the events ---------------- */

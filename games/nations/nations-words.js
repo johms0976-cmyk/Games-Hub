@@ -205,7 +205,7 @@
     for (const e of events) {
       if (e.t === 'produced') card.prod.push({ id: e.by, got: e.got });
       if (e.t === 'revolt') card.prod.push({ id: e.by, got: e.got, revolt: e.stab });
-      if (e.t === 'war') card.war = e.none ? { none: true } : { card: e.card, str: e.str, by: e.by, defeated: [] };
+      if (e.t === 'war') card.war = e.none ? { none: true } : { card: e.card, str: e.str, by: e.by, defeated: (e.defeated || []).slice(), strs: e.strs || null };
       if (e.t === 'defeat') (card.warLoss = card.warLoss || []).push({ id: e.by, got: e.got, str: e.str });
       if (e.t === 'gain' && e.why === 'event') {
         let row = card.events.find(r => r.name === e.name);
@@ -363,8 +363,10 @@
         '<div class="rc-row rc-note">' + (o.frozen ? 'This round’s event keeps the order as it was.' : same ? 'Nobody changes places.' : 'Next round is played in this order.') + '</div>';
     } else if (page === 'war') {
       if (!card.war || card.war.none) body = '<div class="rc-row">No War was bought this round — nobody fights.</div>';
-      else body = '<div class="rc-row"><b>' + esc(x.C(card.war.card)) + '</b>&nbsp;at strength ' + card.war.str + ', declared by ' + esc(P(card.war.by).name) + '.</div>' +
-        (card.warLoss && card.warLoss.length ? table(card.warLoss, r => '<tr><td>' + dot(r.id) + esc(P(r.id).name) + ' <em>defeated at ' + r.str + '</em></td><td>' + gainsHtml(r.got, A) + '</td></tr>') : '<div class="rc-row">Nobody was weaker than it.</div>');
+      /* The War acted out (nations-war.js), then the same words as ever below it. The words name
+         the defeated, so with a scene they wait until the dust has settled. */
+      else body = (root.NationsWar ? root.NationsWar.html(card, pub, A) : '') + '<div class="nw-after"><div class="rc-row"><b>' + esc(x.C(card.war.card)) + '</b>&nbsp;at strength ' + card.war.str + ', declared by ' + esc(P(card.war.by).name) + '.</div>' +
+        (card.warLoss && card.warLoss.length ? table(card.warLoss, r => '<tr><td>' + dot(r.id) + esc(P(r.id).name) + ' <em>defeated at ' + r.str + '</em></td><td>' + gainsHtml(r.got, A) + '</td></tr>') : '<div class="rc-row">Nobody was weaker than it.</div>') + '</div>';
     } else if (page === 'events') {
       const ev = card.event ? D.event(card.event) : null;
       const rows = card.events.map(e => {

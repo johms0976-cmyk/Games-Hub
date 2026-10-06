@@ -38,12 +38,12 @@
   const DECKS = { base: ['base'], adv: ['base', 'adv'], exp: ['base', 'adv', 'exp'] };
   const OPTS = {
     decks: ['base', 'adv', 'exp'], side: ['A', 'B'], diff: D.DIFFICULTY.map(d => d.id),
-    pace: ['slow', 'relaxed', 'brisk'], dyn: ['off', 'on'], promo: ['off', 'on']
+    pace: ['slow', 'relaxed', 'brisk'], dyn: ['off', 'on'], promo: ['off', 'on'], choose: ['dealt', 'all']
   };
 
   const S = {
     screen: 'lobby', g: null,
-    opts: Object.assign({ table: 3, decks: 'base', side: 'A', diff: 'prince', pace: 'relaxed', ages: 4, dyn: 'off', promo: 'off' }, readJSON(OPTS_KEY) || {}),
+    opts: Object.assign({ table: 3, decks: 'base', side: 'A', diff: 'prince', pace: 'relaxed', ages: 4, dyn: 'off', promo: 'off', choose: 'dealt' }, readJSON(OPTS_KEY) || {}),
     /* Lines read "<name> buys …", so the default must take a verb in the third person. */
     name: (get(NAME_KEY) || 'Your Majesty').slice(0, 14),
     gameOpts: null, thinking: {}, hold: null, lastRound: 0, lastEvent: 0, roundVP: {},
@@ -82,7 +82,7 @@
     return {
       seated: [{ id: ME, name: S.name, hex: YOU_HEX }],
       house: HOUSE.slice(0, size - 1).map(b => ({ name: b.name, hex: b.hex, house: true })),
-      size, decks: S.opts.decks, side: S.opts.side, diff: S.opts.diff, pace: S.opts.pace, ages: S.opts.ages, dyn: S.opts.dyn, promo: S.opts.promo,
+      size, decks: S.opts.decks, side: S.opts.side, diff: S.opts.diff, pace: S.opts.pace, ages: S.opts.ages, dyn: S.opts.dyn, promo: S.opts.promo, choose: S.opts.choose,
       watching: [], minSize: 2, name: S.name
     };
   }
@@ -111,7 +111,7 @@
     const lv = lobbyView();
     const players = [{ id: ME, name: S.name, hex: YOU_HEX }]
       .concat(lv.house.map((b, k) => ({ id: 'house' + (k + 1), name: b.name, hex: b.hex, bot: true })));
-    S.createOpts = { players, sets: DECKS[S.opts.decks], side: S.opts.side, difficulty: S.opts.diff, ages: S.opts.ages, dyn: S.opts.dyn === 'on', promo: S.opts.promo === 'on',
+    S.createOpts = { players, sets: DECKS[S.opts.decks], side: S.opts.side, difficulty: S.opts.diff, ages: S.opts.ages, dyn: S.opts.dyn === 'on', promo: S.opts.promo === 'on', choose: S.opts.choose,
       seed: (Date.now() ^ (Math.random() * 1e9)) >>> 0, show: true };
     S.g = E.create(S.createOpts);
     S.gameOpts = Object.assign({}, S.opts, { table: players.length });

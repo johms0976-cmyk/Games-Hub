@@ -185,7 +185,7 @@ button{font:inherit}
 .dyns .face{gap:4px}
 .npick{display:flex;flex-direction:column;gap:8px}
 .npick .opt{flex-direction:column;align-items:stretch}
-.npick .board{width:100%;border-radius:8px;display:block;aspect-ratio:3000/1583;background:#2a2219 center/cover no-repeat}
+.npick .board{width:100%;border-radius:8px;display:block;aspect-ratio:3000/1583;background:#2a2219;object-fit:cover}
 .npick .dl{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--dim);margin-top:2px}
 .npick .dl b{color:var(--ink)}
 .tag-dyn{display:inline-block;background:#2a4f8f;color:#fff;border-radius:6px;padding:0 6px;font-size:11px;font-weight:800;margin-left:4px;vertical-align:middle}
@@ -209,6 +209,7 @@ button{font:inherit}
 <script src="nations-bots.js"></script>
 <script src="nations-art.js"></script>
 <script src="nations-words.js"></script>
+<script src="nations-war.js"></script>
 <script src="solo-host.js"></script>
 <script>
 'use strict';
@@ -346,6 +347,7 @@ function paint() {
   else if (S.tab === 'nations') m.innerHTML = reelHtml() + nationsTabHtml();
   else if (S.tab === 'log') m.innerHTML = logTabHtml();
   else m.innerHTML = phaseHtml() + reelHtml() + askHtml(pr) + undoHtml() + sinceHtml(pr) + eventHtml() + nationHtml();
+  if (window.NationsWar) NationsWar.wake(m);
   wire();
 }
 
@@ -515,6 +517,7 @@ const LOBBY_OPTS = {
   side: [['A', 'A sides', 'Every nation the same'], ['B', 'B sides', 'Each nation different']],
   dyn: [['off', 'Base game', ''], ['on', 'Dynasties', '12 more nations, dynasties, Turmoil, Natural Wonders']],
   promo: [['off', 'No promos', ''], ['on', 'Promo cards', 'Kremlin, Tesla, Mechanical Turk and more']],
+  choose: [['dealt', 'Dealt', 'As many as players, as the rulebook says'], ['all', 'Any nation', 'Choose from every B-side nation']],
   diff: D.DIFFICULTY.map(d => [d.id, d.name, 'Growth gives ' + d.bonus]),
   ages: [[4, 'Full game', 'Four ages, eight rounds'], [2, 'Short game', 'Two ages, four rounds']],
   pace: [['slow', 'Slow', ''], ['relaxed', 'Relaxed', ''], ['brisk', 'Brisk', '']]
@@ -534,6 +537,7 @@ function lobbyHtml() {
     '<h2>Progress cards</h2><div class="opts" style="margin-top:0">' + seg('decks') + '</div>' +
     '<h2>Expansion</h2><div class="opts" style="margin-top:0">' + seg('dyn') + '</div>' +
     '<h2>Player boards</h2><div class="row2">' + seg('side') + '</div>' + (lv.dyn === 'on' ? '<div class="sub">Dynasties is played on the B sides.</div>' : '') +
+    (lv.side === 'B' ? '<h2>Nations to choose from</h2><div class="row2">' + seg('choose') + '</div>' : '') +
     '<h2>Promos</h2><div class="row2">' + seg('promo') + '</div>' +
     '<h2>Difficulty</h2><div class="row2">' + seg('diff') + '</div>' +
     '<h2>Length</h2><div class="row2">' + seg('ages') + '</div>' +
@@ -611,7 +615,7 @@ function nationPickHtml(pr) {
         const n = D.NATIONS.find(x => x.id === o.id);
         const b = n.B;
         const dyns = (o.dynasties || []).map(id => D.dynasty(id)).map(d => '<span><b>' + esc(d.name) + '</b> — ' + esc(d.text) + '</span>').join('');
-        return '<button class="opt" data-nation="' + o.id + '">' + (n.dyn ? '<span class="board" style="background-image:url(' + A.boardUrl(n.id) + ')"></span>' : '') +
+        return '<button class="opt" data-nation="' + o.id + '">' + (n.dyn ? '<img class="board" loading="lazy" alt="" src="' + A.boardUrl(n.id) + '">' : '') +
           '<span class="lab"><b>' + esc(n.name) + (n.dyn ? '<span class="tag-dyn">D</span>' : '') + '</b><small>' + esc(b.specialText) + ' · starts ' + b.res.gold + ' gold, ' + b.res.stone + ' stone, ' + b.res.food + ' food, ' + b.res.vp + ' VP, ' + b.workers + ' workers</small>' +
           '<span class="dl">' + dyns + '</span></span></button>';
       }).join('') + '</div></div>';

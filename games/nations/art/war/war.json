@@ -1,0 +1,31 @@
+{
+ "cam": {
+  "x": 0.0,
+  "y": -9.5,
+  "z": 3.4,
+  "pitch": 8.0,
+  "lens": 32.0,
+  "sensor": 36.0
+ },
+ "w": 1600,
+ "h": 900,
+ "cell": 512,
+ "px_per_m": 150.0,
+ "feet": [
+  0.42,
+  0.86
+ ],
+ "az": 40.0,
+ "el": 11.0,
+ "frames": [
+  "stand",
+  "march1",
+  "march2",
+  "march3",
+  "march4",
+  "strike",
+  "cheer",
+  "fall"
+ ],
+ "strip": 400
+}
