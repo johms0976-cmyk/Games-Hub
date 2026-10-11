@@ -150,6 +150,17 @@ const GAMES = [
     status: "playable",
   },
   {
+    id: "gwent",
+    title: "Gwent: The Path",
+    subtitle: "Solo deck-builder — the Witcher card game as a run: three acts, three bosses, three lives",
+    category: "card",
+    players: "1",
+    duration: "45–90 min",
+    icon: "🃏",
+    accentColor: "#e0b456",
+    status: "playable",
+  },
+  {
     id: "five-hundred",
     title: "500",
     subtitle: "The classic trick-taking game",

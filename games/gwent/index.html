@@ -1,0 +1,1153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gwent — The Path</title>
+<style>
+:root{
+  --bg:#120c07; --panel:#241a10; --panel2:#1a130b; --line:#4a3820; --ink:#f4ecd8; --dim:#bfae8c;
+  --gold:#e0b456; --good:#6fcf7f; --bad:#ff6a6a; --foe:#c8343a;
+  --th:clamp(38px,5.5vh,96px);           /* a unit on a row: height */
+  --hw:clamp(54px,9.6vw,112px);          /* a card in hand: width */
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden],.hide{display:none !important}
+html,body{margin:0;min-height:100%}
+body{background:radial-gradient(120% 80% at 50% 0%,#2a1d10 0%,var(--bg) 60%) fixed,var(--bg);color:var(--ink);
+  font:16px/1.4 Georgia,"Times New Roman",serif;overflow-x:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:default}
+.sans{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,h3{margin:0;font-weight:800}
+.wrap{max-width:1040px;margin:0 auto;padding:12px 16px 120px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--gold);border:0;color:#1b140c;font-weight:800;font-size:17px;border-radius:14px;padding:13px 20px;min-height:48px}
+.btn:disabled{opacity:.4}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--dim);font-weight:600;font-size:15px}
+.btn.warn{background:#6a2a14;color:#ffd9b0}
+.btn.wide{width:100%}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px}
+.dim{color:var(--dim)}
+.gold{color:var(--gold)}
+.why{color:#ffab9a;font-size:13px}
+.delta{font-family:system-ui,sans-serif;font-size:13px;font-weight:800;white-space:nowrap}
+.delta .me{color:var(--good)} .delta .them{color:#ff9a8a} .delta .zero{color:var(--dim)}
+.rar{display:inline-block;font:700 10px/1 system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;padding:3px 6px;border-radius:5px;border:1px solid}
+.rar.common{color:#cfc2a4;border-color:#6a5a40}
+.rar.uncommon{color:#8fd0ff;border-color:#3a6a90}
+.rar.rare{color:#f1c75b;border-color:#a07a2a}
+.rar.legendary{color:#ff9a5a;border-color:#b0502a;background:rgba(176,80,42,.15)}
+.up-tag{position:absolute;right:4%;top:3%;z-index:4;background:#1d6a2c;color:#d8ffe0;font:800 11px/1 system-ui,sans-serif;padding:3px 5px;border-radius:6px;border:1px solid #6fdc84}
+.slot{position:relative;display:inline-block}
+/* This public copy ships no card pictures: never ask for them. */
+.gc .gpic{display:none !important}
+/* Where a face is sized by its container, the wrapper must take the width. */
+.offer .it .slot,.deckgrid .dc .slot{display:block;width:100%}
+.offer .it .slot{max-width:170px}
+
+/* ---------- top bar ---------- */
+#top{position:sticky;top:0;z-index:30;background:linear-gradient(180deg,#120c07 70%,rgba(18,12,7,0));padding:8px 16px 10px}
+#top .in{max-width:1040px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#top .crest{width:30px;height:30px;border-radius:50%;flex:none;border:2px solid #000;box-shadow:0 0 0 1px var(--gold) inset}
+#top .who{font-weight:800;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#top .who small{display:block;font-weight:400;color:var(--dim);font-size:12px}
+#top .stat{display:flex;align-items:center;gap:5px;font:800 15px/1 system-ui,sans-serif}
+#top .stat svg{width:20px;height:20px}
+#top .lives{display:flex;gap:2px}
+#top .lives svg{width:19px;height:19px}
+#top .grow{flex:1}
+#top .tb{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font:700 13px/1.1 system-ui,sans-serif;display:flex;align-items:center;gap:6px;min-height:36px}
+#top .trk{display:flex;gap:4px;flex-wrap:wrap}
+#top .trk button{width:30px;height:30px;border-radius:50%;background:#2a1f12;border:1px solid #7a5a2a;padding:4px;display:flex}
+#top .trk svg{width:100%;height:100%}
+#top .trkn{display:none}
+@media (max-width:640px){ #top{padding:6px 10px 8px} #top .in{flex-wrap:nowrap;gap:8px} #top .who,#top .where{display:none} #top .trk{display:none} #top .trkn{display:flex} #top .tb{padding:5px 8px} #top .lives svg{width:17px;height:17px} }
+
+/* ---------- title and choosing ---------- */
+.title-hero{text-align:center;padding:6vh 0 3vh}
+.title-hero h1{font-size:clamp(40px,8vw,76px);letter-spacing:.04em;color:var(--gold);text-shadow:0 4px 24px rgba(224,180,86,.25)}
+.title-hero h1 small{display:block;font-size:.38em;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);font-weight:600;margin-bottom:6px}
+.title-hero p{max-width:560px;margin:14px auto 0;color:var(--dim)}
+.menu{display:flex;flex-direction:column;gap:10px;max-width:360px;margin:0 auto}
+.choices{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:10px}
+.choice{text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px;color:var(--ink);display:flex;flex-direction:column;gap:4px;min-height:48px}
+.choice b{font-size:17px}
+.choice small{color:var(--dim);font-size:13px}
+.choice.on{border-color:var(--gold);background:rgba(224,180,86,.12)}
+.choice.fac{border-left:6px solid var(--fc)}
+.ldrs{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-top:10px}
+.ldr{display:flex;gap:10px;align-items:center;text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:8px 10px;color:var(--ink)}
+.ldr .gc{width:58px;font-size:8.5px;flex:none}
+.ldr b{display:block}
+.ldr small{color:var(--dim);font-size:12.5px}
+.ldr.on{border-color:var(--gold);background:rgba(224,180,86,.12)}
+.sect{margin:22px 0 6px;font:700 12px/1.2 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+input.nm{font:inherit;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:12px;width:100%;max-width:360px}
+.best{max-width:520px;margin:26px auto 0;font-size:14px}
+.best li{color:var(--dim);margin:3px 0}
+.best b{color:var(--ink)}
+
+/* ---------- the map ---------- */
+.mapwrap{position:relative;max-width:520px;margin:0 auto}
+.mapsvg{width:100%;height:auto;display:block;max-height:max(440px,calc(100vh - 150px))}
+.mapsvg .edge{stroke:#5a4630;stroke-width:3;stroke-dasharray:2 7;stroke-linecap:round;fill:none}
+.mapsvg .edge.walked{stroke:var(--gold);stroke-dasharray:none;stroke-width:3.5}
+.mapsvg .nd circle.bgc{fill:#2a1f12;stroke:#6a5030;stroke-width:2}
+.mapsvg .nd.done circle.bgc{fill:#3a2c18;stroke:var(--gold)}
+.mapsvg .nd.can{cursor:pointer}
+.mapsvg .nd.can circle.bgc{stroke:var(--gold);stroke-width:3;fill:#3a2a12}
+.mapsvg .nd.can .ring{fill:none;stroke:var(--gold);stroke-width:2;animation:pulse 1.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.mapsvg .nd.dead{opacity:.45}
+.mapsvg .nd.here circle.bgc{fill:var(--gold)}
+@keyframes pulse{0%,100%{opacity:.25;transform:scale(1)}50%{opacity:1;transform:scale(1.18)}}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;font:13px system-ui,sans-serif;color:var(--dim);margin:6px 0 10px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend svg{width:18px;height:18px}
+.bossline{text-align:center;margin:4px 0 8px;font-size:14px;color:var(--dim)}
+.bossline b{color:var(--ink)}
+
+/* ---------- screens between battles ---------- */
+.scr{max-width:820px;margin:0 auto}
+.scr h2{font-size:clamp(24px,4.4vw,34px);color:var(--gold)}
+.scr .lede{color:var(--dim);margin:6px 0 12px}
+.offer{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,40vw),1fr));gap:14px;margin:12px 0}
+.offer .it{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--ink);text-align:center}
+.offer .it.on{border-color:var(--gold);background:rgba(224,180,86,.14)}
+.offer .it .gc{width:100%;max-width:170px;font-size:clamp(12px,2.4vw,19px)}
+.offer .it .tx{font-size:12.5px;color:var(--dim);line-height:1.3}
+.offer .it.sold{opacity:.35}
+.offer .price{font:800 15px/1 system-ui,sans-serif;color:var(--gold);display:flex;align-items:center;gap:4px}
+.offer .price svg{width:16px;height:16px}
+.offer .it.trk .ic{width:64px;height:64px;border-radius:50%;background:#2a1f12;border:2px solid #a07a2a;padding:10px}
+.result{margin:12px 0;padding:12px 14px;border-radius:12px;background:rgba(224,180,86,.1);border:1px solid rgba(224,180,86,.5)}
+.opts{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:14px;padding:12px 14px;min-height:52px}
+.opt:disabled{opacity:.45}
+.opt .lab{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.opt .lab small{color:var(--dim);font-size:13px;line-height:1.3}
+.opt .val{flex:none}
+.opt .ic{width:34px;height:34px;flex:none}
+.foebox{display:flex;gap:14px;align-items:center;margin:10px 0}
+.foebox .gc{width:96px;font-size:13px;flex:none}
+.foebox .tx{flex:1;min-width:0}
+.foebox .tx b{font-size:20px}
+.foebox .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{font:700 12px/1 system-ui,sans-serif;padding:5px 8px;border-radius:999px;background:#2e2316;border:1px solid #5a4630;color:var(--ink)}
+.chip.red{border-color:#8a3030;color:#ffb0a8}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:25;padding:10px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(18,12,7,0),var(--bg) 30%)}
+.bar .in{max-width:820px;margin:0 auto;display:flex;gap:10px}
+.bar .in .btn{flex:1}
+
+/* ---------- the deck and card lists ---------- */
+.deckgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:10px;margin-top:10px}
+.deckgrid .dc{position:relative;background:none;border:0;padding:0;color:inherit;text-align:center}
+.deckgrid .dc .gc{width:100%;font-size:12px}
+.deckgrid .dc small{display:block;font-size:11px;color:var(--dim);margin-top:3px;font-family:system-ui,sans-serif}
+.deckgrid .dc:disabled{opacity:.3}
+.deckgrid .dc.on .gc{outline:3px solid var(--gold);outline-offset:2px}
+.dstats{display:flex;flex-wrap:wrap;gap:6px 16px;font:13px system-ui,sans-serif;color:var(--dim)}
+.dstats b{color:var(--ink)}
+
+/* ---------- modal ---------- */
+#modal{position:fixed;inset:0;z-index:60;background:rgba(8,5,2,.88);display:flex;align-items:flex-start;justify-content:center;padding:max(16px,4vh) 16px;overflow-y:auto}
+#modal .box{width:100%;max-width:720px;background:var(--panel);border:1px solid var(--gold);border-radius:18px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.7)}
+#modal .box h3{font-size:22px;color:var(--gold)}
+#modal .foot{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+#modal .foot .btn{flex:1}
+.rc-h{font-weight:900;font-size:26px;color:var(--gold);line-height:1.15}
+.rc-sub{font-size:15px;margin-top:3px}
+.rc-sc{display:flex;flex-direction:column;gap:6px;margin:10px 0 4px}
+.rc-p{display:flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:7px 10px;font-size:14px;flex-wrap:wrap}
+.rc-p.won{border-color:var(--gold)}
+.rc-p i{width:11px;height:11px;border-radius:50%;flex:none}
+.rc-role{font-size:10px;color:var(--dim);text-transform:uppercase}
+.rc-t{flex-basis:100%;color:var(--dim);font-size:12.5px}
+.rc-d{font-size:12px;color:var(--gold);font-weight:800;margin-left:auto}
+.rc-d.big{font-size:24px}
+.rc-sec{margin-top:10px}
+.rc-sec h4{margin:0 0 3px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.rc-sec ul{margin:0;padding-left:1.1em;font-size:14px}
+#zoom{position:fixed;inset:0;z-index:70;background:rgba(8,5,2,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;gap:12px}
+#zoom .gc{width:min(64vw,300px);font-size:22px}
+#zoom .ztx{max-width:440px;font-size:15px;text-align:center}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom));z-index:80;background:#2a1610;border:1px solid var(--bad);color:#ffd9de;border-radius:12px;padding:10px 14px;font-size:14px;max-width:min(92vw,520px)}
+
+/* ---------- the battle ---------- */
+#bt{display:grid;gap:6px;max-width:1400px;margin:0 auto;padding:6px 10px calc(10px + env(safe-area-inset-bottom));
+  grid-template-columns:minmax(0,1fr);grid-template-areas:"foe" "frows" "mid" "yrows" "you" "hand" "acts"}
+#bt .foe{grid-area:foe} #bt .frows{grid-area:frows} #bt .mid{grid-area:mid} #bt .yrows{grid-area:yrows}
+#bt .you{grid-area:you} #bt .hnd{grid-area:hand} #bt .acts{grid-area:acts} #bt .logp{display:none;grid-area:logp}
+@media (min-width:1000px){
+  #bt{grid-template-columns:230px minmax(0,1fr) 250px;grid-template-areas:"foe frows logp" "mid mid logp" "you yrows logp" "hand hand acts";align-items:stretch;padding:6px 16px 10px;gap:6px 8px}
+  #bt .logp{display:flex}
+  #bt .mid{grid-template-columns:auto 1fr auto}
+  #bt .you,#bt .foe{flex-direction:column;align-items:stretch}
+  :root{--th:clamp(52px,8.2vh,104px);--hw:clamp(70px,6.4vw,118px)}
+}
+.pl{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"nmr ldb" "facts ldb";align-items:center;gap:3px 8px;background:rgba(26,19,11,.86);border:1px solid var(--line);border-radius:12px;padding:5px 8px;font-family:system-ui,sans-serif;min-width:0}
+.pl .nmr{grid-area:nmr} .pl .facts{grid-area:facts} .pl .ldb{grid-area:ldb}
+.pl.act{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.pl .nmr{display:flex;align-items:center;gap:8px;min-width:0}
+.pl .nm{font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:Georgia,serif}
+.pl .nm small{display:block;font-weight:400;color:var(--dim);font-size:11.5px;font-family:system-ui,sans-serif}
+.pl .facts{display:flex;align-items:center;gap:4px 9px;font-size:12.5px;color:var(--dim);flex-wrap:wrap}
+.pl .facts b{color:var(--ink)}
+.pl .tot{width:38px;height:38px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font:900 20px/1 system-ui,sans-serif;background:radial-gradient(circle at 40% 35%,#fffaf0,#d6c8a8);color:#1b140c;border:3px solid #b98b3a}
+.pl .tot.lead{border-color:var(--good);box-shadow:0 0 12px rgba(111,207,127,.5)}
+.pl .passed{font:800 11px/1 system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#1b140c;background:var(--dim);padding:4px 6px;border-radius:5px}
+.pl .think{font-size:12px;color:var(--gold);font-style:italic}
+.pl .ldb{display:flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:3px 8px 3px 3px;font-size:12px;color:var(--ink);text-align:left;min-height:44px;max-width:150px;line-height:1.15}
+.pl .ldb .gc{width:26px;font-size:4px}
+.pl .ldb.ok{border-color:var(--gold)}
+.pl .ldb.used{opacity:.5}
+.pl .pile{background:none;border:1px solid var(--line);border-radius:8px;padding:3px 7px;font-size:12px;color:var(--dim);min-height:30px}
+@media (min-width:1000px){ .pl{display:flex;flex-direction:column;align-items:stretch;padding:8px 10px;gap:6px} .pl .facts{gap:6px 10px} .pl .tot{width:50px;height:50px;font-size:22px} .pl .ldb{max-width:none} }
+.rows{display:flex;flex-direction:column;gap:4px;min-width:0}
+.row{position:relative;display:grid;grid-template-columns:44px calc(var(--th)*.66) minmax(0,1fr);gap:6px;align-items:center;background:rgba(36,26,14,.74);border:1px solid var(--line);border-radius:10px;padding:3px 6px;min-height:calc(var(--th) + 8px)}
+.row .rt{display:flex;flex-direction:column;align-items:center;gap:1px}
+.row .rt b{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fffaf0,#d6c8a8);color:#1b140c;font:900 15px/1 system-ui,sans-serif;border:2px solid #b98b3a}
+.row .rt .gi{width:16px;height:16px;opacity:.75}
+@media (max-width:999px){ .row{grid-template-columns:30px calc(var(--th)*.62) minmax(0,1fr);gap:5px;padding:2px 5px;min-height:calc(var(--th) + 4px)} .row .rt b{width:28px;height:28px;font-size:13px} .row .rt .gi{width:11px;height:11px} #bt{gap:5px} }
+.row .hs{height:calc(var(--th)*.86);aspect-ratio:674/1048;border:1px dashed rgba(224,180,86,.3);border-radius:6px;display:flex;align-items:center;justify-content:center;font:700 9px/1.1 system-ui,sans-serif;color:var(--gold);text-align:center;overflow:hidden}
+.row .hs .gc{width:100%;font-size:7px}
+.row .cards{display:flex;align-items:center;min-width:0;height:100%;overflow:hidden}
+.row .cards .u{flex:none;background:none;border:0;padding:0;position:relative;transition:transform .15s}
+.row .cards .u .gc{height:var(--th);width:calc(var(--th)*674/1048);font-size:calc(var(--th)*.17)}
+.row .cards .u.fresh{animation:land .55s ease-out}
+.row .cards .u.burning .gc{animation:burn .5s ease-in-out infinite alternate;outline:3px solid #ff7a2a}
+.row .cards .u.tgt .gc{outline:3px solid var(--gold);outline-offset:1px;cursor:pointer}
+.row.wx0{background:linear-gradient(90deg,rgba(120,170,220,.36),rgba(36,26,14,.74) 70%)}
+.row.wx1{background:linear-gradient(90deg,rgba(170,170,170,.4),rgba(36,26,14,.74) 70%)}
+.row.wx2{background:linear-gradient(90deg,rgba(60,90,160,.45),rgba(36,26,14,.74) 70%)}
+.row.can{border-color:var(--gold);box-shadow:0 0 0 2px rgba(224,180,86,.6) inset,0 0 14px rgba(224,180,86,.35);cursor:pointer}
+.row .empty{color:#6d5c40;font-size:12px;font-style:italic;font-family:system-ui,sans-serif}
+.row .wxtag{position:absolute;right:6px;bottom:3px;pointer-events:none;font:11px system-ui,sans-serif;color:#dfeaff;display:flex;align-items:center;gap:3px;background:rgba(0,0,0,.5);padding:1px 6px;border-radius:5px}
+.row .rdelta{position:absolute;right:6px;top:3px;pointer-events:none;background:rgba(10,7,4,.85);border-radius:6px;padding:2px 6px}
+@keyframes land{from{transform:translateY(-16px) scale(1.15);opacity:.2}to{transform:none;opacity:1}}
+@keyframes burn{from{filter:brightness(1)}to{filter:brightness(1.7) saturate(1.6) hue-rotate(-12deg)}}
+.mid{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;font-family:system-ui,sans-serif;min-width:0}
+.mid .wx{display:flex;align-items:center;gap:4px;min-height:40px;background:rgba(20,14,8,.8);border:1px solid var(--line);border-radius:10px;padding:3px 8px;font-size:12px;color:var(--dim)}
+.mid .wx .gc{width:26px;font-size:4px}
+.mid .now{font-size:13px;color:var(--ink);background:rgba(20,14,8,.8);border:1px solid var(--line);border-radius:10px;padding:6px 10px;min-width:0;overflow:hidden;line-height:1.3}
+.mid .now .ln{display:block}
+@media (max-width:999px){ .mid .now .ln:not(:last-child){display:none} .mid .now{padding:4px 9px;font-size:12.5px} .mid .wx{min-height:34px} }
+.mid .now small{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:800}
+.mid .rnd{font:800 12px/1.1 system-ui,sans-serif;color:var(--dim);text-align:center;letter-spacing:.08em;text-transform:uppercase}
+.hnd{display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;padding:10px 2px 4px;scrollbar-width:thin;min-width:0}
+.hnd .hc{flex:none;background:none;border:0;padding:0;position:relative;transition:transform .15s}
+.hnd .hc .gc{width:var(--hw);font-size:calc(var(--hw)*.15)}
+.hnd .hc.sel{transform:translateY(-8px)}
+.hnd .hc.sel .gc{outline:3px solid var(--gold);outline-offset:2px}
+.hnd .hc.no .gc{opacity:.45}
+.hnd .hc.hold .gc{opacity:.85}
+.hnd .empty{color:var(--dim);font-size:14px;align-self:center;padding:0 10px}
+.acts{display:flex;gap:8px;align-items:stretch}
+.acts .btn{flex:1;min-height:50px;padding:10px 12px;font-size:16px}
+@media (min-width:1000px){ .acts{flex-direction:column;justify-content:center} .acts .btn{flex:none} }
+.logp{contain:size;flex-direction:column;background:rgba(20,14,8,.8);border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:12.5px;min-height:0;overflow:hidden}
+.logp h4{margin:0 0 4px;font:800 11px/1 system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.logp .ll{overflow-y:auto;display:flex;flex-direction:column;gap:4px;color:var(--dim);flex:1;min-height:0;max-height:70vh}
+.logp .ll div.new{color:var(--ink)}
+/* the selected card */
+/* Never over the hand: a control must not appear where the finger just was (touch ghost clicks). */
+#sheet{position:fixed;left:0;right:0;top:58px;z-index:40;padding:0 10px;pointer-events:none}
+#sheet .in{pointer-events:auto;box-shadow:0 14px 40px rgba(0,0,0,.75)}
+@media (min-width:1000px){ #sheet{left:auto;right:16px;width:270px;top:66px;padding:0} #sheet .in{flex-direction:column;align-items:stretch} #sheet .in > .slot{align-self:center} #sheet .in > .slot .gc,#sheet .in > .gc{width:150px} }
+#sheet .in{max-width:760px;margin:0 auto;display:flex;gap:12px;align-items:flex-start;background:var(--panel);border:1px solid var(--gold);border-radius:16px;padding:12px}
+#sheet .in > .gc,#sheet .in > .slot .gc{width:min(26vw,140px);font-size:clamp(11px,2.2vw,19px);flex:none}
+#sheet .st{flex:1;min-width:0}
+#sheet .st b{display:block;font-size:17px;color:var(--gold)}
+#sheet .st .tx{font-size:13.5px;color:var(--dim);margin:3px 0 6px}
+#sheet .plays{display:flex;flex-direction:column;gap:6px}
+#sheet .plays .opt{padding:9px 12px;min-height:46px}
+#spot{position:fixed;left:50%;top:22%;transform:translateX(-50%);z-index:35;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:8px;animation:spIn .35s ease-out}
+#spot .gc{width:min(34vw,190px);font-size:clamp(14px,3vw,26px);box-shadow:0 18px 50px rgba(0,0,0,.85)}
+#spot .sw{background:rgba(10,7,4,.92);border:1px solid var(--gold);border-radius:10px;padding:5px 12px;font-size:15px;text-align:center;max-width:80vw}
+@keyframes spIn{from{opacity:0;transform:translate(-50%,10px) scale(.92)}to{opacity:1;transform:translateX(-50%)}}
+.picklist{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px}
+.picklist .hc{background:none;border:0;padding:0;position:relative;text-align:center}
+.picklist .hc .gc{width:clamp(70px,16vw,120px);font-size:clamp(10px,2.3vw,17px)}
+.picklist .hc small{display:block;font:11px system-ui,sans-serif;color:var(--dim);max-width:clamp(70px,16vw,120px);margin-top:3px}
+.picklist .hc.on .gc{outline:3px solid var(--gold);outline-offset:2px}
+.picklist .hc:disabled{opacity:.35}
+.ends{text-align:center;padding:4vh 0 2vh}
+.ends h1{font-size:clamp(36px,7vw,64px);color:var(--gold)}
+.ends.lost h1{color:#ff8a7a}
+.how{max-width:720px;margin:0 auto}
+.how h3{color:var(--gold);margin-top:16px}
+.how p,.how li{color:var(--ink);font-size:15px}
+.how li{margin:4px 0}
+</style>
+</head>
+<body>
+<div id="top" class="hide"></div>
+<div id="app"></div>
+<div id="sheet" class="hide"></div>
+<div id="spot" class="hide"></div>
+<div id="modal" class="hide"></div>
+<div id="zoom" class="hide"></div>
+<div id="toast" class="hide"></div>
+
+<script src="sound.js"></script>
+<script src="gw-data.js"></script>
+<script src="gw-engine.js"></script>
+<script src="gw-bots.js"></script>
+<script src="gw-words.js"></script>
+<script src="gw-art.js"></script>
+<script src="gw-run.js"></script>
+<script>
+'use strict';
+/* Gwent — The Path. (Public copy of the Gameshow Hub's games/Gwent/run.html, without the card pictures.) One page, no server: the run (gw-run.js), the battles
+   (gw-engine.js with the house from gw-bots.js), and the screens between.
+   Everything the run knows is saved to this browser after every step, a
+   battle as its seed and its answers, so a reload carries on mid-turn. */
+const D = window.GwentData, E = window.GwentEngine, B = window.GwentBots, W = window.GwentWords, A = window.GwentArt, R = window.GwentRun;
+const Snd = window.HubSound || { play() {}, armUnlock() {}, unlock() {} };
+const esc = A.esc;
+const $ = id => document.getElementById(id);
+const KEY = 'gwent.path.run.v1', BEST = 'gwent.path.best.v1', NAME = 'gwent.path.name';
+const Q = new URLSearchParams(location.search);
+const T = { house: Q.has('fast') ? 30 : 950, housePick: Q.has('fast') ? 20 : 650, scorch: Q.has('fast') ? 30 : 1700, spot: Q.has('fast') ? 30 : 1500 };
+
+const S = {
+  run: null, g: null, setup: null, marks: [], sel: null, multi: [], pending: 0, timer: null, spotTimer: null,
+  seenLog: 0, uids: new Set(), fresh: new Set(), passArm: false, setupPick: { diff: 'witcher', fac: null, leader: null },
+  pick: null, deckView: false, view: 'title', modal: null, ended: false, how: false
+};
+
+function store(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
+function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function save() { if (S.run) store(KEY, S.run.over ? null : JSON.stringify(S.run)); }
+function savedRun() { try { const r = JSON.parse(load(KEY) || 'null'); return r && r.v === R.VERSION && !r.over ? r : null; } catch (e) { return null; } }
+function bests() { try { return JSON.parse(load(BEST) || '[]') || []; } catch (e) { return []; } }
+
+/* ================================================================
+   Drawn icons (no emoji)
+   ================================================================ */
+const IC = {
+  heart: '<svg viewBox="0 0 24 24"><path d="M12 21C4 15 2 11 2 7.6A5 5 0 0 1 12 5.5 5 5 0 0 1 22 7.6C22 11 20 15 12 21Z" fill="#d8303c" stroke="#ff9a9a" stroke-width="1"/></svg>',
+  heartOff: '<svg viewBox="0 0 24 24"><path d="M12 21C4 15 2 11 2 7.6A5 5 0 0 1 12 5.5 5 5 0 0 1 22 7.6C22 11 20 15 12 21Z" fill="#3a1a1c" stroke="#6a3a3c" stroke-width="1"/></svg>',
+  coin: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#e0b456" stroke="#8a6420" stroke-width="1.5"/><circle cx="12" cy="12" r="5.6" fill="none" stroke="#8a6420" stroke-width="1.2"/><path d="M12 8.5v7M10 10h4M10 14h4" stroke="#8a6420" stroke-width="1.2"/></svg>',
+  deck: '<svg viewBox="0 0 24 24"><rect x="7" y="5" width="12" height="16" rx="2" fill="#5a4630"/><rect x="4" y="3" width="12" height="16" rx="2" fill="#a07c4c" stroke="#1b140c"/></svg>',
+  battle: '<path d="M4 4l9 9M4 4v3M4 4h3M20 4l-9 9M20 4v3M20 4h-3M8 15l-3 3 1 1 3-3M16 15l3 3-1 1-3-3" stroke="#f4ecd8" stroke-width="2.2" fill="none" stroke-linecap="round"/>',
+  elite: '<path d="M12 3C7 3 4 6.5 4 11c0 2.6 1.3 4.2 3 5.2V20h10v-3.8c1.7-1 3-2.6 3-5.2 0-4.5-3-8-8-8Z" fill="#f4ecd8"/><circle cx="9" cy="11" r="2.1" fill="#4a1010"/><circle cx="15" cy="11" r="2.1" fill="#4a1010"/><path d="M10 20v-2.5M12 20v-2.5M14 20v-2.5" stroke="#4a1010" stroke-width="1.2"/><path d="M4.5 7L2 2.5 7 5M19.5 7L22 2.5 17 5" fill="#f4ecd8"/>',
+  boss: '<path d="M3 18L5 7l4.5 5L12 5l2.5 7L19 7l2 11Z" fill="#f1c75b"/><rect x="3" y="18.5" width="18" height="2.5" fill="#f1c75b"/>',
+  shop: '<path d="M7 8c0-3 2-5 5-5s5 2 5 5" stroke="#f4ecd8" stroke-width="1.8" fill="none"/><path d="M4 8h16l-1.5 13h-13Z" fill="#f4ecd8"/><circle cx="12" cy="14.5" r="2.6" fill="#8a6420"/>',
+  camp: '<path d="M12 3c2 3.5 5 5.5 5 9.5A5 5 0 0 1 7 12.5C7 10 8.5 9 9.5 7.5c.5 2 1.5 2.5 2.5 2.5C12 7.5 11 5.5 12 3Z" fill="#ffb060"/><path d="M4 20l16-3M4 17l16 3" stroke="#c89a6a" stroke-width="2.2" stroke-linecap="round"/>',
+  event: '<path d="M8.5 9a3.5 3.5 0 1 1 5.2 3.1c-1 .6-1.7 1.3-1.7 2.6v.8" stroke="#f4ecd8" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="12" cy="19.3" r="1.6" fill="#f4ecd8"/>',
+  treasure: '<rect x="3" y="10" width="18" height="10" rx="1.5" fill="#c89a3a"/><path d="M3 10c0-4 4-6 9-6s9 2 9 6Z" fill="#e0b456"/><rect x="10.5" y="9" width="3" height="5" rx=".8" fill="#5a3a10"/><path d="M3 10h18" stroke="#5a3a10" stroke-width="1.2"/>',
+  /* trinkets */
+  potion: '<path d="M10 3h4v5l4.5 8.5A3 3 0 0 1 16 21H8a3 3 0 0 1-2.5-4.5L10 8Z" fill="#7ad0a0" stroke="#e6fff0" stroke-width="1"/><path d="M6.5 15h11" stroke="#e6fff0" stroke-width="1"/>',
+  purse: '<path d="M8 6l2-3h4l2 3" fill="#c89a3a"/><path d="M6 8c-2 3-3 6-2 9 1 3 4 4 8 4s7-1 8-4c1-3 0-6-2-9Z" fill="#b5803a"/><circle cx="12" cy="14" r="3" fill="#e0b456"/>',
+  book: '<path d="M4 4h7a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4Z" fill="#c8b48a"/><path d="M20 4h-7a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h7Z" fill="#e8d8b0"/>',
+  banner: '<path d="M6 2v20" stroke="#c8b48a" stroke-width="2"/><path d="M7 3h12l-3 4.5L19 12H7Z" fill="#3e78d8"/><path d="M11 6l1.5 1.5L11 9" stroke="#f4ecd8" stroke-width="1.2" fill="none"/>',
+  ring: '<circle cx="12" cy="14" r="6.5" fill="none" stroke="#e0b456" stroke-width="2.6"/><path d="M9 5l3-3 3 3-3 3Z" fill="#8fd0ff"/>',
+  medallion: '<circle cx="12" cy="13" r="8" fill="#b8b8b8" stroke="#ececec" stroke-width="1"/><path d="M7 9l2.5 2.5L12 8l2.5 3.5L17 9l-1 6-4 2.5L8 15Z" fill="#5a5a5a"/><circle cx="12" cy="3.5" r="1.5" fill="none" stroke="#ececec"/>',
+  eye: '<path d="M2 12c4-6 16-6 20 0-4 6-16 6-20 0Z" fill="#f4ecd8"/><circle cx="12" cy="12" r="3.6" fill="#3a6a90"/><circle cx="12" cy="12" r="1.5" fill="#000"/>',
+  stone: '<path d="M3 15l4-7h10l4 7-4 4H7Z" fill="#8a8a8a" stroke="#cfcfcf" stroke-width="1"/><path d="M7 11h10" stroke="#cfcfcf" stroke-width="1"/>',
+  crown: '<path d="M3 18L5 7l4.5 5L12 5l2.5 7L19 7l2 11Z" fill="#f1c75b"/><rect x="3" y="18.5" width="18" height="2.5" fill="#f1c75b"/>',
+  horn: '<path d="M3 15c5 0 12-5 16-11l2 2c-3 7-3 11 0 14l-2 1c-4-3-10-4-16-3Z" fill="#e0b456"/>',
+  seal: '<circle cx="12" cy="12" r="8" fill="#a02030"/><path d="M12 7l1.5 3.3 3.5.4-2.6 2.4.7 3.5L12 15l-3.1 1.6.7-3.5L7 10.7l3.5-.4Z" fill="#ff9aa0"/>',
+  trophy: '<path d="M7 3h10v4a5 5 0 0 1-10 0Z" fill="#e0b456"/><path d="M7 5H4a3 3 0 0 0 3 4M17 5h3a3 3 0 0 1-3 4" stroke="#e0b456" stroke-width="1.6" fill="none"/><path d="M12 12v5M8 21h8l-1-4H9Z" fill="#e0b456"/>',
+  bird: '<path d="M3 13c3-1 5-4 9-4 3 0 5 2 6 2l3-1-2 3c0 4-4 7-9 7-3 0-5-1-6-3l3-1c-2 0-3-1-4-3Z" fill="#f1c75b"/><circle cx="16" cy="11" r=".9" fill="#000"/>'
+};
+const TRK_ICON = { seal: 'seal', cat: 'potion', purse: 'purse', ledger: 'book', banner: 'banner', trophy: 'trophy', oriole: 'bird', signet: 'ring', medallion: 'medallion',
+  eye: 'eye', decoction: 'potion', whetstone: 'stone', mutagen: 'potion', swallow: 'potion', crown: 'crown', bugle: 'horn' };
+const svg = (name, cls) => '<svg viewBox="0 0 24 24"' + (cls ? ' class="' + cls + '"' : '') + ' aria-hidden="true">' + (IC[name] || '') + '</svg>';
+const trkIcon = id => svg(TRK_ICON[id] || 'seal');
+const ROMAN = ['', 'I', 'II', 'III'];
+
+function deltaHtml(d) {
+  if (!d) return '';
+  const f = (v, cls, who) => v ? '<span class="' + cls + '">' + (v > 0 ? '+' : '−') + Math.abs(v) + ' ' + who + '</span>' : '';
+  const a = f(d.me, d.me >= 0 ? 'me' : 'them', 'you'), b = f(d.them, d.them <= 0 ? 'me' : 'them', 'them');
+  return '<span class="delta">' + (a || b ? [a, b].filter(Boolean).join(' · ') : '<span class="zero">no change</span>') + '</span>';
+}
+/* A card face with its honing shown. */
+function face(c, kind, o) {
+  o = o || {};
+  const d = D.card(c.id);
+  const up = c.up || 0;
+  const v = o.v != null ? o.v : (d && d.kind === 'unit' ? d.str + up : undefined);
+  return '<span class="slot">' + A.card({ id: c.id, k: c.k || 0 }, kind, Object.assign({}, o, { v })) + (up ? '<span class="up-tag">+' + up + '</span>' : '') + '</span>';
+}
+/* Elven Raiders’ move, not Raiders’s. */
+const poss = n => n + (/s$/i.test(n) ? '’' : '’s');
+/* What a card does; a plain unit gets its strength and row. */
+function cardText(id) {
+  const t = D.textOf(id);
+  if (t) return t;
+  const c = D.card(id);
+  return c && c.kind === 'unit' ? 'Strength ' + c.str + ', ' + (c.agile ? 'Close Combat or Ranged' : D.ROW_NAME[c.rows[0]]) + '. No ability.' : '';
+}
+const rarHtml = id => { const r = R.rarityOf(id); return '<span class="rar ' + r + '">' + r + '</span>'; };
+function toast(t) {
+  const el = $('toast');
+  el.textContent = t; el.classList.remove('hide');
+  clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.add('hide'), 2600);
+}
+
+/* ================================================================
+   The top bar
+   ================================================================ */
+function topHtml() {
+  const run = S.run;
+  if (!run || S.view === 'title' || S.view === 'new' || S.view === 'how') return '';
+  const F = D.faction(run.fac);
+  const L = D.LEADER[run.leader];
+  const lives = Array.from({ length: run.maxLives }, (_, k) => k < run.lives ? IC.heart : IC.heartOff).join('');
+  const where = run.over ? '' : 'Act ' + ROMAN[run.act] + ' · ' + R.ACTS[run.act - 1].name;
+  return '<div class="in"><span class="crest" style="background:' + F.hex + '"></span>' +
+    '<span class="who">' + esc(run.name) + '<small>' + esc(F.name) + ' · ' + esc(L.name + ', ' + L.title) + '</small></span>' +
+    '<span class="stat lives" title="Lives">' + lives + '</span>' +
+    '<span class="stat" title="Crowns">' + IC.coin + run.crowns + '</span>' +
+    '<button class="tb" data-act="deck">' + svg('deck') + run.deck.length + '<span class="where">&nbsp;cards</span></button>' +
+    (run.trinkets.length ? '<button class="tb trkn" data-act="trinket">' + trkIcon(run.trinkets[run.trinkets.length - 1]).replace('<svg', '<svg style="width:18px;height:18px"') + run.trinkets.length + '</button>' : '') +
+    (run.trinkets.length ? '<span class="trk">' + run.trinkets.map(id => '<button data-act="trinket" data-id="' + id + '" title="' + esc(R.TRINKET[id].name) + '">' + trkIcon(id) + '</button>').join('') + '</span>' : '') +
+    '<span class="grow"></span><span class="dim sans where" style="font-size:12.5px">' + esc(where) + '</span>' +
+    '<button class="tb" data-act="menu">Menu</button></div>';
+}
+
+/* ================================================================
+   Painting — one function per screen
+   ================================================================ */
+function paint() {
+  const app = $('app');
+  const top = topHtml();
+  $('top').innerHTML = top;
+  $('top').classList.toggle('hide', !top);
+  $('sheet').classList.add('hide');
+  if (S.view === 'title') app.innerHTML = titleHtml();
+  else if (S.view === 'how') app.innerHTML = howHtml();
+  else if (S.view === 'new') app.innerHTML = newHtml();
+  else {
+    const s = S.run.screen;
+    const fn = { act: actHtml, map: mapHtml, battle: battleHtml, reward: rewardHtml, lost: lostHtml, shop: shopHtml, camp: campHtml, event: eventHtml, treasure: treasureHtml, over: overHtml }[s.k];
+    app.innerHTML = fn ? fn() : '<div class="wrap">?</div>';
+    if (s.k === 'battle') afterBattlePaint();
+    if (s.k === 'map' && !S.mapScrolled) {
+      S.mapScrolled = true;
+      /* After whatever scrolled to the top: bring the next choice into view if the map is taller than the screen. */
+      setTimeout(() => { const here = document.querySelector('.nd.can'); if (!here) return; const r = here.getBoundingClientRect(); if (r.bottom > innerHeight - 20 || r.top < 60) window.scrollTo(0, Math.max(0, r.top + scrollY - innerHeight * 0.55)); }, 0);
+    }
+  }
+  paintModal();
+}
+function bar(buttons) { return '<div class="bar"><div class="in">' + buttons + '</div></div>'; }
+
+/* ---------------- title ---------------- */
+function titleHtml() {
+  const saved = savedRun();
+  const best = bests().slice(0, 6);
+  return '<div class="wrap"><div class="title-hero"><h1><small>Gwent</small>The Path</h1>' +
+    '<p>A run of Gwent battles across Velen, Novigrad and Skellige. Start with a poor deck; win cards, hone them, buy trinkets that bend the rules — and beat three bosses on three lives.</p></div>' +
+    '<div class="menu">' +
+    (saved ? '<button class="btn" data-act="continue">Continue — ' + esc(D.faction(saved.fac).name) + ', Act ' + ROMAN[saved.act] + '</button>' : '') +
+    '<button class="btn' + (saved ? ' ghost' : '') + '" data-act="new">' + (saved ? 'Start a new run' : 'Start a run') + '</button>' +
+    '<button class="btn ghost" data-act="how">How it works</button>' +
+    '<a class="btn ghost" href="../../index.html" style="text-decoration:none">Games hub</a>' +
+    '</div>' +
+    (best.length ? '<div class="best"><div class="sect">Your best runs</div><ol>' + best.map(b => '<li><b>' + esc(b.score) + '</b> — ' + esc(D.faction(b.fac).name) + ', ' + esc(R.DIFFICULTY[b.diff].name) + ': ' +
+      (b.won ? '<span class="gold">all three bosses beaten</span>' : 'fell in Act ' + ROMAN[b.act]) + (b.date ? ' · ' + esc(b.date) : '') + '</li>').join('') + '</ol></div>' : '') +
+    '</div>';
+}
+function howHtml() {
+  return '<div class="wrap how"><h2 class="gold" style="font-size:30px">How The Path works</h2>' +
+    '<h3>The run</h3><ul><li>Pick a faction and a leader. You begin with thirteen weak cards.</li>' +
+    '<li>Each act is a map. Choose your way up it, floor by floor: <b>battles</b>, <b>contracts</b> (harder fights that pay a trinket), <b>merchants</b>, <b>campfires</b>, <b>strange encounters</b> and a <b>treasure</b> halfway. The act’s <b>boss</b> waits at the top.</li>' +
+    '<li>Win a battle: crowns, and a choice of cards — or none. You are dealt ten cards from your deck, so a weak card makes your hands worse. Thin decks are strong decks.</li>' +
+    '<li>Lose a battle and you lose a life. Lose to a boss and you lose a life and must face it again. No lives left ends the run.</li></ul>' +
+    '<h3>Between battles</h3><ul><li><b>Campfire</b>: rest (a life back), hone a unit (+2 strength, for good) or burn a card from your deck.</li>' +
+    '<li><b>Merchant</b>: cards, trinkets, and one card removed a visit.</li><li><b>Trinkets</b> change every battle: an extra card dealt, more redraws, a card drawn each round you win …</li></ul>' +
+    '<h3>A battle</h3><ul><li>The usual Gwent: two rounds out of three, two gems each. Tap a card in your hand, then a glowing row — or the play in the panel, which says what it does to both totals.</li>' +
+    '<li>Pass when you have done enough: no cards are drawn between rounds, so the hand you are dealt is the whole battle.</li>' +
+    '<li>Made a mistake? <b>Take back</b> undoes your last move, as long as nothing new has been drawn.</li></ul>' +
+    '<div style="margin-top:20px"><button class="btn" data-act="title">Back</button></div></div>';
+}
+
+/* ---------------- a new run ---------------- */
+function newHtml() {
+  const P = S.setupPick;
+  const facs = D.FACTIONS.filter(f => R.STARTER[f.id]);
+  let out = '<div class="wrap"><h2 class="gold" style="font-size:30px">A new run</h2>' +
+    '<div class="sect">Your name</div><input class="nm" id="nm" maxlength="16" value="' + esc(P.name || load(NAME) || 'The Wanderer') + '" autocomplete="off">' +
+    '<div class="sect">Difficulty</div><div class="choices">' + Object.keys(R.DIFFICULTY).map(k => '<button class="choice' + (P.diff === k ? ' on' : '') + '" data-act="pdiff" data-id="' + k + '"><b>' + esc(R.DIFFICULTY[k].name) + '</b><small>' + esc(R.DIFFICULTY[k].text) + '</small></button>').join('') + '</div>' +
+    '<div class="sect">Faction</div><div class="choices">' + facs.map(f => '<button class="choice fac' + (P.fac === f.id ? ' on' : '') + '" style="--fc:' + f.hex + '" data-act="pfac" data-id="' + f.id + '"><b>' + esc(f.name) + '</b><small>' + esc(f.bonus) + '</small></button>').join('') + '</div>';
+  if (P.fac) {
+    out += '<div class="sect">Leader</div><div class="ldrs">' + D.leadersOf(P.fac).map(id => { const L = D.LEADER[id]; return '<button class="ldr' + (P.leader === id ? ' on' : '') + '" data-act="pldr" data-id="' + id + '">' + A.card(id, 'tile') + '<span><b>' + esc(L.name + ' — ' + L.title) + '</b><small>' + esc(L.text) + '</small></span></button>'; }).join('') + '</div>';
+    out += '<div class="sect">Your starting deck</div><div class="deckgrid">' + R.STARTER[P.fac].map(id => '<button class="dc" data-act="zoom" data-id="' + id + '">' + face({ id }, 'tile') + '</button>').join('') + '</div>';
+  }
+  out += '</div>' + bar('<button class="btn ghost" data-act="title">Back</button><button class="btn" data-act="begin"' + (P.fac && P.leader ? '' : ' disabled') + '>Set out</button>');
+  return out;
+}
+
+/* ---------------- the act card ---------------- */
+function actHtml() {
+  const run = S.run;
+  const a = R.ACTS[run.act - 1];
+  const boss = R.enemyOf(run, run.map.boss);
+  return '<div class="wrap scr" style="text-align:center;padding-top:6vh"><div class="sect">Act ' + ROMAN[run.act] + '</div><h2 style="font-size:clamp(36px,7vw,60px)">' + esc(a.name) + '</h2>' +
+    '<div class="dim" style="font-size:18px;letter-spacing:.06em">' + esc(a.sub) + '</div><p class="lede" style="max-width:560px;margin:16px auto">' + esc(a.text) + '</p>' +
+    '<div class="card" style="max-width:520px;margin:18px auto;text-align:left"><div class="foebox">' + A.card(boss.leader, 'tile') + '<div class="tx"><div class="sect" style="margin:0">Waiting at the end</div><b>' + esc(boss.name) + '</b><div class="dim" style="font-size:14px">' + esc(boss.text) + '</div></div></div></div>' +
+    (run.act > 1 ? '<p class="dim">Your lives: ' + run.lives + ' of ' + run.maxLives + ' · ' + run.crowns + ' crowns · ' + run.deck.length + ' cards</p>' : '') +
+    '</div>' + bar('<button class="btn" data-act="leave">Set out</button>');
+}
+
+/* ---------------- the map ---------------- */
+function mapHtml() {
+  const run = S.run;
+  const can = R.reachable(run);
+  const FL = R.FLOORS, W = 340, step = 80, H = 90 + FL * step + 40;
+  const jit = (id, k) => { let h = 0; for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return ((h >> k) % 13) - 6; };
+  const xy = n => n.id === 'boss' ? [W / 2, 46] : [40 + n.c * 65 + jit(n.id, 2), H - 50 - n.f * step + jit(n.id, 5)];
+  const walked = new Set();
+  for (let i = 1; i < run.path.length; i++) walked.add(run.path[i - 1] + '>' + run.path[i]);
+  let edges = '', nodes = '';
+  const all = [];
+  run.map.floors.forEach(row => row.forEach(n => all.push(n)));
+  for (const n of all) for (const id of n.next) {
+    const m = R.node(run, id);
+    const [x1, y1] = xy(n), [x2, y2] = xy(m);
+    edges += '<path class="edge' + (walked.has(n.id + '>' + id) ? ' walked' : '') + '" d="M' + x1 + ' ' + y1 + ' L' + x2 + ' ' + y2 + '"/>';
+  }
+  const here = run.pos;
+  const floorNow = here ? (here === 'boss' ? FL : R.node(run, here).f) : -1;
+  for (const n of all.concat([{ id: 'boss', kind: 'boss', f: FL }])) {
+    const [x, y] = xy(n);
+    const isCan = can.indexOf(n.id) >= 0;
+    const done = run.path.indexOf(n.id) >= 0;
+    const dead = !isCan && !done && n.f <= floorNow;
+    const r = n.id === 'boss' ? 30 : 19;
+    const s = n.id === 'boss' ? 36 : 24;
+    nodes += '<g class="nd' + (isCan ? ' can' : '') + (done ? ' done' : '') + (dead ? ' dead' : '') + (n.id === here ? ' here' : '') + '"' + (isCan ? ' data-act="go" data-id="' + n.id + '" role="button" tabindex="0" aria-label="' + esc(KIND[n.kind]) + '"' : '') + '>' +
+      (isCan ? '<circle class="ring" cx="' + x + '" cy="' + y + '" r="' + (r + 6) + '"/>' : '') +
+      '<circle class="bgc" cx="' + x + '" cy="' + y + '" r="' + r + '"/>' +
+      '<svg x="' + (x - s / 2) + '" y="' + (y - s / 2) + '" width="' + s + '" height="' + s + '" viewBox="0 0 24 24">' + IC[n.kind] + '</svg></g>';
+  }
+  const boss = R.enemyOf(run, run.map.boss);
+  return '<div class="wrap"><div class="bossline">Act ' + ROMAN[run.act] + ' — ' + esc(R.ACTS[run.act - 1].name) + ' · the boss: <b>' + esc(boss.name) + '</b></div>' +
+    '<div class="legend">' + ['battle', 'elite', 'event', 'shop', 'camp', 'treasure'].map(k => '<span>' + svg(k) + esc(KIND[k]) + '</span>').join('') + '</div>' +
+    '<div class="mapwrap"><svg class="mapsvg" viewBox="0 0 ' + W + ' ' + H + '">' + edges + nodes + '</svg></div>' +
+    '<p class="dim" style="text-align:center;font-size:14px">' + (can.length ? 'Choose where to go next — a glowing circle.' : '') + '</p></div>';
+}
+const KIND = { battle: 'Battle', elite: 'Contract', event: 'Encounter', shop: 'Merchant', camp: 'Campfire', treasure: 'Treasure', boss: 'Boss' };
+
+/* ---------------- after a battle ---------------- */
+function foeBox(e, extra) {
+  const chips = [];
+  const m = e.mods || {};
+  if (m.hand) chips.push('+' + m.hand + ' card' + (m.hand > 1 ? 's' : ''));
+  if (m.keep) chips.push('keeps a unit');
+  if (m.redraws) chips.push('+1 redraw');
+  if (m.spyDraw) chips.push('spies draw 3');
+  if (m.roundDraw) chips.push('draws each round');
+  const F = D.faction(e.fac);
+  return '<div class="foebox">' + A.card(e.leader, 'tile') + '<div class="tx"><b>' + esc(e.name) + '</b><div class="dim" style="font-size:14px">' + esc(e.text) + '</div>' +
+    '<div class="chips"><span class="chip">' + esc(F.name) + '</span><span class="chip">' + esc(D.nameOf(e.leader)) + '</span>' + chips.map(c => '<span class="chip red">' + esc(c) + '</span>').join('') + (extra || '') + '</div></div></div>';
+}
+function rewardHtml() {
+  const run = S.run, s = run.screen;
+  const e = R.enemyOf(run, s.foe);
+  let out = '<div class="wrap scr"><div class="sect">' + (s.kind === 'boss' ? 'The boss is beaten' : s.kind === 'elite' ? 'Contract fulfilled' : 'Victory') + '</div><h2>' + esc(e.name) + ' defeated</h2>' +
+    '<p class="lede">' + svg('coin').replace('<svg', '<svg style="width:18px;height:18px;vertical-align:-3px"') + ' <b class="gold">+' + s.crowns + ' crowns</b>' + (s.flawless ? ' (with a quarter more for a flawless win)' : '') +
+    (s.healed ? ' · a life back' : '') + '</p>';
+  if (s.trinket) { const t = R.TRINKET[s.trinket]; out += '<div class="result" style="display:flex;gap:12px;align-items:center"><span style="width:44px;height:44px;flex:none">' + trkIcon(t.id) + '</span><span><b>' + esc(t.name) + '</b> <span class="rar ' + t.rarity + '">' + t.rarity + '</span><br><span class="dim">' + esc(t.text) + '</span></span></div>'; }
+  if (!s.took) {
+    out += '<div class="sect">Choose a card for your deck — or none</div><div class="offer">' + s.cards.map((id, i) => '<button class="it' + (S.pick === i ? ' on' : '') + '" data-act="rpick" data-i="' + i + '">' + face({ id }, 'big') + rarHtml(id) +
+      '<span class="tx">' + esc(cardText(id)) + '</span><span class="tx">You hold ' + R.countOf(run, id) + '</span></button>').join('') + '</div>';
+  } else out += '<p class="result">' + (s.took === 'skip' ? 'You left the cards where they lay.' : esc(D.nameOf(s.took)) + ' joins your deck.') + '</p>';
+  if (s.took && s.leaders && s.leaders.length && !s.leaderTook) {
+    out += '<div class="sect">A new leader offers to ride with you</div><div class="ldrs">' + [run.leader].concat(s.leaders).map((id, k) => { const L = D.LEADER[id]; return '<button class="ldr' + (k === 0 ? ' on' : '') + '" data-act="rleader" data-id="' + (k === 0 ? '' : id) + '">' + A.card(id, 'tile') + '<span><b>' + esc(L.name + ' — ' + L.title) + (k === 0 ? ' (keep)' : '') + '</b><small>' + esc(L.text) + '</small></span></button>'; }).join('') + '</div>';
+  }
+  out += '</div>';
+  if (!s.took) out += bar('<button class="btn ghost" data-act="rskip">Take none</button><button class="btn" data-act="rtake"' + (S.pick == null ? ' disabled' : '') + '>Take this card</button>');
+  else if (!(s.leaders && s.leaders.length && !s.leaderTook)) out += bar('<button class="btn" data-act="leave">' + (s.kind === 'boss' ? (run.act >= 3 ? 'The end of the road' : 'On to Act ' + ROMAN[run.act + 1]) : 'Back to the map') + '</button>');
+  return out;
+}
+function lostHtml() {
+  const run = S.run, s = run.screen;
+  const e = R.enemyOf(run, s.foe);
+  return '<div class="wrap scr"><div class="sect">Defeat</div><h2>' + esc(e.name) + ' won</h2><p class="lede">You lose a life — ' + run.lives + ' left.' +
+    (s.retry ? ' A boss does not let you pass: rest your hand and face them again.' : ' No reward, but the road goes on.') + '</p>' + foeBox(e) + '</div>' +
+    bar('<button class="btn" data-act="leave">' + (s.retry ? 'Fight again' : 'Back to the map') + '</button>');
+}
+function treasureHtml() {
+  const s = S.run.screen;
+  const t = s.trinket && R.TRINKET[s.trinket];
+  return '<div class="wrap scr"><div class="sect">Treasure</div><h2>A forgotten chest</h2><p class="lede">' + svg('coin').replace('<svg', '<svg style="width:18px;height:18px;vertical-align:-3px"') + ' <b class="gold">+' + s.crowns + ' crowns</b></p>' +
+    (t ? '<div class="result" style="display:flex;gap:12px;align-items:center"><span style="width:52px;height:52px;flex:none">' + trkIcon(t.id) + '</span><span><b>' + esc(t.name) + '</b> <span class="rar ' + t.rarity + '">' + t.rarity + '</span><br><span class="dim">' + esc(t.text) + '</span></span></div>' : '') +
+    '</div>' + bar('<button class="btn" data-act="leave">Back to the map</button>');
+}
+
+/* ---------------- the merchant ---------------- */
+function shopHtml() {
+  const run = S.run, s = run.screen;
+  const coin = svg('coin');
+  let out = '<div class="wrap scr"><div class="sect">Merchant</div><h2>A travelling merchant</h2><p class="lede">“Cards from every corner of the Continent. Prices fair. Mostly.”</p><div class="offer">';
+  s.items.forEach((it, i) => {
+    const cant = it.sold || run.crowns < it.price;
+    if (it.t === 'card') out += '<button class="it' + (it.sold ? ' sold' : '') + '" data-act="buy" data-i="' + i + '"' + (it.sold ? ' disabled' : '') + '>' + face({ id: it.id }, 'big') + rarHtml(it.id) +
+      '<span class="price" style="' + (cant && !it.sold ? 'color:var(--bad)' : '') + '">' + coin + it.price + '</span><span class="tx">' + esc(cardText(it.id)) + '</span></button>';
+    else { const t = R.TRINKET[it.id]; out += '<button class="it trk' + (it.sold ? ' sold' : '') + '" data-act="buy" data-i="' + i + '"' + (it.sold ? ' disabled' : '') + '><span class="ic">' + trkIcon(t.id) + '</span><b>' + esc(t.name) + '</b><span class="rar ' + t.rarity + '">' + t.rarity + '</span>' +
+      '<span class="price" style="' + (cant && !it.sold ? 'color:var(--bad)' : '') + '">' + coin + it.price + '</span><span class="tx">' + esc(t.text) + '</span></button>'; }
+  });
+  out += '</div><div class="opts"><button class="opt" data-act="sremove"' + (s.removed ? ' disabled' : '') + '><span class="ic">' + svg('deck') + '</span><span class="lab"><b>' + (s.removed ? 'Removed: ' + esc(D.nameOf(s.removed)) : 'Remove a card from your deck') + '</b><small>' +
+    (s.removed ? 'One a visit.' : 'The merchant takes it off your hands. Your deck cannot go below ' + R.MIN_DECK + '.') + '</small></span><span class="price gold sans" style="font-weight:800">' + (s.removed ? '' : R.removePrice(run) + ' crowns') + '</span></button></div></div>';
+  return out + bar('<button class="btn" data-act="leave">Leave</button>');
+}
+/* ---------------- the campfire ---------------- */
+function campHtml() {
+  const run = S.run, s = run.screen;
+  const full = run.lives >= run.maxLives;
+  let out = '<div class="wrap scr"><div class="sect">Campfire</div><h2>A quiet fire</h2><p class="lede">Time for one thing before the road.</p>';
+  if (!s.done) {
+    out += '<div class="opts">' +
+      '<button class="opt" data-act="rest"' + (full ? ' disabled' : '') + '><span class="ic">' + svg('heart') + '</span><span class="lab"><b>Rest</b><small>' + (full ? 'Your lives are full.' : 'Regain a life (' + run.lives + ' → ' + (run.lives + 1) + ').') + '</small></span></button>' +
+      '<button class="opt" data-act="hone"' + (R.honable(run).length ? '' : ' disabled') + '><span class="ic">' + svg('stone') + '</span><span class="lab"><b>Hone a unit</b><small>+' + (R.has(run, 'whetstone') ? 3 : R.HONE) + ' strength on one card, for the rest of the run (up to +' + R.HONE_MAX + ').</small></span></button>' +
+      '<button class="opt" data-act="cull"' + (run.deck.length > R.MIN_DECK ? '' : ' disabled') + '><span class="ic">' + svg('camp') + '</span><span class="lab"><b>Burn a card</b><small>Feed one card to the fire: a thinner deck deals better hands.</small></span></button></div>';
+  } else out += '<p class="result">' + (s.done === 'rest' ? 'You sleep well. A life back.' : s.done === 'hone' ? esc(D.nameOf(s.card)) + ' is honed.' : esc(D.nameOf(s.card)) + ' burns.') + '</p>';
+  out += '</div>';
+  return out + (s.done ? bar('<button class="btn" data-act="leave">Back to the map</button>') : '');
+}
+/* ---------------- encounters ---------------- */
+function eventHtml() {
+  const run = S.run, s = run.screen;
+  const ev = R.EVENT[s.ev];
+  let out = '<div class="wrap scr"><div class="sect">Encounter</div><h2>' + esc(ev.title) + '</h2><p class="lede">' + esc(ev.text) + '</p>';
+  if (!s.result) {
+    out += '<div class="opts">' + ev.options.map((o, i) => {
+      const why = o.need ? o.need(run) : null;
+      return '<button class="opt" data-act="evopt" data-i="' + i + '"' + (why ? ' disabled' : '') + '><span class="lab"><b>' + esc(o.label) + '</b>' + (o.sub ? '<small>' + esc(o.sub) + '</small>' : '') + (why ? '<span class="why">' + esc(why) + '</span>' : '') + '</span></button>';
+    }).join('') + '</div>';
+  } else out += '<p class="result">' + esc(s.result) + '</p>';
+  out += '</div>';
+  return out + (s.result ? bar('<button class="btn" data-act="leave">Back to the map</button>') : '');
+}
+/* ---------------- the end ---------------- */
+function overHtml() {
+  const run = S.run;
+  const won = run.over && run.over.won;
+  const st = run.stats;
+  return '<div class="wrap scr"><div class="ends' + (won ? '' : ' lost') + '"><div class="sect">' + (won ? 'The Path is walked' : 'The road ends here') + '</div><h1>' + (won ? 'Victory' : 'Defeat') + '</h1>' +
+    '<p class="lede">' + (won ? 'Three acts, three bosses. The tables of the Continent will talk about this deck.' : 'Beaten by ' + esc(run.over.by || 'the road') + ' in Act ' + ROMAN[run.act] + '.') + '</p>' +
+    '<p style="font-size:22px">Score <b class="gold">' + R.score(run) + '</b></p></div>' +
+    '<div class="dstats" style="justify-content:center"><span>Battles won <b>' + st.won + '</b></span><span>lost <b>' + st.lost + '</b></span><span>Cards taken <b>' + st.cards + '</b></span><span>removed <b>' + st.removed + '</b></span><span>honed <b>' + st.honed + '</b></span><span>Crowns earned <b>' + st.crowns + '</b></span></div>' +
+    '<div class="sect">Your final deck</div>' + deckGrid(run.deck, null) + '</div>' + bar('<button class="btn ghost" data-act="title">Title</button><button class="btn" data-act="new">Another run</button>');
+}
+
+/* ---------------- the deck, and picking from it ---------------- */
+function sortDeck(list) {
+  return list.slice().sort((a, b) => {
+    const ca = D.card(a.id), cb = D.card(b.id);
+    if (ca.kind !== cb.kind) return ca.kind === 'unit' ? -1 : 1;
+    return (cb.str + (b.up || 0)) - (ca.str + (a.up || 0)) || ca.name.localeCompare(cb.name);
+  });
+}
+function deckGrid(list, act, can, on) {
+  return '<div class="deckgrid">' + sortDeck(list).map(c => {
+    const ok = !can || can(c);
+    return '<button class="dc' + (on === c.rid ? ' on' : '') + '" data-act="' + (act || 'zoom') + '" data-id="' + (act ? c.rid : c.id) + '"' + (ok ? '' : ' disabled') + '>' + face(c, 'tile') + '<small>' + esc(D.card(c.id).name) + '</small></button>';
+  }).join('') + '</div>';
+}
+function deckStats(list) {
+  const st = D.deckStats(list.map(c => c.id));
+  const up = list.reduce((t, c) => t + (c.up || 0), 0);
+  return '<div class="dstats"><span>Cards <b>' + list.length + '</b></span><span>Units <b>' + st.units + '</b></span><span>Specials <b>' + st.specials + '</b></span><span>Heroes <b>' + st.heroes + '</b></span><span>Unit strength <b>' + (st.str + up) + '</b></span></div>';
+}
+
+/* ================================================================
+   Modals: the deck, a card picker, trinkets, the menu, and the battle's
+   own (round cards, questions, the end)
+   ================================================================ */
+function paintModal() {
+  const m = S.modal;
+  const el = $('modal');
+  if (!m) { el.classList.add('hide'); el.innerHTML = ''; return; }
+  let h = '';
+  if (m.k === 'deck') h = '<h3>Your deck</h3>' + deckStats(S.run.deck) + deckGrid(S.run.deck) + '<div class="foot"><button class="btn" data-act="mclose">Close</button></div>';
+  else if (m.k === 'picker') {
+    h = '<h3>' + esc(m.title) + '</h3><p class="dim" style="margin:4px 0 0">' + esc(m.sub || '') + '</p>' + deckGrid(S.run.deck, 'mpick', m.can, m.on) +
+      '<div class="foot"><button class="btn ghost" data-act="mclose">Cancel</button><button class="btn" data-act="mpickgo"' + (m.on ? '' : ' disabled') + '>' + esc(m.go || 'Choose') + '</button></div>';
+  } else if (m.k === 'trinkets') {
+    h = '<h3>Trinkets</h3><div class="opts">' + S.run.trinkets.map(id => { const t = R.TRINKET[id]; return '<div class="opt" style="cursor:default"><span class="ic">' + trkIcon(id) + '</span><span class="lab"><b>' + esc(t.name) + ' <span class="rar ' + t.rarity + '">' + t.rarity + '</span></b><small>' + esc(t.text) + '</small></span></div>'; }).join('') +
+      '</div><div class="foot"><button class="btn" data-act="mclose">Close</button></div>';
+  } else if (m.k === 'menu') {
+    h = '<h3>Menu</h3><div class="opts">' +
+      '<button class="opt" data-act="how"><span class="lab"><b>How it works</b></span></button>' +
+      '<button class="opt" data-act="title"><span class="lab"><b>Save and go to the title</b><small>The run is saved after every step; Continue picks it up.</small></span></button>' +
+      '<button class="opt" data-act="abandon"><span class="lab"><b>' + (m.sure ? 'Tap again to abandon this run' : 'Abandon this run') + '</b><small>It ends here and counts as a defeat.</small></span></button></div>' +
+      '<div class="foot"><button class="btn" data-act="mclose">Back</button></div>';
+  } else if (m.k === 'pile') {
+    h = '<h3>' + esc(m.title) + '</h3>' + (m.list.length ? '<div class="deckgrid">' + m.list.map(c => '<button class="dc" data-act="zoom" data-id="' + c.id + '">' + face(c, 'tile') + '<small>' + esc(D.card(c.id).name) + (c.n > 1 ? ' ×' + c.n : '') + '</small></button>').join('') + '</div>' : '<p class="dim">Nothing here.</p>') +
+      '<div class="foot"><button class="btn" data-act="mclose">Close</button></div>';
+  } else if (m.k === 'b') h = m.html;
+  el.innerHTML = '<div class="box">' + h + '</div>';
+  el.classList.remove('hide');
+}
+function openPicker(o) { S.modal = Object.assign({ k: 'picker', on: null }, o); paintModal(); }
+
+/* ================================================================
+   The battle
+   ================================================================ */
+const YOU = 'you', FOE = 'foe';
+function startBattle() {
+  const st = R.battleSetup(S.run);
+  S.setup = st;
+  S.g = E.create({ players: st.players, seed: st.seed, show: true });
+  S.marks = [];
+  const moves = S.run.screen.moves || [];
+  for (let i = 0; i < moves.length; i++) applyMove(moves[i], i);
+  S.seenLog = S.g.log.length;
+  S.uids = new Set(allUids());
+  S.fresh = new Set();
+  S.sel = null; S.multi = []; S.ended = false; S.passArm = false;
+}
+function allUids() { const out = []; S.g.board.sides.forEach(sd => sd.rows.forEach(r => r.units.forEach(u => out.push(u.uid)))); return out; }
+/* Apply one recorded answer. Before each of your own turns, note what an
+   undo would have to put back. */
+function applyMove(m, idx) {
+  const g = S.g;
+  if (m.rel) return { ok: g.release() };
+  let mark = null;
+  if (m.s === YOU) {
+    const pr = g.prompts.find(p => p.seat === YOU && p.n === m.a.n);
+    if (pr && pr.t === 'turn') mark = { at: idx, round: g.round, drawN: g.drawN, rngN: g.rngN };
+  }
+  const r = g.act(m.s, clone(m.a));
+  if (r.ok && mark) S.marks.push(mark);
+  return r;
+}
+/* Apply an answer and, if the engine takes it, keep it. */
+function record(m) {
+  const r = applyMove(m, S.run.screen.moves.length);
+  if (!r.ok) return r;
+  S.run.screen.moves.push(m);
+  save();
+  return r;
+}
+/* Your answer from the page. */
+function act(a) {
+  if (!S.g || S.g.hold) return;
+  const pr = S.g.prompts.find(p => p.seat === YOU);
+  if (!pr) return;
+  a = Object.assign({ n: pr.n }, a);
+  const r = record({ s: YOU, a });
+  if (!r.ok) { toast(r.why); return; }
+  Snd.play(a.t === 'pass' ? 'thump' : 'flip');
+  S.sel = null; S.multi = []; S.passArm = false;
+  afterMove();
+}
+function replayTo(n) {
+  const moves = S.run.screen.moves.slice(0, n);
+  S.run.screen.moves = moves;
+  const st = S.setup;
+  S.g = E.create({ players: st.players, seed: st.seed, show: true });
+  S.marks = [];
+  for (let i = 0; i < moves.length; i++) applyMove(moves[i], i);
+}
+function canUndo() {
+  const g = S.g;
+  if (!g || g.phase !== 'play' || !S.marks.length) return null;
+  const m = S.marks[S.marks.length - 1];
+  if (m.round !== g.round || m.drawN !== g.drawN || m.rngN !== g.rngN) return null;
+  return m;
+}
+function undo() {
+  const m = canUndo();
+  if (!m) return;
+  clearTimeout(S.timer); S.pending = 0;
+  replayTo(m.at);
+  save();
+  S.seenLog = S.g.log.length; S.uids = new Set(allUids()); S.fresh = new Set();
+  S.sel = null; S.modal = null;
+  paint();
+  tick();
+}
+function afterMove() {
+  const g = S.g;
+  /* What came on to the board, and what the house just did. */
+  const now = allUids();
+  S.fresh = new Set(now.filter(u => !S.uids.has(u)));
+  S.uids = new Set(now);
+  const fresh = g.log.slice(S.seenLog);
+  S.seenLog = g.log.length;
+  const fp = fresh.filter(e => e.by === FOE && (e.t === 'play' || e.t === 'leader')).pop();
+  if (fp) spotlight(fp);
+  if (fresh.some(e => e.t === 'roundEnd')) {
+    const last = fresh.filter(e => e.t === 'roundEnd').pop();
+    Snd.play(last.winner === YOU ? 'chime' : last.winner ? 'sting' : 'tick');
+  }
+  paint();
+  tick();
+}
+function spotlight(e) {
+  const el = $('spot');
+  const id = e.t === 'leader' ? e.leader : e.card;
+  const what = e.t === 'leader' ? S.g.seat(FOE).name + ' uses the leader' : S.g.seat(FOE).name + ' plays';
+  el.innerHTML = A.card({ id, k: 0 }, 'big') + '<div class="sw">' + esc(what) + '</div>';
+  el.classList.remove('hide');
+  Snd.play('thump', { delay: 0.05 });
+  clearTimeout(S.spotTimer);
+  S.spotTimer = setTimeout(() => el.classList.add('hide'), T.spot);
+}
+/* What happens next without you: the house's answers, Scorch lets go, the end. */
+function tick() {
+  clearTimeout(S.timer);
+  const g = S.g;
+  if (!g || S.run.screen.k !== 'battle') return;
+  if (g.phase === 'over') { if (!S.ended) { S.ended = true; endModal(); } return; }
+  if (g.hold) {
+    if (g.hold.k === 'scorch') {
+      S.timer = setTimeout(() => { record({ rel: true }); Snd.play('hit'); afterMove(); }, T.scorch);
+      return;
+    }
+    holdModal();
+    return;
+  }
+  const pr = g.prompts.find(p => p.seat === FOE);
+  if (!pr) return;
+  S.timer = setTimeout(houseMove, pr.t === 'turn' ? T.house : T.housePick);
+}
+function houseMove() {
+  const g = S.g;
+  if (!g || g.hold || g.phase === 'over') return;
+  const pr = g.prompts.find(p => p.seat === FOE);
+  if (!pr) return;
+  const me = g.seatView(FOE);
+  const view = me.prompts.find(x => x.n === pr.n);
+  let r = record({ s: FOE, a: B.answer(g.publicView(), me, clone(view)) });
+  if (!r.ok) r = record({ s: FOE, a: B.fallback(g.publicView(), me, clone(view)) });
+  if (!r.ok) return;
+  afterMove();
+}
+const clone = o => JSON.parse(JSON.stringify(o));
+
+/* The round cards hold the table until you tap Continue. */
+function holdModal() {
+  const g = S.g, h = g.hold, pub = g.publicView();
+  const html = (h.k === 'roundStart' ? W.roundStartHtml(pub, h) : W.roundEndHtml(pub, h)) + '<div class="foot"><button class="btn" data-act="release">Continue</button></div>';
+  S.modal = { k: 'b', html, hold: h.n };
+  paintModal();
+}
+function endModal() {
+  const g = S.g, res = g.result;
+  const won = res.winner === YOU;
+  const e = S.setup.foe;
+  Snd.play(won ? 'fanfare' : 'sting');
+  const rounds = res.rounds.map((r, i) => '<li>Round ' + (i + 1) + ': ' + (r.winner === YOU ? '<b class="gold">yours</b>' : r.winner ? 'theirs' : 'a draw') + ', ' + r.totals[0] + ' to ' + r.totals[1] + '</li>').join('');
+  S.modal = { k: 'b', html: '<div class="rc-h">' + (won ? 'You beat ' + esc(e.name) : res.how === 'draw' ? 'A draw — and a draw is not a win' : esc(e.name) + ' wins') + '</div>' +
+    '<div class="rc-sec"><ul>' + rounds + '</ul></div><div class="foot"><button class="btn" data-act="bdone">Continue</button></div>' };
+  paintModal();
+}
+
+/* ---------------- painting the battle ---------------- */
+function myPrompt() { return S.g ? S.g.prompts.find(p => p.seat === YOU) || null : null; }
+function battleHtml() {
+  if (!S.g) startBattle();
+  const g = S.g, pub = g.publicView(), sv = g.seatView(YOU);
+  const pr = myPrompt();
+  const can = sv.can;
+  const sel = can && S.sel ? can.hand.find(h => h.uid === S.sel) : null;
+  const myTurn = !!(pr && pr.t === 'turn' && !g.hold);
+  /* Rows a selected card can go to, and units a Decoy can take. */
+  const rowPlay = {}, tgt = {};
+  if (sel && sel.ok) sel.plays.forEach((pl, k) => {
+    if (pl.target) tgt[pl.target] = k;
+    else if (pl.row != null && D.card(sel.card).kind === 'unit') rowPlay[(pl.side === FOE ? 1 : 0) + ':' + pl.row] = k;
+    else if (pl.row != null && (D.card(sel.card).sp === 'horn' || D.card(sel.card).sp === 'mardroeme')) rowPlay['0:' + pl.row] = k;
+  });
+  const rowHtml = (s, r) => {
+    const row = pub.board.sides[s].rows[r];
+    const k = rowPlay[s + ':' + r];
+    const wx = pub.board.wx[r];
+    const burn = g.hold && g.hold.k === 'scorch' ? new Set(g.hold.victims.map(v => v.uid)) : new Set();
+    const pl = k != null ? sel.plays[k] : null;
+    return '<div class="row' + (wx ? ' wx' + r : '') + (k != null ? ' can' : '') + '"' + (k != null ? ' data-act="playk" data-k="' + k + '"' : '') + '>' +
+      '<div class="rt"><b>' + row.total + '</b>' + A.rowIcon(r, 16) + '</div>' +
+      '<div class="hs">' + (row.horn ? A.card({ id: row.horn.id, k: row.horn.k }, 'tile') : row.lhorn ? 'Leader<br>horn' : '') + '</div>' +
+      '<div class="cards">' + (row.units.length ? row.units.map(u => '<' + (k != null && tgt[u.uid] == null ? 'span' : 'button') + ' class="u' + (S.fresh.has(u.uid) ? ' fresh' : '') + (burn.has(u.uid) ? ' burning' : '') + (tgt[u.uid] != null ? ' tgt' : '') + '"' +
+        (tgt[u.uid] != null ? ' data-act="playk" data-k="' + tgt[u.uid] + '"' : k != null ? '' : ' data-act="zoomu" data-id="' + u.id + '" data-up="' + (u.up || 0) + '"') + '>' +
+        A.card({ id: u.id, k: u.k }, 'tile', { v: u.v }) + (k != null && tgt[u.uid] == null ? '</span>' : '</button>')).join('') : '<span class="empty">' + D.ROW_SHORT[r] + '</span>') + '</div>' +
+      (wx ? '<span class="wxtag">' + A.icon(['frost', 'fog', 'rain'][r], 12) + ' weather</span>' : '') +
+      (pl ? '<span class="rdelta">' + deltaHtml(pl.delta) + '</span>' : '') + '</div>';
+  };
+  const mePub = pub.players[0], foePub = pub.players[1];
+  const tYou = pub.board.sides[0].total, tFoe = pub.board.sides[1].total;
+  const strip = (p, i) => {
+    const L = D.LEADER[p.leader];
+    const lead = i === 0 ? tYou > tFoe : tFoe > tYou;
+    const active = pub.active === p.id;
+    const thinking = i === 1 && g.prompts.some(x => x.seat === FOE) && !g.hold && g.phase !== 'over';
+    const lr = i === 0 && can && can.leader;
+    const ldb = L ? '<button class="ldb' + (lr && lr.ok ? ' ok' : '') + (p.leaderUsed || p.leaderOff ? ' used' : '') + '" data-act="' + (i === 0 ? 'leader' : 'zoom') + '" data-id="' + L.id + '">' + A.card(L.id, 'tile') + '<span>' + esc(L.title) + (p.leaderOff ? ' (cancelled)' : p.leaderUsed ? ' (used)' : L.passive ? ' (always on)' : '') + '</span></button>' : '';
+    const deck = i === 0 ? '<button class="pile" data-act="mydeck">Deck ' + p.deckN + '</button>' : '<span>Deck <b>' + p.deckN + '</b></span>';
+    return '<div class="pl ' + (i === 0 ? 'you' : 'foe') + (active ? ' act' : '') + '">' +
+      '<div class="nmr"><span class="tot' + (lead ? ' lead' : '') + '">' + (i === 0 ? tYou : tFoe) + '</span><span class="nm">' + esc(p.name) + '<small>' + esc(D.faction(p.fac).name) + '</small></span>' + W.gemsHtml(p.gems, Math.max(2, (p.mods && p.mods.gems) || 2)) + '</div>' +
+      '<div class="facts"><span>Hand <b>' + p.handN + '</b></span>' + deck + '<button class="pile" data-act="pile" data-i="' + i + '">Discard ' + p.disc.length + '</button>' +
+      (p.passed ? '<span class="passed">Passed</span>' : '') + (thinking ? '<span class="think">thinking…</span>' : '') + '</div>' + ldb + '</div>';
+  };
+  const lines = W.lines(g.log, pub, 0);
+  const last = lines.filter(l => l.t !== 'decks').slice(-2);
+  const weather = pub.board.weather.length ? pub.board.weather.map(w => A.card({ id: w.id, k: w.k }, 'tile')).join('') : '<span>Clear skies</span>';
+  let hand = '';
+  if (pr && pr.what === 'redraw') hand = '<span class="empty">Redrawing…</span>';
+  else hand = sv.hand.length ? sv.hand.map(c => {
+    const h = can && can.hand.find(x => x.uid === c.uid);
+    const no = myTurn && h && !h.ok;
+    return '<button class="hc' + (S.sel === c.uid ? ' sel' : '') + (no ? ' no' : '') + (!myTurn ? ' hold' : '') + '" data-act="sel" data-id="' + c.uid + '">' + face(c, 'hand') + '</button>';
+  }).join('') : '<span class="empty">No cards left in hand.</span>';
+  const u = canUndo();
+  let acts = '';
+  if (myTurn) {
+    const losing = can.mine <= can.theirs;
+    const passLab = can.oppPassed ? (can.mine > can.theirs ? 'Pass — and win the round' : 'Pass — and lose the round') : 'Pass';
+    acts = '<button class="btn' + (losing && can.hand.length && can.oppPassed ? ' warn' : '') + '" data-act="pass">' + (S.passArm ? 'Tap again to pass' : passLab) + '</button>';
+  } else acts = '<button class="btn ghost" disabled>' + (g.phase === 'over' ? 'The battle is over' : pr ? 'Answer the question' : esc(poss(g.seat(FOE).name)) + ' move') + '</button>';
+  if (u) acts += '<button class="btn ghost" data-act="undo">Take back</button>';
+  return '<div id="bt">' +
+    '<div class="foe">' + strip(foePub, 1) + '</div>' +
+    '<div class="rows frows">' + [2, 1, 0].map(r => rowHtml(1, r)).join('') + '</div>' +
+    '<div class="mid"><div class="wx">' + weather + '</div><div class="now"><small>Round ' + Math.max(1, g.round) + (myTurn ? ' · your turn' : '') + '</small>' + (last.length ? last.map(l => '<span class="ln">' + W.html(l, pub) + '</span>').join('') : 'The cards are dealt.') + '</div></div>' +
+    '<div class="rows yrows">' + [0, 1, 2].map(r => rowHtml(0, r)).join('') + '</div>' +
+    '<div class="you">' + strip(mePub, 0) + '</div>' +
+    '<div class="hnd">' + hand + '</div>' +
+    '<div class="acts">' + acts + '</div>' +
+    '<div class="logp"><h4>The battle so far</h4><div class="ll">' + lines.slice().reverse().map((l, k) => '<div' + (k < 2 ? ' class="new"' : '') + '>' + W.html(l, pub) + '</div>').join('') + '</div></div>' +
+    '</div>';
+}
+function afterBattlePaint() {
+  /* Units fan out when a row is crowded. */
+  document.querySelectorAll('.row .cards').forEach(el => {
+    const kids = el.querySelectorAll('.u');
+    if (kids.length < 2) return;
+    const w = kids[0].getBoundingClientRect().width;
+    const avail = el.clientWidth;
+    const gap = 3;
+    const need = kids.length * w + (kids.length - 1) * gap;
+    const m = need > avail && avail > 0 ? (avail - w) / (kids.length - 1) - w : gap;
+    kids.forEach((k, i) => { k.style.marginLeft = i ? m + 'px' : '0'; });
+  });
+  /* The sheet for a selected card, or a question that is not a turn. */
+  const g = S.g;
+  const pr = myPrompt();
+  const sh = $('sheet');
+  if (!g || g.hold || g.phase === 'over' || S.modal) { sh.classList.add('hide'); return; }
+  if (pr && pr.t !== 'turn') { questionModal(pr); return; }
+  const sv = g.seatView(YOU);
+  const sel = sv.can && S.sel ? sv.can.hand.find(h => h.uid === S.sel) : null;
+  if (S.sel === 'leader' && sv.can && sv.can.leader) {
+    const L = D.LEADER[sv.can.leader.id], lr = sv.can.leader;
+    sh.innerHTML = '<div class="in">' + A.card(L.id, 'big') + '<div class="st"><b>' + esc(L.name + ' — ' + L.title) + '</b><div class="tx">' + esc(L.text) + '</div>' +
+      (lr.ok ? '<div class="plays"><button class="opt" data-act="useleader"><span class="lab"><b>Use it now</b><small>' + (lr.delta ? '' : 'Once a battle.') + '</small></span><span class="val">' + deltaHtml(lr.delta) + '</span></button></div>' : '<div class="why">' + esc(lr.why) + '</div>') +
+      '<div style="margin-top:8px"><button class="btn ghost" data-act="unsel">Back</button></div></div></div>';
+    sh.classList.remove('hide');
+    return;
+  }
+  if (!sel) { sh.classList.add('hide'); return; }
+  const d = D.card(sel.card);
+  const c = sv.hand.find(x => x.uid === sel.uid);
+  let plays = '';
+  if (sel.ok) plays = '<div class="plays">' + sel.plays.map((pl, k) => '<button class="opt" data-act="playk" data-k="' + k + '"><span class="lab"><b>' + esc(pl.label) + '</b>' +
+    (pl.victims && pl.victims.length ? '<small>Burns: ' + esc(pl.victims.map(v => D.card(v.id).name + (v.s === 0 ? ' (yours)' : ' (theirs)')).join(', ')) + '</small>' : '') + '</span><span class="val">' + deltaHtml(pl.delta) + '</span></button>').join('') + '</div>';
+  else plays = '<div class="why">' + esc(sel.why) + '</div>';
+  sh.innerHTML = '<div class="in">' + face(c, 'big') + '<div class="st"><b>' + esc(D.nameOf(sel.card)) + '</b><div class="tx">' + esc(cardText(sel.card)) + '</div>' +
+    (sel.ok && d.kind === 'unit' && sel.plays.length > 1 ? '<div class="dim sans" style="font-size:12px;margin-bottom:4px">Tap a glowing row, or:</div>' : '') + plays +
+    '<div style="margin-top:8px"><button class="btn ghost" data-act="unsel">Back to your hand</button></div></div></div>';
+  sh.classList.remove('hide');
+}
+/* A question inside a battle: the redraw, a medic's pick, a leader's choice. */
+function questionModal(pr) {
+  const sv = S.g.seatView(YOU);
+  let h = '<h3>' + esc(pr.why) + '</h3>';
+  if (pr.what === 'redraw') {
+    h += '<p class="dim" style="margin:4px 0 0">Tap a card to send it back and draw another. Nothing is drawn between rounds: this hand is your whole battle.</p>' +
+      '<div class="picklist">' + pr.options.map(o => { const c = sv.hand.find(x => x.uid === o.id) || { id: o.card }; return '<button class="hc" data-act="qpick" data-id="' + esc(o.id) + '">' + face(c, 'tile') + '</button>'; }).join('') + '</div>' +
+      '<div class="foot"><button class="btn" data-act="qskip">' + esc(pr.skip || 'Keep this hand') + '</button></div>';
+  } else {
+    const multi = pr.multi;
+    if (multi) h += '<p class="dim" style="margin:4px 0 0">Choose ' + (pr.min === pr.max ? pr.min : pr.min + ' to ' + pr.max) + '.</p>';
+    if (pr.options.some(o => o.card)) {
+      h += '<div class="picklist">' + pr.options.map(o => '<button class="hc' + (multi && S.multi.indexOf(o.id) >= 0 ? ' on' : '') + '" data-act="qpick" data-id="' + esc(o.id) + '"' + (o.bad ? ' disabled' : '') + '>' + face({ id: o.card, up: (sv.hand.find(x => x.uid === o.id) || {}).up }, 'tile') + (o.sub ? '<small>' + esc(o.sub) + '</small>' : '') + '</button>').join('') + '</div>';
+    } else {
+      h += '<div class="opts">' + pr.options.map(o => '<button class="opt" data-act="qpick" data-id="' + esc(o.id) + '"' + (o.bad ? ' disabled' : '') + '><span class="lab"><b>' + esc(o.label || o.id) + '</b>' + (o.sub ? '<small>' + esc(o.sub) + '</small>' : '') + '</span>' + (o.delta ? '<span class="val">' + deltaHtml(o.delta) + '</span>' : '') + '</button>').join('') + '</div>';
+    }
+    h += '<div class="foot">' + (pr.skip ? '<button class="btn ghost" data-act="qskip">' + esc(pr.skip) + '</button>' : '') +
+      (multi ? '<button class="btn" data-act="qmulti"' + (S.multi.length >= pr.min && S.multi.length <= pr.max ? '' : ' disabled') + '>Confirm (' + S.multi.length + ' of ' + pr.max + ')</button>' : '') + '</div>';
+  }
+  S.modal = { k: 'b', html: h, q: pr.n };
+  paintModal();
+}
+
+/* ================================================================
+   Taps
+   ================================================================ */
+document.addEventListener('click', ev => {
+  const t = ev.target.closest('[data-act]');
+  if (!t) return;
+  Snd.unlock();
+  const a = t.dataset.act, id = t.dataset.id, i = t.dataset.i != null ? +t.dataset.i : null;
+  const run = S.run;
+  const done = r => { if (r && !r.ok) toast(r.why); save(); paint(); };
+  switch (a) {
+    /* title and setup */
+    case 'continue': S.run = savedRun(); S.view = 'run'; S.g = null; S.mapScrolled = false; paint(); if (S.run.screen.k === 'battle') tick(); return;
+    case 'new': S.view = 'new'; S.modal = null; S.setupPick = { diff: S.setupPick.diff || 'witcher', fac: null, leader: null }; paint(); window.scrollTo(0, 0); return;
+    case 'how': S.view = 'how'; S.modal = null; paint(); window.scrollTo(0, 0); return;
+    case 'title': clearTimeout(S.timer); S.view = 'title'; S.modal = null; S.g = null; paint(); return;
+    case 'pdiff': S.setupPick.name = $('nm').value; S.setupPick.diff = id; paint(); return;
+    case 'pfac': S.setupPick.name = $('nm').value; S.setupPick.fac = id; S.setupPick.leader = D.HOUSE_LEADER[id]; paint(); return;
+    case 'pldr': S.setupPick.name = $('nm').value; S.setupPick.leader = id; paint(); return;
+    case 'begin': {
+      let name = ($('nm').value || '').trim().slice(0, 16) || 'The Wanderer';
+      /* The log reads "<name> plays …": "You plays" would not do. */
+      if (/^(you|me|i|myself)$/i.test(name)) name = 'The Wanderer';
+      store(NAME, name);
+      const P = S.setupPick;
+      S.run = R.newRun({ fac: P.fac, leader: P.leader, diff: P.diff, name, seed: Q.get('seed') != null ? +Q.get('seed') : undefined, now: new Date().toISOString().slice(0, 10) });
+      S.view = 'run'; S.g = null; S.mapScrolled = false; save(); paint(); window.scrollTo(0, 0); return;
+    }
+    /* anywhere */
+    case 'deck': S.modal = { k: 'deck' }; paintModal(); return;
+    case 'trinket': S.modal = { k: 'trinkets' }; paintModal(); return;
+    case 'menu': S.modal = { k: 'menu' }; paintModal(); return;
+    case 'mclose': S.modal = null; paint(); return;
+    case 'abandon':
+      if (!S.modal.sure) { S.modal.sure = true; paintModal(); return; }
+      clearTimeout(S.timer);
+      run.over = { won: false, by: 'abandonment', act: run.act }; run.screen = { k: 'over', won: false };
+      banked(run); S.modal = null; S.g = null; store(KEY, null); paint(); return;
+    case 'zoom': zoom({ id }); return;
+    case 'zoomu': zoom({ id, up: +t.dataset.up || 0 }); return;
+    /* the map and the screens */
+    case 'go': { const r = R.go(run, id); if (r.ok && run.screen.k === 'battle') { S.g = null; Snd.play('whoosh'); } else if (r.ok) Snd.play('step'); done(r); window.scrollTo(0, 0); if (run.screen.k === 'battle') tick(); return; }
+    case 'leave': {
+      const r = R.leave(run);
+      if (r.ok) { S.pick = null; S.mapScrolled = false; S.g = null; if (run.over) banked(run); }
+      done(r); window.scrollTo(0, 0);
+      if (run.screen.k === 'battle') tick();
+      return;
+    }
+    case 'rpick': S.pick = i; paint(); return;
+    case 'rtake': { const r = R.takeCard(run, S.pick); S.pick = null; if (r.ok) Snd.play('flip'); done(r); return; }
+    case 'rskip': S.pick = null; done(R.takeCard(run, null)); return;
+    case 'rleader': done(R.takeLeader(run, id || null)); return;
+    case 'buy': { const r = R.buy(run, i); if (r.ok) Snd.play('coin'); done(r); return; }
+    case 'sremove': openPicker({ title: 'Remove which card?', sub: R.removePrice(run) + ' crowns.', go: 'Remove it', then: rid => R.shopRemove(run, rid) }); return;
+    case 'rest': { const r = R.camp(run, 'rest'); if (r.ok) Snd.play('chime'); done(r); return; }
+    case 'hone': openPicker({ title: 'Hone which unit?', sub: '+' + (R.has(run, 'whetstone') ? 3 : R.HONE) + ' strength, for the rest of the run.', go: 'Hone it', can: c => D.card(c.id).kind === 'unit' && (c.up || 0) < R.HONE_MAX, then: rid => R.camp(run, 'hone', rid) }); return;
+    case 'cull': openPicker({ title: 'Burn which card?', sub: 'It leaves your deck for good.', go: 'Burn it', then: rid => R.camp(run, 'cull', rid) }); return;
+    case 'evopt': {
+      const ev = R.EVENT[run.screen.ev], o = ev.options[i];
+      if (o.pick) {
+        const can = o.pick === 'hone' ? (c => D.card(c.id).kind === 'unit' && (c.up || 0) < R.HONE_MAX) : null;
+        openPicker({ title: o.label, sub: o.sub, go: 'Choose', can, then: rid => R.choose(run, i, rid) });
+        return;
+      }
+      const r = R.choose(run, i);
+      if (r.ok && r.fight) { S.g = null; done(r); tick(); return; }
+      if (run.over) banked(run);
+      done(r); return;
+    }
+    case 'mpick': S.modal.on = id; paintModal(); return;
+    case 'mpickgo': {
+      const m = S.modal;
+      const r = m.then(m.on);
+      S.modal = null;
+      if (r && r.ok && run.over) banked(run);
+      done(r); return;
+    }
+    /* the battle */
+    case 'sel': {
+      const pr = myPrompt();
+      if (!pr || pr.t !== 'turn' || S.g.hold) { zoom(S.g.seatView(YOU).hand.find(c => c.uid === id)); return; }
+      S.sel = S.sel === id ? null : id; S.passArm = false; paint(); return;
+    }
+    case 'unsel': S.sel = null; paint(); return;
+    case 'leader': { const pr = myPrompt(); if (!pr || pr.t !== 'turn') { zoom({ id }); return; } S.sel = S.sel === 'leader' ? null : 'leader'; paint(); return; }
+    case 'useleader': act({ t: 'leader' }); return;
+    case 'playk': {
+      const sv = S.g.seatView(YOU);
+      const h = sv.can && sv.can.hand.find(x => x.uid === S.sel);
+      const pl = h && h.plays[+t.dataset.k];
+      if (!pl) return;
+      ev.stopPropagation();
+      act({ t: 'play', uid: h.uid, row: pl.row, target: pl.target || null });
+      return;
+    }
+    case 'pass': {
+      const sv = S.g.seatView(YOU), c = sv.can;
+      const risky = c && c.hand.length && (c.oppPassed ? c.mine <= c.theirs : c.mine < c.theirs && S.g.round > 0);
+      if (risky && !S.passArm) { S.passArm = true; paint(); return; }
+      act({ t: 'pass' }); return;
+    }
+    case 'undo': undo(); return;
+    case 'release': {
+      const g = S.g;
+      if (!g.hold || g.hold.n !== S.modal.hold) { S.modal = null; paint(); return; }
+      S.modal = null;
+      record({ rel: true });
+      afterMove(); return;
+    }
+    case 'qpick': {
+      const pr = myPrompt();
+      if (!pr) return;
+      if (pr.multi) { const k = S.multi.indexOf(id); if (k >= 0) S.multi.splice(k, 1); else if (S.multi.length < pr.max) S.multi.push(id); questionModal(pr); return; }
+      S.modal = null; act({ t: 'pick', id }); return;
+    }
+    case 'qskip': S.modal = null; act({ t: 'skip' }); return;
+    case 'qmulti': S.modal = null; act({ t: 'pick', ids: S.multi.slice() }); return;
+    case 'mydeck': {
+      const left = S.g.seatView(YOU).deckLeft;
+      S.modal = { k: 'pile', title: 'Left in your deck (in no order)', list: Object.keys(left).map(cid => ({ id: cid, n: left[cid] })) }; paintModal(); return;
+    }
+    case 'pile': {
+      const p = S.g.publicView().players[i];
+      S.modal = { k: 'pile', title: (i === 0 ? 'Your' : poss(p.name)) + ' discard pile', list: p.disc.slice().reverse() }; paintModal(); return;
+    }
+    case 'bdone': {
+      const res = S.g.result;
+      S.modal = null; S.g = null; S.sel = null;
+      const r = R.battleDone(run, { won: res.winner === YOU, draw: res.how === 'draw', rounds: res.rounds.map(x => ({ winner: x.winner })) });
+      if (run.over) banked(run);
+      if (run.screen.k === 'reward') Snd.play('coin');
+      done(r); window.scrollTo(0, 0); return;
+    }
+  }
+});
+document.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.getAttribute && e.target.getAttribute('role') === 'button') { e.preventDefault(); e.target.dispatchEvent(new MouseEvent('click', { bubbles: true })); return; }
+  if (e.key === 'Escape') {
+    if (!$('zoom').classList.contains('hide')) { $('zoom').classList.add('hide'); return; }
+    if (S.sel) { S.sel = null; paint(); }
+  }
+});
+$('zoom').addEventListener('click', () => $('zoom').classList.add('hide'));
+function zoom(c) {
+  if (!c) return;
+  const z = $('zoom');
+  z.innerHTML = face(c, 'big') + '<div class="ztx"><b>' + esc(D.nameOf(c.id)) + '</b>' + (c.up ? ' <span class="gold">(honed +' + c.up + ')</span>' : '') + '<br>' + esc(cardText(c.id)) + '</div><div class="dim sans" style="font-size:13px">Tap to close</div>';
+  z.classList.remove('hide');
+}
+/* The end of a run goes into the hall of fame. */
+function banked(run) {
+  if (run.banked) return;
+  run.banked = true;
+  const list = bests();
+  list.push({ score: R.score(run), fac: run.fac, diff: run.diff, won: !!(run.over && run.over.won), act: run.act, name: run.name, date: new Date().toISOString().slice(0, 10) });
+  list.sort((a, b) => b.score - a.score);
+  store(BEST, JSON.stringify(list.slice(0, 10)));
+  store(KEY, null);
+}
+window.addEventListener('resize', () => { if (S.run && S.run.screen.k === 'battle' && S.view === 'run') afterBattlePaint(); });
+
+/* ================================================================
+   Start
+   ================================================================ */
+document.head.insertAdjacentHTML('beforeend', A.styles());
+/* No printed pictures in this public copy: the drawn faces only. */
+Snd.armUnlock();
+window.GwentPath = { S, R, paint, tick, act, startBattle, houseMove, T };
+paint();
+</script>
+</body>
+</html>
