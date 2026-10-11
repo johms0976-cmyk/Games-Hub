@@ -39,8 +39,6 @@ h1,h2,h3{margin:0;font-weight:800}
 .rar.legendary{color:#ff9a5a;border-color:#b0502a;background:rgba(176,80,42,.15)}
 .up-tag{position:absolute;right:4%;top:3%;z-index:4;background:#1d6a2c;color:#d8ffe0;font:800 11px/1 system-ui,sans-serif;padding:3px 5px;border-radius:6px;border:1px solid #6fdc84}
 .slot{position:relative;display:inline-block}
-/* This public copy ships no card pictures: never ask for them. */
-.gc .gpic{display:none !important}
 /* Where a face is sized by its container, the wrapper must take the width. */
 .offer .it .slot,.deckgrid .dc .slot{display:block;width:100%}
 .offer .it .slot{max-width:170px}
@@ -297,7 +295,7 @@ input.nm{font:inherit;background:var(--panel2);border:1px solid var(--line);colo
 <script src="gw-run.js"></script>
 <script>
 'use strict';
-/* Gwent — The Path. (Public copy of the Gameshow Hub's games/Gwent/run.html, without the card pictures.) One page, no server: the run (gw-run.js), the battles
+/* Gwent — The Path. (Public copy of the Gameshow Hub's games/Gwent/run.html, with the printed card pictures in art/ at the user's request; ?noart turns them off.) One page, no server: the run (gw-run.js), the battles
    (gw-engine.js with the house from gw-bots.js), and the screens between.
    Everything the run knows is saved to this browser after every step, a
    battle as its seed and its answers, so a reload carries on mid-turn. */
@@ -1144,7 +1142,7 @@ window.addEventListener('resize', () => { if (S.run && S.run.screen.k === 'battl
    Start
    ================================================================ */
 document.head.insertAdjacentHTML('beforeend', A.styles());
-/* No printed pictures in this public copy: the drawn faces only. */
+if (!Q.has('noart')) A.probe();
 Snd.armUnlock();
 window.GwentPath = { S, R, paint, tick, act, startBattle, houseMove, T };
 paint();
