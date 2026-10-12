@@ -439,12 +439,16 @@
   function strengthOf(board, s, r, u) {
     const c = CARDS[u.id];
     if (!c || isDecoy(u)) return 0;
-    let v = c.str + (u.up || 0);   // a card honed in the run (gw-run.js)
+    let v = Math.max(0, c.str + (u.up || 0));   // honed (or wounded) in the run (gw-run.js)
     if (c.ab === 'spy' && board.spies2) v *= 2;
     if (c.hero) return v;
     const row = board.sides[s].rows[r];
     /* King Bran: his side loses only half its strength to the weather. */
     if (board.wx[r]) v = board.half && board.half[s] ? Math.max(Math.min(v, 1), Math.floor(v / 2)) : Math.min(v, 1);
+    /* A row penalty from the single-player run (Weakened, Emhyr's edict, a
+       cursed trinket): never below 1, and never raises a card that is less. */
+    const minus = board.minus && board.minus[s] ? board.minus[s][r] : 0;
+    if (minus) v = Math.max(Math.min(v, 1), v - minus);
     if (c.ab === 'bond') v *= row.units.filter(x => x.id === u.id).length;
     v += row.units.filter(x => x !== u && CARDS[x.id] && CARDS[x.id].ab === 'morale').length;
     if (hornOn(row) || row.units.some(x => x !== u && CARDS[x.id] && CARDS[x.id].ab === 'horn')) v *= 2;
@@ -497,7 +501,7 @@
     return vals[0] > vals[1] ? 0 : 1;
   }
   function emptyBoard() {
-    return { wx: [false, false, false], spies2: false, half: [false, false], sides: [0, 1].map(() => ({ rows: [0, 1, 2].map(() => ({ units: [], horn: null, lhorn: false })) })) };
+    return { wx: [false, false, false], spies2: false, half: [false, false], minus: [[0, 0, 0], [0, 0, 0]], sides: [0, 1].map(() => ({ rows: [0, 1, 2].map(() => ({ units: [], horn: null, lhorn: false })) })) };
   }
 
   const nameOf = id => { const c = CARDS[id] || LEADER[id]; return c ? c.name + (c.kind === 'leader' ? ' — ' + c.title : '') : String(id); };

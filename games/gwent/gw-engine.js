@@ -35,7 +35,7 @@
   const OVER = { over: true };
   /* The holds the whole table reads (Continue on every phone) and the ones
      the telly shows for a moment and lets go. */
-  const TABLE_HOLDS = { roundStart: 1, roundEnd: 1 };
+  const TABLE_HOLDS = { roundStart: 1, roundEnd: 1, phase: 1 };
 
   function rngFrom(seed) {
     let s = (seed >>> 0) || 1;
@@ -66,12 +66,19 @@
      x.mods: the run's trinkets and enemy rules, per player (gw-run.js).
      The hub game never sets either, so it plays exactly as before.
      ================================================================ */
-  const MOD_DEFAULT = { hand: 0, redraws: 0, gems: 2, winDraw: 0, tieWin: false, keep: false, halfWeather: false, spyDraw: 0, roundDraw: 0, leaderUses: 1, start: [] };
+  /* weak: every row of yours at −n; minusRows: [close, ranged, siege] at −n;
+     noLeader: your leader is silent; phase: a boss's second phase (PHASES). */
+  const MOD_DEFAULT = { hand: 0, redraws: 0, gems: 2, winDraw: 0, tieWin: false, keep: false, halfWeather: false, spyDraw: 0, roundDraw: 0, leaderUses: 1, start: [],
+    weak: 0, minusRows: [0, 0, 0], noLeader: false, phase: null };
+  const PHASES = ['whiteFrost', 'crones', 'edict', 'ambush', 'rage', 'levy'];
   function modsOf(m) {
     const o = Object.assign({}, MOD_DEFAULT, m || {});
     o.start = Array.isArray(o.start) ? o.start.slice() : [];
     o.gems = Math.max(1, Math.min(4, o.gems | 0));
     o.leaderUses = Math.max(1, o.leaderUses | 0);
+    o.minusRows = [0, 1, 2].map(r => Math.max(0, ((o.minusRows || [])[r] | 0)));
+    o.weak = Math.max(0, o.weak | 0);
+    if (PHASES.indexOf(o.phase) < 0) o.phase = null;
     return o;
   }
   function create(opts) {
@@ -85,14 +92,14 @@
       phase: 'deck', round: 0, cur: null, starter: null, lastWinner: null,
       board: D.emptyBoard(), wxCards: [],
       log: [], prompts: [], pn: 0, waitAll: false, answers: {},
-      hold: null, holdN: 0, actN: 0, uidN: 0, limbo: [],
+      hold: null, holdN: 0, actN: 0, uidN: 0, limbo: [], locks: [false, false, false],
       history: [], result: null
     };
     g.players = list.map((x, i) => ({
       id: x.id, name: x.name, hex: x.hex || '#d9b04a', bot: !!x.bot, i,
       level: x.bot ? (LEVELS.indexOf(x.level) >= 0 ? x.level : 'medium') : null,
       given: x.fac ? { fac: x.fac, leader: x.leader || D.HOUSE_LEADER[x.fac], cards: (x.cards || D.STANDARD[x.fac]).slice() } : null,
-      mods: modsOf(x.mods), modded: !!x.mods, leaderN: 0,
+      mods: modsOf(x.mods), modded: !!x.mods, leaderN: 0, phaseN: 0,
       fac: null, leader: null, leaderUsed: false, deck: [], hand: [], disc: [], gems: modsOf(x.mods).gems, passed: false, wins: 0, seen: null, deckSize: 0
     }));
     attach(g);
@@ -115,13 +122,19 @@
     g.note = e => log(e);
 
     /* ---------------- the leaders ---------------- */
-    const cancelled = p => { const q = opp(p); return q.leader === 'emhyr_whiteflame' && p.leader !== null; };
+    const cancelled = p => { const q = opp(p); return (q.leader === 'emhyr_whiteflame' && p.leader !== null) || (!!p.leader && p.mods.noLeader); };
     const leaderLive = (p, ab) => !!p.leader && D.LEADER[p.leader].ab === ab && !cancelled(p);
     const invader = () => g.players.some(p => leaderLive(p, 'randomRevive'));
     function refreshPassives() {
       B().spies2 = g.players.some(p => leaderLive(p, 'spies2'));
       B().half = g.players.map(p => leaderLive(p, 'halfWeather') || p.mods.halfWeather);
+      baseMinus();
     }
+    /* The standing row penalties (the run's Weakened and cursed trinkets). */
+    function baseMinus() { B().minus = g.players.map(p => [0, 1, 2].map(r => p.mods.weak + p.mods.minusRows[r])); }
+    /* The skies after a Clear: the White Frost does not lift. */
+    const clearSkies = () => g.locks.slice();
+    const clearable = () => B().wx.some((w, r) => w && !g.locks[r]);
 
     /* ---------------- cards moving ---------------- */
     const inst = (id, k, up) => { const c = { uid: uid(), id, k: k || 0 }; if (up) c.up = up; return c; };
@@ -294,7 +307,7 @@
     function clearWeather(p, c, how) {
       for (const w of g.wxCards) g.players[w.s].disc.push(w.c);
       g.wxCards = [];
-      B().wx = [false, false, false];
+      B().wx = clearSkies();
       if (c) p.disc.push(c);
       log({ t: 'clear', by: p.id, how: how || 'card' });
     }
@@ -338,7 +351,7 @@
       const L = p.leader && D.LEADER[p.leader];
       if (!L) return 'No leader.';
       if (L.passive) return 'Always on.';
-      if (cancelled(p)) return 'Emhyr, the White Flame cancels it.';
+      if (cancelled(p)) return p.mods.noLeader ? 'Leaderless: your leader is silent this run.' : 'Emhyr, the White Flame cancels it.';
       if (p.leaderUsed) return p.mods.leaderUses > 1 ? 'Used ' + p.leaderN + ' times this game.' : 'Already used this game.';
       const q = opp(p);
       switch (L.ab) {
@@ -351,7 +364,7 @@
         case 'fog': return deckWeather(p, 'fog').length ? null : 'No Impenetrable Fog left in your deck.';
         case 'frost': return deckWeather(p, 'frost').length ? null : 'No Biting Frost left in your deck.';
         case 'stealDiscard': return q.disc.length ? null : q.name + '’s discard pile is empty.';
-        case 'clear': return B().wx.some(Boolean) ? null : 'There is no weather to clear.';
+        case 'clear': return clearable() ? null : g.locks.some(Boolean) ? 'The White Frost cannot be cleared.' : 'There is no weather to clear.';
         case 'burn1': return D.rowScorchVictims(B(), q.i, 1, 0).length ? null : q.name + ' has nothing in the Ranged row to destroy.';
         case 'burn2at10': return D.rowScorchVictims(B(), q.i, 2, 10).length ? null : q.name + '’s Siege row adds up to less than 10.';
         case 'burn0at10': return D.rowScorchVictims(B(), q.i, 0, 10).length ? null : q.name + '’s Close Combat row adds up to less than 10.';
@@ -512,7 +525,7 @@
       if (sp === 'mardroeme') return [0, 1, 2].filter(r => !B().sides[p.i].rows[r].horn).map(r => ({ key: c.uid + ':' + r, row: r,
         label: 'Your ' + D.ROW_NAME[r] + ' row' + (B().sides[p.i].rows[r].units.some(u => C(u.id).ab === 'berserk') ? '' : ' (no Berserker there yet)'),
         delta: pair(p, trial(() => { B().sides[p.i].rows[r].horn = { uid: 'trial', id: 'sp_mardroeme' }; previewTransform(p.i, r); })) }));
-      if (sp === 'clear') return [{ key: c.uid, label: B().wx.some(Boolean) ? 'Clear the weather' : 'Clear the weather (there is none)', delta: pair(p, trial(() => { B().wx = [false, false, false]; })) }];
+      if (sp === 'clear') return [{ key: c.uid, label: clearable() ? 'Clear the weather' + (g.locks.some(Boolean) ? ' (the White Frost stays)' : '') : g.locks.some(Boolean) ? 'Clear the weather (only the White Frost is here: it stays)' : 'Clear the weather (there is none)', delta: pair(p, trial(() => { B().wx = clearSkies(); })) }];
       if (sp === 'horn') return [0, 1, 2].filter(r => !B().sides[p.i].rows[r].horn).map(r => ({ key: c.uid + ':' + r, row: r, label: 'Your ' + D.ROW_NAME[r] + ' row' + (B().sides[p.i].rows[r].lhorn ? ' (your leader already doubles it)' : B().sides[p.i].rows[r].units.some(u => C(u.id).ab === 'horn') ? ' (Dandelion already doubles it)' : ''),
         delta: pair(p, trial(() => { B().sides[p.i].rows[r].horn = { uid: 'trial', id: 'sp_horn' }; })) }));
       if (sp === 'decoy') {
@@ -536,7 +549,7 @@
       const q = opp(p);
       const burn = (r, min) => pair(p, trial(() => { for (const v of D.rowScorchVictims(B(), q.i, r, min)) { const row = B().sides[v.s].rows[v.r]; row.units.splice(row.units.findIndex(x => x.uid === v.u.uid), 1); } }));
       if (/^horn/.test(ab)) return pair(p, trial(() => { B().sides[p.i].rows[+ab.slice(4)].lhorn = true; }));
-      if (ab === 'clear') return pair(p, trial(() => { B().wx = [false, false, false]; }));
+      if (ab === 'clear') return pair(p, trial(() => { B().wx = clearSkies(); }));
       if (ab === 'burn1') return burn(1, 0);
       if (ab === 'burn2at10') return burn(2, 10);
       if (ab === 'burn0at10') return burn(0, 10);
@@ -646,6 +659,7 @@
         if (g.round === 3) skelligeRises();
         if (g.round > 1) g.players.forEach(p => { if (p.mods.roundDraw && p.deck.length) { draw(p, p.mods.roundDraw, 'trinket'); log({ t: 'bonus', by: p.id, what: 'roundDraw' }); } });
         yield* hold({ k: 'roundStart', round: g.round, by: g.players[g.starter].id });
+        yield* bossPhases();
         for (;;) {
           if (g.players.every(p => p.passed)) break;
           const p = g.players[g.cur];
@@ -677,6 +691,66 @@
           got.push(c.id);
         }
         log({ t: 'bonus', by: p.id, what: 'sk', ids: got });
+      }
+    }
+    /* A boss's second phase (the single-player run, gw-run.js PHASES): once
+       its holder has lost a round, it strikes at the start of every round
+       after, harder after a second loss. Decided, shown on the table (a
+       hold the room reads), then played on. Nothing here uses the rng, so
+       undo by replay is unaffected. */
+    const strongestIn = list => list.slice().sort((a, b) => {
+      const ca = C(a.id), cb = C(b.id);
+      const va = ca.kind === 'unit' ? ca.str + (a.up || 0) + (ca.hero ? 0.5 : 0) : 3, vb = cb.kind === 'unit' ? cb.str + (b.up || 0) + (cb.hero ? 0.5 : 0) : 3;
+      return vb - va;
+    })[0];
+    function* bossPhases() {
+      for (const p of g.players) {
+        const ph = p.mods.phase;
+        if (!ph || !p.phaseN) continue;
+        const q = opp(p);
+        const lvl = Math.min(2, p.phaseN);
+        const info = { k: 'phase', by: p.id, of: q.id, what: ph, lvl, round: g.round };
+        if (ph === 'whiteFrost') {
+          g.locks[0] = true;
+          if (lvl >= 2) g.locks[1] = true;
+          g.locks.forEach((l, r) => { if (l) B().wx[r] = true; });
+          info.rows = [0, 1, 2].filter(r => g.locks[r]);
+        } else if (ph === 'crones') {
+          info.ids = [];
+          for (let k = 0; k < lvl && q.hand.length; k++) {
+            const c = strongestIn(q.hand);
+            q.hand.splice(q.hand.indexOf(c), 1);
+            q.disc.push(c);
+            q.hand.push(inst('cow', 20 + k));
+            info.ids.push(c.id);
+          }
+        } else if (ph === 'edict') {
+          const last = g.history[g.history.length - 1];
+          const tot = last ? last.rows[q.i] : [0, 0, 0];
+          let row = 0;
+          [1, 2].forEach(r => { if (tot[r] > tot[row]) row = r; });
+          info.row = row; info.n = lvl === 1 ? 2 : 3;
+          B().minus[q.i][row] += info.n;
+        } else if (ph === 'ambush') {
+          info.ids = [];
+          for (let k = 0; k < lvl + 1; k++) {
+            const pool = p.deck.filter(c => C(c.id).kind === 'unit' && !C(c.id).hero);
+            if (!pool.length) break;
+            const c = strongestIn(pool);
+            p.deck.splice(p.deck.indexOf(c), 1);
+            B().sides[p.i].rows[C(c.id).rows[0]].units.push(c);
+            log({ t: 'enter', by: p.id, card: c.id, row: C(c.id).rows[0], side: p.id, how: 'ambush' });
+            info.ids.push(c.id);
+          }
+        } else if (ph === 'rage') {
+          info.rows = lvl >= 2 ? [2, 1] : [2];
+          info.rows.forEach(r => { B().sides[p.i].rows[r].lhorn = true; });
+        } else if (ph === 'levy') {
+          info.n = lvl + 1;
+          for (let k = 0; k < info.n; k++) B().sides[p.i].rows[0].units.push(inst('poor_fucking_infantry', 30 + k));
+        }
+        log(Object.assign({ t: 'phase' }, info, { k: undefined }));
+        yield* hold(info);
       }
     }
     function* chooseStarter() {
@@ -720,7 +794,7 @@
       /* The round that ends the game gets no card of its own: the winner
          reveal tells it (a card naming the round's winner would spoil it). */
       if (rec.gems.every(x => x > 0)) yield* hold(Object.assign({ k: 'roundEnd' }, clone(rec)));
-      losers.forEach(i => { g.players[i].gems--; log({ t: 'gem', of: g.players[i].id, left: g.players[i].gems }); });
+      losers.forEach(i => { g.players[i].gems--; g.players[i].phaseN++; log({ t: 'gem', of: g.players[i].id, left: g.players[i].gems }); });
       if (w != null) g.players[w].wins++;
       g.lastWinner = w;
       if (nrDraw) { draw(P(nrDraw), 1, 'nr'); log({ t: 'bonus', by: nrDraw, what: 'nr' }); }
@@ -742,6 +816,7 @@
       for (const x of g.wxCards) g.players[x.s].disc.push(x.c);
       g.wxCards = [];
       B().wx = [false, false, false];
+      baseMinus();
       g.players.forEach(p => { if (p.seen && p.seen.round <= g.round) p.seen = null; });
       const out = g.players.filter(p => p.gems <= 0);
       if (out.length) finish(out.length === 2 ? null : opp(out[0]).id, out.length === 2 ? 'draw' : 'gems');
@@ -848,7 +923,7 @@
         v: VERSION, phase: g.phase, round: g.round, active: g.activeId(),
         starter: g.starter == null ? null : g.players[g.starter].id,
         board: {
-          wx: b.wx.slice(), spies2: b.spies2, half: (b.half || [false, false]).slice(),
+          wx: b.wx.slice(), spies2: b.spies2, half: (b.half || [false, false]).slice(), locks: g.locks.slice(), minus: (b.minus || [[0, 0, 0], [0, 0, 0]]).map(x => x.slice()),
           weather: g.wxCards.map(x => ({ uid: x.c.uid, id: x.c.id, k: x.c.k, by: g.players[x.s].id })),
           sides: b.sides.map((sd, s) => ({
             total: t[s],
@@ -863,7 +938,8 @@
           fac: chosen() ? p.fac : null, leader: chosen() ? p.leader : null, leaderUsed: p.leaderUsed, leaderOff: chosen() && !!p.leader && cancelled(p),
           gems: p.gems, wins: p.wins, handN: p.hand.length, deckN: p.deck.length, passed: p.passed, leaderN: p.leaderN,
           mods: p.modded ? { hand: p.mods.hand, redraws: p.mods.redraws, gems: p.mods.gems, winDraw: p.mods.winDraw, tieWin: p.mods.tieWin, keep: p.mods.keep,
-            halfWeather: p.mods.halfWeather, spyDraw: p.mods.spyDraw, roundDraw: p.mods.roundDraw, leaderUses: p.mods.leaderUses, startN: p.mods.start.length } : null,
+            halfWeather: p.mods.halfWeather, spyDraw: p.mods.spyDraw, roundDraw: p.mods.roundDraw, leaderUses: p.mods.leaderUses, startN: p.mods.start.length,
+            weak: p.mods.weak, minusRows: p.mods.minusRows.slice(), noLeader: p.mods.noLeader, phase: p.mods.phase, phaseN: p.phaseN } : null,
           disc: p.disc.map(c => ({ uid: c.uid, id: c.id, k: c.k, up: c.up || 0 })),
           choosing: g.prompts.some(pr => pr.seat === p.id && (pr.t === 'deck' || pr.what === 'redraw'))
         })),
@@ -900,7 +976,7 @@
     g.X = { menu, leaderNeed, totals, cancelled, invader, agileMoves };
   }
 
-  const Engine = { VERSION, LEVELS, TABLE_HOLDS, MOD_DEFAULT, create, rngFrom, shuffle };
+  const Engine = { VERSION, LEVELS, TABLE_HOLDS, MOD_DEFAULT, PHASES, create, rngFrom, shuffle };
   if (typeof module !== 'undefined' && module.exports) module.exports = Engine;
   else root.GwentEngine = Engine;
 })(typeof window !== 'undefined' ? window : this);

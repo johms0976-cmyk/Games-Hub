@@ -37,11 +37,28 @@ h1,h2,h3{margin:0;font-weight:800}
 .rar.uncommon{color:#8fd0ff;border-color:#3a6a90}
 .rar.rare{color:#f1c75b;border-color:#a07a2a}
 .rar.legendary{color:#ff9a5a;border-color:#b0502a;background:rgba(176,80,42,.15)}
+.rar.cursed{color:#d9a0ff;border-color:#7a3aa0;background:rgba(122,58,160,.18)}
+.up-tag.down{background:#7a1a22;color:#ffd0d4;border-color:#ff6a7a}
+.chk{display:flex;gap:10px;align-items:flex-start;text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:11px 12px;color:var(--ink);min-height:48px}
+.chk .box{width:22px;height:22px;border-radius:6px;border:2px solid var(--line);flex:none;display:flex;align-items:center;justify-content:center;font:900 14px/1 system-ui,sans-serif;color:#1b140c;margin-top:1px}
+.chk.on{border-color:#c06060;background:rgba(192,96,96,.12)}
+.chk.on .box{background:#e07a6a;border-color:#e07a6a}
+.chk b{display:block}
+.chk small{color:var(--dim);font-size:13px}
+.chk .w{margin-left:auto;font:800 13px/1 system-ui,sans-serif;color:#ffb0a8;white-space:nowrap}
+.phase{margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid #7a3aa0;background:rgba(122,58,160,.14);font-size:14px}
+.phase b{color:#d9a0ff}
+.pl .phasechip{border-color:#7a3aa0;color:#d9a0ff}
+.pl .phasechip.live{background:rgba(122,58,160,.3);color:#f0d8ff}
+.hunt{color:#9fd4ff}
 .up-tag{position:absolute;right:4%;top:3%;z-index:4;background:#1d6a2c;color:#d8ffe0;font:800 11px/1 system-ui,sans-serif;padding:3px 5px;border-radius:6px;border:1px solid #6fdc84}
 .slot{position:relative;display:inline-block}
 /* Where a face is sized by its container, the wrapper must take the width. */
 .offer .it .slot,.deckgrid .dc .slot{display:block;width:100%}
 .offer .it .slot{max-width:170px}
+.opt .wnd{width:58px;flex:none}
+.opt .wnd .slot{display:block;width:100%}
+.opt .wnd .gc{width:100%;font-size:9px}
 
 /* ---------- top bar ---------- */
 #top{position:sticky;top:0;z-index:30;background:linear-gradient(180deg,#120c07 70%,rgba(18,12,7,0));padding:8px 16px 10px}
@@ -219,6 +236,7 @@ input.nm{font:inherit;background:var(--panel2);border:1px solid var(--line);colo
 .row.wx2{background:linear-gradient(90deg,rgba(60,90,160,.45),rgba(36,26,14,.74) 70%)}
 .row.can{border-color:var(--gold);box-shadow:0 0 0 2px rgba(224,180,86,.6) inset,0 0 14px rgba(224,180,86,.35);cursor:pointer}
 .row .empty{color:#6d5c40;font-size:12px;font-style:italic;font-family:system-ui,sans-serif}
+.row .wxtag.minus{color:#ffc0b8}
 .row .wxtag{position:absolute;right:6px;bottom:3px;pointer-events:none;font:11px system-ui,sans-serif;color:#dfeaff;display:flex;align-items:center;gap:3px;background:rgba(0,0,0,.5);padding:1px 6px;border-radius:5px}
 .row .rdelta{position:absolute;right:6px;top:3px;pointer-events:none;background:rgba(10,7,4,.85);border-radius:6px;padding:2px 6px}
 @keyframes land{from{transform:translateY(-16px) scale(1.15);opacity:.2}to{transform:none;opacity:1}}
@@ -366,8 +384,8 @@ function face(c, kind, o) {
   o = o || {};
   const d = D.card(c.id);
   const up = c.up || 0;
-  const v = o.v != null ? o.v : (d && d.kind === 'unit' ? d.str + up : undefined);
-  return '<span class="slot">' + A.card({ id: c.id, k: c.k || 0 }, kind, Object.assign({}, o, { v })) + (up ? '<span class="up-tag">+' + up + '</span>' : '') + '</span>';
+  const v = o.v != null ? o.v : (d && d.kind === 'unit' ? Math.max(0, d.str + up) : undefined);
+  return '<span class="slot">' + A.card({ id: c.id, k: c.k || 0 }, kind, Object.assign({}, o, { v })) + (up ? '<span class="up-tag' + (up < 0 ? ' down' : '') + '">' + (up > 0 ? '+' : '−') + Math.abs(up) + '</span>' : '') + '</span>';
 }
 /* Elven Raiders’ move, not Raiders’s. */
 const poss = n => n + (/s$/i.test(n) ? '’' : '’s');
@@ -402,6 +420,8 @@ function topHtml() {
     '<button class="tb" data-act="deck">' + svg('deck') + run.deck.length + '<span class="where">&nbsp;cards</span></button>' +
     (run.trinkets.length ? '<button class="tb trkn" data-act="trinket">' + trkIcon(run.trinkets[run.trinkets.length - 1]).replace('<svg', '<svg style="width:18px;height:18px"') + run.trinkets.length + '</button>' : '') +
     (run.trinkets.length ? '<span class="trk">' + run.trinkets.map(id => '<button data-act="trinket" data-id="' + id + '" title="' + esc(R.TRINKET[id].name) + '">' + trkIcon(id) + '</button>').join('') + '</span>' : '') +
+    (run.act === 3 && !run.over ? '<span class="stat hunt" title="The Wild Hunt on your trail">' + svg('elite') + (run.hunt || 0) + '/' + R.HUNT + '</span>' : '') +
+    ((run.ch || []).length ? '<button class="tb" data-act="chinfo" title="Challenges">×' + R.multiplier(run).toFixed(2).replace(/0$/, '') + '</button>' : '') +
     '<span class="grow"></span><span class="dim sans where" style="font-size:12.5px">' + esc(where) + '</span>' +
     '<button class="tb" data-act="menu">Menu</button></div>';
 }
@@ -446,7 +466,7 @@ function titleHtml() {
     '<a class="btn ghost" href="../../index.html" style="text-decoration:none">Games hub</a>' +
     '</div>' +
     (best.length ? '<div class="best"><div class="sect">Your best runs</div><ol>' + best.map(b => '<li><b>' + esc(b.score) + '</b> — ' + esc(D.faction(b.fac).name) + ', ' + esc(R.DIFFICULTY[b.diff].name) + ': ' +
-      (b.won ? '<span class="gold">all three bosses beaten</span>' : 'fell in Act ' + ROMAN[b.act]) + (b.date ? ' · ' + esc(b.date) : '') + '</li>').join('') + '</ol></div>' : '') +
+      (b.won ? '<span class="gold">all three bosses beaten</span>' : 'fell in Act ' + ROMAN[b.act]) + (b.ch && b.ch.length ? ' · ' + b.ch.length + ' challenge' + (b.ch.length > 1 ? 's' : '') : '') + (b.date ? ' · ' + esc(b.date) : '') + '</li>').join('') + '</ol></div>' : '') +
     '</div>';
 }
 function howHtml() {
@@ -457,6 +477,11 @@ function howHtml() {
     '<li>Lose a battle and you lose a life. Lose to a boss and you lose a life and must face it again. No lives left ends the run.</li></ul>' +
     '<h3>Between battles</h3><ul><li><b>Campfire</b>: rest (a life back), hone a unit (+2 strength, for good) or burn a card from your deck.</li>' +
     '<li><b>Merchant</b>: cards, trinkets, and one card removed a visit.</li><li><b>Trinkets</b> change every battle: an extra card dealt, more redraws, a card drawn each round you win …</li></ul>' +
+    '<h3>Bosses, challenges and the Hunt</h3><ul><li>Every boss has a <b>second phase</b>. Take a round off it and it strikes back at the start of every round after: the Crones steal your best card, the White Frost freezes a row for good, Emhyr’s edict weakens your strongest row … The act card names it before you set out.</li>' +
+    '<li><b>Challenges</b> are chosen before a run — One Life, Weakened, Short Hand and more. Each makes the road harder and your score bigger.</li>' +
+    '<li>Once an act, a lost battle can cost a <b>wound</b> instead of a life: your strongest card fights at −' + R.WOUND + ' for the rest of the run.</li>' +
+    '<li><b>Cursed trinkets</b> come only from the Man of Glass: a gift with a price you can read.</li>' +
+    '<li>In Act III the <b>Wild Hunt</b> follows you. Every stop brings it closer; at ' + R.HUNT + ' it catches you for a fight.</li></ul>' +
     '<h3>A battle</h3><ul><li>The usual Gwent: two rounds out of three, two gems each. Tap a card in your hand, then a glowing row — or the play in the panel, which says what it does to both totals.</li>' +
     '<li>Pass when you have done enough: no cards are drawn between rounds, so the hand you are dealt is the whole battle.</li>' +
     '<li>Made a mistake? <b>Take back</b> undoes your last move, as long as nothing new has been drawn.</li></ul>' +
@@ -470,6 +495,8 @@ function newHtml() {
   let out = '<div class="wrap"><h2 class="gold" style="font-size:30px">A new run</h2>' +
     '<div class="sect">Your name</div><input class="nm" id="nm" maxlength="16" value="' + esc(P.name || load(NAME) || 'The Wanderer') + '" autocomplete="off">' +
     '<div class="sect">Difficulty</div><div class="choices">' + Object.keys(R.DIFFICULTY).map(k => '<button class="choice' + (P.diff === k ? ' on' : '') + '" data-act="pdiff" data-id="' + k + '"><b>' + esc(R.DIFFICULTY[k].name) + '</b><small>' + esc(R.DIFFICULTY[k].text) + '</small></button>').join('') + '</div>' +
+    '<div class="sect">Challenges <span style="text-transform:none;letter-spacing:0">— optional; each raises your score</span></div><div class="choices">' + R.CHALLENGES.map(c => '<button class="chk' + ((P.ch || []).indexOf(c.id) >= 0 ? ' on' : '') + '" data-act="pch" data-id="' + c.id + '"><span class="box">' + ((P.ch || []).indexOf(c.id) >= 0 ? '✓' : '') + '</span><span><b>' + esc(c.name) + '</b><small>' + esc(c.text) + '</small></span><span class="w">+' + Math.round(c.w * 100) + '%</span></button>').join('') + '</div>' +
+    ((P.ch || []).length ? '<p class="dim sans" style="font-size:13px;margin:6px 0 0">Score ×' + (1 + (P.ch || []).reduce((t, id) => t + R.CHALLENGE[id].w, 0)).toFixed(2) + '</p>' : '') +
     '<div class="sect">Faction</div><div class="choices">' + facs.map(f => '<button class="choice fac' + (P.fac === f.id ? ' on' : '') + '" style="--fc:' + f.hex + '" data-act="pfac" data-id="' + f.id + '"><b>' + esc(f.name) + '</b><small>' + esc(f.bonus) + '</small></button>').join('') + '</div>';
   if (P.fac) {
     out += '<div class="sect">Leader</div><div class="ldrs">' + D.leadersOf(P.fac).map(id => { const L = D.LEADER[id]; return '<button class="ldr' + (P.leader === id ? ' on' : '') + '" data-act="pldr" data-id="' + id + '">' + A.card(id, 'tile') + '<span><b>' + esc(L.name + ' — ' + L.title) + '</b><small>' + esc(L.text) + '</small></span></button>'; }).join('') + '</div>';
@@ -479,6 +506,11 @@ function newHtml() {
   return out;
 }
 
+/* A boss's second phase, in a line. */
+function phaseLine(e) {
+  const P = e && e.mods && e.mods.phase && R.PHASES[e.mods.phase];
+  return P ? '<div class="phase"><b>Second phase — ' + esc(P.name) + '.</b> ' + esc(P.when) + ' ' + esc(P.lvl[0]) + '</div>' : '';
+}
 /* ---------------- the act card ---------------- */
 function actHtml() {
   const run = S.run;
@@ -486,7 +518,8 @@ function actHtml() {
   const boss = R.enemyOf(run, run.map.boss);
   return '<div class="wrap scr" style="text-align:center;padding-top:6vh"><div class="sect">Act ' + ROMAN[run.act] + '</div><h2 style="font-size:clamp(36px,7vw,60px)">' + esc(a.name) + '</h2>' +
     '<div class="dim" style="font-size:18px;letter-spacing:.06em">' + esc(a.sub) + '</div><p class="lede" style="max-width:560px;margin:16px auto">' + esc(a.text) + '</p>' +
-    '<div class="card" style="max-width:520px;margin:18px auto;text-align:left"><div class="foebox">' + A.card(boss.leader, 'tile') + '<div class="tx"><div class="sect" style="margin:0">Waiting at the end</div><b>' + esc(boss.name) + '</b><div class="dim" style="font-size:14px">' + esc(boss.text) + '</div></div></div></div>' +
+    '<div class="card" style="max-width:520px;margin:18px auto;text-align:left"><div class="foebox">' + A.card(boss.leader, 'tile') + '<div class="tx"><div class="sect" style="margin:0">Waiting at the end</div><b>' + esc(boss.name) + '</b><div class="dim" style="font-size:14px">' + esc(boss.text) + '</div></div></div>' + phaseLine(boss) + '</div>' +
+    (run.act === 3 ? '<p class="lede hunt" style="max-width:560px;margin:10px auto">The Wild Hunt is on your trail. Every floor brings it closer, and every stop — a merchant, a campfire, an encounter, treasure — closer still. At ' + R.HUNT + ' it catches you.</p>' : '') +
     (run.act > 1 ? '<p class="dim">Your lives: ' + run.lives + ' of ' + run.maxLives + ' · ' + run.crowns + ' crowns · ' + run.deck.length + ' cards</p>' : '') +
     '</div>' + bar('<button class="btn" data-act="leave">Set out</button>');
 }
@@ -526,6 +559,7 @@ function mapHtml() {
   return '<div class="wrap"><div class="bossline">Act ' + ROMAN[run.act] + ' — ' + esc(R.ACTS[run.act - 1].name) + ' · the boss: <b>' + esc(boss.name) + '</b></div>' +
     '<div class="legend">' + ['battle', 'elite', 'event', 'shop', 'camp', 'treasure'].map(k => '<span>' + svg(k) + esc(KIND[k]) + '</span>').join('') + '</div>' +
     '<div class="mapwrap"><svg class="mapsvg" viewBox="0 0 ' + W + ' ' + H + '">' + edges + nodes + '</svg></div>' +
+    (run.act === 3 ? '<p class="hunt sans" style="text-align:center;font-size:14px">The Wild Hunt: ' + (run.hunt || 0) + ' of ' + R.HUNT + '. Each floor +1; a stop (merchant, campfire, encounter, treasure) +1 more.</p>' : '') +
     '<p class="dim" style="text-align:center;font-size:14px">' + (can.length ? 'Choose where to go next — a glowing circle.' : '') + '</p></div>';
 }
 const KIND = { battle: 'Battle', elite: 'Contract', event: 'Encounter', shop: 'Merchant', camp: 'Campfire', treasure: 'Treasure', boss: 'Boss' };
@@ -541,12 +575,12 @@ function foeBox(e, extra) {
   if (m.roundDraw) chips.push('draws each round');
   const F = D.faction(e.fac);
   return '<div class="foebox">' + A.card(e.leader, 'tile') + '<div class="tx"><b>' + esc(e.name) + '</b><div class="dim" style="font-size:14px">' + esc(e.text) + '</div>' +
-    '<div class="chips"><span class="chip">' + esc(F.name) + '</span><span class="chip">' + esc(D.nameOf(e.leader)) + '</span>' + chips.map(c => '<span class="chip red">' + esc(c) + '</span>').join('') + (extra || '') + '</div></div></div>';
+    '<div class="chips"><span class="chip">' + esc(F.name) + '</span><span class="chip">' + esc(D.nameOf(e.leader)) + '</span>' + chips.map(c => '<span class="chip red">' + esc(c) + '</span>').join('') + (extra || '') + '</div></div></div>' + phaseLine(e);
 }
 function rewardHtml() {
   const run = S.run, s = run.screen;
   const e = R.enemyOf(run, s.foe);
-  let out = '<div class="wrap scr"><div class="sect">' + (s.kind === 'boss' ? 'The boss is beaten' : s.kind === 'elite' ? 'Contract fulfilled' : 'Victory') + '</div><h2>' + esc(e.name) + ' defeated</h2>' +
+  let out = '<div class="wrap scr"><div class="sect">' + (s.kind === 'boss' ? 'The boss is beaten' : s.kind === 'hunt' ? 'The Hunt is driven off' : s.kind === 'elite' ? 'Contract fulfilled' : 'Victory') + '</div><h2>' + esc(e.name) + ' defeated</h2>' +
     '<p class="lede">' + svg('coin').replace('<svg', '<svg style="width:18px;height:18px;vertical-align:-3px"') + ' <b class="gold">+' + s.crowns + ' crowns</b>' + (s.flawless ? ' (with a quarter more for a flawless win)' : '') +
     (s.healed ? ' · a life back' : '') + '</p>';
   if (s.trinket) { const t = R.TRINKET[s.trinket]; out += '<div class="result" style="display:flex;gap:12px;align-items:center"><span style="width:44px;height:44px;flex:none">' + trkIcon(t.id) + '</span><span><b>' + esc(t.name) + '</b> <span class="rar ' + t.rarity + '">' + t.rarity + '</span><br><span class="dim">' + esc(t.text) + '</span></span></div>'; }
@@ -565,8 +599,16 @@ function rewardHtml() {
 function lostHtml() {
   const run = S.run, s = run.screen;
   const e = R.enemyOf(run, s.foe);
-  return '<div class="wrap scr"><div class="sect">Defeat</div><h2>' + esc(e.name) + ' won</h2><p class="lede">You lose a life — ' + run.lives + ' left.' +
-    (s.retry ? ' A boss does not let you pass: rest your hand and face them again.' : ' No reward, but the road goes on.') + '</p>' + foeBox(e) + '</div>' +
+  const after = s.retry ? ' A boss does not let you pass: rest your hand and face them again.' : ' No reward, but the road goes on.';
+  if (s.choice && !s.chose) {
+    const best = R.woundable(run);
+    return '<div class="wrap scr"><div class="sect">Defeat</div><h2>' + esc(e.name) + ' won</h2><p class="lede">Pay for it — once this act, you may take a wound instead of losing a life.</p>' +
+      '<div class="opts"><button class="opt" data-act="loss" data-id="life"><span class="ic">' + svg('heart') + '</span><span class="lab"><b>Lose a life</b><small>' + run.lives + ' → ' + (run.lives - 1) + (run.lives <= 1 ? ' — the run ends.' : '.') + '</small></span></button>' +
+      (best ? '<button class="opt" data-act="loss" data-id="wound"><span class="wnd">' + face(best, 'tile') + '</span><span class="lab"><b>Take a wound</b><small>' + esc(D.card(best.id).name) + ', your strongest card, fights at −' + R.WOUND + ' for the rest of the run (' + (D.card(best.id).str + (best.up || 0)) + ' → ' + Math.max(0, D.card(best.id).str + (best.up || 0) - R.WOUND) + ').</small></span></button>' : '') +
+      '</div>' + foeBox(e) + '</div>';
+  }
+  const what = s.chose === 'wound' ? esc(D.nameOf(s.wounded)) + ' carries the wound: it fights at ' + s.left + ' from now on.' : 'You lose a life — ' + run.lives + ' left.';
+  return '<div class="wrap scr"><div class="sect">Defeat</div><h2>' + esc(e.name) + ' won</h2><p class="lede">' + what + after + '</p>' + foeBox(e) + '</div>' +
     bar('<button class="btn" data-act="leave">' + (s.retry ? 'Fight again' : 'Back to the map') + '</button>');
 }
 function treasureHtml() {
@@ -628,8 +670,8 @@ function overHtml() {
   const st = run.stats;
   return '<div class="wrap scr"><div class="ends' + (won ? '' : ' lost') + '"><div class="sect">' + (won ? 'The Path is walked' : 'The road ends here') + '</div><h1>' + (won ? 'Victory' : 'Defeat') + '</h1>' +
     '<p class="lede">' + (won ? 'Three acts, three bosses. The tables of the Continent will talk about this deck.' : 'Beaten by ' + esc(run.over.by || 'the road') + ' in Act ' + ROMAN[run.act] + '.') + '</p>' +
-    '<p style="font-size:22px">Score <b class="gold">' + R.score(run) + '</b></p></div>' +
-    '<div class="dstats" style="justify-content:center"><span>Battles won <b>' + st.won + '</b></span><span>lost <b>' + st.lost + '</b></span><span>Cards taken <b>' + st.cards + '</b></span><span>removed <b>' + st.removed + '</b></span><span>honed <b>' + st.honed + '</b></span><span>Crowns earned <b>' + st.crowns + '</b></span></div>' +
+    '<p style="font-size:22px">Score <b class="gold">' + R.score(run) + '</b>' + ((run.ch || []).length ? ' <span class="dim" style="font-size:15px">(×' + R.multiplier(run).toFixed(2) + ': ' + esc(run.ch.map(id => R.CHALLENGE[id].name).join(', ')) + ')</span>' : '') + '</p></div>' +
+    '<div class="dstats" style="justify-content:center"><span>Battles won <b>' + st.won + '</b></span><span>lost <b>' + st.lost + '</b></span><span>Cards taken <b>' + st.cards + '</b></span><span>removed <b>' + st.removed + '</b></span><span>honed <b>' + st.honed + '</b></span><span>wounds <b>' + (st.wounds || 0) + '</b></span><span>Crowns earned <b>' + st.crowns + '</b></span></div>' +
     '<div class="sect">Your final deck</div>' + deckGrid(run.deck, null) + '</div>' + bar('<button class="btn ghost" data-act="title">Title</button><button class="btn" data-act="new">Another run</button>');
 }
 
@@ -823,9 +865,25 @@ const clone = o => JSON.parse(JSON.stringify(o));
 /* The round cards hold the table until you tap Continue. */
 function holdModal() {
   const g = S.g, h = g.hold, pub = g.publicView();
-  const html = (h.k === 'roundStart' ? W.roundStartHtml(pub, h) : W.roundEndHtml(pub, h)) + '<div class="foot"><button class="btn" data-act="release">Continue</button></div>';
+  const html = (h.k === 'roundStart' ? W.roundStartHtml(pub, h) : h.k === 'phase' ? phaseHtml(h) : W.roundEndHtml(pub, h)) + '<div class="foot"><button class="btn" data-act="release">Continue</button></div>';
+  if (h.k === 'phase') Snd.play('gong');
   S.modal = { k: 'b', html, hold: h.n };
   paintModal();
+}
+/* A boss's second phase strikes: what it did, shown before play goes on. */
+function phaseHtml(h) {
+  const P = R.PHASES[h.what];
+  const g = S.g;
+  const who = g.seat(h.by).name;
+  let more = '';
+  if (h.what === 'crones') more = '<p>Taken from your hand:</p><div class="picklist">' + h.ids.map(id => '<span class="hc">' + face({ id }, 'tile') + '</span>').join('') + '</div><p class="dim">A Cow takes ' + (h.ids.length > 1 ? 'each one’s' : 'its') + ' place. The card is in your discard pile.</p>';
+  else if (h.what === 'ambush') more = '<p>Walking on from her deck:</p><div class="picklist">' + h.ids.map(id => '<span class="hc">' + face({ id }, 'tile') + '</span>').join('') + '</div>';
+  else if (h.what === 'edict') more = '<p><b>Your ' + esc(D.ROW_NAME[h.row]) + ' row</b> — your strongest last round — fights at −' + h.n + ' this round. Heroes are untouched; nothing drops below 1.</p>';
+  else if (h.what === 'whiteFrost') more = '<p>' + esc(h.rows.map(r => D.ROW_NAME[r]).join(' and ')) + ' frozen for the rest of the battle. Clear Weather will not lift it.</p>';
+  else if (h.what === 'rage') more = '<p>His ' + esc(h.rows.map(r => D.ROW_NAME[r]).join(' and ')) + ' row' + (h.rows.length > 1 ? 's are' : ' is') + ' doubled this round.</p>';
+  else if (h.what === 'levy') more = '<p>' + h.n + ' Poor Fucking Infantry stand in his Close Combat row — a Tight Bond, so each fights at ' + h.n + '.</p>';
+  return '<div class="rc-h" style="color:#d9a0ff">' + esc(P.name) + '</div><div class="rc-sub">' + esc(who) + (h.lvl > 1 ? ' — and it is worse now' : ' — you took a round, and this is the price') + '</div>' +
+    '<p>' + esc(P.lvl[h.lvl - 1]) + '</p>' + more;
 }
 function endModal() {
   const g = S.g, res = g.result;
@@ -858,6 +916,8 @@ function battleHtml() {
     const row = pub.board.sides[s].rows[r];
     const k = rowPlay[s + ':' + r];
     const wx = pub.board.wx[r];
+    const locked = pub.board.locks && pub.board.locks[r];
+    const minus = pub.board.minus ? pub.board.minus[s][r] : 0;
     const burn = g.hold && g.hold.k === 'scorch' ? new Set(g.hold.victims.map(v => v.uid)) : new Set();
     const pl = k != null ? sel.plays[k] : null;
     return '<div class="row' + (wx ? ' wx' + r : '') + (k != null ? ' can' : '') + '"' + (k != null ? ' data-act="playk" data-k="' + k + '"' : '') + '>' +
@@ -866,7 +926,7 @@ function battleHtml() {
       '<div class="cards">' + (row.units.length ? row.units.map(u => '<' + (k != null && tgt[u.uid] == null ? 'span' : 'button') + ' class="u' + (S.fresh.has(u.uid) ? ' fresh' : '') + (burn.has(u.uid) ? ' burning' : '') + (tgt[u.uid] != null ? ' tgt' : '') + '"' +
         (tgt[u.uid] != null ? ' data-act="playk" data-k="' + tgt[u.uid] + '"' : k != null ? '' : ' data-act="zoomu" data-id="' + u.id + '" data-up="' + (u.up || 0) + '"') + '>' +
         A.card({ id: u.id, k: u.k }, 'tile', { v: u.v }) + (k != null && tgt[u.uid] == null ? '</span>' : '</button>')).join('') : '<span class="empty">' + D.ROW_SHORT[r] + '</span>') + '</div>' +
-      (wx ? '<span class="wxtag">' + A.icon(['frost', 'fog', 'rain'][r], 12) + ' weather</span>' : '') +
+      ((wx || minus) ? '<span class="wxtag' + (minus && !wx ? ' minus' : '') + '">' + (wx ? A.icon(['frost', 'fog', 'rain'][r], 12) + (locked ? ' White Frost' : ' weather') : '') + (wx && minus ? ' · ' : '') + (minus ? '−' + minus + ' to every unit' : '') + '</span>' : '') +
       (pl ? '<span class="rdelta">' + deltaHtml(pl.delta) + '</span>' : '') + '</div>';
   };
   const mePub = pub.players[0], foePub = pub.players[1];
@@ -882,11 +942,15 @@ function battleHtml() {
     return '<div class="pl ' + (i === 0 ? 'you' : 'foe') + (active ? ' act' : '') + '">' +
       '<div class="nmr"><span class="tot' + (lead ? ' lead' : '') + '">' + (i === 0 ? tYou : tFoe) + '</span><span class="nm">' + esc(p.name) + '<small>' + esc(D.faction(p.fac).name) + '</small></span>' + W.gemsHtml(p.gems, Math.max(2, (p.mods && p.mods.gems) || 2)) + '</div>' +
       '<div class="facts"><span>Hand <b>' + p.handN + '</b></span>' + deck + '<button class="pile" data-act="pile" data-i="' + i + '">Discard ' + p.disc.length + '</button>' +
-      (p.passed ? '<span class="passed">Passed</span>' : '') + (thinking ? '<span class="think">thinking…</span>' : '') + '</div>' + ldb + '</div>';
+      (p.passed ? '<span class="passed">Passed</span>' : '') + (thinking ? '<span class="think">thinking…</span>' : '') +
+      (p.mods && p.mods.phase && R.PHASES[p.mods.phase] ? '<button class="pile phasechip' + (p.mods.phaseN ? ' live' : '') + '" data-act="phaseinfo">' + esc(R.PHASES[p.mods.phase].name) + (p.mods.phaseN ? '' : ' — when you take a round') + '</button>' : '') +
+      (p.mods && (p.mods.weak || p.mods.noLeader) ? '<span class="pile" style="border-color:#8a3030;color:#ffb0a8">' + [p.mods.weak ? 'Weakened' : '', p.mods.noLeader ? 'Leaderless' : ''].filter(Boolean).join(' · ') + '</span>' : '') +
+      '</div>' + ldb + '</div>';
   };
   const lines = W.lines(g.log, pub, 0);
   const last = lines.filter(l => l.t !== 'decks').slice(-2);
-  const weather = pub.board.weather.length ? pub.board.weather.map(w => A.card({ id: w.id, k: w.k }, 'tile')).join('') : '<span>Clear skies</span>';
+  const frozen = (pub.board.locks || []).map((l, r) => l ? D.ROW_SHORT[r] : null).filter(Boolean);
+  const weather = (frozen.length ? '<span style="color:#bfe0ff">White Frost: ' + frozen.join(' + ') + '</span>' : '') + (pub.board.weather.length ? pub.board.weather.map(w => A.card({ id: w.id, k: w.k }, 'tile')).join('') : frozen.length ? '' : '<span>Clear skies</span>');
   let hand = '';
   if (pr && pr.what === 'redraw') hand = '<span class="empty">Redrawing…</span>';
   else hand = sv.hand.length ? sv.hand.map(c => {
@@ -995,13 +1059,17 @@ document.addEventListener('click', ev => {
     case 'pdiff': S.setupPick.name = $('nm').value; S.setupPick.diff = id; paint(); return;
     case 'pfac': S.setupPick.name = $('nm').value; S.setupPick.fac = id; S.setupPick.leader = D.HOUSE_LEADER[id]; paint(); return;
     case 'pldr': S.setupPick.name = $('nm').value; S.setupPick.leader = id; paint(); return;
+    case 'pch': { S.setupPick.name = $('nm').value; const ch = S.setupPick.ch = (S.setupPick.ch || []).slice(); const k = ch.indexOf(id); if (k >= 0) ch.splice(k, 1); else ch.push(id); paint(); return; }
+    case 'chinfo': S.modal = { k: 'b', html: '<h3>Your challenges</h3><div class="opts">' + (run.ch || []).map(cid => '<div class="opt" style="cursor:default"><span class="lab"><b>' + esc(R.CHALLENGE[cid].name) + '</b><small>' + esc(R.CHALLENGE[cid].text) + '</small></span><span class="val sans" style="color:#ffb0a8">+' + Math.round(R.CHALLENGE[cid].w * 100) + '%</span></div>').join('') + '</div><p class="dim">Score ×' + R.multiplier(run).toFixed(2) + '</p><div class="foot"><button class="btn" data-act="mclose">Close</button></div>' }; paintModal(); return;
+    case 'phaseinfo': { const e = S.setup.foe, P = R.PHASES[e.mods.phase]; S.modal = { k: 'b', html: '<h3>' + esc(P.name) + '</h3><p>' + esc(P.when) + '</p><ul><li>' + esc(P.lvl[0]) + '</li><li>After a second lost round: ' + esc(P.lvl[1]) + '</li></ul><div class="foot"><button class="btn" data-act="mclose">Close</button></div>' }; paintModal(); return; }
+    case 'loss': { const r = R.takeLoss(run, id); if (r.ok) Snd.play(id === 'wound' ? 'hit' : 'sting'); if (run.over) banked(run); done(r); return; }
     case 'begin': {
       let name = ($('nm').value || '').trim().slice(0, 16) || 'The Wanderer';
       /* The log reads "<name> plays …": "You plays" would not do. */
       if (/^(you|me|i|myself)$/i.test(name)) name = 'The Wanderer';
       store(NAME, name);
       const P = S.setupPick;
-      S.run = R.newRun({ fac: P.fac, leader: P.leader, diff: P.diff, name, seed: Q.get('seed') != null ? +Q.get('seed') : undefined, now: new Date().toISOString().slice(0, 10) });
+      S.run = R.newRun({ fac: P.fac, leader: P.leader, diff: P.diff, name, challenges: (P.ch || []).slice(), seed: Q.get('seed') != null ? +Q.get('seed') : undefined, now: new Date().toISOString().slice(0, 10) });
       S.view = 'run'; S.g = null; S.mapScrolled = false; save(); paint(); window.scrollTo(0, 0); return;
     }
     /* anywhere */
@@ -1131,7 +1199,7 @@ function banked(run) {
   if (run.banked) return;
   run.banked = true;
   const list = bests();
-  list.push({ score: R.score(run), fac: run.fac, diff: run.diff, won: !!(run.over && run.over.won), act: run.act, name: run.name, date: new Date().toISOString().slice(0, 10) });
+  list.push({ score: R.score(run), fac: run.fac, diff: run.diff, won: !!(run.over && run.over.won), act: run.act, name: run.name, ch: (run.ch || []).slice(), date: new Date().toISOString().slice(0, 10) });
   list.sort((a, b) => b.score - a.score);
   store(BEST, JSON.stringify(list.slice(0, 10)));
   store(KEY, null);

@@ -13,6 +13,15 @@
   const CHOSE = { play: 1, leader: 1, pass: 1 };
   const WORD = ['one', 'two', 'three', 'four', 'five', 'six', 'seven'];
 
+  /* A boss's second phase (the single-player run), one clause. */
+  const PHASE_LINE = {
+    whiteFrost: e => 'the White Frost falls — ' + e.rows.map(r => D.ROW_NAME[r]).join(' and ') + ' frozen for good',
+    crones: (e, N) => 'the Crones take ' + e.ids.map(short).join(' and ') + ' from ' + N[e.of] + '’s hand and leave a Cow',
+    edict: (e, N) => 'an imperial edict: ' + N[e.of] + '’s ' + D.ROW_NAME[e.row] + ' units fight at −' + e.n,
+    ambush: e => 'ambush! ' + e.ids.map(short).join(' and ') + ' walk on from the deck',
+    rage: e => 'the Baron’s rage doubles his ' + e.rows.map(r => D.ROW_NAME[r]).join(' and ') + ' row' + (e.rows.length > 1 ? 's' : ''),
+    levy: e => 'the king’s levy: ' + e.n + ' Poor Fucking Infantry march in'
+  };
   function names(pub) { const m = {}; if (pub) pub.players.forEach(p => { m[p.id] = p.name; }); return m; }
   const nm = id => D.nameOf(id);
   const short = id => { const c = D.card(id); return c ? c.name : String(id); };
@@ -54,6 +63,7 @@
         if (e.what === 'sk') return e.ids.length ? N[e.by] + ' raises ' + e.ids.map(short).join(' and ') + ' from the discard pile (Skellige)' : N[e.by] + ' has nobody to raise (Skellige)';
         return null;
       case 'score': cur.score = e.totals; return null;
+      case 'phase': return PHASE_LINE[e.what] ? PHASE_LINE[e.what](e, N) : null;
     }
     return null;
   }
@@ -117,6 +127,7 @@
     return t.indexOf(n) === 0 ? '<b style="color:' + esc(p.hex) + '">' + n + '</b>' + t.slice(n.length) : t;
   }
 
+  const gemMax = p => Math.max(2, (p && p.mods && p.mods.gems) || 2);
   const gemsHtml = (n, max) => '<span class="gw-gems">' + Array.from({ length: max || 2 }, (_, k) => '<i class="' + (k < n ? 'on' : '') + '"></i>').join('') + '</span>';
 
   /* The card that opens a round (checklist D: every round opens on its own
@@ -127,14 +138,16 @@
       const F = p.fac ? D.faction(p.fac) : null;
       const L = p.leader ? D.LEADER[p.leader] : null;
       return '<div class="rc-p"><i style="background:' + esc(p.hex) + '"></i><b>' + esc(p.name) + '</b>' +
-        (p.bot ? '<span class="rc-role">house · ' + esc(p.level) + '</span>' : '') + gemsHtml(p.gems) +
+        (p.bot ? '<span class="rc-role">house · ' + esc(p.level) + '</span>' : '') + gemsHtml(p.gems, gemMax(p)) +
         '<span class="rc-t">' + (F ? esc(F.name) + ' — ' + esc(F.bonus) : '') + (L ? '<br>Leader: ' + esc(L.name + ', ' + L.title) + (p.leaderOff ? ' (cancelled by the White Flame)' : p.leaderUsed ? ' (used)' : '') : '') + '</span>' +
         '<span class="rc-d">' + p.handN + ' cards in hand</span></div>';
     }).join('');
     const last = pub.history && pub.history.length ? pub.history[pub.history.length - 1] : null;
     const decider = pub.players.every(p => p.gems === 1);
     let sub = '<b>' + esc(first ? first.name : '?') + '</b> begins.';
-    if (h.round > 1) sub += decider ? ' One gem each: this round decides the game.' : ' ' + esc(pub.players.find(p => p.gems === 1).name) + ' is down to the last gem — lose this round and the game is gone.';
+    /* With three gems (the run's Iron Bosses) nobody need be down to one yet. */
+    const lastGem = pub.players.filter(p => p.gems === 1);
+    if (h.round > 1) sub += decider ? ' One gem each: this round decides the game.' : lastGem.length ? ' ' + esc(lastGem[0].name) + ' is down to the last gem — lose this round and the game is gone.' : ' Gems: ' + pub.players.map(p => esc(p.name) + ' ' + p.gems).join(', ') + '.';
     let out = '<div class="rc-h">Round ' + WORD[h.round - 1] + '</div><div class="rc-sub">' + sub + '</div><div class="rc-sc">' + rows + '</div>';
     if (h.round === 1) {
       out += '<div class="rc-sec"><h4>A turn</h4><ul>' +
@@ -161,7 +174,7 @@
      and the bonuses that fire. */
   function roundEndHtml(pub, h) {
     const N = names(pub);
-    const rows = pub.players.map((p, i) => '<div class="rc-p' + (h.winner === p.id ? ' won' : '') + '"><i style="background:' + esc(p.hex) + '"></i><b>' + esc(p.name) + '</b>' + gemsHtml(h.gems[i]) +
+    const rows = pub.players.map((p, i) => '<div class="rc-p' + (h.winner === p.id ? ' won' : '') + '"><i style="background:' + esc(p.hex) + '"></i><b>' + esc(p.name) + '</b>' + gemsHtml(h.gems[i], gemMax(p)) +
       '<span class="rc-t">Close ' + h.rows[i][0] + ' · Ranged ' + h.rows[i][1] + ' · Siege ' + h.rows[i][2] + '</span><span class="rc-d big">' + h.totals[i] + '</span></div>').join('');
     const title = h.winner ? N[h.winner] + ' takes round ' + WORD[h.round - 1] : 'Round ' + WORD[h.round - 1] + ' is a draw';
     const notes = [];

@@ -12,8 +12,14 @@
  * copy), removal at a merchant, and trinkets that bend the rules of every
  * battle (gw-engine.js `mods`).
  *
- * Lives, not hit points: lose a battle and you lose a life. Lose a boss and
- * you lose a life and face it again. No lives left ends the run.
+ * Lives, not hit points: lose a battle and you lose a life (or, once an act,
+ * take a wound on your best card instead). Lose a boss and you lose a life
+ * and face it again. No lives left ends the run.
+ *
+ * Added 2026-10-12, Inscryption-style: every boss has a second phase that
+ * strikes once you take a round off it (gw-engine.js bossPhases); CHALLENGES
+ * chosen at the start for a score multiplier; cursed trinkets (a gift and a
+ * price); and in Act III the Wild Hunt on your trail.
  *
  * Every action is `R.<verb>(run, ...)` and returns { ok, why } like the
  * engine; the page re-renders from `run.screen`.
@@ -61,6 +67,38 @@
     { n: 2, name: 'Novigrad', sub: 'The Free City', text: 'Spies, smugglers and witch hunters — the card tables are richer, and crueller.' },
     { n: 3, name: 'Skellige', sub: 'And the White Frost', text: 'The clans of the isles, the Empire’s best, and the Wild Hunt itself.' }
   ];
+  /* Chosen before a run; each adds to the score multiplier. */
+  /* Weighted by measurement (2026-10-12, 60 runs each, the house at Hard in
+     your seat, Witcher, seed 33 — none: 50% of runs won): Weakened 15%,
+     One Life 20%, Iron Bosses 20%, Short Hand 27%, Leaderless 35%, Empty
+     Purse 38%, Cattle Plague 40%. All seven: 0%. */
+  const CHALLENGES = [
+    { id: 'onelife', name: 'One Life', w: 0.45, text: 'You have a single life, and campfires offer no rest.' },
+    { id: 'weak', name: 'Weakened', w: 0.5, text: 'Your non-hero units fight at −1 (never below 1).' },
+    { id: 'short', name: 'Short Hand', w: 0.35, text: 'You are dealt nine cards instead of ten.' },
+    { id: 'gems', name: 'Iron Bosses', w: 0.45, text: 'Every boss holds three gems: win three rounds to beat one.' },
+    { id: 'cows', name: 'Cattle Plague', w: 0.15, text: 'Two Cows (0 strength) start in your deck.' },
+    { id: 'leaderless', name: 'Leaderless', w: 0.2, text: 'Your leader’s ability does nothing.' },
+    { id: 'poor', name: 'Empty Purse', w: 0.15, text: 'Battles pay half as many crowns.' }
+  ];
+  const CHALLENGE = {};
+  CHALLENGES.forEach(c => { CHALLENGE[c.id] = c; });
+  const on = (run, id) => !!(run.ch && run.ch.indexOf(id) >= 0);
+  const multiplier = run => 1 + (run.ch || []).reduce((t, id) => t + (CHALLENGE[id] ? CHALLENGE[id].w : 0), 0);
+  /* Each boss's second phase (gw-engine.js bossPhases): what it is called and
+     what it does at its first and second strength. */
+  const PHASES = {
+    crones: { name: 'The Crones’ Bargain', when: 'Take a round off them and they bargain:', lvl: ['At every new round they take the strongest card from your hand — face up — and leave you a Cow.', 'Now they take two.'] },
+    rage: { name: 'Drunken Rage', when: 'Take a round off him and he rages:', lvl: ['His Siege row is doubled every round after.', 'His Siege and Ranged rows are doubled.'] },
+    ambush: { name: 'Ambush', when: 'Take a round off her and she springs it:', lvl: ['At every new round, her two strongest units walk on from her deck for free.', 'Three walk on.'] },
+    levy: { name: 'The King’s Levy', when: 'Take a round off him and he calls the levy:', lvl: ['At every new round, two Poor Fucking Infantry (Tight Bond) march onto his Close row from nowhere.', 'Three march in.'] },
+    whiteFrost: { name: 'The White Frost', when: 'Take a round off him and it falls:', lvl: ['Biting Frost covers Close Combat and cannot be cleared.', 'Impenetrable Fog joins it, and cannot be cleared either.'] },
+    edict: { name: 'Imperial Edict', when: 'Take a round off him and he decrees:', lvl: ['At every new round he names the row you were strongest in last round: your units there fight at −2.', 'At −3.'] }
+  };
+  /* The Wild Hunt on your trail (Act III): every floor +1, and +1 more for
+     stopping (merchant, campfire, encounter, treasure). At HUNT it catches
+     you: a contract-strength fight before you reach where you were going. */
+  const HUNT = 10;
   const FLOORS = 7;            // floors before the boss
   const COLS = 5;
   const PATHS = 4;
@@ -143,25 +181,41 @@
     { id: 'mutagen', name: 'Greater Mutagen', rarity: 'rare', mods: { hand: 1 }, text: 'You are dealt eleven cards instead of ten.' },
     { id: 'swallow', name: 'Swallow', rarity: 'rare', mods: { roundDraw: 1 }, text: 'Draw a card at the start of the second and third rounds.' },
     { id: 'crown', name: 'Crown of the Leader', rarity: 'rare', mods: { leaderUses: 2 }, text: 'Your leader’s ability can be used twice a battle.' },
-    { id: 'bugle', name: 'Commander’s Bugle', rarity: 'rare', mods: { start: ['sp_horn'] }, text: 'Begin every battle with an extra Commander’s Horn in hand.' }
+    { id: 'bugle', name: 'Commander’s Bugle', rarity: 'rare', mods: { start: ['sp_horn'] }, text: 'Begin every battle with an extra Commander’s Horn in hand.' },
+    /* Cursed: a gift and a price. Only the Man of Glass's Wares offer them. */
+    { id: 'mirror', name: 'Gaunter’s Mirror', rarity: 'cursed', mods: { hand: 2 }, foe: { hand: 1 }, text: 'You are dealt two extra cards — and your opponent one.' },
+    { id: 'unstable', name: 'Unstable Mutagen', rarity: 'cursed', mods: { hand: 1, minusRows: [0, 0, 1] }, text: 'You are dealt an extra card, but your Siege units fight at −1.' },
+    { id: 'bloodied', name: 'Bloodied Banner', rarity: 'cursed', mods: { winDraw: 1 }, foe: { tieWin: true }, text: 'Draw a card every time you win a round — but your opponent wins every drawn round.' },
+    { id: 'cursedpurse', name: 'Cursed Purse', rarity: 'cursed', run: 'cursedpurse', text: '150 crowns now — and a Cow joins your deck at the start of every act.' }
   ];
   const TRINKET = {};
   TRINKETS.forEach(t => { TRINKET[t.id] = t; });
   const has = (run, id) => run.trinkets.indexOf(id) >= 0;
   /* Every battle trinket summed into one `mods` for the engine. */
   function playerMods(run) {
-    const m = { hand: 0, redraws: 0, winDraw: 0, spyDraw: 0, roundDraw: 0, leaderUses: 1, start: [] };
-    for (const id of run.trinkets) {
-      const t = TRINKET[id];
-      if (!t || !t.mods) continue;
-      for (const k of Object.keys(t.mods)) {
-        const v = t.mods[k];
-        if (k === 'start') m.start = m.start.concat(v);
-        else if (k === 'leaderUses') m.leaderUses = Math.max(m.leaderUses, v);
-        else if (typeof v === 'boolean') m[k] = m[k] || v;
-        else m[k] = (m[k] || 0) + v;
-      }
+    const m = { hand: 0, redraws: 0, winDraw: 0, spyDraw: 0, roundDraw: 0, leaderUses: 1, start: [], weak: 0, minusRows: [0, 0, 0], noLeader: false };
+    for (const id of run.trinkets) addMods(m, TRINKET[id] && TRINKET[id].mods);
+    if (on(run, 'weak')) m.weak += 1;
+    if (on(run, 'short')) m.hand -= 1;
+    if (on(run, 'leaderless')) m.noLeader = true;
+    return m;
+  }
+  function addMods(m, add) {
+    if (!add) return m;
+    for (const k of Object.keys(add)) {
+      const v = add[k];
+      if (k === 'start') m.start = (m.start || []).concat(v);
+      else if (k === 'minusRows') m.minusRows = [0, 1, 2].map(r => ((m.minusRows || [])[r] || 0) + (v[r] || 0));
+      else if (k === 'leaderUses') m.leaderUses = Math.max(m.leaderUses || 1, v);
+      else if (typeof v === 'boolean' || typeof v === 'string') m[k] = v || m[k];
+      else m[k] = (m[k] || 0) + v;
     }
+    return m;
+  }
+  /* What your cursed trinkets give the other side. */
+  function foeMods(run) {
+    const m = {};
+    for (const id of run.trinkets) addMods(m, TRINKET[id] && TRINKET[id].foe);
     return m;
   }
 
@@ -199,11 +253,11 @@
             'vanhemar', 'rainfarn', 'cahir_mawr_dyffryn_aep_ceallach', 'puttkammer', 'sweers', 'etolian_auxiliary_archers', 'albrich'] }
       ],
       boss: [
-        { id: 'crones', name: 'The Ladies of the Wood', fac: 'mo', leader: 'eredin_commander', size: 15, boss: true,
+        { id: 'crones', name: 'The Ladies of the Wood', fac: 'mo', leader: 'eredin_commander', size: 15, boss: true, mods: { phase: 'crones' },
           text: 'Three sisters of Crookback Bog who play as one: one Crone brings the other two. They bring the fog with them.',
           core: ['crone_brewess', 'crone_weavess', 'crone_whispess', 'grave_hag', 'foglet', 'botchling', 'nekker', 'nekker', 'ghoul',
             'gargoyle', 'harpy', 'endrega', 'wyvern', 'sp_fog', 'sp_frost'] },
-        { id: 'baron', name: 'The Bloody Baron', fac: 'nr', leader: 'foltest_lord', size: 15, boss: true,
+        { id: 'baron', name: 'The Bloody Baron', fac: 'nr', leader: 'foltest_lord', size: 15, boss: true, mods: { phase: 'rage' },
           text: 'Phillip Strenger, master of Crow’s Perch, and his siege engines. His leader clears the weather.',
           core: ['ballista', 'siege_tower', 'kaedweni_siege_expert', 'redanian_foot_soldier', 'dun_banner_medic', 'poor_fucking_infantry', 'poor_fucking_infantry',
             'poor_fucking_infantry', 'ves', 'siegfried_of_denesle', 'yarpen_zigrin', 'sheldon_skaggs', 'redanian_foot_soldier', 'sp_horn', 'sp_frost'] }
@@ -240,10 +294,10 @@
             'etolian_auxiliary_archers', 'sp_decoy', 'sp_decoy'] }
       ],
       boss: [
-        { id: 'francesca', name: 'Francesca Findabair', fac: 'st', leader: 'francesca_beautiful', size: 20, boss: true,
+        { id: 'francesca', name: 'Francesca Findabair', fac: 'st', leader: 'francesca_beautiful', size: 20, boss: true, mods: { phase: 'ambush' },
           text: 'The Daisy of the Valley and the best of the Scoia’tael. She chooses who begins every round and doubles her Ranged row.',
           core: D.STANDARD.st.filter(id => !BIG[id]) },
-        { id: 'foltest', name: 'King Foltest', fac: 'nr', leader: 'foltest_king', size: 20, boss: true,
+        { id: 'foltest', name: 'King Foltest', fac: 'nr', leader: 'foltest_king', size: 20, boss: true, mods: { phase: 'levy' },
           text: 'The King of Temeria at his own table. He draws a card every time he wins a round, and brings the fog when he likes.',
           core: D.STANDARD.nr.filter(id => !BIG[id]) }
       ]
@@ -271,15 +325,21 @@
           core: D.STANDARD.ng.slice() }
       ],
       boss: [
-        { id: 'eredin', name: 'Eredin, King of the Wild Hunt', fac: 'mo', leader: 'eredin_king', size: 24, mods: { hand: 2, keep: true, roundDraw: 1 }, boss: true,
+        { id: 'eredin', name: 'Eredin, King of the Wild Hunt', fac: 'mo', leader: 'eredin_king', size: 24, mods: { hand: 2, keep: true, roundDraw: 1, phase: 'whiteFrost' }, boss: true,
           text: 'The White Frost is coming. He holds two extra cards, draws one every new round, doubles his Close row, and keeps a unit on the board every round.',
           core: D.STANDARD.mo.concat(['crone_brewess', 'crone_weavess', 'crone_whispess', 'vampire_katakan']) },
-        { id: 'emhyr', name: 'Emhyr var Emreis', fac: 'ng', leader: 'emhyr_whiteflame', size: 24, mods: { hand: 2, roundDraw: 1 }, boss: true,
+        { id: 'emhyr', name: 'Emhyr var Emreis', fac: 'ng', leader: 'emhyr_whiteflame', size: 24, mods: { hand: 2, roundDraw: 1, phase: 'edict' }, boss: true,
           text: 'The White Flame Dancing on the Barrows of his Enemies. Two extra cards and one more every new round, every drawn round is his, and your leader does nothing.',
           core: D.STANDARD.ng.slice() }
       ]
     }
   };
+  /* The Wild Hunt when it catches you (Act III). */
+  ENEMIES[3].hunt = [
+    { id: 'hunt', name: 'The Wild Hunt', fac: 'mo', leader: 'eredin_commander', size: 18, mods: { hand: 2, keep: true }, text: 'Riders out of the frost, on your trail since you landed. They hold two extra cards, and one of their units stays on the board every round.',
+      core: ['imlerith', 'arachas', 'arachas', 'arachas', 'arachas_behemoth', 'earth_elemental', 'fire_elemental', 'ice_giant', 'fiend', 'griffin', 'werewolf',
+        'frightener', 'plague_maiden', 'forktail', 'sp_frost', 'sp_frost', 'sp_fog', 'sp_horn'] }
+  ];
   /* The house's level for each act and kind of fight, before the difficulty shift. */
   const LEVEL_BY = { 1: { battle: 0, elite: 1, boss: 1 }, 2: { battle: 1, elite: 1, boss: 2 }, 3: { battle: 2, elite: 2, boss: 2 } };
 
@@ -373,6 +433,12 @@
         { label: 'Smash the mirror', sub: '25 crowns in silver frame.', go: run => { run.crowns += 25; return 'Seven years’ bad luck. 25 crowns.'; } }
       ] }
   ];
+  /* The Man of Glass's wares: the cursed trinkets, one of them or none. */
+  const cursedOpt = id => ({ label: 'Take ' + TRINKET[id].name, sub: TRINKET[id].text, need: run => has(run, id) ? 'You carry it already.' : null,
+    go: run => { run.trinkets.push(id); applyTrinket(run, id); return 'He smiles. ' + TRINKET[id].name + ' is yours.'; } });
+  EVENTS.push({ id: 'wares', title: 'The Man of Glass’s Wares', acts: [1, 2, 3],
+    text: 'Gaunter O’Dimm has a cloth spread on a milestone, and on it four curiosities. Each, he says, is a gift. Each, he does not say, has a price.',
+    options: ['mirror', 'unstable', 'bloodied', 'cursedpurse'].map(cursedOpt).concat([{ label: 'Walk on', go: () => 'You keep your hands in your pockets.' }]) });
   const EVENT = {};
   EVENTS.forEach(e => { EVENT[e.id] = e; });
 
@@ -404,11 +470,13 @@
     return pickOne(run, from);
   }
   function randomTrinket(run, rarities) {
-    const pool = TRINKETS.filter(t => run.trinkets.indexOf(t.id) < 0 && (!rarities || rarities.indexOf(t.rarity) >= 0));
+    const pool = TRINKETS.filter(t => run.trinkets.indexOf(t.id) < 0 && t.rarity !== 'cursed' && (!rarities || rarities.indexOf(t.rarity) >= 0) &&
+      !(t.id === 'decoction' && on(run, 'onelife')));
     return pool.length ? pickOne(run, pool).id : null;
   }
   function applyTrinket(run, id) {
     if (id === 'decoction') { run.maxLives++; run.lives = run.maxLives; }
+    if (id === 'cursedpurse') { run.crowns += 150; run.stats.crowns += 150; }
   }
   /* The card choice after a win: rarity weights by act and fight. */
   const RARITY_W = {
@@ -418,7 +486,7 @@
   };
   function cardChoice(run, kind) {
     const n = has(run, 'eye') ? 4 : 3;
-    const w = RARITY_W[kind][run.act];
+    const w = RARITY_W[kind === 'hunt' ? 'elite' : kind][run.act];
     const out = [];
     for (let k = 0; k < n; k++) {
       const r = weighted(run, [['common', w[0]], ['uncommon', w[1]], ['rare', w[2]], ['legendary', w[3]]]);
@@ -514,9 +582,12 @@
       v: VERSION, seed, rs: seed || 1, name: o.name || 'You', fac, leader, diff,
       lives: DIFFICULTY[diff].lives, maxLives: DIFFICULTY[diff].lives, crowns: 0, trinkets: [], deck: [], ridN: 0,
       act: 1, map: null, pos: null, path: [], removeCost: 60, battleN: 0,
-      screen: { k: 'map' }, history: [], stats: { won: 0, lost: 0, cards: 0, removed: 0, honed: 0, crowns: 0 }, over: null, started: o.now || null
+      screen: { k: 'map' }, history: [], stats: { won: 0, lost: 0, cards: 0, removed: 0, honed: 0, crowns: 0, wounds: 0 }, over: null, started: o.now || null,
+      ch: (o.challenges || []).filter(id => CHALLENGE[id]), woundAct: 0, hunt: 0, after: null
     };
+    if (on(run, 'onelife')) { run.lives = 1; run.maxLives = 1; }
     STARTER[fac].forEach(id => addCard(run, id));
+    if (on(run, 'cows')) { addCard(run, CURSE); addCard(run, CURSE); }
     genMap(run);
     run.screen = { k: 'act', act: 1 };
     return run;
@@ -532,6 +603,19 @@
     const n = node(run, id);
     run.pos = id;
     run.path.push(id);
+    if (run.act === 3 && n.kind !== 'boss') {
+      run.hunt = (run.hunt || 0) + 1 + (n.kind === 'battle' || n.kind === 'elite' ? 0 : 1);
+      if (run.hunt >= HUNT) {
+        run.hunt = 0;
+        run.after = id;
+        run.screen = battleScreen(run, 'hunt', 'hunt');
+        return yes({ hunt: true });
+      }
+    }
+    return enter(run, n);
+  }
+  /* What a node does once you are on it. */
+  function enter(run, n) {
     switch (n.kind) {
       case 'battle': case 'elite': case 'boss': run.screen = battleScreen(run, n.kind); break;
       case 'shop': run.screen = shopScreen(run); break;
@@ -555,7 +639,7 @@
     return yes();
   }
   function battleScreen(run, kind, from) {
-    const list = ENEMIES[run.act][kind === 'boss' ? 'boss' : kind];
+    const list = kind === 'hunt' ? ENEMIES[3].hunt : ENEMIES[run.act][kind];
     let e;
     if (kind === 'boss') e = list.find(x => x.id === run.map.boss) || list[0];
     else {
@@ -568,7 +652,7 @@
     return { k: 'battle', kind, foe: e.id, seed, from: from || null, moves: [], tries: 0 };
   }
   function enemyOf(run, id) {
-    for (const a of [1, 2, 3]) for (const k of ['battle', 'elite', 'boss']) { const e = ENEMIES[a][k].find(x => x.id === id); if (e) return e; }
+    for (const a of [1, 2, 3]) for (const k of ['battle', 'elite', 'boss', 'hunt']) { const e = (ENEMIES[a][k] || []).find(x => x.id === id); if (e) return e; }
     return null;
   }
   /* The two players for gw-engine.create — the run's deck and trinkets, and
@@ -581,9 +665,10 @@
     const tmp = { rs: (s.seed ^ 0x5bd1e995) >>> 0 };
     const cards = shuffled(tmp, e.core).slice(0, Math.min(e.size, e.core.length));
     const dif = DIFFICULTY[run.diff];
-    const lvl = Math.max(0, Math.min(2, LEVEL_BY[run.act][s.kind] + dif.shift));
-    const mods = Object.assign({}, e.mods || {});
+    const lvl = Math.max(0, Math.min(2, LEVEL_BY[run.act][s.kind === 'hunt' ? 'elite' : s.kind] + dif.shift));
+    const mods = addMods(Object.assign({}, e.mods || {}), foeMods(run));
     if (dif.foeHand) mods.hand = (mods.hand || 0) + dif.foeHand;
+    if (s.kind === 'boss' && on(run, 'gems')) mods.gems = 3;
     const F = D.faction(e.fac);
     return {
       seed: s.seed + s.tries * 7919,
@@ -604,19 +689,26 @@
     run.history.push({ act: run.act, floor: run.pos === 'boss' ? FLOORS : (node(run, run.pos) || {}).f, kind: s.kind, foe: e.id, won: !!result.won });
     if (!result.won) {
       run.stats.lost++;
+      const best = woundable(run);
+      /* Once an act you may take a wound on your best card instead of a life. */
+      if (best && run.woundAct !== run.act) {
+        run.screen = { k: 'lost', kind: s.kind, foe: e.id, retry: s.kind === 'boss', prev: s, choice: true, chose: null, best: best.id };
+        return yes();
+      }
       run.lives--;
       if (run.lives <= 0) return endRun(run, false, e.name);
-      run.screen = { k: 'lost', kind: s.kind, foe: e.id, retry: s.kind === 'boss', prev: s };
+      run.screen = { k: 'lost', kind: s.kind, foe: e.id, retry: s.kind === 'boss', prev: s, chose: 'life' };
       return yes();
     }
     run.stats.won++;
     const flawless = result.rounds && result.rounds.every(r => r.winner === 'you');
-    const base = s.kind === 'boss' ? 70 + run.act * 15 : s.kind === 'elite' ? int(run, 28, 38) + run.act * 6 : int(run, 12, 20) + run.act * 4;
+    const base = s.kind === 'boss' ? 70 + run.act * 15 : s.kind === 'elite' || s.kind === 'hunt' ? int(run, 28, 38) + run.act * 6 : int(run, 12, 20) + run.act * 4;
     let crowns = base + (flawless ? Math.round(base * 0.25) : 0);
     if (has(run, 'purse')) crowns = Math.round(crowns * 1.5);
+    if (on(run, 'poor')) crowns = Math.round(crowns / 2);
     run.crowns += crowns; run.stats.crowns += crowns;
-    const rw = { k: 'reward', kind: s.kind, foe: e.id, crowns, flawless: !!flawless, cards: cardChoice(run, s.kind), took: null, trinket: null, leaders: null, leaderTook: null, healed: 0 };
-    if (s.kind === 'elite' || s.kind === 'boss') {
+    const rw = { k: 'reward', from: s.from || null, kind: s.kind, foe: e.id, crowns, flawless: !!flawless, cards: cardChoice(run, s.kind), took: null, trinket: null, leaders: null, leaderTook: null, healed: 0 };
+    if (s.kind === 'elite' || s.kind === 'boss' || s.kind === 'hunt') {
       const t = randomTrinket(run, s.kind === 'boss' ? ['rare', 'uncommon'] : ['common', 'uncommon', 'rare']);
       if (t) { run.trinkets.push(t); applyTrinket(run, t); rw.trinket = t; }
     }
@@ -631,8 +723,38 @@
   function retry(run) {
     const s = run.screen;
     if (s.k !== 'lost') return no('Nothing to retry.');
+    if (s.choice && !s.chose) return no('Lose a life or take a wound first.');
     if (s.retry) { run.screen = Object.assign({}, s.prev, { tries: (s.prev.tries || 0) + 1, moves: [] }); return yes(); }
+    return toMap(run);
+  }
+  /* Back to the map — or on to where you were going when the Hunt caught you. */
+  function toMap(run) {
     run.screen = { k: 'map' };
+    if (run.after) { const n = node(run, run.after); run.after = null; if (n) return enter(run, n); }
+    return yes();
+  }
+  /* The card a wound would fall on: your strongest unit. */
+  function woundable(run) {
+    return run.deck.filter(c => C(c.id).kind === 'unit' && C(c.id).str + (c.up || 0) > 0)
+      .sort((a, b) => (C(b.id).str + (b.up || 0)) - (C(a.id).str + (a.up || 0)))[0] || null;
+  }
+  const WOUND = 3;
+  /* After a lost battle: a life, or (once an act) a wound on your best card. */
+  function takeLoss(run, how) {
+    const s = run.screen;
+    if (s.k !== 'lost' || !s.choice || s.chose) return no('Nothing to choose.');
+    if (how === 'wound') {
+      const c = woundable(run);
+      if (!c) return no('Nothing left to wound.');
+      c.up = (c.up || 0) - WOUND;
+      run.woundAct = run.act;
+      run.stats.wounds++;
+      s.chose = 'wound'; s.wounded = c.id; s.left = Math.max(0, C(c.id).str + c.up);
+      return yes();
+    }
+    run.lives--;
+    s.chose = 'life';
+    if (run.lives <= 0) return endRun(run, false, enemyOf(run, s.foe).name);
     return yes();
   }
   function takeCard(run, i) {
@@ -715,6 +837,7 @@
     if (s.k !== 'camp') return no('There is no campfire here.');
     if (s.done) return no('You have already rested here.');
     if (what === 'rest') {
+      if (on(run, 'onelife')) return no('One Life: there is no rest on this road.');
       if (lifeFull(run)) return no('Your lives are full.');
       run.lives++;
       s.done = 'rest';
@@ -789,19 +912,20 @@
         if (run.act >= 3) return endRun(run, true, null);
         run.act++;
         run.met = [];
+        run.hunt = 0;
+        run.woundAct = 0;
+        if (has(run, 'cursedpurse')) addCard(run, CURSE);
         genMap(run);
         run.screen = { k: 'act', act: run.act };
         return yes();
       }
-      run.screen = { k: 'map' };
-      return yes();
+      return toMap(run);
     }
     if (s.k === 'event' && !s.result) return no('Choose first.');
     if (s.k === 'camp' && !s.done) return no('Rest, hone or burn a card first.');
     if (s.k === 'lost') return retry(run);
     if (s.k === 'battle') return no('Finish the battle first.');
-    run.screen = { k: 'map' };
-    return yes();
+    return toMap(run);
   }
   function endRun(run, won, by) {
     run.over = { won, by: by || null, act: run.act };
@@ -811,11 +935,12 @@
   /* A score for the hall of fame: how far, how well. */
   function score(run) {
     const floors = run.history.length;
-    return (run.act - 1) * 100 + floors * 10 + run.stats.won * 5 + (run.over && run.over.won ? 250 + run.lives * 40 : 0);
+    return Math.round(((run.act - 1) * 100 + floors * 10 + run.stats.won * 5 + (run.over && run.over.won ? 250 + run.lives * 40 : 0)) * multiplier(run));
   }
 
   const Run = {
     VERSION, DIFFICULTY, ACTS, FLOORS, COLS, MIN_DECK, HONE, HONE_MAX, STARTER, TRINKETS, TRINKET, ENEMIES, EVENTS, EVENT, CURSE,
+    CHALLENGES, CHALLENGE, PHASES, HUNT, WOUND, on, multiplier, takeLoss, woundable, foeMods,
     rarityOf, capOf, poolFor, playerMods, newRun, genMap, node, reachable, go, battleSetup, battleDone, retry, takeCard, takeLeader,
     buy, shopRemove, removePrice, camp, choose, eventNeed, leave, enemyOf, score, countOf, honable, has
   };
