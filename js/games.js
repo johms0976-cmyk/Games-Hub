@@ -64,10 +64,10 @@ const GAMES = [
   {
     id: "glory-to-rome",
     title: "Glory to Rome",
-    subtitle: "Build the eternal city",
+    subtitle: "Solo — rebuild Rome against 1–4 house players on your phone: lead the roles, hire clients, fill your Vault",
     category: "strategy",
-    players: "2–5",
-    duration: "45–90 min",
+    players: "1",
+    duration: "30–60 min",
     icon: "🦅",
     accentColor: "#c9a84c",
     status: "playable",
