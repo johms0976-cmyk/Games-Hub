@@ -409,6 +409,7 @@
       }
       return (o.lobbyTop ? o.lobbyTop() : '') + '<div class="card"><div class="title">Glory to Rome</div><div class="sub">Rebuild Rome after the fire of 64 AD: lead the roles, hire clients, raise buildings and fill your Vault.</div>' + rows + '</div>' + opts +
         (isRemote() ? '' : '<div class="sub" style="margin-top:12px">' + esc(pname(P.pub.remote) === '?' ? 'The first phone' : pname(P.pub.remote)) + ' starts the game.</div>') +
+        (o.soloUrl ? '<button class="btn ghost" id="soloGo">Play alone on this phone — no telly</button><div class="sub">You against the house, saved on this phone; the telly and the room are left alone.</div>' : '') +
         (o.menuButton !== false ? '<button class="btn ghost" id="menu">' + (P.solo ? 'Games hub' : 'Games menu') + '</button>' : '');
     }
     function overHtml() {
@@ -450,6 +451,7 @@
       on('#again', () => send({ t: 'again' }));
       on('#skipFin', () => send({ t: 'skip' }));
       on('#go', () => send({ t: 'start' }));
+      on('#soloGo', () => { location.href = o.soloUrl; });
       on('[data-opt]', x => send({ t: 'opt', key: x.dataset.opt, value: x.dataset.v }));
       o.root.querySelectorAll('[data-zoom]').forEach(x => { x.onclick = () => zoom(x.dataset.zoom); });
       if (!Q) return;
