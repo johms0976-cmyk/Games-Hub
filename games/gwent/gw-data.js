@@ -30,9 +30,11 @@
       bonus: 'Keeps one random unit on the board after each round.' },
     { id: 'st', name: 'Scoia’tael', short: 'the Scoia’tael', hex: '#3fa354', folder: 'Scoia\'tael', back: 'Scoia\'tael back.jpg',
       bonus: 'Chooses who begins each round.' },
-    /* Skellige, from Blood and Wine. Not in the user's art folder: read off the
-       Witcher Wiki's "Skellige Gwent deck" page (archived 2024-12-25), which
-       the user pointed to. No pictures yet — the drawn faces stand alone. */
+    /* Skellige, from Blood and Wine: read off the Witcher Wiki's "Skellige
+       Gwent deck" page (archived 2024-12-25), which the user pointed to. The
+       pictures (Reference/Gwent Art/Skellige, added by the user 2026-10-12)
+       are The Witcher 3's in-game cards, taller than the printed ones:
+       tools/cut-art.py fits them. No Skellige card back: the drawn one. */
     { id: 'sk', name: 'Skellige', short: 'Skellige', hex: '#2fa3a3', folder: 'Skellige', back: null,
       bonus: 'At the start of round three, two random units from its discard pile return to the board.' }
   ];
@@ -202,32 +204,32 @@
        deck, 1 won from …" = three). The three transformed cards are tokens:
        never in a deck, they replace a card on the board. */
     sk: [
-      ['Berserker', 4, 'c', 'berserk', 0, [], 1, { into: 'transformed_vildkaarl' }],
-      ['Birna Bran', 2, 'c', 'medic', 0, [], 1],
-      ['Blueboy Lugos', 6, 'c', null, 0, [], 1],
-      ['Cerys', 10, 'c', 'summon', 1, [], 1, { calls: 'clan_drummond_shield_maiden' }],
-      ['Clan Brokvar Archer', 6, 'r', null, 0, [], 3],
-      ['Clan Dimun Pirate', 6, 'r', 'scorchAll', 0, [], 1],
-      ['Clan Drummond Shield Maiden', 4, 'c', 'bond', 0, [], 3],
-      ['Clan Heymaey Skald', 4, 'c', null, 0, [], 1],
-      ['Clan Tordarroch Armorsmith', 4, 'c', null, 0, [], 1],
-      ['Clan an Craite Warrior', 6, 'c', 'bond', 0, [], 1],
-      ['Donar an Hindar', 4, 'c', null, 0, [], 1],
-      ['Draig Bon-Dhu', 2, 's', 'horn', 0, [], 1],
-      ['Ermion', 8, 'r', 'mardroeme', 1, [], 1],
-      ['Hemdall', 11, 'c', null, 1, [], 0, { token: true }],
-      ['Hjalmar', 10, 'r', null, 1, [], 1],
-      ['Holger Blackhand', 4, 's', null, 0, [], 1],
-      ['Kambi', 0, 'c', 'avenger', 0, [], 1, { avenger: 'hemdall' }],
-      ['Light Longship', 4, 'r', 'muster', 0, [], 3],
-      ['Madman Lugos', 6, 'c', null, 0, [], 1],
-      ['Olaf', 12, 'a', 'morale', 0, [], 1],
-      ['Svanrige', 4, 'c', null, 0, [], 1],
-      ['Transformed Vildkaarl', 14, 'c', 'morale', 0, [], 0, { token: true }],
-      ['Transformed Young Vildkaarl', 8, 'r', 'bond', 0, [], 0, { token: true }],
-      ['Udalryk', 4, 'c', null, 0, [], 1],
-      ['War Longship', 6, 's', 'bond', 0, [], 3],
-      ['Young Berserker', 2, 'r', 'berserk', 0, [], 3, { into: 'transformed_young_vildkaarl' }]
+      ['Berserker', 4, 'c', 'berserk', 0, ['Berserker'], 1, { into: 'transformed_vildkaarl' }],
+      ['Birna Bran', 2, 'c', 'medic', 0, ['Birna_Bran'], 1],
+      ['Blueboy Lugos', 6, 'c', null, 0, ['Blueboy_Lugos'], 1],
+      ['Cerys', 10, 'c', 'summon', 1, ['Cerys'], 1, { calls: 'clan_drummond_shield_maiden' }],
+      ['Clan Brokvar Archer', 6, 'r', null, 0, ['Clan_Brokvar_Archer'], 3],
+      ['Clan Dimun Pirate', 6, 'r', 'scorchAll', 0, ['Clan_Dimun_Pirate'], 1],
+      ['Clan Drummond Shield Maiden', 4, 'c', 'bond', 0, ['Clan_Drummond_Shield_Maiden_2'], 3],
+      ['Clan Heymaey Skald', 4, 'c', null, 0, ['Clan_Heymaey_Skald'], 1],
+      ['Clan Tordarroch Armorsmith', 4, 'c', null, 0, ['Clan_Tordarroch_Armorsmith'], 1],
+      ['Clan an Craite Warrior', 6, 'c', 'bond', 0, ['Clan_an_Craite_Warrior'], 1],
+      ['Donar an Hindar', 4, 'c', null, 0, ['Donar_an_Hindar'], 1],
+      ['Draig Bon-Dhu', 2, 's', 'horn', 0, ['Draig_Bon-Dhu'], 1],
+      ['Ermion', 8, 'r', 'mardroeme', 1, ['Ermion'], 1],
+      ['Hemdall', 11, 'c', null, 1, ['Hemdall'], 0, { token: true }],
+      ['Hjalmar', 10, 'r', null, 1, ['Hjalmar'], 1],
+      ['Holger Blackhand', 4, 's', null, 0, ['Holger_Blackhand'], 1],
+      ['Kambi', 0, 'c', 'avenger', 0, ['Kambi'], 1, { avenger: 'hemdall' }],
+      ['Light Longship', 4, 'r', 'muster', 0, ['Light_Longship'], 3],
+      ['Madman Lugos', 6, 'c', null, 0, ['Madman_Lugos'], 1],
+      ['Olaf', 12, 'a', 'morale', 0, ['Olaf'], 1],
+      ['Svanrige', 4, 'c', null, 0, ['Svanrige'], 1],
+      ['Transformed Vildkaarl', 14, 'c', 'morale', 0, ['Transformed_Vildkaarl'], 0, { token: true }],
+      ['Transformed Young Vildkaarl', 8, 'r', 'bond', 0, ['Transformed_young_vildkaarl'], 0, { token: true }],
+      ['Udalryk', 4, 'c', null, 0, ['Udalryk'], 1],
+      ['War Longship', 6, 's', 'bond', 0, ['War_Longship'], 3],
+      ['Young Berserker', 2, 'r', 'berserk', 0, ['Young_Berserker'], 3, { into: 'transformed_young_vildkaarl' }]
     ],
     ne: [
       ['Bovine Defense Force', 8, 'c', null, 0, ['Bovine Defense Force'], 1],
@@ -256,8 +258,8 @@
     horn: ['Commander\'s Horn 1', 'Commander\'s Horn 2', 'Commander\'s Horn 3', 'Commander\'s Horn 4'],
     decoy: ['Decoy 1', 'Decoy 2', 'Decoy 3'],
     scorch: ['Scorch 1', 'Scorch 2', 'Scorch 3'],
-    storm: [null, null, null],          // three copies, no pictures yet
-    mardroeme: [null, null, null]
+    storm: ['Skellige/Skellige_Storm', null, null],      // three copies, one painting
+    mardroeme: ['Skellige/Mardroeme', null, null]
   };
 
   /* The twenty leaders, each with its printed ability. `passive` ones are
@@ -303,9 +305,9 @@
       text: 'If your opponent’s Close Combat units add up to 10 or more, their strongest there are destroyed.' },
     { id: 'francesca_beautiful', fac: 'st', name: 'Francesca Findabair', title: 'The Beautiful', file: 'Francesca Findabair the Beautiful', ab: 'horn1',
       text: 'Doubles all your Ranged units (not if a Commander’s Horn is already on that row).' },
-    { id: 'crach', fac: 'sk', name: 'Crach an Craite', title: 'Jarl of Ard Skellig', file: null, ab: 'shuffleBack',
+    { id: 'crach', fac: 'sk', name: 'Crach an Craite', title: 'Jarl of Ard Skellig', file: 'Crach_an_Craite', ab: 'shuffleBack',
       text: 'Each player shuffles their whole discard pile back into their deck.' },
-    { id: 'bran', fac: 'sk', name: 'King Bran', title: 'King of Skellige', file: null, ab: 'halfWeather', passive: true,
+    { id: 'bran', fac: 'sk', name: 'King Bran', title: 'King of Skellige', file: 'King_Bran', ab: 'halfWeather', passive: true,
       text: 'Bad weather costs your units only half their strength. Always on.' }
   ];
 
@@ -340,7 +342,7 @@
     const rows = X.rows || (X.row != null ? [X.row] : []);
     const real = files.filter(Boolean);
     CARDS[id] = { id, name: X.name, fac: X.fac || 'ne', kind: 'special', sp: k, str: 0, rows, ab: null, hero: false, slot: !!X.slot,
-      count: files.length, files: real.map(f => 'Neutrals/' + f), pics: real.length ? 1 : 0, text: X.text, weather: !X.slot && rows.length > 0 };
+      count: files.length, files: real.map(f => f.indexOf('/') >= 0 ? f : 'Neutrals/' + f), pics: real.length ? 1 : 0, text: X.text, weather: !X.slot && rows.length > 0 };
     ORDER.push(id);
   }
   const LEADER = {};
@@ -522,13 +524,13 @@
       'The five factions of The Witcher 3’s Gwent: Northern Realms, Nilfgaardian Empire, Monsters and Scoia’tael with their printed bonuses, and Skellige from Blood and Wine.',
       'Every card in the collection the art folder holds: 156 faction unit cards, 15 neutral units (17 copies) and 22 special cards, with the printed strength, row and ability.',
       'All twenty-two leaders: twenty from the printed cards (twelve used once a game as a turn, four always on), and Skellige’s Crach an Craite and King Bran.',
-      'Skellige in full, from the Witcher Wiki’s card list: Berserkers that turn into bears under Mardroeme, Cerys and her Shield Maidens, Kambi who becomes Hemdall, the Clan Dimun Pirate’s Scorch, Skellige Storm, and two units back from the dead at the start of round three. It has no pictures yet, so its faces are drawn.',
+      'Skellige in full, from the Witcher Wiki’s card list: Berserkers that turn into bears under Mardroeme, Cerys and her Shield Maidens, Kambi who becomes Hemdall, the Clan Dimun Pirate’s Scorch, Skellige Storm, and two units back from the dead at the start of round three. Its pictures are The Witcher 3’s in-game cards (no Skellige card back).',
       'Decks: a standard deck for each faction, or build your own on your phone (at least 22 units, at most 10 specials).',
       'Ten cards in hand, then redraw up to two. Two out of three rounds; two gems each.',
       'House players at three levels, the house’s turns paced for reading, undo back to the start of your turn, a card at the start and end of every round, and the winner reveal.'
     ],
     notBuilt: [
-      'Pictures for the Skellige cards, Skellige Storm and Mardroeme (none in the art folder).',
+      'A Skellige card back (the drawn one stands in).',
       'A baked Blender scene for Scorch or the end of a round — they are held cards on the telly.',
       'Phones-only solo play without the telly.'
     ],
