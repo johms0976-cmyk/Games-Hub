@@ -73,6 +73,17 @@ const GAMES = [
     status: "playable",
   },
   {
+    id: "netrunner",
+    title: "Android: Netrunner",
+    subtitle: "Solo — Corp or Runner against the house on your phone: the Core Set and every expansion, deck building, a How to play lesson and the Terminal Directive campaign",
+    category: "strategy",
+    players: "1",
+    duration: "30–60 min",
+    icon: "🖥️",
+    accentColor: "#4fc3ff",
+    status: "playable",
+  },
+  {
     id: "shithead",
     title: "Bastard",
     subtitle: "Don't be the last one holding cards",

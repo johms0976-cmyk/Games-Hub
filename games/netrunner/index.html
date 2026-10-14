@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#0b1016">
+<title>Netrunner — Solo</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden],.hide{display:none !important}
+html,body{margin:0;min-height:100%}
+body{background:#0b1016;color:#e9f0f7;font:16px/1.4 ui-rounded,-apple-system,"Segoe UI",system-ui,sans-serif;
+  padding:env(safe-area-inset-top) 12px calc(86px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;gap:8px;padding:10px 0 8px;position:sticky;top:0;background:#0b1016;z-index:5;height:44px}
+header .brand{font-weight:900;letter-spacing:.24em;color:#4fc3ff;font-size:14px;white-space:nowrap}
+#dot{width:12px;height:12px;border-radius:50%;background:#4fc3ff;flex:none}
+#who{font-weight:800;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+#menuBtn{background:transparent;border:1px solid #2b3b4f;color:#9db0c4;border-radius:10px;padding:5px 11px;font-size:14px;flex:none}
+button{font:inherit}
+#flash{position:fixed;left:12px;right:12px;bottom:calc(88px + env(safe-area-inset-bottom));background:#2a1410;border:1px solid #ff6b5a;color:#ffe0d8;border-radius:12px;padding:11px 13px;font-size:14px;z-index:40}
+#flash.good{border-color:#5fbf7a;background:#12291a}
+#bar{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:10px 12px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(11,16,22,0),#0b1016 26%)}
+#bar .btn{margin-top:0}
+.namein{display:flex;gap:8px;margin-top:6px}
+.namein input{flex:1;min-width:0;font:inherit;background:#0f1620;border:1px solid #2b3b4f;color:#e9f0f7;border-radius:12px;padding:11px}
+#msheet{position:fixed;inset:0;z-index:45;background:rgba(5,8,12,.9);display:flex;align-items:flex-end;justify-content:center;padding:16px}
+#msheet .msheet{width:min(100%,460px);background:#141d28;border:1px solid #2b3b4f;border-radius:18px;padding:14px}
+/* the reveal, full screen on a phone held upright */
+#finale .hf-wrap{background-color:#070b10}
+#finale .hf-title{font-size:min(6.2vh,9vw)}
+#finale .hf-sub{font-size:min(3.1vh,4.4vw)}
+#finale .hf-stage{gap:3vw;padding:0 3vw 9vh}
+#finale .hf-col{width:21vw}
+#finale .hf-name{font-size:min(3vh,4vw)}
+#finale .hf-tag{font-size:min(2vh,3vw)}
+#finale .hf-tot{font-size:min(4.4vh,7vw)}
+#finale .hf-part,#finale .hf-place{font-size:min(2.4vh,3.5vw)}
+#finale .hf-winner{font-size:min(10vh,12vw)}
+#finale .hf-winner small{font-size:min(3.4vh,4.6vw)}
+#finale .hf-skip{font-size:15px;padding:8px 14px}
+</style>
+</head>
+<body>
+<header><span id="dot"></span><span class="brand">NETRUNNER</span><span id="who"></span><button id="menuBtn">Menu</button></header>
+<div id="main"></div>
+<div id="bar" class="hide"></div>
+<div id="flash" class="hide"></div>
+<div id="zoom" class="hide"></div>
+<div id="msheet" class="hide"></div>
+<div id="finale"></div>
+
+<script src="finale.js"></script>
+<script src="nr-data.js"></script>
+<script src="sets/stats.js"></script>
+<script src="sets/cac.js"></script>
+<script src="sets/spin.js"></script>
+<script src="sets/hap.js"></script>
+<script src="sets/lunar.js"></script>
+<script src="sets/oac.js"></script>
+<script src="sets/sansan.js"></script>
+<script src="sets/dad.js"></script>
+<script src="sets/mumbad.js"></script>
+<script src="sets/flashpoint.js"></script>
+<script src="sets/redsand.js"></script>
+<script src="sets/td.js"></script>
+<script src="sets/tdc.js"></script>
+<script src="nr-engine.js"></script>
+<script src="nr-bots.js"></script>
+<script src="nr-art.js"></script>
+<script src="nr-words.js"></script>
+<script src="nr-campaign.js"></script>
+<script src="nr-learn.js"></script>
+<script src="nr-host.js"></script>
+<script src="nr-builder.js"></script>
+<script src="nr-phone.js"></script>
+<script>
+'use strict';
+/* Netrunner on one phone: you against the house, no telly.
+ *
+ * The phone page and the host run side by side in this page (LESSONS-
+ * CHECKLIST F1): nr-host.js is the very orchestration the hub's telly runs,
+ * talking to nr-phone.js — the very handset the hub's phones run — over an
+ * in-page bus instead of a socket. The game is saved on this phone after
+ * every move and picks up where it was left; the house stops while the
+ * screen is away; nothing is banked to any season. */
+(function checkVersions() {
+  const missing = [];
+  for (const [g, f] of [['NrData', 'nr-data.js'], ['NrEngine', 'nr-engine.js'], ['NrBots', 'nr-bots.js'], ['NrArt', 'nr-art.js'], ['NrWords', 'nr-words.js'], ['NrCampaign', 'nr-campaign.js'], ['NrLearn', 'nr-learn.js'], ['NrHost', 'nr-host.js'], ['NrPhone', 'nr-phone.js'], ['NrBuilder', 'nr-builder.js']])
+    if (!window[g] || window[g].VERSION !== 1) missing.push(f);
+  if (window.NrData && window.NrData.SET_FILES) for (const sf of window.NrData.SET_FILES) if (!window.NrData.SET_LOADED[sf]) missing.push('sets/' + sf + '.js');
+  if (!missing.length) return;
+  const show = () => {
+    document.body.innerHTML = '<div id="staleWarning" style="padding:12vw 8vw;text-align:center;font:600 18px/1.5 system-ui;color:#e9f0f7">' +
+      '<div style="font-size:26px;color:#4fc3ff;margin-bottom:12px">This page is out of date</div>' +
+      'Your phone kept an old copy of ' + missing.join(' and ') + '. Pull down to reload, or close the tab and open it again.</div>';
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', show); else show();
+  throw new Error('stale assets: ' + missing.join(', '));
+})();
+
+const $ = id => document.getElementById(id);
+const esc = NrArt.esc;
+const ME = 'me';
+const SAVE_KEY = 'nr.solo.save.v1', NAME_KEY = 'nr.solo.name';
+const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const set = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} };
+const HUB = /\/games\/netrunner\//.test(location.pathname) ? '../../index.html' : '/';
+const SOLO = { name: get(NAME_KEY) || 'Case', hex: '#5fd18a', finCtl: null, resumed: false };
+window.__NRSOLO = SOLO;
+/* The player's name goes into third-person lines ("Case runs R&D"), so it
+   may not be "you" (the checklist's Nations lesson). */
+const nameOk = n => n && !/^(you|me|i|myself)$/i.test(n.trim());
+
+/* ---------------- the in-page bus ---------------- */
+let phone = null;
+const deliver = m => { setTimeout(() => phone && phone.receive(JSON.parse(JSON.stringify(m))), 0); };
+const H = NrHost.create({
+  solo: true,
+  toAll: deliver,
+  toSeat: (id, m) => { if (id === ME) deliver(m); },
+  flash: (id, text, tone) => { if (id === ME) setTimeout(() => phone.flash(text, tone), 0); },
+  humans: () => [{ id: ME, name: SOLO.name, hex: SOLO.hex }],
+  remote: () => ME,
+  save: data => set(SAVE_KEY, data ? JSON.stringify(data) : null),
+  campaignLoad: () => { try { return JSON.parse(get('nr.solo.campaign') || 'null'); } catch (e) { return null; } },
+  campaignSave: c => set('nr.solo.campaign', JSON.stringify(c)),
+  menu: () => { location.href = HUB; },
+  onFinale: (fin, data) => playFinale(fin, data),
+  skipFinale: () => { if (SOLO.finCtl) SOLO.finCtl.skip(); }
+});
+SOLO.H = H;
+const S = H.S;
+
+document.head.insertAdjacentHTML('beforeend', NrArt.styles() + '<style>' + NrPhone.STYLES + NrBuilder.STYLES + '</style>');
+phone = NrPhone.create({
+  solo: true, root: $('main'), bar: $('bar'), flashEl: $('flash'), zoomEl: $('zoom'),
+  send: m => setTimeout(() => H.input(ME, m), 0),
+  store: { get: k => get(k), set: (k, v) => set(k, v) },
+  scrollTop: () => window.scrollTo(0, 0),
+  onMenu: () => { location.href = HUB; },
+  onMe: me => { if (me) $('dot').style.background = me.hex; },
+  lobbyTop
+});
+SOLO.phone = phone;
+phone.setMe(ME, SOLO.name, SOLO.hex);
+$('who').textContent = SOLO.name;
+
+/* The setup screen: your name, and the game you left, if there is one. */
+function savedGame() { try { const s = JSON.parse(get(SAVE_KEY) || 'null'); return s && s.createOpts ? s : null; } catch (e) { return null; } }
+function lobbyTop() {
+  const sv = savedGame();
+  let out = '<div class="card"><div class="title">Your name</div><div class="sub">The house speaks of you by it: “' + esc(SOLO.name) + ' runs R&D.”</div>' +
+    '<div class="namein"><input id="nameIn" maxlength="14" value="' + esc(SOLO.name) + '" autocomplete="off"><button class="btn ghost" style="width:auto;margin:0;padding:10px 16px" id="nameGo">Save</button></div></div>';
+  if (sv) {
+    const when = new Date(sv.at);
+    const me = (sv.fame || []).find(x => x.name === SOLO.name);
+    const mine = (sv.sides || []).find(x => !x.bot);
+    const them = (sv.sides || []).find(x => x.bot);
+    out += '<div class="card mine"><div class="title">Resume your game</div><div class="sub">Round ' + sv.round + (mine ? ' · you are the ' + (mine.side === 'corp' ? 'Corp' : 'Runner') : '') + (sv.points ? ' · ' + sv.points.corp + '–' + sv.points.runner + ' on points (Corp–Runner)' : '') + (them ? ' · against ' + esc(them.name) : '') + ' · last played ' + esc(when.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' })) + '</div>' +
+      '<button class="btn" id="resume">Resume</button><button class="btn ghost small" id="abandon">Throw it away</button></div>';
+  }
+  return out;
+}
+document.addEventListener('click', ev => {
+  const t = ev.target;
+  if (t.id === 'nameGo') {
+    const v = $('nameIn').value.trim();
+    if (!nameOk(v)) { phone.flash('Choose a name the house can say: “' + (v || '…') + ' runs R&D”.'); return; }
+    SOLO.name = v; set(NAME_KEY, v); $('who').textContent = v; phone.setMe(ME, v, SOLO.hex); H.publish();
+  }
+  if (t.id === 'resume') { const sv = savedGame(); if (sv && H.resume(sv)) { SOLO.resumed = true; phone.flash('Welcome back — your game picks up where you left it.', 'good'); } else phone.flash('That saved game could not be read.'); }
+  if (t.id === 'abandon') {
+    if (t.dataset.armed !== '1') { t.dataset.armed = '1'; t.textContent = 'Tap again to throw it away'; return; }
+    set(SAVE_KEY, null); H.publish();
+  }
+});
+
+/* The menu: about, abandon, the hub. */
+$('menuBtn').onclick = () => {
+  const playing = S.screen !== 'lobby';
+  $('msheet').innerHTML = '<div class="msheet"><div class="title">Netrunner</div><div class="sub">You against the house — a computer Corp or Runner that sees only what a player would. The game is saved on this phone after every move, and the house waits while your screen is off.</div>' +
+    (playing ? '<button class="btn ghost" id="mQuit">Abandon this game</button>' : '') +
+    '<button class="btn ghost" id="mHub">' + (playing ? 'Back to the Games hub (your game is saved)' : 'Back to the Games hub') + '</button>' +
+    '<button class="btn" id="mClose">Close</button></div>';
+  $('msheet').classList.remove('hide');
+  $('mClose').onclick = () => $('msheet').classList.add('hide');
+  $('mHub').onclick = () => { location.href = HUB; };
+  if ($('mQuit')) $('mQuit').onclick = ev => {
+    const b = ev.currentTarget;
+    if (b.dataset.armed !== '1') { b.dataset.armed = '1'; b.textContent = 'Tap again: the saved game is thrown away'; return; }
+    $('msheet').classList.add('hide');
+    if (SOLO.finCtl) { SOLO.finCtl.stop(); SOLO.finCtl = null; }
+    H.input(ME, { t: 'quit' });
+  };
+};
+
+/* ---------------- the reveal, on the phone ---------------- */
+const SIGIL = (hex, side) => side === 'corp'
+  ? '<svg viewBox="0 0 40 60" aria-hidden="true"><path d="M4 56V18L20 4l16 14v38z" fill="' + hex + '" stroke="#05080c" stroke-width="2"/><path d="M11 24h18M11 32h18M11 40h18M11 48h18" stroke="#05080c" stroke-width="2.4"/></svg>'
+  : '<svg viewBox="0 0 40 60" aria-hidden="true"><circle cx="20" cy="12" r="8" fill="' + hex + '" stroke="#05080c" stroke-width="2"/><path d="M8 58l3-24-5-6 8-7h12l8 7-5 6 3 24z" fill="' + hex + '" stroke="#05080c" stroke-width="2"/></svg>';
+function playFinale(fin, data) {
+  if (!window.HubFinale) { H.finaleStage(fin.n, 'table'); return; }
+  const players = data.players.map(p => Object.assign({}, p, { figure: SIGIL(p.hex, p.side) }));
+  SOLO.finCtl = HubFinale.play(Object.assign({}, data, {
+    root: $('finale'), players, sound: null,
+    onStage(stage, info) { H.finaleStage(fin.n, stage, info && info.label); },
+    onDone() { H.finaleStage(fin.n, 'table'); const c = SOLO.finCtl; SOLO.finCtl = null; setTimeout(() => { if (c) c.stop(); }, 0); }
+  }));
+}
+
+/* The house stops while the phone is away. */
+document.addEventListener('visibilitychange', () => H.input(ME, { t: 'vis', hidden: document.visibilityState === 'hidden' }));
+if (!/[?&]noart/.test(location.search)) NrArt.probe();
+setInterval(() => H.tick(), 1000);
+H.publish();
+</script>
+</body>
+</html>
