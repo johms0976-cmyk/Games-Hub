@@ -209,7 +209,8 @@
       return o.multi ? a.ids.slice() : a.id;
     }
     function* hold(h) { yield { hold: h }; }
-    const cardOpt = (c, extra) => Object.assign({ id: c.uid, card: c.id, label: D.nameOf(c.id) }, extra || {});
+    /* A honed copy (The Path) says so, so a pick from a discard pile shows its real strength. */
+    const cardOpt = (c, extra) => Object.assign({ id: c.uid, card: c.id, label: D.nameOf(c.id) }, c.up ? { up: c.up } : null, extra || {});
 
     /* ================================================================
        Units entering the board
@@ -272,7 +273,7 @@
       let c;
       if (invader()) c = list[Math.floor(rand() * list.length)];
       else {
-        const opts = list.map(x => cardOpt(x, { sub: C(x.id).str + ' strength · ' + D.ROW_SHORT[C(x.id).rows[0]] + (C(x.id).agile ? ' or Ranged' : '') }));
+        const opts = list.map(x => cardOpt(x, { sub: Math.max(0, C(x.id).str + (x.up || 0)) + ' strength · ' + D.ROW_SHORT[C(x.id).rows[0]] + (C(x.id).agile ? ' or Ranged' : '') }));
         const id = yield* pick(p, 'revive', 'Medic: bring which unit back from your discard pile?', opts, { skip: 'Nobody', pub: 'choosing a unit to bring back' });
         if (!id) { log({ t: 'revive', by: p.id, card: null, skipped: true }); return; }
         c = list.find(x => x.uid === id);
@@ -959,7 +960,9 @@
       /* What is left in your own deck (you built it): names and counts, never the order. */
       const left = {};
       p.deck.forEach(c => { left[c.id] = (left[c.id] || 0) + 1; });
-      return { id, v: VERSION, hand: p.hand.map(c => ({ uid: c.uid, id: c.id, k: c.k, up: c.up || 0 })), deckLeft: left,
+      /* The same, copy by copy with any honing (The Path), sorted so it says nothing of the order. */
+      const deckCards = p.deck.map(c => c.up ? { id: c.id, up: c.up } : { id: c.id }).sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : (a.up || 0) - (b.up || 0));
+      return { id, v: VERSION, hand: p.hand.map(c => ({ uid: c.uid, id: c.id, k: c.k, up: c.up || 0 })), deckLeft: left, deckCards,
         fac: p.fac, leader: p.leader, seen: p.seen ? clone(p.seen) : null, prompts,
         can: turnPr && !g.hold ? Object.assign({ n: turnPr.n }, menu(p)) : null };
     };

@@ -163,10 +163,10 @@ const GAMES = [
   {
     id: "gwent",
     title: "Gwent: The Path",
-    subtitle: "Solo deck-builder — the Witcher card game as a run: three acts, three bosses, three lives",
+    subtitle: "Solo deck-builder — the Witcher card game as a run: three acts, three bosses, three lives; or the Long Road, at Slay the Spire’s length",
     category: "card",
     players: "1",
-    duration: "45–90 min",
+    duration: "45 min – 4 h",
     icon: "🃏",
     accentColor: "#e0b456",
     status: "playable",

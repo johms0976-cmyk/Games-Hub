@@ -51,6 +51,24 @@ h1,h2,h3{margin:0;font-weight:800}
 .pl .phasechip{border-color:#7a3aa0;color:#d9a0ff}
 .pl .phasechip.live{background:rgba(122,58,160,.3);color:#f0d8ff}
 .hunt{color:#9fd4ff}
+/* The Long Road: the potion belt, the prep before a battle, a merchant's sale */
+#top .belt{display:flex;gap:3px}
+#top .belt button{width:30px;height:30px;border-radius:9px;background:#1e2a22;border:1px solid #3a6a50;padding:3px;display:flex}
+#top .belt button.empty{background:transparent;border-style:dashed;border-color:#3a4a40;cursor:default}
+#top .belt svg{width:100%;height:100%}
+#top .beltn{display:none}
+#top .beltn svg{width:18px;height:18px}
+@media (max-width:640px){ #top .belt{display:none} #top .beltn{display:flex} }
+.chk .pot{width:34px;height:34px;flex:none}
+.chk.drink small{display:block;margin-top:2px}
+.chk.drink.on{border-color:#4aa070;background:rgba(74,160,112,.14)}
+.chk.drink.on .box{background:#6fcf9f;border-color:#6fcf9f}
+.offer .it.pot .ic{width:64px;height:64px;border-radius:18px;background:#1e2a22;border:2px solid #3a6a50;padding:10px}
+.offer .it .sale{font:800 11px/1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#1b140c;background:#6fcf7f;border-radius:6px;padding:3px 6px}
+.mapsvg.long{max-height:none}
+.floorline{text-align:center;font:13px system-ui,sans-serif;color:var(--dim);margin:-4px 0 6px}
+.len{border-left:6px solid #6a5030}
+.len.on{border-left-color:var(--gold)}
 .up-tag{position:absolute;right:4%;top:3%;z-index:4;background:#1d6a2c;color:#d8ffe0;font:800 11px/1 system-ui,sans-serif;padding:3px 5px;border-radius:6px;border:1px solid #6fdc84}
 .slot{position:relative;display:inline-block}
 /* Where a face is sized by its container, the wrapper must take the width. */
@@ -76,7 +94,8 @@ h1,h2,h3{margin:0;font-weight:800}
 #top .trk button{width:30px;height:30px;border-radius:50%;background:#2a1f12;border:1px solid #7a5a2a;padding:4px;display:flex}
 #top .trk svg{width:100%;height:100%}
 #top .trkn{display:none}
-@media (max-width:640px){ #top{padding:6px 10px 8px} #top .in{flex-wrap:nowrap;gap:8px} #top .who,#top .where{display:none} #top .trk{display:none} #top .trkn{display:flex} #top .tb{padding:5px 8px} #top .lives svg{width:17px;height:17px} }
+/* A crowded bar (Act III, four lives, a challenge, the potion belt) wraps rather than pushing Menu off a phone. */
+@media (max-width:640px){ #top{padding:6px 10px 8px} #top .in{flex-wrap:wrap;gap:6px 8px} #top .who,#top .where{display:none} #top .trk{display:none} #top .trkn{display:flex} #top .tb{padding:5px 8px} #top .lives svg{width:17px;height:17px} }
 
 /* ---------- title and choosing ---------- */
 .title-hero{text-align:center;padding:6vh 0 3vh}
@@ -371,6 +390,14 @@ const TRK_ICON = { seal: 'seal', cat: 'potion', purse: 'purse', ledger: 'book', 
   eye: 'eye', decoction: 'potion', whetstone: 'stone', mutagen: 'potion', swallow: 'potion', crown: 'crown', bugle: 'horn' };
 const svg = (name, cls) => '<svg viewBox="0 0 24 24"' + (cls ? ' class="' + cls + '"' : '') + ' aria-hidden="true">' + (IC[name] || '') + '</svg>';
 const trkIcon = id => svg(TRK_ICON[id] || 'seal');
+/* A potion: the flask in its own colour; the two bombs are round. */
+const POT_HUE = { thunderbolt: '#f0c040', whitehoney: '#f4ecd8', owl: '#b08060', petri: '#c070e0', blizzard: '#80c8ff', dancingstar: '#ff7040', fullmoon: '#e8e0a0', moondust: '#a0a8c0' };
+function potIcon(id) {
+  const c = POT_HUE[id] || '#7ad0a0';
+  if (id === 'dancingstar' || id === 'moondust') return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="14" r="7.5" fill="' + c + '" stroke="#1b140c" stroke-width="1.2"/><rect x="10" y="4" width="4" height="3.5" rx="1" fill="#5a4630"/><path d="M14 5c2-2 4-1 5 1" stroke="#f1c75b" stroke-width="1.4" fill="none"/></svg>';
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3h4v5l4.5 8.5A3 3 0 0 1 16 21H8a3 3 0 0 1-2.5-4.5L10 8Z" fill="' + c + '" stroke="#1b140c" stroke-width="1"/><path d="M6.5 15h11" stroke="#1b140c" stroke-width="1" opacity=".5"/><rect x="9.5" y="2" width="5" height="2" rx=".6" fill="#8a6420"/></svg>';
+}
+const potHtml = id => { const p = R.POTION[id]; return '<b>' + esc(p.name) + ' <span class="rar ' + p.rarity + '">' + p.rarity + '</span></b><small>' + esc(p.text) + '</small>'; };
 const ROMAN = ['', 'I', 'II', 'III'];
 
 function deltaHtml(d) {
@@ -420,7 +447,10 @@ function topHtml() {
     '<button class="tb" data-act="deck">' + svg('deck') + run.deck.length + '<span class="where">&nbsp;cards</span></button>' +
     (run.trinkets.length ? '<button class="tb trkn" data-act="trinket">' + trkIcon(run.trinkets[run.trinkets.length - 1]).replace('<svg', '<svg style="width:18px;height:18px"') + run.trinkets.length + '</button>' : '') +
     (run.trinkets.length ? '<span class="trk">' + run.trinkets.map(id => '<button data-act="trinket" data-id="' + id + '" title="' + esc(R.TRINKET[id].name) + '">' + trkIcon(id) + '</button>').join('') + '</span>' : '') +
-    (run.act === 3 && !run.over ? '<span class="stat hunt" title="The Wild Hunt on your trail">' + svg('elite') + (run.hunt || 0) + '/' + R.HUNT + '</span>' : '') +
+    /* On a phone the belt is one button: the first flask and a count. */
+    (run.long && !run.over ? '<button class="tb beltn" data-act="potions" title="Potions">' + (run.potions.length ? potIcon(run.potions[0]) : potIcon('')) + run.potions.length + '/' + R.LONG.belt + '</button>' : '') +
+    (run.long && !run.over ? '<span class="belt" title="Potions">' + Array.from({ length: R.LONG.belt }, (_, k) => run.potions[k] ? '<button data-act="potions" title="' + esc(R.POTION[run.potions[k]].name) + '">' + potIcon(run.potions[k]) + '</button>' : '<button class="empty" data-act="potions" aria-label="An empty potion slot"></button>').join('') + '</span>' : '') +
+    (run.act === 3 && !run.over ? '<span class="stat hunt" title="The Wild Hunt on your trail">' + svg('elite') + (run.hunt || 0) + '/' + R.huntOf(run) + '</span>' : '') +
     ((run.ch || []).length ? '<button class="tb" data-act="chinfo" title="Challenges">×' + R.multiplier(run).toFixed(2).replace(/0$/, '') + '</button>' : '') +
     '<span class="grow"></span><span class="dim sans where" style="font-size:12.5px">' + esc(where) + '</span>' +
     '<button class="tb" data-act="menu">Menu</button></div>';
@@ -460,12 +490,12 @@ function titleHtml() {
   return '<div class="wrap"><div class="title-hero"><h1><small>Gwent</small>The Path</h1>' +
     '<p>A run of Gwent battles across Velen, Novigrad and Skellige. Start with a poor deck; win cards, hone them, buy trinkets that bend the rules — and beat three bosses on three lives.</p></div>' +
     '<div class="menu">' +
-    (saved ? '<button class="btn" data-act="continue">Continue — ' + esc(D.faction(saved.fac).name) + ', Act ' + ROMAN[saved.act] + '</button>' : '') +
+    (saved ? '<button class="btn" data-act="continue">Continue — ' + esc(D.faction(saved.fac).name) + ', Act ' + ROMAN[saved.act] + (saved.long ? ' of the Long Road' : '') + '</button>' : '') +
     '<button class="btn' + (saved ? ' ghost' : '') + '" data-act="new">' + (saved ? 'Start a new run' : 'Start a run') + '</button>' +
     '<button class="btn ghost" data-act="how">How it works</button>' +
     '<a class="btn ghost" href="../../index.html" style="text-decoration:none">Games hub</a>' +
     '</div>' +
-    (best.length ? '<div class="best"><div class="sect">Your best runs</div><ol>' + best.map(b => '<li><b>' + esc(b.score) + '</b> — ' + esc(D.faction(b.fac).name) + ', ' + esc(R.DIFFICULTY[b.diff].name) + ': ' +
+    (best.length ? '<div class="best"><div class="sect">Your best runs</div><ol>' + best.map(b => '<li><b>' + esc(b.score) + '</b> — ' + esc(D.faction(b.fac).name) + ', ' + esc(R.DIFFICULTY[b.diff].name) + (b.long ? ', the Long Road' : '') + ': ' +
       (b.won ? '<span class="gold">all three bosses beaten</span>' : 'fell in Act ' + ROMAN[b.act]) + (b.ch && b.ch.length ? ' · ' + b.ch.length + ' challenge' + (b.ch.length > 1 ? 's' : '') : '') + (b.date ? ' · ' + esc(b.date) : '') + '</li>').join('') + '</ol></div>' : '') +
     '</div>';
 }
@@ -481,7 +511,12 @@ function howHtml() {
     '<li><b>Challenges</b> are chosen before a run — One Life, Weakened, Short Hand and more. Each makes the road harder and your score bigger.</li>' +
     '<li>Once an act, a lost battle can cost a <b>wound</b> instead of a life: your strongest card fights at −' + R.WOUND + ' for the rest of the run.</li>' +
     '<li><b>Cursed trinkets</b> come only from the Man of Glass: a gift with a price you can read.</li>' +
-    '<li>In Act III the <b>Wild Hunt</b> follows you. Every stop brings it closer; at ' + R.HUNT + ' it catches you for a fight.</li></ul>' +
+    '<li>In Act III the <b>Wild Hunt</b> follows you. Every stop brings it closer; at ' + R.HUNT + ' it catches you for a fight (' + R.LONG.hunt + ' on the Long Road).</li></ul>' +
+    '<h3>The Long Road</h3><ul><li>Chosen on the new-run screen: the same three acts at <b>Slay the Spire’s length</b> — seventeen floors an act (sixteen on a wider map, then the boss). Treasure is always on floor nine and a campfire on floor sixteen; no contracts or campfires in the first five floors.</li>' +
+    '<li>The fights <b>grow as you climb</b>: battles after the treasure (and all of Acts II–III) hold an extra card, contracts and bosses more, and bosses play sharper. Take the early battles to build a deck; later, every fight costs more.</li>' +
+    '<li><b>Potions</b>: a belt of ' + R.LONG.belt + '. A won battle or contract drops one ' + R.POTION0 + '% of the time — less after a drop, more after a dry spell. Drink before a battle; it lasts that battle.</li>' +
+    '<li><b>Card rewards</b> keep count: every common you are shown makes a rare likelier, until one appears. Contracts are likelier still.</li>' +
+    '<li><b>Merchants</b> stock five cards (one at half price), three trinkets and three potions; removal starts at ' + R.LONG.removeCost + ' crowns. <b>Chests</b> come small, medium or large. About one encounter in nine is a <b>shrine</b>.</li></ul>' +
     '<h3>A battle</h3><ul><li>The usual Gwent: two rounds out of three, two gems each. Tap a card in your hand, then a glowing row — or the play in the panel, which says what it does to both totals.</li>' +
     '<li>Pass when you have done enough: no cards are drawn between rounds, so the hand you are dealt is the whole battle.</li>' +
     '<li>Made a mistake? <b>Take back</b> undoes your last move, as long as nothing new has been drawn.</li></ul>' +
@@ -494,6 +529,9 @@ function newHtml() {
   const facs = D.FACTIONS.filter(f => R.STARTER[f.id]);
   let out = '<div class="wrap"><h2 class="gold" style="font-size:30px">A new run</h2>' +
     '<div class="sect">Your name</div><input class="nm" id="nm" maxlength="16" value="' + esc(P.name || load(NAME) || 'The Wanderer') + '" autocomplete="off">' +
+    '<div class="sect">Length</div><div class="choices">' +
+    '<button class="choice len' + (!P.long ? ' on' : '') + '" data-act="plen" data-id=""><b>The Path</b><small>Three acts of eight floors. An evening.</small></button>' +
+    '<button class="choice len' + (P.long ? ' on' : '') + '" data-act="plen" data-id="long"><b>The Long Road</b><small>Three acts of seventeen floors, Slay the Spire’s length: potions, bigger merchants, chests and shrines — and fights that grow as you climb.</small></button></div>' +
     '<div class="sect">Difficulty</div><div class="choices">' + Object.keys(R.DIFFICULTY).map(k => '<button class="choice' + (P.diff === k ? ' on' : '') + '" data-act="pdiff" data-id="' + k + '"><b>' + esc(R.DIFFICULTY[k].name) + '</b><small>' + esc(R.DIFFICULTY[k].text) + '</small></button>').join('') + '</div>' +
     '<div class="sect">Challenges <span style="text-transform:none;letter-spacing:0">— optional; each raises your score</span></div><div class="choices">' + R.CHALLENGES.map(c => '<button class="chk' + ((P.ch || []).indexOf(c.id) >= 0 ? ' on' : '') + '" data-act="pch" data-id="' + c.id + '"><span class="box">' + ((P.ch || []).indexOf(c.id) >= 0 ? '✓' : '') + '</span><span><b>' + esc(c.name) + '</b><small>' + esc(c.text) + '</small></span><span class="w">+' + Math.round(c.w * 100) + '%</span></button>').join('') + '</div>' +
     ((P.ch || []).length ? '<p class="dim sans" style="font-size:13px;margin:6px 0 0">Score ×' + (1 + (P.ch || []).reduce((t, id) => t + R.CHALLENGE[id].w, 0)).toFixed(2) + '</p>' : '') +
@@ -519,7 +557,8 @@ function actHtml() {
   return '<div class="wrap scr" style="text-align:center;padding-top:6vh"><div class="sect">Act ' + ROMAN[run.act] + '</div><h2 style="font-size:clamp(36px,7vw,60px)">' + esc(a.name) + '</h2>' +
     '<div class="dim" style="font-size:18px;letter-spacing:.06em">' + esc(a.sub) + '</div><p class="lede" style="max-width:560px;margin:16px auto">' + esc(a.text) + '</p>' +
     '<div class="card" style="max-width:520px;margin:18px auto;text-align:left"><div class="foebox">' + A.card(boss.leader, 'tile') + '<div class="tx"><div class="sect" style="margin:0">Waiting at the end</div><b>' + esc(boss.name) + '</b><div class="dim" style="font-size:14px">' + esc(boss.text) + '</div></div></div>' + phaseLine(boss) + '</div>' +
-    (run.act === 3 ? '<p class="lede hunt" style="max-width:560px;margin:10px auto">The Wild Hunt is on your trail. Every floor brings it closer, and every stop — a merchant, a campfire, an encounter, treasure — closer still. At ' + R.HUNT + ' it catches you.</p>' : '') +
+    (run.long ? '<p class="lede" style="max-width:560px;margin:10px auto">The Long Road: seventeen floors to the boss, and the fights grow harder past the treasure.</p>' : '') +
+    (run.act === 3 ? '<p class="lede hunt" style="max-width:560px;margin:10px auto">The Wild Hunt is on your trail. Every floor brings it closer, and every stop — a merchant, a campfire, an encounter, treasure — closer still. At ' + R.huntOf(run) + ' it catches you.</p>' : '') +
     (run.act > 1 ? '<p class="dim">Your lives: ' + run.lives + ' of ' + run.maxLives + ' · ' + run.crowns + ' crowns · ' + run.deck.length + ' cards</p>' : '') +
     '</div>' + bar('<button class="btn" data-act="leave">Set out</button>');
 }
@@ -528,9 +567,9 @@ function actHtml() {
 function mapHtml() {
   const run = S.run;
   const can = R.reachable(run);
-  const FL = R.FLOORS, W = 340, step = 80, H = 90 + FL * step + 40;
+  const SH = R.shapeOf(run), FL = SH.floors, gapX = run.long ? 58 : 65, W = 80 + (SH.cols - 1) * gapX, step = 80, H = 90 + FL * step + 40;
   const jit = (id, k) => { let h = 0; for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return ((h >> k) % 13) - 6; };
-  const xy = n => n.id === 'boss' ? [W / 2, 46] : [40 + n.c * 65 + jit(n.id, 2), H - 50 - n.f * step + jit(n.id, 5)];
+  const xy = n => n.id === 'boss' ? [W / 2, 46] : [40 + n.c * gapX + jit(n.id, 2), H - 50 - n.f * step + jit(n.id, 5)];
   const walked = new Set();
   for (let i = 1; i < run.path.length; i++) walked.add(run.path[i - 1] + '>' + run.path[i]);
   let edges = '', nodes = '';
@@ -558,16 +597,17 @@ function mapHtml() {
   const boss = R.enemyOf(run, run.map.boss);
   return '<div class="wrap"><div class="bossline">Act ' + ROMAN[run.act] + ' — ' + esc(R.ACTS[run.act - 1].name) + ' · the boss: <b>' + esc(boss.name) + '</b></div>' +
     '<div class="legend">' + ['battle', 'elite', 'event', 'shop', 'camp', 'treasure'].map(k => '<span>' + svg(k) + esc(KIND[k]) + '</span>').join('') + '</div>' +
-    '<div class="mapwrap"><svg class="mapsvg" viewBox="0 0 ' + W + ' ' + H + '">' + edges + nodes + '</svg></div>' +
-    (run.act === 3 ? '<p class="hunt sans" style="text-align:center;font-size:14px">The Wild Hunt: ' + (run.hunt || 0) + ' of ' + R.HUNT + '. Each floor +1; a stop (merchant, campfire, encounter, treasure) +1 more.</p>' : '') +
+    (run.long ? '<div class="floorline">Floor ' + (floorNow + 2 > FL + 1 ? FL + 1 : Math.max(1, floorNow + 2)) + ' of ' + (FL + 1) + ' next</div>' : '') +
+    '<div class="mapwrap"><svg class="mapsvg' + (run.long ? ' long' : '') + '" viewBox="0 0 ' + W + ' ' + H + '">' + edges + nodes + '</svg></div>' +
+    (run.act === 3 ? '<p class="hunt sans" style="text-align:center;font-size:14px">The Wild Hunt: ' + (run.hunt || 0) + ' of ' + R.huntOf(run) + '. Each floor +1; a stop (merchant, campfire, encounter, treasure) +1 more.</p>' : '') +
     '<p class="dim" style="text-align:center;font-size:14px">' + (can.length ? 'Choose where to go next — a glowing circle.' : '') + '</p></div>';
 }
 const KIND = { battle: 'Battle', elite: 'Contract', event: 'Encounter', shop: 'Merchant', camp: 'Campfire', treasure: 'Treasure', boss: 'Boss' };
 
 /* ---------------- after a battle ---------------- */
-function foeBox(e, extra) {
+function foeBox(e, extra, mods) {
   const chips = [];
-  const m = e.mods || {};
+  const m = mods || e.mods || {};
   if (m.hand) chips.push('+' + m.hand + ' card' + (m.hand > 1 ? 's' : ''));
   if (m.keep) chips.push('keeps a unit');
   if (m.redraws) chips.push('+1 redraw');
@@ -584,6 +624,14 @@ function rewardHtml() {
     '<p class="lede">' + svg('coin').replace('<svg', '<svg style="width:18px;height:18px;vertical-align:-3px"') + ' <b class="gold">+' + s.crowns + ' crowns</b>' + (s.flawless ? ' (with a quarter more for a flawless win)' : '') +
     (s.healed ? ' · a life back' : '') + '</p>';
   if (s.trinket) { const t = R.TRINKET[s.trinket]; out += '<div class="result" style="display:flex;gap:12px;align-items:center"><span style="width:44px;height:44px;flex:none">' + trkIcon(t.id) + '</span><span><b>' + esc(t.name) + '</b> <span class="rar ' + t.rarity + '">' + t.rarity + '</span><br><span class="dim">' + esc(t.text) + '</span></span></div>'; }
+  if (s.potion) {
+    const pot = '<span class="pot" style="width:44px;height:44px;flex:none">' + potIcon(s.potion) + '</span>';
+    if (s.potionTook === true) out += '<div class="result" style="display:flex;gap:12px;align-items:center">' + pot + '<span>A potion' + (s.poured ? ' (for ' + esc(R.POTION[s.poured].name) + ')' : '') + ': ' + potHtml(s.potion).replace('<small>', '<br><small class="dim">') + '</span></div>';
+    else if (s.potionTook === 'left') out += '<p class="result">You leave the ' + esc(R.POTION[s.potion].name) + ' where it lay.</p>';
+    else out += '<div class="sect">A potion — your belt is full</div><div class="result" style="display:flex;gap:12px;align-items:center">' + pot + '<span>' + potHtml(s.potion).replace('<small>', '<br><small class="dim">') + '</span></div>' +
+      '<div class="opts">' + run.potions.map((id, k) => '<button class="opt" data-act="pswap" data-i="' + k + '"><span class="ic">' + potIcon(id) + '</span><span class="lab"><b>Pour out ' + esc(R.POTION[id].name) + ' for it</b><small>' + esc(R.POTION[id].text) + '</small></span></button>').join('') +
+      '<button class="opt" data-act="pswap" data-i=""><span class="lab"><b>Leave it</b></span></button></div>';
+  }
   if (!s.took) {
     out += '<div class="sect">Choose a card for your deck — or none</div><div class="offer">' + s.cards.map((id, i) => '<button class="it' + (S.pick === i ? ' on' : '') + '" data-act="rpick" data-i="' + i + '">' + face({ id }, 'big') + rarHtml(id) +
       '<span class="tx">' + esc(cardText(id)) + '</span><span class="tx">You hold ' + R.countOf(run, id) + '</span></button>').join('') + '</div>';
@@ -614,7 +662,7 @@ function lostHtml() {
 function treasureHtml() {
   const s = S.run.screen;
   const t = s.trinket && R.TRINKET[s.trinket];
-  return '<div class="wrap scr"><div class="sect">Treasure</div><h2>A forgotten chest</h2><p class="lede">' + svg('coin').replace('<svg', '<svg style="width:18px;height:18px;vertical-align:-3px"') + ' <b class="gold">+' + s.crowns + ' crowns</b></p>' +
+  return '<div class="wrap scr"><div class="sect">Treasure</div><h2>' + (s.chest ? { small: 'A small chest', medium: 'A chest', large: 'A great iron-bound chest' }[s.chest] : 'A forgotten chest') + '</h2><p class="lede">' + svg('coin').replace('<svg', '<svg style="width:18px;height:18px;vertical-align:-3px"') + ' <b class="gold">+' + s.crowns + ' crowns</b></p>' +
     (t ? '<div class="result" style="display:flex;gap:12px;align-items:center"><span style="width:52px;height:52px;flex:none">' + trkIcon(t.id) + '</span><span><b>' + esc(t.name) + '</b> <span class="rar ' + t.rarity + '">' + t.rarity + '</span><br><span class="dim">' + esc(t.text) + '</span></span></div>' : '') +
     '</div>' + bar('<button class="btn" data-act="leave">Back to the map</button>');
 }
@@ -626,7 +674,9 @@ function shopHtml() {
   let out = '<div class="wrap scr"><div class="sect">Merchant</div><h2>A travelling merchant</h2><p class="lede">“Cards from every corner of the Continent. Prices fair. Mostly.”</p><div class="offer">';
   s.items.forEach((it, i) => {
     const cant = it.sold || run.crowns < it.price;
-    if (it.t === 'card') out += '<button class="it' + (it.sold ? ' sold' : '') + '" data-act="buy" data-i="' + i + '"' + (it.sold ? ' disabled' : '') + '>' + face({ id: it.id }, 'big') + rarHtml(it.id) +
+    if (it.t === 'potion') { out += '<button class="it pot' + (it.sold ? ' sold' : '') + '" data-act="buy" data-i="' + i + '"' + (it.sold ? ' disabled' : '') + '><span class="ic">' + potIcon(it.id) + '</span><b>' + esc(R.POTION[it.id].name) + '</b><span class="rar ' + R.POTION[it.id].rarity + '">potion</span>' +
+      '<span class="price" style="' + (cant && !it.sold ? 'color:var(--bad)' : '') + '">' + coin + it.price + '</span><span class="tx">' + esc(R.POTION[it.id].text) + '</span></button>'; return; }
+    if (it.t === 'card') out += '<button class="it' + (it.sold ? ' sold' : '') + '" data-act="buy" data-i="' + i + '"' + (it.sold ? ' disabled' : '') + '>' + face({ id: it.id }, 'big') + rarHtml(it.id) + (it.sale && !it.sold ? '<span class="sale">Half price</span>' : '') +
       '<span class="price" style="' + (cant && !it.sold ? 'color:var(--bad)' : '') + '">' + coin + it.price + '</span><span class="tx">' + esc(cardText(it.id)) + '</span></button>';
     else { const t = R.TRINKET[it.id]; out += '<button class="it trk' + (it.sold ? ' sold' : '') + '" data-act="buy" data-i="' + i + '"' + (it.sold ? ' disabled' : '') + '><span class="ic">' + trkIcon(t.id) + '</span><b>' + esc(t.name) + '</b><span class="rar ' + t.rarity + '">' + t.rarity + '</span>' +
       '<span class="price" style="' + (cant && !it.sold ? 'color:var(--bad)' : '') + '">' + coin + it.price + '</span><span class="tx">' + esc(t.text) + '</span></button>'; }
@@ -653,7 +703,7 @@ function campHtml() {
 function eventHtml() {
   const run = S.run, s = run.screen;
   const ev = R.EVENT[s.ev];
-  let out = '<div class="wrap scr"><div class="sect">Encounter</div><h2>' + esc(ev.title) + '</h2><p class="lede">' + esc(ev.text) + '</p>';
+  let out = '<div class="wrap scr"><div class="sect">' + (run.long && ev.shrine ? 'Shrine' : 'Encounter') + '</div><h2>' + esc(ev.title) + '</h2><p class="lede">' + esc(ev.text) + '</p>';
   if (!s.result) {
     out += '<div class="opts">' + ev.options.map((o, i) => {
       const why = o.need ? o.need(run) : null;
@@ -671,7 +721,7 @@ function overHtml() {
   return '<div class="wrap scr"><div class="ends' + (won ? '' : ' lost') + '"><div class="sect">' + (won ? 'The Path is walked' : 'The road ends here') + '</div><h1>' + (won ? 'Victory' : 'Defeat') + '</h1>' +
     '<p class="lede">' + (won ? 'Three acts, three bosses. The tables of the Continent will talk about this deck.' : 'Beaten by ' + esc(run.over.by || 'the road') + ' in Act ' + ROMAN[run.act] + '.') + '</p>' +
     '<p style="font-size:22px">Score <b class="gold">' + R.score(run) + '</b>' + ((run.ch || []).length ? ' <span class="dim" style="font-size:15px">(×' + R.multiplier(run).toFixed(2) + ': ' + esc(run.ch.map(id => R.CHALLENGE[id].name).join(', ')) + ')</span>' : '') + '</p></div>' +
-    '<div class="dstats" style="justify-content:center"><span>Battles won <b>' + st.won + '</b></span><span>lost <b>' + st.lost + '</b></span><span>Cards taken <b>' + st.cards + '</b></span><span>removed <b>' + st.removed + '</b></span><span>honed <b>' + st.honed + '</b></span><span>wounds <b>' + (st.wounds || 0) + '</b></span><span>Crowns earned <b>' + st.crowns + '</b></span></div>' +
+    '<div class="dstats" style="justify-content:center"><span>Battles won <b>' + st.won + '</b></span><span>lost <b>' + st.lost + '</b></span><span>Cards taken <b>' + st.cards + '</b></span><span>removed <b>' + st.removed + '</b></span><span>honed <b>' + st.honed + '</b></span><span>wounds <b>' + (st.wounds || 0) + '</b></span>' +(run.long ? '<span>potions drunk <b>' + (st.potions || 0) + '</b></span>' : '') + '<span>Crowns earned <b>' + st.crowns + '</b></span></div>' +
     '<div class="sect">Your final deck</div>' + deckGrid(run.deck, null) + '</div>' + bar('<button class="btn ghost" data-act="title">Title</button><button class="btn" data-act="new">Another run</button>');
 }
 
@@ -686,7 +736,7 @@ function sortDeck(list) {
 function deckGrid(list, act, can, on) {
   return '<div class="deckgrid">' + sortDeck(list).map(c => {
     const ok = !can || can(c);
-    return '<button class="dc' + (on === c.rid ? ' on' : '') + '" data-act="' + (act || 'zoom') + '" data-id="' + (act ? c.rid : c.id) + '"' + (ok ? '' : ' disabled') + '>' + face(c, 'tile') + '<small>' + esc(D.card(c.id).name) + '</small></button>';
+    return '<button class="dc' + (on === c.rid ? ' on' : '') + '" data-act="' + (act || 'zoomu') + '" data-id="' + (act ? c.rid : c.id) + '"' + (act ? '' : ' data-up="' + (c.up || 0) + '"') + (ok ? '' : ' disabled') + '>' + face(c, 'tile') + '<small>' + esc(D.card(c.id).name) + '</small></button>';
   }).join('') + '</div>';
 }
 function deckStats(list) {
@@ -718,7 +768,13 @@ function paintModal() {
       '<button class="opt" data-act="abandon"><span class="lab"><b>' + (m.sure ? 'Tap again to abandon this run' : 'Abandon this run') + '</b><small>It ends here and counts as a defeat.</small></span></button></div>' +
       '<div class="foot"><button class="btn" data-act="mclose">Back</button></div>';
   } else if (m.k === 'pile') {
-    h = '<h3>' + esc(m.title) + '</h3>' + (m.list.length ? '<div class="deckgrid">' + m.list.map(c => '<button class="dc" data-act="zoom" data-id="' + c.id + '">' + face(c, 'tile') + '<small>' + esc(D.card(c.id).name) + (c.n > 1 ? ' ×' + c.n : '') + '</small></button>').join('') + '</div>' : '<p class="dim">Nothing here.</p>') +
+    h = '<h3>' + esc(m.title) + '</h3>' + (m.list.length ? '<div class="deckgrid">' + m.list.map(c => '<button class="dc" data-act="zoomu" data-id="' + c.id + '" data-up="' + (c.up || 0) + '">' + face(c, 'tile') + '<small>' + esc(D.card(c.id).name) + (c.n > 1 ? ' ×' + c.n : '') + '</small></button>').join('') + '</div>' : '<p class="dim">Nothing here.</p>') +
+      '<div class="foot"><button class="btn" data-act="mclose">Close</button></div>';
+  } else if (m.k === 'potions') {
+    const run = S.run, bat = run.screen.k === 'battle' && !run.screen.prep;
+    h = '<h3>Your potions</h3><p class="dim" style="margin:4px 0 0">A belt of ' + R.LONG.belt + '. Drink them in the moment before a battle is dealt; each lasts that one battle.</p>' +
+      (run.potions.length ? '<div class="opts">' + run.potions.map((id, i) => '<div class="opt" style="cursor:default"><span class="ic">' + potIcon(id) + '</span><span class="lab">' + potHtml(id) + '</span>' +
+        (bat ? '' : '<button class="btn ghost" style="min-height:40px;padding:8px 12px" data-act="pour" data-i="' + i + '">' + (m.sure === i ? 'Tap again' : 'Pour out') + '</button>') + '</div>').join('') + '</div>' : '<p class="dim">The belt is empty. Won battles and contracts drop potions; merchants sell them.</p>') +
       '<div class="foot"><button class="btn" data-act="mclose">Close</button></div>';
   } else if (m.k === 'b') h = m.html;
   el.innerHTML = '<div class="box">' + h + '</div>';
@@ -898,7 +954,19 @@ function endModal() {
 
 /* ---------------- painting the battle ---------------- */
 function myPrompt() { return S.g ? S.g.prompts.find(p => p.seat === YOU) || null : null; }
+/* The Long Road: before the deal, drink a potion or keep it. */
+function prepHtml() {
+  const run = S.run, s = run.screen, e = R.enemyOf(run, s.foe);
+  const P = S.drink || [];
+  const foeMods = R.battleSetup(run).players[1].mods;
+  const what = s.kind === 'boss' ? 'The boss' : s.kind === 'elite' ? 'A contract' : s.kind === 'hunt' ? 'The Wild Hunt' : 'A battle';
+  return '<div class="wrap scr"><div class="sect">' + what + '</div><h2>Before the cards are dealt</h2>' + foeBox(e, '', foeMods) +
+    '<div class="sect">Your potions — each lasts this battle</div><div class="opts">' + run.potions.map((id, i) => '<button class="chk drink' + (P.indexOf(i) >= 0 ? ' on' : '') + '" data-act="drink" data-i="' + i + '"><span class="box">' + (P.indexOf(i) >= 0 ? '✓' : '') + '</span><span class="pot">' + potIcon(id) + '</span><span>' + potHtml(id) + '</span></button>').join('') + '</div>' +
+    '<p class="dim sans" style="font-size:13px">Keep them for a harder fight if you like: they wait on your belt.</p></div>' +
+    bar('<button class="btn" data-act="fight">' + (P.length ? 'Drink ' + (P.length > 1 ? P.length + ' potions' : 'it') + ' and fight' : 'Fight without one') + '</button>');
+}
 function battleHtml() {
+  if (S.run.screen.prep) return prepHtml();
   if (!S.g) startBattle();
   const g = S.g, pub = g.publicView(), sv = g.seatView(YOU);
   const pr = myPrompt();
@@ -944,6 +1012,7 @@ function battleHtml() {
       '<div class="facts"><span>Hand <b>' + p.handN + '</b></span>' + deck + '<button class="pile" data-act="pile" data-i="' + i + '">Discard ' + p.disc.length + '</button>' +
       (p.passed ? '<span class="passed">Passed</span>' : '') + (thinking ? '<span class="think">thinking…</span>' : '') +
       (p.mods && p.mods.phase && R.PHASES[p.mods.phase] ? '<button class="pile phasechip' + (p.mods.phaseN ? ' live' : '') + '" data-act="phaseinfo">' + esc(R.PHASES[p.mods.phase].name) + (p.mods.phaseN ? '' : ' — when you take a round') + '</button>' : '') +
+      (i === 0 && (S.run.screen.drunk || []).length ? '<button class="pile" data-act="drunk" style="border-color:#3a6a50;color:#a8f0c8">' + S.run.screen.drunk.map(id => esc(R.POTION[id].name)).join(' · ') + '</button>' : '') +
       (p.mods && (p.mods.weak || p.mods.noLeader) ? '<span class="pile" style="border-color:#8a3030;color:#ffb0a8">' + [p.mods.weak ? 'Weakened' : '', p.mods.noLeader ? 'Leaderless' : ''].filter(Boolean).join(' · ') + '</span>' : '') +
       '</div>' + ldb + '</div>';
   };
@@ -978,6 +1047,7 @@ function battleHtml() {
     '</div>';
 }
 function afterBattlePaint() {
+  if (S.run.screen.prep) return;
   /* Units fan out when a row is crowded. */
   document.querySelectorAll('.row .cards').forEach(el => {
     const kids = el.querySelectorAll('.u');
@@ -1029,7 +1099,7 @@ function questionModal(pr) {
     const multi = pr.multi;
     if (multi) h += '<p class="dim" style="margin:4px 0 0">Choose ' + (pr.min === pr.max ? pr.min : pr.min + ' to ' + pr.max) + '.</p>';
     if (pr.options.some(o => o.card)) {
-      h += '<div class="picklist">' + pr.options.map(o => '<button class="hc' + (multi && S.multi.indexOf(o.id) >= 0 ? ' on' : '') + '" data-act="qpick" data-id="' + esc(o.id) + '"' + (o.bad ? ' disabled' : '') + '>' + face({ id: o.card, up: (sv.hand.find(x => x.uid === o.id) || {}).up }, 'tile') + (o.sub ? '<small>' + esc(o.sub) + '</small>' : '') + '</button>').join('') + '</div>';
+      h += '<div class="picklist">' + pr.options.map(o => '<button class="hc' + (multi && S.multi.indexOf(o.id) >= 0 ? ' on' : '') + '" data-act="qpick" data-id="' + esc(o.id) + '"' + (o.bad ? ' disabled' : '') + '>' + face({ id: o.card, up: o.up != null ? o.up : (sv.hand.find(x => x.uid === o.id) || {}).up }, 'tile') + (o.sub ? '<small>' + esc(o.sub) + '</small>' : '') + '</button>').join('') + '</div>';
     } else {
       h += '<div class="opts">' + pr.options.map(o => '<button class="opt" data-act="qpick" data-id="' + esc(o.id) + '"' + (o.bad ? ' disabled' : '') + '><span class="lab"><b>' + esc(o.label || o.id) + '</b>' + (o.sub ? '<small>' + esc(o.sub) + '</small>' : '') + '</span>' + (o.delta ? '<span class="val">' + deltaHtml(o.delta) + '</span>' : '') + '</button>').join('') + '</div>';
     }
@@ -1050,13 +1120,16 @@ document.addEventListener('click', ev => {
   const a = t.dataset.act, id = t.dataset.id, i = t.dataset.i != null ? +t.dataset.i : null;
   const run = S.run;
   const done = r => { if (r && !r.ok) toast(r.why); save(); paint(); };
+  /* Just after Fight, the redraw opens under the finger: let a ghost click land on nothing. */
+  if (S.quietUntil && Date.now() < S.quietUntil) return;
   switch (a) {
     /* title and setup */
     case 'continue': S.run = savedRun(); S.view = 'run'; S.g = null; S.mapScrolled = false; paint(); if (S.run.screen.k === 'battle') tick(); return;
-    case 'new': S.view = 'new'; S.modal = null; S.setupPick = { diff: S.setupPick.diff || 'witcher', fac: null, leader: null }; paint(); window.scrollTo(0, 0); return;
+    case 'new': S.view = 'new'; S.modal = null; S.setupPick = { diff: S.setupPick.diff || 'witcher', long: !!S.setupPick.long, fac: null, leader: null }; paint(); window.scrollTo(0, 0); return;
     case 'how': S.view = 'how'; S.modal = null; paint(); window.scrollTo(0, 0); return;
     case 'title': clearTimeout(S.timer); S.view = 'title'; S.modal = null; S.g = null; paint(); return;
     case 'pdiff': S.setupPick.name = $('nm').value; S.setupPick.diff = id; paint(); return;
+    case 'plen': S.setupPick.name = $('nm').value; S.setupPick.long = id === 'long'; paint(); return;
     case 'pfac': S.setupPick.name = $('nm').value; S.setupPick.fac = id; S.setupPick.leader = D.HOUSE_LEADER[id]; paint(); return;
     case 'pldr': S.setupPick.name = $('nm').value; S.setupPick.leader = id; paint(); return;
     case 'pch': { S.setupPick.name = $('nm').value; const ch = S.setupPick.ch = (S.setupPick.ch || []).slice(); const k = ch.indexOf(id); if (k >= 0) ch.splice(k, 1); else ch.push(id); paint(); return; }
@@ -1069,11 +1142,17 @@ document.addEventListener('click', ev => {
       if (/^(you|me|i|myself)$/i.test(name)) name = 'The Wanderer';
       store(NAME, name);
       const P = S.setupPick;
-      S.run = R.newRun({ fac: P.fac, leader: P.leader, diff: P.diff, name, challenges: (P.ch || []).slice(), seed: Q.get('seed') != null ? +Q.get('seed') : undefined, now: new Date().toISOString().slice(0, 10) });
+      S.run = R.newRun({ fac: P.fac, leader: P.leader, diff: P.diff, long: !!P.long, name, challenges: (P.ch || []).slice(), seed: Q.get('seed') != null ? +Q.get('seed') : undefined, now: new Date().toISOString().slice(0, 10) });
       S.view = 'run'; S.g = null; S.mapScrolled = false; save(); paint(); window.scrollTo(0, 0); return;
     }
     /* anywhere */
     case 'deck': S.modal = { k: 'deck' }; paintModal(); return;
+    case 'potions': S.modal = { k: 'potions' }; paintModal(); return;
+    case 'pour': { const m = S.modal; if (m.sure !== i) { m.sure = i; paintModal(); return; } const r = R.pour(run, i); S.modal = { k: 'potions' }; done(r); return; }
+    case 'drunk': S.modal = { k: 'b', html: '<h3>Potions in this battle</h3><div class="opts">' + run.screen.drunk.map(pid => '<div class="opt" style="cursor:default"><span class="ic">' + potIcon(pid) + '</span><span class="lab">' + potHtml(pid) + '</span></div>').join('') + '</div><div class="foot"><button class="btn" data-act="mclose">Close</button></div>' }; paintModal(); return;
+    case 'drink': { const P = S.drink = (S.drink || []).slice(); const k = P.indexOf(i); if (k >= 0) P.splice(k, 1); else P.push(i); paint(); return; }
+    case 'fight': { const r = R.fight(run, S.drink || []); S.drink = []; S.g = null; if (r.ok) { Snd.play(r.drunk.length ? 'chime' : 'whoosh'); S.quietUntil = Date.now() + 450; } done(r); window.scrollTo(0, 0); tick(); return; }
+    case 'pswap': { const r = R.takePotion(run, t.dataset.i === '' ? null : +t.dataset.i); if (r.ok && t.dataset.i !== '') Snd.play('chime'); done(r); return; }
     case 'trinket': S.modal = { k: 'trinkets' }; paintModal(); return;
     case 'menu': S.modal = { k: 'menu' }; paintModal(); return;
     case 'mclose': S.modal = null; paint(); return;
@@ -1163,8 +1242,10 @@ document.addEventListener('click', ev => {
     case 'qskip': S.modal = null; act({ t: 'skip' }); return;
     case 'qmulti': S.modal = null; act({ t: 'pick', ids: S.multi.slice() }); return;
     case 'mydeck': {
-      const left = S.g.seatView(YOU).deckLeft;
-      S.modal = { k: 'pile', title: 'Left in your deck (in no order)', list: Object.keys(left).map(cid => ({ id: cid, n: left[cid] })) }; paintModal(); return;
+      /* Copies alike are counted together; a honed copy stands on its own. */
+      const list = [];
+      for (const c of S.g.seatView(YOU).deckCards) { const same = list.find(x => x.id === c.id && (x.up || 0) === (c.up || 0)); if (same) same.n++; else list.push({ id: c.id, up: c.up || 0, n: 1 }); }
+      S.modal = { k: 'pile', title: 'Left in your deck (in no order)', list }; paintModal(); return;
     }
     case 'pile': {
       const p = S.g.publicView().players[i];
@@ -1199,7 +1280,7 @@ function banked(run) {
   if (run.banked) return;
   run.banked = true;
   const list = bests();
-  list.push({ score: R.score(run), fac: run.fac, diff: run.diff, won: !!(run.over && run.over.won), act: run.act, name: run.name, ch: (run.ch || []).slice(), date: new Date().toISOString().slice(0, 10) });
+  list.push({ score: R.score(run), fac: run.fac, diff: run.diff, won: !!(run.over && run.over.won), act: run.act, name: run.name, ch: (run.ch || []).slice(), long: !!run.long, date: new Date().toISOString().slice(0, 10) });
   list.sort((a, b) => b.score - a.score);
   store(BEST, JSON.stringify(list.slice(0, 10)));
   store(KEY, null);

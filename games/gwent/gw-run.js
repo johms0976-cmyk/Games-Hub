@@ -21,6 +21,12 @@
  * chosen at the start for a score multiplier; cursed trinkets (a gift and a
  * price); and in Act III the Wild Hunt on your trail.
  *
+ * Added 2026-10-16, THE LONG ROAD (`run.long`): Slay the Spire's length and
+ * node rules — seventeen floors an act (sixteen on a seven-wide map, then
+ * the boss), potions, card rewards with a rare-card pity counter, a bigger
+ * merchant, chests of three sizes and generic shrines among the encounters.
+ * A run without `long` plays exactly as before.
+ *
  * Every action is `R.<verb>(run, ...)` and returns { ok, why } like the
  * engine; the page re-renders from `run.screen`.
  */
@@ -107,6 +113,42 @@
   const HONE_MAX = 6;          // a card can be honed three times
   const PRICE = { common: 40, uncommon: 65, rare: 110, legendary: 160 };
   const TRINKET_PRICE = { common: 110, uncommon: 140, rare: 175 };
+  /* The Long Road, after Slay the Spire's map: sixteen floors on a grid seven
+     wide, six paths, treasure fixed on the ninth floor and a campfire on the
+     sixteenth, no contract or campfire in the first five, and the boss as
+     floor seventeen. Room odds are Slay the Spire's (battle 53, encounter 22,
+     campfire 12, contract 8, merchant 5). */
+  /* `scale`: three times the fights means three times the rewards, so the
+     opponents grow with the climb — extra cards in hand (battles: before and
+     after the treasure floor) and a sharper house for the big fights. Tuned
+     by tests/run.js with GW_LONG=1 (2026-10-16, 60 runs, the house at Hard
+     in your seat, seed 33): the Long Road wins 60% / 53% / 38% of runs on
+     Just the Story / Witcher / Death March against The Path's 55 / 50 / 25.
+     Battles: a card more after the treasure (Act I) or all the way (II-III,
+     two late in III); contracts +1 (+2 in III) at a level up; bosses +2/+3/+4
+     cards a level up. Three lives, as on The Path: a fourth made it 70%. */
+  const LONG = { floors: 16, cols: 7, paths: 6, treasure: 8, early: 5, hunt: 12, removeCost: 75, belt: 3, lives: 0,
+    scale: { battle: [[0, 1], [1, 1], [1, 2]], elite: [1, 1, 2], hunt: 2, boss: [2, 3, 4], lvl: { battle: 0, elite: 1, hunt: 1, boss: 1 } },
+    rooms: [['battle', 53], ['event', 22], ['camp', 12], ['elite', 8], ['shop', 5]] };
+  const SHORT = { floors: FLOORS, cols: COLS, paths: PATHS, treasure: 3 };
+  const shapeOf = run => run && run.long ? LONG : SHORT;
+  const floorsOf = run => shapeOf(run).floors;
+  const huntOf = run => run && run.long ? LONG.hunt : HUNT;
+  /* Card rewards on the Long Road: the chance of a rare starts 5 points down,
+     climbs a point for every common you are shown and drops back when a rare
+     appears. Contracts add 10 points. */
+  const LUCK0 = -5, ELITE_RARE = 10;
+  /* Potions drop 40% of the time after a won battle or contract: 10 points
+     less after a drop, 10 more after none. */
+  const POTION0 = 40, POTION_STEP = 10;
+  /* A chest: small, medium or large, and what it holds. */
+  const CHESTS = {
+    small: { odds: 50, crowns: [25, 35], rarity: [['common', 75], ['uncommon', 25]] },
+    medium: { odds: 33, crowns: [50, 70], rarity: [['common', 35], ['uncommon', 50], ['rare', 15]] },
+    large: { odds: 17, crowns: [75, 95], rarity: [['uncommon', 75], ['rare', 25]] }
+  };
+  /* Any encounter on the Long Road is a generic shrine this often (%). */
+  const SHRINE_ODDS = 11.25;
 
   /* ================================================================
      The cards: rarity, worked out from the face
@@ -190,6 +232,27 @@
   ];
   const TRINKET = {};
   TRINKETS.forEach(t => { TRINKET[t.id] = t; });
+  /* Potions (the Long Road): carried on a belt of three, drunk before a battle
+     for that battle only. `mods` go to you, `foe` to your opponent. A first
+     set, built from the engine's existing hooks. */
+  const POTIONS = [
+    { id: 'thunderbolt', name: 'Thunderbolt', rarity: 'common', mods: { start: ['sp_horn'] }, text: 'Begin the battle with a Commander’s Horn in hand.' },
+    { id: 'whitehoney', name: 'White Honey', rarity: 'common', mods: { start: ['sp_clear'] }, text: 'Begin the battle with a Clear Weather in hand.' },
+    { id: 'owl', name: 'Tawny Owl', rarity: 'common', mods: { redraws: 2 }, text: 'Two more redraws before the battle.' },
+    { id: 'petri', name: 'Petri’s Philter', rarity: 'uncommon', mods: { winDraw: 1 }, text: 'Draw a card every time you win a round.' },
+    { id: 'blizzard', name: 'Blizzard', rarity: 'uncommon', mods: { roundDraw: 1 }, text: 'Draw a card at the start of the second and third rounds.' },
+    { id: 'dancingstar', name: 'Dancing Star', rarity: 'uncommon', mods: { start: ['sp_scorch'] }, text: 'A bomb: begin the battle with a Scorch in hand.' },
+    { id: 'fullmoon', name: 'Full Moon', rarity: 'rare', mods: { hand: 1 }, text: 'You are dealt an extra card.' },
+    { id: 'moondust', name: 'Moon Dust', rarity: 'rare', foe: { hand: -1 }, text: 'A bomb: your opponent is dealt one card fewer.' }
+  ];
+  const POTION = {};
+  POTIONS.forEach(p => { POTION[p.id] = p; });
+  const POTION_PRICE = { common: 50, uncommon: 70, rare: 95 };
+  function randomPotion(run, rarities) {
+    const r = rarities ? weighted(run, rarities) : weighted(run, [['common', 65], ['uncommon', 25], ['rare', 10]]);
+    return pickOne(run, POTIONS.filter(p => p.rarity === r)).id;
+  }
+  const beltFull = run => (run.potions || []).length >= LONG.belt;
   const has = (run, id) => run.trinkets.indexOf(id) >= 0;
   /* Every battle trinket summed into one `mods` for the engine. */
   function playerMods(run) {
@@ -368,7 +431,7 @@
         { label: 'Take his gold', sub: '75 crowns — and a Cow joins your deck.', go: run => { run.crowns += 75; addCard(run, CURSE); return 'The purse is heavy. The Cow is heavier.'; } },
         { label: 'Refuse him', go: () => 'He shrugs, smiles, and is not there any more.' }
       ] },
-    { id: 'shrine', title: 'A Shrine of Melitele', acts: [1, 2, 3],
+    { id: 'shrine', title: 'A Shrine of Melitele', acts: [1, 2, 3], shrine: true,
       text: 'A wayside shrine, candles still burning. A priestess tends it.',
       options: [
         { label: 'Pray', sub: 'Regain a life.', need: run => lifeFull(run) ? 'Your lives are full.' : null, go: run => { run.lives++; return 'You rise feeling lighter.'; } },
@@ -488,8 +551,16 @@
     const n = has(run, 'eye') ? 4 : 3;
     const w = RARITY_W[kind === 'hunt' ? 'elite' : kind][run.act];
     const out = [];
+    /* The Long Road's pity counter (battles, contracts and the Hunt; a boss pays rares anyway). */
+    const pity = run.long && kind !== 'boss';
     for (let k = 0; k < n; k++) {
-      const r = weighted(run, [['common', w[0]], ['uncommon', w[1]], ['rare', w[2]], ['legendary', w[3]]]);
+      let r;
+      if (pity) {
+        const rare = Math.max(0, w[2] + (kind === 'battle' ? 0 : ELITE_RARE) + run.luck);
+        r = weighted(run, [['common', Math.max(0, 100 - w[1] - rare)], ['uncommon', w[1]], ['rare', rare]]);
+        if (r === 'rare') run.luck = LUCK0;
+        else if (r === 'common') run.luck++;
+      } else r = weighted(run, [['common', w[0]], ['uncommon', w[1]], ['rare', w[2]], ['legendary', w[3]]]);
       out.push(randomCard(run, r, out));
     }
     return out;
@@ -510,14 +581,15 @@
       }
       return false;
     };
-    const starts = shuffled(run, [0, 1, 2, 3, 4]);
-    for (let p = 0; p < PATHS; p++) {
-      let col = p < 2 ? starts[p] : int(run, 0, COLS - 1);
+    const { floors: FL, cols: CO, paths: PA } = shapeOf(run);
+    const starts = shuffled(run, Array.from({ length: CO }, (_, c) => c));
+    for (let p = 0; p < PA; p++) {
+      let col = p < 2 ? starts[p] : int(run, 0, CO - 1);
       used['0:' + col] = true;
-      for (let f = 0; f < FLOORS - 1; f++) {
+      for (let f = 0; f < FL - 1; f++) {
         let next = col;
         for (let t = 0; t < 12; t++) {
-          const c2 = Math.max(0, Math.min(COLS - 1, col + int(run, -1, 1)));
+          const c2 = Math.max(0, Math.min(CO - 1, col + int(run, -1, 1)));
           if (!crosses(f, col, c2)) { next = c2; break; }
         }
         const k = f + ':' + col;
@@ -528,17 +600,24 @@
       }
     }
     const floors = [];
-    for (let f = 0; f < FLOORS; f++) {
+    for (let f = 0; f < FL; f++) {
       const row = [];
-      for (let c = 0; c < COLS; c++) {
+      for (let c = 0; c < CO; c++) {
         if (!used[f + ':' + c]) continue;
-        row.push({ id: f + ':' + c, f, c, kind: null, next: f < FLOORS - 1 ? (edges[f + ':' + c] || []).slice().sort().map(n => (f + 1) + ':' + n) : ['boss'] });
+        row.push({ id: f + ':' + c, f, c, kind: null, next: f < FL - 1 ? (edges[f + ':' + c] || []).slice().sort().map(n => (f + 1) + ':' + n) : ['boss'] });
       }
       floors.push(row);
     }
     /* What each node is. */
     for (const row of floors) for (const n of row) {
       const f = n.f;
+      if (run.long) {
+        if (f === 0) n.kind = 'battle';
+        else if (f === LONG.treasure) n.kind = 'treasure';
+        else if (f === FL - 1) n.kind = 'camp';
+        else n.kind = weighted(run, LONG.rooms.filter(p => !((p[0] === 'elite' || p[0] === 'camp') && f < LONG.early) && !(p[0] === 'camp' && f === FL - 2)));
+        continue;
+      }
       if (f === 0) n.kind = 'battle';
       else if (f === 3) n.kind = 'treasure';
       else if (f === FLOORS - 1) n.kind = 'camp';
@@ -557,7 +636,7 @@
     run.path = [];
   }
   function node(run, id) {
-    if (id === 'boss') return { id: 'boss', f: FLOORS, kind: 'boss', next: [] };
+    if (id === 'boss') return { id: 'boss', f: floorsOf(run), kind: 'boss', next: [] };
     for (const row of run.map.floors) for (const n of row) if (n.id === id) return n;
     return null;
   }
@@ -585,6 +664,12 @@
       screen: { k: 'map' }, history: [], stats: { won: 0, lost: 0, cards: 0, removed: 0, honed: 0, crowns: 0, wounds: 0 }, over: null, started: o.now || null,
       ch: (o.challenges || []).filter(id => CHALLENGE[id]), woundAct: 0, hunt: 0, after: null
     };
+    if (o.long) {
+      run.long = true;
+      run.lives += LONG.lives; run.maxLives += LONG.lives;
+      run.removeCost = LONG.removeCost;
+      run.potions = []; run.potionP = POTION0; run.luck = LUCK0;
+    }
     if (on(run, 'onelife')) { run.lives = 1; run.maxLives = 1; }
     STARTER[fac].forEach(id => addCard(run, id));
     if (on(run, 'cows')) { addCard(run, CURSE); addCard(run, CURSE); }
@@ -605,7 +690,7 @@
     run.path.push(id);
     if (run.act === 3 && n.kind !== 'boss') {
       run.hunt = (run.hunt || 0) + 1 + (n.kind === 'battle' || n.kind === 'elite' ? 0 : 1);
-      if (run.hunt >= HUNT) {
+      if (run.hunt >= huntOf(run)) {
         run.hunt = 0;
         run.after = id;
         run.screen = battleScreen(run, 'hunt', 'hunt');
@@ -621,6 +706,17 @@
       case 'shop': run.screen = shopScreen(run); break;
       case 'camp': run.screen = { k: 'camp', done: null }; break;
       case 'treasure': {
+        if (run.long) {
+          const size = weighted(run, Object.keys(CHESTS).map(k => [k, CHESTS[k].odds]));
+          const ch = CHESTS[size];
+          const want = weighted(run, ch.rarity);
+          const t = randomTrinket(run, [want]) || randomTrinket(run, ['common', 'uncommon', 'rare']);
+          const crowns = int(run, ch.crowns[0], ch.crowns[1]) + run.act * 10;
+          run.crowns += crowns; run.stats.crowns += crowns;
+          if (t) { run.trinkets.push(t); applyTrinket(run, t); }
+          run.screen = { k: 'treasure', crowns, trinket: t, chest: size };
+          break;
+        }
         const t = randomTrinket(run, ['common', 'uncommon', 'rare']);
         const crowns = int(run, 25, 45) + run.act * 10;
         run.crowns += crowns; run.stats.crowns += crowns;
@@ -629,8 +725,12 @@
         break;
       }
       case 'event': {
-        const pool = EVENTS.filter(e => e.acts.indexOf(run.act) >= 0 && (run.seen || []).indexOf(e.id) < 0);
-        const ev = (pool.length ? pickOne(run, pool) : pickOne(run, EVENTS.filter(e => e.acts.indexOf(run.act) >= 0))).id;
+        const inAct = e => e.acts.indexOf(run.act) >= 0;
+        const shrine = !!run.long && rnd(run) * 100 < SHRINE_ODDS;
+        /* (The Path ignores the shrine mark: Melitele's is an ordinary encounter there.) */
+        const kindOk = e => !run.long || !!e.shrine === shrine;
+        const pool = EVENTS.filter(e => inAct(e) && kindOk(e) && (shrine || (run.seen || []).indexOf(e.id) < 0));
+        const ev = (pool.length ? pickOne(run, pool) : pickOne(run, EVENTS.filter(e => inAct(e) && kindOk(e)))).id;
         run.seen = (run.seen || []).concat(ev);
         run.screen = { k: 'event', ev, result: null };
         break;
@@ -649,11 +749,21 @@
     }
     run.met = (run.met || []).concat(e.id);
     const seed = (int(run, 1, 0x7fffffff) >>> 0) || 7;
-    return { k: 'battle', kind, foe: e.id, seed, from: from || null, moves: [], tries: 0 };
+    return { k: 'battle', kind, foe: e.id, seed, from: from || null, moves: [], tries: 0, drunk: [], prep: !!(run.potions && run.potions.length) };
   }
   function enemyOf(run, id) {
     for (const a of [1, 2, 3]) for (const k of ['battle', 'elite', 'boss', 'hunt']) { const e = (ENEMIES[a][k] || []).find(x => x.id === id); if (e) return e; }
     return null;
+  }
+  /* How much harder a Long Road fight is than the same fight on The Path. */
+  function longScale(run, s) {
+    if (!run.long) return { hand: 0, lvl: 0 };
+    const S = LONG.scale;
+    const f = run.pos === 'boss' ? LONG.floors : ((run.pos && node(run, run.pos)) || { f: 0 }).f;
+    /* A knob is one number, or one an act. */
+    const byAct = v => Array.isArray(v) ? v[run.act - 1] : v;
+    const hand = s.kind === 'battle' ? byAct(S.battle)[f >= LONG.treasure ? 1 : 0] : (byAct(S[s.kind]) || 0);
+    return { hand, lvl: byAct(S.lvl[s.kind]) || 0 };
   }
   /* The two players for gw-engine.create — the run's deck and trinkets, and
      the opponent's sampled deck. The opponent's deck is drawn from the
@@ -665,16 +775,20 @@
     const tmp = { rs: (s.seed ^ 0x5bd1e995) >>> 0 };
     const cards = shuffled(tmp, e.core).slice(0, Math.min(e.size, e.core.length));
     const dif = DIFFICULTY[run.diff];
-    const lvl = Math.max(0, Math.min(2, LEVEL_BY[run.act][s.kind === 'hunt' ? 'elite' : s.kind] + dif.shift));
+    const sc = longScale(run, s);
+    const lvl = Math.max(0, Math.min(2, LEVEL_BY[run.act][s.kind === 'hunt' ? 'elite' : s.kind] + dif.shift + sc.lvl));
     const mods = addMods(Object.assign({}, e.mods || {}), foeMods(run));
+    const mine = playerMods(run);
+    for (const id of s.drunk || []) { addMods(mine, POTION[id].mods); addMods(mods, POTION[id].foe); }
     if (dif.foeHand) mods.hand = (mods.hand || 0) + dif.foeHand;
+    if (sc.hand) mods.hand = (mods.hand || 0) + sc.hand;
     if (s.kind === 'boss' && on(run, 'gems')) mods.gems = 3;
     const F = D.faction(e.fac);
     return {
       seed: s.seed + s.tries * 7919,
       foe: e,
       players: [
-        { id: 'you', name: run.name, hex: '#e0b456', fac: run.fac, leader: run.leader, cards: run.deck.map(c => c.up ? { id: c.id, up: c.up } : c.id), mods: playerMods(run) },
+        { id: 'you', name: run.name, hex: '#e0b456', fac: run.fac, leader: run.leader, cards: run.deck.map(c => c.up ? { id: c.id, up: c.up } : c.id), mods: mine },
         { id: 'foe', name: e.name, hex: F ? F.hex : '#c8343a', bot: true, level: LEVELS[lvl], fac: e.fac, leader: e.leader, cards, mods }
       ]
     };
@@ -686,7 +800,7 @@
     if (s.k !== 'battle') return no('There is no battle.');
     const e = enemyOf(run, s.foe);
     run.battleN++;
-    run.history.push({ act: run.act, floor: run.pos === 'boss' ? FLOORS : (node(run, run.pos) || {}).f, kind: s.kind, foe: e.id, won: !!result.won });
+    run.history.push({ act: run.act, floor: run.pos === 'boss' ? floorsOf(run) : (node(run, run.pos) || {}).f, kind: s.kind, foe: e.id, won: !!result.won });
     if (!result.won) {
       run.stats.lost++;
       const best = woundable(run);
@@ -712,6 +826,14 @@
       const t = randomTrinket(run, s.kind === 'boss' ? ['rare', 'uncommon'] : ['common', 'uncommon', 'rare']);
       if (t) { run.trinkets.push(t); applyTrinket(run, t); rw.trinket = t; }
     }
+    /* The Long Road: a potion, perhaps (not from a boss). */
+    if (run.long && s.kind !== 'boss') {
+      if (rnd(run) * 100 < run.potionP) {
+        run.potionP -= POTION_STEP;
+        rw.potion = randomPotion(run);
+        if (!beltFull(run)) { run.potions.push(rw.potion); rw.potionTook = true; }
+      } else run.potionP += POTION_STEP;
+    }
     if (s.kind === 'boss') {
       if (!lifeFull(run)) { run.lives++; rw.healed = 1; }
       const others = D.leadersOf(run.fac).filter(id => id !== run.leader);
@@ -724,7 +846,7 @@
     const s = run.screen;
     if (s.k !== 'lost') return no('Nothing to retry.');
     if (s.choice && !s.chose) return no('Lose a life or take a wound first.');
-    if (s.retry) { run.screen = Object.assign({}, s.prev, { tries: (s.prev.tries || 0) + 1, moves: [] }); return yes(); }
+    if (s.retry) { run.screen = Object.assign({}, s.prev, { tries: (s.prev.tries || 0) + 1, moves: [], drunk: [], prep: !!(run.potions && run.potions.length) }); return yes(); }
     return toMap(run);
   }
   /* Back to the map — or on to where you were going when the Hunt caught you. */
@@ -777,10 +899,79 @@
   }
 
   /* ================================================================
+     Potions
+     ================================================================ */
+  /* Before a battle: drink these (indices into your belt), then fight. */
+  function fight(run, which) {
+    const s = run.screen;
+    if (s.k !== 'battle' || !s.prep) return no('There is nothing to prepare.');
+    const idx = Array.from(new Set(which || [])).filter(i => run.potions[i] != null).sort((a, b) => b - a);
+    const drunk = idx.map(i => run.potions.splice(i, 1)[0]).reverse();
+    s.drunk = drunk;
+    s.prep = false;
+    run.stats.potions = (run.stats.potions || 0) + drunk.length;
+    return yes({ drunk });
+  }
+  /* A potion found with your belt full: swap it for one of yours, or leave it. */
+  function takePotion(run, swap) {
+    const s = run.screen;
+    if (s.k !== 'reward' || !s.potion || s.potionTook) return no('No potion here.');
+    if (swap == null) { s.potionTook = 'left'; return yes(); }
+    if (run.potions[swap] == null) return no('Choose one of your potions.');
+    s.poured = run.potions[swap];
+    run.potions[swap] = s.potion;
+    s.potionTook = true;
+    return yes();
+  }
+  /* Pour one out, any time but mid-battle. */
+  function pour(run, i) {
+    if (!run.potions || run.potions[i] == null) return no('No such potion.');
+    if (run.screen.k === 'battle' && !run.screen.prep) return no('Not in the middle of a battle.');
+    run.potions.splice(i, 1);
+    return yes();
+  }
+
+  /* ================================================================
      The merchant
      ================================================================ */
   const priceOf = (run, base) => Math.round(base * (has(run, 'ledger') ? 0.75 : 1) * 1);
+  /* The Long Road's merchant, after Slay the Spire's: two plain units, two
+     units with an ability, one special card, three trinkets and three potions;
+     one card at half price. */
+  function longShop(run) {
+    const items = [];
+    const seen = [];
+    const kinds = [['plain', 2], ['ability', 2], ['special', 1]];
+    const fits = (id, kind) => { const c = C(id); return kind === 'special' ? c.kind === 'special' : c.kind === 'unit' && (kind === 'plain' ? !c.ab : !!c.ab); };
+    for (const [kind, n] of kinds) for (let k = 0; k < n; k++) {
+      let id = null;
+      for (let t = 0; t < 30 && !id; t++) {
+        const r = weighted(run, [['common', 40], ['uncommon', 42], ['rare', 16], ['legendary', run.act === 3 ? 4 : 1]]);
+        const pool = poolFor(run.fac).filter(x => rarityOf(x) === r && fits(x, kind) && countOf(run, x) < capOf(x) && seen.indexOf(x) < 0);
+        if (pool.length) id = pickOne(run, pool);
+      }
+      if (!id) id = randomCard(run, 'uncommon', seen);
+      seen.push(id);
+      items.push({ t: 'card', id, price: priceOf(run, Math.round(PRICE[rarityOf(id)] * (0.9 + rnd(run) * 0.2))), sold: false });
+    }
+    const sale = int(run, 0, items.length - 1);
+    items[sale].sale = true;
+    items[sale].price = Math.round(items[sale].price / 2);
+    const tr = [];
+    for (let k = 0; k < 6 && tr.length < 3; k++) {
+      const t = randomTrinket(run, null);
+      if (!t || tr.indexOf(t) >= 0) continue;
+      tr.push(t);
+      items.push({ t: 'trinket', id: t, price: priceOf(run, TRINKET_PRICE[TRINKET[t].rarity] + int(run, -10, 10)), sold: false });
+    }
+    for (let k = 0; k < 3; k++) {
+      const p = randomPotion(run);
+      items.push({ t: 'potion', id: p, price: priceOf(run, POTION_PRICE[POTION[p].rarity] + int(run, -5, 5)), sold: false });
+    }
+    return { k: 'shop', items, removed: false, honed: false };
+  }
   function shopScreen(run) {
+    if (run.long) return longShop(run);
     const items = [];
     const seen = [];
     for (let k = 0; k < 5; k++) {
@@ -806,9 +997,11 @@
     if (!it || it.sold) return no('Sold out.');
     if (run.crowns < it.price) return no('Not enough crowns.');
     if (it.t === 'card' && countOf(run, it.id) >= capOf(it.id)) return no('You hold as many as you may.');
+    if (it.t === 'potion' && beltFull(run)) return no('Your belt holds ' + LONG.belt + ' potions. Pour one out first.');
     run.crowns -= it.price;
     it.sold = true;
     if (it.t === 'card') { addCard(run, it.id); run.stats.cards++; }
+    else if (it.t === 'potion') run.potions.push(it.id);
     else { run.trinkets.push(it.id); applyTrinket(run, it.id); }
     return yes();
   }
@@ -942,7 +1135,8 @@
     VERSION, DIFFICULTY, ACTS, FLOORS, COLS, MIN_DECK, HONE, HONE_MAX, STARTER, TRINKETS, TRINKET, ENEMIES, EVENTS, EVENT, CURSE,
     CHALLENGES, CHALLENGE, PHASES, HUNT, WOUND, on, multiplier, takeLoss, woundable, foeMods,
     rarityOf, capOf, poolFor, playerMods, newRun, genMap, node, reachable, go, battleSetup, battleDone, retry, takeCard, takeLeader,
-    buy, shopRemove, removePrice, camp, choose, eventNeed, leave, enemyOf, score, countOf, honable, has
+    buy, shopRemove, removePrice, camp, choose, eventNeed, leave, enemyOf, score, countOf, honable, has,
+    LONG, CHESTS, POTIONS, POTION, SHRINE_ODDS, LUCK0, ELITE_RARE, POTION0, POTION_STEP, shapeOf, floorsOf, huntOf, fight, takePotion, pour, beltFull
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = Run;
   else root.GwentRun = Run;
