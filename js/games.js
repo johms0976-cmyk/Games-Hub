@@ -172,6 +172,17 @@ const GAMES = [
     status: "playable",
   },
   {
+    id: "inscryption",
+    title: "Inscryption: Kaycee’s Mod",
+    subtitle: "Solo roguelike deck-builder — sacrifice your creatures, tip the scales, cross three regions and beat Leshy",
+    category: "card",
+    players: "1",
+    duration: "45 min – 1.5 h",
+    icon: "🕯️",
+    accentColor: "#d9a548",
+    status: "playable",
+  },
+  {
     id: "five-hundred",
     title: "500",
     subtitle: "The classic trick-taking game",

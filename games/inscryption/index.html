@@ -1,0 +1,1046 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inscryption — Kaycee’s Mod</title>
+<style>
+:root{
+  --bg:#0c0805; --wood:#24170d; --wood2:#1a1009; --line:#4a3520; --ink:#efe3c8; --dim:#a8977a;
+  --parch:#e3d3ac; --parch2:#c8b285; --cink:#2a1d10; --blood:#8b1a14; --gold:#d9a548; --good:#8fd18a; --bad:#ff7a6a;
+  --cw:min(calc((100vw - 56px) / 4), 124px, calc((100dvh - 300px) * .19));
+  --gap:8px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none !important}
+html,body{margin:0;min-height:100%}
+body{background:radial-gradient(110% 70% at 50% 0%,#2e1d10 0%,var(--bg) 62%) fixed,var(--bg);color:var(--ink);
+  font:16px/1.4 Georgia,"Times New Roman",serif;overflow-x:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:default}
+h1,h2,h3{margin:0}
+.sans{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:10px 16px 100px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--gold);border:0;color:#1d130a;font-weight:800;font-size:17px;border-radius:12px;padding:12px 18px;min-height:46px}
+.btn:disabled{opacity:.4}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--dim);font-weight:600;font-size:15px}
+.btn.warn{background:#6a2010;color:#ffd6b8}
+.btn.small{min-height:36px;padding:7px 12px;font-size:14px;border-radius:10px}
+.dim{color:var(--dim)}
+.why{color:#ffab9a;font-size:14px;min-height:1.2em}
+.say{font-style:italic;color:#e8d6b0;text-align:center;margin:8px auto 10px;max-width:640px;min-height:1.4em}
+.sect{margin:20px 0 8px;font:700 12px/1.2 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.center{text-align:center}
+.spacer{flex:1}
+
+/* ---------------- the card ---------------- */
+.card{position:relative;width:var(--cw);aspect-ratio:.7;border-radius:7%;flex:none;
+  background:linear-gradient(170deg,#efe2bf 0%,var(--parch) 45%,var(--parch2) 100%);
+  border:2px solid #3b2a17;box-shadow:0 3px 8px rgba(0,0,0,.55), inset 0 0 0 2px rgba(255,255,255,.18);
+  color:var(--cink);font-size:calc(var(--cw) * .125);overflow:hidden;user-select:none}
+.card .nm{position:absolute;left:4%;right:4%;top:3%;height:13%;display:flex;align-items:center;justify-content:center;text-align:center;
+  font-weight:800;font-variant:small-caps;letter-spacing:.02em;line-height:1;font-size:.86em;white-space:nowrap;overflow:hidden}
+.card .cost{position:absolute;right:6%;top:17%;display:flex;gap:1px;align-items:center;z-index:2}
+.card .cost svg{width:.85em;height:1.15em}
+.card .cost.bo svg{width:1.25em;height:.95em}
+.card .cost b{font:800 .8em system-ui,sans-serif;color:var(--blood)}
+.card .cost.bo b{color:#3a2a14}
+.card .pic{position:absolute;left:8%;right:8%;top:17%;height:46%;display:flex;align-items:center;justify-content:center;border-radius:4px}
+.card .pic span{font-size:3em;line-height:1;filter:grayscale(1) sepia(.55) contrast(1.35) brightness(.72);opacity:.92}
+.card .pic.art{left:4%;right:4%;top:15%;height:50%;background-size:cover;background-position:center;border-radius:3px}
+.card.hasart .pic.gl{display:none}
+.card.hasart .cost{display:none}          /* the picture carries its printed cost */
+body.glyphs .card .pic.art{display:none}
+body.glyphs .card.hasart .pic.gl{display:flex}
+body.glyphs .card.hasart .cost{display:flex}
+.slot.giant .card .pic.art{left:24%;right:24%;top:13%;height:49%}
+.card .sigs{position:absolute;left:4%;right:4%;top:64%;height:19%;display:flex;align-items:center;justify-content:center;gap:2%}
+.card .sigs .sg{height:100%;width:auto;max-width:31%;color:var(--cink)}
+.card .sigs.n3 .sg,.card .sigs.n4 .sg{max-width:24%;height:80%}
+.card .sg.gained{color:#1f4f8a}
+.card .sg.totem{color:#7a3a10}
+.card .sg.flip{transform:scaleX(-1)}
+.card .pw,.card .hp{position:absolute;bottom:3%;font:800 1.55em/1 Georgia,serif}
+.card .pw{left:8%}
+.card .hp{right:8%}
+.card .hp.hurt{color:#a0160e}
+.card .pw .st{display:inline-flex;align-items:baseline;font-size:.7em;filter:grayscale(1) contrast(1.4)}
+.card .pw .st i{font-style:normal;font-size:1.2em;margin-left:1px;filter:none}
+.card .tag{position:absolute;top:2%;left:4%;font-size:1.1em}
+.card .tag.zz{left:auto;right:6%;top:20%;font:italic 800 1.2em Georgia;color:#5a4a30}
+.card.rare{border-color:#a07a22;box-shadow:0 3px 8px rgba(0,0,0,.55), inset 0 0 0 2px #d9b350}
+.card.terrain{background:linear-gradient(170deg,#d9d2c0,#b9b09a)}
+.card.pelt{background:linear-gradient(170deg,#e8d2a8,#c79f6a)}
+.card.death{background:linear-gradient(170deg,#e9dfcf,#b8a58c);border-color:#5a1010}
+.card.fused::after{content:"";position:absolute;inset:0;border:2px dashed rgba(90,40,10,.6);border-radius:7%;pointer-events:none}
+.card.back{background:repeating-linear-gradient(45deg,#3a2614 0 6px,#2e1e10 6px 12px);border-color:#120a04}
+.card.back .backin{position:absolute;inset:8%;border:1px solid #6a4a2a;border-radius:6%;display:flex;align-items:center;justify-content:center;text-align:center;color:#e6cf9e;font-size:1em;padding:6%}
+.card.back .backin b{font:800 1em Georgia}
+
+/* ---------------- top bar ---------------- */
+#top{position:sticky;top:0;z-index:30;background:linear-gradient(180deg,var(--bg) 72%,rgba(12,8,5,0));padding:8px 16px 10px}
+#top .in{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#top .where{font-weight:800;white-space:nowrap}
+#top .where small{display:block;font-weight:400;color:var(--dim);font-size:12px}
+#top .stat{display:flex;align-items:center;gap:4px;font:800 15px/1 system-ui,sans-serif;white-space:nowrap}
+#top .candles span{font-size:19px}
+#top .candles span.out{filter:grayscale(1) brightness(.4)}
+#top .items{display:flex;gap:4px}
+#top .items button,#top .tb{background:var(--wood2);border:1px solid var(--line);border-radius:10px;min-width:38px;height:38px;padding:0 8px;font-size:18px;display:flex;align-items:center;justify-content:center;gap:5px}
+#top .tb{font:700 13px system-ui,sans-serif}
+#top .items button.empty{border-style:dashed;opacity:.5}
+#top .totem{display:flex;align-items:center;gap:4px}
+#top .totem .sg{width:18px;height:18px;color:var(--gold)}
+@media (max-width:600px){#top{padding:6px 10px 8px}#top .in{gap:6px 7px}#top .where small{display:none}}
+@media (max-width:420px){#top .where .rn{display:none}#top .in{gap:5px}#top .items{gap:3px}}
+@media (max-width:520px){#top .where{font-size:14px;max-width:34vw;overflow:hidden;text-overflow:ellipsis}#top .items button{min-width:32px;width:32px;height:34px;font-size:16px;padding:0}#top .tb{height:34px;padding:0 7px}#top .candles span{font-size:16px}#top .stat{font-size:14px}}
+
+/* ---------------- title ---------------- */
+.hero{text-align:center;padding:5vh 0 2vh}
+.hero h1{font-size:clamp(38px,8vw,70px);letter-spacing:.06em;color:var(--gold);font-variant:small-caps;text-shadow:0 0 30px rgba(217,165,72,.25)}
+.hero h1 small{display:block;font-size:.34em;letter-spacing:.3em;color:var(--dim);font-weight:600;margin-top:4px}
+.hero p{max-width:540px;margin:12px auto 0;color:var(--dim)}
+.menu{display:flex;flex-direction:column;gap:10px;max-width:340px;margin:18px auto 0}
+.decks{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.deckc{text-align:left;background:var(--wood2);border:1px solid var(--line);border-radius:14px;padding:10px;color:var(--ink);display:flex;flex-direction:column;gap:8px}
+.deckc.on{border-color:var(--gold);background:rgba(217,165,72,.12)}
+.deckc .mini{display:flex;gap:6px;--cw:62px}
+.deckc small{color:var(--dim)}
+.chks{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+.chk{display:flex;gap:10px;align-items:flex-start;text-align:left;background:var(--wood2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--ink);min-height:46px}
+.chk .box{width:22px;height:22px;border-radius:6px;border:2px solid var(--line);flex:none;display:flex;align-items:center;justify-content:center;font:900 14px system-ui;color:#1d130a;margin-top:1px}
+.chk.on{border-color:#b8503a;background:rgba(184,80,58,.13)}
+.chk.on .box{background:#e07a5a;border-color:#e07a5a}
+.chk b{display:block}
+.chk small{color:var(--dim);font-size:13px}
+.chk .cp{margin-left:auto;font:800 13px system-ui;color:#ffb39a;white-space:nowrap}
+.records{max-width:520px;margin:22px auto 0;font-size:14px;color:var(--dim);text-align:center}
+.records b{color:var(--ink)}
+
+/* ---------------- the map ---------------- */
+.mapwrap{max-width:440px;margin:0 auto}
+.mapsvg{width:100%;height:auto;display:block}
+.mapsvg .edge{stroke:#5a4228;stroke-width:3;stroke-dasharray:2 7;stroke-linecap:round;fill:none}
+.mapsvg .edge.walked{stroke:var(--gold);stroke-dasharray:none}
+.mapsvg .nd circle.bgc{fill:#2a1c10;stroke:#6a4c2c;stroke-width:2}
+.mapsvg .nd.done circle.bgc{fill:#3a2a16;stroke:var(--gold)}
+.mapsvg .nd.done text{opacity:.45}
+.mapsvg .nd.can{cursor:pointer}
+.mapsvg .nd.can circle.bgc{stroke:var(--gold);stroke-width:3;fill:#3a2810}
+.mapsvg .nd.can .ring{fill:none;stroke:var(--gold);stroke-width:2;animation:pulse 1.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.mapsvg .nd.here circle.bgc{fill:#6a4a1a}
+@keyframes pulse{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center;font:13px system-ui,sans-serif;color:var(--dim);margin:8px 0}
+
+/* ---------------- node screens ---------------- */
+.scr{max-width:820px;margin:0 auto}
+.scr h2{font-size:clamp(24px,4.6vw,34px);color:var(--gold);font-variant:small-caps;text-align:center}
+.offers{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:14px 0;--cw:min(31vw,140px)}
+.offers.many{--cw:min(calc((100vw - 90px) / 4),118px);gap:6px}
+.offers.many .offer{padding:3px}
+.offer{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;padding:6px;border-radius:12px;color:var(--ink)}
+.offer.on{background:rgba(217,165,72,.16);outline:2px solid var(--gold)}
+.offer.taken{opacity:.35}
+.offer .lbl{font-size:13px;color:var(--dim);max-width:var(--cw);text-align:center}
+.offer .own{font:700 11px system-ui;color:#b8e0a0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--cw),1fr));gap:10px;justify-items:center;--cw:min(22vw,104px)}
+.grid .pick{background:none;border:0;padding:3px;border-radius:10px}
+.grid .pick:disabled{opacity:.3}
+.grid .pick.on{outline:3px solid var(--gold);background:rgba(217,165,72,.15)}
+.grid .pick.on2{outline:3px solid #e07a5a;background:rgba(224,122,90,.15)}
+.opts{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:12px 0}
+.opt{text-align:left;background:var(--wood2);border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--ink);display:flex;gap:10px;align-items:center;min-height:56px}
+.opt.on{border-color:var(--gold);background:rgba(217,165,72,.12)}
+.opt .ic{font-size:28px;flex:none;width:40px;text-align:center}
+.opt .ic .sg{width:30px;height:30px;color:var(--gold)}
+.opt small{display:block;color:var(--dim);font-size:13px}
+.opt .price{margin-left:auto;font:800 15px system-ui;color:var(--gold);white-space:nowrap}
+.foot{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.tabs{display:flex;gap:6px;justify-content:center;margin:10px 0}
+.tabs button{background:var(--wood2);border:1px solid var(--line);border-radius:10px;padding:8px 12px;color:var(--ink)}
+.tabs button.on{border-color:var(--gold);color:var(--gold)}
+.boulders{display:flex;gap:14px;justify-content:center;margin:18px 0}
+.boulders button{font-size:64px;background:var(--wood2);border:1px solid var(--line);border-radius:18px;width:110px;height:110px}
+.lights{display:flex;gap:14px;justify-content:center;font:13px system-ui;color:var(--dim)}
+.lights b.lit{color:var(--gold)}
+
+/* ---------------- the battle ---------------- */
+#bt{max-width:760px;margin:0 auto;padding:4px 16px 16px;display:flex;flex-direction:column;gap:6px;touch-action:manipulation}
+.bhead{display:flex;align-items:center;gap:8px;justify-content:space-between;font-size:14px;min-height:28px}
+.bhead .fn{font-weight:800;font-variant:small-caps;font-size:16px}
+.bhead .fc span{font-size:16px}
+.bhead .fc span.out{filter:grayscale(1) brightness(.4)}
+.bhead .mask{font-size:13px;color:#ffcf8a}
+.bhead .tchip{display:flex;align-items:center;gap:3px;font-size:12px;color:var(--dim)}
+.bhead .tchip .sg{width:16px;height:16px;color:#e0a060}
+.lane{display:grid;grid-template-columns:repeat(4,var(--cw));gap:var(--gap);justify-content:center;position:relative}
+.slot{width:var(--cw);aspect-ratio:.7;border-radius:8%;border:2px dashed rgba(217,165,72,.16);display:flex;align-items:center;justify-content:center;position:relative;background:rgba(0,0,0,.18);padding:0}
+.lane.q .slot{border-style:dotted;background:transparent;aspect-ratio:auto;height:calc(var(--cw) / .7 * .72)}
+.lane.q .slot .card{transform:scale(.72);transform-origin:top center;opacity:.93;inset:0 0 auto 0}
+.slot .card{position:absolute;inset:0;width:100%}
+.slot.giant{grid-column:1 / 5;width:auto;aspect-ratio:auto;height:calc(var(--cw) / .7)}
+.slot.giant .card{width:100%;height:100%;aspect-ratio:auto;font-size:calc(var(--cw) * .2)}
+.slot.giant .card .pic span{font-size:3.4em}
+.slot.can{border-color:var(--gold);border-style:solid;background:rgba(217,165,72,.10);cursor:pointer}
+.slot.sac::after{content:"🗡️";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:calc(var(--cw)*.42);background:rgba(120,10,10,.45);border-radius:8%;z-index:5}
+.slot.tgt{cursor:pointer}
+.slot.tgt .card{outline:3px solid #ff9a6a;outline-offset:1px}
+.slot.cannon::before{content:"💣";position:absolute;top:-8px;left:50%;transform:translateX(-50%);z-index:6;font-size:18px}
+.slot.hookt .card{outline:3px dashed #8ad0ff}
+.flash-hit .card{animation:hit .38s ease-out}
+.flash-die{animation:die .38s ease-in forwards}
+.flash-play .card{animation:land .32s ease-out}
+.flash-buff .card{animation:buff .4s ease-out}
+.flash-move .card{animation:land .25s ease-out}
+.flash-aim .card{outline:3px solid #ff5040}
+@keyframes hit{0%{transform:translateX(0);filter:brightness(1.8) sepia(1) hue-rotate(-40deg)}30%{transform:translateX(-6%)}60%{transform:translateX(5%)}100%{transform:none;filter:none}}
+@keyframes die{to{opacity:.15;transform:scale(.85) rotate(-6deg)}}
+@keyframes land{0%{transform:translateY(-18%) scale(1.06);opacity:.4}100%{transform:none;opacity:1}}
+@keyframes buff{0%{filter:brightness(1.6) drop-shadow(0 0 8px gold)}100%{filter:none}}
+.float{position:absolute;left:50%;top:30%;transform:translateX(-50%);font:900 calc(var(--cw)*.32) system-ui;color:#ff5a3a;text-shadow:0 2px 4px #000;z-index:8;pointer-events:none;animation:up .5s ease-out forwards}
+@keyframes up{to{transform:translate(-50%,-60%);opacity:0}}
+.mid{display:flex;align-items:center;gap:10px;justify-content:space-between}
+.scale{flex:1;max-width:340px;margin:0 auto}
+.scale svg{width:100%;height:auto;display:block}
+.bones{font:800 15px system-ui;display:flex;align-items:center;gap:4px;white-space:nowrap}
+.bell{background:radial-gradient(circle at 40% 35%,#f0c060,#a06a18);border:2px solid #4a3010;border-radius:50%;width:62px;height:62px;font-size:26px;flex:none;box-shadow:0 3px 10px rgba(0,0,0,.6)}
+.bell:disabled{filter:grayscale(1) brightness(.5)}
+.bitems{display:flex;gap:5px}
+.bitems button{background:var(--wood2);border:1px solid var(--line);border-radius:10px;width:38px;height:38px;font-size:19px;padding:0}
+.bitems button.on{border-color:var(--gold);background:rgba(217,165,72,.2)}
+.prompt{min-height:44px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;text-align:center;font-size:15px}
+.prompt .note{font-style:italic;color:#e8d6b0}
+.hand{display:flex;gap:6px;overflow-x:auto;padding:12px 4px 6px;min-height:calc(112px * 1.28 * .8);scrollbar-width:thin;justify-content:safe center}
+.hand .hc{background:none;border:0;padding:0;flex:none;transition:transform .12s;position:relative}
+.hand .hc.sel{transform:translateY(-10px)}
+.hand .hc.sel .card{outline:3px solid var(--gold)}
+.hand .hc.no .card{filter:brightness(.62) saturate(.6)}
+.draws{display:flex;gap:10px;justify-content:center}
+.draws .btn{flex:1;max-width:220px}
+.draws .btn .sm{font-weight:600;font-size:13px;opacity:.75}
+.bover{position:fixed;inset:0;z-index:60;background:rgba(8,5,2,.72);display:flex;align-items:center;justify-content:center;padding:20px}
+.bover .box{background:var(--wood);border:1px solid var(--line);border-radius:18px;padding:22px;max-width:420px;text-align:center;display:flex;flex-direction:column;gap:12px}
+.bover h2{color:var(--gold);font-variant:small-caps;font-size:30px}
+
+/* ---------------- sheets ---------------- */
+#sheet{position:fixed;inset:0;z-index:70;background:rgba(8,5,2,.66);display:flex;align-items:flex-end;justify-content:center}
+#sheet .in{background:var(--wood);border:1px solid var(--line);border-radius:18px 18px 0 0;width:100%;max-width:640px;max-height:86vh;overflow:auto;padding:16px 16px 24px}
+#sheet .in h3{color:var(--gold);font-variant:small-caps;font-size:22px;margin-bottom:6px}
+.det{display:flex;gap:14px;align-items:flex-start;--cw:min(34vw,150px)}
+.det .txt{flex:1;font-size:15px}
+.det .sgl{display:flex;gap:8px;align-items:flex-start;margin:6px 0}
+.det .sgl .sg{width:28px;height:28px;flex:none;color:var(--gold)}
+.det .sgl small{display:block;color:var(--dim)}
+.lowkey{font-size:13px;color:var(--dim)}
+</style>
+</head>
+<body>
+<div id="top" hidden></div>
+<div id="app"></div>
+<div id="sheet" hidden></div>
+<script>/* the portrait list changes when art is added: never take it from cache */
+document.write('<script src="art/list.js?v=' + Date.now() + '"><\/script>');</script>
+<script src="sound.js"></script>
+<script src="in-data.js"></script>
+<script src="in-engine.js"></script>
+<script src="in-run.js"></script>
+<script src="in-art.js"></script>
+<script>
+'use strict';
+(function () {
+  const D = window.InscData, E = window.InscEngine, R = window.InscRun, A = window.InscArt;
+  const S = window.HubSound || { play() {}, armUnlock() {}, unlock() {} };
+  S.armUnlock && S.armUnlock();
+  const $app = document.getElementById('app'), $top = document.getElementById('top'), $sheet = document.getElementById('sheet');
+  const esc = A.esc;
+  const KEY = 'insc-run-v1', REC = 'insc-records-v1', PREF = 'insc-setup-v1';
+  const FAST = /[?&]fast(&|$)/.test(location.search);   // the page tests: no waiting on animations
+
+  /* ---------------- storage (never load-bearing) ---------------- */
+  function load(k) { try { const s = localStorage.getItem(k); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
+  function store(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  let run = load(KEY);
+  if (run && run.v !== R.VERSION) run = null;
+  let setup = load(PREF) || { deck: 'vanilla', ch: [] };
+  const records = load(REC) || { runs: 0, wins: 0, bestCp: -1, byDeck: {} };
+  let ui = {};       // per-screen transient state
+  let why = '';
+  const PREFS = 'insc-prefs-v1';
+  const prefs = load(PREFS) || { glyphs: false };
+  function applyPrefs() { document.body.classList.toggle('glyphs', !!prefs.glyphs); }
+  applyPrefs();
+  const artToggle = () => A.count() ? '<button class="btn ghost" data-act="toggleArt">Card pictures: ' + (prefs.glyphs ? 'off (glyphs)' : 'on') + '</button>' : '';
+  function save() { if (run) { if (run.battle) run.battle.ev = []; store(KEY, run); } }
+
+  /* ---------------- helpers ---------------- */
+  const NODE_ICON = { battle: '🐾', totem: '🗿', choice: '🃏', cost: '🩸', tribe: '🪶', trial: '🕳️', trapper: '🪤', trader: '💱', campfire: '🔥', stones: '🪨', myco: '🍄', carver: '🪵', backpack: '🎒', altar: '🦴', goobert: '🎨', prospector: '⛏️', boss: '💀' };
+  const NODE_NAME = { battle: 'Card battle', totem: 'Totem battle', choice: 'Card choice', cost: 'Cost choice', tribe: 'Tribe choice', trial: 'Cave trial', trapper: 'The Trapper', trader: 'The Trader', campfire: 'Campfire', stones: 'Mysterious stones', myco: 'The Mycologists', carver: 'The Woodcarver', backpack: 'Backpack', altar: 'Bone altar', goobert: 'Goobert', prospector: 'The Prospector', boss: 'Boss', rare: 'A rare card' };
+  const sigName = s => (D.SIGILS[s] || { name: s }).name;
+  const entryFace = (e, cls) => A.face(A.fromEntry(e), { cls });
+  function sheet(html) { if (!html) { $sheet.hidden = true; $sheet.innerHTML = ''; return; } $sheet.innerHTML = '<div class="in">' + html + '</div>'; $sheet.hidden = false; }
+  $sheet.addEventListener('click', ev => { if (ev.target === $sheet) sheet(null); });
+
+  /* A card's details: what every sigil does. v is a view. */
+  function details(v, extra) {
+    const d = D.card(v.as || v.id) || {};
+    const tribes = (v.tribes || d.tribes || []).map(t => D.TRIBES[t].name).join(', ');
+    let h = '<div class="det">' + A.face(v) + '<div class="txt"><h3>' + esc(v.name) + '</h3>';
+    const cost = v.blood ? v.blood + ' Blood' : v.bones ? v.bones + ' Bones' : 'Free';
+    h += '<div class="lowkey">' + cost + (tribes ? ' · ' + tribes : '') + (d.pool === 'r' ? ' · Rare' : '') + (d.terrain ? ' · Terrain' : '') + '</div>';
+    if (v.stat) h += '<div class="sgl"><span style="font-size:24px">' + A.STAT_G[v.stat] + '</span><div><b>' + D.STATS[v.stat].name + '</b><small>' + D.STATS[v.stat].text + '</small></div></div>';
+    (v.sig || []).forEach(s => {
+      const g = v.gx && v.gx.indexOf(s) >= 0, t = v.tt === s;
+      h += '<div class="sgl">' + A.icon(s) + '<div><b>' + sigName(s) + (g ? ' <span class="lowkey">(gained)</span>' : '') + (t ? ' <span class="lowkey">(totem)</span>' : '') + '</b><small>' + esc(D.SIGILS[s] ? D.SIGILS[s].text : '') + '</small></div></div>';
+    });
+    if (!(v.sig || []).length && !v.stat) h += '<p class="lowkey">No sigils.</p>';
+    if (d.pelt) h += '<p class="lowkey">A pelt: the Trader takes it in exchange for cards. It cannot be sacrificed.</p>';
+    if (d.kills) h += '<p class="lowkey">Poisonous: if the campfire survivors eat it, they die.</p>';
+    if (v.as) h += '<p class="lowkey">Something about its eyes is wrong.</p>';
+    h += (extra || '') + '</div></div><div class="foot"><button class="btn ghost" data-act="closeSheet">Close</button></div>';
+    sheet(h);
+  }
+
+  /* ================================================================
+     Rendering
+     ================================================================ */
+  function render() {
+    why = why || '';
+    if (!run) { $top.hidden = true; return title(); }
+    renderTop();
+    switch (run.screen) {
+      case 'map': return mapScreen();
+      case 'node': return nodeScreen();
+      case 'battle': return battleScreen();
+      case 'over': case 'won': return endScreen();
+    }
+  }
+
+  function renderTop() {
+    $top.hidden = false;
+    const w = R.where(run);
+    let h = '<div class="in"><div class="where" title="' + esc(w.name) + '">' + w.g + ' <span class="rn">' + esc(w.name) + '</span><small>' + (w.n ? 'Region ' + w.n + ' of 3' : 'The end of the path') + (run.cp ? ' · ' + run.cp + ' CP' : '') + '</small></div><div class="spacer"></div>';
+    h += '<div class="stat candles" title="Candles: your lives">';
+    for (let i = 0; i < run.maxCandles; i++) h += '<span class="' + (i < run.candles ? '' : 'out') + '">🕯️</span>';
+    h += '</div><div class="stat" title="Teeth">🦷 ' + run.teeth + '</div>';
+    if (run.boons) h += '<div class="stat" title="Bone Lord’s boon: Bones at the start of every battle">🦴+' + run.boons + '</div>';
+    if (run.totem) h += '<button class="tb totem" data-act="totemInfo" title="Your totem">🗿 ' + D.TRIBES[run.totem.tribe].name + ' ' + A.icon(run.totem.sigil) + '</button>';
+    h += '<div class="items">';
+    const items = run.screen === 'battle' && run.battle ? run.battle.items : run.items;
+    for (let i = 0; i < run.itemCap; i++) {
+      const it = items[i];
+      h += it ? '<button data-act="itemInfo" data-i="' + i + '" title="' + esc(D.ITEMS[it].name) + '">' + D.ITEMS[it].g + '</button>' : '<button class="empty" disabled></button>';
+    }
+    h += '</div><button class="tb" data-act="deck">🂠 ' + run.deck.length + '</button><button class="tb" data-act="menu">☰</button></div>';
+    $top.innerHTML = h;
+  }
+
+  /* ---------------- title and setup ---------------- */
+  function title() {
+    let h = '<div class="wrap"><div class="hero"><h1>Inscryption<small>Kaycee’s Mod</small></h1><p>Three regions in a random order, a boss at the end of each, and Leshy waiting in his cabin. Two candles. Sacrifice your creatures, spill the scales, and build a deck strong enough to finish him.</p></div>';
+    if (ui.setupOpen) return setupScreen();
+    h += '<div class="menu">';
+    if (load(KEY)) h += '<button class="btn" data-act="continue">Continue your run</button>';
+    h += '<button class="btn' + (load(KEY) ? ' ghost' : '') + '" data-act="setup">New run</button><button class="btn ghost" data-act="rules">How to play</button>' + artToggle() + '<a class="btn ghost" href="../../index.html" style="text-decoration:none">Games hub</a></div>';
+    h += '<div class="records">Runs: <b>' + records.runs + '</b> · Won: <b>' + records.wins + '</b>' + (records.bestCp >= 0 ? ' · Best win: <b>' + records.bestCp + ' CP</b>' : '') + '</div>';
+    h += '<p class="center lowkey" style="margin-top:28px">A fan-made solo version. Card stats and pictures from the Inscryption wiki; Leshy’s encounters are my own design.</p></div>';
+    $app.innerHTML = h;
+  }
+  function setupScreen() {
+    const cp = R.cpOf(setup.ch);
+    let h = '<div class="wrap"><h2 class="center" style="color:var(--gold);font-variant:small-caps;font-size:32px">A new run</h2>';
+    h += '<div class="sect">Starter deck <span class="dim">(plus two Rabbit Pelts)</span></div><div class="decks">';
+    D.DECKS.forEach(d => {
+      h += '<button class="deckc' + (setup.deck === d.id ? ' on' : '') + '" data-act="pickDeck" data-id="' + d.id + '"><b>' + esc(d.name) + '</b><div class="mini">' + d.cards.map(id => A.face(A.fromEntry({ id }))).join('') + '</div><small>' + esc(d.text) + '</small></button>';
+    });
+    h += '</div><div class="sect">Challenges · <span style="color:#ffb39a">' + cp + ' CP</span></div><div class="chks">';
+    D.CHALLENGES.forEach(c => {
+      const on = setup.ch.indexOf(c.id) >= 0;
+      h += '<button class="chk' + (on ? ' on' : '') + '" data-act="toggleCh" data-id="' + c.id + '"><span class="box">' + (on ? '✓' : '') + '</span><span><b>' + esc(c.name) + '</b><small>' + esc(c.text) + '</small></span><span class="cp">' + c.cp + ' CP</span></button>';
+    });
+    h += '</div><div class="foot"><button class="btn ghost" data-act="back">Back</button><button class="btn" data-act="begin">Begin (' + cp + ' CP)</button></div></div>';
+    $app.innerHTML = h;
+  }
+
+  /* ---------------- the map ---------------- */
+  function mapScreen() {
+    const rows = run.map.rows, n = rows.length;
+    const W = 300, gapY = 66, H = n * gapY + 30;
+    const X = c => 60 + c * 90, Y = r => H - 40 - r * gapY;
+    const can = R.nextNodes(run);
+    const isCan = (r, c) => can.some(x => x.r === r && x.c === c);
+    const walked = run.walked || [];
+    let svg = '<svg class="mapsvg" viewBox="0 0 ' + W + ' ' + H + '">';
+    run.map.links.forEach(l => {
+      const w = walked.some(x => x[0] === l[0] && x[1] === l[1] && x[2] === l[2] && x[3] === l[3]);
+      svg += '<path class="edge' + (w ? ' walked' : '') + '" d="M' + X(l[1]) + ' ' + Y(l[0]) + ' L' + X(l[3]) + ' ' + Y(l[2]) + '"/>';
+    });
+    rows.forEach((row, r) => row.forEach(nd => {
+      const c = isCan(r, nd.c), here = run.pos && run.pos.r === r && run.pos.c === nd.c;
+      const big = nd.k === 'boss';
+      const rad = big ? 25 : 19;
+      const g = big ? (D.BOSSES[R.bossFor(run)].g) : NODE_ICON[nd.k];
+      svg += '<g class="nd' + (nd.done ? ' done' : '') + (c ? ' can' : '') + (here ? ' here' : '') + '" ' + (c ? 'data-act="go" data-r="' + r + '" data-c="' + nd.c + '"' : '') + '>' +
+        (c ? '<circle class="ring" cx="' + X(nd.c) + '" cy="' + Y(r) + '" r="' + (rad + 5) + '"/>' : '') +
+        '<circle class="bgc" cx="' + X(nd.c) + '" cy="' + Y(r) + '" r="' + rad + '"/>' +
+        '<text x="' + X(nd.c) + '" y="' + (Y(r) + (big ? 9 : 7)) + '" text-anchor="middle" font-size="' + (big ? 24 : 19) + '">' + g + '</text>' +
+        '<title>' + esc(NODE_NAME[nd.k] || nd.k) + '</title></g>';
+    }));
+    svg += '</svg>';
+    const boss = R.bossFor(run);
+    let h = '<div class="wrap"><div class="say">' + esc(run.say || '') + '</div>';
+    h += '<p class="center dim" style="margin:0 0 6px">Ahead: <b style="color:var(--ink)">' + esc(D.BOSSES[boss].name) + '</b> — ' + esc(D.BOSSES[boss].text) + '</p>';
+    h += '<div class="mapwrap" id="mapwrap">' + svg + '</div>';
+    const kinds = [];
+    rows.forEach(row => row.forEach(nd => { if (kinds.indexOf(nd.k) < 0 && nd.k !== 'boss') kinds.push(nd.k); }));
+    h += '<div class="legend">' + kinds.map(k => '<span>' + NODE_ICON[k] + ' ' + NODE_NAME[k] + '</span>').join('') + '</div>';
+    h += '<div class="why center">' + esc(why) + '</div></div>';
+    $app.innerHTML = h;
+  }
+  /* A new screen: the map shows where you can walk next; anything else opens at the top. */
+  function toView() {
+    const here = run && run.screen === 'map' ? $app.querySelector('.nd.can') : null;
+    if (here && here.scrollIntoView) { try { here.scrollIntoView({ block: 'center' }); } catch (e) {} }
+    else window.scrollTo(0, 0);
+  }
+
+  /* ---------------- node screens ---------------- */
+  function deckGrid(filter, sel, sel2, act) {
+    let h = '<div class="grid">';
+    run.deck.forEach((e, di) => {
+      const okp = !filter || filter(e, di);
+      h += '<button class="pick' + (sel === di ? ' on' : '') + (sel2 === di ? ' on2' : '') + '" data-act="' + (act || 'pickCard') + '" data-di="' + di + '"' + (okp ? '' : ' disabled') + '>' + entryFace(e) + '</button>';
+    });
+    return h + '</div>';
+  }
+  function offersHtml(offers, act, sel, opts) {
+    opts = opts || {};
+    let h = '<div class="offers' + (offers.length > 4 ? ' many' : '') + '">';
+    offers.forEach((o, i) => {
+      const shown = o.shown || !o.label;   // only cost and tribe choices are face down
+      const owned = shown && !o.taken && run.deck.some(e => e.id === o.e.id);
+      const face = shown ? entryFace(o.e) : A.face({ id: o.e.id }, { back: true, label: o.label });
+      h += '<button class="offer' + (sel === i ? ' on' : '') + (o.taken ? ' taken' : '') + '" data-act="' + act + '" data-i="' + i + '"' + (opts.kind ? ' data-kind="' + opts.kind + '"' : '') + (o.taken || opts.disabled ? ' disabled' : '') + '>' + face +
+        (o.label && !o.shown ? '' : '') + (owned ? '<span class="own">🍄 you have one</span>' : '') + '</button>';
+    });
+    return h + '</div>';
+  }
+
+  function nodeScreen() {
+    const n = run.node, k = n.k;
+    let h = '<div class="wrap scr"><h2>' + (NODE_ICON[k] || '✨') + ' ' + esc(NODE_NAME[k] || k) + '</h2><div class="say">' + esc(run.say || R.NODE_TEXT[k] || '') + '</div>';
+    const done = '<div class="foot"><button class="btn" data-act="done">Continue</button></div>';
+    switch (k) {
+      case 'choice': case 'cost': case 'tribe': case 'rare': {
+        if (n.taken == null) {
+          h += '<p class="center dim">' + (k === 'cost' ? 'You see only the cost. Choose one.' : k === 'tribe' ? 'You see only the tribe. Choose one.' : 'Tap a card to look at it, then take it.') + '</p>';
+          h += offersHtml(n.offers, 'selOffer', ui.sel);
+          h += '<div class="foot">' + (n.clover ? '<button class="btn ghost" data-act="clover">🍀 Clover: new choices</button>' : '') + '<button class="btn" data-act="takeOffer"' + (ui.sel == null ? ' disabled' : '') + '>Take it</button></div>';
+        } else {
+          h += offersHtml(n.offers, 'none', n.taken, { disabled: true });
+          h += '<p class="center">You took the <b>' + esc(R.nameOf(n.offers[n.taken].e)) + '</b>.</p>' + done;
+        }
+        break;
+      }
+      case 'trial': {
+        if (!n.drawn) {
+          h += '<div class="opts">' + n.trials.map((id, i) => { const t = R.TRIALS.find(x => x.id === id); return '<button class="opt" data-act="trial" data-i="' + i + '"><span class="ic">🕳️</span><span><b>' + esc(t.name) + '</b><small>' + esc(t.text) + '</small></span></button>'; }).join('') + '</div>';
+          h += '<p class="center lowkey">Three cards will be drawn from your deck at random.</p><div class="foot"><button class="btn ghost" data-act="done">Walk away</button></div>';
+        } else {
+          h += '<p class="center">Drawn for the ' + esc(R.TRIALS.find(x => x.id === n.chosen).name) + ':</p><div class="offers">' + n.drawn.map(di => run.deck[di] ? entryFace(run.deck[di]) : '').join('') + '</div>';
+          if (n.passed && n.taken == null) {
+            h += '<p class="center"><b style="color:var(--good)">Passed.</b> Each reward wears two extra sigils.</p>' + offersHtml(n.offers, 'selOffer', ui.sel) + '<div class="foot"><button class="btn" data-act="takeOffer"' + (ui.sel == null ? ' disabled' : '') + '>Take it</button></div>';
+          } else if (n.passed) h += '<p class="center">The beast joins you.</p>' + done;
+          else h += '<p class="center" style="color:var(--bad)"><b>Failed.</b></p>' + done;
+        }
+        break;
+      }
+      case 'trapper': {
+        const p = R.prices(run);
+        h += '<p class="center">You have <b>🦷 ' + run.teeth + '</b> teeth.</p><div class="opts">';
+        [['rabbit', '🐇', 'Rabbit Pelt', 'Trade at the Trader for one of 8 ordinary cards.'], ['wolf', '🐺', 'Wolf Pelt', 'Trade for one of 8 cards, each with an extra sigil.'], ['golden', '🌟', 'Golden Pelt', 'Trade for one of 4 rare cards.'], ['knife', '🔪', 'Skinning Knife', D.ITEMS.knife.text]].forEach(([id, g, nm, tx]) => {
+          h += '<button class="opt" data-act="buy" data-id="' + id + '"' + (run.teeth < p[id] ? ' disabled' : '') + '><span class="ic">' + g + '</span><span><b>' + nm + '</b><small>' + esc(tx) + '</small></span><span class="price">🦷 ' + p[id] + '</span></button>';
+        });
+        h += '</div><p class="center lowkey">Pelts sit in your deck until you trade them. Your deck: ' + ['rabbit', 'wolf', 'golden'].map(t => run.deck.filter(e => e.id === t + 'pelt').length + ' ' + t).join(', ') + '.</p>';
+        h += '<div class="why center">' + esc(why) + '</div>' + done;
+        break;
+      }
+      case 'trader': {
+        if (n.empty) { h += done; break; }
+        const kinds = Object.keys(n.offers);
+        const kind = ui.tab && n.offers[ui.tab] ? ui.tab : kinds[0];
+        h += '<div class="tabs">' + kinds.map(t => '<button class="' + (t === kind ? 'on' : '') + '" data-act="tab" data-id="' + t + '">' + { rabbit: '🐇 Rabbit', wolf: '🐺 Wolf', golden: '🌟 Golden' }[t] + ' × ' + run.deck.filter(e => e.id === t + 'pelt').length + '</button>').join('') + '</div>';
+        const left = run.deck.filter(e => e.id === kind + 'pelt').length;
+        h += '<p class="center dim">' + (left ? 'Each ' + kind + ' pelt buys one card. Tap one to take it.' : 'No ' + kind + ' pelts left.') + '</p>';
+        h += offersHtml(n.offers[kind], 'tradeTake', null, { kind, disabled: !left });
+        h += '<div class="why center">' + esc(why) + '</div>' + done;
+        break;
+      }
+      case 'campfire': {
+        const stat = n.stat === 'atk' ? '+1 Power' : '+2 Health';
+        if (n.eaten) { h += done; break; }
+        if (n.times === 0) {
+          h += '<p class="center">This fire gives <b>' + stat + '</b>. Choose a creature to warm.</p>' + deckGrid(e => !R.isPelt(e) && !D.card(e.id).terrain, ui.sel);
+          h += '<div class="foot"><button class="btn ghost" data-act="done">Leave</button><button class="btn" data-act="warm"' + (ui.sel == null ? ' disabled' : '') + '>Warm it (' + stat + ')</button></div>';
+        } else {
+          const e = run.deck[n.di];
+          h += '<div class="offers">' + entryFace(e) + '</div>';
+          if (n.times < 2) h += '<div class="foot"><button class="btn ghost" data-act="done">Take it back</button><button class="btn warn" data-act="warmAgain">Warm again (' + stat + ')' + (run.survivorsDead ? '' : ' — risky') + '</button></div>';
+          else h += done;
+        }
+        break;
+      }
+      case 'stones': {
+        if (n.done) { h += done; break; }
+        if (ui.host == null) h += '<p class="center">First the <b>host</b>: a card with no gained sigils. It will receive.</p>' + deckGrid(e => R.canHost(e), ui.host, null, 'pickHost');
+        else {
+          h += '<p class="center">Host: <b>' + esc(R.nameOf(run.deck[ui.host])) + '</b>. Now the <b>sacrifice</b>: its sigils pass to the host, and it is gone.</p>' + deckGrid((e, di) => di !== ui.host && R.canGive(e) && R.statsOf(e).sig.some(x => R.statsOf(run.deck[ui.host]).sig.indexOf(x) < 0), ui.host, ui.sel, 'pickVictim');
+          h += '<div class="foot"><button class="btn ghost" data-act="unhost">Choose another host</button><button class="btn warn" data-act="transfer"' + (ui.sel == null ? ' disabled' : '') + '>Sacrifice it</button></div>';
+        }
+        h += '<div class="why center">' + esc(why) + '</div><div class="foot"><button class="btn ghost" data-act="done">Leave</button></div>';
+        break;
+      }
+      case 'myco': {
+        if (n.done) { if (n.gift) h += ''; h += done; break; }
+        const groups = R.dupGroups(run);
+        h += '<p class="center">Choose a pair to fuse. Their Power, Health and sigils combine.</p><div class="offers">';
+        groups.forEach((g, i) => { h += '<button class="offer" data-act="fuse" data-i="' + i + '">' + entryFace(run.deck[g[0]]) + '<span class="lbl">×' + g.length + ' — fuse two</span></button>'; });
+        h += '</div><div class="foot"><button class="btn ghost" data-act="done">Leave</button></div>';
+        break;
+      }
+      case 'carver': {
+        if (n.amalgam) { h += done; break; }
+        if (n.taken == null) {
+          h += '<div class="opts">' + n.pieces.map((p, i) => p.head
+            ? '<button class="opt" data-act="carve" data-i="' + i + '"><span class="ic">' + D.TRIBES[p.head].g + '</span><span><b>' + D.TRIBES[p.head].name + ' head</b><small>Your totem will lend its sigil to every ' + D.TRIBES[p.head].name + ' card.</small></span></button>'
+            : '<button class="opt" data-act="carve" data-i="' + i + '"><span class="ic">' + A.icon(p.body) + '</span><span><b>' + sigName(p.body) + ' body</b><small>' + esc(D.SIGILS[p.body].text) + '</small></span></button>').join('') + '</div>';
+        } else {
+          h += '<p class="center">Your pieces. A totem is one head and one body; it works in every battle.</p>';
+          if (run.heads.length && run.bodies.length) {
+            const t = run.totem || {};
+            h += '<div class="sect center">Head</div><div class="row" style="justify-content:center">' + run.heads.map(x => '<button class="btn small ' + (t.tribe === x ? '' : 'ghost') + '" data-act="setHead" data-id="' + x + '">' + D.TRIBES[x].g + ' ' + D.TRIBES[x].name + '</button>').join('') + '</div>';
+            h += '<div class="sect center">Body</div><div class="row" style="justify-content:center">' + run.bodies.map(x => '<button class="btn small ' + (t.sigil === x ? '' : 'ghost') + '" data-act="setBody" data-id="' + x + '">' + sigName(x) + '</button>').join('') + '</div>';
+            if (run.totem) h += '<p class="center">Totem: every <b>' + D.TRIBES[run.totem.tribe].name + '</b> card of yours bears <b>' + sigName(run.totem.sigil) + '</b>.</p>';
+          } else h += '<p class="center dim">You need both a head and a body. She will come again.</p>';
+          h += done;
+        }
+        break;
+      }
+      case 'backpack': {
+        if (n.rat || n.full || !n.items) { h += done; break; }
+        h += '<p class="center">Take items until your pack is full (' + run.items.length + ' of ' + run.itemCap + ').</p><div class="opts">' + n.items.map((it, i) => '<button class="opt" data-act="takeItem" data-i="' + i + '"><span class="ic">' + D.ITEMS[it].g + '</span><span><b>' + esc(D.ITEMS[it].name) + '</b><small>' + esc(D.ITEMS[it].text) + '</small></span></button>').join('') + '</div>' + '<div class="foot"><button class="btn ghost" data-act="done">Leave the rest</button></div>';
+        break;
+      }
+      case 'altar': {
+        if (n.done) { h += done; break; }
+        h += '<p class="center">Give a card to the Bone Lord, for good. Any creature: 1 Bone at the start of every battle. The Black Goat: 8.</p>' + deckGrid(null, ui.sel);
+        h += '<div class="foot"><button class="btn ghost" data-act="done">Leave</button><button class="btn warn" data-act="altar"' + (ui.sel == null ? ' disabled' : '') + '>Sacrifice it</button></div><div class="why center">' + esc(why) + '</div>';
+        break;
+      }
+      case 'goobert': {
+        if (n.done) { h += '<div class="offers">' + entryFace(n.copy) + '</div>' + done; break; }
+        h += '<p class="center">Choose a card for Goobert to paint. He may get a detail wrong.</p>' + deckGrid(e => !D.card(e.id).unique && !R.isPelt(e) && e.id !== 'ijiraq', ui.sel);
+        h += '<div class="foot"><button class="btn ghost" data-act="done">Leave</button><button class="btn" data-act="goobert"' + (ui.sel == null ? ' disabled' : '') + '>Copy it</button></div>';
+        break;
+      }
+      case 'prospector': {
+        if (n.picked == null) h += '<div class="boulders">' + [0, 1, 2].map(i => '<button data-act="boulder" data-i="' + i + '">🪨</button>').join('') + '</div>';
+        else h += '<div class="offers">' + entryFace(n.got) + '</div>' + done;
+        break;
+      }
+      default: h += done;
+    }
+    h += '</div>';
+    $app.innerHTML = h;
+  }
+
+  /* ---------------- the end ---------------- */
+  function endScreen() {
+    const won = run.screen === 'won';
+    let h = '<div class="wrap scr"><div class="hero"><h1 style="font-size:clamp(34px,7vw,60px)">' + (won ? 'Victory' : 'The candles are out') + '</h1><p>' + esc(run.say || '') + '</p></div>';
+    h += '<p class="center">' + (won ? 'You beat ' + (run.ch.indexOf('royal') >= 0 ? 'Royal Dominguez' : 'Leshy') : 'Undone by ' + esc((run.over && run.over.by) || 'the path')) + ' with the <b>' + esc(D.DECK[run.deckId].name) + '</b> deck at <b>' + run.cp + ' CP</b>.</p>';
+    h += '<p class="center dim">Battles ' + run.stats.battles + ' (won ' + run.stats.won + ') · bosses beaten ' + run.beaten + ' · teeth earned ' + run.stats.teeth + ' · cards gained ' + run.stats.cards + '</p>';
+    h += '<div class="sect center">Your deck</div>' + deckGrid(null, null, null, 'look');
+    h += '<div class="foot"><button class="btn" data-act="newRun">Another run</button><button class="btn ghost" data-act="toTitle">Title</button></div></div>';
+    $app.innerHTML = h;
+  }
+
+  /* ================================================================
+     The battle
+     ================================================================ */
+  let anim = null;   // { list, i, timer, fast }
+  function live() { return E.snapshot(run.battle); }
+
+  function battleScreen() {
+    const b = run.battle;
+    if (anim) return;   // the animation draws
+    drawBattle(live(), null, b.log.length ? '' : '');
+  }
+
+  /* Draw a battle state (a snapshot) — interactive unless mid-animation. */
+  function drawBattle(v, mark, note) {
+    const b = run.battle;
+    const interactive = !anim && !b.result;
+    const sel = ui.bsel;
+    const f = b.foeInfo;
+    const bossInfo = b.foe.boss ? D.BOSSES[b.foe.boss] : null;
+    let h = '<div id="bt">';
+    // Leshy's side: name, candles, totem, mask
+    h += '<div class="bhead"><span class="fn">' + esc(bossInfo ? bossInfo.name : b.foe.name) + '</span>';
+    if (bossInfo) { h += '<span class="fc">'; for (let i = 0; i < (b.foe.boss === 'leshy' || b.foe.boss === 'royal' ? 3 : 2); i++) h += '<span class="' + (i < v.candles ? '' : 'out') + '">🕯️</span>'; h += '</span>'; }
+    if (b.foe.totem && !b.foe.totem.bleached) h += '<span class="tchip">🗿 ' + D.TRIBES[b.foe.totem.tribe].name + ' ' + A.icon(b.foe.totem.sigil) + '</span>';
+    if (v.foe.mask) h += '<span class="mask">Mask: ' + (v.foe.mask === 'trader' ? 'the Trader' : D.BOSSES[v.foe.mask].name) + '</span>';
+    h += '</div>';
+    const markCls = (side, slot, row) => {
+      if (!mark || mark.side !== side || mark.slot !== slot) return '';
+      if (row === 'q' && mark.k !== 'hitq' && mark.k !== 'dieq') return '';
+      if (row !== 'q' && (mark.k === 'hitq' || mark.k === 'dieq')) return '';
+      const k = mark.k.replace(/q$/, '');
+      return ' flash-' + (k === 'direct' ? 'hit' : k === 'sac' ? 'die' : k);
+    };
+    const floatN = (side, slot, row) => mark && mark.side === side && mark.slot === slot && mark.n && (row === 'q') === (mark.k === 'hitq') && mark.k !== 'direct' ? '<span class="float">−' + mark.n + '</span>' : '';
+    // queue
+    h += '<div class="lane q">';
+    for (let i = 0; i < 4; i++) {
+      const c = v.foe.queue[i];
+      const tgt = interactive && b.ask && b.ask.k === 'trade' && c && !D.card(c.id).terrain;
+      h += '<div class="slot' + (tgt ? ' tgt' : '') + markCls('foe', i, 'q') + '" data-act="' + (tgt ? 'tradeQ' : 'look') + '" data-row="queue" data-slot="' + i + '">' + (c ? A.face(c) : '') + floatN('foe', i, 'q') + '</div>';
+    }
+    h += '</div>';
+    // Leshy's row
+    h += '<div class="lane foe">';
+    const giant = v.foe.board[0] && v.foe.board[0].giant ? v.foe.board[0] : null;
+    if (giant) h += '<div class="slot giant' + markCls('foe', 0) + '" data-act="look" data-row="foe" data-slot="0">' + A.face(giant) + floatN('foe', 0) + '</div>';
+    else for (let i = 0; i < 4; i++) {
+      const c = v.foe.board[i];
+      let tgt = false;
+      if (interactive && ui.item != null && c) tgt = true;
+      if (interactive && b.ask && b.ask.k === 'trade' && c) tgt = true;
+      const cannon = v.foe.cannon === i;
+      h += '<div class="slot' + (tgt ? ' tgt' : '') + (cannon ? ' cannon' : '') + markCls('foe', i) + '" data-act="' + (tgt ? (b.ask ? 'tradeB' : 'itemTarget') : 'look') + '" data-row="foe" data-slot="' + i + '">' + (c ? A.face(c) : '') + floatN('foe', i) + '</div>';
+    }
+    h += '</div>';
+    // the scales, the bones, the bell
+    const sc = Math.max(-6, Math.min(6, v.scale));
+    const ang = sc * 3.2;
+    h += '<div class="mid"><div class="bones" title="Bones">🦴 ' + v.me.bones + '</div><div class="scale">' + scaleSvg(v.scale, ang) + '</div>' +
+      '<button class="bell" data-act="bell" ' + (interactive && b.step === 'main' && !b.ask && sel == null && ui.item == null ? '' : 'disabled') + ' title="Ring the bell: end your turn">🔔</button></div>';
+    // your row
+    h += '<div class="lane me">';
+    const selCard = sel != null ? b.me.hand[sel.hi] : null;
+    const cost = selCard ? E.costOf(selCard) : null;
+    const blood = sel ? sel.sacs.reduce((t, s) => t + E.sacValue(b, b.me.board[s]), 0) : 0;
+    const needSac = cost && cost.blood > blood;
+    for (let i = 0; i < 4; i++) {
+      const c = v.me.board[i];
+      const live = b.me.board[i];
+      let cls = '', act = 'look';
+      if (interactive && sel) {
+        if (needSac && live && E.canSacrifice(b, live) && sel.sacs.indexOf(i) < 0) { cls = ' tgt'; act = 'sac'; }
+        else if (sel.sacs.indexOf(i) >= 0) { cls = ' sac'; act = needSac ? 'unsac' : (E.has(b, live, 'manylives') ? 'unsac' : 'place'); if (!needSac && !E.has(b, live, 'manylives')) cls += ' can'; }
+        else if (!needSac && !live) { cls = ' can'; act = 'place'; }
+      }
+      if (interactive && ui.item != null && D.ITEMS[b.items[ui.item]].target === 'foe') act = 'look';
+      if (v.foe.cannon === i) cls += ' cannon';
+      if (c && v.foe.hook === c.u) cls += ' hookt';
+      h += '<div class="slot' + cls + markCls('me', i) + '" data-act="' + act + '" data-row="me" data-slot="' + i + '">' + (c ? A.face(c) : '') + floatN('me', i) + '</div>';
+    }
+    h += '</div>';
+    // prompt
+    h += '<div class="prompt">' + promptHtml(note) + '</div>';
+    // the hand
+    const nh = Math.max(4, v.me.hand.length);
+    h += '<div class="hand" id="hand" style="--cw:max(58px,min(112px,calc((min(100vw,760px) - 40px - ' + (nh - 1) * 6 + 'px) / ' + nh + '),calc((100dvh - 300px) * .17)))">';
+    v.me.hand.forEach((c, hi) => {
+      const can = interactive && b.step === 'main' && !b.ask && E.playable(b, hi).ok;
+      h += '<button class="hc' + (sel && sel.hi === hi ? ' sel' : '') + (interactive && b.step === 'main' && !can ? ' no' : '') + '" data-act="hand" data-i="' + hi + '">' + A.face(c) + '</button>';
+    });
+    h += '</div>';
+    // draw, or items
+    if (interactive && b.step === 'draw') {
+      h += '<div class="draws"><button class="btn" data-act="draw" data-id="deck"' + (v.me.deck ? '' : ' disabled') + '>Draw a card <span class="sm">' + v.me.deck + ' left</span></button><button class="btn ghost" data-act="draw" data-id="side"' + (v.me.side ? '' : ' disabled') + '>' + (run.ch.indexOf('squirrelfish') >= 0 ? 'Aquasquirrel' : 'Squirrel') + ' <span class="sm">' + v.me.side + ' left</span></button></div>';
+    } else {
+      h += '<div class="row" style="justify-content:space-between"><span class="lowkey">Deck ' + v.me.deck + ' · Squirrels ' + v.me.side + '</span><div class="bitems">' + b.items.map((it, i) => '<button class="' + (ui.item === i ? 'on' : '') + '" data-act="useItem" data-i="' + i + '" title="' + esc(D.ITEMS[it].name) + '"' + (interactive && b.step === 'main' && !b.ask ? '' : ' disabled') + '>' + D.ITEMS[it].g + '</button>').join('') + '</div></div>';
+    }
+    h += '</div>';
+    if (b.result && !anim) h += resultHtml();
+    $app.innerHTML = h;
+    if (b.ask && (b.ask.k === 'hoard' || b.ask.k === 'lens') && !anim && $sheet.hidden) pickFromDeck();
+  }
+
+  function scaleSvg(scale, ang) {
+    const you = Math.max(0, -scale), them = Math.max(0, scale);
+    let s = '<svg viewBox="0 0 220 64"><g transform="translate(110 22) rotate(' + (-ang) + ')">';
+    s += '<rect x="-90" y="-3" width="180" height="6" rx="3" fill="#8a6a3a"/>';
+    // pans: left = you, right = Leshy
+    s += '<g transform="translate(-80 0) rotate(' + ang + ')"><path d="M0 0 L-16 22 M0 0 L16 22" stroke="#6a4a2a" stroke-width="1.5"/><path d="M-20 22 h40 a20 8 0 0 1 -40 0z" fill="#5a3e20"/>';
+    for (let i = 0; i < Math.min(you, 8); i++) s += '<circle cx="' + (-12 + (i % 4) * 8) + '" cy="' + (19 - Math.floor(i / 4) * 6) + '" r="3.4" fill="#efe3c8"/>';
+    s += '</g><g transform="translate(80 0) rotate(' + ang + ')"><path d="M0 0 L-16 22 M0 0 L16 22" stroke="#6a4a2a" stroke-width="1.5"/><path d="M-20 22 h40 a20 8 0 0 1 -40 0z" fill="#5a3e20"/>';
+    for (let i = 0; i < Math.min(them, 8); i++) s += '<circle cx="' + (-12 + (i % 4) * 8) + '" cy="' + (19 - Math.floor(i / 4) * 6) + '" r="3.4" fill="#efe3c8"/>';
+    s += '</g></g><path d="M110 22 L102 60 L118 60z" fill="#6a4a2a"/>';
+    s += '<text x="10" y="62" font-size="11" fill="#a8977a" font-family="system-ui">You ' + you + '</text><text x="210" y="62" text-anchor="end" font-size="11" fill="#a8977a" font-family="system-ui">Leshy ' + them + '</text>';
+    s += '<text x="110" y="62" text-anchor="middle" font-size="10" fill="#6a5a40" font-family="system-ui">5 tips it</text></svg>';
+    return s;
+  }
+
+  function promptHtml(note) {
+    const b = run.battle;
+    if (anim) return '<span class="note">' + esc(note || '') + '</span>';
+    if (b.result) return '';
+    if (b.ask && b.ask.k === 'trade') return '<span>Trade a Wolf Pelt: tap one of her cards (' + b.me.hand.filter(c => c.id === 'wolfpelt').length + ' pelt' + (b.me.hand.filter(c => c.id === 'wolfpelt').length === 1 ? '' : 's') + ').</span><button class="btn small" data-act="tradeDone">Done trading</button>';
+    if (b.ask) return '<span>Choose a card from your deck.</span><button class="btn small" data-act="reopenPick">Choose</button>';
+    if (b.step === 'draw') return '<span class="note">' + esc(ui.note || 'Your turn. Draw.') + '</span>';
+    if (ui.item != null) {
+      const it = D.ITEMS[b.items[ui.item]];
+      return '<span>' + esc(it.name) + ': tap one of Leshy’s creatures.</span><button class="btn small ghost" data-act="cancel">Cancel</button>';
+    }
+    const sel = ui.bsel;
+    if (sel) {
+      const c = b.me.hand[sel.hi];
+      const cost = E.costOf(c);
+      const blood = sel.sacs.reduce((t, s) => t + E.sacValue(b, b.me.board[s]), 0);
+      let t;
+      if (cost.blood > blood) t = 'Sacrifice ' + (cost.blood - blood) + ' more Blood: tap your creatures.';
+      else t = 'Tap a space for the ' + esc(c.as ? D.card(c.as).name : c.name) + '.';
+      return '<span>' + t + '</span><button class="btn small ghost" data-act="cardInfo">Details</button><button class="btn small ghost" data-act="cancel">Cancel</button>';
+    }
+    return '<span class="why">' + esc(why) + '</span><span class="note">' + esc(ui.note || 'Play cards, then ring the bell.') + '</span>';
+  }
+
+  function resultHtml() {
+    const b = run.battle;
+    const win = b.result === 'win';
+    const boss = !!b.foe.boss;
+    let t;
+    if (win) t = boss ? D.BOSSES[b.foe.boss].name + ' is beaten. Your candles burn anew.' : 'The scales tip in your favour.' + (b.teeth ? ' ' + b.teeth + ' teeth spill from the scales.' : '');
+    else t = run.candles <= 1 ? 'The scales tip against you, and your last candle goes out.' : 'The scales tip against you. A candle goes out.' + (boss ? ' You will face ' + D.BOSSES[b.foe.boss].name + ' again.' : '');
+    return '<div class="bover"><div class="box"><h2>' + (win ? 'Victory' : 'Defeat') + '</h2><p>' + esc(t) + '</p><button class="btn" data-act="endBattle">Continue</button></div></div>';
+  }
+
+  /* ---------------- playing back what happened ---------------- */
+  function playEvents(after) {
+    const b = run.battle;
+    const list = (b.ev || []).slice();
+    b.ev = [];
+    if (!list.length) { after && after(); return; }
+    if (FAST) {
+      anim = { list, i: 0, fast: true };
+      list.forEach(e => drawBattle(e.st, e.mark, e.note));
+      anim = null; save(); after && after(); render();
+      return;
+    }
+    anim = { list, i: 0, fast: false };
+    const step = () => {
+      if (!anim) return;
+      if (anim.i >= anim.list.length) { anim = null; save(); after && after(); render(); return; }
+      const e = anim.list[anim.i++];
+      drawBattle(e.st, e.mark, e.note);
+      sound(e);
+      anim.timer = setTimeout(step, anim.fast ? 70 : delayFor(e));
+    };
+    step();
+  }
+  function delayFor(e) {
+    if (!e.mark) return e.note && e.note.length > 40 ? 1100 : 420;
+    if (e.mark.k === 'die' || e.mark.k === 'dieq') return 380;
+    if (e.mark.k === 'hit' || e.mark.k === 'direct' || e.mark.k === 'hitq') return 360;
+    return 300;
+  }
+  function sound(e) {
+    const k = e.mark && e.mark.k;
+    if (k === 'hit' || k === 'hitq') S.play('hit', { gain: .7 });
+    else if (k === 'direct') S.play('thump');
+    else if (k === 'die' || k === 'dieq') S.play('dig', { gain: .6 });
+    else if (k === 'play') S.play('flip', { gain: .6 });
+    else if (k === 'buff') S.play('sparkle', { gain: .5 });
+    else if (/candle goes out|is beaten/.test(e.note || '')) S.play('gong');
+  }
+
+  /* ---------------- choosing from the deck (Hoarder, the Lens) ---------------- */
+  function pickFromDeck() {
+    const b = run.battle;
+    const hoard = b.ask.k === 'hoard';
+    let h = '<h3>' + (hoard ? 'Hoarder' : 'Magpie’s Lens') + '</h3><p>Choose a card from your deck to draw.</p><div class="grid">';
+    b.me.deck.forEach((c, i) => { h += '<button class="pick" data-act="deckPick" data-i="' + i + '">' + A.face(E.view(b, c, 'hand')) + '</button>'; });
+    h += '</div>' + (hoard ? '<div class="foot"><button class="btn ghost" data-act="deckPick" data-i="-1">Draw nothing</button></div>' : '');
+    sheet(h);
+  }
+
+  /* ================================================================
+     Actions
+     ================================================================ */
+  function newRunFromSetup() {
+    run = R.newRun({ deck: setup.deck, ch: setup.ch });
+    run.walked = [];
+    records.runs += 1;
+    store(REC, records);
+    store(PREF, setup);
+    ui = {};
+    save();
+    S.play('gong');
+    render();
+    toView();
+  }
+  function finishRunRecord() {
+    if (!run || run.recorded) return;
+    run.recorded = true;
+    if (run.screen === 'won') {
+      records.wins += 1;
+      records.bestCp = Math.max(records.bestCp, run.cp);
+      const bd = records.byDeck[run.deckId] = records.byDeck[run.deckId] || { wins: 0, bestCp: -1 };
+      bd.wins += 1; bd.bestCp = Math.max(bd.bestCp, run.cp);
+    }
+    store(REC, records);
+  }
+
+  const act = {
+    closeSheet() { sheet(null); },
+    toggleArt() {
+      prefs.glyphs = !prefs.glyphs;
+      store(PREFS, prefs);
+      applyPrefs();
+      // relabel the button wherever it is (title screen or the menu sheet)
+      document.querySelectorAll('[data-act="toggleArt"]').forEach(b => { b.textContent = 'Card pictures: ' + (prefs.glyphs ? 'off (glyphs)' : 'on'); });
+    },
+    setup() { ui.setupOpen = true; render(); },
+    back() { ui.setupOpen = false; render(); },
+    pickDeck(t) { setup.deck = t.dataset.id; render(); },
+    toggleCh(t) { const id = t.dataset.id; const i = setup.ch.indexOf(id); if (i >= 0) setup.ch.splice(i, 1); else setup.ch.push(id); render(); },
+    begin() { if (load(KEY) && !confirm('Abandon the run in progress?')) return; newRunFromSetup(); },
+    continue() { run = load(KEY); ui = {}; render(); toView(); },
+    newRun() { finishRunRecord(); store(KEY, null); run = null; ui = { setupOpen: true }; render(); },
+    toTitle() { finishRunRecord(); if (run && (run.screen === 'over' || run.screen === 'won')) store(KEY, null); run = null; ui = {}; sheet(null); render(); },
+    rules() { rulesSheet(); },
+    menu() {
+      sheet('<h3>Menu</h3><div class="menu" style="margin-top:8px"><button class="btn ghost" data-act="rules">How to play</button><button class="btn ghost" data-act="sigils">Every sigil</button>' + artToggle() + '<button class="btn ghost" data-act="toTitle">Title screen (your run is saved)</button><button class="btn warn" data-act="abandon">Abandon this run</button></div><p class="lowkey center">Seed ' + run.seed + ' · ' + esc(D.DECK[run.deckId].name) + ' · ' + (run.ch.map(id => D.CHALLENGE[id].name).join(', ') || 'no challenges') + '</p>');
+    },
+    abandon() { if (!confirm('Abandon this run for good?')) return; store(KEY, null); run = null; ui = {}; sheet(null); render(); },
+    sigils() {
+      let h = '<h3>Sigils</h3>';
+      Object.keys(D.SIGILS).forEach(s => { h += '<div class="det"><div class="txt"><div class="sgl">' + A.icon(s) + '<div><b>' + sigName(s) + '</b><small>' + esc(D.SIGILS[s].text) + '</small></div></div></div></div>'; });
+      Object.keys(D.STATS).forEach(s => { h += '<div class="det"><div class="txt"><div class="sgl"><span style="font-size:22px;width:28px">' + A.STAT_G[s] + '</span><div><b>' + D.STATS[s].name + '</b><small>' + esc(D.STATS[s].text) + '</small></div></div></div></div>'; });
+      sheet(h + '<div class="foot"><button class="btn ghost" data-act="closeSheet">Close</button></div>');
+    },
+    deck() {
+      let h = '<h3>Your deck · ' + run.deck.length + ' cards</h3>';
+      if (run.deck.some(e => e.id === 'egg')) {
+        const L = R.eggLights(run);
+        h += '<div class="lights"><span>Power 1–5: <b class="' + (L.power ? 'lit' : '') + '">' + L.powers + '/5</b></span><span>Health 1–5: <b class="' + (L.health ? 'lit' : '') + '">' + L.healths + '/5</b></span><span>Tribes: <b class="' + (L.tribe ? 'lit' : '') + '">' + L.tribes + '/5</b></span></div>';
+      }
+      h += '<div class="grid">' + run.deck.map((e, di) => '<button class="pick" data-act="lookEntry" data-di="' + di + '">' + entryFace(e) + '</button>').join('') + '</div>';
+      h += '<p class="lowkey">Side deck: 10 ' + (run.ch.indexOf('squirrelfish') >= 0 ? 'Aquasquirrels' : 'Squirrels') + '.' + (run.boons ? ' Bone Lord’s boon: ' + run.boons + ' Bones to start each battle.' : '') + '</p>';
+      sheet(h + '<div class="foot"><button class="btn ghost" data-act="closeSheet">Close</button></div>');
+    },
+    lookEntry(t) { const e = run.deck[+t.dataset.di]; if (e) details(A.fromEntry(e)); },
+    look(t) {
+      if (run.screen !== 'battle') { const e = run.deck[+t.dataset.di]; if (e) details(A.fromEntry(e)); return; }
+      const b = run.battle, row = t.dataset.row, i = +t.dataset.slot;
+      const c = row === 'queue' ? b.foe.queue[i] : row === 'foe' ? b.foe.board[i] : b.me.board[i];
+      if (c) details(E.view(b, c, row === 'queue' ? 'queue' : 'board'), row === 'queue' ? '<p class="lowkey">Queued: it steps forward at the start of Leshy’s turn, if the space below is empty.</p>' : '');
+    },
+    totemInfo() { const t = run.totem; sheet('<h3>Your totem</h3><div class="det"><div class="txt"><div class="sgl">' + A.icon(t.sigil) + '<div><b>' + D.TRIBES[t.tribe].name + ' · ' + sigName(t.sigil) + '</b><small>Every ' + D.TRIBES[t.tribe].name + ' card of yours bears ' + sigName(t.sigil) + ': ' + esc(D.SIGILS[t.sigil].text) + '</small></div></div></div></div><div class="foot"><button class="btn ghost" data-act="closeSheet">Close</button></div>'); },
+    itemInfo(t) {
+      const items = run.screen === 'battle' && run.battle ? run.battle.items : run.items;
+      const it = D.ITEMS[items[+t.dataset.i]];
+      if (run.screen === 'battle') return act.useItem(t);
+      sheet('<h3>' + it.g + ' ' + esc(it.name) + '</h3><p>' + esc(it.text) + '</p><p class="lowkey">Use it during a battle, on your turn.</p><div class="foot"><button class="btn ghost" data-act="closeSheet">Close</button></div>');
+    },
+
+    /* --- map --- */
+    go(t) {
+      const r = +t.dataset.r, c = +t.dataset.c;
+      const from = run.pos;
+      const res = R.go(run, r, c);
+      if (!res.ok) { why = res.why; return render(); }
+      if (from) run.walked.push([from.r, from.c, r, c]);
+      why = ''; ui = {};
+      S.play('step');
+      save();
+      if (run.screen === 'battle') { S.play(run.battle.foe.boss ? 'growl' : 'flip'); ui.note = run.battle.foe.boss ? D.BOSSES[run.battle.foe.boss].text : 'Leshy lays out his first cards.'; playEvents(); }
+      render();
+      toView();
+    },
+
+    /* --- node screens --- */
+    selOffer(t) { ui.sel = +t.dataset.i; const n = run.node; const o = n.offers[ui.sel]; if (o.shown) { render(); details(A.fromEntry(o.e), '<div class="foot"><button class="btn" data-act="takeOffer">Take it</button></div>'); return; } render(); },
+    takeOffer() { sheet(null); if (ui.sel == null) return; const r = R.choose(run, ui.sel); if (!r.ok) { why = r.why; return render(); } ui.sel = null; S.play('flip'); save(); render(); },
+    clover() { R.reroll(run); ui.sel = null; S.play('sparkle'); save(); render(); },
+    done() {
+      const prev = run.ri;
+      const r = R.done(run);
+      if (!r.ok) { why = r.why; return render(); }
+      why = ''; ui = {};
+      if (run.ri !== prev) { run.walked = []; S.play('fanfare'); }
+      save(); render(); toView();
+    },
+    trial(t) { const r = R.trial(run, +t.dataset.i); S.play(r.passed ? 'chime' : 'sting'); save(); render(); },
+    buy(t) { const r = R.buy(run, t.dataset.id); why = r.ok ? '' : r.why; if (r.ok) S.play('coin'); save(); render(); },
+    tab(t) { ui.tab = t.dataset.id; render(); },
+    tradeTake(t) { const r = R.trade(run, t.dataset.kind, +t.dataset.i); why = r.ok ? '' : r.why; if (r.ok) S.play('flip'); save(); render(); },
+    pickCard(t) { ui.sel = +t.dataset.di; render(); },
+    warm() { if (ui.sel == null) return; const r = R.warm(run, ui.sel); why = r.ok ? '' : r.why; S.play(r.eaten ? 'growl' : 'rise'); ui.sel = null; save(); render(); },
+    warmAgain() { const r = R.warm(run, run.node.di); why = r.ok ? '' : r.why; S.play(r.eaten ? 'growl' : 'rise'); save(); render(); },
+    pickHost(t) { ui.host = +t.dataset.di; ui.sel = null; render(); },
+    unhost() { ui.host = null; ui.sel = null; render(); },
+    pickVictim(t) { ui.sel = +t.dataset.di; render(); },
+    transfer() { const r = R.transfer(run, ui.host, ui.sel); why = r.ok ? '' : r.why; if (r.ok) { S.play('sparkle'); ui.host = null; ui.sel = null; } save(); render(); },
+    fuse(t) { const g = R.dupGroups(run)[+t.dataset.i]; const r = R.fuse(run, g[0], g[1]); why = r.ok ? '' : r.why; S.play('sparkle'); save(); render(); },
+    carve(t) { R.carve(run, +t.dataset.i); S.play('dig'); save(); render(); },
+    setHead(t) { R.setTotem(run, t.dataset.id, (run.totem && run.totem.sigil) || run.bodies[0]); save(); render(); },
+    setBody(t) { R.setTotem(run, (run.totem && run.totem.tribe) || run.heads[0], t.dataset.id); save(); render(); },
+    takeItem(t) { const r = R.takeItem(run, +t.dataset.i); why = r.ok ? '' : r.why; S.play('coin'); save(); render(); },
+    altar() { if (ui.sel == null) return; const e = run.deck[ui.sel]; if (!confirm('Give the ' + R.nameOf(e) + ' to the Bone Lord, for good?')) return; const r = R.altar(run, ui.sel); why = r.ok ? '' : r.why; S.play('dig'); ui.sel = null; save(); render(); },
+    goobert() { if (ui.sel == null) return; R.goobert(run, ui.sel); S.play('sparkle'); ui.sel = null; save(); render(); },
+    boulder(t) { R.boulder(run, +t.dataset.i); S.play(run.node.boulders[+t.dataset.i] === 'gold' ? 'fanfare' : 'dig'); save(); render(); },
+
+    /* --- battle --- */
+    draw(t) {
+      const b = run.battle;
+      const r = E.draw(b, t.dataset.id);
+      if (!r.ok) { why = r.why; return render(); }
+      why = ''; ui.note = '';
+      S.play('flip', { gain: .6 });
+      save(); render();
+      const hand = document.getElementById('hand');
+      if (hand && hand.scrollWidth > hand.clientWidth) hand.scrollLeft = hand.scrollWidth;
+    },
+    hand(t) {
+      const b = run.battle;
+      const hi = +t.dataset.i;
+      if (b.result || b.ask || anim) return;
+      if (b.step !== 'main') { details(E.view(b, b.me.hand[hi], 'hand')); return; }
+      if (ui.bsel && ui.bsel.hi === hi) { ui.bsel = null; return render(); }
+      const p = E.playable(b, hi);
+      if (!p.ok) { why = p.why; ui.bsel = null; render(); details(E.view(b, b.me.hand[hi], 'hand'), '<p class="why">' + esc(p.why) + '</p>'); return; }
+      why = '';
+      ui.item = null;
+      ui.bsel = { hi, sacs: [] };
+      render();
+    },
+    cardInfo() { const b = run.battle; if (ui.bsel) details(E.view(b, b.me.hand[ui.bsel.hi], 'hand')); },
+    cancel() { ui.bsel = null; ui.item = null; render(); },
+    sac(t) {
+      const s = +t.dataset.slot;
+      ui.bsel.sacs.push(s);
+      S.play('tick');
+      render();
+    },
+    unsac(t) { const s = +t.dataset.slot; ui.bsel.sacs = ui.bsel.sacs.filter(x => x !== s); render(); },
+    place(t) {
+      const b = run.battle, slot = +t.dataset.slot;
+      const sel = ui.bsel;
+      if (!sel) return;
+      const r = E.play(b, sel.hi, slot, sel.sacs);
+      ui.bsel = null;
+      if (!r.ok) { why = r.why; return render(); }
+      why = '';
+      S.play('thump', { gain: .7 });
+      playEvents(() => { if (b.ask && (b.ask.k === 'hoard' || b.ask.k === 'lens')) pickFromDeck(); });
+      if (!anim) render();
+    },
+    deckPick(t) {
+      const b = run.battle;
+      const r = E.answer(b, +t.dataset.i);
+      sheet(null);
+      if (!r.ok) why = r.why;
+      save(); render();
+    },
+    reopenPick() { pickFromDeck(); },
+    useItem(t) {
+      const b = run.battle;
+      const ii = +t.dataset.i, id = b.items[ii];
+      if (!id) return;
+      const it = D.ITEMS[id];
+      if (anim || b.result || b.step !== 'main' || b.ask) { sheet('<h3>' + it.g + ' ' + esc(it.name) + '</h3><p>' + esc(it.text) + '</p><div class="foot"><button class="btn ghost" data-act="closeSheet">Close</button></div>'); return; }
+      if (it.target === 'foe') {
+        ui.bsel = null;
+        ui.item = ii;
+        sheet('<h3>' + it.g + ' ' + esc(it.name) + '</h3><p>' + esc(it.text) + '</p><div class="foot"><button class="btn ghost" data-act="cancel2">Cancel</button><button class="btn" data-act="closeSheet">Choose a target</button></div>');
+        render();
+        return;
+      }
+      sheet('<h3>' + it.g + ' ' + esc(it.name) + '</h3><p>' + esc(it.text) + '</p><div class="foot"><button class="btn ghost" data-act="closeSheet">Keep it</button><button class="btn" data-act="useNow" data-i="' + ii + '">Use it</button></div>');
+    },
+    cancel2() { ui.item = null; sheet(null); render(); },
+    useNow(t) {
+      const b = run.battle;
+      sheet(null);
+      const r = E.useItem(b, +t.dataset.i);
+      if (!r.ok) { why = r.why; return render(); }
+      S.play('sparkle');
+      playEvents(() => { if (b.ask) pickFromDeck(); });
+      if (!anim) { save(); render(); if (b.ask && (b.ask.k === 'lens')) pickFromDeck(); }
+    },
+    itemTarget(t) {
+      const b = run.battle;
+      const r = E.useItem(b, ui.item, +t.dataset.slot);
+      ui.item = null;
+      if (!r.ok) { why = r.why; return render(); }
+      S.play('hit');
+      playEvents();
+      if (!anim) { save(); render(); }
+    },
+    tradeB(t) { tradeAt('board', +t.dataset.slot); },
+    tradeQ(t) { tradeAt('queue', +t.dataset.slot); },
+    tradeDone() { const b = run.battle; E.answer(b, 'done'); playEvents(); if (!anim) { save(); render(); } },
+    bell() {
+      const b = run.battle;
+      const r = E.bell(b);
+      if (!r.ok) { why = r.why; return render(); }
+      S.play('chime');
+      ui.note = '';
+      playEvents();
+    },
+    endBattle() {
+      const b = run.battle;
+      const won = b.result === 'win';
+      const r = R.finishBattle(run);
+      if (!r.ok) return;
+      ui = {};
+      if (run.screen === 'won' || run.screen === 'over') { finishRunRecord(); S.play(run.screen === 'won' ? 'fanfare' : 'sting'); }
+      else S.play(won ? 'coin' : 'sting');
+      save(); render(); toView();
+    }
+  };
+  function tradeAt(row, slot) {
+    const b = run.battle;
+    const r = E.answer(b, { row, slot });
+    if (!r.ok) { why = r.why; return render(); }
+    S.play('flip');
+    playEvents();
+    if (!anim) { save(); render(); }
+  }
+
+  function rulesSheet() {
+    sheet('<h3>How to play</h3>' +
+      '<p><b>The scales.</b> Damage that reaches a player goes on the scales. Tip them 5 in your favour and you win; 5 against you and a candle goes out. Two candles and the run is over. Beat a boss and both relight.</p>' +
+      '<p><b>Your turn.</b> Draw one card — from your deck, or a Squirrel from your side deck. Play cards, use items, then <b>ring the bell</b>: your creatures attack the space opposite, left to right. Anything with no creature opposite hits Leshy.</p>' +
+      '<p><b>Costs.</b> <span style="color:#d06050">Blood</span>: sacrifice creatures you have in play (each is 1 Blood; a Black Goat is 3). <b>Bones</b>: every creature of yours that dies leaves a Bone. Squirrels are free, and are mostly for sacrificing.</p>' +
+      '<p><b>Leshy’s turn.</b> His cards wait in the back row for a turn, so you can see what is coming. At the start of his turn they step forward into empty spaces, then his creatures attack. Your overkill on a creature carries into the card queued behind it.</p>' +
+      '<p><b>Sigils</b> are the ink symbols on a card. Tap any card to read them. A <span style="color:#1f4f8a">blue</span> sigil was gained on the way; a <span style="color:#7a3a10">brown</span> one comes from a totem.</p>' +
+      '<p><b>The map.</b> Each region is a short branching path: battles, and events that grow and shape your deck — card choices, the campfire, sigil stones, fusing, totems, the Trapper and the Trader. Teeth come from overkill on the scales and buy pelts; pelts buy cards.</p>' +
+      '<p><b>Challenges</b> add Challenge Points (CP). Kaycee’s Mod is about winning with as many as you can bear.</p>' +
+      '<div class="foot"><button class="btn ghost" data-act="closeSheet">Close</button></div>');
+  }
+
+  /* ---------------- input ---------------- */
+  document.addEventListener('click', ev => {
+    S.unlock && S.unlock();
+    if (anim) { anim.fast = true; return; }
+    const t = ev.target.closest('[data-act]');
+    if (!t) return;
+    const a = t.dataset.act;
+    if (t.disabled) return;
+    if (act[a]) { ev.preventDefault(); act[a](t); }
+  });
+  window.addEventListener('beforeunload', save);
+
+  // a battle restored mid-fight with something to answer
+  render();
+  if (run && run.screen === 'battle' && run.battle && run.battle.ask && (run.battle.ask.k === 'hoard' || run.battle.ask.k === 'lens')) pickFromDeck();
+
+  window.InscPage = { get run() { return run; }, set run(v) { run = v; }, render, act, ui: () => ui, anim: () => anim };
+})();
+</script>
+</body>
+</html>
