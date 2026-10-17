@@ -724,8 +724,9 @@ function campHtml() {
       '<button class="opt" data-act="hone"' + (R.honable(run).length ? '' : ' disabled') + '><span class="ic">' + svg('stone') + '</span><span class="lab"><b>Hone a unit</b><small>+' + (R.has(run, 'whetstone') ? 3 : R.HONE) + ' strength on one card, for the rest of the run (up to +' + R.HONE_MAX + ').</small></span></button>' +
       '<button class="opt" data-act="cull"' + (run.deck.length > R.MIN_DECK ? '' : ' disabled') + '><span class="ic">' + svg('camp') + '</span><span class="lab"><b>Burn a card</b><small>Feed one card to the fire: a thinner deck deals better hands.</small></span></button></div>';
   } else out += '<p class="result">' + (s.done === 'rest' ? 'You sleep well. A life back.' + (s.kettle ? ' Over the kettle, ' + esc(D.nameOf(s.kettle)) + ' is honed.' : '') : s.done === 'hone' ? esc(D.nameOf(s.card)) + ' is honed.' : esc(D.nameOf(s.card)) + ' burns.') + '</p>';
+  if (!s.done && !R.campCan(run)) out += '<p class="dim">Nothing to do here: no rest for you, every unit is honed as far as it goes, and your deck is as thin as it may be.</p>';
   out += '</div>';
-  return out + (s.done ? bar('<button class="btn" data-act="leave">Back to the map</button>') : '');
+  return out + (s.done || !R.campCan(run) ? bar('<button class="btn" data-act="leave">Back to the map</button>') : '');
 }
 /* ---------------- encounters ---------------- */
 const subOf = o => typeof o.sub === 'function' ? o.sub(S.run) : o.sub;

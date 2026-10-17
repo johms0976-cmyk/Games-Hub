@@ -18,12 +18,20 @@
      still to come. One number in one place; everything else falls out of it. */
   const CARD = 6;
   const BASE = { noise: 0, slip: 0, plan: true, look: false, cost: 0.45, r1lead: 0, r1big: 14, dry: 25, mustLead: 12, theyMustPass: 'lead', spy: 2,
-    k: 0.7, k3: 0.85, gem: 0.85, avg: 7 };
+    k: 0.7, k3: 0.85, gem: 0.85, avg: 7, floor: 0, giveUp: 2 };
   const LEVEL = {
     hard: Object.assign({}, BASE, { noise: 0.06, look: true }),
     medium: Object.assign({}, BASE, { noise: 0.3, slip: 0.1 }),
     easy: Object.assign({}, BASE, { noise: 0.7, slip: 0.25, plan: false, spy: 0.5 })
   };
+  /* floor: a play must be worth more than this now, or it is never made (0:
+     no Scorch on your own best, no Clear for the other side, no spy into an
+     empty deck). giveUp: with the other side passed, pass when even this many
+     times the best each card can add would not catch them (sums of single
+     cards miss combos — a Horn after units, bonded pairs — hence 2, not 1).
+     Measured 2026-10-18 against the brain without them, same level: about
+     even between two houses — the plays they stop are the ones a person
+     punishes and a house does not. */
   /* Tuning: GW_HARD='{"cost":0.6}' overrides the Hard brain in a test run. */
   if (typeof process !== 'undefined' && process.env && process.env.GW_HARD) Object.assign(LEVEL.hard, JSON.parse(process.env.GW_HARD));
   if (typeof process !== 'undefined' && process.env && process.env.GW_MED) Object.assign(LEVEL.medium, JSON.parse(process.env.GW_MED));
@@ -46,6 +54,14 @@
     return v + r * C.lv.noise * Math.max(4, Math.abs(v));
   }
 
+  /* A spy is worth the cards it draws — and it draws only what is left in
+     the deck (2026-10-18: the house played spies, and fetched them back with
+     Decoys and medics, into an empty deck, which only fed the other side). */
+  const spyCards = C => Math.max(0, Math.min(C.mine.deckN == null ? 2 : C.mine.deckN, 2 + ((C.mine.mods && C.mine.mods.spyDraw) || 0)));
+  const spyBonus = C => C.lv.spy * CARD * spyCards(C) / 2;
+  /* A unit brought back from a discard pile (a medic, a leader): a spy only
+     if it would draw, otherwise it is strength handed to the other side. */
+  const backValue = (C, c) => c.ab === 'spy' ? (spyCards(C) ? 6 * spyCards(C) : -c.str) : c.ab === 'medic' ? c.str + 6 : c.str + (c.ab === 'muster' ? 2 : 0);
   /* How much a card is worth KEEPING — what it would do in a later round. */
   function keepValue(C, id) {
     const c = D.card(id);
@@ -58,7 +74,7 @@
       return 4;
     }
     let v = c.str * 0.75;
-    if (c.ab === 'spy') v = 9;
+    if (c.ab === 'spy') v = 4.5 * spyCards(C);
     if (c.ab === 'medic') v += 5;
     if (c.ab === 'muster' || c.ab === 'summon') v += 4;
     if (c.ab === 'berserk') v = (D.card(c.into).str * 0.75) * (mardroemes(C) ? 0.8 : 0.35) + 1;
@@ -79,7 +95,7 @@
       const c = D.card(x.id);
       if (!c) continue;
       if (unitsOnly && (c.kind !== 'unit' || c.hero)) continue;
-      const v = c.kind === 'unit' ? (c.ab === 'spy' ? 12 : c.ab === 'medic' ? c.str + 6 : c.str + (c.ab === 'muster' ? 2 : 0)) : keepValue(C, x.id);
+      const v = c.kind === 'unit' ? backValue(C, c) : keepValue(C, x.id);
       if (v > bv) { bv = v; best = x; }
     }
     return { best, v: Math.max(0, bv) };
@@ -92,7 +108,7 @@
     const c = D.card(h.card);
     const d = pl.delta || { me: 0, them: 0 };
     let v = d.me - d.them;
-    if (c.ab === 'spy') v += C.lv.spy * CARD;                  // two cards for one
+    if (c.ab === 'spy') v += spyBonus(C);                      // two cards for one — if the deck has them
     if (c.ab === 'medic') v += discardBest(C, C.pub.players[C.si].disc, true).v * 0.9;
     if (c.kind === 'special' && c.weather && c.rows.every(r => C.pub.board.wx[r])) v -= 20;
     if (c.ab === 'avenger') v += D.card(c.avenger).str * 0.6;      // Kambi: Hemdall to come
@@ -100,7 +116,8 @@
     if (c.sp === 'clear' && !C.pub.board.wx.some(Boolean)) v -= 20;
     if (c.sp === 'decoy') {
       const t = D.card(pl.card);
-      v += t && t.ab === 'spy' ? 2 * CARD + 2 : t && t.ab === 'medic' ? 5 : -2;   // take back a spy or a medic
+      /* Take back a spy (worth it only with a deck to draw from) or a medic (only with someone to revive). */
+      v += t && t.ab === 'spy' ? (spyCards(C) ? spyBonus(C) + 2 : 0) : t && t.ab === 'medic' ? Math.min(5, discardBest(C, C.pub.players[C.si].disc, true).v * 0.5) : -2;
     }
     return v;
   }
@@ -140,11 +157,15 @@
     if (C.them.passed) {
       if (lead > 0) return true;                               // already winning it
       const need = -lead + 1;
-      const reach = topGains(C, can, 3);
-      if (mustWin) return false;                              // losing it loses the game
-      /* Not fatal: win it only if it is cheap. */
+      const reach = topGains(C, can, mustWin ? 10 : 3);
       let sum = 0, k = 0;
       for (const g of reach) { sum += g; k++; if (sum >= need) break; }
+      /* Out of reach even with every card: playing on only spends them. (A
+         spy that draws might find the difference, so it keeps the hope.) */
+      const drawing = spyCards(C) && can.hand.some(h => D.card(h.card).ab === 'spy');
+      if (C.lv.giveUp && sum * C.lv.giveUp < need && !drawing) return true;
+      if (mustWin) return false;                              // losing it loses the game
+      /* Not fatal: win it only if it is cheap. */
       if (sum < need) return true;
       if (C.lv.look) return afterRound(C, true, myHand - k, theirHand) <= afterRound(C, false, myHand, theirHand);
       return C.lv.plan ? (k > 1 && myHand - k < theirHand) : false;
@@ -221,7 +242,9 @@
     const gains = [];
     for (const h of can.hand) {
       let b = -1e9;
-      for (const pl of h.plays) b = Math.max(b, (pl.delta ? pl.delta.me - pl.delta.them : 0) + (D.card(h.card).ab === 'spy' ? 0 : 0));
+      /* A medic's delta is the medic alone: the unit it brings back counts too. */
+      const back = D.card(h.card).ab === 'medic' ? discardBest(C, C.pub.players[C.si].disc, true).v * 0.9 : 0;
+      for (const pl of h.plays) b = Math.max(b, (pl.delta ? pl.delta.me - pl.delta.them : 0) + back);
       if (b > 0) gains.push(b);
     }
     return gains.sort((a, b) => b - a).slice(0, n);
@@ -247,6 +270,11 @@
       const v = leaderValue(C, can.leader) - (finalRound ? 0 : 2.5);
       cands.push({ key: 'leader', v: noisy(C, 'leader' + C.pub.round, v), a: { t: 'leader', n: view.n }, raw: v });
     }
+    /* A play that does nothing or costs more than it gains is never made
+       (2026-10-18: a Scorch on its own best units, a Clear Weather that
+       frees the other side's row, a spy into an empty deck). Gwent has no
+       "wait": with nothing worth playing, the house passes. */
+    for (let i = cands.length - 1; i >= 0; i--) if (!(cands[i].raw > C.lv.floor)) cands.splice(i, 1);
     cands.sort((x, y) => y.v - x.v);
     const best = cands[0];
     const bestGain = best ? best.raw : 0;
@@ -300,7 +328,11 @@
       }
       case 'leads': return one(legal.find(o => o.id === (C.lv.plan ? 'them' : (hash(C.key) < 0.5 ? 'me' : 'them'))) || legal[0]);
       case 'row': return one(by(o => o.delta ? o.delta.me - o.delta.them + (o.row === 1 ? 0.01 : 0) : 0));
-      case 'revive': return one(by(o => { const c = D.card(o.card); return c.ab === 'spy' ? 12 : c.ab === 'medic' ? c.str + 6 : c.str; }));
+      case 'revive': {
+        /* Nobody worth bringing back (a spy into an empty deck): skip, if allowed. */
+        const o = by(x => backValue(C, D.card(x.card)));
+        return o && backValue(C, D.card(o.card)) <= 0 && view.skip ? { t: 'skip', n: view.n } : one(o);
+      }
       case 'discard2': {
         const ids = legal.slice().sort((a, b) => keepValue(C, a.card) - keepValue(C, b.card)).slice(0, view.min).map(o => o.id);
         return { t: 'pick', n: view.n, ids };

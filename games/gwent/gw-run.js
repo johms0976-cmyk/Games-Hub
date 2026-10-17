@@ -1252,6 +1252,9 @@
   /* ================================================================
      The campfire: rest or hone
      ================================================================ */
+  /* Anything to do at this fire? (Lives full or no rest allowed, every unit
+     honed as far as it goes, the deck at its floor: then you may walk on.) */
+  const campCan = run => (!on(run, 'onelife') && !has(run, 'bloodcoin') && !lifeFull(run)) || honable(run).length > 0 || run.deck.length > MIN_DECK;
   function camp(run, what, rid) {
     const s = run.screen;
     if (s.k !== 'camp') return no('There is no campfire here.');
@@ -1347,7 +1350,7 @@
       return toMap(run);
     }
     if (s.k === 'event' && !s.result) return no('Choose first.');
-    if (s.k === 'camp' && !s.done) return no('Rest, hone or burn a card first.');
+    if (s.k === 'camp' && !s.done && campCan(run)) return no('Rest, hone or burn a card first.');
     if (s.k === 'lost') return retry(run);
     if (s.k === 'battle') return no('Finish the battle first.');
     return toMap(run);
@@ -1368,7 +1371,7 @@
     CHALLENGES, CHALLENGE, PHASES, HUNT, WOUND, on, multiplier, takeLoss, woundable, foeMods,
     rarityOf, capOf, poolFor, playerMods, newRun, genMap, node, reachable, go, battleSetup, battleDone, retry, takeCard, takeLeader,
     buy, shopRemove, removePrice, camp, choose, eventNeed, leave, enemyOf, score, countOf, honable, has,
-    LONG, CHESTS, POTIONS, POTION, SHRINE_ODDS, LUCK0, ELITE_RARE, POTION0, POTION_STEP, shapeOf, floorsOf, huntOf, fight, takePotion, pour, beltFull, TRINKET_PRICE
+    LONG, CHESTS, POTIONS, POTION, SHRINE_ODDS, LUCK0, ELITE_RARE, POTION0, POTION_STEP, shapeOf, floorsOf, huntOf, fight, takePotion, pour, beltFull, TRINKET_PRICE, campCan
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = Run;
   else root.GwentRun = Run;
