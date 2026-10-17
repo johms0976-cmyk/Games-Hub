@@ -59,6 +59,7 @@
         if (e.what === 'keep') return N[e.by] + '’s ' + short(e.card) + ' stays on the board';
         if (e.what === 'winDraw') return N[e.by] + ' draws for winning the round';
         if (e.what === 'roundDraw') return N[e.by] + ' draws a card for the new round';
+        if (e.what === 'revive') return e.ids.length ? N[e.by] + ' takes ' + e.ids.map(short).join(' and ') + ' back from the discard pile (a trinket)' : N[e.by] + ' has nobody to take back (a trinket)';
         if (e.what === 'start') return N[e.by] + ' starts with ' + e.ids.map(short).join(' and ') + ' in hand';
         if (e.what === 'sk') return e.ids.length ? N[e.by] + ' raises ' + e.ids.map(short).join(' and ') + ' from the discard pile (Skellige)' : N[e.by] + ' has nobody to raise (Skellige)';
         return null;
@@ -74,7 +75,7 @@
       case 'decks': return 'The decks: ' + e.list.map(x => N[x.by] + ' plays ' + D.faction(x.fac).name + ' under ' + nm(x.leader)).join(' · ');
       case 'redraw': return who + ' redraws a card';
       case 'round': return 'Round ' + WORD[e.round - 1] + ' — ' + who + ' begins';
-      case 'leads': return who + ' chooses: ' + (N[e.starter]) + ' begins (Scoia’tael)';
+      case 'leads': return who + ' chooses: ' + (N[e.starter]) + ' begins (' + (e.how === 'trinket' ? 'a trinket' : 'Scoia’tael') + ')';
       case 'play': return who + ' plays ' + short(e.card);
       case 'leader': return who + '’s leader: ' + nm(e.leader);
       case 'pass': return who + (e.auto ? ' has no cards left and passes' : ' passes');

@@ -67,9 +67,14 @@
      The hub game never sets either, so it plays exactly as before.
      ================================================================ */
   /* weak: every row of yours at −n; minusRows: [close, ranged, siege] at −n;
-     noLeader: your leader is silent; phase: a boss's second phase (PHASES). */
+     noLeader: your leader is silent; phase: a boss's second phase (PHASES).
+     Added 2026-10-18 for the run's second set of trinkets: plusRows
+     [close, ranged, siege] at +n (non-heroes); leads: you choose who begins
+     every round, as the Scoia'tael do; roundRevive: at the start of rounds
+     two and three, n random non-hero units from your discard pile return to
+     your hand. */
   const MOD_DEFAULT = { hand: 0, redraws: 0, gems: 2, winDraw: 0, tieWin: false, keep: false, halfWeather: false, spyDraw: 0, roundDraw: 0, leaderUses: 1, start: [],
-    weak: 0, minusRows: [0, 0, 0], noLeader: false, phase: null };
+    weak: 0, minusRows: [0, 0, 0], noLeader: false, phase: null, plusRows: [0, 0, 0], leads: false, roundRevive: 0 };
   const PHASES = ['whiteFrost', 'crones', 'edict', 'ambush', 'rage', 'levy'];
   function modsOf(m) {
     const o = Object.assign({}, MOD_DEFAULT, m || {});
@@ -77,6 +82,8 @@
     o.gems = Math.max(1, Math.min(4, o.gems | 0));
     o.leaderUses = Math.max(1, o.leaderUses | 0);
     o.minusRows = [0, 1, 2].map(r => Math.max(0, ((o.minusRows || [])[r] | 0)));
+    o.plusRows = [0, 1, 2].map(r => Math.max(0, ((o.plusRows || [])[r] | 0)));
+    o.roundRevive = Math.max(0, o.roundRevive | 0);
     o.weak = Math.max(0, o.weak | 0);
     if (PHASES.indexOf(o.phase) < 0) o.phase = null;
     return o;
@@ -122,7 +129,7 @@
     g.note = e => log(e);
 
     /* ---------------- the leaders ---------------- */
-    const cancelled = p => { const q = opp(p); return (q.leader === 'emhyr_whiteflame' && p.leader !== null) || (!!p.leader && p.mods.noLeader); };
+    const cancelled = p => { const q = opp(p); return (q.leader === 'emhyr_whiteflame' && !q.mods.noLeader && p.leader !== null) || (!!p.leader && p.mods.noLeader); };
     const leaderLive = (p, ab) => !!p.leader && D.LEADER[p.leader].ab === ab && !cancelled(p);
     const invader = () => g.players.some(p => leaderLive(p, 'randomRevive'));
     function refreshPassives() {
@@ -131,7 +138,10 @@
       baseMinus();
     }
     /* The standing row penalties (the run's Weakened and cursed trinkets). */
-    function baseMinus() { B().minus = g.players.map(p => [0, 1, 2].map(r => p.mods.weak + p.mods.minusRows[r])); }
+    function baseMinus() {
+      B().minus = g.players.map(p => [0, 1, 2].map(r => p.mods.weak + p.mods.minusRows[r]));
+      if (g.players.some(p => p.mods.plusRows.some(Boolean))) B().plus = g.players.map(p => p.mods.plusRows.slice());
+    }
     /* The skies after a Clear: the White Frost does not lift. */
     const clearSkies = () => g.locks.slice();
     const clearable = () => B().wx.some((w, r) => w && !g.locks[r]);
@@ -659,6 +669,7 @@
         log({ t: 'round', by: g.players[g.starter].id, round: g.round });
         if (g.round === 3) skelligeRises();
         if (g.round > 1) g.players.forEach(p => { if (p.mods.roundDraw && p.deck.length) { draw(p, p.mods.roundDraw, 'trinket'); log({ t: 'bonus', by: p.id, what: 'roundDraw' }); } });
+        if (g.round > 1) g.players.forEach(p => { if (p.mods.roundRevive) roundRevive(p); });
         yield* hold({ k: 'roundStart', round: g.round, by: g.players[g.starter].id });
         yield* bossPhases();
         for (;;) {
@@ -754,14 +765,28 @@
         yield* hold(info);
       }
     }
+    /* A trinket's revival (mods.roundRevive): random non-hero units from the
+       discard pile back to hand — not played, so nothing fires. */
+    function roundRevive(p) {
+      const pool = p.disc.filter(c => C(c.id).kind === 'unit' && !C(c.id).hero && !D.isDecoy(c));
+      const got = [];
+      for (let k = 0; k < p.mods.roundRevive && pool.length; k++) {
+        const c = pool.splice(Math.floor(rand() * pool.length), 1)[0];
+        p.disc.splice(p.disc.indexOf(c), 1);
+        p.hand.push(c);
+        got.push(c.id);
+      }
+      log({ t: 'bonus', by: p.id, what: 'revive', ids: got });
+    }
     function* chooseStarter() {
-      const st = g.players.filter(p => p.fac === 'st');
+      /* The Scoia'tael choose — and so does a player with a trinket that says so. Two choosers cancel out. */
+      const st = g.players.filter(p => p.fac === 'st' || p.mods.leads);
       if (st.length === 1) {
         const p = st[0];
-        const id = yield* pick(p, 'leads', 'Scoia’tael: who begins round ' + (['one', 'two', 'three', 'four', 'five', 'six', 'seven'][g.round - 1] || g.round) + '?',
+        const id = yield* pick(p, 'leads', (p.fac === 'st' ? 'Scoia’tael: who' : 'Who') + ' begins round ' + (['one', 'two', 'three', 'four', 'five', 'six', 'seven'][g.round - 1] || g.round) + '?',
           [{ id: 'me', label: 'I begin' }, { id: 'them', label: opp(p).name + ' begins' }], { always: true, pub: 'choosing who begins the round' });
         g.starter = id === 'me' ? p.i : opp(p).i;
-        log({ t: 'leads', by: p.id, starter: g.players[g.starter].id });
+        log({ t: 'leads', by: p.id, starter: g.players[g.starter].id, how: p.fac === 'st' ? 'st' : 'trinket' });
         return;
       }
       if (g.round === 1) g.starter = rand() < 0.5 ? 0 : 1;
@@ -925,6 +950,7 @@
         starter: g.starter == null ? null : g.players[g.starter].id,
         board: {
           wx: b.wx.slice(), spies2: b.spies2, half: (b.half || [false, false]).slice(), locks: g.locks.slice(), minus: (b.minus || [[0, 0, 0], [0, 0, 0]]).map(x => x.slice()),
+          plus: b.plus ? b.plus.map(x => x.slice()) : undefined,
           weather: g.wxCards.map(x => ({ uid: x.c.uid, id: x.c.id, k: x.c.k, by: g.players[x.s].id })),
           sides: b.sides.map((sd, s) => ({
             total: t[s],
@@ -940,7 +966,8 @@
           gems: p.gems, wins: p.wins, handN: p.hand.length, deckN: p.deck.length, passed: p.passed, leaderN: p.leaderN,
           mods: p.modded ? { hand: p.mods.hand, redraws: p.mods.redraws, gems: p.mods.gems, winDraw: p.mods.winDraw, tieWin: p.mods.tieWin, keep: p.mods.keep,
             halfWeather: p.mods.halfWeather, spyDraw: p.mods.spyDraw, roundDraw: p.mods.roundDraw, leaderUses: p.mods.leaderUses, startN: p.mods.start.length,
-            weak: p.mods.weak, minusRows: p.mods.minusRows.slice(), noLeader: p.mods.noLeader, phase: p.mods.phase, phaseN: p.phaseN } : null,
+            weak: p.mods.weak, minusRows: p.mods.minusRows.slice(), noLeader: p.mods.noLeader, phase: p.mods.phase, phaseN: p.phaseN,
+            plusRows: p.mods.plusRows.slice(), leads: p.mods.leads, roundRevive: p.mods.roundRevive } : null,
           disc: p.disc.map(c => ({ uid: c.uid, id: c.id, k: c.k, up: c.up || 0 })),
           choosing: g.prompts.some(pr => pr.seat === p.id && (pr.t === 'deck' || pr.what === 'redraw'))
         })),

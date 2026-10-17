@@ -256,6 +256,7 @@ input.nm{font:inherit;background:var(--panel2);border:1px solid var(--line);colo
 .row.can{border-color:var(--gold);box-shadow:0 0 0 2px rgba(224,180,86,.6) inset,0 0 14px rgba(224,180,86,.35);cursor:pointer}
 .row .empty{color:#6d5c40;font-size:12px;font-style:italic;font-family:system-ui,sans-serif}
 .row .wxtag.minus{color:#ffc0b8}
+.row .wxtag.plus{color:#c8f0a8}
 .row .wxtag{position:absolute;right:6px;bottom:3px;pointer-events:none;font:11px system-ui,sans-serif;color:#dfeaff;display:flex;align-items:center;gap:3px;background:rgba(0,0,0,.5);padding:1px 6px;border-radius:5px}
 .row .rdelta{position:absolute;right:6px;top:3px;pointer-events:none;background:rgba(10,7,4,.85);border-radius:6px;padding:2px 6px}
 @keyframes land{from{transform:translateY(-16px) scale(1.15);opacity:.2}to{transform:none;opacity:1}}
@@ -288,7 +289,8 @@ input.nm{font:inherit;background:var(--panel2);border:1px solid var(--line);colo
 #sheet{position:fixed;left:0;right:0;top:58px;z-index:40;padding:0 10px;pointer-events:none}
 #sheet .in{pointer-events:auto;box-shadow:0 14px 40px rgba(0,0,0,.75)}
 @media (min-width:1000px){ #sheet{left:auto;right:16px;width:270px;top:66px;padding:0} #sheet .in{flex-direction:column;align-items:stretch} #sheet .in > .slot{align-self:center} #sheet .in > .slot .gc,#sheet .in > .gc{width:150px} }
-#sheet .in{max-width:760px;margin:0 auto;display:flex;gap:12px;align-items:flex-start;background:var(--panel);border:1px solid var(--gold);border-radius:16px;padding:12px}
+#sheet .in{max-width:760px;margin:0 auto;display:flex;gap:12px;align-items:flex-start;background:var(--panel);border:1px solid var(--gold);border-radius:16px;padding:12px;
+  max-height:calc(100dvh - 76px);overflow-y:auto;overscroll-behavior:contain}  /* a Decoy on a crowded board lists every unit: scroll (fitSheet keeps it above the hand) */
 #sheet .in > .gc,#sheet .in > .slot .gc{width:min(26vw,140px);font-size:clamp(11px,2.2vw,19px);flex:none}
 #sheet .st{flex:1;min-width:0}
 #sheet .st b{display:block;font-size:17px;color:var(--gold)}
@@ -384,10 +386,33 @@ const IC = {
   horn: '<path d="M3 15c5 0 12-5 16-11l2 2c-3 7-3 11 0 14l-2 1c-4-3-10-4-16-3Z" fill="#e0b456"/>',
   seal: '<circle cx="12" cy="12" r="8" fill="#a02030"/><path d="M12 7l1.5 3.3 3.5.4-2.6 2.4.7 3.5L12 15l-3.1 1.6.7-3.5L7 10.7l3.5-.4Z" fill="#ff9aa0"/>',
   trophy: '<path d="M7 3h10v4a5 5 0 0 1-10 0Z" fill="#e0b456"/><path d="M7 5H4a3 3 0 0 0 3 4M17 5h3a3 3 0 0 1-3 4" stroke="#e0b456" stroke-width="1.6" fill="none"/><path d="M12 12v5M8 21h8l-1-4H9Z" fill="#e0b456"/>',
-  bird: '<path d="M3 13c3-1 5-4 9-4 3 0 5 2 6 2l3-1-2 3c0 4-4 7-9 7-3 0-5-1-6-3l3-1c-2 0-3-1-4-3Z" fill="#f1c75b"/><circle cx="16" cy="11" r=".9" fill="#000"/>'
+  bird: '<path d="M3 13c3-1 5-4 9-4 3 0 5 2 6 2l3-1-2 3c0 4-4 7-9 7-3 0-5-1-6-3l3-1c-2 0-3-1-4-3Z" fill="#f1c75b"/><circle cx="16" cy="11" r=".9" fill="#000"/>',
+  /* the second set (2026-10-18) */
+  sprig: '<path d="M12 21V9" stroke="#8fbf6a" stroke-width="1.6"/><path d="M12 13c-4 0-6-2-7-5 3 0 6 1 7 5ZM12 11c4 0 6-2 7-5-3 0-6 1-7 5Z" fill="#8fbf6a"/><circle cx="10" cy="15" r="1.6" fill="#f4ecd8"/><circle cx="14" cy="16.5" r="1.6" fill="#f4ecd8"/><circle cx="12" cy="18.5" r="1.6" fill="#f4ecd8"/>',
+  shield: '<path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5Z" fill="#8a8a8a" stroke="#e0e0e0" stroke-width="1"/><path d="M12 5v14M7 10h10" stroke="#e0b456" stroke-width="2"/>',
+  quiver: '<path d="M8 8h6l-1 13H9Z" fill="#a0703a"/><path d="M9 8l2-6M12 8l2-6M10.5 8l4-5" stroke="#f4ecd8" stroke-width="1.2"/><path d="M10 2l1 1.5L9.5 4ZM13 2l1 1.5-1.5.5Z" fill="#d8303c"/>',
+  plans: '<rect x="4" y="3" width="16" height="18" rx="1.5" fill="#e8d8b0"/><path d="M7 17l3-8 3 5 2-3 2 6Z" fill="none" stroke="#3a5a90" stroke-width="1.3"/><circle cx="10" cy="7" r="1.4" fill="none" stroke="#3a5a90"/>',
+  collar: '<circle cx="12" cy="11" r="7" fill="none" stroke="#4a3020" stroke-width="2.6"/><circle cx="12" cy="19" r="2.6" fill="#e0b456" stroke="#8a6420"/><path d="M11 19.6h2" stroke="#8a6420"/>',
+  note: '<path d="M4 5h16v14H4Z" fill="#e8d8b0"/><path d="M7 9h10M7 12h7M7 15h5" stroke="#8a6420" stroke-width="1.2"/><circle cx="16.5" cy="15.5" r="2.4" fill="#a02030"/>',
+  razor: '<path d="M3 15l11-11 3 3-11 11Z" fill="#cfcfcf" stroke="#ffffff" stroke-width=".8"/><path d="M14 13l6 6" stroke="#a0703a" stroke-width="3" stroke-linecap="round"/>',
+  kettle: '<path d="M6 10h12l-1 9H7Z" fill="#6a6a6a"/><path d="M8 10c0-3 2-5 4-5s4 2 4 5" stroke="#9a9a9a" stroke-width="1.6" fill="none"/><path d="M18 12l3-2" stroke="#6a6a6a" stroke-width="2"/><path d="M8 21h8" stroke="#ffb060" stroke-width="2"/>',
+  cloak: '<path d="M12 3c-3 0-5 2-5 4l-3 14h16L17 7c0-2-2-4-5-4Z" fill="#5a6a7a"/><path d="M9 8l3 2 3-2" stroke="#cfd8e0" stroke-width="1.2" fill="none"/>',
+  shackles: '<circle cx="8" cy="13" r="4.5" fill="none" stroke="#9aa0b0" stroke-width="2.4"/><circle cx="16" cy="13" r="4.5" fill="none" stroke="#9aa0b0" stroke-width="2.4"/><path d="M11.5 13h1" stroke="#9aa0b0" stroke-width="2.4"/>',
+  die: '<rect x="4" y="4" width="16" height="16" rx="3" fill="#f4ecd8"/><circle cx="8.5" cy="8.5" r="1.6" fill="#1b140c"/><circle cx="12" cy="12" r="1.6" fill="#1b140c"/><circle cx="15.5" cy="15.5" r="1.6" fill="#1b140c"/>',
+  pipe: '<path d="M3 9h10v2c0 2-1 3-3 3H8" stroke="#a0703a" stroke-width="2.4" fill="none"/><path d="M12 7h6v6a3 3 0 0 1-6 0Z" fill="#7a4a20"/><path d="M15 5c0-1 1-2 0-3M17 5c0-1 1-2 0-3" stroke="#cfcfcf" stroke-width="1" fill="none"/>',
+  skull: '<path d="M12 3a7 7 0 0 0-7 7c0 2.5 1.2 4 3 5v3h8v-3c1.8-1 3-2.5 3-5a7 7 0 0 0-7-7Z" fill="#e8e0c8"/><circle cx="9.3" cy="10.5" r="1.9" fill="#3a2a4a"/><circle cx="14.7" cy="10.5" r="1.9" fill="#3a2a4a"/><path d="M10 18v3M12 18v3M14 18v3" stroke="#e8e0c8" stroke-width="1.4"/>',
+  saddle: '<path d="M3 11c3 0 4-3 9-3s6 3 9 3l-1 4c-3 0-5-1-8-1s-5 1-8 1Z" fill="#a0603a"/><path d="M12 14v6" stroke="#cfcfcf" stroke-width="1.6"/><path d="M10 20h4" stroke="#cfcfcf" stroke-width="1.6"/>',
+  sun: '<circle cx="12" cy="12" r="4.5" fill="#f1c75b"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8" stroke="#f1c75b" stroke-width="1.8" stroke-linecap="round"/>',
+  scale: '<path d="M12 3c5 2 8 6 7 11-1 4-4 7-7 7s-6-3-7-7C4 9 7 5 12 3Z" fill="#e0b456" stroke="#fff0b0" stroke-width=".8"/><path d="M12 6v13M8 10l4 3 4-3" stroke="#8a6420" stroke-width="1" fill="none"/>',
+  foot: '<path d="M12 3v9M12 12l-6 7M12 12l6 7M12 12v8" stroke="#e0a040" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="3.5" r="1.6" fill="#a02030"/>',
+  pearl: '<circle cx="12" cy="13" r="6.5" fill="#2a2a3a" stroke="#8a8aa8" stroke-width="1"/><circle cx="9.8" cy="10.6" r="1.8" fill="#9a9ac0" opacity=".8"/>',
+  bloodcoin: '<circle cx="12" cy="12" r="9" fill="#a02030" stroke="#5a1018" stroke-width="1.5"/><circle cx="12" cy="12" r="5.6" fill="none" stroke="#ffb0b0" stroke-width="1.2"/><path d="M12 8.5c-1.6 2.2-2.4 3.5-2.4 4.6a2.4 2.4 0 0 0 4.8 0c0-1.1-.8-2.4-2.4-4.6Z" fill="#ffb0b0"/>'
 };
 const TRK_ICON = { seal: 'seal', cat: 'potion', purse: 'purse', ledger: 'book', banner: 'banner', trophy: 'trophy', oriole: 'bird', signet: 'ring', medallion: 'medallion',
-  eye: 'eye', decoction: 'potion', whetstone: 'stone', mutagen: 'potion', swallow: 'potion', crown: 'crown', bugle: 'horn' };
+  eye: 'eye', decoction: 'potion', whetstone: 'stone', mutagen: 'potion', swallow: 'potion', crown: 'crown', bugle: 'horn',
+  mistletoe: 'sprig', shield: 'shield', quiver: 'quiver', plans: 'plans', collar: 'collar', note: 'note', razor: 'razor', kettle: 'kettle', cloak: 'cloak',
+  shackles: 'shackles', die: 'die', pipe: 'pipe', bestiary: 'book', saddle: 'saddle', freya: 'sun', amulet: 'skull', scale: 'scale',
+  henfoot: 'foot', pearl: 'pearl', bloodcoin: 'bloodcoin' };
 const svg = (name, cls) => '<svg viewBox="0 0 24 24"' + (cls ? ' class="' + cls + '"' : '') + ' aria-hidden="true">' + (IC[name] || '') + '</svg>';
 const trkIcon = id => svg(TRK_ICON[id] || 'seal');
 /* A potion: the flask in its own colour; the two bombs are round. */
@@ -510,7 +535,7 @@ function howHtml() {
     '<h3>Bosses, challenges and the Hunt</h3><ul><li>Every boss has a <b>second phase</b>. Take a round off it and it strikes back at the start of every round after: the Crones steal your best card, the White Frost freezes a row for good, Emhyr’s edict weakens your strongest row … The act card names it before you set out.</li>' +
     '<li><b>Challenges</b> are chosen before a run — One Life, Weakened, Short Hand and more. Each makes the road harder and your score bigger.</li>' +
     '<li>Once an act, a lost battle can cost a <b>wound</b> instead of a life: your strongest card fights at −' + R.WOUND + ' for the rest of the run.</li>' +
-    '<li><b>Cursed trinkets</b> come only from the Man of Glass: a gift with a price you can read.</li>' +
+    '<li><b>Cursed trinkets</b> come only from the Man of Glass and the Witch’s Hut: a gift with a price you can read.</li>' +
     '<li>In Act III the <b>Wild Hunt</b> follows you. Every stop brings it closer; at ' + R.HUNT + ' it catches you for a fight (' + R.LONG.hunt + ' on the Long Road).</li></ul>' +
     '<h3>The Long Road</h3><ul><li>Chosen on the new-run screen: the same three acts at <b>Slay the Spire’s length</b> — seventeen floors an act (sixteen on a wider map, then the boss). Treasure is always on floor nine and a campfire on floor sixteen; no contracts or campfires in the first five floors.</li>' +
     '<li>The fights <b>grow as you climb</b>: battles after the treasure (and all of Acts II–III) hold an extra card, contracts and bosses more, and bosses play sharper. Take the early battles to build a deck; later, every fight costs more.</li>' +
@@ -559,6 +584,7 @@ function actHtml() {
     '<div class="card" style="max-width:520px;margin:18px auto;text-align:left"><div class="foebox">' + A.card(boss.leader, 'tile') + '<div class="tx"><div class="sect" style="margin:0">Waiting at the end</div><b>' + esc(boss.name) + '</b><div class="dim" style="font-size:14px">' + esc(boss.text) + '</div></div></div>' + phaseLine(boss) + '</div>' +
     (run.long ? '<p class="lede" style="max-width:560px;margin:10px auto">The Long Road: seventeen floors to the boss, and the fights grow harder past the treasure.</p>' : '') +
     (run.act === 3 ? '<p class="lede hunt" style="max-width:560px;margin:10px auto">The Wild Hunt is on your trail. Every floor brings it closer, and every stop — a merchant, a campfire, an encounter, treasure — closer still. At ' + R.huntOf(run) + ' it catches you.</p>' : '') +
+    (run.screen.pipe ? '<p class="dim">Over Zoltan’s Pipe you get a life back.</p>' : '') +
     (run.act > 1 ? '<p class="dim">Your lives: ' + run.lives + ' of ' + run.maxLives + ' · ' + run.crowns + ' crowns · ' + run.deck.length + ' cards</p>' : '') +
     '</div>' + bar('<button class="btn" data-act="leave">Set out</button>');
 }
@@ -622,7 +648,7 @@ function rewardHtml() {
   const e = R.enemyOf(run, s.foe);
   let out = '<div class="wrap scr"><div class="sect">' + (s.kind === 'boss' ? 'The boss is beaten' : s.kind === 'hunt' ? 'The Hunt is driven off' : s.kind === 'elite' ? 'Contract fulfilled' : 'Victory') + '</div><h2>' + esc(e.name) + ' defeated</h2>' +
     '<p class="lede">' + svg('coin').replace('<svg', '<svg style="width:18px;height:18px;vertical-align:-3px"') + ' <b class="gold">+' + s.crowns + ' crowns</b>' + (s.flawless ? ' (with a quarter more for a flawless win)' : '') +
-    (s.healed ? ' · a life back' : '') + '</p>';
+    (s.healed ? ' · a life back' : '') + '</p>' + (s.bonus ? '<p class="result">As promised: ' + esc(s.bonus) + '.</p>' : '');
   if (s.trinket) { const t = R.TRINKET[s.trinket]; out += '<div class="result" style="display:flex;gap:12px;align-items:center"><span style="width:44px;height:44px;flex:none">' + trkIcon(t.id) + '</span><span><b>' + esc(t.name) + '</b> <span class="rar ' + t.rarity + '">' + t.rarity + '</span><br><span class="dim">' + esc(t.text) + '</span></span></div>'; }
   if (s.potion) {
     const pot = '<span class="pot" style="width:44px;height:44px;flex:none">' + potIcon(s.potion) + '</span>';
@@ -671,7 +697,8 @@ function treasureHtml() {
 function shopHtml() {
   const run = S.run, s = run.screen;
   const coin = svg('coin');
-  let out = '<div class="wrap scr"><div class="sect">Merchant</div><h2>A travelling merchant</h2><p class="lede">“Cards from every corner of the Continent. Prices fair. Mostly.”</p><div class="offer">';
+  let out = '<div class="wrap scr"><div class="sect">Merchant</div><h2>A travelling merchant</h2><p class="lede">“Cards from every corner of the Continent. Prices fair. Mostly.”</p>' +
+    (s.interest ? '<p class="dim sans" style="font-size:14px">The Vivaldi Bank honours your note: <b class="gold">+' + s.interest + ' crowns</b>.</p>' : '') + '<div class="offer">';
   s.items.forEach((it, i) => {
     const cant = it.sold || run.crowns < it.price;
     if (it.t === 'potion') { out += '<button class="it pot' + (it.sold ? ' sold' : '') + '" data-act="buy" data-i="' + i + '"' + (it.sold ? ' disabled' : '') + '><span class="ic">' + potIcon(it.id) + '</span><b>' + esc(R.POTION[it.id].name) + '</b><span class="rar ' + R.POTION[it.id].rarity + '">potion</span>' +
@@ -689,17 +716,19 @@ function shopHtml() {
 function campHtml() {
   const run = S.run, s = run.screen;
   const full = run.lives >= run.maxLives;
+  const blood = R.has(run, 'bloodcoin');
   let out = '<div class="wrap scr"><div class="sect">Campfire</div><h2>A quiet fire</h2><p class="lede">Time for one thing before the road.</p>';
   if (!s.done) {
     out += '<div class="opts">' +
-      '<button class="opt" data-act="rest"' + (full ? ' disabled' : '') + '><span class="ic">' + svg('heart') + '</span><span class="lab"><b>Rest</b><small>' + (full ? 'Your lives are full.' : 'Regain a life (' + run.lives + ' → ' + (run.lives + 1) + ').') + '</small></span></button>' +
+      '<button class="opt" data-act="rest"' + (full || blood ? ' disabled' : '') + '><span class="ic">' + svg('heart') + '</span><span class="lab"><b>Rest</b><small>' + (blood ? 'The Coin of Blood: no rest for you.' : full ? 'Your lives are full.' : 'Regain a life (' + run.lives + ' → ' + (run.lives + 1) + ')' + (R.has(run, 'kettle') ? ', and the Camp Kettle hones a random unit.' : '.')) + '</small></span></button>' +
       '<button class="opt" data-act="hone"' + (R.honable(run).length ? '' : ' disabled') + '><span class="ic">' + svg('stone') + '</span><span class="lab"><b>Hone a unit</b><small>+' + (R.has(run, 'whetstone') ? 3 : R.HONE) + ' strength on one card, for the rest of the run (up to +' + R.HONE_MAX + ').</small></span></button>' +
       '<button class="opt" data-act="cull"' + (run.deck.length > R.MIN_DECK ? '' : ' disabled') + '><span class="ic">' + svg('camp') + '</span><span class="lab"><b>Burn a card</b><small>Feed one card to the fire: a thinner deck deals better hands.</small></span></button></div>';
-  } else out += '<p class="result">' + (s.done === 'rest' ? 'You sleep well. A life back.' : s.done === 'hone' ? esc(D.nameOf(s.card)) + ' is honed.' : esc(D.nameOf(s.card)) + ' burns.') + '</p>';
+  } else out += '<p class="result">' + (s.done === 'rest' ? 'You sleep well. A life back.' + (s.kettle ? ' Over the kettle, ' + esc(D.nameOf(s.kettle)) + ' is honed.' : '') : s.done === 'hone' ? esc(D.nameOf(s.card)) + ' is honed.' : esc(D.nameOf(s.card)) + ' burns.') + '</p>';
   out += '</div>';
   return out + (s.done ? bar('<button class="btn" data-act="leave">Back to the map</button>') : '');
 }
 /* ---------------- encounters ---------------- */
+const subOf = o => typeof o.sub === 'function' ? o.sub(S.run) : o.sub;
 function eventHtml() {
   const run = S.run, s = run.screen;
   const ev = R.EVENT[s.ev];
@@ -707,7 +736,7 @@ function eventHtml() {
   if (!s.result) {
     out += '<div class="opts">' + ev.options.map((o, i) => {
       const why = o.need ? o.need(run) : null;
-      return '<button class="opt" data-act="evopt" data-i="' + i + '"' + (why ? ' disabled' : '') + '><span class="lab"><b>' + esc(o.label) + '</b>' + (o.sub ? '<small>' + esc(o.sub) + '</small>' : '') + (why ? '<span class="why">' + esc(why) + '</span>' : '') + '</span></button>';
+      return '<button class="opt" data-act="evopt" data-i="' + i + '"' + (why ? ' disabled' : '') + '><span class="lab"><b>' + esc(o.label) + '</b>' + (subOf(o) ? '<small>' + esc(subOf(o)) + '</small>' : '') + (why ? '<span class="why">' + esc(why) + '</span>' : '') + '</span></button>';
     }).join('') + '</div>';
   } else out += '<p class="result">' + esc(s.result) + '</p>';
   out += '</div>';
@@ -965,6 +994,15 @@ function prepHtml() {
     '<p class="dim sans" style="font-size:13px">Keep them for a harder fight if you like: they wait on your belt.</p></div>' +
     bar('<button class="btn" data-act="fight">' + (P.length ? 'Drink ' + (P.length > 1 ? P.length + ' potions' : 'it') + ' and fight' : 'Fight without one') + '</button>');
 }
+/* How the round ends if you pass now with these totals: 1 yours, 0 a draw,
+   −1 theirs. A drawn round goes to whoever alone has Nilfgaard or a
+   tie-winning trinket (the Ducal Seal), as gw-engine endRound decides it. */
+function roundIfPass(pub, can) {
+  if (can.mine !== can.theirs) return can.mine > can.theirs ? 1 : -1;
+  const tieTo = p => p.fac === 'ng' || !!(p.mods && p.mods.tieWin);
+  const me = tieTo(pub.players[0]), them = tieTo(pub.players[1]);
+  return me && !them ? 1 : them && !me ? -1 : 0;
+}
 function battleHtml() {
   if (S.run.screen.prep) return prepHtml();
   if (!S.g) startBattle();
@@ -986,6 +1024,7 @@ function battleHtml() {
     const wx = pub.board.wx[r];
     const locked = pub.board.locks && pub.board.locks[r];
     const minus = pub.board.minus ? pub.board.minus[s][r] : 0;
+    const plus = pub.board.plus ? pub.board.plus[s][r] : 0;
     const burn = g.hold && g.hold.k === 'scorch' ? new Set(g.hold.victims.map(v => v.uid)) : new Set();
     const pl = k != null ? sel.plays[k] : null;
     return '<div class="row' + (wx ? ' wx' + r : '') + (k != null ? ' can' : '') + '"' + (k != null ? ' data-act="playk" data-k="' + k + '"' : '') + '>' +
@@ -994,7 +1033,8 @@ function battleHtml() {
       '<div class="cards">' + (row.units.length ? row.units.map(u => '<' + (k != null && tgt[u.uid] == null ? 'span' : 'button') + ' class="u' + (S.fresh.has(u.uid) ? ' fresh' : '') + (burn.has(u.uid) ? ' burning' : '') + (tgt[u.uid] != null ? ' tgt' : '') + '"' +
         (tgt[u.uid] != null ? ' data-act="playk" data-k="' + tgt[u.uid] + '"' : k != null ? '' : ' data-act="zoomu" data-id="' + u.id + '" data-up="' + (u.up || 0) + '"') + '>' +
         A.card({ id: u.id, k: u.k }, 'tile', { v: u.v }) + (k != null && tgt[u.uid] == null ? '</span>' : '</button>')).join('') : '<span class="empty">' + D.ROW_SHORT[r] + '</span>') + '</div>' +
-      ((wx || minus) ? '<span class="wxtag' + (minus && !wx ? ' minus' : '') + '">' + (wx ? A.icon(['frost', 'fog', 'rain'][r], 12) + (locked ? ' White Frost' : ' weather') : '') + (wx && minus ? ' · ' : '') + (minus ? '−' + minus + ' to every unit' : '') + '</span>' : '') +
+      ((wx || minus || plus) ? '<span class="wxtag' + (minus && !wx ? ' minus' : plus && !wx ? ' plus' : '') + '">' + (wx ? A.icon(['frost', 'fog', 'rain'][r], 12) + (locked ? ' White Frost' : ' weather') : '') + (wx && (minus || plus) ? ' · ' : '') +
+        [minus ? '−' + minus : '', plus ? '+' + plus : ''].filter(Boolean).join(' ') + (minus || plus ? ' to every unit' : '') + '</span>' : '') +
       (pl ? '<span class="rdelta">' + deltaHtml(pl.delta) + '</span>' : '') + '</div>';
   };
   const mePub = pub.players[0], foePub = pub.players[1];
@@ -1030,8 +1070,9 @@ function battleHtml() {
   const u = canUndo();
   let acts = '';
   if (myTurn) {
-    const losing = can.mine <= can.theirs;
-    const passLab = can.oppPassed ? (can.mine > can.theirs ? 'Pass — and win the round' : 'Pass — and lose the round') : 'Pass';
+    const out = roundIfPass(pub, can);
+    const losing = out <= 0;
+    const passLab = can.oppPassed ? (out > 0 ? 'Pass — and win the round' : out === 0 ? 'Pass — a draw: you both lose a gem' : 'Pass — and lose the round') : 'Pass';
     acts = '<button class="btn' + (losing && can.hand.length && can.oppPassed ? ' warn' : '') + '" data-act="pass">' + (S.passArm ? 'Tap again to pass' : passLab) + '</button>';
   } else acts = '<button class="btn ghost" disabled>' + (g.phase === 'over' ? 'The battle is over' : pr ? 'Answer the question' : esc(poss(g.seat(FOE).name)) + ' move') + '</button>';
   if (u) acts += '<button class="btn ghost" data-act="undo">Take back</button>';
@@ -1073,6 +1114,7 @@ function afterBattlePaint() {
       (lr.ok ? '<div class="plays"><button class="opt" data-act="useleader"><span class="lab"><b>Use it now</b><small>' + (lr.delta ? '' : 'Once a battle.') + '</small></span><span class="val">' + deltaHtml(lr.delta) + '</span></button></div>' : '<div class="why">' + esc(lr.why) + '</div>') +
       '<div style="margin-top:8px"><button class="btn ghost" data-act="unsel">Back</button></div></div></div>';
     sh.classList.remove('hide');
+    fitSheet(sh);
     return;
   }
   if (!sel) { sh.classList.add('hide'); return; }
@@ -1086,6 +1128,21 @@ function afterBattlePaint() {
     (sel.ok && d.kind === 'unit' && sel.plays.length > 1 ? '<div class="dim sans" style="font-size:12px;margin-bottom:4px">Tap a glowing row, or:</div>' : '') + plays +
     '<div style="margin-top:8px"><button class="btn ghost" data-act="unsel">Back to your hand</button></div></div></div>';
   sh.classList.remove('hide');
+  fitSheet(sh);
+}
+/* The sheet scrolls rather than run off the screen, and ends above the hand
+   when it sits over it (phones): a long Decoy list must not reach the cards
+   the finger just left (touch ghost clicks). */
+function fitSheet(sh) {
+  const inner = sh.querySelector('.in');
+  if (!inner) return;
+  const top = inner.getBoundingClientRect().top;
+  const hnd = document.querySelector('#bt .hnd');
+  const r = hnd && hnd.getBoundingClientRect();
+  const sr = sh.getBoundingClientRect();
+  const over = r && r.height && r.left < sr.right && r.right > sr.left && r.top > top;
+  const bottom = Math.min(window.innerHeight, over ? r.top : window.innerHeight) - 10;
+  inner.style.maxHeight = Math.max(180, Math.round(bottom - top)) + 'px';
 }
 /* A question inside a battle: the redraw, a medic's pick, a leader's choice. */
 function questionModal(pr) {
@@ -1185,7 +1242,7 @@ document.addEventListener('click', ev => {
       const ev = R.EVENT[run.screen.ev], o = ev.options[i];
       if (o.pick) {
         const can = o.pick === 'hone' ? (c => D.card(c.id).kind === 'unit' && (c.up || 0) < R.HONE_MAX) : null;
-        openPicker({ title: o.label, sub: o.sub, go: 'Choose', can, then: rid => R.choose(run, i, rid) });
+        openPicker({ title: o.label, sub: subOf(o), go: 'Choose', can, then: rid => R.choose(run, i, rid) });
         return;
       }
       const r = R.choose(run, i);
@@ -1221,7 +1278,7 @@ document.addEventListener('click', ev => {
     }
     case 'pass': {
       const sv = S.g.seatView(YOU), c = sv.can;
-      const risky = c && c.hand.length && (c.oppPassed ? c.mine <= c.theirs : c.mine < c.theirs && S.g.round > 0);
+      const risky = c && c.hand.length && (c.oppPassed ? roundIfPass(S.g.publicView(), c) <= 0 : c.mine < c.theirs && S.g.round > 0);
       if (risky && !S.passArm) { S.passArm = true; paint(); return; }
       act({ t: 'pass' }); return;
     }

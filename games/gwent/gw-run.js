@@ -224,11 +224,35 @@
     { id: 'swallow', name: 'Swallow', rarity: 'rare', mods: { roundDraw: 1 }, text: 'Draw a card at the start of the second and third rounds.' },
     { id: 'crown', name: 'Crown of the Leader', rarity: 'rare', mods: { leaderUses: 2 }, text: 'Your leader’s ability can be used twice a battle.' },
     { id: 'bugle', name: 'Commander’s Bugle', rarity: 'rare', mods: { start: ['sp_horn'] }, text: 'Begin every battle with an extra Commander’s Horn in hand.' },
+    /* The second set (2026-10-18). Row bonuses (plusRows), choosing who
+       begins (leads) and a revival each round (roundRevive) are engine hooks
+       added for them; `run` ones are read where the run does that thing. */
+    { id: 'mistletoe', name: 'Druid’s Mistletoe', rarity: 'common', mods: { start: ['sp_clear'] }, text: 'Begin every battle with an extra Clear Weather in hand.' },
+    { id: 'shield', name: 'Mahakaman Shield', rarity: 'common', mods: { plusRows: [1, 0, 0] }, text: 'Your Close Combat units fight at +1 (heroes excepted).' },
+    { id: 'quiver', name: 'Zerrikanian Quiver', rarity: 'common', mods: { plusRows: [0, 1, 0] }, text: 'Your Ranged units fight at +1 (heroes excepted).' },
+    { id: 'plans', name: 'Siege Engineer’s Plans', rarity: 'common', mods: { plusRows: [0, 0, 1] }, text: 'Your Siege units fight at +1 (heroes excepted).' },
+    { id: 'collar', name: 'Black Cat’s Collar', rarity: 'common', foe: { redraws: -1 }, text: 'Your opponent may redraw one card fewer before each battle.' },
+    { id: 'note', name: 'Vivaldi Promissory Note', rarity: 'common', run: 'note', text: '50 crowns now, and 15 more every time you meet a merchant.' },
+    { id: 'razor', name: 'Barber’s Razor', rarity: 'common', run: 'razor', text: 'Removing a card at a merchant always costs 25 crowns.' },
+    { id: 'kettle', name: 'Camp Kettle', rarity: 'common', run: 'kettle', text: 'Resting at a campfire also hones a random unit.' },
+    { id: 'cloak', name: 'Wolven Cloak', rarity: 'common', run: 'cloak', text: 'In Act III, stopping no longer brings the Wild Hunt closer — only the floors do.' },
+    { id: 'shackles', name: 'Dimeritium Shackles', rarity: 'uncommon', foe: { noLeader: true }, text: 'Your opponent’s leader is silent: no ability, and no passive.' },
+    { id: 'die', name: 'Gambler’s Die', rarity: 'uncommon', mods: { leads: true }, text: 'You choose who begins every round, as the Scoia’tael do (against them, nobody chooses).' },
+    { id: 'pipe', name: 'Zoltan’s Pipe', rarity: 'uncommon', run: 'pipe', text: 'Regain a life at the start of every act.' },
+    { id: 'bestiary', name: 'Witcher’s Bestiary', rarity: 'uncommon', run: 'bestiary', text: 'Contracts and the Wild Hunt pay twice the crowns, and offer one card more.' },
+    { id: 'saddle', name: 'Ofieri Saddle', rarity: 'uncommon', run: 'saddle', text: 'One card in every card reward is a rarity better.' },
+    { id: 'freya', name: 'Freya’s Blessing', rarity: 'rare', mods: { plusRows: [1, 1, 1] }, text: 'Every unit of yours fights at +1 (heroes excepted).' },
+    { id: 'amulet', name: 'Necromancer’s Amulet', rarity: 'rare', mods: { roundRevive: 1 }, text: 'At the start of the second and third rounds, a random unit from your discard pile returns to your hand.' },
+    { id: 'scale', name: 'Golden Dragon Scale', rarity: 'rare', mods: { start: ['sp_scorch'] }, text: 'Begin every battle with a Scorch in hand.' },
     /* Cursed: a gift and a price. Only the Man of Glass's Wares offer them. */
     { id: 'mirror', name: 'Gaunter’s Mirror', rarity: 'cursed', mods: { hand: 2 }, foe: { hand: 1 }, text: 'You are dealt two extra cards — and your opponent one.' },
     { id: 'unstable', name: 'Unstable Mutagen', rarity: 'cursed', mods: { hand: 1, minusRows: [0, 0, 1] }, text: 'You are dealt an extra card, but your Siege units fight at −1.' },
     { id: 'bloodied', name: 'Bloodied Banner', rarity: 'cursed', mods: { winDraw: 1 }, foe: { tieWin: true }, text: 'Draw a card every time you win a round — but your opponent wins every drawn round.' },
-    { id: 'cursedpurse', name: 'Cursed Purse', rarity: 'cursed', run: 'cursedpurse', text: '150 crowns now — and a Cow joins your deck at the start of every act.' }
+    { id: 'cursedpurse', name: 'Cursed Purse', rarity: 'cursed', run: 'cursedpurse', text: '150 crowns now — and a Cow joins your deck at the start of every act.' },
+    /* Cursed, the second set: only the Witch's Hut offers them. */
+    { id: 'henfoot', name: 'Hen’s Foot Charm', rarity: 'cursed', mods: { gems: 3 }, foe: { hand: 2 }, text: 'Three gems in every battle — but your opponent is dealt two extra cards.' },
+    { id: 'pearl', name: 'Black Pearl', rarity: 'cursed', mods: { start: ['sp_scorch', 'sp_horn'], hand: -3 }, text: 'Begin every battle with a Scorch and a Commander’s Horn in hand — but you are dealt three cards fewer.' },
+    { id: 'bloodcoin', name: 'Coin of Blood', rarity: 'cursed', run: 'bloodcoin', text: 'Twice the crowns from every battle — but a campfire no longer lets you rest.' }
   ];
   const TRINKET = {};
   TRINKETS.forEach(t => { TRINKET[t.id] = t; });
@@ -256,7 +280,7 @@
   const has = (run, id) => run.trinkets.indexOf(id) >= 0;
   /* Every battle trinket summed into one `mods` for the engine. */
   function playerMods(run) {
-    const m = { hand: 0, redraws: 0, winDraw: 0, spyDraw: 0, roundDraw: 0, leaderUses: 1, start: [], weak: 0, minusRows: [0, 0, 0], noLeader: false };
+    const m = { hand: 0, redraws: 0, winDraw: 0, spyDraw: 0, roundDraw: 0, leaderUses: 1, start: [], weak: 0, minusRows: [0, 0, 0], plusRows: [0, 0, 0], noLeader: false };
     for (const id of run.trinkets) addMods(m, TRINKET[id] && TRINKET[id].mods);
     if (on(run, 'weak')) m.weak += 1;
     if (on(run, 'short')) m.hand -= 1;
@@ -268,7 +292,7 @@
     for (const k of Object.keys(add)) {
       const v = add[k];
       if (k === 'start') m.start = (m.start || []).concat(v);
-      else if (k === 'minusRows') m.minusRows = [0, 1, 2].map(r => ((m.minusRows || [])[r] || 0) + (v[r] || 0));
+      else if (k === 'minusRows' || k === 'plusRows') m[k] = [0, 1, 2].map(r => ((m[k] || [])[r] || 0) + (v[r] || 0));
       else if (k === 'leaderUses') m.leaderUses = Math.max(m.leaderUses || 1, v);
       else if (typeof v === 'boolean' || typeof v === 'string') m[k] = v || m[k];
       else m[k] = (m[k] || 0) + v;
@@ -502,6 +526,188 @@
   EVENTS.push({ id: 'wares', title: 'The Man of Glass’s Wares', acts: [1, 2, 3],
     text: 'Gaunter O’Dimm has a cloth spread on a milestone, and on it four curiosities. Each, he says, is a gift. Each, he does not say, has a price.',
     options: ['mirror', 'unstable', 'bloodied', 'cursedpurse'].map(cursedOpt).concat([{ label: 'Walk on', go: () => 'You keep your hands in your pockets.' }]) });
+  /* ---------------- the second set of encounters (2026-10-18) ----------------
+     `when`: offered only if it holds for the run; `long`: the Long Road only.
+     A fight may carry a `bonus` paid on a win (battleDone): crowns, a named
+     card, a card of a rarity, or the Wild Hunt thrown off your trail. */
+  const cowsOf = run => run.deck.filter(c => c.id === CURSE);
+  const room = (run, id) => countOf(run, id) < capOf(id);
+  const UP = { common: 'uncommon', uncommon: 'rare', rare: 'rare', legendary: 'legendary' };
+  const gain = (run, n) => { run.crowns += n; run.stats.crowns += n; };
+  const newest = run => run.trinkets[run.trinkets.length - 1];
+  EVENTS.push(
+    { id: 'passiflora', title: 'Gwent at the Passiflora', acts: [2, 3],
+      text: 'Novigrad’s finest house of ill repute is holding a gwent tournament. The purse is real; so are the players.',
+      options: [
+        { label: 'Enter the tournament (30 crowns)', sub: 'A contract-strength battle. Win for 80 crowns on top of the usual spoils.', need: run => run.crowns >= 30 ? null : 'Not enough crowns.',
+          go: run => { run.crowns -= 30; return { fight: 'elite', bonus: { crowns: 80 } }; } },
+        { label: 'Watch the final from the bar (15 crowns)', sub: 'Learn from the best: hone a unit of your choice.', pick: 'hone', need: run => run.crowns < 15 ? 'Not enough crowns.' : honable(run).length ? null : 'Nothing left to hone.',
+          go: (run, c) => { run.crowns -= 15; hone(run, c.rid); return 'You steal a trick from the champion. ' + D.nameOf(c.id) + ' is sharper.'; } },
+        { label: 'Leave', go: () => 'You leave them to it.' }
+      ] },
+    { id: 'forge', title: 'Hattori’s Forge', acts: [2, 3],
+      text: 'An elven smith in the Elven quarter who once made blades for the Scoia’tael. He will work on anything, he says — even cards.',
+      options: [
+        { label: 'Reforge a unit (50 crowns)', sub: 'Hone one unit twice.', pick: 'hone', need: run => run.crowns < 50 ? 'Not enough crowns.' : honable(run).length ? null : 'Nothing left to hone.',
+          go: (run, c) => { run.crowns -= 50; hone(run, c.rid); hone(run, c.rid); return D.nameOf(c.id) + ' comes back from the anvil much the better.'; } },
+        { label: 'Melt a card down', sub: 'Remove a card of your choice and take 25 crowns.', pick: 'remove', need: run => run.deck.length <= MIN_DECK ? 'Your deck is as thin as it can be.' : null,
+          go: (run, c) => { removeCard(run, c.rid); gain(run, 25); return D.nameOf(c.id) + ' goes into the crucible. 25 crowns.'; } },
+        { label: 'Leave', go: () => 'The hammer starts again before you are out of the door.' }
+      ] },
+    { id: 'trial', title: 'The Trial of the Grasses', acts: [1, 2],
+      text: 'The old laboratory at Kaer Morhen still works. The mutagens are stronger than you are — or so say the notes in the margin.',
+      options: [
+        { label: 'Undergo the trial', sub: 'One life fewer, for good: three random units are honed.', need: run => run.maxLives <= 1 || run.lives <= 1 ? 'You would not survive it.' : honable(run).length ? null : 'Nothing to hone.',
+          go: run => { run.maxLives--; run.lives = Math.min(run.lives - 1, run.maxLives); const list = shuffled(run, honable(run)).slice(0, 3); list.forEach(c => hone(run, c.rid)); return 'You wake days later, changed. ' + list.map(c => D.nameOf(c.id)).join(', ') + ' are stronger.'; } },
+        { label: 'Drink a weaker draught (25 crowns)', sub: 'Hone a unit of your choice.', pick: 'hone', need: run => run.crowns < 25 ? 'Not enough crowns.' : honable(run).length ? null : 'Nothing left to hone.',
+          go: (run, c) => { run.crowns -= 25; hone(run, c.rid); return 'It burns going down. ' + D.nameOf(c.id) + ' is sharper.'; } },
+        { label: 'Leave', go: () => 'Some doors are better left shut.' }
+      ] },
+    { id: 'scribe', title: 'An Oxenfurt Scribe', acts: [1, 2, 3],
+      text: 'A student copyist, behind on his rent, offers to “improve” your deck with a steady hand and a loose conscience.',
+      options: [
+        { label: 'Have a card recopied', sub: 'A card of your choice becomes a random card of the same rarity.', pick: 'any', need: run => run.deck.length ? null : 'Nothing to copy.',
+          go: (run, c) => { const r = rarityOf(c.id); removeCard(run, c.rid, true); const id = randomCard(run, r, [c.id]); addCard(run, id); return D.nameOf(c.id) + ' comes back as ' + D.nameOf(id) + '. Nobody will know.'; } },
+        { label: 'Sell him your Cows', sub: '15 crowns for every Cow, and they leave your deck.', need: run => cowsOf(run).length ? null : 'You have no Cows.',
+          go: run => { const cows = cowsOf(run); cows.forEach(c => removeCard(run, c.rid, true)); gain(run, 15 * cows.length); return 'He has a cousin with a farm. ' + (15 * cows.length) + ' crowns.'; } },
+        { label: 'Leave', go: () => 'He goes back to his ledger, and his rent.' }
+      ] },
+    { id: 'zoltan', title: 'Zoltan Chivay’s Table', acts: [1, 2],
+      text: 'A dwarf with a parrot, a pipe and a firm opinion on everything. He is between jobs, and between drinks.',
+      options: [
+        { label: 'Hire him (35 crowns)', sub: 'Zoltan Chivay (5, Close) joins your deck.', need: run => run.crowns < 35 ? 'Not enough crowns.' : room(run, 'zoltan_chivay') ? null : 'He is already with you.',
+          go: run => { run.crowns -= 35; addCard(run, 'zoltan_chivay'); return '“Right. Who are we hitting?”'; } },
+        { label: 'Drink with him (20 crowns)', sub: 'Regain a life.', need: run => run.crowns < 20 ? 'Not enough crowns.' : lifeFull(run) ? 'Your lives are full.' : null,
+          go: run => { run.crowns -= 20; run.lives++; return 'Mahakam spirit. You feel immortal, and a little of it lasts.'; } },
+        { label: 'Leave', go: () => 'The parrot says something rude as you go.' }
+      ] },
+    { id: 'regis', title: 'A Barber-Surgeon at Midnight', acts: [2, 3],
+      text: 'His shop is open at an hour when no barber’s should be, and he never seems to eat. He offers one kindness — only one.',
+      options: [
+        { label: 'Let him tend you', sub: 'Regain all your lives.', need: run => lifeFull(run) ? 'Your lives are full.' : null, go: run => { run.lives = run.maxLives; return 'Mandrake, and a steady hand. You are whole again.'; } },
+        { label: 'Let him operate', sub: 'Remove a card of your choice.', pick: 'remove', need: run => run.deck.length <= MIN_DECK ? 'Your deck is as thin as it can be.' : null,
+          go: (run, c) => { removeCard(run, c.rid); return 'A clean cut. ' + D.nameOf(c.id) + ' is gone.'; } },
+        { label: 'Ask him to come along', sub: 'Emiel Regis (5, Close) joins your deck.', need: run => room(run, 'emiel_regis_rohellec_terzieff') ? null : 'He is already with you.',
+          go: run => { addCard(run, 'emiel_regis_rohellec_terzieff'); return '“Why not? The nights are long, and I am curious.”'; } }
+      ] },
+    { id: 'olgierd', title: 'Olgierd’s Wager', acts: [2, 3],
+      text: 'Olgierd von Everec, sabre at his hip and a rose in his lapel, is bored. “A game, then. Win, and I ride with you.”',
+      options: [
+        { label: 'Accept the wager', sub: 'A contract-strength battle. Win and Olgierd von Everec (6, Morale Boost) joins you too.', need: run => room(run, 'olgierd_von_everec') ? null : 'He is already with you.',
+          go: () => ({ fight: 'elite', bonus: { card: 'olgierd_von_everec' } }) },
+        { label: 'Buy his finest card (70 crowns)', sub: 'A random rare card.', need: run => run.crowns >= 70 ? null : 'Not enough crowns.',
+          go: run => { run.crowns -= 70; const id = randomCard(run, 'rare'); addCard(run, id); return '“Take it. I have more than I can lose.” ' + D.nameOf(id) + ' joins your deck.'; } },
+        { label: 'Decline', go: () => '“Pity.” He is already looking for someone else.' }
+      ] },
+    { id: 'triss', title: 'A Sorceress in Hiding', acts: [2],
+      text: 'Witch hunters are searching the docks. In a fishmonger’s cellar, a red-haired sorceress asks you not to have seen her.',
+      options: [
+        { label: 'Smuggle her out (40 crowns)', sub: 'Triss Merigold (7, hero) joins your deck.', need: run => run.crowns < 40 ? 'Not enough crowns.' : room(run, 'triss_merigold') ? null : 'She is already with you.',
+          go: run => { run.crowns -= 40; addCard(run, 'triss_merigold'); return 'A boat at midnight, and a sorceress in your debt.'; } },
+        { label: 'Turn her in', sub: '90 crowns — and your conscience: a Cow joins your deck.', go: run => { gain(run, 90); addCard(run, CURSE); return 'The reward is generous. The Cow follows you out.'; } },
+        { label: 'Walk past', go: () => 'You saw nothing.' }
+      ] },
+    { id: 'avallach', title: 'The Mysterious Elf', acts: [3],
+      text: 'An elf in a white hood steps out of the air, says he knows the way, and steps back into it.',
+      options: [
+        { label: 'Follow him through the portal', sub: 'Lose a life: ' + D.nameOf('mysterious_elf') + ' (Spy, hero) joins your deck.', need: run => run.lives <= 1 ? 'You would not survive the crossing.' : room(run, 'mysterious_elf') ? null : 'He is already with you.',
+          go: run => { run.lives--; addCard(run, 'mysterious_elf'); return 'The world folds. He is waiting on the other side.'; } },
+        { label: 'Ask what he knows', sub: 'He leads the Wild Hunt astray: it falls four behind.', go: run => { run.hunt = Math.max(0, (run.hunt || 0) - 4); return '“They are fast. I am faster.”'; } },
+        { label: 'Let him go', go: () => 'The air closes behind him.' }
+      ] },
+    { id: 'dragon', title: 'The Golden Dragon', acts: [2, 3],
+      text: 'A knight called Borch Three Jackdaws shares your fire, then admits he is a dragon. He needs someone to guard what he loves, and offers himself in trade.',
+      options: [
+        { label: 'Leave your strongest unit to guard his eggs', sub: 'Your strongest unit leaves your deck; Villentretenmerth (7, Scorch) joins it.',
+          need: run => !room(run, 'villentretenmerth') ? 'He is already with you.' : woundable(run) ? null : 'You have no unit to leave.',
+          go: run => { const c = woundable(run); removeCard(run, c.rid, true); addCard(run, 'villentretenmerth'); return D.nameOf(c.id) + ' stays behind. A dragon rides with you.'; } },
+        { label: 'Ask for his gold', sub: '45 crowns.', go: run => { gain(run, 45); return 'Dragons are generous with what they have hoarded.'; } },
+        { label: 'Wish him well', go: () => 'He bows, and is gone before dawn.' }
+      ] },
+    { id: 'bovine', title: 'The Bovine Defense Force', acts: [1, 2, 3], when: run => cowsOf(run).length > 0,
+      text: 'A village militia drills with farm animals. Their sergeant eyes your Cow with professional interest.',
+      options: [
+        { label: 'Enlist your Cow', sub: 'A Cow leaves your deck; the Bovine Defense Force (8, Close) joins it.', need: run => !cowsOf(run).length ? 'You have no Cow.' : room(run, 'bovine_defense_force') ? null : 'They are already with you.',
+          go: run => { removeCard(run, cowsOf(run)[0].rid, true); addCard(run, 'bovine_defense_force'); return 'Your Cow is a soldier now. The regiment marches with you.'; } },
+        { label: 'Sell them a Cow (25 crowns)', need: run => cowsOf(run).length ? null : 'You have no Cow.',
+          go: run => { removeCard(run, cowsOf(run)[0].rid, true); gain(run, 25); return 'Conscripted. 25 crowns.'; } },
+        { label: 'Keep your Cow', go: () => 'She was not cut out for the army anyway.' }
+      ] },
+    { id: 'fence', title: 'A Fence in Oxenfurt', acts: [2, 3], when: run => run.trinkets.length > 0,
+      text: 'Behind a bookbinder’s, a man who asks no questions buys trinkets — even the ones that bite.',
+      options: [
+        { label: 'Sell your newest trinket', sub: run => { const t = TRINKET[newest(run)]; return t ? t.name + ': ' + (t.rarity === 'cursed' ? 'he takes it off your hands for nothing.' : Math.round(TRINKET_PRICE[t.rarity] / 2) + ' crowns.') : ''; },
+          need: run => run.trinkets.length ? null : 'You carry no trinkets.',
+          go: run => { const id = newest(run), t = TRINKET[id]; dropTrinket(run, id); if (t.rarity !== 'cursed') gain(run, Math.round(TRINKET_PRICE[t.rarity] / 2)); return t.name + (t.rarity === 'cursed' ? ' is his problem now.' : ' is sold.'); } },
+        { label: 'Trade it up', sub: run => { const t = TRINKET[newest(run)]; return t ? t.name + ' for a random trinket ' + (t.rarity === 'cursed' ? '(a common one).' : 'a rarity better.') : ''; },
+          need: run => { const t = TRINKET[newest(run)]; return !t ? 'You carry no trinkets.' : randomTrinket(run, [t.rarity === 'cursed' ? 'common' : UP[t.rarity]]) ? null : 'He has nothing better.'; },
+          go: run => { const id = newest(run), t = TRINKET[id]; const got = randomTrinket(run, [t.rarity === 'cursed' ? 'common' : UP[t.rarity]]); dropTrinket(run, id); run.trinkets.push(got); applyTrinket(run, got); return t.name + ' for ' + TRINKET[got].name + '.'; } },
+        { label: 'Leave', go: () => 'He goes back to his bookbinding.' }
+      ] },
+    { id: 'hillock', title: 'The Whispering Hillock', acts: [1],
+      text: 'A spirit bound under an old oak whispers promises. Free it, it says, and it will reward you. The orphans of Crookback Bog say otherwise.',
+      options: [
+        { label: 'Free the spirit', sub: 'A random uncommon trinket — and two Cows join your deck (the village pays).',
+          go: run => { const t = randomTrinket(run, ['uncommon']); addCard(run, CURSE); addCard(run, CURSE); if (t) { run.trinkets.push(t); applyTrinket(run, t); return 'It keeps its word: ' + TRINKET[t].name + '. Somewhere a village loses its cattle.'; } gain(run, 60); return 'It keeps its word: 60 crowns. Somewhere a village loses its cattle.'; } },
+        { label: 'Destroy it', sub: 'Regain a life, and remove a card of your choice.', pick: 'remove', need: run => run.deck.length <= MIN_DECK ? 'Your deck is as thin as it can be.' : null,
+          go: (run, c) => { removeCard(run, c.rid); if (!lifeFull(run)) run.lives++; return 'The oak burns, and ' + D.nameOf(c.id) + ' with it. The air is lighter.'; } },
+        { label: 'Leave', go: () => 'The whispering follows you a long way.' }
+      ] },
+    { id: 'wedding', title: 'A Wedding in Vegelbud', acts: [2, 3],
+      text: 'A Toussaint wedding at full gallop: music, wine, a table of gifts, and nobody watching the table.',
+      options: [
+        { label: 'Dance', sub: 'Regain a life.', need: run => lifeFull(run) ? 'Your lives are full.' : null, go: run => { run.lives++; return 'You dance until dawn, and wake the better for it.'; } },
+        { label: 'Give the couple a gift (40 crowns)', sub: 'They give one back: a random common trinket.', need: run => run.crowns < 40 ? 'Not enough crowns.' : randomTrinket(run, ['common']) ? null : 'You have every common trinket.',
+          go: run => { run.crowns -= 40; const t = randomTrinket(run, ['common']); run.trinkets.push(t); applyTrinket(run, t); return 'The bride presses ' + TRINKET[t].name + ' into your hand.'; } },
+        { label: 'Pocket the gifts', sub: '70 crowns now — and then the guards: a battle.', go: run => { gain(run, 70); return { fight: 'battle' }; } }
+      ] },
+    { id: 'pyres', title: 'The Witch Hunters’ Pyres', acts: [2],
+      text: 'In the square a pyre is stacked and a mage is tied to the stake. The hunters’ captain shuffles a deck while he waits for a torch.',
+      options: [
+        { label: 'Challenge the captain', sub: 'A contract-strength battle. Win and the mage you save adds a random rare card to your deck.', go: () => ({ fight: 'elite', bonus: { rarity: 'rare' } }) },
+        { label: 'Bribe the guards (50 crowns)', sub: 'The mage slips away, and leaves you a random uncommon card.', need: run => run.crowns >= 50 ? null : 'Not enough crowns.',
+          go: run => { run.crowns -= 50; const id = randomCard(run, 'uncommon'); addCard(run, id); return 'A grateful note, and ' + D.nameOf(id) + '.'; } },
+        { label: 'Look away', go: () => 'You hear the crowd behind you for a long time.' }
+      ] },
+    { id: 'scouts', title: 'Wild Hunt Scouts', acts: [3],
+      text: 'Three riders in skull helms are watering their horses. They have not seen you yet.',
+      options: [
+        { label: 'Ambush them', sub: 'A battle. Win and the Hunt loses your trail entirely.', go: () => ({ fight: 'battle', bonus: { hunt: true } }) },
+        { label: 'Hide and rest', sub: 'Regain a life — but the Hunt comes three closer.', need: run => lifeFull(run) ? 'Your lives are full.' : null,
+          go: run => { run.lives++; run.hunt = (run.hunt || 0) + 3; return 'You rest in the cold. When you rise, the hoofbeats are nearer.'; } },
+        { label: 'Slip away', go: () => 'You lead your horse off by the bridle, quietly.' }
+      ] },
+    { id: 'noonwraith', title: 'The Noonwraith of the Well', acts: [1],
+      text: 'At midday a woman in a burial dress rises from a dry well, weeping. The villagers say her dowry is still down there.',
+      options: [
+        { label: 'Burn her remains', sub: 'A battle. Win for 30 crowns more.', go: () => ({ fight: 'battle', bonus: { crowns: 30 } }) },
+        { label: 'Climb down for the dowry', sub: 'Half the time 60 crowns; half the time she catches you and you lose a life.', need: run => run.lives > 1 ? null : 'Too dangerous with one life left.',
+          go: run => { if (rnd(run) < 0.5) { gain(run, 60); return 'Silver in a rotted chest: 60 crowns.'; } run.lives--; return 'Cold hands find you in the dark. You lose a life getting out.'; } },
+        { label: 'Leave', go: () => 'You draw water elsewhere.' }
+      ] },
+    { id: 'herbalist', title: 'A Herbalist’s Garden', acts: [1, 2, 3], long: true,
+      text: 'An old herbalist sells what she grows and gives away what she cannot sell.',
+      options: [
+        { label: 'Ask what she can spare', sub: 'A random potion.', need: run => !run.potions ? 'Potions are for the Long Road.' : beltFull(run) ? 'Your belt is full.' : null,
+          go: run => { const p = randomPotion(run); run.potions.push(p); return 'She hands you ' + POTION[p].name + '.'; } },
+        { label: 'Buy a bundle (45 crowns)', sub: 'Two random potions (as many as your belt holds).', need: run => !run.potions ? 'Potions are for the Long Road.' : run.crowns < 45 ? 'Not enough crowns.' : beltFull(run) ? 'Your belt is full.' : null,
+          go: run => { run.crowns -= 45; const got = []; for (let k = 0; k < 2 && !beltFull(run); k++) { const p = randomPotion(run); run.potions.push(p); got.push(POTION[p].name); } return 'Wrapped in paper: ' + got.join(' and ') + '.'; } },
+        { label: 'Leave', go: () => 'She waves you off with a trowel.' }
+      ] },
+    { id: 'ciri', title: 'A Girl with Ashen Hair', acts: [3],
+      text: 'A young woman with a scar and a sword too big for her sits at your fire. She is hunted too. She asks for nothing — but she is watching your purse.',
+      options: [
+        { label: 'Give her everything you carry', sub: 'All your crowns (at least 60): a random legendary card.', need: run => run.crowns >= 60 ? null : 'You carry less than 60 crowns.',
+          go: run => { run.crowns = 0; const id = randomCard(run, 'legendary'); addCard(run, id); return 'She leaves before dawn. In her place, ' + D.nameOf(id) + '.'; } },
+        { label: 'Share your fire', sub: 'Regain a life.', need: run => lifeFull(run) ? 'Your lives are full.' : null, go: run => { run.lives++; return 'You keep watch by turns. Both of you sleep.'; } },
+        { label: 'Teach her a hand of gwent', sub: 'Hone a unit of your choice.', pick: 'hone', need: run => honable(run).length ? null : 'Nothing left to hone.',
+          go: (run, c) => { hone(run, c.rid); return 'She learns fast, and so do you: ' + D.nameOf(c.id) + ' is sharper.'; } }
+      ] }
+  );
+  /* The Witch's Hut: the second set of cursed trinkets. */
+  EVENTS.push({ id: 'hut', title: 'The Witch’s Hut', acts: [2, 3],
+    text: 'A hut on stilts in the marsh. The witch inside has three charms on a string, and a smile with too many teeth.',
+    options: ['henfoot', 'pearl', 'bloodcoin'].map(cursedOpt).concat([{ label: 'Walk on', go: () => 'You do not look back. You hear her laughing anyway.' }]) });
   const EVENT = {};
   EVENTS.forEach(e => { EVENT[e.id] = e; });
 
@@ -534,12 +740,20 @@
   }
   function randomTrinket(run, rarities) {
     const pool = TRINKETS.filter(t => run.trinkets.indexOf(t.id) < 0 && t.rarity !== 'cursed' && (!rarities || rarities.indexOf(t.rarity) >= 0) &&
-      !(t.id === 'decoction' && on(run, 'onelife')));
+      !((t.id === 'decoction' || t.id === 'pipe') && on(run, 'onelife')));
     return pool.length ? pickOne(run, pool).id : null;
   }
   function applyTrinket(run, id) {
     if (id === 'decoction') { run.maxLives++; run.lives = run.maxLives; }
     if (id === 'cursedpurse') { run.crowns += 150; run.stats.crowns += 150; }
+    if (id === 'note') { run.crowns += 50; run.stats.crowns += 50; }
+  }
+  /* A trinket leaves you (the Fence): what it gave for good goes with it. */
+  function dropTrinket(run, id) {
+    const i = run.trinkets.indexOf(id);
+    if (i < 0) return;
+    run.trinkets.splice(i, 1);
+    if (id === 'decoction') { run.maxLives = Math.max(1, run.maxLives - 1); run.lives = Math.min(run.lives, run.maxLives); }
   }
   /* The card choice after a win: rarity weights by act and fight. */
   const RARITY_W = {
@@ -548,19 +762,21 @@
     boss: { 1: [0, 0, 80, 20], 2: [0, 0, 70, 30], 3: [0, 0, 60, 40] }
   };
   function cardChoice(run, kind) {
-    const n = has(run, 'eye') ? 4 : 3;
+    const n = (has(run, 'eye') ? 4 : 3) + (has(run, 'bestiary') && (kind === 'elite' || kind === 'hunt') ? 1 : 0);
     const w = RARITY_W[kind === 'hunt' ? 'elite' : kind][run.act];
     const out = [];
     /* The Long Road's pity counter (battles, contracts and the Hunt; a boss pays rares anyway). */
     const pity = run.long && kind !== 'boss';
+    /* The Ofieri Saddle: the first card a rarity better (a rare stays rare). */
+    const saddle = (k, r) => k === 0 && has(run, 'saddle') ? { common: 'uncommon', uncommon: 'rare', rare: 'rare', legendary: 'legendary' }[r] : r;
     for (let k = 0; k < n; k++) {
       let r;
       if (pity) {
         const rare = Math.max(0, w[2] + (kind === 'battle' ? 0 : ELITE_RARE) + run.luck);
-        r = weighted(run, [['common', Math.max(0, 100 - w[1] - rare)], ['uncommon', w[1]], ['rare', rare]]);
+        r = saddle(k, weighted(run, [['common', Math.max(0, 100 - w[1] - rare)], ['uncommon', w[1]], ['rare', rare]]));
         if (r === 'rare') run.luck = LUCK0;
         else if (r === 'common') run.luck++;
-      } else r = weighted(run, [['common', w[0]], ['uncommon', w[1]], ['rare', w[2]], ['legendary', w[3]]]);
+      } else r = saddle(k, weighted(run, [['common', w[0]], ['uncommon', w[1]], ['rare', w[2]], ['legendary', w[3]]]));
       out.push(randomCard(run, r, out));
     }
     return out;
@@ -689,7 +905,7 @@
     run.pos = id;
     run.path.push(id);
     if (run.act === 3 && n.kind !== 'boss') {
-      run.hunt = (run.hunt || 0) + 1 + (n.kind === 'battle' || n.kind === 'elite' ? 0 : 1);
+      run.hunt = (run.hunt || 0) + 1 + (n.kind === 'battle' || n.kind === 'elite' || has(run, 'cloak') ? 0 : 1);
       if (run.hunt >= huntOf(run)) {
         run.hunt = 0;
         run.after = id;
@@ -703,7 +919,7 @@
   function enter(run, n) {
     switch (n.kind) {
       case 'battle': case 'elite': case 'boss': run.screen = battleScreen(run, n.kind); break;
-      case 'shop': run.screen = shopScreen(run); break;
+      case 'shop': run.screen = shopScreen(run); if (has(run, 'note')) { gain(run, 15); run.screen.interest = 15; } break;
       case 'camp': run.screen = { k: 'camp', done: null }; break;
       case 'treasure': {
         if (run.long) {
@@ -728,7 +944,7 @@
         const inAct = e => e.acts.indexOf(run.act) >= 0;
         const shrine = !!run.long && rnd(run) * 100 < SHRINE_ODDS;
         /* (The Path ignores the shrine mark: Melitele's is an ordinary encounter there.) */
-        const kindOk = e => !run.long || !!e.shrine === shrine;
+        const kindOk = e => (!run.long || !!e.shrine === shrine) && (!e.long || !!run.long) && (!e.when || e.when(run));
         const pool = EVENTS.filter(e => inAct(e) && kindOk(e) && (shrine || (run.seen || []).indexOf(e.id) < 0));
         const ev = (pool.length ? pickOne(run, pool) : pickOne(run, EVENTS.filter(e => inAct(e) && kindOk(e)))).id;
         run.seen = (run.seen || []).concat(ev);
@@ -819,12 +1035,23 @@
     const base = s.kind === 'boss' ? 70 + run.act * 15 : s.kind === 'elite' || s.kind === 'hunt' ? int(run, 28, 38) + run.act * 6 : int(run, 12, 20) + run.act * 4;
     let crowns = base + (flawless ? Math.round(base * 0.25) : 0);
     if (has(run, 'purse')) crowns = Math.round(crowns * 1.5);
+    if (has(run, 'bloodcoin')) crowns *= 2;
+    if (has(run, 'bestiary') && (s.kind === 'elite' || s.kind === 'hunt')) crowns *= 2;
     if (on(run, 'poor')) crowns = Math.round(crowns / 2);
     run.crowns += crowns; run.stats.crowns += crowns;
     const rw = { k: 'reward', from: s.from || null, kind: s.kind, foe: e.id, crowns, flawless: !!flawless, cards: cardChoice(run, s.kind), took: null, trinket: null, leaders: null, leaderTook: null, healed: 0 };
     if (s.kind === 'elite' || s.kind === 'boss' || s.kind === 'hunt') {
       const t = randomTrinket(run, s.kind === 'boss' ? ['rare', 'uncommon'] : ['common', 'uncommon', 'rare']);
       if (t) { run.trinkets.push(t); applyTrinket(run, t); rw.trinket = t; }
+    }
+    /* An encounter's fight may promise more (EVENTS: `bonus`). */
+    if (s.bonus) {
+      const b = s.bonus, got = [];
+      if (b.crowns) { gain(run, b.crowns); got.push(b.crowns + ' crowns'); }
+      if (b.card && room(run, b.card)) { addCard(run, b.card); run.stats.cards++; got.push(D.nameOf(b.card) + ' joins your deck'); }
+      if (b.rarity) { const id = randomCard(run, b.rarity); addCard(run, id); run.stats.cards++; got.push(D.nameOf(id) + ' joins your deck'); }
+      if (b.hunt) { run.hunt = 0; got.push('the Wild Hunt loses your trail'); }
+      rw.bonus = got.join(' · ');
     }
     /* The Long Road: a potion, perhaps (not from a boss). */
     if (run.long && s.kind !== 'boss') {
@@ -1009,7 +1236,7 @@
     const s = run.screen;
     if (s.k !== 'shop') return no('There is no merchant here.');
     if (s.removed) return no('The merchant removes one card a visit.');
-    const cost = priceOf(run, run.removeCost);
+    const cost = removePrice(run);
     if (run.crowns < cost) return no('Not enough crowns.');
     if (run.deck.length <= MIN_DECK) return no('Your deck is as thin as it can be (' + MIN_DECK + ').');
     const c = removeCard(run, rid);
@@ -1020,7 +1247,7 @@
     s.removed = c.id;
     return yes();
   }
-  const removePrice = run => priceOf(run, run.removeCost);
+  const removePrice = run => has(run, 'razor') ? 25 : priceOf(run, run.removeCost);
 
   /* ================================================================
      The campfire: rest or hone
@@ -1031,9 +1258,11 @@
     if (s.done) return no('You have already rested here.');
     if (what === 'rest') {
       if (on(run, 'onelife')) return no('One Life: there is no rest on this road.');
+      if (has(run, 'bloodcoin')) return no('The Coin of Blood: no rest for you.');
       if (lifeFull(run)) return no('Your lives are full.');
       run.lives++;
       s.done = 'rest';
+      if (has(run, 'kettle')) { const c = pickOne(run, honable(run).length ? honable(run) : [null]); if (c) { hone(run, c.rid); run.stats.honed++; s.kettle = c.id; } }
       return yes();
     }
     if (what === 'hone') {
@@ -1083,6 +1312,7 @@
     const out = opt.go(run, c ? { rid: c.rid, id: c.id, up: c.up } : null);
     if (out && out.fight) {
       run.screen = battleScreen(run, out.fight, 'event');
+      if (out.bonus) run.screen.bonus = out.bonus;
       return yes({ fight: true });
     }
     s.result = String(out || '');
@@ -1108,8 +1338,10 @@
         run.hunt = 0;
         run.woundAct = 0;
         if (has(run, 'cursedpurse')) addCard(run, CURSE);
+        const pipe = has(run, 'pipe') && !lifeFull(run);
+        if (pipe) run.lives++;
         genMap(run);
-        run.screen = { k: 'act', act: run.act };
+        run.screen = { k: 'act', act: run.act, pipe };
         return yes();
       }
       return toMap(run);
@@ -1136,7 +1368,7 @@
     CHALLENGES, CHALLENGE, PHASES, HUNT, WOUND, on, multiplier, takeLoss, woundable, foeMods,
     rarityOf, capOf, poolFor, playerMods, newRun, genMap, node, reachable, go, battleSetup, battleDone, retry, takeCard, takeLeader,
     buy, shopRemove, removePrice, camp, choose, eventNeed, leave, enemyOf, score, countOf, honable, has,
-    LONG, CHESTS, POTIONS, POTION, SHRINE_ODDS, LUCK0, ELITE_RARE, POTION0, POTION_STEP, shapeOf, floorsOf, huntOf, fight, takePotion, pour, beltFull
+    LONG, CHESTS, POTIONS, POTION, SHRINE_ODDS, LUCK0, ELITE_RARE, POTION0, POTION_STEP, shapeOf, floorsOf, huntOf, fight, takePotion, pour, beltFull, TRINKET_PRICE
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = Run;
   else root.GwentRun = Run;

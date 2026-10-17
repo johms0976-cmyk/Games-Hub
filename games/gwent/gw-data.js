@@ -449,6 +449,9 @@
        cursed trinket): never below 1, and never raises a card that is less. */
     const minus = board.minus && board.minus[s] ? board.minus[s][r] : 0;
     if (minus) v = Math.max(Math.min(v, 1), v - minus);
+    /* A row bonus from a run trinket (after the weather: it lifts a frozen unit too). */
+    const plus = board.plus && board.plus[s] ? board.plus[s][r] : 0;
+    if (plus) v += plus;
     if (c.ab === 'bond') v *= row.units.filter(x => x.id === u.id).length;
     v += row.units.filter(x => x !== u && CARDS[x.id] && CARDS[x.id].ab === 'morale').length;
     if (hornOn(row) || row.units.some(x => x !== u && CARDS[x.id] && CARDS[x.id].ab === 'horn')) v *= 2;
