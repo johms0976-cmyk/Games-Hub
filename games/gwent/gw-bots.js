@@ -18,11 +18,11 @@
      still to come. One number in one place; everything else falls out of it. */
   const CARD = 6;
   const BASE = { noise: 0, slip: 0, plan: true, look: false, cost: 0.45, r1lead: 0, r1big: 14, dry: 25, mustLead: 12, theyMustPass: 'lead', spy: 2,
-    k: 0.7, k3: 0.85, gem: 0.85, avg: 7, floor: 0, giveUp: 2 };
+    k: 0.7, k3: 0.85, gem: 0.85, avg: 7, floor: 0, giveUp: 2, top: 8, cheap: true, leaderFirst: true, stall: 8 };
   const LEVEL = {
     hard: Object.assign({}, BASE, { noise: 0.06, look: true }),
     medium: Object.assign({}, BASE, { noise: 0.3, slip: 0.1 }),
-    easy: Object.assign({}, BASE, { noise: 0.7, slip: 0.25, plan: false, spy: 0.5 })
+    easy: Object.assign({}, BASE, { noise: 0.7, slip: 0.25, plan: false, spy: 0.5, cheap: false, leaderFirst: false, stall: 0 })
   };
   /* floor: a play must be worth more than this now, or it is never made (0:
      no Scorch on your own best, no Clear for the other side, no spy into an
@@ -31,7 +31,10 @@
      cards miss combos — a Horn after units, bonded pairs — hence 2, not 1).
      Measured 2026-10-18 against the brain without them, same level: about
      even between two houses — the plays they stop are the ones a person
-     punishes and a house does not. */
+     punishes and a house does not.
+     cheap, leaderFirst, stall, top: how the house picks its card once it has
+     decided to play (2026-10-18, below `cheapest`). Easy keeps the old way —
+     its strongest card first. */
   /* Tuning: GW_HARD='{"cost":0.6}' overrides the Hard brain in a test run. */
   if (typeof process !== 'undefined' && process.env && process.env.GW_HARD) Object.assign(LEVEL.hard, JSON.parse(process.env.GW_HARD));
   if (typeof process !== 'undefined' && process.env && process.env.GW_MED) Object.assign(LEVEL.medium, JSON.parse(process.env.GW_MED));
@@ -112,7 +115,8 @@
     if (c.ab === 'medic') v += discardBest(C, C.pub.players[C.si].disc, true).v * 0.9;
     if (c.kind === 'special' && c.weather && c.rows.every(r => C.pub.board.wx[r])) v -= 20;
     if (c.ab === 'avenger') v += D.card(c.avenger).str * 0.6;      // Kambi: Hemdall to come
-    if (c.ab === 'berserk' && pl.delta && pl.delta.me <= c.str && mardroemes(C)) v -= 3;   // wait for the Mardroeme
+    /* (A Berserker no longer waits for a Mardroeme: playing it now measured
+       +7 to +12 points a move against waiting, 2026-10-18.) */
     if (c.sp === 'clear' && !C.pub.board.wx.some(Boolean)) v -= 20;
     if (c.sp === 'decoy') {
       const t = D.card(pl.card);
@@ -224,7 +228,7 @@
     const cm = C.me.hand.length, ct = C.them.handN;
     const pass = valuePass(C, lead, cm, ct);
     let best = null, bv = -1;
-    for (const x of cands.slice(0, 4)) {
+    for (const x of cands.slice(0, C.lv.top)) {
       if (x.a.t !== 'play' && x.a.t !== 'leader') continue;
       const h = x.a.t === 'play' ? C.me.can.hand.find(y => y.uid === x.a.uid) : null;
       const spy = h && D.card(h.card).ab === 'spy';
@@ -284,7 +288,7 @@
     if (C.lv.look && best && !C.them.passed && !(C.mine.gems === 1 && C.them.gems === 1)) {
       const L = lookAhead(C, cands);
       if (L.pass > L.bv) return { t: 'pass', n: view.n };
-      return (L.best || best).a;
+      return cheapest(C, cands, (L.best || best).a);
     }
     if (!best || wantPass(C, can, bestGain)) {
       /* Passing with an opponent who has not passed and a card that is pure
@@ -301,7 +305,55 @@
     }
     let pickI = 0;
     if (C.lv.slip && cands.length > 1 && hash(C.key + '|slip|' + best.key) < C.lv.slip) pickI = 1;
-    return cands[pickI].a;
+    return pickI ? cands[pickI].a : cheapest(C, cands, cands[0].a);
+  }
+
+  /* ================================================================
+     Which card, once the house has decided to play (2026-10-18)
+     ================================================================
+     Measured by forking 2,400 Hard-v-Hard games at every turn and playing
+     each alternative out (scratchpad fork.js; ARCHITECTURE.md "The house
+     gets stronger"). The old way — the card worth most now, less a share of
+     what it would be worth later — spent heroes in round one. Now:
+     1. the leader first, before the last round: a play that costs no card;
+     2. a Decoy as a stall, before the last round: it swaps one of the
+        house's own units back to hand — a card for a card, so the hand
+        keeps its size — and the round goes on with nothing real spent. Only
+        a swap that loses at most `stall` strength, never a hero;
+     3. otherwise the cheapest card that still helps (`handVal`): the least
+        strength out of the hand. */
+  function handVal(C, id, up) {
+    const c = D.card(id);
+    if (!c || c.kind !== 'unit') return 6;
+    if (c.ab === 'spy') return 4.5 * spyCards(C);
+    return c.str + (up || 0) + (c.ab === 'medic' ? 5 : 0) + (c.ab === 'muster' ? 4 : 0);
+  }
+  function cheapest(C, cands, a) {
+    if (!C.lv.cheap || a.t !== 'play') return a;
+    const fin = C.mine.gems === 1 && C.them.gems === 1;
+    if (C.lv.leaderFirst && !fin) { const L = cands.find(x => x.a.t === 'leader'); if (L) return L.a; }
+    if (C.lv.stall && !fin) { const S = stall(C, a.n); if (S) return S; }
+    let best = null, bv = 1e9, br = -1e9;
+    for (const x of cands) {
+      if (x.a.t !== 'play') continue;
+      const hx = C.me.hand.find(y => y.uid === x.a.uid);
+      const v = hx ? handVal(C, hx.id, hx.up) : 99;
+      if (v < bv || (v === bv && x.raw > br)) { bv = v; br = x.raw; best = x; }
+    }
+    return best ? best.a : a;
+  }
+  function stall(C, n) {
+    let best = null, bd = -1e9;
+    for (const h of C.me.can.hand) {
+      if (D.card(h.card).sp !== 'decoy') continue;
+      for (const pl of h.plays) {
+        const t = D.card(pl.card);
+        if (!t || t.hero) continue;
+        const d = pl.delta ? pl.delta.me - pl.delta.them : 0;
+        if (d > bd) { bd = d; best = { t: 'play', n, uid: h.uid, row: pl.row == null ? null : pl.row, target: pl.target }; }
+      }
+    }
+    return best && -bd <= C.lv.stall ? best : null;
   }
   const keepOf = (C, x) => { if (x.a.t !== 'play') return 3; const h = C.me.can.hand.find(y => y.uid === x.a.uid); return h ? keepValue(C, h.card) : 3; };
 
