@@ -62,6 +62,17 @@ const GAMES = [
     status: "playable",
   },
   {
+    id: "catan",
+    title: "Catan",
+    subtitle: "Solo — settle the island against three house settlers on your phone, with Cities & Knights",
+    category: "board",
+    players: "1",
+    duration: "45–90 min",
+    icon: "🏝️",
+    accentColor: "#e8c267",
+    status: "playable",
+  },
+  {
     id: "glory-to-rome",
     title: "Glory to Rome",
     subtitle: "Solo — rebuild Rome against 1–4 house players on your phone: lead the roles, hire clients, fill your Vault",
