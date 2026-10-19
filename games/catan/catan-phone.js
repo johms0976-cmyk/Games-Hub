@@ -11,7 +11,7 @@
  */
 (function (root0) {
   'use strict';
-  const STYLES = '\n:root{\n  --bg:#0a1322; --panel:#141d33; --panel2:#0f1728; --line:#26304d;\n  --ink:#f3efe4; --dim:#9aa7c4; --gold:#e8c267; --good:#4ac08a; --bad:#e5484d;\n}\n*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}\nhtml,body{margin:0;min-height:100%}\nbody{background:var(--bg);color:var(--ink);font:16px/1.4 ui-rounded,-apple-system,"Segoe UI",system-ui,sans-serif;\n  padding:env(safe-area-inset-top) 10px calc(18px + env(safe-area-inset-bottom))}\n.hide{display:none !important}\n[hidden]{display:none !important}\nheader{display:flex;align-items:center;gap:8px;padding:9px 2px 7px;position:sticky;top:0;background:var(--bg);z-index:6}\n#dot{width:12px;height:12px;border-radius:50%;background:var(--gold);flex:none}\n#who{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n#vpTop{font-size:13px;color:var(--gold);font-weight:800;white-space:nowrap}\n#link{margin-left:auto;font-size:11px;color:var(--dim);white-space:nowrap}\n#link.ok{color:var(--good)} #link.bad{color:var(--bad)}\nh2{margin:14px 2px 6px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:6px}\nh2 small{margin-left:auto;letter-spacing:0;text-transform:none;font-size:12px}\n.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px}\n.card.hot{border-color:var(--gold);box-shadow:0 0 0 1px rgba(232,194,103,.3)}\n.title{font-weight:800;font-size:19px;color:var(--gold)}\n.sub{color:var(--dim);font-size:13px;margin-top:3px}\nbutton{font:inherit;color:inherit}\n.btn{display:block;width:100%;background:var(--gold);border:0;color:#0b1020;font-weight:800;font-size:17px;border-radius:14px;padding:14px;margin-top:10px}\n.btn:disabled{opacity:.38}\n.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--dim);font-weight:600;font-size:15px}\n.btn.red{background:#e0584f;color:#fff}\n.btn.small{display:inline-block;width:auto;padding:9px 14px;font-size:14px;margin-top:0}\n.row2{display:flex;gap:8px}\n.row2 .btn{flex:1}\n\n/* ---------- cards in hand ---------- */\n.chip-card{display:inline-flex;align-items:center;gap:4px;background:var(--cc);color:var(--ci);border-radius:9px;padding:4px 8px;\n  font-weight:800;font-size:16px;line-height:1.1;box-shadow:inset 0 -2px 0 rgba(0,0,0,.25)}\n.chip-card.dim{opacity:.3}\n.hand{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}\n.hand.ck{grid-template-columns:repeat(4,1fr)}\n.hc{display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--hcc);color:var(--hci);border-radius:12px;padding:7px 2px 6px;\n  border:2px solid transparent;min-height:66px;justify-content:center;position:relative}\n.hc b{font-size:20px;line-height:1}\n.hc small{font-size:10px;opacity:.85;font-weight:700}\n.hc.zero{opacity:.28}\n.hc.sel{border-color:#fff;box-shadow:0 0 0 2px var(--gold)}\n.hc em{position:absolute;top:-7px;right:-4px;background:#fff;color:#0b1020;border-radius:999px;font-style:normal;font-weight:800;font-size:12px;padding:1px 7px}\n.handnote{color:var(--dim);font-size:12px;margin-top:6px}\n.handnote.warn{color:#ffb4a8}\n\n/* ---------- the island ---------- */\n.boardbox{margin-top:10px;border-radius:12px;overflow:auto;background:#0d2238;border:1px solid var(--line);touch-action:manipulation}\n.boardbox svg.island{display:block;width:100%;height:auto}\n.boardbox.zoom svg.island{width:175%}\n.boardbar{display:flex;gap:8px;align-items:center;margin-top:8px}\n.boardbar .sel{flex:1;font-size:13px;color:var(--dim)}\n.pk{cursor:pointer}\n\n/* ---------- menus and pickers ---------- */\n.tabs{display:flex;gap:4px;margin-top:10px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:3px}\n.tabs button{flex:1;background:transparent;border:0;color:var(--dim);font-weight:700;font-size:14px;padding:9px 2px;border-radius:9px}\n.tabs button.on{background:var(--gold);color:#0b1020}\n.acts{display:flex;flex-direction:column;gap:8px;margin-top:10px}\n.act{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 11px}\n.act:disabled{opacity:.42}\n.act .lab{flex:1;min-width:0}\n.act .lab b{display:block;font-size:15px}\n.act .lab small{display:block;color:var(--dim);font-size:12px;line-height:1.25}\n.act .cost{display:flex;gap:3px;flex-wrap:wrap;justify-content:flex-end}\n.act .cost .chip-card{font-size:12px;padding:2px 5px}\n.opts{display:flex;flex-direction:column;gap:8px;margin-top:10px}\n.opt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:11px 12px;font-size:15px}\n.opt.on{border-color:var(--gold);background:rgba(232,194,103,.12)}\n.opt:disabled{opacity:.4}\n.opt i.dotc{width:12px;height:12px;border-radius:50%;flex:none}\n.opt .lab{flex:1;min-width:0}\n.opt .lab small{display:block;color:var(--dim);font-size:12px}\n.opt .val{font-weight:800;color:var(--gold)}\n.types{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}\n.types button{background:transparent;border:2px solid transparent;border-radius:12px;padding:1px}\n.types button.on{border-color:#fff;box-shadow:0 0 0 2px var(--gold)}\n.types button:disabled{opacity:.3}\n.types .chip-card{font-size:15px;padding:7px 10px}\n.tg{display:grid;grid-template-columns:auto 1fr 1fr;gap:6px 8px;align-items:center;margin-top:8px}\n.tg .th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:center}\n.tg .pm{display:flex;align-items:center;justify-content:space-between;gap:4px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:3px}\n.tg .pm.on{border-color:var(--gold)}\n.tg .pm b{min-width:1.4em;text-align:center;font-size:17px}\n.tg .pm button{width:34px;height:32px;border-radius:9px;border:1px solid var(--line);background:#1a2440;font-weight:800;font-size:18px;line-height:1}\n.tg .pm button:disabled{opacity:.3}\n.seg.names button{min-width:40%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.seg{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}\n.seg button{flex:1;min-width:60px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:11px;padding:11px 8px;font-size:15px;font-weight:600}\n.seg button.on{background:var(--gold);border-color:var(--gold);color:#0b1020;font-weight:800}\n.seg button:disabled{opacity:.35}\n.dice{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}\n.dice button{background:transparent;border:2px solid transparent;border-radius:10px;padding:1px}\n.dice button.on{border-color:#fff}\n\n/* ---------- cards you hold ---------- */\n.pc{display:flex;gap:10px;align-items:flex-start;background:var(--panel2);border:1px solid var(--line);border-left:5px solid var(--dc);border-radius:12px;padding:10px 11px}\n.pc + .pc{margin-top:7px}\n.pc .lab{flex:1;min-width:0}\n.pc .lab b{display:block}\n.pc .lab small{display:block;color:var(--dim);font-size:12px;line-height:1.3}\n.pc .lab em{font-style:normal;color:var(--dim);font-size:11px}\n.pc.on{border-color:var(--gold)}\n\n/* ---------- offers ---------- */\n.offer{background:var(--panel2);border:1px solid #4a5f99;border-radius:12px;padding:10px 11px}\n.offer + .offer{margin-top:7px}\n.offer .line{display:flex;align-items:center;gap:6px;flex-wrap:wrap}\n.offer .rep{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:13px;color:var(--dim)}\n.offer .rep .y{color:#8ee6b4}.offer .rep .n{color:#ff8a80}\n\n/* ---------- the table ---------- */\n.rows{display:flex;flex-direction:column;gap:6px}\n.prow{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--dim)}\n.prow i{width:10px;height:10px;border-radius:50%;flex:none}\n.prow .nm{color:var(--ink);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.prow .me{color:var(--gold)}\n.prow span.x{display:inline-flex;align-items:center;gap:2px}\n.prow .vp{margin-left:auto;color:var(--gold);font-weight:800}\n.status{display:flex;align-items:center;gap:8px;flex-wrap:wrap}\n.status .dice svg{width:30px;height:30px}\n#flash{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));background:#2a1220;border:1px solid var(--bad);\n  color:#ffd9de;border-radius:12px;padding:11px 13px;font-size:14px;z-index:20}\n#flash.good{background:#12281e;border-color:var(--good);color:#d6ffe9}\n#name{display:flex;gap:8px;margin:10px 0}\n#name input{flex:1;font:inherit;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:12px}\n.glyph{vertical-align:-3px}\n\n/* ---------- solo: the table on the phone ---------- */\n.isle{margin:0 0 10px}\n.isle .boardbox{margin-top:0}\n.status .barbline{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--dim)}\n.status .barbline b{font-size:15px}\n.reel{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--rc);border-radius:12px;padding:9px 12px;margin:0 0 10px;font-size:16px;font-weight:700}\n.reel small{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:600}\n.reel.fresh{animation:reelIn .5s ease-out}\n@keyframes reelIn{from{transform:translateY(-6px);opacity:.3}to{transform:none;opacity:1}}\n.btn.undo{display:block;margin:0 0 10px;width:100%}\n.card.attack .vs{display:flex;justify-content:space-around;margin:10px 0}\n.card.attack .vs div{display:flex;flex-direction:column;align-items:center}\n.card.attack .vs b{font:800 44px/1 Georgia,serif}\n.card.attack .vs small{color:var(--dim);font-size:12px}\n.card.attack .verdict{margin-top:10px;font-weight:800;font-size:17px}\n.card.attack .verdict.win{color:#8ee6b4}.card.attack .verdict.lose{color:#ff8a80}\n.card.log{font-size:13px;color:var(--dim);display:flex;flex-direction:column;gap:4px}\n.card.log .new{color:var(--ink)}\n.piece-ico,.ship-ico{vertical-align:middle}\n';
+  const STYLES = '\n:root{\n  --bg:#0a1322; --panel:#141d33; --panel2:#0f1728; --line:#26304d;\n  --ink:#f3efe4; --dim:#9aa7c4; --gold:#e8c267; --good:#4ac08a; --bad:#e5484d;\n}\n*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}\nhtml,body{margin:0;min-height:100%}\nbody{background:var(--bg);color:var(--ink);font:16px/1.4 ui-rounded,-apple-system,"Segoe UI",system-ui,sans-serif;\n  padding:env(safe-area-inset-top) 10px calc(18px + env(safe-area-inset-bottom))}\n.hide{display:none !important}\n[hidden]{display:none !important}\nheader{display:flex;align-items:center;gap:8px;padding:9px 2px 7px;position:sticky;top:0;background:var(--bg);z-index:6}\n#dot{width:12px;height:12px;border-radius:50%;background:var(--gold);flex:none}\n#who{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n#vpTop{font-size:13px;color:var(--gold);font-weight:800;white-space:nowrap}\n#link{margin-left:auto;font-size:11px;color:var(--dim);white-space:nowrap}\n#link.ok{color:var(--good)} #link.bad{color:var(--bad)}\nh2{margin:14px 2px 6px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);display:flex;align-items:center;gap:6px}\nh2 small{margin-left:auto;letter-spacing:0;text-transform:none;font-size:12px}\n.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px}\n.card.hot{border-color:var(--gold);box-shadow:0 0 0 1px rgba(232,194,103,.3)}\n.title{font-weight:800;font-size:19px;color:var(--gold)}\n.sub{color:var(--dim);font-size:13px;margin-top:3px}\nbutton{font:inherit;color:inherit}\n.btn{display:block;width:100%;background:var(--gold);border:0;color:#0b1020;font-weight:800;font-size:17px;border-radius:14px;padding:14px;margin-top:10px}\n.btn:disabled{opacity:.38}\n.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--dim);font-weight:600;font-size:15px}\n.btn.red{background:#e0584f;color:#fff}\n.btn.small{display:inline-block;width:auto;padding:9px 14px;font-size:14px;margin-top:0}\n.row2{display:flex;gap:8px}\n.row2 .btn{flex:1}\n\n/* ---------- cards in hand ---------- */\n.chip-card{display:inline-flex;align-items:center;gap:4px;background:var(--cc);color:var(--ci);border-radius:9px;padding:4px 8px;\n  font-weight:800;font-size:16px;line-height:1.1;box-shadow:inset 0 -2px 0 rgba(0,0,0,.25)}\n.chip-card.dim{opacity:.3}\n.hand{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}\n.hand.ck{grid-template-columns:repeat(4,1fr)}\n.hc{display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--hcc);color:var(--hci);border-radius:12px;padding:7px 2px 6px;\n  border:2px solid transparent;min-height:66px;justify-content:center;position:relative}\n.hc b{font-size:20px;line-height:1}\n.hc small{font-size:10px;opacity:.85;font-weight:700}\n.hc.zero{opacity:.28}\n.hc.sel{border-color:#fff;box-shadow:0 0 0 2px var(--gold)}\n.hc em{position:absolute;top:-7px;right:-4px;background:#fff;color:#0b1020;border-radius:999px;font-style:normal;font-weight:800;font-size:12px;padding:1px 7px}\n.handnote{color:var(--dim);font-size:12px;margin-top:6px}\n.handnote.warn{color:#ffb4a8}\n\n/* ---------- the island ---------- */\n.boardbox{margin-top:10px;border-radius:12px;overflow:auto;background:#0d2238;border:1px solid var(--line);touch-action:manipulation}\n.boardbox svg.island{display:block;width:100%;height:auto}\n.boardbox.zoom svg.island{width:175%}\n.boardbar{display:flex;gap:8px;align-items:center;margin-top:8px}\n.boardbar .sel{flex:1;font-size:13px;color:var(--dim)}\n.pk{cursor:pointer}\n\n/* ---------- menus and pickers ---------- */\n.tabs{display:flex;gap:4px;margin-top:10px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:3px}\n.tabs button{flex:1;background:transparent;border:0;color:var(--dim);font-weight:700;font-size:14px;padding:9px 2px;border-radius:9px}\n.tabs button.on{background:var(--gold);color:#0b1020}\n.acts{display:flex;flex-direction:column;gap:8px;margin-top:10px}\n.act{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 11px}\n.act:disabled{opacity:.42}\n.act .lab{flex:1;min-width:0}\n.act .lab b{display:block;font-size:15px}\n.act .lab small{display:block;color:var(--dim);font-size:12px;line-height:1.25}\n.act .cost{display:flex;gap:3px;flex-wrap:wrap;justify-content:flex-end}\n.act .cost .chip-card{font-size:12px;padding:2px 5px}\n.opts{display:flex;flex-direction:column;gap:8px;margin-top:10px}\n.opt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:11px 12px;font-size:15px}\n.opt.on{border-color:var(--gold);background:rgba(232,194,103,.12)}\n.opt:disabled{opacity:.4}\n.opt i.dotc{width:12px;height:12px;border-radius:50%;flex:none}\n.opt .lab{flex:1;min-width:0}\n.opt .lab small{display:block;color:var(--dim);font-size:12px}\n.opt .val{font-weight:800;color:var(--gold)}\n.types{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}\n.types button{background:transparent;border:2px solid transparent;border-radius:12px;padding:1px}\n.types button.on{border-color:#fff;box-shadow:0 0 0 2px var(--gold)}\n.types button:disabled{opacity:.3}\n.types .chip-card{font-size:15px;padding:7px 10px}\n.tg{display:grid;grid-template-columns:auto 1fr 1fr;gap:6px 8px;align-items:center;margin-top:8px}\n.tg .th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:center}\n.tg .pm{display:flex;align-items:center;justify-content:space-between;gap:4px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:3px}\n.tg .pm.on{border-color:var(--gold)}\n.tg .pm b{min-width:1.4em;text-align:center;font-size:17px}\n.tg .pm button{width:34px;height:32px;border-radius:9px;border:1px solid var(--line);background:#1a2440;font-weight:800;font-size:18px;line-height:1}\n.tg .pm button:disabled{opacity:.3}\n.seg.names button{min-width:40%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.seg{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}\n.seg button{flex:1;min-width:60px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:11px;padding:11px 8px;font-size:15px;font-weight:600}\n.seg button.on{background:var(--gold);border-color:var(--gold);color:#0b1020;font-weight:800}\n.seg button:disabled{opacity:.35}\n.dice{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}\n.dice button{background:transparent;border:2px solid transparent;border-radius:10px;padding:1px}\n.dice button.on{border-color:#fff}\n\n/* ---------- cards you hold ---------- */\n.pc{display:flex;gap:10px;align-items:flex-start;background:var(--panel2);border:1px solid var(--line);border-left:5px solid var(--dc);border-radius:12px;padding:10px 11px}\n.pc + .pc{margin-top:7px}\n.pc .lab{flex:1;min-width:0}\n.pc .lab b{display:block}\n.pc .lab small{display:block;color:var(--dim);font-size:12px;line-height:1.3}\n.pc .lab em{font-style:normal;color:var(--dim);font-size:11px}\n.pc.on{border-color:var(--gold)}\n\n/* ---------- offers ---------- */\n.offer{background:var(--panel2);border:1px solid #4a5f99;border-radius:12px;padding:10px 11px}\n.offer + .offer{margin-top:7px}\n.offer .line{display:flex;align-items:center;gap:6px;flex-wrap:wrap}\n.offer .rep{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:13px;color:var(--dim)}\n.offer .rep .y{color:#8ee6b4}.offer .rep .n{color:#ff8a80}\n\n/* ---------- something waiting on you: it comes to you ---------- */\n.modal{position:fixed;inset:0;z-index:15;background:rgba(4,8,16,.72);display:flex;align-items:flex-end;justify-content:center;\n  padding:12px 10px calc(14px + env(safe-area-inset-bottom))}\n.modal .sheet{width:100%;max-width:480px;max-height:100%;overflow:auto;background:var(--panel);border:1px solid var(--gold);border-radius:16px;padding:14px;\n  box-shadow:0 10px 40px rgba(0,0,0,.6)}\n.modal .sheet.fresh{animation:sheetUp .22s ease-out}\n@keyframes sheetUp{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}\n.modal .deal{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:16px}\n.modal .deal>span:not(.chip-card){color:var(--dim);font-size:13px}\n.modal .held{margin-top:10px;font-size:13px;color:var(--dim);display:flex;gap:6px;align-items:center;flex-wrap:wrap}\n.modal .btn .chip-card{font-size:12px;padding:2px 5px;vertical-align:middle}\n\n/* ---------- the table ---------- */\n.rows{display:flex;flex-direction:column;gap:6px}\n.prow{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--dim)}\n.prow i{width:10px;height:10px;border-radius:50%;flex:none}\n.prow .nm{color:var(--ink);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}\n.prow .me{color:var(--gold)}\n.prow span.x{display:inline-flex;align-items:center;gap:2px}\n.prow .vp{margin-left:auto;color:var(--gold);font-weight:800}\n.status{display:flex;align-items:center;gap:8px;flex-wrap:wrap}\n.status .dice svg{width:30px;height:30px}\n#flash{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));background:#2a1220;border:1px solid var(--bad);\n  color:#ffd9de;border-radius:12px;padding:11px 13px;font-size:14px;z-index:20}\n#flash.good{background:#12281e;border-color:var(--good);color:#d6ffe9}\n#name{display:flex;gap:8px;margin:10px 0}\n#name input{flex:1;font:inherit;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:12px}\n.glyph{vertical-align:-3px}\n\n/* ---------- solo: the table on the phone ---------- */\n.isle{margin:0 0 10px}\n.isle .boardbox{margin-top:0}\n.status .barbline{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--dim)}\n.status .barbline b{font-size:15px}\n.reel{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--rc);border-radius:12px;padding:9px 12px;margin:0 0 10px;font-size:16px;font-weight:700}\n.reel small{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:600}\n.reel.fresh{animation:reelIn .5s ease-out}\n@keyframes reelIn{from{transform:translateY(-6px);opacity:.3}to{transform:none;opacity:1}}\n.btn.undo{display:block;margin:0 0 10px;width:100%}\n.card.attack .vs{display:flex;justify-content:space-around;margin:10px 0}\n.card.attack .vs div{display:flex;flex-direction:column;align-items:center}\n.card.attack .vs b{font:800 44px/1 Georgia,serif}\n.card.attack .vs small{color:var(--dim);font-size:12px}\n.card.attack .verdict{margin-top:10px;font-weight:800;font-size:17px}\n.card.attack .verdict.win{color:#8ee6b4}.card.attack .verdict.lose{color:#ff8a80}\n.card.log{font-size:13px;color:var(--dim);display:flex;flex-direction:column;gap:4px}\n.card.log .new{color:var(--ink)}\n.piece-ico,.ship-ico{vertical-align:middle}\n';
 
   function create(opts) {
     const D = root0.CatanData, A = root0.CatanArt, BoardLib = root0.CatanBoard;
@@ -24,6 +24,9 @@
        long after a send and after a new question lands, so the tap that answered
        one question cannot land on whatever is drawn under the finger next. */
     const LOCK_MS = 380;
+    /* A pop-up nobody tapped for (an offer arriving, the knight reminder) holds
+       a little longer: the thumb may already be on its way to something else. */
+    const MODAL_LOCK_MS = 550;
 
     const S = {
       id: null, name: '', hex: '#e8c267', undo: null,
@@ -37,11 +40,14 @@
       bank: { give: null, get: null },
       arm: null,               // a card waiting for its second tap
       zoom: false,
+      endAsk: false,           // End turn was tapped with a knight still lying down
+      offerHide: {},           // pop-ups put off with "Later": they stay on the page
+      modalKey: '',
       lockUntil: 0, shape: ''
     };
     if (opts.expose !== false) window.__CATANPHONE = S;
     const locked = () => Date.now() < S.lockUntil;
-    const lock = () => { S.lockUntil = Date.now() + LOCK_MS; };
+    const lock = ms => { S.lockUntil = Math.max(S.lockUntil, Date.now() + (ms || LOCK_MS)); };
     const buzz = ms => { if (navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) {} } };
 
     /* ---------- what the host says ---------- */
@@ -59,6 +65,16 @@
           for (const o of msg.game.offers || []) {
             const toMe = o.by !== S.id && (o.counter ? msg.game.cur === S.id : (!o.to || o.to.indexOf(S.id) >= 0));
             if (toMe && !S.seenOffers[o.id + ':' + msg.game.gid]) { S.seenOffers[o.id + ':' + msg.game.gid] = true; buzz(60); }
+            /* Your own offer turned down by everyone asked: say so, rather than
+               leave it sitting there looking like it is still being thought about. */
+            if (o.by === S.id && !o.counter) {
+              const asked = o.to || msg.game.players.filter(p => p.id !== S.id).map(p => p.id);
+              const key = 'no:' + msg.game.gid + ':' + o.id;
+              if (asked.length && asked.every(id => o.replies[id] === false) && !S.seenOffers[key]) {
+                S.seenOffers[key] = true;
+                setTimeout(() => flash(asked.length > 1 ? 'Nobody wants that trade — withdraw it or try another.' : pname(asked[0]) + ' says no to that trade.'), 0);
+              }
+            }
           }
           /* "Since your last turn": the newest line when your turn last ended. */
           const cur = msg.game.cur;
@@ -89,7 +105,7 @@
       paint();
     }
     function resetUi() {
-      S.pick = null; S.sel = null; S.multi = {}; S.list = []; S.arm = null;
+      S.pick = null; S.sel = null; S.multi = {}; S.list = []; S.arm = null; S.endAsk = false; S.offerHide = {};
       S.draft = { give: {}, get: {}, to: null }; S.bank = { give: null, get: null }; S.tab = 'build';
     }
 
@@ -135,7 +151,7 @@
            of the same turn stays where the thumb already is. */
         const kindChanged = was.replace(/\d+$/, '') !== shape.split('|')[2].replace(/\d+$/, '');
         S.shape = shape;
-        if (promptChanged) { S.sel = null; S.multi = {}; S.list = []; S.arm = null; if (!pr || pr === 'stale' || pr.t !== 'turn') S.pick = null; }
+        if (promptChanged) { S.sel = null; S.multi = {}; S.list = []; S.arm = null; S.endAsk = false; if (!pr || pr === 'stale' || pr.t !== 'turn') S.pick = null; }
         if (kindChanged && pr && pr !== 'stale') { try { window.scrollTo(0, 0); } catch (e) {} }
         /* A new kind of question in your hand buzzes once — across a noisy
            table, that is how you notice it is your move. */
@@ -163,8 +179,91 @@
       const attack = attackHtml();
       const picking = pr && pr !== 'stale' && (S.pick || /^(place|setupRoad|robber|freeRoad|pillage|bounce|metroCity|wallAt|invention|medicine|smith|merchant|diplomacy|intrigue|treasonGive|treasonPlace)$/.test(pr.t));
       m.innerHTML = statusHtml() + reelHtml() + (S.pub.paused ? waitCard('Paused', 'The house waits while your screen is off.') : '') + undoHtml() +
-        (attack || ((picking ? '' : islandHtml()) + askHtml(pr))) + hurryHtml() + offersHtml() + handHtml(pr) + cardsHtml(pr) + tableHtml() + logHtml();
+        (attack || ((picking ? '' : islandHtml()) + askHtml(pr))) + hurryHtml() + offersHtml() + handHtml(pr) + cardsHtml(pr) + tableHtml() + logHtml() +
+        (attack ? noModal() : modalHtml(pr));
       wire();
+    }
+
+    /* ================================================================
+       Something waiting on you comes to you: an offer put to you, a yes to
+       your own offer, a knight left lying down as you end the turn. Each is
+       ALSO on the page, so "Later" only puts the pop-up away.
+       ================================================================ */
+    function noModal() { S.modalKey = ''; return ''; }
+    function modalHtml(pr) {
+      let ask = null;
+      if (S.endAsk && pr && pr !== 'stale' && pr.t === 'turn' && knightNag()) ask = { key: 'end:' + pr.n, html: endAskHtml() };
+      else ask = offerAsk();
+      if (!ask) return noModal();
+      /* Repaints redraw it: only a pop-up seen for the first time slides in. */
+      const fresh = ask.key !== S.modalKey;
+      if (fresh) { S.modalKey = ask.key; lock(MODAL_LOCK_MS); }
+      return '<div class="modal" id="modal" role="dialog" aria-modal="true"><div class="sheet' + (fresh ? ' fresh' : '') + '">' + ask.html + '</div></div>';
+    }
+    const hasCards = (hand, set) => Object.keys(set).every(k => (hand[k] || 0) >= set[k]);
+    function heldHtml() {
+      const h = {};
+      for (const k of types()) if (S.me.hand[k]) h[k] = S.me.hand[k];
+      return '<div class="held">You hold ' + (Object.keys(h).length ? A.cards(h, 14) : 'no cards') + '</div>';
+    }
+    function offerAsk() {
+      const g = game(), me = S.me;
+      if (!g || !me || !tradeOpen()) return null;
+      const later = key => '<button class="btn ghost" data-hide="' + esc(key) + '">Later — it stays under Trades</button>';
+      for (const o of g.offers) {
+        if (!o.counter && o.by !== S.id) {
+          /* Somebody's offer to you, not yet answered. */
+          if ((o.to && o.to.indexOf(S.id) < 0) || o.replies[S.id] !== undefined) continue;
+          const key = 'in:' + g.gid + ':' + o.id;
+          if (S.offerHide[key]) continue;
+          const have = hasCards(me.hand, o.get);
+          return { key, html: '<div class="title">' + esc(pname(o.by)) + ' offers you a trade</div>' +
+            '<div class="deal"><span>you get</span>' + A.cards(o.give, 18) + '<span>for your</span>' + A.cards(o.get, 18) + '</div>' + heldHtml() +
+            '<div class="row2"><button class="btn" data-do=\'' + JSON.stringify({ t: 'reply', offer: o.id, yes: true }) + '\'' + (have ? '' : ' disabled') + '>' + (have ? 'Accept' : 'You do not have that') + '</button>' +
+            '<button class="btn ghost" data-do=\'' + JSON.stringify({ t: 'reply', offer: o.id, yes: false }) + '\'>No thanks</button></div>' + later(key) };
+        }
+        if (o.counter && g.cur === S.id) {
+          /* A counter-offer to you, on your own turn. */
+          const key = 'ctr:' + g.gid + ':' + o.id;
+          if (S.offerHide[key]) continue;
+          const have = hasCards(me.hand, o.get);
+          return { key, html: '<div class="title">' + esc(pname(o.by)) + ' offers you a trade</div>' +
+            '<div class="deal"><span>you get</span>' + A.cards(o.give, 18) + '<span>for your</span>' + A.cards(o.get, 18) + '</div>' + heldHtml() +
+            '<button class="btn" data-do=\'' + JSON.stringify({ t: 'deal', offer: o.id }) + '\'' + (have ? '' : ' disabled') + '>' + (have ? 'Accept the trade' : 'You do not have that') + '</button>' +
+            '<button class="btn ghost" data-hide="' + esc(key) + '">Not now</button>' };
+        }
+        if (!o.counter && o.by === S.id) {
+          /* A yes to your own offer: the deal is yours to close. */
+          const asked = o.to || g.players.filter(p => p.id !== S.id).map(p => p.id);
+          for (const id of asked) {
+            const key = 'yes:' + g.gid + ':' + o.id + ':' + id;
+            if (o.replies[id] !== true || S.offerHide[key]) continue;
+            const waiting = asked.filter(x => o.replies[x] === undefined).length;
+            return { key, html: '<div class="title">' + esc(pname(id)) + ' accepts your offer</div>' +
+              '<div class="deal"><span>you give</span>' + A.cards(o.give, 18) + '<span>for</span>' + A.cards(o.get, 18) + '</div>' +
+              '<button class="btn" data-do=\'' + JSON.stringify({ t: 'deal', offer: o.id, with: id }) + '\'>Deal with ' + esc(pname(id)) + '</button>' +
+              '<button class="btn ghost" data-hide="' + esc(key) + '">' + (waiting ? 'Wait — ' + waiting + ' still to answer' : 'Not yet') + '</button>' };
+          }
+        }
+      }
+      return null;
+    }
+    /* Cities & Knights: an inactive knight and a wheat to wake it with. */
+    function knightNag() {
+      const g = game(), can = S.me && S.me.can;
+      return !!(g && g.ck && can && can.stage === 'main' && can.activate && can.activate.length && can.afford && can.afford.activate);
+    }
+    function endAskHtml() {
+      const g = game(), p = mine(), can = S.me.can;
+      const ks = g.knights.filter(k => k.owner === S.id && can.activate.indexOf(k.id) >= 0);
+      const wheat = S.me.hand.wheat || 0;
+      const def = g.players.reduce((s, x) => s + x.strength, 0);
+      const left = g.barbTrack - g.barb;
+      return '<div class="title">Wake your knight?</div>' +
+        '<div class="sub">You have ' + (ks.length === 1 ? 'a knight' : ks.length + ' knights') + ' lying down and ' + wheat + ' wheat. Only active knights fight the barbarians — ' +
+        (left > 0 ? left + ' more ship' + (left === 1 ? '' : 's') + ' and they land' : 'they land next ship') + ' (cities ' + g.barbStrength + ' against knights ' + def + ').</div>' +
+        ks.map(k => '<button class="btn" data-knight="activate:' + k.id + '">Activate your ' + esc(D.KNIGHT_NAME[k.level]) + ' knight ' + costChips(D.COST.activate) + '</button>').join('') +
+        '<div class="row2"><button class="btn ghost" id="endBack">Back to my turn</button><button class="btn ghost" id="endAnyway">End my turn anyway</button></div>';
     }
 
     function waitCard(title, sub) {
@@ -339,7 +438,7 @@
         /* Your own offer and anything put to you sit right here, whatever tab is
            open — the answers are what you are waiting for. */
         (offerCards().length ? '<div style="margin-top:10px">' + offerCards().join('') + '</div>' : '') +
-        body + '<button class="btn red" data-do=\'{"t":"end"}\' id="end">End your turn</button></div>';
+        body + '<button class="btn red" id="end">End your turn</button></div>';
     }
     function buildHtml(can) {
       const g = game(), p = mine();
@@ -776,7 +875,15 @@
       on('[data-do]', el => { let a; try { a = JSON.parse(el.dataset.do); } catch (e) { return; } act(a); if (a.t === 'end' || a.t === 'deal') S.pick = null; });
       on('[data-tab]', el => { S.tab = el.dataset.tab; S.pick = null; paint(); });
       on('[data-build]', el => startPick(el.dataset.build));
-      on('[data-knight]', el => { const [kind, id] = el.dataset.knight.split(':'); knightAct(kind, +id); });
+      on('[data-knight]', el => { const [kind, id] = el.dataset.knight.split(':'); S.endAsk = false; knightAct(kind, +id); });
+      /* End turn asks first when a knight could still be woken (Cities & Knights). */
+      on('#end', () => {
+        if (!S.endAsk && knightNag()) { S.endAsk = true; paint(); return; }
+        S.endAsk = false; S.pick = null; act({ t: 'end' });
+      });
+      on('#endAnyway', () => { S.endAsk = false; S.pick = null; act({ t: 'end' }); });
+      on('#endBack', () => { S.endAsk = false; S.tab = 'knights'; paint(); });
+      on('[data-hide]', el => { S.offerHide[el.dataset.hide] = true; paint(); });
       on('[data-improve]', el => act({ t: 'improve', track: el.dataset.improve }));
       on('#cancelPick', () => { S.pick = null; S.sel = null; paint(); });
       on('#confirmPick', () => {
