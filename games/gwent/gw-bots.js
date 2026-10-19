@@ -18,11 +18,11 @@
      still to come. One number in one place; everything else falls out of it. */
   const CARD = 6;
   const BASE = { noise: 0, slip: 0, plan: true, look: false, cost: 0.45, r1lead: 0, r1big: 14, dry: 25, mustLead: 12, theyMustPass: 'lead', spy: 2,
-    k: 0.7, k3: 0.85, gem: 0.85, avg: 7, floor: 0, giveUp: 2, top: 8, cheap: true, leaderFirst: true, stall: 8 };
+    k: 0.7, k3: 0.85, gem: 0.85, avg: 7, floor: 0, giveUp: 2, top: 8, cheap: true, leaderFirst: true, stall: 8, spySwap: true };
   const LEVEL = {
     hard: Object.assign({}, BASE, { noise: 0.06, look: true }),
     medium: Object.assign({}, BASE, { noise: 0.3, slip: 0.1 }),
-    easy: Object.assign({}, BASE, { noise: 0.7, slip: 0.25, plan: false, spy: 0.5, cheap: false, leaderFirst: false, stall: 0 })
+    easy: Object.assign({}, BASE, { noise: 0.7, slip: 0.25, plan: false, spy: 0.5, cheap: false, leaderFirst: false, stall: 0, spySwap: false })
   };
   /* floor: a play must be worth more than this now, or it is never made (0:
      no Scorch on your own best, no Clear for the other side, no spy into an
@@ -32,7 +32,7 @@
      Measured 2026-10-18 against the brain without them, same level: about
      even between two houses — the plays they stop are the ones a person
      punishes and a house does not.
-     cheap, leaderFirst, stall, top: how the house picks its card once it has
+     cheap, leaderFirst, stall, spySwap, top: how the house picks its card once it has
      decided to play (2026-10-18, below `cheapest`). Easy keeps the old way —
      its strongest card first. */
   /* Tuning: GW_HARD='{"cost":0.6}' overrides the Hard brain in a test run. */
@@ -331,6 +331,7 @@
   function cheapest(C, cands, a) {
     if (!C.lv.cheap || a.t !== 'play') return a;
     const fin = C.mine.gems === 1 && C.them.gems === 1;
+    if (C.lv.spySwap) { const W = spySwap(C, a.n, fin); if (W) return W; }
     if (C.lv.leaderFirst && !fin) { const L = cands.find(x => x.a.t === 'leader'); if (L) return L.a; }
     if (C.lv.stall && !fin) { const S = stall(C, a.n); if (S) return S; }
     let best = null, bv = 1e9, br = -1e9;
@@ -341,6 +342,31 @@
       if (v < bv || (v === bv && x.raw > br)) { bv = v; br = x.raw; best = x; }
     }
     return best ? best.a : a;
+  }
+  /* A Decoy that takes a spy home (theirs, planted on the house's side) to
+     play it back: worth it while the deck still holds two cards and what is
+     left in it is worth more than the strength the spy hands over — twice
+     that in the last round, where the spy's strength leaves her side AND
+     goes to theirs, and there is no later round to keep cards for. Before
+     this (2026-10-20, the user: it "will sometimes use decoy on a weak card
+     and leave the spy") the stall took the weakest unit, never the spy.
+     Measured: fires in ~4% of house games, +0.2 overall (40,000 games), so
+     about +5 points in the games where it happens. */
+  function spySwap(C, n, fin) {
+    if (spyCards(C) < 2) return null;
+    const left = C.me.deckLeft || {};
+    let t = 0, k = 0;
+    for (const id of Object.keys(left)) { t += left[id] * handVal(C, id, 0); k += left[id]; }
+    let best = null, bs = 1e9;
+    for (const h of C.me.can.hand) {
+      if (D.card(h.card).sp !== 'decoy') continue;
+      for (const pl of h.plays) {
+        const sp = D.card(pl.card);
+        if (!sp || sp.ab !== 'spy' || !k || spyCards(C) * t / k <= sp.str * (fin ? 2 : 1)) continue;
+        if (sp.str < bs) { bs = sp.str; best = { t: 'play', n, uid: h.uid, row: pl.row == null ? null : pl.row, target: pl.target }; }
+      }
+    }
+    return best;
   }
   function stall(C, n) {
     let best = null, bd = -1e9;
