@@ -18,9 +18,9 @@
      still to come. One number in one place; everything else falls out of it. */
   const CARD = 6;
   const BASE = { noise: 0, slip: 0, plan: true, look: false, cost: 0.45, r1lead: 0, r1big: 14, dry: 25, mustLead: 12, theyMustPass: 'lead', spy: 2,
-    k: 0.7, k3: 0.85, gem: 0.85, avg: 7, floor: 0, giveUp: 2, top: 8, cheap: true, leaderFirst: true, stall: 8, spySwap: true };
+    k: 0.7, k3: 0.85, gem: 0.85, avg: 7, floor: 0, giveUp: 2, top: 8, cheap: true, leaderFirst: true, stall: 8, spySwap: true, keepDecoy: 0, halfMax: 0 };
   const LEVEL = {
-    hard: Object.assign({}, BASE, { noise: 0.06, look: true }),
+    hard: Object.assign({}, BASE, { noise: 0.06, look: true, keepDecoy: 0.4, halfMax: 6 }),
     medium: Object.assign({}, BASE, { noise: 0.3, slip: 0.1 }),
     easy: Object.assign({}, BASE, { noise: 0.7, slip: 0.25, plan: false, spy: 0.5, cheap: false, leaderFirst: false, stall: 0, spySwap: false })
   };
@@ -34,7 +34,8 @@
      punishes and a house does not.
      cheap, leaderFirst, stall, spySwap, top: how the house picks its card once it has
      decided to play (2026-10-18, below `cheapest`). Easy keeps the old way —
-     its strongest card first. */
+     its strongest card first. keepDecoy, halfMax (Hard only, 2026-10-20,
+     from a strategy guide the user shared): below `stall` and `turnAnswer`. */
   /* Tuning: GW_HARD='{"cost":0.6}' overrides the Hard brain in a test run. */
   if (typeof process !== 'undefined' && process.env && process.env.GW_HARD) Object.assign(LEVEL.hard, JSON.parse(process.env.GW_HARD));
   if (typeof process !== 'undefined' && process.env && process.env.GW_MED) Object.assign(LEVEL.medium, JSON.parse(process.env.GW_MED));
@@ -255,6 +256,26 @@
   }
 
   function turnAnswer(C, view) {
+    const a = turnCore(C, view);
+    /* Hard, a round up, about to pass with them still playing: a throwaway
+       unit first (strength ≤ halfMax; a strategy guide's "half commit"), so
+       they must spend more to take the round. Measured 2026-10-20 against
+       the Hard before it: +0.5 (40,000 games; it changes ~6% of games).
+       The gain is all from the house BEHIND: limited to plays that leave it
+       ahead it was worth +0.1, and a house a round down that passes when
+       ahead (to dodge it) lost 2–7. */
+    if (a.t !== 'pass' || !C.lv.halfMax || C.them.passed || !(C.mine.gems > C.them.gems)) return a;
+    let best = null, bv = 1e9;
+    for (const h of C.me.can.hand) {
+      const c = D.card(h.card);
+      if (c.kind !== 'unit' || c.hero || c.ab === 'spy') continue;
+      const v = handVal(C, h.card, h.up);
+      if (v > C.lv.halfMax) continue;
+      for (const pl of h.plays) { const d = pl.delta ? pl.delta.me - pl.delta.them : 0; if (d > 0 && v < bv) { bv = v; best = { t: 'play', n: view.n, uid: h.uid, row: pl.row == null ? null : pl.row, target: null }; } }
+    }
+    return best || a;
+  }
+  function turnCore(C, view) {
     const can = C.me.can;
     const cands = [];
     const finalRound = C.mine.gems === 1 && C.them.gems === 1;
@@ -368,7 +389,30 @@
     }
     return best;
   }
+  /* Their spies still to come: their standard list's spies less every spy
+     of theirs seen. A spy they play lands on the house's side and dies into
+     the house's pile, so that is where theirs are counted. */
+  function theirSpiesLeft(C) {
+    const ti = 1 - C.si, them = C.pub.players[ti];
+    const list = D.STANDARD[them.fac] || [];
+    let n = list.filter(id => D.card(id) && D.card(id).ab === 'spy').length;
+    const mine = C.pub.players[C.si];
+    const seen = mine.disc.map(x => x.id).concat(...C.b.sides[C.si].rows.map(r => r.units.map(u => u.id)));
+    for (const id of seen) { const c = D.card(id); if (c && c.ab === 'spy' && c.fac === them.fac) n--; }
+    return Math.max(0, n);
+  }
   function stall(C, n) {
+    /* Hard keeps its LAST Decoy from a stall while the other side probably
+       holds a spy (their unseen spies × hand / (hand + deck) ≥ keepDecoy), so
+       it can take that spy home when it lands. Measured 2026-10-20 against
+       the Hard before it: +0.7 (40,000 games). Holding it whenever a spy
+       MIGHT come cost 2.6; holding every Decoy, 3.6 — the stall is worth
+       more than a maybe. */
+    if (C.lv.keepDecoy && C.them.handN) {
+      const decoys = C.me.hand.filter(x => D.card(x.id) && D.card(x.id).sp === 'decoy').length;
+      const left = theirSpiesLeft(C);
+      if (decoys <= 1 && left * C.them.handN / Math.max(1, C.them.handN + (C.them.deckN || 0)) >= C.lv.keepDecoy) return null;
+    }
     let best = null, bd = -1e9;
     for (const h of C.me.can.hand) {
       if (D.card(h.card).sp !== 'decoy') continue;
