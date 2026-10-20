@@ -1085,7 +1085,7 @@
       const lim = g.limit(p);
       if (n <= lim) continue;
       const need = Math.floor(n / 2);
-      g.discardAsk(p, need, 'A 7 — you hold ' + n + ' cards, so ' + need + ' go back to the bank.', 'seven');
+      g.discardAsk(p, need, (p === g.curP() ? 'You rolled a 7' : g.curP().name + ' rolled a 7') + ' — you hold ' + n + ' cards, so ' + need + ' go back to the bank.', 'seven');
     }
     g.push(() => {
       if (g.robber == null) { g.say({ t: 'robberAsleep' }); return; }

@@ -251,6 +251,10 @@
   /* Where the robber and the merchant stand on a hex: beside the number disc,
      so the number stays readable from the sofa. */
   const ROBBER_AT = [-0.42, 0.12], MERCHANT_AT = [0.42, 0.12];
+  /* The number disc under the robber is struck through; the robber stands on
+     a red ring. */
+  const NO_SIGN = '<circle r="34" fill="none" stroke="#ff5a52" stroke-width="6"/><line x1="-24" y1="-24" x2="24" y2="24" stroke="#ff5a52" stroke-width="6" stroke-linecap="round"/>';
+  const robberRing = (x, y) => '<ellipse cx="' + f(x) + '" cy="' + f(y) + '" rx="30" ry="12" fill="#ff5a52" fill-opacity=".45" stroke="#ffd0cc" stroke-width="3.5"/>';
 
   /*  o: {
         mode:   'tv' | 'phone'
@@ -298,6 +302,16 @@
     });
     out.push('</g>');
 
+    /* The robber's hex: darkened inside a red border, so it reads as "this
+       pays nothing" from across the room, not just as a small grey figure. */
+    out.push('<g data-layer="blocked">');
+    if (pub.robber != null && B.hexes[pub.robber]) {
+      const h = B.hexes[pub.robber];
+      out.push('<polygon points="' + hexPts(h.x * S, h.y * S, 0.97 * S) + '" fill="#0b0f1a" opacity=".5"/>' +
+        '<polygon points="' + hexPts(h.x * S, h.y * S, 0.9 * S) + '" fill="none" stroke="#ff5a52" stroke-width="7" stroke-dasharray="16 9" stroke-linejoin="round"/>');
+    }
+    out.push('</g>');
+
     /* harbours: a pier to each of the two crossings (baked into the sea plate),
        a flag with the rate */
     out.push('<g data-layer="harbours">');
@@ -327,13 +341,14 @@
       const red = x.n === 6 || x.n === 8;
       const hot = o.hot === x.n;
       const blocked = pub.robber === i;
-      out.push('<g transform="translate(' + f(h.x * S) + ' ' + f(h.y * S) + ')"' + (hot ? ' filter="url(#ctGlow)"' : '') + (blocked ? ' opacity=".55"' : '') + '>' +
+      out.push('<g transform="translate(' + f(h.x * S) + ' ' + f(h.y * S) + ')"' + (hot ? ' filter="url(#ctGlow)"' : '') + '>' + (blocked ? '<g opacity=".5">' : '') +
         (hot ? '<circle r="40" fill="#fff6c9" opacity=".85"/>' : '') +
         (baked
           ? spriteAt('token', null, 0, 0) + (hot ? '<circle r="31" fill="none" stroke="#f2b705" stroke-width="5"/>' : '')
           : '<circle r="31" fill="url(#ctToken)" stroke="' + (hot ? '#f2b705' : '#8a6d3b') + '" stroke-width="' + (hot ? 5 : 2.5) + '"/>') +
         '<text y="7" text-anchor="middle" font-size="' + (red ? 29 : 27) + '" font-weight="800" fill="' + (red ? '#c8261c' : '#2a1f10') + '" font-family="Georgia,serif">' + x.n + '</text>' +
-        '<g fill="' + (red ? '#c8261c' : '#2a1f10') + '">' + pips(D.PIPS[x.n]) + '</g></g>');
+        '<g fill="' + (red ? '#c8261c' : '#2a1f10') + '">' + pips(D.PIPS[x.n]) + '</g>' +
+        (blocked ? '</g>' + NO_SIGN : '') + '</g>');
     });
     out.push('</g>');
 
@@ -395,7 +410,8 @@
     out.push('<g data-layer="robber">');
     if (pub.robber != null) {
       const h = B.hexes[pub.robber];
-      out.push('<g transform="translate(' + f((h.x + ROBBER_AT[0]) * S) + ' ' + f((h.y + ROBBER_AT[1]) * S) + ')" filter="url(#ctLift)">' +
+      out.push(robberRing((h.x + ROBBER_AT[0]) * S, (h.y + ROBBER_AT[1]) * S + 24 * 1.25) +
+        '<g transform="translate(' + f((h.x + ROBBER_AT[0]) * S) + ' ' + f((h.y + ROBBER_AT[1]) * S) + ') scale(1.25)" filter="url(#ctLift)">' +
         '<ellipse cx="0" cy="24" rx="17" ry="6" fill="#000" opacity=".3"/>' +
         '<path d="M-15 24 C-15 4 -9 -6 0 -6 C9 -6 15 4 15 24Z" fill="#3a3d45" stroke="#0e0f13" stroke-width="3"/>' +
         '<circle cy="-16" r="10.5" fill="#4a4e58" stroke="#0e0f13" stroke-width="3"/></g>');
@@ -495,7 +511,9 @@
     out.push('<g data-layer="robber">');
     if (pub.robber != null) {
       const h = B.hexes[pub.robber];
-      out.push(spriteAt('robber', null, (h.x + ROBBER_AT[0]) * S, (h.y + ROBBER_AT[1] + 0.2) * S));
+      /* Half as big again as it was baked: a dark figure on a darkened hex. */
+      const x = (h.x + ROBBER_AT[0]) * S, y = (h.y + ROBBER_AT[1] + 0.2) * S;
+      out.push(robberRing(x, y) + '<g transform="translate(' + f(x) + ' ' + f(y) + ') scale(1.5) translate(' + f(-x) + ' ' + f(-y) + ')">' + spriteAt('robber', null, x, y) + '</g>');
     }
     out.push('</g>');
     out.push('<g data-layer="merchant">');

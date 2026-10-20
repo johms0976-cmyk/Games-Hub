@@ -43,6 +43,13 @@
       /* Solo (F1, "show the house's turns"): a house turn may not start until
          the player has had this long to read the house's previous move. */
       houseShowMs: { relaxed: 2700, brisk: 1500 },
+      /* "What just happened to you" (the robber moved, a card taken from your
+         hand) waits for Continue, and the house waits with it. Alone, for as
+         long as it takes; in a room, a pocketed phone holds the house no
+         longer than this. */
+      noticeRoomMs: 25000,
+      /* The telly's "the robber moves" banner. */
+      robberShowMs: { relaxed: 5500, brisk: 4000 },
       /* After a phone's move that can still be taken back, the house holds off
          this long (solo only; a room has other people to wait for). */
       undoMs: 3000,
@@ -74,7 +81,8 @@
       lastRoll: 0,
       attack: null,
       finale: null, finaleN: 0,
-      hidden: false, houseAt: []
+      hidden: false, houseAt: [],
+      notices: {}, noticeN: 0, rob: null, seven: null, robCause: null, robberShow: null
     };
     const H = { S, T, solo };
     S.T = T;
@@ -162,6 +170,7 @@
       S.moves = []; S.undone = null;
       S.pay = null; S.banked = false; S.crier = []; S.cryN = 0; S.reel = null; S.reelAt = 0;
       S.thinking = {}; S.stateKey = ''; S.lastRoll = 0; S.attack = null; S.finale = null;
+      clearNotices(); resetTrack();
       S.screen = 'play';
       if (moves && moves.length) {
         S.quiet = true;
@@ -172,6 +181,7 @@
       if (env.stopFinale) env.stopFinale();
       S.g = null; S.screen = 'lobby'; S.pay = null; S.gameOpts = null; S.createOpts = null; S.moves = [];
       S.attack = null; S.finale = null; S.reel = null; S.crier = [];
+      clearNotices(); resetTrack();
       if (env.save) env.save(null);
       changed();
     };
@@ -220,6 +230,7 @@
         attack: S.attack ? Object.assign({}, S.attack) : null,
         crier: S.crier.slice(0, 14),
         reel: S.reel ? Object.assign({}, S.reel) : null,
+        robberShow: S.robberShow ? JSON.parse(JSON.stringify(S.robberShow)) : null,
         undone: S.undone ? S.undone.text : null,
         finale: S.finale ? { n: S.finale.n, stage: S.finale.stage, label: S.finale.label || '' } : null,
         pay: S.pay && told ? S.pay.map(p => ({ name: p.name, winnings: p.winnings, detail: p.detail, bot: p.bot })) : null,
@@ -235,7 +246,7 @@
     H.sendSeat = function (id) {
       const g = S.g;
       if (!g || g.idx(id) < 0) return;
-      env.toSeat(id, { t: 'catan-me', me: g.seatView(id), undo: undoInfo(id) });
+      env.toSeat(id, { t: 'catan-me', me: g.seatView(id), undo: undoInfo(id), notices: (S.notices[id] || []).map(x => JSON.parse(JSON.stringify(x))) });
     };
     function changed() { if (env.onChange) env.onChange(); H.publish(); }
 
@@ -270,6 +281,7 @@
       if (!g) return;
       if (msg.t === 'hurry') { if (from === holder) hurry(); return; }
       if (msg.t === 'cont') { if (S.attack && from === holder) attackDone(S.attack.n); return; }
+      if (msg.t === 'seen') { noticeSeen(String(from), +msg.k); return; }
       if (msg.t === 'undo') { doUndo(from); return; }
       if (msg.t === 'do' && msg.a && typeof msg.a === 'object') {
         const r = play(g, from, clean(msg.a));
@@ -382,7 +394,7 @@
        ================================================================ */
     function houseThinks() {
       const g = S.g;
-      if (!g || g.phase === 'over' || g.hold || S.hidden) return;
+      if (!g || g.phase === 'over' || g.hold || S.hidden || noticeHeld()) return;
       /* A turn's key carries the state of the offers too: somebody answering a
          house player's offer changes nothing else, and it must still get to see
          the answer. */
@@ -408,7 +420,7 @@
           if (!p.bot || p.id === o.by || p.id in o.replies) continue;
           if (o.to && o.to.indexOf(p.id) < 0) continue;
           schedule('o' + o.id + ':' + p.id, T.replyMin, T.replyMax, 0, () => {
-            if (S.g !== g || !g.offers.some(x => x.id === o.id) || S.hidden) { S.thinking['o' + o.id + ':' + p.id] = false; return; }
+            if (S.g !== g || !g.offers.some(x => x.id === o.id) || S.hidden || noticeHeld()) { S.thinking['o' + o.id + ':' + p.id] = false; return; }
             const r = play(g, p.id, B.reply(g.publicView(), g.seatView(p.id), o));
             if (r.ok) H.afterChange();
           });
@@ -425,7 +437,7 @@
       if (S.g !== g || g.phase === 'over' || g.hold) return;
       const pr = g.promptFor(id);
       if (!pr || pr.n !== n) return;
-      if (S.hidden) { S.thinking = {}; return; }
+      if (S.hidden || noticeHeld()) { S.thinking = {}; return; }
       const me = g.seatView(id);
       let a = B.answer(g.publicView(), me, me.prompt, { waited });
       if (a.t === 'wait') {
@@ -539,6 +551,7 @@
       try {
         S.g = fresh(S.createOpts);
         S.moves = []; S.crier = []; S.cryN = 0;
+        resetTrack();
         S.quiet = true;
         replayInto(S.g, keep);
         hearLog();
@@ -548,6 +561,8 @@
         return;
       } finally { S.quiet = false; }
       S.thinking = {}; S.stateKey = '';
+      /* A pop-up about a move that is no longer on the island would lie. */
+      clearNotices();
       const name = (S.g.seat(from) || {}).name || '?';
       const undone = { text: name + ' takes back ' + info.what + '.' };
       S.undone = undone;
@@ -572,6 +587,10 @@
         S.opts = Object.assign({}, S.opts, data.opts || {});
         S.gameOpts = Object.assign({}, data.opts || S.opts);
         begin(data.createOpts, data.moves || []);
+        /* What the log already holds was told before the phone closed: hear it
+           without popping any of it up again. */
+        S.hush = true;
+        try { hearLog(); } finally { S.hush = false; }
         /* A landing that was showing when the phone closed: show it again. */
         H.afterChange();
         return true;
@@ -629,6 +648,7 @@
         Object.defineProperty(e, '__seen', { value: true, enumerable: false });
         const w = W.line(g, e);
         if (w) cry(w, e.by || e.a || null, e.t);
+        noticeHear(g, e);
         if (e.t === 'roll' && !S.quiet) {
           /* The telly's dice shake for a moment. A flag cleared on a timer,
              not a clock read while painting, so two paints of the same state
@@ -638,6 +658,7 @@
           later(() => { if (S.lastRoll === n && S.rollFresh) { S.rollFresh = false; changed(); } }, 700);
         }
       }
+      robDone(g);
     }
     function cry(text, by, t) {
       const line = { i: ++S.cryN, text, by: by || null, t: t || '' };
@@ -651,6 +672,173 @@
       else if (p && !p.bot && t === 'roll') S.reel = null;
     }
     H.cry = cry;
+
+    /* ================================================================
+       "What just happened to you." The robber moving and a card taken from
+       your hand both happen on somebody else's move, so without this a hand
+       simply shrinks. Each is a pop-up on the phones it concerns, built here
+       from the log (the host may read every seat's private notes; a phone is
+       only ever sent its own), and the house waits until it is answered.
+       ================================================================ */
+    function resetTrack() { S.rob = null; S.seven = null; S.robCause = null; }
+    function clearNotices() { S.notices = {}; S.robberShow = null; }
+    function noticeHeld() {
+      for (const id in S.notices) if (S.notices[id].length) return true;
+      return false;
+    }
+    H.noticeHeld = noticeHeld;
+    const humanIds = () => (S.g ? S.g.players.filter(p => !p.bot).map(p => p.id) : []);
+    const nm = id => { const p = S.g && S.g.seat(id); return p ? p.name : '?'; };
+    const progWords = k => D.progName(k) + (D.PROGRESS[k] && D.PROGRESS[k].alt ? ' (' + D.PROGRESS[k].alt + ')' : '');
+    const cardTotal = c => Object.keys(c || {}).reduce((s, k) => s + (c[k] || 0), 0);
+    function hexWords(g, h) {
+      const x = g.hexes[h];
+      if (!x) return 'a hex';
+      return (x.n ? 'the ' + x.n + ' ' : 'the ') + D.TERRAIN[x.t].name.toLowerCase();
+    }
+    /* The newest private note of kind `t` this seat got from `by`. */
+    function lastNote(g, id, t, by) {
+      const l = g.notes[id] || [];
+      for (let i = l.length - 1; i >= 0; i--) if (l[i].t === t && l[i].by === by) return l[i];
+      return null;
+    }
+    function notify(id, n) {
+      if (S.quiet || S.hush) return;
+      n.k = ++S.noticeN;
+      (S.notices[id] = S.notices[id] || []).push(n);
+      /* A room: a phone in a pocket must not hold the house all evening. */
+      if (!solo) { const k = n.k; later(() => noticeSeen(id, k), T.noticeRoomMs); }
+    }
+    function noticeSeen(id, k) {
+      const l = S.notices[id];
+      if (!l) return;
+      const i = l.findIndex(x => x.k === k);
+      if (i < 0) return;
+      l.splice(i, 1);
+      if (!l.length) delete S.notices[id];
+      H.afterChange();
+    }
+    H.noticeSeen = noticeSeen;
+    /* Read one engine event. The robber's story spans several (a 7, the
+       discards, the move, the theft — which may wait on a question), so it is
+       gathered in S.rob and told once it is whole (robDone). */
+    function noticeHear(g, e) {
+      /* A robbery that is whole is told before whatever followed it. */
+      if (S.rob && S.rob.done && e.t !== 'steal') robDone(g);
+      switch (e.t) {
+        case 'roll':
+          S.seven = e.sum === 7 ? { by: e.by, discards: [] } : null;
+          S.robCause = null;
+          return;
+        case 'discard':
+          if (e.cause === 'seven' && S.seven) S.seven.discards.push({ id: e.by, n: cardTotal(e.cards) });
+          return;
+        case 'robberAsleep': {
+          const sv = S.seven;
+          S.seven = null;
+          if (!sv) return;
+          for (const id of humanIds()) {
+            if (id === sv.by) continue;
+            const lines = ['The robber waits beside the barbarian track until the barbarians first land, so nobody is robbed.'];
+            if (sv.discards.length) lines.push(discardWords(sv.discards, id));
+            notify(id, { kind: 'seven', by: sv.by, title: nm(sv.by) + ' rolled a 7', lines });
+          }
+          return;
+        }
+        case 'dev': if (e.card === 'knight') S.robCause = { by: e.by, how: 'knight' }; return;
+        case 'prog': if (e.card === 'taxation') S.robCause = { by: e.by, how: 'taxation' }; return;
+        case 'chase': S.robCause = { by: e.by, how: 'chase' }; return;
+        case 'robber': {
+          const sv = S.seven && S.seven.by === e.by ? S.seven : null;
+          const how = sv ? 'seven' : (S.robCause && S.robCause.by === e.by ? S.robCause.how : 'move');
+          S.rob = { by: e.by, from: e.from, to: e.to, how, discards: sv ? sv.discards : [], steals: [], done: false };
+          S.seven = null; S.robCause = null;
+          return;
+        }
+        case 'steal':
+          if (S.rob && S.rob.by === e.by) {
+            const nt = lastNote(g, e.from, 'robbed', e.by);
+            S.rob.steals.push({ from: e.from, card: nt ? nt.card : null });
+            S.rob.done = true;
+          }
+          return;
+        case 'robNobody':
+          if (S.rob && S.rob.by === e.by) S.rob.done = true;
+          return;
+        case 'monopoly': case 'resmono': case 'trademono': {
+          const k = e.t === 'monopoly' ? e.res : e.type;
+          const card = D.cardName(k).toLowerCase();
+          const title = nm(e.by) + ' played ' + (e.t === 'monopoly' ? 'Monopoly' : progWords(e.t));
+          const how = e.t === 'monopoly' ? 'They named ' + card + ': every ' + card + ' card on the island goes to them.'
+            : e.t === 'resmono' ? 'They named ' + card + ': every player hands them up to 2 ' + card + '.'
+            : 'They named ' + card + ': every player hands them 1 ' + card + '.';
+          for (const id of humanIds()) {
+            if (id === e.by || !(e.from && e.from[id] > 0)) continue;
+            notify(id, { kind: 'loss', by: e.by, title, lines: [how], lose: { [k]: e.from[id] } });
+          }
+          return;
+        }
+        case 'dues': {
+          const v = g.seat(e.from);
+          if (!v || v.bot || !e.n) return;
+          const nt = lastNote(g, e.from, 'taken', e.by);
+          notify(v.id, { kind: 'loss', by: e.by, title: nm(e.by) + ' played ' + progWords('dues'),
+            lines: ['They have more points than you, so they looked through your hand and took ' + e.n + ' card' + (e.n === 1 ? '' : 's') + '.'],
+            lose: nt ? Object.assign({}, nt.cards) : null });
+          return;
+        }
+        case 'spy': {
+          const v = g.seat(e.from);
+          if (!v || v.bot || !e.took) return;
+          const nt = lastNote(g, e.from, 'spiedOn', e.by);
+          notify(v.id, { kind: 'loss', by: e.by, title: nm(e.by) + ' played ' + progWords('espionage'),
+            lines: ['They looked through your progress cards and took ' + (nt ? progWords(nt.card) : 'one') + '.'], loseProg: nt ? nt.card : null });
+          return;
+        }
+      }
+    }
+    function discardWords(list, id) {
+      return 'Thrown back on the 7: ' + list.map(d => (d.id === id ? 'you' : nm(d.id)) + ' ' + d.n).join(' · ') + '.';
+    }
+    function robDone(g) {
+      const r = S.rob;
+      if (!r || !r.done) return;
+      S.rob = null;
+      const where = hexWords(g, r.to);
+      const by = nm(r.by);
+      const head = r.how === 'seven' ? by + ' rolled a 7 and moved the robber to ' + where + '.'
+        : r.how === 'knight' ? by + ' played a Knight and moved the robber to ' + where + '.'
+        : r.how === 'chase' ? by + '’s knight chased the robber off. It moves to ' + where + '.'
+        : r.how === 'taxation' ? by + ' played ' + progWords('taxation') + ' and moved the robber to ' + where + ': everyone beside it pays a card.'
+        : by + ' moved the robber to ' + where + '.';
+      const dead = g.hexes[r.to] && g.hexes[r.to].n
+        ? 'Until it moves again, ' + where + ' produces nothing for anyone.'
+        : 'On the desert it blocks nothing.';
+      const title = r.how === 'seven' ? 'A 7: the robber moves!' : 'The robber moves!';
+      const theft = id => {
+        if (!r.steals.length) return ['Nobody beside it had a card to rob.'];
+        const others = r.steals.filter(s => s.from !== id).map(s => nm(s.from));
+        return others.length ? [by + ' robbed ' + others.join(' and ') + ' of a card' + (others.length > 1 ? ' each' : '') + '.'] : [];
+      };
+      for (const id of humanIds()) {
+        if (id === r.by) continue;
+        const lines = [head, dead];
+        if (r.discards.length) lines.push(discardWords(r.discards, id));
+        lines.push.apply(lines, theft(id));
+        const mine = r.steals.find(s => s.from === id);
+        notify(id, { kind: 'robber', by: r.by, title, lines, hex: r.to, from: r.from,
+          robbed: !!mine, lose: mine && mine.card ? { [mine.card]: 1 } : null });
+      }
+      if (S.quiet || S.hush) return;
+      /* The telly: a banner over the island while the room takes it in. */
+      const n = (S.robberShow ? S.robberShow.n : 0) + 1;
+      const lines = [head, dead];
+      if (r.discards.length) lines.push(discardWords(r.discards, null));
+      lines.push.apply(lines, theft(null));
+      const p = g.seat(r.by);
+      S.robberShow = { n, title, by: r.by, hex: p ? p.hex : null, to: r.to, lines };
+      later(() => { if (S.robberShow && S.robberShow.n === n) { S.robberShow = null; changed(); } }, pick(T.robberShowMs, 4500));
+    }
 
     /* ================================================================
        The winner reveal (docs/LESSONS-CHECKLIST.md H3, shared/finale.js).
