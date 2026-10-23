@@ -579,7 +579,8 @@
       const g = S.g;
       return { v: VERSION, createOpts: S.createOpts, moves: S.moves, opts: S.gameOpts || S.opts, at: Date.now(),
         turnNo: g ? g.turnNo : 0, ck: g ? g.ck : false, target: g ? g.target : 0,
-        names: g ? g.players.map(p => p.name) : [], vps: g ? g.players.map(p => g.publicVP(p)) : [] };
+        names: g ? g.players.map(p => p.name) : [], vps: g ? g.players.map(p => g.publicVP(p)) : [],
+        notices: S.notices };
     };
     H.resume = function (data) {
       if (!data || !data.createOpts) return false;
@@ -588,9 +589,12 @@
         S.gameOpts = Object.assign({}, data.opts || S.opts);
         begin(data.createOpts, data.moves || []);
         /* What the log already holds was told before the phone closed: hear it
-           without popping any of it up again. */
+           without popping any of it up again — except the pop-ups still
+           waiting for Continue when it closed, which wait again. */
         S.hush = true;
         try { hearLog(); } finally { S.hush = false; }
+        S.notices = data.notices && typeof data.notices === 'object' ? JSON.parse(JSON.stringify(data.notices)) : {};
+        for (const id in S.notices) for (const n of S.notices[id]) S.noticeN = Math.max(S.noticeN, n.k);
         /* A landing that was showing when the phone closed: show it again. */
         H.afterChange();
         return true;
@@ -680,7 +684,7 @@
        from the log (the host may read every seat's private notes; a phone is
        only ever sent its own), and the house waits until it is answered.
        ================================================================ */
-    function resetTrack() { S.rob = null; S.seven = null; S.robCause = null; }
+    function resetTrack() { S.rob = null; S.seven = null; S.robCause = null; S.lastDice = null; }
     function clearNotices() { S.notices = {}; S.robberShow = null; }
     function noticeHeld() {
       for (const id in S.notices) if (S.notices[id].length) return true;
@@ -729,7 +733,27 @@
         case 'roll':
           S.seven = e.sum === 7 ? { by: e.by, discards: [] } : null;
           S.robCause = null;
+          S.lastDice = { by: e.by, y: e.y, r: e.r, e: e.e || null, sum: e.sum, fixed: !!e.fixed };
           return;
+        case 'produce': {
+          /* Alone (the GitHub build), every roll is a card: the dice and what
+             each settler took. On the hub the telly shows the room instead. */
+          const d = S.lastDice;
+          if (!solo || !d || d.sum !== e.sum) return;
+          S.lastDice = null;
+          const lines = [];
+          if (d.e) lines.push(d.e === 'ship' ? 'Event die: a ship. The barbarians sail one step closer.'
+            : 'Event die: the ' + D.TRACK[d.e].name.toLowerCase() + ' gate. Cities improved far enough in ' + D.TRACK[d.e].name.toLowerCase() + ' draw a progress card.');
+          const rh = g.robber != null ? g.hexes[g.robber] : null;
+          if (rh && rh.n === e.sum && D.TERRAIN[rh.t].res) lines.push('The robber stops ' + hexWords(g, g.robber) + ' from paying.');
+          if ((e.short || []).length) lines.push('The bank ran short of ' + e.short.map(k => D.cardName(k).toLowerCase()).join(' and ') + ', so nobody got any.');
+          const rows = g.players.map(p => ({ id: p.id, name: p.name, hex: p.hex, gains: e.gains && e.gains[p.id] ? Object.assign({}, e.gains[p.id]) : null }));
+          for (const id of humanIds()) {
+            notify(id, { kind: 'roll', by: d.by, title: (id === d.by ? 'You' : nm(d.by)) + (d.fixed ? ' set the dice to ' : ' rolled ') + d.sum,
+              dice: { y: d.y, r: d.r, e: d.e }, sum: d.sum, rows, lines });
+          }
+          return;
+        }
         case 'discard':
           if (e.cause === 'seven' && S.seven) S.seven.discards.push({ id: e.by, n: cardTotal(e.cards) });
           return;
