@@ -205,6 +205,17 @@ const GAMES = [
     status: "playable",
   },
   {
+    id: "bow-to-your-partner",
+    title: "Bow to Your Partner",
+    subtitle: "A trick-taking roguelike — partner up with Nan, dance through the Church Hall and beat the Twins at 500",
+    category: "card",
+    players: "1",
+    duration: "30–45 min",
+    icon: "🪕",
+    accentColor: "#8a2d22",
+    status: "playable",
+  },
+  {
     id: "fcm",
     title: "Food Chain Magnate",
     subtitle: "Sell the Fast Food",
