@@ -207,10 +207,10 @@ const GAMES = [
   {
     id: "bow-to-your-partner",
     title: "Bow to Your Partner",
-    subtitle: "A trick-taking roguelike — partner up with Nan, dance through the Church Hall and beat the Twins at 500",
+    subtitle: "A trick-taking roguelike — partner up with Nan at 500 through the Church Hall and the Barn Dance: misère, hexes and three rival pairs",
     category: "card",
     players: "1",
-    duration: "30–45 min",
+    duration: "45 min – 1 h",
     icon: "🪕",
     accentColor: "#8a2d22",
     status: "playable",

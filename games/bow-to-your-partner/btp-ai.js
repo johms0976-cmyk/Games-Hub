@@ -31,6 +31,7 @@
   function cost(L, seat, c) {
     const k = K(L, seat, c), trump = L.h.trump;
     if (c === 'JK') return 200;
+    if (k.m && k.m.enh === 'outcast') return 1;          // it never wins, so it's the first card to throw
     if (kIsTrump(k, trump)) return 50 + kTrumpRank(k, trump);
     return kRank(k);
   }
@@ -51,7 +52,7 @@
   /* Seats still to play after this one in the current trick. */
   function after(h, seat) {
     const out = [];
-    for (let p = (seat + 1) % 4; p !== leaderOf(h, seat); p = (p + 1) % 4) if (!h.trick[p]) out.push(p);
+    for (let p = (seat + 1) % 4; p !== leaderOf(h, seat); p = (p + 1) % 4) if (!h.trick[p] && p !== h.out) out.push(p);
     return out;
   }
   /* Nothing still out could beat this trick's best card if c is played. */
@@ -67,6 +68,7 @@
   function play(L, seat) {
     const h = L.h, trump = h.trump, legal = E.legalPlays(L, seat);
     if (legal.length === 1) return legal[0];
+    if (h.misere) return misPlay(L, seat, legal);
     if (h.leader === null || !h.trick[h.leader]) return lead(L, seat, legal);
     const out = unseen(L, seat);
     const last = after(h, seat).length === 0;
@@ -93,6 +95,8 @@
 
   function lead(L, seat, legal) {
     const h = L.h, trump = h.trump, out = unseen(L, seat);
+    const hunt = sharpsHunt(L, seat, legal);
+    if (hunt) return hunt;
     const ours = h.contractor !== null && team(h.contractor) === team(seat);
     const isT = c => kIsTrump(K(L, seat, c), trump);
     const trumps = legal.filter(isT), plain = legal.filter(c => !isT(c));
@@ -145,8 +149,11 @@
       if (k.m && k.m.enh === 'giant') est += 0.15;
     }
     if (trump) est += Math.max(0, nTrump - Math.ceil(A.hand / 3)) * 0.3;
-    return est + A.hand * 0.2;
+    return est + A.hand * SHARE[act];
   }
+  /* The tricks a seat counts on from its partner, per card in the hand, by act
+     (tuned on redeals and made rates: tests/measure.js). */
+  const SHARE = { 1: 0.2, 2: 0.3, 3: 0.2 };
   /* How sure a seat must be before it bids: Nan (and you, as the stand-in) are
      steady; West and East bid a little bolder, so more intents come up. */
   const MARGIN = { 0: 0.15, 1: -0.15 };
@@ -157,7 +164,11 @@
     if (h.high && team(h.high.seat) === team(seat)) return null;
     const legal = E.legalBids(L);
     let best = null;
+    const mis = legal.find(b => b.s === 'MIS');
+    const hustling = L.boss === 'hustlers' && team(seat) === 1;
+    if (mis && misDanger(h.hands[seat]) <= (hustling ? api.HUSTLE : MIS_SAFE[team(seat)])) return { t: 0, s: 'MIS' };
     for (const b of legal) {
+      if (b.s === 'MIS') continue;
       const e = estimate(h.hands[seat], b.s, L.act, L, seat);
       if (e < b.t + MARGIN[team(seat)]) continue;
       const slack = e - b.t;
@@ -172,14 +183,93 @@
     const h = L.h, A = ACTS[L.act], denoms = Object.keys(A.bids[Object.keys(A.bids)[0]]);
     let best = null;
     for (const s of denoms) {
-      const e = estimate(h.hands[seat], s, L.act, L, seat) - A.hand * 0.2;
+      const e = estimate(h.hands[seat], s, L.act, L, seat) - A.hand * SHARE[L.act];
       if (!best || e > best.e) best = { s, e };
     }
     return best && best.e >= A.hand * 0.3 ? best.s : null;
   }
 
   /* The contractor keeps its trumps and aces and throws the cheapest card. */
-  function discard(L, seat) { return cheapest(L, seat, L.h.hands[seat]); }
+  function discard(L, seat) {
+    const h = L.h;
+    if (h.misere && seat === h.contractor) return misWorst(h.hands[seat]);
+    return cheapest(L, seat, h.hands[seat]);
+  }
+
+  /* ---------------- the Act II bosses ---------------- */
+  /* The Card Sharps can see the cards dealt to you from your own (the boss's
+     public rule). On lead they go after one: the highest card they hold that
+     beats a seeded card in its own suit, so that if you have to follow with it,
+     it's theirs. They only know your seeded cards, not the rest of your hand. */
+  function sharpsHunt(L, seat, legal) {
+    const h = L.h, trump = h.trump;
+    if (L.boss !== 'sharps' || team(seat) !== 1 || h.misere) return null;
+    let best = null;
+    for (const c0 of (h.seeded || []).filter(c => h.hands[0].includes(c))) {
+      const k0 = K(L, 0, c0), s0 = kSuit(k0, trump);
+      const catchers = legal.filter(c => kSuit(K(L, seat, c), trump) === s0 && kBeats(K(L, seat, c), k0, s0, trump));
+      if (!catchers.length) continue;
+      const pick = dearest(L, seat, catchers), worth = cost(L, 0, c0);
+      if (!best || worth > best.worth) best = { pick, worth };
+    }
+    return best ? best.pick : null;
+  }
+
+  /* ---------------- misère ---------------- */
+  /* How likely a hand is to be forced to win a trick: each card scores by how
+     high it sits above the low cards that shelter it in its suit, and the Joker
+     (which wins any trick it is in) scores most. The kitty lets the contractor
+     throw the worst card, so it is left out. */
+  const mrank = c => c === 'JK' ? 100 : E.RANKV[rankOf(c)];
+  function misCardDanger(hand) {
+    const by = {}, out = {};
+    hand.forEach(c => { const s = c === 'JK' ? '*' : E.suitOf(c); (by[s] = by[s] || []).push(c); });
+    for (const s in by) {
+      if (s === '*') { by[s].forEach(c => out[c] = 8); continue; }
+      by[s].sort((a, b) => mrank(a) - mrank(b)).forEach((c, i) => { out[c] = Math.max(0, mrank(c) - (9 + 1.6 * i)); });
+    }
+    return out;
+  }
+  function misDanger(hand) {
+    const d = Object.values(misCardDanger(hand)).sort((a, b) => b - a);
+    return d.slice(1).reduce((a, b) => a + b, 0);
+  }
+  function misWorst(hand) {
+    const d = misCardDanger(hand);
+    return hand.slice().sort((a, b) => d[b] - d[a] || mrank(b) - mrank(a))[0];
+  }
+  /* How safe a hand must be before a seat bids misère: Nan (and you, as the
+     stand-in) are steady, West and East bolder (tests/measure.js). */
+  const MIS_SAFE = { 0: 0.25, 1: 0.5 };
+  // The Hustlers (an Act II boss) bid misère whenever their hand is at most this exposed.
+  /* Playing a misère: the contractor ducks every trick it can; the defenders
+     try to leave the contractor holding the winning card. */
+  function misPlay(L, seat, legal) {
+    const h = L.h, C = h.contractor, led = E.ledSuit(L);
+    const noJoker = cs => { const x = cs.filter(c => c !== 'JK'); return x.length ? x : cs; };
+    const low = cs => cs.slice().sort((a, b) => mrank(a) - mrank(b))[0];
+    const high = cs => cs.slice().sort((a, b) => mrank(b) - mrank(a))[0];
+    const winsNow = c => wins(L, seat, c);
+    if (!led && seat !== C) {
+      // defending: lead low in a suit the contractor still holds, so they must duck under it
+      const voids = new Set((h.played || []).filter(t => t.cards[C] && E.effSuit(t.cards[C], null) !== E.effSuit(t.cards[t.leader], null)).map(t => E.effSuit(t.cards[t.leader], null)));
+      const live = noJoker(legal).filter(c => !voids.has(E.suitOf(c)));
+      return low(live.length ? live : noJoker(legal));
+    }
+    if (!led) return low(noJoker(legal));                         // lead your lowest card
+    if (seat === C) {
+      const safe = legal.filter(c => !winsNow(c));
+      if (safe.length) return high(noJoker(safe));               // shed the highest card that still ducks
+      return low(noJoker(legal));                               // forced over: as low as possible
+    }
+    const cur = winnerOf(h.trick, h.leader, h.trump, L), cPlayed = !!h.trick[C];
+    if (cPlayed && cur === C) {                                  // keep the contractor on top
+      const under = legal.filter(c => !winsNow(c));
+      return under.length ? high(under) : low(legal);
+    }
+    if (cPlayed) return high(legal);                             // the trick is lost to them anyway: shed high
+    return low(noJoker(legal));                                  // the contractor plays after you: go low
+  }
   /* Swing Your Partner: North hands you its most useful card. */
   function gift(L, seat) { return dearest(L, seat, L.h.hands[seat]); }
 
@@ -200,7 +290,7 @@
     return t.length ? t[0] : legal[0];
   }
 
-  const api = { MARGIN, cost, cheapest, dearest, unseen, after, safe, wins, play, lead, estimate, bid, nod, discard, gift, legacyPlay };
+  const api = { HUSTLE: 6, sharpsHunt, MARGIN, SHARE, MIS_SAFE, misDanger, misWorst, misPlay, cost, cheapest, dearest, unseen, after, safe, wins, play, lead, estimate, bid, nod, discard, gift, legacyPlay };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.BtpAI = api;
 })(typeof window !== 'undefined' ? window : this);

@@ -29,6 +29,13 @@
  * A level's curse on L.curse: 'nokitty', 'locked' (one of your cards is chained
  * until your team wins a trick). L.dealRule 'twins': West and East are always
  * dealt the two red Jacks.
+ *
+ * Hexes (from Act II). L.hexes[card] = 'loose' | 'potato' | 'itchy' |
+ * 'stepped' | 'twoleft'. Unlike enhancements they hit whoever holds the card:
+ * Stepped On is -1 rank (tying the card below), Itchy Feet must be played
+ * whenever it is legal, a Hot Potato costs the team that captures it 20, Two
+ * Left Feet can never win a trick, and Loose Lips is shown face-up (the page's
+ * job). The Joker and the bowers are untouchable: a hex never changes them.
  */
 (function (root) {
   const SUITS = ['S', 'C', 'D', 'H'];            // bid order, low to high
@@ -52,7 +59,18 @@
       for (let t = 6; t <= 10; t++) { b[t] = {}; for (const s in base) b[t][s] = base[s] + (t - 6) * 100; }
       return b; })() }
   };
-  // Misère (Act II) and open misère (Act III) are in the design, not built yet.
+  /* Misère: the contractor must lose every trick, playing alone while their partner
+     sits out, with no trumps (the Joker has no suit and wins any trick it is in).
+     Act II's is worth 130 (between 5NT and 6\u2660), Act III's 250. Open misère (Act
+     III, 500) is not built yet. */
+  ACTS[2].misere = 130;
+  ACTS[3].misere = 250;
+  /* Bids above the hand size, open only to you when your hand holds a card that
+     counts a won trick more than once (Doubly Woubly +1; Act III's Triple Threat,
+     not built yet, +2). Act I's step up follows its table; Act II's adds 60 a level. */
+  ACTS[1].extra = { 4: { D: 100, H: 130, NT: 160 } };
+  ACTS[2].extra = { 7: { S: 200, C: 210, D: 220, H: 230, NT: 240 } };
+  ACTS[3].extra = {};
 
   /* ---------------- rng (state in L.rs) ---------------- */
   function rnd(L) {
@@ -94,17 +112,23 @@
      is on your team, plain otherwise. Every rule below reads cards this way. */
   function K(L, seat, c) {
     const own = !!L && seat !== null && seat !== undefined && team(seat) === 0;
-    return { c, seat, m: own && L.mods ? (L.mods[c] || null) : null, tie: own && !!(L.buffs && L.buffs.includes('bowertie')) };
+    return { c, seat, m: own && L.mods ? (L.mods[c] || null) : null, tie: own && !!(L.buffs && L.buffs.includes('bowertie')),
+             x: L && L.hexes ? (L.hexes[c] || null) : null };
   }
-  const plainK = c => ({ c, seat: null, m: null, tie: false });
+  const plainK = c => ({ c, seat: null, m: null, tie: false, x: null });
   function kSuit(k, trump) {
     const c = k.c;
+    if (k.forced) return k.forced;
     if (c === 'JK') return trump || '*';
+    if (k.m && k.m.enh === 'outcast') return '#';     // Outcast: no suit at all
     if (trump && k.m && k.m.enh === 'sworn') return trump;
     if (trump && rankOf(c) === 'J' && suitOf(c) === TWIN[trump]) return trump;
     return suitOf(c);
   }
-  const kRank = k => k.c === 'JK' ? 100 : grown(k.c, k.m && k.m.up);
+  /* Stepped On: one rank down, tying the card below (a Queen ties the plain Jack;
+     in trumps the Jacks are bowers, so a Stepped Queen sits between 10 and King). */
+  function stepDown(c, v) { return Math.max(2, v - 1); }
+  const kRank = k => k.c === 'JK' ? 100 : (k.x === 'stepped' ? stepDown(k.c, grown(k.c, k.m && k.m.up)) : grown(k.c, k.m && k.m.up));
   function kTrumpRank(k, trump) {
     const c = k.c;
     if (c === 'JK') return 100;
@@ -115,6 +139,7 @@
   const kIsTrump = (k, trump) => k.c === 'JK' || (!!trump && kSuit(k, trump) === trump);
   /* Does k take the trick from w? Ties never do: the card played first keeps it. */
   function kBeats(k, w, led, trump) {
+    if (k.x === 'twoleft' || (k.m && k.m.enh === 'outcast')) return false;   // never takes a trick
     const kt = kIsTrump(k, trump) ? kTrumpRank(k, trump) : 0;
     const wt = kIsTrump(w, trump) ? kTrumpRank(w, trump) : 0;
     if (wt === 100) return false;                 // the Joker, or your bower tied with it
@@ -143,14 +168,44 @@
   }
   /* Who holds the trick so far. Strictly higher takes the lead, so ties go to
      the card played first. Pass L for your own cards' enhancements. */
+  /* A Two-faced card counts as the suit led when that's either suit of its
+     colour, as a trump when its colour twin is trumps, otherwise as printed. */
+  function resolveTwo(k, led, trump) {
+    if (!(k.m && k.m.enh === 'twoface') || k.c === 'JK') return k;
+    const s = suitOf(k.c);
+    if (led === s || led === TWIN[s]) return Object.assign({}, k, { forced: led });
+    if (trump && (trump === s || trump === TWIN[s])) return Object.assign({}, k, { forced: trump });
+    return k;
+  }
+  const playRank = (k, trump) => kIsTrump(k, trump) ? kTrumpRank(k, trump) : kRank(k);
   function winnerOf(cards, leader, trump, L) {
     let w = leader, wk = K(L, leader, cards[leader]);
     const led = kSuit(wk, trump);
-    for (let i = 1; i < 4; i++) {
-      const p = (leader + i) % 4, c = cards[p];
-      if (!c) continue;
-      const k = K(L, p, c);
-      if (kBeats(k, wk, led, trump)) { w = p; wk = k; }
+    const seats = [];
+    for (let i = 0; i < 4; i++) { const p = (leader + i) % 4; if (cards[p]) seats.push({ p, k: i ? resolveTwo(K(L, p, cards[p]), led, trump) : wk }); }
+    // Reverse or Sanctuary led: only cards of the suit led count (no trumping in);
+    // Reverse gives the trick to the lowest of them, Sanctuary to the highest.
+    const mode = wk.m && (wk.m.enh === 'reverse' || wk.m.enh === 'sanctuary') ? wk.m.enh : null;
+    if (mode) {
+      const inSuit = seats.filter(x => kSuit(x.k, trump) === led && x.k.x !== 'twoleft' && !(x.k.m && x.k.m.enh === 'outcast'));
+      let best = inSuit[0];
+      for (const x of inSuit.slice(1)) {
+        const a = playRank(x.k, trump), b = playRank(best.k, trump);
+        if (mode === 'reverse' ? a < b : a > b) best = x;
+      }
+      return best.p;
+    }
+    for (const x of seats.slice(1)) if (kBeats(x.k, wk, led, trump)) { w = x.p; wk = x.k; }
+    // Two Left Feet or an Outcast led and never beaten: the trick goes to the best of the other cards
+    if (wk.x === 'twoleft' || (wk.m && wk.m.enh === 'outcast')) {
+      const rest = [];
+      for (let i = 1; i < 4; i++) { const p = (leader + i) % 4; if (cards[p]) rest.push(p); }
+      if (rest.length) {
+        let w2 = rest[0], k2 = K(L, w2, cards[w2]);
+        const led2 = kSuit(k2, trump);
+        for (const p of rest.slice(1)) { const k = K(L, p, cards[p]); if (kBeats(k, k2, led2, trump)) { w2 = p; k2 = k; } }
+        return w2;
+      }
     }
     return w;
   }
@@ -161,7 +216,19 @@
   }
   /* Why a trick went where it did, in words for the log. */
   function explain(cards, leader, winner, trump, L) {
-    const k = K(L, winner, cards[winner]), c = k.c, led = kSuit(K(L, leader, cards[leader]), trump), who = SEATS[winner];
+    const k = K(L, winner, cards[winner]), c = k.c, lk = K(L, leader, cards[leader]);
+    let led = kSuit(K(L, leader, cards[leader]), trump), who = SEATS[winner];
+    if (lk.m && lk.m.enh === 'reverse' && winner !== null) {
+      const nm = NAME[led] ? NAME[led].slice(0, -1) : 'card';
+      return SEATS[winner] + (winner === 0 ? ' win' : ' wins') + ' with ' + kLabel(k) + ': Reverse was led, so the lowest ' + nm + ' takes it and nobody can trump in.';
+    }
+    if (lk.m && lk.m.enh === 'sanctuary') {
+      const nm = NAME[led] ? NAME[led].slice(0, -1) : 'card';
+      return SEATS[winner] + (winner === 0 ? ' win' : ' wins') + ' with ' + kLabel(k) + ': Sanctuary was led, so nobody could trump in and the highest ' + nm + ' takes it.';
+    }
+    let lead2 = '';
+    if (winner !== leader && (lk.x === 'twoleft' || (lk.m && lk.m.enh === 'outcast'))) { lead2 = ' (the ' + label(lk.c) + ' that was led can never win)'; led = kSuit(resolveTwo(k, null, trump), trump); }
+    if (!NAME[led]) led = kSuit(k, trump);
     const verb = winner === 0 ? 'win' : 'wins';
     const jokerOut = cards.some((x, s) => x === 'JK' && s !== winner);
     if (c === 'JK') return who + ' ' + verb + ' with the Joker, the highest card in the game.';
@@ -174,21 +241,22 @@
     const twinOut = cards.some((x, s) => s !== winner && x && x !== c && kIsTrump(K(L, s, x), trump) && kTrumpRank(K(L, s, x), trump) === kTrumpRank(k, trump));
     const sworn = k.m && k.m.enh === 'sworn' && trump && suitOf(c) !== trump ? ' (Trump-sworn: it counts as a ' + VNAME[kRank(k)] + ' of trumps)' : '';
     const tieNote = twinOut ? ' It tied, and was played first.' : '';
-    if (kIsTrump(k, trump) && led !== trump) return who + ' ' + verb + ' by trumping in with ' + kLabel(k) + sworn + '.' + tieNote;
-    return who + ' ' + verb + ' with ' + kLabel(k) + sworn + ', the highest ' + (led === trump ? 'trump' : NAME[led].slice(0, -1)) + ' played.' + tieNote;
+    if (kIsTrump(k, trump) && led !== trump) return who + ' ' + verb + ' by trumping in with ' + kLabel(k) + sworn + lead2 + '.' + tieNote;
+    return who + ' ' + verb + ' with ' + kLabel(k) + sworn + ', the highest ' + (led === trump ? 'trump' : NAME[led] ? NAME[led].slice(0, -1) : 'card') + ' played' + lead2 + '.' + tieNote;
   }
 
   /* ---------------- bids ---------------- */
-  const bidValue = (act, t, s) => ACTS[act].bids[t][s];
+  const bidValue = (act, t, s) => s === 'MIS' ? ACTS[act].misere : ACTS[act].bids[t][s];
   function bidList(act) {
     const out = [];
     for (const t of Object.keys(ACTS[act].bids).map(Number))
       for (const s of Object.keys(ACTS[act].bids[t])) out.push({ t, s, v: ACTS[act].bids[t][s] });
+    if (ACTS[act].misere) out.push({ t: 0, s: 'MIS', v: ACTS[act].misere });
     return out.sort((a, b) => a.v - b.v);
   }
   /* A sweep scores the top-level value of the bid suit. */
   function sweepValue(act, s) { const ts = Object.keys(ACTS[act].bids).map(Number); return ACTS[act].bids[Math.max(...ts)][s]; }
-  const bidText = b => b.t + (b.s === 'NT' ? 'NT' : SYM[b.s]);
+  const bidText = b => b.s === 'MIS' ? 'Mis\u00e8re' : b.t + (b.s === 'NT' ? 'NT' : SYM[b.s]);
   /* Half a made opponent contract, to the nearest 5: the opponents' attack. */
   const damageOf = v => Math.round(v / 2 / 5) * 5;
 
@@ -219,7 +287,7 @@
       phase: 'bid', hands, kitty, seeded, turn: first, bids: [], passed: [false, false, false, false], high: null,
       contractor: null, contract: null, trump: null, trick: [null, null, null, null], leader: null,
       tricks: [0, 0], taken: [[], []], trickNo: 0, winners: [], last: null, result: null,
-      locked: null, unlocked: false
+      locked: null, unlocked: false, misere: false, out: null, fail: false
     };
     if (L.curse === 'locked') {
       L.h.locked = pick(L, hands[0]);
@@ -242,16 +310,27 @@
     });
   }
 
+  /* Extra tricks a seat's hand can count (Doubly Woubly +1, Triple Threat +2): only you bid on them. */
+  function extraTricks(L, seat) {
+    if (seat !== 0 || !L.h) return 0;
+    return L.h.hands[0].reduce((n, c) => { const k = K(L, 0, c); return n + (k.m && k.m.enh === 'double' ? 1 : k.m && k.m.enh === 'triple' ? 2 : 0); }, 0);
+  }
+  function extraBids(L, seat) {
+    const A = ACTS[L.act], room = extraTricks(L, seat), out = [];
+    for (const t of Object.keys(A.extra || {}).map(Number)) if (t - A.hand <= room) for (const s of Object.keys(A.extra[t])) out.push({ t, s, v: A.extra[t][s] });
+    return out;
+  }
   function legalBids(L) {
     const min = L.h.high ? L.h.high.v : 0;
-    return bidList(L.act).filter(b => b.v > min);
+    return bidList(L.act).concat(extraBids(L, L.h.turn)).filter(b => b.v > min).sort((a, b) => a.v - b.v);
   }
   const no = why => ({ ok: false, why });
   function bid(L, seat, b) {
     const h = L.h;
     if (h.phase !== 'bid' || h.turn !== seat) return no('not your turn to bid');
     if (b) {
-      const v = ACTS[L.act].bids[b.t] && ACTS[L.act].bids[b.t][b.s];
+      const ex = extraBids(L, seat).find(x => x.t === b.t && x.s === b.s);
+      const v = b.s === 'MIS' ? ACTS[L.act].misere : ex ? ex.v : ACTS[L.act].bids[b.t] && ACTS[L.act].bids[b.t][b.s];
       if (!v) return no('no such bid');
       if (h.high && v <= h.high.v) return no('a bid must beat ' + bidText(h.high));
       h.high = { seat, t: b.t, s: b.s, v };
@@ -280,7 +359,13 @@
     const h = L.h, c = h.high;
     h.contractor = c.seat;
     h.contract = { t: c.t, s: c.s, v: c.v };
-    h.trump = c.s === 'NT' ? null : c.s;
+    h.trump = c.s === 'NT' || c.s === 'MIS' ? null : c.s;
+    if (c.s === 'MIS') {
+      h.misere = true;
+      h.out = partnerOf(c.seat);
+      say(L, SEATS[c.seat] + (c.seat === 0 ? ' win' : ' wins') + ' the auction with misère: ' + (c.seat === 0 ? 'you' : SEATS[c.seat]) + ' must lose every trick, playing alone. ' +
+        (h.out === 0 ? 'You sit' : (h.out === 2 ? 'Nan' : SEATS[h.out]) + ' sits') + ' this hand out. No trumps; the Joker wins any trick it is in.', 'contract');
+    } else
     say(L, SEATS[c.seat] + (c.seat === 0 ? ' win' : ' wins') + ' the auction with ' + bidText(c) + '. ' +
       (h.trump ? NAME[h.trump][0].toUpperCase() + NAME[h.trump].slice(1) + ' are trumps; J' + SYM[h.trump] + ' is the right bower and J' + SYM[TWIN[h.trump]] + ' the left bower.' : 'No trumps: only the Joker is above the suits.'), 'contract');
     h.turn = c.seat;
@@ -313,8 +398,9 @@
     h.leader = h.turn = h.contractor;
     if (team(h.contractor) === 1) {
       const v = h.contract.v;
-      h.intent = { seat: h.contractor, contract: h.contract, dmg: damageOf(v), dmgSweep: damageOf(sweepValue(L.act, h.contract.s)) };
-      say(L, SEATS[h.contractor] + "'s intent: " + bidText(h.contract) + ' costs you ' + h.intent.dmg + ' if they make it. Stop them taking ' + h.contract.t + ' tricks to block it.', 'intent');
+      h.intent = { seat: h.contractor, contract: h.contract, dmg: damageOf(v), dmgSweep: h.misere ? damageOf(v) : damageOf(sweepValue(L.act, h.contract.s)) };
+      if (h.misere) say(L, SEATS[h.contractor] + "'s intent: misère costs you " + h.intent.dmg + ' if they lose every trick. Make ' + SEATS[h.contractor] + ' win one trick to block it.', 'intent');
+      else say(L, SEATS[h.contractor] + "'s intent: " + bidText(h.contract) + ' costs you ' + h.intent.dmg + ' if they make it. Stop them taking ' + h.contract.t + ' tricks to block it.', 'intent');
       h.phase = 'intent';
     } else h.phase = 'play';
   }
@@ -323,7 +409,7 @@
     if (h.phase === 'intent') { h.phase = 'play'; return { ok: true }; }
     if (h.phase === 'trick') {
       h.trick = [null, null, null, null];
-      if (h.trickNo >= ACTS[L.act].hand) { score(L); return { ok: true }; }
+      if (h.trickNo >= ACTS[L.act].hand || h.fail) { score(L); return { ok: true }; }
       h.phase = 'play';
       h.leader = h.turn = h.last.winner;
       return { ok: true };
@@ -335,8 +421,13 @@
   function legalPlays(L, seat) {
     const h = L.h, hand = h.hands[seat], led = ledSuit(L), tr = h.trump;
     let legal = hand;
-    if (led && hand.some(x => kSuit(K(L, seat, x), tr) === led)) legal = hand.filter(x => kSuit(K(L, seat, x), tr) === led);
+    if (led && hand.some(x => kSuit(K(L, seat, x), tr) === led)) {
+      // follow suit; an Outcast can always be played, a Two-faced card may follow either suit of its colour
+      legal = hand.filter(x => { const k = K(L, seat, x); return kSuit(k, tr) === led || kSuit(k, tr) === '#' || kSuit(resolveTwo(k, led, tr), tr) === led; });
+    }
     if (seat === 0 && h.locked && !h.unlocked && legal.length > 1) legal = legal.filter(c => c !== h.locked);
+    const itchy = L.hexes ? legal.filter(c => L.hexes[c] === 'itchy') : [];
+    if (itchy.length) legal = itchy;                     // Itchy Feet: if it can be played, it must be
     return legal;
   }
   function play(L, seat, card) {
@@ -348,21 +439,49 @@
       return no('you must follow ' + NAME[ledSuit(L)] + (h.trump ? ' (the left bower counts as a trump)' : ''));
     }
     h.hands[seat].splice(h.hands[seat].indexOf(card), 1);
+    const leading = !h.trick.some(Boolean);
     h.trick[seat] = card;
     const k = K(L, seat, card);
+    if (leading && k.m && k.m.enh === 'herald' && h.out !== partnerOf(seat)) {
+      const p = partnerOf(seat), suit = kSuit(k, h.trump);
+      const n = h.hands[p].filter(x => kSuit(K(L, p, x), h.trump) === suit).length;
+      h.herald = { seat, partner: p, suit, n, trick: h.trickNo + 1 };
+      say(L, 'Herald: ' + (p === 2 ? 'Nan holds ' : 'You hold ') + n + ' ' + (suit === '*' || suit === '#' ? 'cards of that suit' : NAME[suit]) + '.', 'rule');
+    }
+    if (k.m && k.m.enh === 'reverse' && leading) say(L, 'Reverse: the lowest ' + (NAME[kSuit(k, h.trump)] || 'card').replace(/s$/, '') + ' wins this trick, and nobody can trump in.', 'rule');
+    if (k.m && k.m.enh === 'sanctuary' && leading) say(L, 'Sanctuary: nobody can trump in on this trick.', 'rule');
     if (h.trump && rankOf(card) === 'J' && suitOf(card) === TWIN[h.trump])
       say(L, label(card) + ' is the left bower: it counts as a ' + NAME[h.trump].slice(0, -1) + ' this hand.', 'rule');
     else if (h.trump && k.m && k.m.enh === 'sworn' && suitOf(card) !== h.trump)
       say(L, label(card) + ' is Trump-sworn: it counts as a ' + VNAME[kRank(k)] + ' of ' + NAME[h.trump] + ' this hand.', 'rule');
-    if (h.trick.filter(Boolean).length < 4) { h.turn = (h.turn + 1) % 4; return { ok: true }; }
+    const players = h.out === null || h.out === undefined ? 4 : 3;
+    if (h.trick.filter(Boolean).length < players) { do h.turn = (h.turn + 1) % 4; while (h.turn === h.out); return { ok: true }; }
     const w = winnerOf(h.trick, h.leader, h.trump, L);
     const t = team(w);
     h.tricks[t]++;
     h.trickNo++;
-    h.taken[t].push(...h.trick);
+    h.taken[t].push(...h.trick.filter(Boolean));
     h.winners.push(w);
     h.last = { cards: h.trick.slice(), leader: h.leader, winner: w, reason: explain(h.trick, h.leader, w, h.trump, L), no: h.trickNo };
-    say(L, h.last.reason, t === 0 ? 'won' : 'lost');
+    h.played = (h.played || []).concat([{ cards: h.last.cards, leader: h.leader, winner: w }]);
+    const wk2 = K(L, w, h.trick[w]);
+    if (wk2.m && wk2.m.enh === 'double' && !h.misere) {
+      h.bonus = h.bonus || [0, 0];
+      h.bonus[t]++;
+      say(L, label(h.trick[w]) + ' is Doubly Woubly: that trick counts as two.', 'rule');
+    }
+    const hot = L.hexes ? h.trick.filter(c => c && L.hexes[c] === 'potato') : [];
+    if (hot.length) {
+      h.potato = h.potato || [0, 0];
+      h.potato[t] += 20 * hot.length;
+      say(L, (t === 0 ? 'Your team catches' : 'They catch') + ' the Hot Potato (' + hot.map(label).join(', ') + '): \u2212' + 20 * hot.length + '.', 'rule');
+    }
+    // in a misère the opponents taking a trick is good for your side, whoever bid it
+    say(L, h.last.reason, (h.misere ? t === 1 : t === 0) ? 'won' : 'lost');
+    if (h.misere && t === team(h.contractor)) {
+      h.fail = true;
+      say(L, (h.contractor === 0 ? 'You took' : SEATS[h.contractor] + ' took') + ' a trick: the misère fails.', 'rule');
+    }
     if (t === 0 && h.locked && !h.unlocked) { h.unlocked = true; if (h.hands[0].includes(h.locked)) say(L, 'Your ' + label(h.locked) + ' is unlocked.', 'rule'); }
     h.phase = 'trick';
     return { ok: true, trick: h.last };
@@ -372,33 +491,63 @@
      contract also costs you half its value. */
   function score(L) {
     const h = L.h, act = L.act, c = h.contract, ct = team(h.contractor), dt = 1 - ct;
-    const made = h.tricks[ct] >= c.t;
+    if (h.misere) return scoreMisere(L);
+    const got = counted(h, ct), gotD = counted(h, dt);
+    const made = got >= c.t;
     const sweep = made && h.tricks[ct] === ACTS[act].hand;
     const value = sweep ? Math.max(c.v, sweepValue(act, c.s)) : c.v;
-    const near = !made && ct === 0 && h.tricks[ct] === c.t - 1 && (L.buffs || []).includes('nearmiss');
+    const near = !made && ct === 0 && got === c.t - 1 && (L.buffs || []).includes('nearmiss');
     const pts = [0, 0];
     pts[ct] += made ? value : (near ? 0 : -c.v);
-    pts[dt] += 10 * h.tricks[dt];
+    pts[dt] += 10 * gotD;
     const dmg = (ct === 1 && made) ? damageOf(value) : 0;
     const lines = [];
     const who = ct === 0 ? (h.contractor === 0 ? 'You' : 'North') : SEATS[h.contractor];
     if (made) lines.push(who + ' made ' + bidText(c) + (sweep && value > c.v ? ' and swept every trick, scoring ' + value + ' instead of ' + c.v : '') + ': ' + (ct === 0 ? '+' : 'they score ') + value + '.');
-    else if (near) lines.push(who + ' needed ' + c.t + ' tricks and took ' + h.tricks[ct] + ', one short: Near Miss, so it costs nothing.');
-    else lines.push(who + ' needed ' + c.t + ' tricks and took ' + h.tricks[ct] + ': ' + (ct === 0 ? '−' + c.v + ' for your team.' : 'set! They lose ' + c.v + ' and their attack misses.'));
-    if (h.tricks[dt]) lines.push((dt === 0 ? 'Your team' : 'They') + ' took ' + h.tricks[dt] + ' trick' + (h.tricks[dt] > 1 ? 's' : '') + ' defending: ' + (dt === 0 ? '+' : '') + 10 * h.tricks[dt] + '.');
+    else if (near) lines.push(who + ' needed ' + c.t + ' tricks and took ' + got + ', one short: Near Miss, so it costs nothing.');
+    else lines.push(who + ' needed ' + c.t + ' tricks and took ' + got + ': ' + (ct === 0 ? '−' + c.v + ' for your team.' : 'set! They lose ' + c.v + ' and their attack misses.'));
+    if (gotD) lines.push((dt === 0 ? 'Your team' : 'They') + ' took ' + gotD + ' trick' + (gotD > 1 ? 's' : '') + ' defending: ' + (dt === 0 ? '+' : '') + 10 * gotD + '.');
+    if (h.bonus && (h.bonus[0] || h.bonus[1])) lines.push('(Doubly Woubly counted ' + (h.bonus[0] + h.bonus[1]) + ' extra trick' + (h.bonus[0] + h.bonus[1] > 1 ? 's' : '') + '.)');
     if (dmg) lines.push('Their contract lands: −' + dmg + ' health (half of ' + value + ').');
+    potatoLines(h, pts, lines);
     const delta = pts[0] - dmg;
-    h.result = { made, sweep, value, pts, dmg, delta, lines, tricks: h.tricks.slice(), contractor: h.contractor, near };
+    h.result = { made, sweep, value, pts, dmg, delta, lines, tricks: h.tricks.slice(), counted: [counted(h, 0), counted(h, 1)], contractor: h.contractor, near };
     lines.forEach(t => say(L, t, 'score'));
     h.phase = 'done';
   }
 
+  /* Misère: made if the contractor took no trick. No defender points; a made
+     opponents' misère costs you half its value like any other contract. */
+  function scoreMisere(L) {
+    const h = L.h, c = h.contract, ct = team(h.contractor);
+    const made = h.tricks[ct] === 0, pts = [0, 0];
+    pts[ct] = made ? c.v : -c.v;
+    const dmg = ct === 1 && made ? damageOf(c.v) : 0;
+    const who = h.contractor === 0 ? 'You' : h.contractor === 2 ? 'Nan' : SEATS[h.contractor];
+    const lines = [made ? who + ' lost every trick: misère made, ' + (ct === 0 ? '+' : 'they score ') + c.v + '.'
+      : who + (h.contractor === 0 ? ' were' : ' was') + ' made to take a trick: misère failed, ' + (ct === 0 ? '\u2212' + c.v + ' for your team.' : 'they lose ' + c.v + ' and their attack misses.')];
+    if (dmg) lines.push('Their misère lands: \u2212' + dmg + ' health (half of ' + c.v + ').');
+    potatoLines(h, pts, lines);
+    const delta = pts[0] - dmg;
+    h.result = { made, sweep: false, value: c.v, pts, dmg, delta, lines, tricks: h.tricks.slice(), contractor: h.contractor, near: false, misere: true };
+    lines.forEach(t => say(L, t, 'score'));
+    h.phase = 'done';
+  }
+
+  /* Tricks that count toward a contract: Doubly Woubly wins count twice. */
+  const counted = (h, t) => h.tricks[t] + (h.bonus ? h.bonus[t] : 0);
+  /* Hot Potatoes caught this hand come off each team's points. */
+  function potatoLines(h, pts, lines) {
+    if (!h.potato) return;
+    for (const t of [0, 1]) if (h.potato[t]) { pts[t] -= h.potato[t]; lines.push((t === 0 ? 'Your team' : 'They') + ' caught a Hot Potato: \u2212' + h.potato[t] + '.'); }
+  }
+
   const api = {
     SUITS, SYM, NAME, TWIN, RED, RANKV, VNAME, SEATS, ACTS, ENH_WORD,
-    rnd, shuffle, pick, rankOf, suitOf, label, deckFor, team, partnerOf, grown, maxUp,
+    rnd, shuffle, pick, rankOf, suitOf, label, deckFor, team, partnerOf, grown, maxUp, stepDown,
     K, plainK, kSuit, kRank, kTrumpRank, kIsTrump, kBeats, kLabel,
     effSuit, trumpRank, isTrump, canPlay, winnerOf, beats, explain,
-    bidValue, bidList, sweepValue, bidText, damageOf,
+    bidValue, bidList, sweepValue, bidText, damageOf, extraTricks, extraBids, counted, resolveTwo,
     say, deal, sort, legalBids, bid, discard, afterKitty, ack, ledSuit, legalPlays, play, score
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

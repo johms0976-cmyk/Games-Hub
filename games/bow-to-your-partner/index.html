@@ -124,6 +124,10 @@ select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid
 .coach button { border: 1px solid var(--gold); background: #fff; border-radius: 8px; padding: 4px 10px; min-height: 36px; flex: none; }
 #screen .coach { border: 1px solid var(--gold); border-radius: 10px; margin-top: 12px; }
 .felt.tipping .seat.west, .felt.tipping .seat.east { align-self: start; }
+.felt.compact { min-height: 0; flex: none; }
+.felt.compact .trickzone { min-height: 40px; }
+.felt.compact .seat .backs { margin-top: 2px; }
+.felt.compact .nan .face { width: 30px; height: 30px; }
 .feltcoach { position: absolute; left: 8px; right: 8px; bottom: 8px; border: 1px solid var(--gold); border-radius: 10px; color: var(--ink); font-size: 14px; }
 
 /* ---------- cards ---------- */
@@ -136,7 +140,12 @@ select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid
 .card.joker .s { font-size: 13px; font-weight: 800; letter-spacing: 0; color: var(--accent); }
 .card.small.joker .s { font-size: 10px; }
 .card.big.joker .s { font-size: 16px; }
-.card .flag { position: absolute; bottom: 3px; left: 0; right: 0; font-size: 10px; font-weight: 700; color: var(--gold); line-height: 1.1; }
+.card.hexed { box-shadow: 0 0 0 2px var(--bad), var(--shadow); }
+.card .hx { position: absolute; top: 3px; right: 4px; font-size: 9px; font-weight: 800; color: var(--bad); line-height: 1; }
+.seat .lips { display: flex; justify-content: center; gap: 2px; margin-top: 4px; }
+.seat .lips .card { width: 36px; height: 50px; } .seat .lips .card .s { font-size: 16px; } .seat .lips .card .r { font-size: 12px; top: 2px; left: 3px; } .seat .lips .card .hx { display: none; }
+.chip.hexchip { background: #fbe3df; color: var(--bad); }
+.card .flag { bottom: 3px; left: 0; right: 0; font-size: 10px; font-weight: 700; color: var(--gold); line-height: 1.1; }
 .card.trump { background: #fff6dc; }
 .card.enh { box-shadow: 0 0 0 2px var(--gold), var(--shadow); }
 .card.locked { background: repeating-linear-gradient(45deg, #fffdf8, #fffdf8 6px, #eee5d4 6px, #eee5d4 12px); }
@@ -191,6 +200,8 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   .trickzone { min-height: 165px; }
   .meter { width: 60px; }
   .top .name { display: none; }
+  .hand.many { gap: 0; }
+  .hand.many .card + .card { margin-left: -10px; }
   .top .pill:first-of-type { margin-right: auto; }
 }
 </style>
@@ -201,12 +212,12 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
 <section id="title">
   <div class="banner gingham"></div>
   <h1>Bow to Your Partner</h1>
-  <p class="sub">A trick-taking roguelike · Act I: the Church Hall</p>
+  <p class="sub">A trick-taking roguelike · Act I: the Church Hall · Act II: the Barn Dance</p>
   <div class="panel">
     <h2>Tonight's dance</h2>
     <ul>
       <li>You and <b>Nan</b> (North) partner up against West and East in a small game of 500: hearts, diamonds and the Joker, 3 cards each.</li>
-      <li>Five stops: a Dance, a fork (Dance or Barn Gossip), the Punch Bowl, a fork (Dance or Dance-off), and the Hoedown against <b>the Twins</b>.</li>
+      <li>Five stops: a Dance, a fork (Dance or Barn Gossip), the Punch Bowl, a fork (Dance or Dance-off), and the Hoedown against a rival pair. Get through Act I and the <b>Barn Dance</b> follows: spades and clubs join in, and hands grow to 6 cards.</li>
       <li>Each Dance has one <b>objective</b>. Stars: 1 for surviving, 2 for the objective, 3 for the objective and outscoring them. Stars pay gold and rewards.</li>
       <li>Your score is your <b>health</b>. Fail your own contract and you lose its value; let them make theirs and you lose half of it. At −500 the run ends.</li>
     </ul>
@@ -280,25 +291,27 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     o = o || {};
     const L = P.L, h = L && L.h, trump = h && L.phase === 'hand' ? h.trump : null;
     const k = (o.seat === 0 || o.seat === 2 || o.owned) && L ? { c, m: L.mods[c] || null, tie: false } : E.plainK(c);
-    const enh = k.m && k.m.enh;
+    const enh = k.m && k.m.enh, hx = L && L.hexes ? L.hexes[c] : null;
     const cls = ['card', o.small ? 'small' : '', o.big ? 'big' : '', c !== 'JK' && E.RED[E.suitOf(c)] ? 'red' : '', c === 'JK' ? 'joker' : '',
-      trump && E.kIsTrump(k, trump) ? 'trump' : '', enh ? 'enh' : '', o.locked ? 'locked' : '', o.cls || ''].filter(Boolean).join(' ');
+      trump && E.kIsTrump(k, trump) ? 'trump' : '', enh ? 'enh' : '', hx ? 'hexed' : '', o.locked ? 'locked' : '', o.cls || ''].filter(Boolean).join(' ');
+    const hxHTML = hx ? '<span class="hx">' + esc(R.HEXES[hx].short) + '</span>' : '';
     const attr = o.data ? ' data-' + o.data + '="' + c + '"' : ' tabindex="-1"';
     const flag = o.flag || (enh ? R.ENH[enh].name : '');
-    if (c === 'JK') return '<button class="' + cls + '"' + attr + (o.dis ? ' disabled' : '') + ' aria-label="Joker"><span class="s">JOKER</span>' + (flag ? '<span class="flag">' + esc(flag) + '</span>' : '') + '</button>';
+    if (c === 'JK') return '<button class="' + cls + '"' + attr + (o.dis ? ' disabled' : '') + ' aria-label="Joker"><span class="s">JOKER</span>' + hxHTML + (flag ? '<span class="flag">' + esc(flag) + '</span>' : '') + '</button>';
     const up = k.m && k.m.up ? E.grown(c, k.m.up) : 0;
     const r = up ? SHORT[up] + '<sup>↑</sup>' : E.rankOf(c);
-    return '<button class="' + cls + '"' + attr + (o.dis ? ' disabled' : '') + ' aria-label="' + esc(E.label(c) + (up ? ', grown to ' + E.VNAME[up] : '') + (flag ? ', ' + flag : '')) + '"><span class="r">' + r + '</span><span class="s">' + E.SYM[E.suitOf(c)] + '</span>' + (flag ? '<span class="flag">' + esc(flag) + '</span>' : '') + '</button>';
+    return '<button class="' + cls + '"' + attr + (o.dis ? ' disabled' : '') + ' aria-label="' + esc(E.label(c) + (up ? ', grown to ' + E.VNAME[up] : '') + (flag ? ', ' + flag : '') + (hx ? ', hexed: ' + R.HEXES[hx].name : '')) + '"><span class="r">' + r + '</span><span class="s">' + E.SYM[E.suitOf(c)] + '</span>' + hxHTML + (flag ? '<span class="flag">' + esc(flag) + '</span>' : '') + '</button>';
   }
-  const bidHTML = b => b.t + (b.s === 'NT' ? 'NT' : '<span style="color:' + (E.RED[b.s] ? 'var(--red)' : 'inherit') + '">' + E.SYM[b.s] + '</span>');
-  const bidPlain = b => b.t + (b.s === 'NT' ? 'NT' : E.SYM[b.s]);
+  const bidHTML = b => b.s === 'MIS' ? 'Misère' : b.t + (b.s === 'NT' ? 'NT' : '<span style="color:' + (E.RED[b.s] ? 'var(--red)' : 'inherit') + '">' + E.SYM[b.s] + '</span>');
+  const bidPlain = b => b.s === 'MIS' ? 'Misère' : b.t + (b.s === 'NT' ? 'NT' : E.SYM[b.s]);
   const denom = s => s === 'NT' ? 'no trumps' : E.NAME[s];
   function stars(n) { let s = ''; for (let i = 1; i <= 3; i++) s += i <= n ? '★' : '<span class="off">★</span>'; return s; }
   function coachHTML(tip) { return tip ? '<div class="face"></div><p>' + esc(tip.text) + '</p><button data-tip="' + tip.id + '">Got it</button>' : ''; }
   function mineHTML() {
     const L = P.L;
     return '<div class="mine">' + L.owned.map(c => cardHTML(c, { owned: true, small: true })).join('') + '</div>' +
-      '<div class="chips">' + L.buffs.map(b => '<span class="chip" title="' + esc(R.BUFFS[b].text) + '">' + esc(R.BUFFS[b].name) + '</span>').join('') + '</div>';
+      '<div class="chips">' + L.buffs.map(b => '<span class="chip" title="' + esc(R.BUFFS[b].text) + '">' + esc(R.BUFFS[b].name) + '</span>').join('') + '</div>' +
+      (R.hexed(L).length ? '<div class="chips">' + R.hexed(L).map(c => '<span class="chip hexchip" title="' + esc(R.HEXES[L.hexes[c]].text) + '">' + esc(E.label(c) + ': ' + R.HEXES[L.hexes[c]].name + (L.owned.includes(c) ? ' (yours)' : '')) + '</span>').join('') + '</div>' : '');
   }
 
   /* ---------------- which view ---------------- */
@@ -316,7 +329,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   /* ---------------- run screens ---------------- */
   function bar() {
     const L = P.L;
-    return '<div class="screenbar"><span class="name">Act I · Church Hall</span>' +
+    return '<div class="screenbar"><span class="name">Act ' + R.ROMAN[L.act] + ' · ' + E.ACTS[L.act].name + '</span>' +
       '<span class="pill' + (L.health < 0 ? ' neg' : '') + '">Health <b>' + num(L.health) + '</b></span><span class="pill">' + L.gold + ' gold</span>' +
       '<button class="iconbtn" data-act="rules">Rules</button><button class="iconbtn" data-act="menu">Menu</button></div>';
   }
@@ -326,16 +339,18 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const noteHTML = L.note ? '<div class="note">' + esc(L.note) + '</div>' : '';
     switch (L.phase) {
       case 'actstart':
-        body = '<div class="panel"><h2>Act I: the Church Hall</h2><p>Pick a card to own. You already own Nan’s A♥. Each hand, one card you own is dealt straight to you (your seed slot), so owning two means you won’t know which comes.</p>' +
-          '<div class="cardrow">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div></div>';
+        body = noteHTML + (L.act === 2 ? '<div class="panel"><h2>Act II: the Barn Dance</h2><p>Spades and clubs join the deck and hands grow to 6 cards. Two of the cards you own are now dealt to you each hand. Pick a new card to own.</p>' +
+          '<div class="cardrow">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div></div>' :
+          '<div class="panel"><h2>Act I: the Church Hall</h2><p>Pick a card to own. You already own Nan’s A♥. Each hand, one card you own is dealt straight to you (your seed slot), so owning two means you won’t know which comes.</p>' +
+          '<div class="cardrow">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div></div>');
         break;
       case 'map': {
-        const items = R.MAP.map((choices, i) => {
+        const items = R.mapOf(L).map((choices, i) => {
           const cls = i < L.pos ? 'done' : i === L.pos ? 'now' : '';
           let what = '<b>' + choices.map(k => R.KIND_NAME[k]).join(' or ') + '</b>';
           if (i < L.pos) what = '<b>' + R.KIND_NAME[L.path[i]] + '</b> <small>done</small>';
           if (i === L.pos) what += '<div class="btns" style="margin-top:6px">' + choices.map(k => '<button class="btn' + (choices.length > 1 && k !== choices[0] ? ' alt' : '') + '" data-go="' + k + '">' + R.KIND_NAME[k] + '</button>').join('') + '</div>' +
-            '<small>' + choices.map(k => ({ dance: 'three hands with one objective', event: 'a choice with a trade-off', camp: 'shop, rest or polish a card', elite: 'harder: one curse, pays a buff', boss: 'The Twins: a race, 4 hands' })[k]).join(' · ') + '</small>';
+            '<small>' + choices.map(k => ({ dance: 'three hands with one objective', event: 'a choice with a trade-off', camp: 'shop, rest or polish a card', elite: 'harder: one curse, pays a buff', boss: R.BOSS_POOL[L.act].map(b => R.BOSS[b].name).join(' or ') + ': a race, ' + R.HANDS[L.act].boss + ' hands' })[k]).join(' · ') + '</small>';
           return '<li class="' + cls + '"><div class="stop">' + (i < L.pos ? '✓' : i + 1) + '</div><div class="what">' + what + '</div></li>';
         }).join('');
         body = noteHTML + '<div class="panel"><h2>The dance card</h2><ol class="path">' + items + '</ol></div>' +
@@ -363,23 +378,23 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       case 'event': {
         const ev = R.EVENTS[L.event];
         body = '<div class="panel"><h2>Barn Gossip: ' + esc(ev.name) + '</h2><p>' + esc(ev.text) + '</p>' +
-          ev.options.map((o, i) => '<button class="choice" data-option="' + i + '"' + (o.fx.release && L.owned.length < 2 ? ' disabled' : '') + '><b>' + esc(o.text) + '</b></button>').join('') + '</div>' +
+          ev.options.map((o, i) => '<button class="choice" data-option="' + i + '"' + ((o.fx.release && L.owned.length < 2) || (o.fx.gold < 0 && L.gold < -o.fx.gold) ? ' disabled' : '') + '><b>' + esc(o.text) + '</b></button>').join('') + '</div>' +
           '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
         break;
       }
       case 'camp':
         body = noteHTML + '<div class="panel"><h2>The Punch Bowl</h2><p>Do one thing here.</p>' +
           '<button class="choice" data-camp="shop"><b>General Store</b><span>Buy cards, an enhancement or a buff; release a card you own.</span></button>' +
-          '<button class="choice" data-camp="rest"><b>Rest</b><span>+' + R.REST + ' health.</span></button>' +
+          '<button class="choice" data-camp="rest"><b>Rest</b><span>+' + R.restOf(L) + ' health.</span></button>' +
           '<button class="choice" data-camp="polish"' + (R.polishable(L).length ? '' : ' disabled') + '><b>Polish</b><span>+1 rank on a card you own, up to Ace.</span></button>' +
-          '<button class="choice" data-camp="cleanse" disabled><b>Cleanse</b><span>Remove a hex. No hexes yet: they arrive in Act II.</span></button>' +
+          '<button class="choice" data-camp="cleanse"' + (R.hexed(L).length ? '' : ' disabled') + '><b>Cleanse</b><span>' + (R.hexed(L).length ? 'Remove a hex (' + R.hexed(L).length + ' on the cards).' : (L.act < 2 ? 'Remove a hex. No hexes yet: they arrive in Act II.' : 'Remove a hex. No card is hexed.')) + '</span></button>' +
           '<h3>Free extra</h3><button class="choice" data-camp="cashin"' + (L.cashed ? ' disabled' : '') + '><b>Cash in</b><span>Turn ' + R.CASH.health + ' health into ' + R.CASH.gold + ' gold' + (L.cashed ? ' (done)' : '') + '.</span></button></div>' +
           '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
         break;
       case 'shop': {
         const items = L.stock.map((it, i) => {
-          const name = it.type === 'card' ? 'The ' + E.label(it.id) : it.type === 'enh' ? 'Enhancement: ' + R.ENH[it.id].name : it.type === 'tonic' ? 'A tonic' : 'Buff: ' + R.BUFFS[it.id].name;
-          const text = it.type === 'card' ? 'Own it: it can be dealt to you in your seed slot.' : it.type === 'enh' ? R.ENH[it.id].text : it.type === 'tonic' ? '+' + R.TONIC.health + ' health.' : R.BUFFS[it.id].text;
+          const name = it.type === 'card' ? 'The ' + E.label(it.id) : it.type === 'enh' ? 'Enhancement: ' + R.ENH[it.id].name : it.type === 'tonic' ? 'A tonic' : it.type === 'cleanse' ? 'Cleanse a hex' : 'Buff: ' + R.BUFFS[it.id].name;
+          const text = it.type === 'card' ? 'Own it: it can be dealt to you in your seed slot.' : it.type === 'enh' ? R.ENH[it.id].text : it.type === 'tonic' ? '+' + R.TONIC.health + ' health.' : it.type === 'cleanse' ? 'Remove a hex from any card.' : R.BUFFS[it.id].text;
           return '<button class="choice" data-buy="' + i + '"' + (it.sold || L.gold < it.price ? ' disabled' : '') + '><span class="price">' + (it.sold ? 'sold' : it.price + 'g') + '</span><b>' + esc(name) + '</b><span>' + esc(text) + '</span></button>';
         }).join('');
         body = noteHTML + '<div class="panel"><h2>The General Store</h2>' + items +
@@ -391,14 +406,19 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       case 'polish':
         body = '<div class="panel"><h2>Polish</h2><p>+1 rank on which card? (A 10 becomes a Queen; nothing goes past the Ace.)</p><div class="cardrow">' + R.polishable(L).map(c => cardHTML(c, { data: 'polish', owned: true, big: true })).join('') + '</div></div>';
         break;
+      case 'cleanse':
+        body = '<div class="panel"><h2>Cleanse</h2><p>Remove which hex?</p>' + R.hexed(L).map(c => '<button class="choice" data-cleanse="' + c + '"><b>' + esc(E.label(c) + (L.owned.includes(c) ? ' (yours)' : '')) + ' \u00b7 ' + esc(R.HEXES[L.hexes[c]].name) + '</b><span>' + esc(R.HEXES[L.hexes[c]].text) + '</span></button>').join('') + '</div>';
+        break;
       case 'release':
         body = '<div class="panel"><h2>Release a card</h2><p>Which card do you no longer want to own?</p><div class="cardrow">' + L.owned.map(c => cardHTML(c, { data: 'release', owned: true, big: true })).join('') + '</div></div>';
         break;
       case 'victory': {
         const boss = L.history.length ? L.result : null;
-        body = '<div class="panel"><h2>Act I complete</h2><p class="big">' + (boss && boss.won ? 'You beat the Twins!' : 'The Twins won the Hoedown, but you made it through the night.') + '</p>' +
-          '<div class="kv"><span>Health</span><span>' + num(L.health) + '</span><span>Gold</span><span>' + L.gold + '</span><span>Path</span><span>' + L.path.map(k => R.KIND_NAME[k]).join(' → ') + '</span></div>' +
-          '<p>Act II, the Barn Dance, isn’t built yet: this is the end of the slice.</p><h3>Your cards and buffs</h3>' + mineHTML() +
+        const bname = L.boss ? R.BOSS[L.boss].name : 'the rival pair';
+        const paths = (L.pastPaths || []).concat([L.path]).map((p, i) => 'Act ' + R.ROMAN[i + 1] + ': ' + p.map(k => R.KIND_NAME[k]).join(' → ')).join('<br>');
+        body = '<div class="panel"><h2>Act ' + R.ROMAN[L.act] + ' complete</h2><p class="big">' + (boss && boss.won ? 'You beat ' + bname.replace(/^The/, 'the') + '!' : bname + ' won the Hoedown, but you made it through the night.') + '</p>' +
+          '<div class="kv"><span>Health</span><span>' + num(L.health) + '</span><span>Gold</span><span>' + L.gold + '</span><span>Path</span><span>' + paths + '</span></div>' +
+          '<p>Act III, the County Fair, isn’t built yet: this is as far as the dance goes for now.</p><h3>Your cards and buffs</h3>' + mineHTML() +
           '<div class="btns"><button class="btn" data-act="newrun">New run</button></div></div>';
         break;
       }
@@ -423,7 +443,10 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       const mine = E.team(h.contractor) === 0, need = h.contract.t, got = h.tricks[E.team(h.contractor)];
       ct.hidden = false;
       ct.className = 'contract' + (mine ? '' : ' theirs');
-      ct.innerHTML = mine
+      ct.innerHTML = h.misere ? (mine
+        ? '<b>' + (h.contractor === 0 ? 'You' : 'Nan') + '</b> bid misère · ' + (h.contractor === 0 ? 'you' : 'she') + ' must lose every trick, playing alone · made: +' + h.contract.v + ', failed: −' + h.contract.v
+        : '<b>' + E.SEATS[h.contractor] + '</b> bid misère · <span class="intent">Intent: −' + E.damageOf(h.contract.v) + ' health if they lose every trick</span> · make ' + E.SEATS[h.contractor] + ' win one trick to block')
+        : mine
         ? '<b>' + (h.contractor === 0 ? 'You' : 'Nan') + '</b> bid ' + bidHTML(h.contract) + ' · your team needs ' + need + ' tricks (' + got + ' so far) · made: +' + h.contract.v + ', failed: ' + (R.has(L, 'nearmiss') ? '−' + h.contract.v + ' (one short: 0)' : '−' + h.contract.v)
         : '<b>' + E.SEATS[h.contractor] + '</b> bid ' + bidHTML(h.contract) + ' · <span class="intent">Intent: −' + E.damageOf(h.contract.v) + ' health if they take ' + need + '</span> · they have ' + got + ' · stop them at ' + (need - 1) + ' to block';
     } else ct.hidden = true;
@@ -436,6 +459,8 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     $('coach').hidden = !tip || inFelt;
     $('coach').innerHTML = inFelt ? '' : coachHTML(tip);
     $('felt').classList.toggle('tipping', !!inFelt);
+    // a tall bid grid (Act II's three rows) needs the room the empty trick area isn't using
+    $('felt').classList.toggle('compact', L.phase === 'hand' && h.phase === 'bid' && !inFelt && Object.keys(E.ACTS[L.act].bids).length >= 3);
     if (inFelt) $('felt').insertAdjacentHTML('beforeend', '<div class="coach feltcoach">' + coachHTML(tip) + '</div>');
     $('log').innerHTML = L.log.slice().reverse().slice(0, 60).map(e => '<li class="' + e.kind + '">' + esc(e.text) + '</li>').join('');
   }
@@ -446,14 +471,14 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       ob.className = 'objective';
       ob.innerHTML = '<div class="ot"><div class="on">The Hoedown: ' + esc(B.name) + '</div><div class="ox">' + esc(B.rule) + '</div></div>' +
         '<div class="race"><span>You: ' + esc(B.yours.text) + '</span><div class="meter"><i style="width:' + Math.round(100 * r.you / r.of) + '%"></i></div><b>' + r.you + ' / ' + r.of + '</b>' +
-        '<span>Twins: ' + esc(B.theirs.text) + '</span><div class="meter them"><i style="width:' + Math.round(100 * r.them / r.of) + '%"></i></div><b>' + r.them + ' / ' + r.of + '</b></div>';
+        '<span>' + B.short + ': ' + esc(B.theirs.text) + '</span><div class="meter them"><i style="width:' + Math.round(100 * r.them / (r.ofThem || r.of)) + '%"></i></div><b>' + r.them + ' / ' + (r.ofThem || r.of) + '</b></div>';
       return;
     }
     const O = R.OBJECTIVES[L.obj.id], h = L.h;
     ob.className = 'objective' + (L.obj.done ? ' done' : L.obj.fail ? ' fail' : '');
     ob.innerHTML = '<div class="ot"><div class="on">' + esc(O.name) + '</div><div class="ox">' + esc(O.text) + '</div></div>' +
-      '<div class="meter" aria-hidden="true"><i style="width:' + Math.round(100 * L.obj.n / L.obj.of) + '%"></i></div>' +
-      '<div class="oc">' + (L.obj.done ? '✓ done' : L.obj.fail ? 'missed' : L.obj.n + ' / ' + L.obj.of) + '</div>' +
+      '<div class="meter" aria-hidden="true"><i style="width:' + (O.kind === 'limit' ? (L.obj.fail ? 0 : 100) : Math.round(100 * L.obj.n / L.obj.of)) + '%"></i></div>' +
+      '<div class="oc">' + R.objProgress(L) + '</div>' +
       (L.obj.id === 'every' && !L.obj.done && !L.obj.fail && L.phase === 'hand' && h.tricks[0] > 0 ? '<div class="ox" style="flex:none">this hand ✓</div>' : '') +
       (L.curse ? '<div class="curse">Curse: <b>' + esc(R.CURSES[L.curse].name) + '</b> — ' + esc(R.CURSES[L.curse].text) + '</div>' : '');
   }
@@ -463,6 +488,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       const mine = h.bids.filter(b => b.seat === seat), b = mine[mine.length - 1];
       return b ? '<span class="tag">' + (b.pass ? 'pass' : bidPlain(b)) + '</span>' : '';
     }
+    if (h.out === seat) return '<span class="tag">sits out</span>';
     if (h.contractor === seat) return '<span class="tag">' + bidPlain(h.contract) + '</span>';
     return '';
   }
@@ -470,14 +496,15 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   function renderFelt() {
     const L = P.L, h = L.h, turn = (L.phase === 'hand' && ['bid', 'play', 'kitty'].includes(h.phase)) ? h.turn : -1;
     const re = L.reaction;
+    const lips = seat => { const cs = h.hands[seat].filter(c => L.hexes && L.hexes[c] === 'loose'); return cs.length ? '<div class="lips">' + cs.map(c => cardHTML(c, { small: true, seat })).join('') + '</div>' : ''; };
     const north = '<div class="seat north' + (turn === 2 ? ' turn' : '') + '"><div class="nan"><div class="face' + (re && /won|made|set/.test(re.kind) ? ' cheer' : '') + '"></div>' +
-      (re ? '<div class="bubble">' + esc(re.text) + '</div>' : '') + '</div><div class="who">Nan (North)</div>' + backs(h.hands[2].length) + seatTag(L, 2) + '</div>';
-    const side = (seat, cls) => '<div class="seat ' + cls + (turn === seat ? ' turn' : '') + '"><div class="who">' + E.SEATS[seat] + '</div>' + backs(h.hands[seat].length) + seatTag(L, seat) + '</div>';
+      (re ? '<div class="bubble">' + esc(re.text) + '</div>' : '') + '</div><div class="who">Nan (North)</div>' + backs(h.hands[2].length) + lips(2) + seatTag(L, 2) + '</div>';
+    const side = (seat, cls) => '<div class="seat ' + cls + (turn === seat ? ' turn' : '') + '"><div class="who">' + E.SEATS[seat] + '</div>' + backs(h.hands[seat].length) + lips(seat) + seatTag(L, seat) + '</div>';
     let zone = '<div class="trickzone" data-act="tapfelt">';
     if (h.phase === 'play' || h.phase === 'trick' || h.phase === 'swing' || h.phase === 'intent') {
       const showWin = h.phase === 'trick' ? h.last.winner : -1;
       for (let s = 0; s < 4; s++) if (h.trick[s]) zone += '<div class="slot s' + s + (s === showWin ? ' win' : '') + '">' + cardHTML(h.trick[s], { small: true, seat: s }) + '</div>';
-      zone += '<div class="tally">Tricks: you ' + h.tricks[0] + ' · them ' + h.tricks[1] + '</div>';
+      zone += '<div class="tally">Tricks: you ' + h.tricks[0] + (h.bonus && h.bonus[0] ? ' (+' + h.bonus[0] + ')' : '') + ' · them ' + h.tricks[1] + '</div>';
     }
     zone += '</div>';
     $('felt').innerHTML = north + side(1, 'west') + zone + side(3, 'east');
@@ -489,10 +516,11 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const yourKitty = live && h.phase === 'kitty' && h.turn === 0;
     const yourSwing = live && h.phase === 'swing';
     const legal = yourPlay ? E.legalPlays(L, 0) : [];
+    $('hand').classList.toggle('many', hand.length > 4);
     $('hand').innerHTML = hand.map(c => {
       const can = yourKitty || yourSwing || legal.includes(c);
       const locked = h.locked === c && !h.unlocked;
-      const flag = locked ? 'locked' : h.ticking === c ? 'by trick 2!' : (L.mods[c] && L.mods[c].enh) ? null : (h.seeded || []).includes(c) ? 'yours' :
+      const flag = locked ? 'locked' : h.ticking === c ? 'by trick 2!' : (L.mods[c] && L.mods[c].enh) ? null : (h.seeded || []).includes(c) ? (L.boss === 'sharps' ? 'they see it' : 'yours') :
         (h.trump && E.rankOf(c) === 'J' && E.suitOf(c) === E.TWIN[h.trump] ? 'left bower' : (h.trump && c === 'J' + h.trump ? 'right bower' : ''));
       const active = yourPlay || yourKitty || yourSwing;
       return cardHTML(c, { seat: 0, data: can ? 'card' : null, dis: !can && active, cls: active ? (can ? 'ok' : 'no') : '', flag: flag || undefined, locked });
@@ -502,14 +530,18 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const L = P.L, h = L.h, bp = $('bidpanel');
     if (!(L.phase === 'hand' && h.phase === 'bid')) { bp.hidden = true; return; }
     bp.hidden = false;
-    const A = E.ACTS[L.act], tricks = Object.keys(A.bids).map(Number), suits = Object.keys(A.bids[tricks[0]]);
+    const A = E.ACTS[L.act], base = Object.keys(A.bids).map(Number), suits = Object.keys(A.bids[base[0]]);
+    // a Doubly Woubly in your hand opens a row above the hand size
+    const room = E.extraTricks(L, 0), extraRows = Object.keys(A.extra || {}).map(Number).filter(t => t - A.hand <= room);
+    const tricks = base.concat(extraRows);
+    const valueOf = (t, s) => (A.bids[t] || A.extra[t])[s];
     const mine = h.turn === 0, min = h.high ? h.high.v : 0;
     let g = '<div class="bidgrid" style="grid-template-columns: 34px repeat(' + suits.length + ', 1fr)"><span></span>' +
       suits.map(s => '<span class="h">' + (s === 'NT' ? 'No trumps' : E.NAME[s]) + '</span>').join('');
     for (const t of tricks) {
       g += '<span class="rl">' + t + '</span>';
       for (const s of suits) {
-        const v = A.bids[t][s];
+        const v = valueOf(t, s);
         g += '<button data-bid="' + t + s + '" class="' + (E.RED[s] ? 'red' : '') + '"' + (!mine || v <= min ? ' disabled' : '') + '>' + t + (s === 'NT' ? 'NT' : E.SYM[s]) + '<span class="v">' + v + '</span></button>';
       }
     }
@@ -518,8 +550,9 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     let extras = '';
     if (R.has(L, 'nod')) { const n = AI.nod(L, 2); extras += '<span class="nod">Nan’s nod: ' + (n ? denom(n) : 'nothing strong') + '</span>'; }
     if (R.has(L, 'peek')) extras += '<span class="nod">Peek: the kitty holds ' + h.kitty.map(E.label).join(', ') + '</span>';
-    bp.innerHTML = '<div><b>' + (mine ? 'Your bid' : E.SEATS[h.turn] + ' is bidding…') + '</b> ' + (h.high ? '(to beat: ' + bidPlain(h.high) + ' by ' + (h.high.seat === 0 ? 'you' : E.SEATS[h.high.seat]) + ')' : '(tricks you and Nan promise, out of 3)') + extras + '</div>' + g +
-      '<div class="btns" style="margin-top:4px"><button class="btn alt" data-act="pass"' + (mine ? '' : ' disabled') + '>Pass</button></div>' +
+    bp.innerHTML = '<div><b>' + (mine ? 'Your bid' : E.SEATS[h.turn] + ' is bidding…') + '</b> ' + (h.high ? '(to beat: ' + bidPlain(h.high) + ' by ' + (h.high.seat === 0 ? 'you' : E.SEATS[h.high.seat]) + ')' : '(tricks you and Nan promise, out of ' + E.ACTS[L.act].hand + ')') + extras + '</div>' + g +
+      '<div class="btns" style="margin-top:4px"><button class="btn alt" data-act="pass"' + (mine ? '' : ' disabled') + '>Pass</button>' +
+      (A.misere ? '<button class="btn alt" data-bid="0MIS" title="Lose every trick, playing alone; Nan sits out. Ranks between 5NT and 6♠."' + (!mine || A.misere <= min ? ' disabled' : '') + '>Misère · ' + A.misere + '</button><span class="bidlog" style="align-self:center;margin:0">lose every trick alone</span>' : '') + '</div>' +
       (log ? '<div class="bidlog">' + esc(log) + '</div>' : '');
   }
   function renderStatus() {
@@ -532,7 +565,8 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     else if (h.phase === 'intent') t = E.SEATS[h.contractor] + ' is about to play ' + bidPlain(h.contract) + '.';
     else if (h.phase === 'trick') t = h.last.reason + ' (Tap the table to go on.)';
     else if (h.phase === 'play') {
-      if (h.turn !== 0) t = (h.turn === 2 ? 'Nan' : E.SEATS[h.turn]) + ' is playing…';
+      if (h.out === 0) t = 'You sit out this hand: Nan is playing misère alone. ' + (h.turn === 2 ? 'Nan' : E.SEATS[h.turn]) + ' to play…';
+      else if (h.turn !== 0) t = (h.turn === 2 ? 'Nan' : E.SEATS[h.turn]) + ' is playing…';
       else {
         const led = E.ledSuit(L);
         if (!led) t = 'Your lead.';
@@ -553,30 +587,34 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     let html = '', key = '';
     if (L.phase === 'hand' && h.phase === 'intent') {
       key = 'intent' + L.level + '-' + L.handNo;
-      html = '<h2>Their intent</h2><p class="big">' + E.SEATS[h.contractor] + ' bids ' + bidHTML(h.contract) + '</p>' +
-        '<p>If they take <b>' + h.contract.t + '</b> of the 3 tricks, you lose <b class="badc">' + h.intent.dmg + ' health</b> (half of ' + h.contract.v + ')' +
-        (h.intent.dmgSweep > h.intent.dmg ? ', or ' + h.intent.dmgSweep + ' if they take all 3' : '') + '.</p>' +
+      if (h.misere) html = '<h2>Their intent</h2><p class="big">' + E.SEATS[h.contractor] + ' bids misère</p>' +
+        '<p>' + E.SEATS[h.contractor] + ' plays alone and must lose every trick. If they do, you lose <b class="badc">' + h.intent.dmg + ' health</b> (half of ' + h.contract.v + ').</p>' +
+        '<p>Make ' + E.SEATS[h.contractor] + ' win just one trick and the attack misses: they lose ' + h.contract.v + '. Lead low cards, and when they play, stay under their card.</p>' +
+        '<div class="btns"><button class="btn" data-act="ackintent">Defend</button></div>';
+      else html = '<h2>Their intent</h2><p class="big">' + E.SEATS[h.contractor] + ' bids ' + bidHTML(h.contract) + '</p>' +
+        '<p>If they take <b>' + h.contract.t + '</b> of the ' + E.ACTS[L.act].hand + ' tricks, you lose <b class="badc">' + h.intent.dmg + ' health</b> (half of ' + h.contract.v + ')' +
+        (h.intent.dmgSweep > h.intent.dmg ? ', or ' + h.intent.dmgSweep + ' if they take all ' + E.ACTS[L.act].hand : '') + '.</p>' +
         '<p>Hold them to ' + (h.contract.t - 1) + ' and the attack misses: they lose ' + h.contract.v + ' and you score 10 a trick.</p>' +
         '<div class="btns"><button class="btn" data-act="ackintent">Defend</button></div>';
     } else if (L.phase === 'summary') {
       const r = h.result;
       key = 'sum' + L.level + '-' + L.handNo;
-      const goal = L.race ? 'Race: you ' + L.race.you + ' / ' + L.race.of + ' · Twins ' + L.race.them + ' / ' + L.race.of :
-        R.OBJECTIVES[L.obj.id].name + ': ' + (L.obj.done ? '<span class="good">done</span>' : L.obj.fail ? '<span class="badc">missed</span>' : L.obj.n + ' / ' + L.obj.of);
+      const goal = L.race ? 'Race: you ' + L.race.you + ' / ' + L.race.of + ' · ' + R.BOSS[L.boss].short + ' ' + L.race.them + ' / ' + (L.race.ofThem || L.race.of) :
+        R.OBJECTIVES[L.obj.id].name + ': ' + (L.obj.done ? '<span class="good">done</span>' : L.obj.fail ? '<span class="badc">missed</span>' : R.objProgress(L));
       const last = L.handNo >= L.hands || (L.race && L.race.winner);
       html = '<h2>Hand ' + L.handNo + ' of ' + L.hands + '</h2>' +
         '<p class="big ' + (r.delta >= 0 ? 'good' : 'badc') + '">Health ' + (r.delta >= 0 ? '+' : '−') + Math.abs(r.delta) + ' → ' + num(L.health) + '</p>' +
         '<ul class="lines">' + r.lines.map(t => '<li>' + esc(t) + '</li>').join('') + '</ul>' +
         '<div class="kv"><span>' + (L.race ? 'Hoedown' : 'Objective') + '</span><span>' + goal + '</span>' +
         '<span>Level score</span><span>you ' + num(L.you) + ' · them ' + num(L.opp) + '</span></div>' +
-        (L.race && L.race.winner ? '<p class="big ' + (L.race.winner === 'you' ? 'good' : 'badc') + '">' + (L.race.winner === 'you' ? 'You win the race!' : 'The Twins win the race.') + '</p>' : '') +
+        (L.race && L.race.winner ? '<p class="big ' + (L.race.winner === 'you' ? 'good' : 'badc') + '">' + (L.race.winner === 'you' ? 'You win the race!' : R.BOSS[L.boss].name + ' win the race.') + '</p>' : '') +
         (R.canExtra(L) ? '<p>The objective isn’t done yet. One more hand costs <b>' + L.extraPrice + ' gold</b> (no third star this level).</p>' : '') +
         '<div class="btns"><button class="btn" data-act="next">' + (last ? 'See the stars' : 'Next hand') + '</button>' +
         (R.canExtra(L) ? '<button class="btn alt" data-act="extra">One more hand (' + L.extraPrice + 'g)</button>' : '') + '</div>';
     } else if (L.phase === 'over') {
       const r = L.result;
       key = 'over' + L.level;
-      const goal = r.kind === 'boss' ? '<span>Hoedown</span><span>' + (r.won ? '<span class="good">you won the race</span>' : '<span class="badc">the Twins won</span> (−100 health)') + '</span>'
+      const goal = r.kind === 'boss' ? '<span>Hoedown</span><span>' + (r.won ? '<span class="good">you won the race</span>' : '<span class="badc">' + R.BOSS[L.boss].name.replace(/^The/, 'the') + ' won</span> (−100 health)') + '</span>'
         : '<span>Objective</span><span>' + esc(R.OBJECTIVES[L.obj.id].text) + ': ' + (r.objective ? '<span class="good">done</span>' : '<span class="badc">missed</span>') + '</span>';
       const next = r.kind === 'dance' ? (r.stars === 3 ? 'Pick 1 of 3 enhancements, or keep a card you won.' : r.stars === 2 ? 'Pick 1 of 2 enhancements.' : 'No reward beyond the gold.')
         : r.kind === 'elite' ? (r.stars === 3 ? 'Pick 1 of 2 buffs.' : r.stars === 2 ? 'A buff.' : 'No buff.')
@@ -599,8 +637,10 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     v.hidden = false;
   }
   const RULES = '<h2>How 500 works here</h2><ul class="lines">' +
-    '<li><b>Deck:</b> hearts and diamonds 9 to Ace, plus the Joker. 3 cards each, 1 in the kitty.</li>' +
-    '<li><b>Bidding:</b> promise 2 or 3 of the 3 tricks with your partner, naming trumps (♦ or ♥) or no trumps. Each bid must beat the last. Bids are worth 20 to 100.</li>' +
+    '<li><b>Deck:</b> Act I is hearts and diamonds 9 to Ace plus the Joker, 3 cards each. Act II adds spades and clubs: 6 cards each. One card goes to the kitty.</li>' +
+    '<li><b>Bidding:</b> promise more than half the tricks with your partner (2–3 in Act I, 4–6 in Act II), naming trumps or no trumps. Each bid must beat the last. Act I bids are worth 20 to 100; Act II\u2019s 20 to 180. Suits rank ♠ < ♣ < ♦ < ♥ < no trumps.</li>' +
+    '<li><b>Hexes</b> (from Act II) sit on a card and hit whoever holds it, marked in red: Loose Lips (shown face-up), Hot Potato (the team that catches it loses 20), Itchy Feet (must be played when it can be), Stepped On (one rank lower), and the Two Left Feet curse card (never wins a trick). Cleanse them at the Punch Bowl.</li>' +
+    '<li><b>Misère</b> (Act II, worth 130): you promise to lose every trick, playing alone while your partner sits out, with no trumps. The Joker wins any trick it is in, so put it under the kitty. The defenders score nothing; take a single trick and it fails.</li>' +
     '<li><b>Trumps:</b> the Joker is highest, then the <b>right bower</b> (the Jack of trumps), then the <b>left bower</b> (the other red Jack, which counts as a trump), then A, K, Q, 10, 9.</li>' +
     '<li><b>Play:</b> the winner of the auction takes the kitty, puts a card back and leads. Follow the suit led if you can; the highest trump wins, otherwise the highest card of the suit led. Equal cards: the first played wins.</li>' +
     '<li><b>Scoring:</b> make your bid and score it; fail and lose it. Defenders score 10 a trick. Take every trick and you score your suit’s top bid.</li>' +
@@ -640,7 +680,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
 
   /* ---------------- input ---------------- */
   document.addEventListener('click', ev => {
-    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-buy],[data-polish],[data-release],[data-tip]');
+    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-buy],[data-polish],[data-release],[data-cleanse],[data-tip]');
     if (!t || t.disabled) return;
     if (t.closest('#sheet') && Date.now() < P.guardUntil) return;
     const L = P.L, d = t.dataset;
@@ -657,6 +697,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     if (d.buy) { move('buy', d.buy === 'release' ? 'release' : +d.buy); return; }
     if (d.polish) { move('polish', d.polish); return; }
     if (d.release) { move('release', d.release); return; }
+    if (d.cleanse) { move('cleanse', d.cleanse); return; }
     switch (d.act) {
       case 'start': newRun(); break;
       case 'continue': { const s = loadSaved(); if (s) { P.L = s; show(); } break; }
