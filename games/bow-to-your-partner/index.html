@@ -59,16 +59,27 @@ select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid
 .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
 .chip { border-radius: 999px; padding: 3px 10px; background: #f3e7cf; font-size: 13px; }
 
-/* the dance card (map) */
-.path { list-style: none; margin: 4px 0 0; padding: 0; position: relative; }
-.path li { display: flex; gap: 12px; align-items: flex-start; padding: 8px 0; position: relative; }
-.path li::before { content: ""; position: absolute; left: 17px; top: 44px; bottom: -8px; width: 2px; background: var(--line); }
-.path li:last-child::before { display: none; }
-.stop { width: 36px; height: 36px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; font-weight: 700; background: #fff; border: 2px solid var(--line); }
-.path li.done .stop { background: var(--ok); border-color: var(--ok); color: #fff; }
-.path li.now .stop { background: var(--accent); border-color: var(--accent); color: #fff; }
-.path .what { flex: 1; min-width: 0; }
-.path .what small { color: var(--muted); }
+/* the map: dotted paths in an SVG, the stops as real buttons over it */
+.mapbox { position: relative; width: 100%; max-width: 400px; margin: 6px auto 0; }
+.mapbox svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.mapbox .edge { stroke: #b9a888; stroke-width: 2.5; stroke-dasharray: 2 6; stroke-linecap: round; fill: none; }
+.mapbox .edge.walked { stroke: var(--accent); stroke-dasharray: none; stroke-width: 3; }
+.mapbox .nd { position: absolute; transform: translate(-50%, -50%); width: 40px; height: 40px; border-radius: 50%; padding: 0;
+  border: 2px solid var(--line); background: var(--card); color: var(--muted); display: grid; place-items: center; }
+.mapbox .nd svg { position: static; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
+.mapbox .nd.boss { width: 58px; height: 58px; border-width: 3px; color: var(--accent); }
+.mapbox .nd.boss svg { width: 32px; height: 32px; }
+.mapbox .nd.done { border-color: var(--accent); color: var(--accent); background: #f3e3d4; }
+.mapbox .nd.here { background: var(--accent); color: #fff; border-color: var(--accent); }
+.mapbox .nd.dead { opacity: .4; }
+.mapbox .nd.can { border-color: var(--gold); color: var(--ink); border-width: 3px; box-shadow: 0 0 0 0 rgba(200,150,46,.6); animation: nodepulse 1.4s ease-in-out infinite; }
+@keyframes nodepulse { 50% { box-shadow: 0 0 0 7px rgba(200,150,46,0); } }
+.mapbox .nd:disabled { cursor: default; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: center; font-size: 13px; color: var(--muted); margin: 4px 0; }
+.legend span { display: inline-flex; align-items: center; gap: 4px; }
+.legend svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
+.nextup { font-size: 14px; margin: 8px 0 0; padding-left: 18px; }
+.nextup li { margin: 2px 0; }
 
 /* ---------- table ---------- */
 #game { display: flex; flex-direction: column; min-height: 100vh; }
@@ -227,7 +238,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     <h2>Tonight's dance</h2>
     <ul>
       <li>You and <b>Nan</b> (North) partner up against West and East in a small game of 500: hearts, diamonds and the Joker, 3 cards each.</li>
-      <li>Five stops: a Dance, a fork (Dance or Barn Gossip), the Punch Bowl, a fork (Dance or Dance-off), and the Hoedown against a rival pair. Get through Act I and the <b>Barn Dance</b> follows: spades and clubs join in, and hands grow to 6 cards. Then the <b>County Fair</b>: the whole 500 deck, 10 cards each, and a final Hoedown you must win.</li>
+      <li>Each act is a map, like Slay the Spire’s: pick your way up seven floors of Dances, Dance-offs, Barn Gossip, General Stores and Punch Bowls, with the Raffle halfway and a Punch Bowl before the Hoedown against a rival pair at the top. Get through Act I and the <b>Barn Dance</b> follows: spades and clubs join in, and hands grow to 6 cards. Then the <b>County Fair</b>: the whole 500 deck, 10 cards each, and a final Hoedown you must win.</li>
       <li>Each Dance has one <b>objective</b>. Stars: 1 for surviving, 2 for the objective, 3 for the objective and outscoring them. Stars pay gold and rewards.</li>
       <li>Your score is your <b>health</b>. Fail your own contract and you lose its value; let them make theirs and you lose half of it. At −500 the run ends.</li>
     </ul>
@@ -356,23 +367,13 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
           '<div class="panel"><h2>Act I: the Church Hall</h2><p>Pick a card to own. You already own Nan’s A♥. Each hand, one card you own is dealt straight to you (your seed slot), so owning two means you won’t know which comes.</p>' +
           '<div class="cardrow">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div></div>');
         break;
-      case 'map': {
-        const items = R.mapOf(L).map((choices, i) => {
-          const cls = i < L.pos ? 'done' : i === L.pos ? 'now' : '';
-          let what = '<b>' + choices.map(k => R.KIND_NAME[k]).join(' or ') + '</b>';
-          if (i < L.pos) what = '<b>' + R.KIND_NAME[L.path[i]] + '</b> <small>done</small>';
-          if (i === L.pos) what += '<div class="btns" style="margin-top:6px">' + choices.map(k => '<button class="btn' + (choices.length > 1 && k !== choices[0] ? ' alt' : '') + '" data-go="' + k + '">' + R.KIND_NAME[k] + '</button>').join('') + '</div>' +
-            '<small>' + choices.map(k => ({ dance: (['', 'one', 'two', 'three', 'four'][R.HANDS[L.act].dance] || R.HANDS[L.act].dance) + ' hands with one objective', event: 'a choice with a trade-off', camp: 'shop, rest or polish a card', elite: 'harder: one curse, pays a buff', boss: R.BOSS_POOL[L.act].map(b => R.BOSS[b].name).join(' or ') + ': a race, ' + R.HANDS[L.act].boss + ' hands' })[k]).join(' · ') + '</small>';
-          return '<li class="' + cls + '"><div class="stop">' + (i < L.pos ? '✓' : i + 1) + '</div><div class="what">' + what + '</div></li>';
-        }).join('');
-        body = noteHTML + '<div class="panel"><h2>The dance card</h2><ol class="path">' + items + '</ol></div>' +
-          '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
+      case 'map':
+        body = noteHTML + mapHTML(L) + '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
         break;
-      }
       case 'reward': {
         const s = L.reward.steps[0];
         if (s.type === 'buff') {
-          body = noteHTML + '<div class="panel"><h2>Pick a buff</h2>' + s.options.map(b => '<button class="choice" data-choose="' + b + '"><b>' + esc(R.BUFFS[b].name) + '</b><span>' + esc(R.BUFFS[b].text) + '</span></button>').join('') +
+          body = noteHTML + '<div class="panel"><h2>' + (L.reward.raffle ? 'The Raffle: pick a buff' : 'Pick a buff') + '</h2>' + s.options.map(b => '<button class="choice" data-choose="' + b + '"><b>' + esc(R.BUFFS[b].name) + '</b><span>' + esc(R.BUFFS[b].text) + '</span></button>').join('') +
             '<div class="btns"><button class="btn alt" data-act="reroll"' + (L.gold < R.REROLL || R.freeBuffs(L).length <= s.options.length ? ' disabled' : '') + '>Reroll (' + R.REROLL + 'g)</button></div></div>';
         } else {
           body = noteHTML + '<div class="panel"><h2>Pick an enhancement</h2><p>It goes on a card you own and stays all run (one per card).</p>' +
@@ -452,6 +453,60 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
         break;
     }
     $('screen').innerHTML = bar() + (tip ? '<div class="coach">' + coachHTML(tip) + '</div>' : '') + body;
+    // on the map, bring the next choice into view once per stop (the map is taller than a phone)
+    if (L.phase === 'map' && P.mapScrolled !== L.act + ':' + L.pos) {
+      P.mapScrolled = L.act + ':' + L.pos;
+      setTimeout(() => { const n = document.querySelector('.mapbox .nd.can'); if (!n || !n.getBoundingClientRect) return; const r = n.getBoundingClientRect(); if (r.height && (r.bottom > innerHeight - 20 || r.top < 60)) try { window.scrollTo(0, Math.max(0, r.top + scrollY - innerHeight * 0.6)); } catch (e) { /* no layout (tests) */ } }, 0);
+    }
+  }
+
+  /* The act's map: seven floors and the Hoedown, after Gwent's The Path. Paths are an SVG behind; the stops
+     are buttons over it, placed in the same coordinates (a viewBox W × H, in percent). */
+  const ICON = {
+    dance: '<path d="M9 17V5l10-2v12"/><circle cx="6.5" cy="17" r="2.5"/><circle cx="16.5" cy="15" r="2.5"/>',
+    event: '<path d="M4 5h16v10H10l-5 4v-4H4z"/><path d="M8 9h8M8 12h5"/>',
+    elite: '<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+    camp: '<path d="M3 10h18a9 8 0 0 1-18 0z"/><path d="M9 6c0-2 2-2 2-4M14 6c0-2 2-2 2-4"/>',
+    store: '<path d="M5 8h14l-1 13H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+    raffle: '<path d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4z"/><path d="M15 7v10" stroke-dasharray="2 2"/>',
+    boss: '<path d="M12 2l3 7 7 .6-5.3 4.6 1.6 7.2L12 17.8 5.7 21.4l1.6-7.2L2 9.6 9 9z"/>'
+  };
+  const icon = k => '<svg viewBox="0 0 24 24" aria-hidden="true">' + ICON[k] + '</svg>';
+  function nodeWhat(L, k) {
+    return ({ dance: (['', 'one', 'two', 'three', 'four'][R.HANDS[L.act].dance] || R.HANDS[L.act].dance) + ' hands with one objective',
+      event: 'a choice with a trade-off', camp: 'rest, polish, cleanse' + (E.ACTS[L.act].forge ? ', forge or remove' : '') + ', or shop',
+      elite: 'harder: one curse, pays a buff', store: 'cards, an enhancement, a buff, a tonic',
+      raffle: R.RAFFLE.gold + ' gold and a free buff', boss: 'a race, ' + R.HANDS[L.act].boss + ' hands' })[k];
+  }
+  function mapHTML(L) {
+    const SH = R.MAPSHAPE, gx = 70, step = 78, W = 60 + (SH.cols - 1) * gx, H = 80 + SH.floors * step + 36;
+    // a little jitter so the grid doesn't look ruled, the same every time for a node
+    const jit = (id, k) => { let h = 0; for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return ((h >> k) % 11) - 5; };
+    const xy = n => n.id === 'boss' ? [W / 2, 38] : [30 + n.c * gx + jit(n.id, 2), H - 36 - n.f * step + jit(n.id, 5)];
+    const can = R.reachable(L), all = [];
+    L.map.floors.forEach(row => row.forEach(n => all.push(n)));
+    const route = L.route || [], walked = new Set();
+    for (let i = 1; i < route.length; i++) walked.add(route[i - 1] + '>' + route[i]);
+    let edges = '';
+    for (const n of all) for (const id of n.next) {
+      const [x1, y1] = xy(n), [x2, y2] = xy(R.node(L, id));
+      edges += '<path class="edge' + (walked.has(n.id + '>' + id) ? ' walked' : '') + '" d="M' + x1 + ' ' + y1 + 'L' + x2 + ' ' + y2 + '"/>';
+    }
+    const fNow = R.floorOf(L);
+    const nodes = all.concat([R.node(L, 'boss')]).map(n => {
+      const [x, y] = xy(n), isCan = can.includes(n.id), done = route.includes(n.id), dead = !isCan && !done && n.f <= fNow;
+      const name = n.kind === 'boss' ? 'Hoedown: ' + R.BOSS[L.map.boss].name : R.KIND_NAME[n.kind];
+      return '<button class="nd ' + n.kind + (isCan ? ' can' : '') + (done ? ' done' : '') + (dead ? ' dead' : '') + (n.id === L.pos ? ' here' : '') + '"' +
+        ' style="left:' + (100 * x / W).toFixed(2) + '%;top:' + (100 * y / H).toFixed(2) + '%"' + (isCan ? ' data-go="' + n.id + '"' : ' disabled') +
+        ' aria-label="' + esc(name) + '" title="' + esc(name) + '">' + icon(n.kind) + '</button>';
+    }).join('');
+    const kinds = [...new Set(can.map(id => R.node(L, id).kind))];
+    const B = R.BOSS[L.map.boss];
+    return '<div class="panel"><h2>Act ' + R.ROMAN[L.act] + ': the ' + esc(E.ACTS[L.act].name) + '</h2>' +
+      '<p style="margin:0">The Hoedown at the top: <b>' + esc(B.name) + '</b>. ' + esc(B.rule) + '</p>' +
+      '<div class="legend">' + ['dance', 'elite', 'event', 'store', 'camp', 'raffle'].map(k => '<span>' + icon(k) + esc(R.KIND_NAME[k]) + '</span>').join('') + '</div>' +
+      '<div class="mapbox" style="aspect-ratio:' + W + ' / ' + H + '"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + edges + '</svg>' + nodes + '</div>' +
+      (kinds.length ? '<p style="margin:8px 0 0"><b>Next</b>: tap a glowing stop.</p><ul class="nextup">' + kinds.map(k => '<li><b>' + esc(k === 'boss' ? 'The Hoedown' : R.KIND_NAME[k]) + '</b>: ' + esc(nodeWhat(L, k)) + '</li>').join('') + '</ul>' : '') + '</div>';
   }
 
   /* The run's ending, won or lost: each act's path and Hoedown, then the totals. */

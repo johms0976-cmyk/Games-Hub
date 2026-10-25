@@ -198,8 +198,9 @@
     // Reverse or Sanctuary led: only cards of the suit led count (no trumping in);
     // Reverse gives the trick to the lowest of them, Sanctuary to the highest.
     const mode = wk.m && (wk.m.enh === 'reverse' || wk.m.enh === 'sanctuary') ? wk.m.enh : callReverse(L) ? 'reverse' : null;
-    if (mode) {
-      const inSuit = seats.filter(x => kSuit(x.k, trump) === led && x.k.x !== 'twoleft' && !(x.k.m && x.k.m.enh === 'outcast'));
+    // (an Outcast or Two Left Feet led has no suit to count: the trick goes by the ordinary rules)
+    const inSuit = mode ? seats.filter(x => kSuit(x.k, trump) === led && x.k.x !== 'twoleft' && !(x.k.m && x.k.m.enh === 'outcast')) : [];
+    if (inSuit.length) {
       let best = inSuit[0];
       for (const x of inSuit.slice(1)) {
         const a = playRank(x.k, trump), b = playRank(best.k, trump);

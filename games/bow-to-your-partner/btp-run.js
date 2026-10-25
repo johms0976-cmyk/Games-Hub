@@ -208,13 +208,76 @@
   };
   Object.keys(EVENTS).forEach(k => { if (!EVENTS[k].acts) EVENTS[k].acts = [1, 2, 3]; else if (!EVENTS[k].acts.includes(3)) EVENTS[k].acts.push(3); });
   const PAY = { dance: [0, 10, 25, 40], elite: [0, 20, 40, 60] };
-  /* Every act walks the same five stops (the short map). */
-  const MAPS = { 1: [['dance'], ['dance', 'event'], ['camp'], ['dance', 'elite'], ['boss']],
-                 2: [['dance'], ['dance', 'event'], ['camp'], ['dance', 'elite'], ['boss']],
-                 3: [['dance'], ['dance', 'event'], ['camp'], ['dance', 'elite'], ['boss']] };
-  const MAP = MAPS[1];
-  const mapOf = L => MAPS[L.act];
-  const KIND_NAME = { dance: 'Dance', event: 'Barn Gossip', camp: 'Punch Bowl', elite: 'Dance-off', boss: 'Hoedown' };
+  /* The map (2026-10-26, after Gwent's The Path, which is after Slay the Spire): each act is seven floors on
+     a grid five wide, four paths up it that never cross, and the Hoedown above them all. Floor 1 is always a
+     Dance, floor 4 the Raffle (a free buff), floor 7 a Punch Bowl; the rest are drawn at Gwent's odds, with no
+     Dance-off or Punch Bowl on the first two floors, and no two stores, Punch Bowls or Dance-offs in a row. */
+  const MAPSHAPE = { floors: 7, cols: 5, paths: 4, raffle: 3 };
+  const ROOMS = f => [['dance', 45], ['event', 22], ['elite', f >= 2 ? 14 : 0], ['store', f >= 2 ? 12 : 3], ['camp', f >= 2 && f !== MAPSHAPE.floors - 2 ? 9 : 0]];
+  const RAFFLE = { gold: 25, noBuff: 60, buff: true };
+  const KIND_NAME = { dance: 'Dance', event: 'Barn Gossip', camp: 'Punch Bowl', elite: 'Dance-off', boss: 'Hoedown', store: 'General Store', raffle: 'The Raffle' };
+  const int = (L, a, b) => a + Math.floor(E.rnd(L) * (b - a + 1));
+  function weighted(L, pairs) {
+    const live = pairs.filter(p => p[1] > 0), tot = live.reduce((n, p) => n + p[1], 0);
+    let x = E.rnd(L) * tot;
+    for (const p of live) if ((x -= p[1]) < 0) return p[0];
+    return live[live.length - 1][0];
+  }
+  function genMap(L) {
+    const { floors: FL, cols: CO, paths: PA } = MAPSHAPE;
+    const edges = {}, used = {};
+    // a step from (f, a) to (f+1, b) crosses an existing edge from floor f if they swap sides
+    const crosses = (f, a, b) => Object.keys(edges).some(k => {
+      const [ff, cc] = k.split(':').map(Number);
+      return ff === f && edges[k].some(dd => (a < cc && b > dd) || (a > cc && b < dd));
+    });
+    const starts = E.shuffle(L, Array.from({ length: CO }, (_, c) => c));
+    for (let p = 0; p < PA; p++) {
+      let col = p < 2 ? starts[p] : int(L, 0, CO - 1);
+      used['0:' + col] = true;
+      for (let f = 0; f < FL - 1; f++) {
+        let next = col;
+        for (let t = 0; t < 12; t++) {
+          const c2 = Math.max(0, Math.min(CO - 1, col + int(L, -1, 1)));
+          if (!crosses(f, col, c2)) { next = c2; break; }
+        }
+        const k = f + ':' + col;
+        edges[k] = edges[k] || [];
+        if (!edges[k].includes(next)) edges[k].push(next);
+        used[(f + 1) + ':' + next] = true;
+        col = next;
+      }
+    }
+    const floors = [];
+    for (let f = 0; f < FL; f++) {
+      const row = [];
+      for (let c = 0; c < CO; c++) if (used[f + ':' + c])
+        row.push({ id: f + ':' + c, f, c, kind: null, next: f < FL - 1 ? (edges[f + ':' + c] || []).slice().sort().map(n => (f + 1) + ':' + n) : ['boss'] });
+      floors.push(row);
+    }
+    for (const row of floors) for (const n of row)
+      n.kind = n.f === 0 ? 'dance' : n.f === MAPSHAPE.raffle ? 'raffle' : n.f === FL - 1 ? 'camp' : weighted(L, ROOMS(n.f));
+    const byId = {};
+    floors.forEach(row => row.forEach(n => { byId[n.id] = n; }));
+    for (const row of floors) for (const n of row) for (const id of n.next) {
+      const m = byId[id];
+      if (m && m.kind === n.kind && ['store', 'camp', 'elite'].includes(m.kind) && m.f !== FL - 1) m.kind = 'dance';
+    }
+    L.map = { floors, boss: E.pick(L, BOSS_POOL[L.act]) };
+    L.pos = null; L.path = []; L.route = [];
+  }
+  function mapNode(L, id) {
+    if (id === 'boss') return { id: 'boss', f: MAPSHAPE.floors, c: (MAPSHAPE.cols - 1) / 2, kind: 'boss', next: [] };
+    for (const row of L.map.floors) for (const n of row) if (n.id === id) return n;
+    return null;
+  }
+  function reachable(L) {
+    if (L.phase !== 'map' || !L.map) return [];
+    if (!L.pos) return L.map.floors[0].map(n => n.id);
+    const n = mapNode(L, L.pos);
+    return n ? n.next.slice() : [];
+  }
+  const floorOf = L => !L.pos ? -1 : mapNode(L, L.pos).f;
   const REST = { 1: 50, 2: 100, 3: 250 }, CASH = { health: 200, gold: 100 };
   const restOf = L => REST[L.act];
   /* Act II's targets, tuned on accident rates: see the header of OBJECTIVES. */
@@ -235,7 +298,7 @@
     const P = PARTNERS.nan;
     const L = { v: 2, rs: (o.seed >>> 0) || 1, act: o.act || 1, health: 0, gold: 0, partner: P.id,
                 owned: [P.start], mods: {}, hexes: {}, buffs: [P.ability], releases: 0, extraPrice: 40,
-                pos: 0, path: [], pastPaths: [], actLevels: 0, levelsDone: 0, level: 0, log: [], history: [], dealer: 3,
+                pos: null, path: [], route: [], pastPaths: [], actLevels: 0, levelsDone: 0, level: 0, log: [], history: [], dealer: 3,
                 tips: o.tips !== false, seen: {}, firstObjective: o.objective || null, note: '' };
     E.rnd(L);
     actStart(L);
@@ -248,6 +311,7 @@
     let pool = deck.filter(c => !L.owned.includes(c) && !before.includes(c));
     if (pool.length < 3) pool = deck.filter(c => !L.owned.includes(c));
     L.offer = E.shuffle(L, pool).slice(0, 3);
+    genMap(L);
     L.phase = 'actstart';
   }
   /* After an act's Hoedown: on to the next act, or the end of what is built. */
@@ -261,7 +325,7 @@
     }
     L.pastPaths = (L.pastPaths || []).concat([L.path]);
     L.act++;
-    L.pos = 0; L.path = []; L.actLevels = 0;
+    L.actLevels = 0;
     note(L, 'Act ' + ROMAN[L.act - 1] + ' is done. On to the ' + E.ACTS[L.act].name + '!');
     if (L.act === 3) note(L, 'Act II is done. On to the County Fair: the 4s to 8s join the deck, hands are 10 cards, and three of your cards are dealt to you.');
     actStart(L);
@@ -281,11 +345,14 @@
   }
 
   /* ---------------- map ---------------- */
-  function goTo(L, kind) {
+  /* Walk to a node: its id, or a kind (the first reachable node of it). */
+  function goTo(L, target) {
     if (L.phase !== 'map') return no('not on the map');
-    const choices = mapOf(L)[L.pos];
-    if (!choices || !choices.includes(kind)) return no('not a choice here');
-    L.path.push(kind);
+    const can = reachable(L);
+    const id = can.includes(target) ? target : can.find(x => mapNode(L, x).kind === target);
+    if (!id) return no('not a choice here');
+    const kind = mapNode(L, id).kind;
+    L.pos = id; L.route.push(id); L.path.push(kind);
     L.note = '';
     if (kind === 'event') {
       const fit = Object.keys(EVENTS).filter(id => EVENTS[id].acts.includes(L.act));
@@ -295,12 +362,24 @@
       L.phase = 'event';
     } else if (kind === 'camp') {
       L.phase = 'camp'; L.cashed = false;
+    } else if (kind === 'store') {
+      stock(L); L.phase = 'shop';
+    } else if (kind === 'raffle') {
+      raffle(L);
     } else startLevel(L, kind);
     return yes();
   }
+  /* The Raffle (floor 4): a little gold, and the ticket wins a buff (pick 1 of 2). */
+  function raffle(L) {
+    const fb = freeBuffs(L);
+    if (!fb.length || !RAFFLE.buff) { L.gold += RAFFLE.noBuff; note(L, 'The Raffle: you hold every buff already, so your ticket wins ' + RAFFLE.noBuff + ' gold.'); nextStop(L); return; }
+    L.gold += RAFFLE.gold;
+    note(L, 'The Raffle: +' + RAFFLE.gold + ' gold, and your ticket wins a buff.');
+    L.reward = { steps: [{ type: 'buff', options: draw(L, fb, 2) }], raffle: true };
+    advanceReward(L);
+  }
   function nextStop(L) {
-    L.pos++;
-    if (L.pos >= mapOf(L).length) { nextAct(L); return; }
+    if (L.pos === 'boss') { nextAct(L); return; }
     L.phase = 'map';
   }
 
@@ -312,7 +391,7 @@
     L.kind = kind;
     L.curse = null; L.dealRule = null; L.race = null; L.boss = null; L.call = null; L.calls = []; L.callWhy = null;
     if (kind === 'boss') {
-      L.boss = E.pick(L, BOSS_POOL[L.act]);
+      L.boss = L.map && L.map.boss && BOSS_POOL[L.act].includes(L.map.boss) ? L.map.boss : E.pick(L, BOSS_POOL[L.act]);
       const B = BOSS[L.boss];
       if (L.boss === 'twins') L.dealRule = 'twins';
       L.race = { you: 0, them: 0, of: B.yours.of, ofThem: B.theirs.of, winner: null };
@@ -423,6 +502,7 @@
     L.owned = L.owned.filter(x => x !== c);
     delete L.mods[c];
     if (L.hexes) delete L.hexes[c];
+    if (L.bossHex && L.bossHex.card === c) L.bossHex = null;
     if (E.deckOf(L).length > 4 * E.ACTS[L.act].hand) { L.removed = (L.removed || []).concat(c); E.say(L, E.label(c) + ' is Glass, and that was its third win: it shatters and leaves the deck.', 'rule'); }
     else E.say(L, E.label(c) + ' is Glass, and that was its third win: it shatters. It stays in the deck as a plain card, no longer yours.', 'rule');
   }
@@ -759,6 +839,7 @@
     if (!removable(L).includes(card)) return no('that card can\u2019t be removed');
     L.removed = (L.removed || []).concat(card);
     if (L.hexes) delete L.hexes[card];      // a hex leaves with its card
+    if (L.bossHex && L.bossHex.card === card) L.bossHex = null;
     note(L, 'Removed: the ' + E.label(card) + ' is out of the deck for the rest of the run. The kitty is now ' + kittyOf(L) + ' card' + (kittyOf(L) > 1 ? 's' : '') + '.');
     nextStop(L);
     return yes();
@@ -847,8 +928,8 @@
     if (ph === 'actstart' && L.act === 3) return tip('actstart3', 'The County Fair, dear: the little cards join in and we play the whole deck. A failed 10 no trumps can finish us, so bid carefully.');
     if (ph === 'actstart' && L.act === 2) return tip('actstart2', 'Spades and clubs join us now, dear, and two of your cards come to you each hand. A black Jack is a bower when black is trumps.');
     if (ph === 'actstart') return tip('actstart', 'The Joker wins every trick it’s in. A red Jack becomes a bower whenever red is trumps. A 9 or 10 is a gamble that enhancements can make special.');
-    if (ph === 'map' && L.pos === 4 && L.act === 2) return tip('boss2', 'Act II ends with the Card Sharps or the Hustlers. The Sharps can see the cards dealt to you from your own; the Hustlers bid mis\u00e8re all night, so lead low and stay under them.');
-    if (ph === 'map') return L.pos === 4 ? tip('boss', 'The Twins always hold both red Jacks. Bid no trumps and their Jacks are just Jacks.') : tip('map', 'This is tonight’s dance card. Where it splits, pick a path: Barn Gossip is a gamble, and a Dance-off is harder but pays a buff.');
+    if (ph === 'map' && reachable(L).includes('boss') && L.act === 2) return tip('boss2', 'Act II ends with the Card Sharps or the Hustlers. The Sharps can see the cards dealt to you from your own; the Hustlers bid mis\u00e8re all night, so lead low and stay under them.');
+    if (ph === 'map') return reachable(L).includes('boss') ? (L.act === 1 ? tip('boss', 'The Twins always hold both red Jacks. Bid no trumps and their Jacks are just Jacks.') : null) : tip('map', 'This is tonight’s dance card. Pick your way up it a floor at a time, along the dotted lines: Barn Gossip is a gamble, a Dance-off is harder but pays a buff, and the Raffle halfway always gives one.');
     if (ph === 'map' && hexed(L).length) { const t = tip('hex', 'A hex! Hexed cards are marked in red, and they hurt whoever holds them. Cleanse one at the Punch Bowl.'); if (t) return t; }
     if (ph === 'reward') return tip('reward', 'A reward! An enhancement goes on a card you own and stays all run.');
     if (ph === 'camp') return tip('camp', 'The Punch Bowl: do one thing — shop, rest or polish a card. Cashing in health for gold is extra.');
@@ -940,7 +1021,7 @@
     if (O && O.kind === 'limit') return 'holding';
     return o.n + ' / ' + o.of;
   }
-  const api = { enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HANDS, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAP, MAPS, mapOf, KIND_NAME, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
+  const api = { enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HANDS, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
     cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, canExtra,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, track, trackHand, coach, has };
   if (node) module.exports = api;
