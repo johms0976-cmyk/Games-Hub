@@ -29,8 +29,8 @@
   const AI = node ? require('./btp-ai.js') : root.BtpAI;
 
   /* Hands per level, by act: shorter levels as hands get bigger (the design's 3 / 3 / 2). */
-  const HANDS = { 1: { dance: 3, elite: 3, boss: 4 }, 2: { dance: 3, elite: 3, boss: 3 } };
-  const LAST_ACT = 2;                       // Act III isn't built yet
+  const HANDS = { 1: { dance: 3, elite: 3, boss: 4 }, 2: { dance: 3, elite: 3, boss: 3 }, 3: { dance: 2, elite: 2, boss: 3 } };
+  const LAST_ACT = 3;                       // the County Fair ends the run
   const ROMAN = { 1: 'I', 2: 'II', 3: 'III' };
   const PARTNERS = {
     nan: { id: 'nan', name: 'Nan', title: 'the Steady One', start: 'AH', ability: 'nod',
@@ -50,6 +50,11 @@
      holdline with no opponents' contract 21% (at most one: 63%), smoke 36% (the
      Joker anywhere before the last trick happened in 98% of levels, so it must
      fall to your team's lead). makemis 3%, so it is for Dance-offs only.
+     Act III (300 levels, 2026-10-25): bowerhunt 73% at one trick, 40% at 2 (the
+     easy opener), royal 36%, setbig 0% at a bid of 8 (the opponents almost never
+     bid it) and 14% at 7, little4 10% (steerable: you may own a 4), showoff 8% at
+     3 tricks (49% at 2; kept at 3, since you choose when to lead your own cards),
+     make8 2% and openmis 1%, so those two are for Dance-offs only.
      kind 'limit': holds until it breaks, judged at the end of the level. */
   const OBJECTIVES = {
     every:    { name: 'Every Hand', text: 'Win a trick in every hand', of: 3, easy: true, acts: [1] },
@@ -59,13 +64,19 @@
     lastword: { name: 'Strong Finish', text: 'Win the last trick of hands 2 and 3', of: 2, acts: [1] },
     bagjack:  { name: 'Bag a Jack', text: 'Win 3 tricks that hold a red Jack', of: 3, acts: [1] },
     blacks:   { name: 'Black Suits Rising', text: 'Win BLACKS black cards across the level', of: 0, acts: [2], easy: true },
-    showoff:  { name: 'Show Off', text: 'Win SHOWOFF tricks with cards you own', of: 0, acts: [2] },
+    showoff:  { name: 'Show Off', text: 'Win SHOWOFF tricks with cards you own', of: 0, acts: [2, 3] },
     acehunter: { name: 'Ace Hunter', text: 'Capture 3 Aces the opponents played', of: 3, acts: [2] },
     ruff:     { name: 'Ruff Stuff', text: 'Win 2 tricks by trumping a suit you\u2019re out of', of: 2, acts: [2] },
     lefthook: { name: 'Left Hook', text: 'Win a trick with the left bower', of: 1, acts: [2] },
     holdline: { name: 'Hold the Line', text: 'The opponents make no contract this level', of: 0, acts: [2], kind: 'limit' },
     smoke:    { name: 'Smoke Out the Joker', text: 'Make an opponent play the Joker on a trick your team led', of: 1, acts: [2] },
-    makemis:  { name: 'Make a Mis\u00e8re', text: 'You or Nan make a mis\u00e8re', of: 1, acts: [2], elite: true }
+    makemis:  { name: 'Make a Mis\u00e8re', text: 'You or Nan make a mis\u00e8re', of: 1, acts: [2], elite: true },
+    little4:  { name: 'The Little 4', text: 'Win a trick with the 4\u2665 or 4\u2666', of: 1, acts: [3] },
+    setbig:   { name: 'Set the Big One', text: 'Defeat an opponents\u2019 bid of BIG or more', of: 1, acts: [3] },
+    royal:    { name: 'Royal Flush', text: 'Capture all four Kings', of: 4, acts: [3] },
+    bowerhunt: { name: 'Bower Hunt', text: 'Win 2 tricks that hold a bower', of: 2, acts: [3], easy: true },
+    make8:    { name: 'Make 8', text: 'You or Nan make a contract of 8 or more', of: 1, acts: [3], elite: true },
+    openmis:  { name: 'Open Mis\u00e8re Night', text: 'You or Nan make an open mis\u00e8re', of: 1, acts: [3], elite: true }
   };
   /* The Hoedown: a race. Both objectives are public; checked at the end of each
      hand; the first team to finish wins, and a tie or no finish goes to the
@@ -82,13 +93,55 @@
     hustlers: { name: 'The Hustlers', short: 'Hustlers', act: 2, rule: 'They bid mis\u00e8re whenever they dare.',
               yours: { text: 'Defeat 2 of their mis\u00e8res', of: 2 },
               theirs: { text: 'Make 2 mis\u00e8res', of: 2 },
-              hint: 'One trick sinks a mis\u00e8re: lead low and stay under their card. Or outbid them with a 6 to keep them out.' }
+              hint: 'One trick sinks a mis\u00e8re: lead low and stay under their card. Or outbid them with a 6 to keep them out.' },
+    caller: { name: 'The Caller', short: 'Caller', act: 3, head: 100, rule: 'Before each hand he calls a figure that changes the rules, aimed at the cards you were dealt from your own. His set starts on +100.',
+              yours: { text: 'Reach +250 this Hoedown', of: 250 },
+              theirs: { text: 'Reach +250 this Hoedown', of: 250 },
+              hint: 'Each call is chosen to hurt your seeded cards, and he tells you why. A run that only works one way gets punished.' },
+    wallflowers: { name: 'The Wallflowers', short: 'Wallflowers', act: 3, rule: 'They never bid, so your team must bid every hand.',
+              yours: { text: 'Make 2 contracts', of: 2 },
+              theirs: { text: 'Set 2 of your contracts', of: 2 },
+              hint: 'Nobody can pass the hand out: if Nan passes, you must bid. Bid what you can make, not what you hope.' }
   };
+  /* The Caller's calls (Act III's Hoedown). Before each hand he picks the one that hurts the cards
+     dealt to you from your own the most, never the same call twice in a Hoedown, and says why.
+     hurt(L) gives a score and the reason. */
+  const lbl = c => E.label(c);
+  const CALLS = {
+    allemande: { name: 'Allemande Left', text: 'The left bower outranks the right this hand.',
+      hurt: L => { const j = L.h.seeded.filter(c => c !== 'JK' && E.rankOf(c) === 'J'); return j.length ? { score: 3 * j.length, why: 'Your ' + lbl(j[0]) + ' would be a right bower; tonight the left bower beats it.' } : { score: 0.5, why: 'Bowers swap places, just to keep you on your toes.' }; } },
+    reverse: { name: 'Reverse', text: 'The lowest card of the suit led wins the first trick, and nobody can trump in.',
+      hurt: L => { const hi = L.h.seeded.filter(c => c === 'JK' || ['A', 'K'].includes(E.rankOf(c))); return hi.length ? { score: 1 + 0.4 * hi.length, why: 'Your ' + lbl(hi[0]) + ' can\u2019t take the first trick: the lowest card wins it.' } : { score: 0.5, why: 'The first trick goes to the lowest card.' }; } },
+    promenade: { name: 'Promenade', text: 'The contractor\u2019s partner leads the first trick.',
+      hurt: L => { const a = L.h.seeded.filter(c => c === 'JK' || E.rankOf(c) === 'A'); return { score: 0.8 + 0.3 * a.length, why: a.length ? 'If you win the bid, Nan leads, not you: no opening with your ' + lbl(a[0]) + '.' : 'Whoever wins the bid, their partner leads.' }; } },
+    grand: { name: 'Grand Right and Left', text: 'Everyone passes one card to the left: you to West, East to you.',
+      hurt: () => ({ score: 1, why: 'You give West a card, and East chooses what you get.' }) },
+    swing: { name: 'Swing Your Partner', text: 'Swap one card with Nan.',
+      hurt: () => ({ score: 0.4, why: 'A kindly call. Take the breather.' }) },
+    nokitty: { name: 'No Kitty', text: 'The contractor never picks up the kitty.',
+      hurt: L => ({ score: 1, why: 'No kitty to mend a hand: bid on the ' + E.ACTS[L.act].hand + ' cards you hold.' }) },
+    corner: { name: 'Honour Your Corner', text: 'Play goes the other way round: East plays after you, West before.',
+      hurt: () => ({ score: 1, why: 'Everyone\u2019s position at the table changes.' }) }
+  };
+  function chooseCall(L) {
+    let best = null;
+    for (const id of Object.keys(CALLS)) {
+      if ((L.calls || []).includes(id)) continue;
+      const h = CALLS[id].hurt(L), score = h.score + 0.8 * E.rnd(L);
+      if (!best || score > best.score) best = { id, score, why: h.why };
+    }
+    return best;
+  }
   /* Act II race targets, measured with the stand-in (400 Hoedowns each, 2026-10-24): the Card Sharps at
      3 against 3 are beaten 44% (3 against 2: 23%; 2 against 2: 36%); the Hustlers, with AI.HUSTLE 6, 46%
      (their misère in about 1.6 hands a level, made 54%). The Twins: 41%. */
+  /* Act III (300-400 Hoedowns each, 2026-10-25, owned A♥ + three picks): the Wallflowers, 2 against 2 with your
+     team made to bid, were beaten 82% at the usual 6-trick floor, so with them your bids start at 7 (E.WALL.min): 55%.
+     The Caller, an even race to +250, was beaten 64% (the race usually ends on the score, and your side outscores
+     his); targets of 250 against 150 gave 55%; a head start of +100 for his set gives 47% (+80: 50%, +130: 41%).
+     Calls seen: Reverse most (any seeded Ace, King or the Joker), then Promenade, Corner, Grand, Allemande, No Kitty. */
   /* Which bosses can end each act, one drawn per run (the user's call, 2026-10-24: Act II draws from the Card Sharps and the Hustlers). */
-  const BOSS_POOL = { 1: ['twins'], 2: ['sharps', 'hustlers'] };
+  const BOSS_POOL = { 1: ['twins'], 2: ['sharps', 'hustlers'], 3: ['caller', 'wallflowers'] };   // Act III (the user's call, 2026-10-25)
   /* Buffs (relics). A partner's own ability is never offered. */
   const BUFFS = {
     nod:      { name: 'Partner’s Nod', text: 'Your partner shows their strongest suit while you bid.' },
@@ -110,6 +163,8 @@
     sanctuary: { name: 'Sanctuary', text: 'If you lead it, nobody can trump in: the highest card of the suit led wins.', acts: [2, 3] },
     herald:  { name: 'Herald', text: 'When you lead it, Nan tells you how many of that suit she holds.', acts: [2, 3] },
     twoface: { name: 'Two-faced', text: 'Counts as either suit of its colour: it may follow either, and it ruffs when its twin suit is trumps.', acts: [2, 3] },
+    glass:   { name: 'Glass', text: 'Counts as the Ace of trumps (a tie: the first played wins). Leaves the deck the third time it wins a trick.', acts: [3] },
+    triple:  { name: 'Triple Threat', text: 'A trick it wins counts as three toward your contract (and your defending tricks). Holding it lets you bid two tricks more than the hand.', acts: [3] },
     double:  { name: 'Doubly Woubly', text: 'A trick it wins counts as two toward your contract (and your defending tricks). Holding it lets you bid one trick more than the hand.', acts: [2, 3] }
   };
   const enhPool = L => Object.keys(ENH).filter(k => ENH[k].acts.includes(L.act));
@@ -151,20 +206,24 @@
     dare:     { name: 'The Fiddler\u2019s Dare', text: 'The fiddler dares you to keep up with his fastest reel.', acts: [2],
                 options: [{ text: 'Take the dare: pick 1 of 3 enhancements, and Itchy Feet lands on one of your cards', fx: { enh: 3, hex: { kind: 'itchy', on: 'owned' } } }, { text: 'Decline', fx: {} }] }
   };
-  Object.keys(EVENTS).forEach(k => { if (!EVENTS[k].acts) EVENTS[k].acts = [1, 2]; });
+  Object.keys(EVENTS).forEach(k => { if (!EVENTS[k].acts) EVENTS[k].acts = [1, 2, 3]; else if (!EVENTS[k].acts.includes(3)) EVENTS[k].acts.push(3); });
   const PAY = { dance: [0, 10, 25, 40], elite: [0, 20, 40, 60] };
   /* Every act walks the same five stops (the short map). */
   const MAPS = { 1: [['dance'], ['dance', 'event'], ['camp'], ['dance', 'elite'], ['boss']],
-                 2: [['dance'], ['dance', 'event'], ['camp'], ['dance', 'elite'], ['boss']] };
+                 2: [['dance'], ['dance', 'event'], ['camp'], ['dance', 'elite'], ['boss']],
+                 3: [['dance'], ['dance', 'event'], ['camp'], ['dance', 'elite'], ['boss']] };
   const MAP = MAPS[1];
   const mapOf = L => MAPS[L.act];
   const KIND_NAME = { dance: 'Dance', event: 'Barn Gossip', camp: 'Punch Bowl', elite: 'Dance-off', boss: 'Hoedown' };
-  const REST = { 1: 50, 2: 100 }, CASH = { health: 200, gold: 100 };
+  const REST = { 1: 50, 2: 100, 3: 250 }, CASH = { health: 200, gold: 100 };
   const restOf = L => REST[L.act];
   /* Act II's targets, tuned on accident rates: see the header of OBJECTIVES. */
   const ACT2 = { blacks: 21, showoff: 3 };
   OBJECTIVES.blacks.of = ACT2.blacks; OBJECTIVES.blacks.text = OBJECTIVES.blacks.text.replace('BLACKS', ACT2.blacks);
   OBJECTIVES.showoff.of = ACT2.showoff; OBJECTIVES.showoff.text = OBJECTIVES.showoff.text.replace('SHOWOFF', ACT2.showoff);
+  /* Act III's targets (tests/measure.js): see the header of OBJECTIVES. */
+  const ACT3 = { big: 7 };
+  OBJECTIVES.setbig.text = OBJECTIVES.setbig.text.replace('BIG', ACT3.big);
   const cardPrice = c => c === 'JK' ? 150 : E.rankOf(c) === 'A' ? 90 : ['J', 'Q', 'K'].includes(E.rankOf(c)) ? 70 : 50;
   const ENH_PRICE = 70, REROLL = 15, TONIC = { price: 40, health: 50 };
 
@@ -193,12 +252,32 @@
   }
   /* After an act's Hoedown: on to the next act, or the end of what is built. */
   function nextAct(L) {
-    if (L.act >= LAST_ACT) { L.phase = 'victory'; return; }
+    if (L.act >= LAST_ACT) {
+      // the final Hoedown decides the run (the design: losing it loses the run)
+      const lost = L.result && L.result.kind === 'boss' && !L.result.won;
+      L.phase = lost ? 'runover' : 'victory';
+      if (lost) { L.lostFinal = L.boss; note(L, BOSS[L.boss].name + ' won the final Hoedown: the run is lost.'); }
+      return;
+    }
     L.pastPaths = (L.pastPaths || []).concat([L.path]);
     L.act++;
     L.pos = 0; L.path = []; L.actLevels = 0;
     note(L, 'Act ' + ROMAN[L.act - 1] + ' is done. On to the ' + E.ACTS[L.act].name + '!');
+    if (L.act === 3) note(L, 'Act II is done. On to the County Fair: the 4s to 8s join the deck, hands are 10 cards, and three of your cards are dealt to you.');
     actStart(L);
+  }
+
+  /* The run's ending: what the record and the hand history add up to. */
+  function runSummary(L) {
+    const rec = L.record || [], hist = L.history || [];
+    const ours = hist.filter(x => x.contractor % 2 === 0), theirs = hist.filter(x => x.contractor % 2 === 1);
+    const best = hist.reduce((b, x) => !b || x.delta > b.delta ? x : b, null);
+    const dances = rec.filter(r => r.kind !== 'boss');
+    return { levels: rec.length, stars: rec.reduce((n, r) => n + r.stars, 0), maxStars: 3 * rec.length,
+             objectives: dances.filter(r => r.won).length, objectiveLevels: dances.length,
+             hoedowns: rec.filter(r => r.kind === 'boss').map(r => ({ act: r.act, boss: r.id, won: r.won })),
+             hands: hist.length, ours: ours.length, made: ours.filter(x => x.made).length, theirs: theirs.length, set: theirs.filter(x => !x.made).length,
+             best: best && best.delta > 0 ? best : null };
   }
 
   /* ---------------- map ---------------- */
@@ -231,7 +310,7 @@
     const ids = Object.keys(OBJECTIVES).filter(k => OBJECTIVES[k].acts.includes(L.act));
     L.level++;
     L.kind = kind;
-    L.curse = null; L.dealRule = null; L.race = null; L.boss = null;
+    L.curse = null; L.dealRule = null; L.race = null; L.boss = null; L.call = null; L.calls = []; L.callWhy = null;
     if (kind === 'boss') {
       L.boss = E.pick(L, BOSS_POOL[L.act]);
       const B = BOSS[L.boss];
@@ -248,6 +327,7 @@
       if (kind === 'elite') L.curse = E.pick(L, Object.keys(CURSES));
     }
     L.you = 0; L.opp = 0; L.startHealth = L.health; L.startGold = L.gold;
+    if (L.boss === 'caller') { L.opp = BOSS.caller.head; L.race.them = L.opp; }     // he's a regular here: his set starts ahead
     L.handNo = 1; L.hands = HANDS[L.act][kind]; L.baseHands = L.hands; L.extraBought = false;
     L.captured = [];
     L.phase = 'hand';
@@ -260,7 +340,14 @@
     return L;
   }
   function dealHand(L) {
+    L.call = null;
     E.deal(L);
+    if (L.boss === 'caller') {
+      const c = chooseCall(L);
+      L.call = c.id; L.calls.push(c.id); L.callWhy = c.why;
+      L.h.dir = c.id === 'corner' ? -1 : 1;
+      E.say(L, 'The Caller calls ' + CALLS[c.id].name + '! ' + CALLS[c.id].text + ' ' + c.why, 'call');
+    }
     if (L.curse === 'ticking') {
       L.h.ticking = E.pick(L, L.h.hands[0]);
       E.say(L, 'Ticking: play your ' + E.label(L.h.ticking) + ' by trick 2, or lose 20 health.', 'rule');
@@ -285,6 +372,11 @@
     if (mine) {
       L.captured.push(...trick.cards.filter(Boolean));
       if (wk.m && wk.m.enh === 'gilded') { L.gold += 5; E.say(L, E.label(wk.c) + ' is Gilded: +5 gold.', 'gold'); }
+      if (wk.m && wk.m.enh === 'glass') {
+        wk.m.wins = (wk.m.wins || 0) + 1;
+        if (wk.m.wins >= GLASS_WINS) shatter(L, wk.c);
+        else E.say(L, E.label(wk.c) + ' is Glass: ' + (GLASS_WINS - wk.m.wins) + ' more win' + (GLASS_WINS - wk.m.wins > 1 ? 's' : '') + ' before it shatters.', 'rule');
+      }
       if (wk.m && wk.m.enh === 'growing' && (wk.m.up || 0) < E.maxUp(wk.c)) {
         wk.m.up = (wk.m.up || 0) + 1;
         E.say(L, E.label(wk.c) + ' grows: it is now ' + E.kLabel(wk).replace(/^.*\(now /, '').replace(')', '') + '.', 'rule');
@@ -316,16 +408,34 @@
     if (id === 'acehunter' && mine) o.n += trick.cards.filter((c, s) => c && s % 2 === 1 && E.rankOf(c) === 'A').length;
     if (id === 'ruff' && mine && h.trump && E.kSuit(E.K(L, trick.leader, trick.cards[trick.leader]), h.trump) !== h.trump && E.kIsTrump(wk, h.trump)) o.n++;
     if (id === 'lefthook' && mine && h.trump && wc !== 'JK' && E.rankOf(wc) === 'J' && E.suitOf(wc) === E.TWIN[h.trump]) o.n++;
+    if (id === 'little4' && mine && (E.base(wc) === '4H' || E.base(wc) === '4D')) o.n++;
+    if (id === 'royal' && mine) { o.got = o.got || []; trick.cards.forEach(c => { if (c && c !== 'JK' && E.rankOf(c) === 'K' && !o.got.includes(E.base(c))) o.got.push(E.base(c)); }); o.n = o.got.length; }
+    if (id === 'bowerhunt' && mine && h.trump && trick.cards.some(c => c && c !== 'JK' && E.rankOf(c) === 'J' && (E.suitOf(c) === h.trump || E.suitOf(c) === E.TWIN[h.trump]))) o.n++;
     if (id === 'smoke' && trick.leader % 2 === 0 && trick.cards.some((c, s) => c === 'JK' && s % 2 === 1)) o.n++;
     if (OBJECTIVES[id].kind === 'limit') return;         // judged at the end of the level
     o.n = Math.min(o.n, o.of);
     if (o.n >= o.of) finishObjective(L);
+  }
+  /* Glass leaves the deck the third time it wins: no longer yours, and gone from the table for the rest
+     of the run (unless the deck is down to the four hands, when it only stops being yours). */
+  const GLASS_WINS = 3;
+  function shatter(L, c) {
+    L.owned = L.owned.filter(x => x !== c);
+    delete L.mods[c];
+    if (L.hexes) delete L.hexes[c];
+    if (E.deckOf(L).length > 4 * E.ACTS[L.act].hand) { L.removed = (L.removed || []).concat(c); E.say(L, E.label(c) + ' is Glass, and that was its third win: it shatters and leaves the deck.', 'rule'); }
+    else E.say(L, E.label(c) + ' is Glass, and that was its third win: it shatters. It stays in the deck as a plain card, no longer yours.', 'rule');
   }
   function trackHand(L) {
     const o = L.obj, r = L.h.result;
     if (L.race) {
       const race = L.race, B = BOSS[L.boss], ofThem = race.ofThem || race.of;
       if (L.boss === 'twins' && E.team(r.contractor) === 1 && r.made) race.them = Math.min(ofThem, race.them + 1);
+      if (L.boss === 'caller') { race.you = Math.max(0, Math.min(race.of, L.you)); race.them = Math.max(0, Math.min(ofThem, L.opp)); L.obj.n = race.you; }
+      if (L.boss === 'wallflowers' && E.team(r.contractor) === 0) {
+        if (r.made) race.you = Math.min(race.of, race.you + 1); else race.them = Math.min(ofThem, race.them + 1);
+        L.obj.n = race.you;
+      }
       if (L.boss === 'hustlers' && r.misere && E.team(r.contractor) === 1) {
         if (r.made) race.them = Math.min(ofThem, race.them + 1); else race.you = Math.min(race.of, race.you + 1);
         L.obj.n = race.you;
@@ -341,6 +451,10 @@
     if (o.id === 'every') { if (r.tricks[0] > 0) o.n++; else o.fail = true; }
     if (o.id === 'setthem' && E.team(r.contractor) === 1 && !r.made) o.n++;
     if (o.id === 'makemis' && r.misere && E.team(r.contractor) === 0 && r.made) o.n++;
+    const ct = L.h.contract;
+    if (o.id === 'setbig' && E.team(r.contractor) === 1 && !r.misere && !r.made && ct.t >= ACT3.big) o.n++;
+    if (o.id === 'make8' && E.team(r.contractor) === 0 && !r.misere && r.made && ct.t >= 8) o.n++;
+    if (o.id === 'openmis' && r.misere && L.h.open && E.team(r.contractor) === 0 && r.made) o.n++;
     if (o.id === 'holdline') {
       if (E.team(r.contractor) === 1 && r.made) { o.n++; o.fail = true; E.say(L, 'Hold the Line is broken: the opponents made a contract.', 'objective'); }
       return;
@@ -367,10 +481,10 @@
     }
     if (res.trick) { track(L, res.trick); const good = L.h.misere ? E.team(res.trick.winner) === 1 : E.team(res.trick.winner) === 0; react(L, good ? 'won' : 'lost'); }
     const h = L.h;
-    // Swing Your Partner: after the kitty, before the intent and the first trick
-    if ((h.phase === 'intent' || h.phase === 'play') && h.trickNo === 0 && !h.trick.some(Boolean) && has(L, 'swing') && !h.swingDone && !h.misere) {
-      h.swingNext = h.phase;
-      h.phase = 'swing';
+    // Swing Your Partner (a buff or the Caller's call) and Grand Right and Left: after the kitty, before the intent and the first trick
+    if ((h.phase === 'intent' || h.phase === 'play') && h.trickNo === 0 && !h.trick.some(Boolean) && !h.misere) {
+      const want = L.call === 'grand' && !h.grandDone ? 'grand' : (has(L, 'swing') || L.call === 'swing') && !h.swingDone ? 'swing' : null;
+      if (want) { h.swingNext = h.phase; h.phase = 'swing'; h.pass = want; }
     }
     if (h.phase === 'done') endHand(L);
     return res;
@@ -378,6 +492,21 @@
   function swing(L, card) {
     const h = L.h;
     if (h.phase !== 'swing') return no('nothing to swap');
+    if (h.pass === 'grand') {
+      // everyone passes one card to the left at once: you to West, West to Nan, Nan to East, East to you
+      if (!card || !h.hands[0].includes(card)) return no('pick a card to pass to West');
+      const give = [card, AI.cheapest(L, 1, h.hands[1]), AI.cheapest(L, 2, h.hands[2]), AI.cheapest(L, 3, h.hands[3])];
+      for (let p = 0; p < 4; p++) h.hands[p].splice(h.hands[p].indexOf(give[p]), 1);
+      for (let p = 0; p < 4; p++) h.hands[(p + 1) % 4].push(give[p]);
+      if (h.locked === card) h.locked = null;
+      if (h.ticking === card) h.ticking = null;
+      for (let p = 0; p < 4; p++) E.sort(L, p);
+      E.say(L, 'Grand Right and Left: you passed your ' + E.label(card) + ' to West, and East passed you the ' + E.label(give[3]) + '.', 'rule');
+      h.grandDone = true;
+      h.phase = h.swingNext;
+      h.pass = null;
+      return yes();
+    }
     if (card) {
       if (!h.hands[0].includes(card)) return no('not in your hand');
       const back = AI.gift(L, 2);
@@ -391,6 +520,7 @@
     } else E.say(L, 'You kept your hand.', 'rule');
     h.swingDone = true;
     h.phase = h.swingNext;
+    h.pass = null;
     return yes();
   }
   function endHand(L) {
@@ -400,7 +530,7 @@
     L.opp += r.pts[1];
     trackHand(L);
     react(L, E.team(r.contractor) === 0 ? (r.made || r.near ? 'made' : 'failed') : (r.made ? 'theirs' : 'set'));
-    L.history.push({ level: L.level, kind: L.kind, hand: L.handNo, contract: L.h.contract, contractor: r.contractor, made: r.made, delta: r.delta, health: L.health });
+    L.history.push({ act: L.act, level: L.level, kind: L.kind, hand: L.handNo, contract: L.h.contract, contractor: r.contractor, made: r.made, delta: r.delta, health: L.health });
     E.say(L, 'Health ' + (r.delta >= 0 ? '+' : '−') + Math.abs(r.delta) + ' → ' + L.health + '.', 'health');
     if (L.health <= -500) {
       L.phase = 'runover';
@@ -470,6 +600,8 @@
     L.actLevels = (L.actLevels || 0) + 1;
     L.result = { kind: L.kind, stars, gold, objective: L.race ? won : o.done, outscored, won, you: L.you, opp: L.opp,
                  health: L.health, change: L.health - L.startHealth, goldChange: L.gold - L.startGold, extra: L.extraBought };
+    // one line per level for the run's ending
+    L.record = (L.record || []).concat({ act: L.act, level: L.level, kind: L.kind, id: L.race ? L.boss : o.id, stars, won: L.race ? won : o.done });
     L.phase = L.health <= -500 ? 'runover' : 'over';
     E.say(L, 'Level ' + L.level + ' over: ' + stars + ' star' + (stars > 1 ? 's' : '') + ', ' + gold + ' gold.', 'end');
     L.curse = null; L.dealRule = null;
@@ -601,7 +733,35 @@
     if (what === 'polish') { if (!polishable(L).length) return no('nothing to polish'); L.phase = 'polish'; return yes(); }
     if (what === 'cleanse') { if (!hexed(L).length) return no('no hexes to cleanse'); L.cleanseBack = 'map-next'; L.phase = 'cleanse'; return yes(); }
     if (what === 'shop') { stock(L); L.phase = 'shop'; return yes(); }
+    if (what === 'forge') { if (!forgeable(L).length) return no('nothing to forge'); L.phase = 'forge'; return yes(); }
+    if (what === 'remove') { if (!removable(L).length) return no('nothing to remove'); L.phase = 'remove'; return yes(); }
     return no('unknown action');
+  }
+  /* Table-deck changes (Act III; they affect everyone). The kitty takes the difference, kept between
+     KITTY.min and KITTY.max cards, so Forge and Remove each have a limit. */
+  const KITTY = { min: 1, max: 6 };
+  const kittyOf = L => E.deckOf(L).length - 4 * E.ACTS[L.act].hand;
+  const deckChanges = L => E.ACTS[L.act].forge;
+  const forgeable = L => deckChanges(L) && kittyOf(L) < KITTY.max ? L.owned.filter(c => c !== 'JK' && !(L.hexes && L.hexes[c] === 'twoleft')) : [];
+  const removable = L => deckChanges(L) && kittyOf(L) > KITTY.min ? E.deckOf(L).filter(c => c !== 'JK' && !L.owned.includes(c)) : [];
+  function forge(L, card) {
+    if (L.phase !== 'forge') return no('not at the forge');
+    if (!forgeable(L).includes(card)) return no('that card can\u2019t be forged');
+    const n = (L.forged || []).filter(c => E.base(c) === E.base(card)).length + 1, copy = E.base(card) + '~' + n;
+    L.forged = (L.forged || []).concat(copy);
+    L.owned.push(copy);
+    note(L, 'Forged: a second ' + E.label(card) + ' is yours and joins the deck. The two tie, so the first played wins. The kitty is now ' + kittyOf(L) + ' cards.');
+    nextStop(L);
+    return yes();
+  }
+  function removeCard(L, card) {
+    if (L.phase !== 'remove') return no('not removing');
+    if (!removable(L).includes(card)) return no('that card can\u2019t be removed');
+    L.removed = (L.removed || []).concat(card);
+    if (L.hexes) delete L.hexes[card];      // a hex leaves with its card
+    note(L, 'Removed: the ' + E.label(card) + ' is out of the deck for the rest of the run. The kitty is now ' + kittyOf(L) + ' card' + (kittyOf(L) > 1 ? 's' : '') + '.');
+    nextStop(L);
+    return yes();
   }
   const polishable = L => L.owned.filter(c => c !== 'JK' && ((L.mods[c] && L.mods[c].up) || 0) < E.maxUp(c));
   function polish(L, card) {
@@ -614,7 +774,7 @@
     return yes();
   }
   function stock(L) {
-    const cards = E.shuffle(L, E.deckFor(L.act).filter(c => !L.owned.includes(c))).slice(0, 2);
+    const cards = E.shuffle(L, E.deckOf(L).filter(c => !L.owned.includes(c))).slice(0, 2);
     const fb = freeBuffs(L);
     L.stock = cards.map(c => ({ type: 'card', id: c, price: cardPrice(c) }))
       .concat([{ type: 'enh', id: E.pick(L, enhPool(L)), price: ENH_PRICE }])
@@ -662,8 +822,8 @@
      Jack (it may be a bower) or a card already hexed. */
   function hexTarget(L, on) {
     const free = c => c !== 'JK' && E.rankOf(c) !== 'J' && !(L.hexes || {})[c];
-    let pool = on === 'owned' ? L.owned.filter(free) : E.deckFor(L.act).filter(c => free(c) && !L.owned.includes(c));
-    if (!pool.length) pool = E.deckFor(L.act).filter(free);
+    let pool = on === 'owned' ? L.owned.filter(free) : E.deckOf(L).filter(c => free(c) && !L.owned.includes(c));
+    if (!pool.length) pool = E.deckOf(L).filter(free);
     return pool.length ? E.pick(L, pool) : null;
   }
   function cleanse(L, card) {
@@ -684,6 +844,7 @@
     if (!L.tips) return null;
     const tip = (id, text) => L.seen[id] ? null : { id, text };
     const ph = L.phase;
+    if (ph === 'actstart' && L.act === 3) return tip('actstart3', 'The County Fair, dear: the little cards join in and we play the whole deck. A failed 10 no trumps can finish us, so bid carefully.');
     if (ph === 'actstart' && L.act === 2) return tip('actstart2', 'Spades and clubs join us now, dear, and two of your cards come to you each hand. A black Jack is a bower when black is trumps.');
     if (ph === 'actstart') return tip('actstart', 'The Joker wins every trick it’s in. A red Jack becomes a bower whenever red is trumps. A 9 or 10 is a gamble that enhancements can make special.');
     if (ph === 'map' && L.pos === 4 && L.act === 2) return tip('boss2', 'Act II ends with the Card Sharps or the Hustlers. The Sharps can see the cards dealt to you from your own; the Hustlers bid mis\u00e8re all night, so lead low and stay under them.');
@@ -730,6 +891,8 @@
       case 'option': return option(L, arg);
       case 'camp': return camp(L, arg);
       case 'polish': return polish(L, arg);
+      case 'forge': return forge(L, arg);
+      case 'remove': return removeCard(L, arg);
       case 'buy': return buy(L, arg);
       case 'leave': if (L.phase !== 'shop') return no('not in the store'); nextStop(L); return yes();
       case 'release': return release(L, arg);
@@ -777,9 +940,9 @@
     if (O && O.kind === 'limit') return 'holding';
     return o.n + ' / ' + o.of;
   }
-  const api = { enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HANDS, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, BUFFS, ENH, CURSES, EVENTS, PAY, MAP, MAPS, mapOf, KIND_NAME, REST, restOf, ACT2, CASH, ENH_PRICE, REROLL, TONIC,
+  const api = { enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HANDS, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAP, MAPS, mapOf, KIND_NAME, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
     cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, canExtra,
-    newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, track, coach, has };
+    newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, track, trackHand, coach, has };
   if (node) module.exports = api;
   else root.BtpRun = api;
 })(typeof window !== 'undefined' ? window : this);

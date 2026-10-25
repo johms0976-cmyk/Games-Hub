@@ -54,6 +54,7 @@ select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid
 .choice:disabled { opacity: .45; cursor: default; }
 .choice .price { float: right; font-weight: 700; color: var(--gold); margin-left: 8px; }
 .cardrow { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 10px 0; }
+.cardrow.tight { gap: 6px; margin: 4px 0; }
 .mine { display: flex; gap: 6px; flex-wrap: wrap; align-items: flex-end; }
 .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
 .chip { border-radius: 999px; padding: 3px 10px; background: #f3e7cf; font-size: 13px; }
@@ -125,6 +126,10 @@ select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid
 #screen .coach { border: 1px solid var(--gold); border-radius: 10px; margin-top: 12px; }
 .felt.tipping .seat.west, .felt.tipping .seat.east { align-self: start; }
 .felt.compact { min-height: 0; flex: none; }
+.bidgrid.tall { gap: 3px; }
+.bidgrid.tall button { min-height: 32px; padding: 1px 2px; }
+.bidgrid.tall button .v { font-size: 11px; }
+.seat .backs b { font-size: 12px; margin-left: 3px; align-self: center; }
 .felt.compact .trickzone { min-height: 40px; }
 .felt.compact .seat .backs { margin-top: 2px; }
 .felt.compact .nan .face { width: 30px; height: 30px; }
@@ -183,6 +188,8 @@ select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid
 .stars .off { color: #d8cbb4; }
 .kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 8px 0; }
 .kv > span:nth-child(odd) { color: var(--muted); }
+.end .actline { display: flex; flex-wrap: wrap; gap: 2px 10px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.end .actline b { width: 100%; font-size: 15px; }
 .good { color: var(--ok); font-weight: 700; } .badc { color: var(--bad); font-weight: 700; }
 
 details.log { background: #fff; border-top: 1px solid var(--line); padding: 6px 12px 10px; font-size: 14px; }
@@ -202,6 +209,9 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   .top .name { display: none; }
   .hand.many { gap: 0; }
   .hand.many .card + .card { margin-left: -10px; }
+  .hand.lots .card + .card { margin-left: -28px; }
+  .hand.lots.spread { gap: 6px 4px; }
+  .hand.lots.spread .card + .card { margin-left: 0; }
   .top .pill:first-of-type { margin-right: auto; }
 }
 </style>
@@ -212,12 +222,12 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
 <section id="title">
   <div class="banner gingham"></div>
   <h1>Bow to Your Partner</h1>
-  <p class="sub">A trick-taking roguelike · Act I: the Church Hall · Act II: the Barn Dance</p>
+  <p class="sub">A trick-taking roguelike · the Church Hall, the Barn Dance and the County Fair</p>
   <div class="panel">
     <h2>Tonight's dance</h2>
     <ul>
       <li>You and <b>Nan</b> (North) partner up against West and East in a small game of 500: hearts, diamonds and the Joker, 3 cards each.</li>
-      <li>Five stops: a Dance, a fork (Dance or Barn Gossip), the Punch Bowl, a fork (Dance or Dance-off), and the Hoedown against a rival pair. Get through Act I and the <b>Barn Dance</b> follows: spades and clubs join in, and hands grow to 6 cards.</li>
+      <li>Five stops: a Dance, a fork (Dance or Barn Gossip), the Punch Bowl, a fork (Dance or Dance-off), and the Hoedown against a rival pair. Get through Act I and the <b>Barn Dance</b> follows: spades and clubs join in, and hands grow to 6 cards. Then the <b>County Fair</b>: the whole 500 deck, 10 cards each, and a final Hoedown you must win.</li>
       <li>Each Dance has one <b>objective</b>. Stars: 1 for surviving, 2 for the objective, 3 for the objective and outscoring them. Stars pay gold and rewards.</li>
       <li>Your score is your <b>health</b>. Fail your own contract and you lose its value; let them make theirs and you lose half of it. At −500 the run ends.</li>
     </ul>
@@ -296,14 +306,14 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       trump && E.kIsTrump(k, trump) ? 'trump' : '', enh ? 'enh' : '', hx ? 'hexed' : '', o.locked ? 'locked' : '', o.cls || ''].filter(Boolean).join(' ');
     const hxHTML = hx ? '<span class="hx">' + esc(R.HEXES[hx].short) + '</span>' : '';
     const attr = o.data ? ' data-' + o.data + '="' + c + '"' : ' tabindex="-1"';
-    const flag = o.flag || (enh ? R.ENH[enh].name : '');
+    const flag = o.flag || (enh ? R.ENH[enh].name : c.includes('~') ? 'Forged' : '');
     if (c === 'JK') return '<button class="' + cls + '"' + attr + (o.dis ? ' disabled' : '') + ' aria-label="Joker"><span class="s">JOKER</span>' + hxHTML + (flag ? '<span class="flag">' + esc(flag) + '</span>' : '') + '</button>';
     const up = k.m && k.m.up ? E.grown(c, k.m.up) : 0;
     const r = up ? SHORT[up] + '<sup>↑</sup>' : E.rankOf(c);
     return '<button class="' + cls + '"' + attr + (o.dis ? ' disabled' : '') + ' aria-label="' + esc(E.label(c) + (up ? ', grown to ' + E.VNAME[up] : '') + (flag ? ', ' + flag : '') + (hx ? ', hexed: ' + R.HEXES[hx].name : '')) + '"><span class="r">' + r + '</span><span class="s">' + E.SYM[E.suitOf(c)] + '</span>' + hxHTML + (flag ? '<span class="flag">' + esc(flag) + '</span>' : '') + '</button>';
   }
-  const bidHTML = b => b.s === 'MIS' ? 'Misère' : b.t + (b.s === 'NT' ? 'NT' : '<span style="color:' + (E.RED[b.s] ? 'var(--red)' : 'inherit') + '">' + E.SYM[b.s] + '</span>');
-  const bidPlain = b => b.s === 'MIS' ? 'Misère' : b.t + (b.s === 'NT' ? 'NT' : E.SYM[b.s]);
+  const bidHTML = b => b.s === 'MIS' ? 'Misère' : b.s === 'OMIS' ? 'Open misère' : b.t + (b.s === 'NT' ? 'NT' : '<span style="color:' + (E.RED[b.s] ? 'var(--red)' : 'inherit') + '">' + E.SYM[b.s] + '</span>');
+  const bidPlain = b => b.s === 'MIS' ? 'Misère' : b.s === 'OMIS' ? 'Open misère' : b.t + (b.s === 'NT' ? 'NT' : E.SYM[b.s]);
   const denom = s => s === 'NT' ? 'no trumps' : E.NAME[s];
   function stars(n) { let s = ''; for (let i = 1; i <= 3; i++) s += i <= n ? '★' : '<span class="off">★</span>'; return s; }
   function coachHTML(tip) { return tip ? '<div class="face"></div><p>' + esc(tip.text) + '</p><button data-tip="' + tip.id + '">Got it</button>' : ''; }
@@ -339,7 +349,9 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const noteHTML = L.note ? '<div class="note">' + esc(L.note) + '</div>' : '';
     switch (L.phase) {
       case 'actstart':
-        body = noteHTML + (L.act === 2 ? '<div class="panel"><h2>Act II: the Barn Dance</h2><p>Spades and clubs join the deck and hands grow to 6 cards. Two of the cards you own are now dealt to you each hand. Pick a new card to own.</p>' +
+        body = noteHTML + (L.act === 3 ? '<div class="panel"><h2>Act III: the County Fair</h2><p>The 4s to 8s join the deck: the whole 500 pack, 10 cards each and 3 in the kitty. Three of the cards you own are now dealt to you each hand. Pick a new card to own.</p>' +
+          '<div class="cardrow">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div></div>' :
+          L.act === 2 ? '<div class="panel"><h2>Act II: the Barn Dance</h2><p>Spades and clubs join the deck and hands grow to 6 cards. Two of the cards you own are now dealt to you each hand. Pick a new card to own.</p>' +
           '<div class="cardrow">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div></div>' :
           '<div class="panel"><h2>Act I: the Church Hall</h2><p>Pick a card to own. You already own Nan’s A♥. Each hand, one card you own is dealt straight to you (your seed slot), so owning two means you won’t know which comes.</p>' +
           '<div class="cardrow">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div></div>');
@@ -350,7 +362,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
           let what = '<b>' + choices.map(k => R.KIND_NAME[k]).join(' or ') + '</b>';
           if (i < L.pos) what = '<b>' + R.KIND_NAME[L.path[i]] + '</b> <small>done</small>';
           if (i === L.pos) what += '<div class="btns" style="margin-top:6px">' + choices.map(k => '<button class="btn' + (choices.length > 1 && k !== choices[0] ? ' alt' : '') + '" data-go="' + k + '">' + R.KIND_NAME[k] + '</button>').join('') + '</div>' +
-            '<small>' + choices.map(k => ({ dance: 'three hands with one objective', event: 'a choice with a trade-off', camp: 'shop, rest or polish a card', elite: 'harder: one curse, pays a buff', boss: R.BOSS_POOL[L.act].map(b => R.BOSS[b].name).join(' or ') + ': a race, ' + R.HANDS[L.act].boss + ' hands' })[k]).join(' · ') + '</small>';
+            '<small>' + choices.map(k => ({ dance: (['', 'one', 'two', 'three', 'four'][R.HANDS[L.act].dance] || R.HANDS[L.act].dance) + ' hands with one objective', event: 'a choice with a trade-off', camp: 'shop, rest or polish a card', elite: 'harder: one curse, pays a buff', boss: R.BOSS_POOL[L.act].map(b => R.BOSS[b].name).join(' or ') + ': a race, ' + R.HANDS[L.act].boss + ' hands' })[k]).join(' · ') + '</small>';
           return '<li class="' + cls + '"><div class="stop">' + (i < L.pos ? '✓' : i + 1) + '</div><div class="what">' + what + '</div></li>';
         }).join('');
         body = noteHTML + '<div class="panel"><h2>The dance card</h2><ol class="path">' + items + '</ol></div>' +
@@ -388,6 +400,10 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
           '<button class="choice" data-camp="rest"><b>Rest</b><span>+' + R.restOf(L) + ' health.</span></button>' +
           '<button class="choice" data-camp="polish"' + (R.polishable(L).length ? '' : ' disabled') + '><b>Polish</b><span>+1 rank on a card you own, up to Ace.</span></button>' +
           '<button class="choice" data-camp="cleanse"' + (R.hexed(L).length ? '' : ' disabled') + '><b>Cleanse</b><span>' + (R.hexed(L).length ? 'Remove a hex (' + R.hexed(L).length + ' on the cards).' : (L.act < 2 ? 'Remove a hex. No hexes yet: they arrive in Act II.' : 'Remove a hex. No card is hexed.')) + '</span></button>' +
+          (E.ACTS[L.act].forge ? '<h3>The table deck</h3>' +
+            '<button class="choice" data-camp="forge"' + (R.forgeable(L).length ? '' : ' disabled') + '><b>Forge</b><span>' + (R.kittyOf(L) >= R.KITTY.max ? 'The kitty is full (' + R.KITTY.max + ' cards): nothing more can be forged.' : 'Copy a card you own. The copy is yours too, joins the deck, and ties the original: the first played wins.') + '</span></button>' +
+            '<button class="choice" data-camp="remove"' + (R.removable(L).length ? '' : ' disabled') + '><b>Remove</b><span>' + (R.kittyOf(L) <= R.KITTY.min ? 'The kitty is down to ' + R.KITTY.min + ' card: nothing more can come out.' : 'Take a card you don’t own out of the deck for the rest of the run. Everyone feels it.') + '</span></button>' +
+            '<p class="sub" style="margin:4px 0 0">The kitty takes the difference: it holds ' + R.kittyOf(L) + ' card' + (R.kittyOf(L) === 1 ? '' : 's') + ' now (' + R.KITTY.min + ' to ' + R.KITTY.max + ').</p>' : '') +
           '<h3>Free extra</h3><button class="choice" data-camp="cashin"' + (L.cashed ? ' disabled' : '') + '><b>Cash in</b><span>Turn ' + R.CASH.health + ' health into ' + R.CASH.gold + ' gold' + (L.cashed ? ' (done)' : '') + '.</span></button></div>' +
           '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
         break;
@@ -406,6 +422,13 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       case 'polish':
         body = '<div class="panel"><h2>Polish</h2><p>+1 rank on which card? (A 10 becomes a Queen; nothing goes past the Ace.)</p><div class="cardrow">' + R.polishable(L).map(c => cardHTML(c, { data: 'polish', owned: true, big: true })).join('') + '</div></div>';
         break;
+      case 'forge':
+        body = '<div class="panel"><h2>Forge</h2><p>Copy which of your cards? The copy is plain (no enhancement or polish) and ties the original.</p><div class="cardrow">' + R.forgeable(L).map(c => cardHTML(c, { data: 'forge', owned: true, big: true })).join('') + '</div></div>';
+        break;
+      case 'remove':
+        body = '<div class="panel"><h2>Remove</h2><p>Take which card out of the deck for the rest of the run? It leaves every hand, theirs and yours.</p>' +
+          E.SUITS.map(su => { const cs = R.removable(L).filter(c => E.suitOf(c) === su); return cs.length ? '<div class="cardrow tight">' + cs.map(c => cardHTML(c, { data: 'remove', small: true })).join('') + '</div>' : ''; }).join('') + '</div>';
+        break;
       case 'cleanse':
         body = '<div class="panel"><h2>Cleanse</h2><p>Remove which hex?</p>' + R.hexed(L).map(c => '<button class="choice" data-cleanse="' + c + '"><b>' + esc(E.label(c) + (L.owned.includes(c) ? ' (yours)' : '')) + ' \u00b7 ' + esc(R.HEXES[L.hexes[c]].name) + '</b><span>' + esc(R.HEXES[L.hexes[c]].text) + '</span></button>').join('') + '</div>';
         break;
@@ -413,20 +436,44 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
         body = '<div class="panel"><h2>Release a card</h2><p>Which card do you no longer want to own?</p><div class="cardrow">' + L.owned.map(c => cardHTML(c, { data: 'release', owned: true, big: true })).join('') + '</div></div>';
         break;
       case 'victory': {
+        if (L.act >= R.LAST_ACT) { body = endHTML(L, true); break; }
         const boss = L.history.length ? L.result : null;
         const bname = L.boss ? R.BOSS[L.boss].name : 'the rival pair';
         const paths = (L.pastPaths || []).concat([L.path]).map((p, i) => 'Act ' + R.ROMAN[i + 1] + ': ' + p.map(k => R.KIND_NAME[k]).join(' → ')).join('<br>');
-        body = '<div class="panel"><h2>Act ' + R.ROMAN[L.act] + ' complete</h2><p class="big">' + (boss && boss.won ? 'You beat ' + bname.replace(/^The/, 'the') + '!' : bname + ' won the Hoedown, but you made it through the night.') + '</p>' +
+        const final = L.act >= R.LAST_ACT;
+        body = '<div class="panel"><h2>' + (final ? 'The County Fair is won' : 'Act ' + R.ROMAN[L.act] + ' complete') + '</h2><p class="big">' + (final ? 'You and Nan beat ' + bname.replace(/^The/, 'the') + ' and take the championship!' : boss && boss.won ? 'You beat ' + bname.replace(/^The/, 'the') + '!' : bname + ' won the Hoedown, but you made it through the night.') + '</p>' +
           '<div class="kv"><span>Health</span><span>' + num(L.health) + '</span><span>Gold</span><span>' + L.gold + '</span><span>Path</span><span>' + paths + '</span></div>' +
-          '<p>Act III, the County Fair, isn’t built yet: this is as far as the dance goes for now.</p><h3>Your cards and buffs</h3>' + mineHTML() +
+          (final ? '<p>That\u2019s the whole run: three acts, from the Church Hall to the County Fair.</p>' : '') + '<h3>Your cards and buffs</h3>' + mineHTML() +
           '<div class="btns"><button class="btn" data-act="newrun">New run</button></div></div>';
         break;
       }
       case 'runover':
-        body = '<div class="panel"><h2>The dance is over</h2><p class="big badc">Health ' + num(L.health) + '</p><p>Your health fell to −500.</p><div class="btns"><button class="btn" data-act="newrun">New run</button></div></div>';
+        body = endHTML(L, false);
         break;
     }
     $('screen').innerHTML = bar() + (tip ? '<div class="coach">' + coachHTML(tip) + '</div>' : '') + body;
+  }
+
+  /* The run's ending, won or lost: each act's path and Hoedown, then the totals. */
+  function endHTML(L, won) {
+    const S = R.runSummary(L), paths = (L.pastPaths || []).concat([L.path]);
+    const acts = paths.map((p, i) => {
+      const a = i + 1, hd = S.hoedowns.find(x => x.act === a);
+      return '<div class="actline"><b>Act ' + R.ROMAN[a] + ' · the ' + esc(E.ACTS[a].name) + '</b><span>' + (p.length ? p.map(k => R.KIND_NAME[k]).join(' → ') : 'not reached') + '</span>' +
+        (hd ? '<span class="' + (hd.won ? 'good' : 'badc') + '">' + esc(R.BOSS[hd.boss].name) + (hd.won ? ': beaten' : ': lost') + '</span>' : '') + '</div>';
+    }).join('');
+    const head = won ? '<h2>The County Fair is won!</h2><p class="big">You and Nan beat ' + esc(R.BOSS[L.boss].name.replace(/^The/, 'the')) + ' and take the championship.</p>'
+      : '<h2>The dance is over</h2><p class="big badc">' + (L.lostFinal ? esc(R.BOSS[L.lostFinal].name) + ' won the final Hoedown at the County Fair.' : 'Health fell to ' + num(L.health) + ' in Act ' + R.ROMAN[L.act] + ', level ' + L.level + '.') + '</p>';
+    const best = S.best ? '+' + S.best.delta + ' (' + (S.best.contractor === 0 ? 'your ' : S.best.contractor === 2 ? 'Nan’s ' : '') + esc(bidPlain(S.best.contract)) + (S.best.contractor % 2 ? ', set by you' : '') + ', Act ' + R.ROMAN[S.best.act || L.act] + ')' : 'none';
+    return '<div class="panel end">' + head + acts +
+      '<div class="kv"><span>Stars</span><span>' + S.stars + ' of ' + S.maxStars + '</span>' +
+      '<span>Objectives</span><span>' + S.objectives + ' of ' + S.objectiveLevels + '</span>' +
+      '<span>Your contracts</span><span>' + S.made + ' made of ' + S.ours + '</span>' +
+      '<span>Theirs</span><span>' + S.set + ' set of ' + S.theirs + '</span>' +
+      '<span>Best hand</span><span>' + best + '</span>' +
+      '<span>Health</span><span>' + num(L.health) + '</span><span>Gold</span><span>' + L.gold + '</span></div>' +
+      '<h3>Your cards and buffs</h3>' + mineHTML() +
+      '<div class="btns"><button class="btn" data-act="newrun">New run</button></div></div>';
   }
 
   /* ---------------- the table ---------------- */
@@ -443,9 +490,11 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       const mine = E.team(h.contractor) === 0, need = h.contract.t, got = h.tricks[E.team(h.contractor)];
       ct.hidden = false;
       ct.className = 'contract' + (mine ? '' : ' theirs');
+      const misWord = h.open ? 'open misère' : 'misère';
+      const shown = h.open && h.trickNo >= 1 && h.contractor !== 0 ? ' · <b>' + (h.contractor === 2 ? 'Nan' : E.SEATS[h.contractor]) + '\u2019s hand:</b> ' + h.hands[h.contractor].map(E.label).join(' ') : '';
       ct.innerHTML = h.misere ? (mine
-        ? '<b>' + (h.contractor === 0 ? 'You' : 'Nan') + '</b> bid misère · ' + (h.contractor === 0 ? 'you' : 'she') + ' must lose every trick, playing alone · made: +' + h.contract.v + ', failed: −' + h.contract.v
-        : '<b>' + E.SEATS[h.contractor] + '</b> bid misère · <span class="intent">Intent: −' + E.damageOf(h.contract.v) + ' health if they lose every trick</span> · make ' + E.SEATS[h.contractor] + ' win one trick to block')
+        ? '<b>' + (h.contractor === 0 ? 'You' : 'Nan') + '</b> bid ' + misWord + ' · ' + (h.contractor === 0 ? 'you' : 'she') + ' must lose every trick, playing alone · made: +' + h.contract.v + ', failed: −' + h.contract.v + shown
+        : '<b>' + E.SEATS[h.contractor] + '</b> bid ' + misWord + ' · <span class="intent">Intent: −' + E.damageOf(h.contract.v) + ' health if they lose every trick</span> · make ' + E.SEATS[h.contractor] + ' win one trick to block' + shown)
         : mine
         ? '<b>' + (h.contractor === 0 ? 'You' : 'Nan') + '</b> bid ' + bidHTML(h.contract) + ' · your team needs ' + need + ' tricks (' + got + ' so far) · made: +' + h.contract.v + ', failed: ' + (R.has(L, 'nearmiss') ? '−' + h.contract.v + ' (one short: 0)' : '−' + h.contract.v)
         : '<b>' + E.SEATS[h.contractor] + '</b> bid ' + bidHTML(h.contract) + ' · <span class="intent">Intent: −' + E.damageOf(h.contract.v) + ' health if they take ' + need + '</span> · they have ' + got + ' · stop them at ' + (need - 1) + ' to block';
@@ -471,7 +520,8 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       ob.className = 'objective';
       ob.innerHTML = '<div class="ot"><div class="on">The Hoedown: ' + esc(B.name) + '</div><div class="ox">' + esc(B.rule) + '</div></div>' +
         '<div class="race"><span>You: ' + esc(B.yours.text) + '</span><div class="meter"><i style="width:' + Math.round(100 * r.you / r.of) + '%"></i></div><b>' + r.you + ' / ' + r.of + '</b>' +
-        '<span>' + B.short + ': ' + esc(B.theirs.text) + '</span><div class="meter them"><i style="width:' + Math.round(100 * r.them / (r.ofThem || r.of)) + '%"></i></div><b>' + r.them + ' / ' + (r.ofThem || r.of) + '</b></div>';
+        '<span>' + B.short + ': ' + esc(B.theirs.text) + '</span><div class="meter them"><i style="width:' + Math.round(100 * r.them / (r.ofThem || r.of)) + '%"></i></div><b>' + r.them + ' / ' + (r.ofThem || r.of) + '</b></div>' +
+        (L.call ? '<div class="curse">The call: <b>' + esc(R.CALLS[L.call].name) + '</b> — ' + esc(R.CALLS[L.call].text) + ' <i>' + esc(L.callWhy || '') + '</i></div>' : '');
       return;
     }
     const O = R.OBJECTIVES[L.obj.id], h = L.h;
@@ -479,6 +529,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     ob.innerHTML = '<div class="ot"><div class="on">' + esc(O.name) + '</div><div class="ox">' + esc(O.text) + '</div></div>' +
       '<div class="meter" aria-hidden="true"><i style="width:' + (O.kind === 'limit' ? (L.obj.fail ? 0 : 100) : Math.round(100 * L.obj.n / L.obj.of)) + '%"></i></div>' +
       '<div class="oc">' + R.objProgress(L) + '</div>' +
+      (L.obj.id === 'royal' && (L.obj.got || []).length && !L.obj.done ? '<div class="ox" style="flex:none">' + L.obj.got.map(E.label).join(' ') + '</div>' : '') +
       (L.obj.id === 'every' && !L.obj.done && !L.obj.fail && L.phase === 'hand' && h.tricks[0] > 0 ? '<div class="ox" style="flex:none">this hand ✓</div>' : '') +
       (L.curse ? '<div class="curse">Curse: <b>' + esc(R.CURSES[L.curse].name) + '</b> — ' + esc(R.CURSES[L.curse].text) + '</div>' : '');
   }
@@ -492,7 +543,8 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     if (h.contractor === seat) return '<span class="tag">' + bidPlain(h.contract) + '</span>';
     return '';
   }
-  function backs(n) { let s = ''; for (let i = 0; i < n; i++) s += '<i class="gingham"></i>'; return '<div class="backs">' + s + '</div>'; }
+  // a long hand shows a few backs and the count, so the side seats stay narrow
+  function backs(n) { let s = ''; for (let i = 0; i < Math.min(n, n > 6 ? 3 : n); i++) s += '<i class="gingham"></i>'; if (n > 6) s += '<b>' + n + '</b>'; return '<div class="backs">' + s + '</div>'; }
   function renderFelt() {
     const L = P.L, h = L.h, turn = (L.phase === 'hand' && ['bid', 'play', 'kitty'].includes(h.phase)) ? h.turn : -1;
     const re = L.reaction;
@@ -517,6 +569,9 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const yourSwing = live && h.phase === 'swing';
     const legal = yourPlay ? E.legalPlays(L, 0) : [];
     $('hand').classList.toggle('many', hand.length > 4);
+    $('hand').classList.toggle('lots', hand.length > 7);
+    // when you have to tap one, a long hand spreads into rows so every card is a full-width target
+    $('hand').classList.toggle('spread', hand.length > 7 && (yourPlay || yourKitty || yourSwing));
     $('hand').innerHTML = hand.map(c => {
       const can = yourKitty || yourSwing || legal.includes(c);
       const locked = h.locked === c && !h.unlocked;
@@ -535,24 +590,25 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const room = E.extraTricks(L, 0), extraRows = Object.keys(A.extra || {}).map(Number).filter(t => t - A.hand <= room);
     const tricks = base.concat(extraRows);
     const valueOf = (t, s) => (A.bids[t] || A.extra[t])[s];
-    const mine = h.turn === 0, min = h.high ? h.high.v : 0;
-    let g = '<div class="bidgrid" style="grid-template-columns: 34px repeat(' + suits.length + ', 1fr)"><span></span>' +
+    const mine = h.turn === 0, min = h.high ? E.rankOfBid(h.high) : 0;
+    let g = '<div class="bidgrid' + (tricks.length >= 5 ? ' tall' : '') + '" style="grid-template-columns: 34px repeat(' + suits.length + ', 1fr)"><span></span>' +
       suits.map(s => '<span class="h">' + (s === 'NT' ? 'No trumps' : E.NAME[s]) + '</span>').join('');
     for (const t of tricks) {
       g += '<span class="rl">' + t + '</span>';
       for (const s of suits) {
         const v = valueOf(t, s);
-        g += '<button data-bid="' + t + s + '" class="' + (E.RED[s] ? 'red' : '') + '"' + (!mine || v <= min ? ' disabled' : '') + '>' + t + (s === 'NT' ? 'NT' : E.SYM[s]) + '<span class="v">' + v + '</span></button>';
+        g += '<button data-bid="' + t + s + '" class="' + (E.RED[s] ? 'red' : '') + '"' + (!mine || v <= min || (L.boss === 'wallflowers' && t < E.WALL.min) ? ' disabled' : '') + '>' + t + (s === 'NT' ? 'NT' : E.SYM[s]) + '<span class="v">' + v + '</span></button>';
       }
     }
     g += '</div>';
     const log = h.bids.map(b => E.SEATS[b.seat] + ' ' + (b.pass ? 'passed' : bidPlain(b))).join(' · ');
     let extras = '';
     if (R.has(L, 'nod')) { const n = AI.nod(L, 2); extras += '<span class="nod">Nan’s nod: ' + (n ? denom(n) : 'nothing strong') + '</span>'; }
+    if (L.boss === 'wallflowers') extras += '<span class="nod">' + (mine && E.mustBid(L, 0) ? 'Nan passed and the Wallflowers never bid: you must bid' : 'Against the Wallflowers your team bids ' + E.WALL.min + ' or more') + '</span>';
     if (R.has(L, 'peek')) extras += '<span class="nod">Peek: the kitty holds ' + h.kitty.map(E.label).join(', ') + '</span>';
     bp.innerHTML = '<div><b>' + (mine ? 'Your bid' : E.SEATS[h.turn] + ' is bidding…') + '</b> ' + (h.high ? '(to beat: ' + bidPlain(h.high) + ' by ' + (h.high.seat === 0 ? 'you' : E.SEATS[h.high.seat]) + ')' : '(tricks you and Nan promise, out of ' + E.ACTS[L.act].hand + ')') + extras + '</div>' + g +
-      '<div class="btns" style="margin-top:4px"><button class="btn alt" data-act="pass"' + (mine ? '' : ' disabled') + '>Pass</button>' +
-      (A.misere ? '<button class="btn alt" data-bid="0MIS" title="Lose every trick, playing alone; Nan sits out. Ranks between 5NT and 6♠."' + (!mine || A.misere <= min ? ' disabled' : '') + '>Misère · ' + A.misere + '</button><span class="bidlog" style="align-self:center;margin:0">lose every trick alone</span>' : '') + '</div>' +
+      '<div class="btns" style="margin-top:4px"><button class="btn alt" data-act="pass"' + (mine && !E.mustBid(L, 0) ? '' : ' disabled') + '>Pass</button>' +
+      (A.misere ? '<button class="btn alt" data-bid="0MIS" title="Lose every trick, playing alone; Nan sits out. Ranks between 5NT and 6♠."' + (!mine || A.misere <= min ? ' disabled' : '') + '>Misère · ' + A.misere + '</button>' + (A.openMisere ? '<button class="btn alt" data-bid="0OMIS" title="Lose every trick alone, with your hand face up after the first trick. Ranks between 10♦ and 10♥."' + (!mine || 490 <= min ? ' disabled' : '') + '>Open · ' + A.openMisere + '</button>' : '<span class="bidlog" style="align-self:center;margin:0">lose every trick alone</span>') : '') + '</div>' +
       (log ? '<div class="bidlog">' + esc(log) + '</div>' : '');
   }
   function renderStatus() {
@@ -561,6 +617,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     if (L.phase !== 'hand') t = '';
     else if (h.phase === 'bid') t = h.turn === 0 ? 'Bid, or pass if your hand is weak.' : E.SEATS[h.turn] + ' is thinking…';
     else if (h.phase === 'kitty') t = h.turn === 0 ? 'You picked up the kitty. Tap a card to put back.' : E.SEATS[h.turn] + ' is taking the kitty…';
+    else if (h.phase === 'swing' && h.pass === 'grand') t = 'Grand Right and Left: tap a card to pass to West. East passes one to you.';
     else if (h.phase === 'swing') { t = 'Swing Your Partner: tap a card to give Nan.'; btn = '<button class="iconbtn" data-act="keephand">Keep my hand</button>'; }
     else if (h.phase === 'intent') t = E.SEATS[h.contractor] + ' is about to play ' + bidPlain(h.contract) + '.';
     else if (h.phase === 'trick') t = h.last.reason + ' (Tap the table to go on.)';
@@ -587,7 +644,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     let html = '', key = '';
     if (L.phase === 'hand' && h.phase === 'intent') {
       key = 'intent' + L.level + '-' + L.handNo;
-      if (h.misere) html = '<h2>Their intent</h2><p class="big">' + E.SEATS[h.contractor] + ' bids misère</p>' +
+      if (h.misere) html = '<h2>Their intent</h2><p class="big">' + E.SEATS[h.contractor] + ' bids ' + (h.open ? 'open misère' : 'misère') + '</p>' + (h.open ? '<p>Their hand goes face up after the first trick: use it.</p>' : '') +
         '<p>' + E.SEATS[h.contractor] + ' plays alone and must lose every trick. If they do, you lose <b class="badc">' + h.intent.dmg + ' health</b> (half of ' + h.contract.v + ').</p>' +
         '<p>Make ' + E.SEATS[h.contractor] + ' win just one trick and the attack misses: they lose ' + h.contract.v + '. Lead low cards, and when they play, stay under their card.</p>' +
         '<div class="btns"><button class="btn" data-act="ackintent">Defend</button></div>';
@@ -637,10 +694,11 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     v.hidden = false;
   }
   const RULES = '<h2>How 500 works here</h2><ul class="lines">' +
-    '<li><b>Deck:</b> Act I is hearts and diamonds 9 to Ace plus the Joker, 3 cards each. Act II adds spades and clubs: 6 cards each. One card goes to the kitty.</li>' +
-    '<li><b>Bidding:</b> promise more than half the tricks with your partner (2–3 in Act I, 4–6 in Act II), naming trumps or no trumps. Each bid must beat the last. Act I bids are worth 20 to 100; Act II\u2019s 20 to 180. Suits rank ♠ < ♣ < ♦ < ♥ < no trumps.</li>' +
+    '<li><b>Deck:</b> Act I is hearts and diamonds 9 to Ace plus the Joker, 3 cards each. Act II adds spades and clubs: 6 cards each. Act III is the whole 500 pack (red 4s and black 5s up): 10 cards each. The kitty takes the rest (1, 1, then 3).</li>' +
+    '<li><b>Bidding:</b> promise more than half the tricks with your partner (2–3 in Act I, 4–6 in Act II, 6–10 in Act III), naming trumps or no trumps. Each bid must beat the last. Act I bids are worth 20 to 100; Act II\u2019s 20 to 180; Act III\u2019s are standard 500, 40 to 520. Suits rank ♠ < ♣ < ♦ < ♥ < no trumps.</li>' +
     '<li><b>Hexes</b> (from Act II) sit on a card and hit whoever holds it, marked in red: Loose Lips (shown face-up), Hot Potato (the team that catches it loses 20), Itchy Feet (must be played when it can be), Stepped On (one rank lower), and the Two Left Feet curse card (never wins a trick). Cleanse them at the Punch Bowl.</li>' +
-    '<li><b>Misère</b> (Act II, worth 130): you promise to lose every trick, playing alone while your partner sits out, with no trumps. The Joker wins any trick it is in, so put it under the kitty. The defenders score nothing; take a single trick and it fails.</li>' +
+    '<li><b>Open misère</b> (Act III, worth 500, ranked between 10♦ and 10♥): a misère with your hand laid face up after the first trick.</li>' +
+    '<li><b>Misère</b> (Act II, worth 130; 250 in Act III): you promise to lose every trick, playing alone while your partner sits out, with no trumps. The Joker wins any trick it is in, so put it under the kitty. The defenders score nothing; take a single trick and it fails.</li>' +
     '<li><b>Trumps:</b> the Joker is highest, then the <b>right bower</b> (the Jack of trumps), then the <b>left bower</b> (the other red Jack, which counts as a trump), then A, K, Q, 10, 9.</li>' +
     '<li><b>Play:</b> the winner of the auction takes the kitty, puts a card back and leads. Follow the suit led if you can; the highest trump wins, otherwise the highest card of the suit led. Equal cards: the first played wins.</li>' +
     '<li><b>Scoring:</b> make your bid and score it; fail and lose it. Defenders score 10 a trick. Take every trick and you score your suit’s top bid.</li>' +
@@ -680,7 +738,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
 
   /* ---------------- input ---------------- */
   document.addEventListener('click', ev => {
-    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-buy],[data-polish],[data-release],[data-cleanse],[data-tip]');
+    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-buy],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip]');
     if (!t || t.disabled) return;
     if (t.closest('#sheet') && Date.now() < P.guardUntil) return;
     const L = P.L, d = t.dataset;
@@ -696,6 +754,8 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     if (d.camp) { move('camp', d.camp); return; }
     if (d.buy) { move('buy', d.buy === 'release' ? 'release' : +d.buy); return; }
     if (d.polish) { move('polish', d.polish); return; }
+    if (d.forge) { move('forge', d.forge); return; }
+    if (d.remove) { move('remove', d.remove); return; }
     if (d.release) { move('release', d.release); return; }
     if (d.cleanse) { move('cleanse', d.cleanse); return; }
     switch (d.act) {

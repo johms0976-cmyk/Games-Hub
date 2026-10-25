@@ -45,14 +45,15 @@
     h.trick.forEach(c => c && seen.add(c));
     h.taken[0].concat(h.taken[1]).forEach(c => seen.add(c));
     if (h.contractor === seat) (h.discards || []).forEach(c => seen.add(c));
-    return E.deckFor(L.act).filter(c => !seen.has(c));
+    return E.deckOf(L).filter(c => !seen.has(c));
   }
   function withCard(h, seat, c) { const t = h.trick.slice(); t[seat] = c; return t; }
   const leaderOf = (h, seat) => h.trick[h.leader] ? h.leader : seat;
   /* Seats still to play after this one in the current trick. */
   function after(h, seat) {
     const out = [];
-    for (let p = (seat + 1) % 4; p !== leaderOf(h, seat); p = (p + 1) % 4) if (!h.trick[p] && p !== h.out) out.push(p);
+    const d = h.dir === -1 ? 3 : 1;      // Honour Your Corner: play goes the other way round
+    for (let p = (seat + d) % 4; p !== leaderOf(h, seat); p = (p + d) % 4) if (!h.trick[p] && p !== h.out) out.push(p);
     return out;
   }
   /* Nothing still out could beat this trick's best card if c is played. */
@@ -153,7 +154,7 @@
   }
   /* The tricks a seat counts on from its partner, per card in the hand, by act
      (tuned on redeals and made rates: tests/measure.js). */
-  const SHARE = { 1: 0.2, 2: 0.3, 3: 0.2 };
+  const SHARE = { 1: 0.2, 2: 0.3, 3: 0.4 };
   /* How sure a seat must be before it bids: Nan (and you, as the stand-in) are
      steady; West and East bid a little bolder, so more intents come up. */
   const MARGIN = { 0: 0.15, 1: -0.15 };
@@ -162,17 +163,27 @@
   function bid(L, seat) {
     const h = L.h;
     if (h.high && team(h.high.seat) === team(seat)) return null;
+    if (L.boss === 'wallflowers' && team(seat) === 1) return null;      // the Wallflowers never bid
     const legal = E.legalBids(L);
     let best = null;
-    const mis = legal.find(b => b.s === 'MIS');
+    const mis = legal.find(b => b.s === 'MIS'), omis = legal.find(b => b.s === 'OMIS');
+    // open misère is judged on the hand as dealt (no help from the kitty) and never with the Joker
+    if (omis && !h.hands[seat].includes('JK') && Object.values(misCardDanger(h.hands[seat], L.act)).reduce((x, y) => x + y, 0) <= OPEN_SAFE[team(seat)]) return { t: 0, s: 'OMIS' };
     const hustling = L.boss === 'hustlers' && team(seat) === 1;
-    if (mis && misDanger(h.hands[seat]) <= (hustling ? api.HUSTLE : MIS_SAFE[team(seat)])) return { t: 0, s: 'MIS' };
+    if (mis && misDanger(h.hands[seat], L.act) <= (hustling ? api.HUSTLE : (MIS_SAFE_ACT[L.act] || MIS_SAFE)[team(seat)])) return { t: 0, s: 'MIS' };
     for (const b of legal) {
-      if (b.s === 'MIS') continue;
+      if (b.s === 'MIS' || b.s === 'OMIS') continue;
       const e = estimate(h.hands[seat], b.s, L.act, L, seat);
       if (e < b.t + MARGIN[team(seat)]) continue;
       const slack = e - b.t;
       if (!best || slack > best.slack + 0.25 || (Math.abs(slack - best.slack) <= 0.25 && b.v < best.b.v)) best = { b, slack };
+    }
+    if (!best && E.mustBid(L, seat)) {
+      // made to bid (the Wallflowers): the lowest level, in the denomination this hand is best in
+      const low = legal.filter(b => b.s !== 'MIS' && b.s !== 'OMIS'), t0 = Math.min(...low.map(b => b.t));
+      let pick = null;
+      for (const b of low.filter(b => b.t === t0)) { const e = estimate(h.hands[seat], b.s, L.act, L, seat); if (!pick || e > pick.e) pick = { b, e }; }
+      return { t: pick.b.t, s: pick.b.s };
     }
     return best ? { t: best.b.t, s: best.b.s } : null;
   }
@@ -192,7 +203,7 @@
   /* The contractor keeps its trumps and aces and throws the cheapest card. */
   function discard(L, seat) {
     const h = L.h;
-    if (h.misere && seat === h.contractor) return misWorst(h.hands[seat]);
+    if (h.misere && seat === h.contractor) return misWorst(h.hands[seat], L.act);
     return cheapest(L, seat, h.hands[seat]);
   }
 
@@ -221,26 +232,33 @@
      (which wins any trick it is in) scores most. The kitty lets the contractor
      throw the worst card, so it is left out. */
   const mrank = c => c === 'JK' ? 100 : E.RANKV[rankOf(c)];
-  function misCardDanger(hand) {
+  function misCardDanger(hand, act) {
+    const lows = act ? ACTS[act].low : null;
     const by = {}, out = {};
     hand.forEach(c => { const s = c === 'JK' ? '*' : E.suitOf(c); (by[s] = by[s] || []).push(c); });
     for (const s in by) {
       if (s === '*') { by[s].forEach(c => out[c] = 8); continue; }
-      by[s].sort((a, b) => mrank(a) - mrank(b)).forEach((c, i) => { out[c] = Math.max(0, mrank(c) - (9 + 1.6 * i)); });
+      by[s].sort((a, b) => mrank(a) - mrank(b)).forEach((c, i) => { out[c] = Math.max(0, mrank(c) - ((lows && lows[s] ? lows[s] : 9) + 1.6 * i)); });
     }
     return out;
   }
-  function misDanger(hand) {
-    const d = Object.values(misCardDanger(hand)).sort((a, b) => b - a);
-    return d.slice(1).reduce((a, b) => a + b, 0);
+  function misDanger(hand, act) {
+    const d = Object.values(misCardDanger(hand, act)).sort((a, b) => b - a);
+    const kitty = act ? E.deckFor(act).length - 4 * ACTS[act].hand : 1;   // the contractor throws this many
+    return d.slice(kitty).reduce((a, b) => a + b, 0);
   }
-  function misWorst(hand) {
-    const d = misCardDanger(hand);
+  function misWorst(hand, act) {
+    const d = misCardDanger(hand, act);
     return hand.slice().sort((a, b) => d[b] - d[a] || mrank(b) - mrank(a))[0];
   }
   /* How safe a hand must be before a seat bids misère: Nan (and you, as the
      stand-in) are steady, West and East bolder (tests/measure.js). */
   const MIS_SAFE = { 0: 0.25, 1: 0.5 };
+  // Act III: ten cards and a 3-card kitty, so the danger sum runs higher. Measured (2, 4): misère in ~10% of hands, ~70% made
+  const MIS_SAFE_ACT = { 1: MIS_SAFE, 2: MIS_SAFE, 3: { 0: 2, 1: 4 } };
+  // Open misère (Act III, 500): judged on the raw hand, no kitty. Measured: the sum is ≥ 8 in every
+  // hand dealt; (10, 12) gives an open misère in ~2% of hands, about three in four made
+  const OPEN_SAFE = { 0: 10, 1: 12 };
   // The Hustlers (an Act II boss) bid misère whenever their hand is at most this exposed.
   /* Playing a misère: the contractor ducks every trick it can; the defenders
      try to leave the contractor holding the winning card. */
@@ -250,6 +268,16 @@
     const low = cs => cs.slice().sort((a, b) => mrank(a) - mrank(b))[0];
     const high = cs => cs.slice().sort((a, b) => mrank(b) - mrank(a))[0];
     const winsNow = c => wins(L, seat, c);
+    if (!led && seat !== C && h.open && h.trickNo >= 1) {
+      // open misère: the contractor's hand is on the table. Lead a card from a suit where
+      // the contractor's lowest card is above it, so they have to go over
+      const open = h.hands[C], best = [];
+      for (const c of noJoker(legal)) {
+        const s0 = E.suitOf(c), theirs = open.filter(x => x !== 'JK' && E.suitOf(x) === s0);
+        if (theirs.length && mrank(low(theirs)) > mrank(c)) best.push(c);
+      }
+      if (best.length) return low(best);
+    }
     if (!led && seat !== C) {
       // defending: lead low in a suit the contractor still holds, so they must duck under it
       const voids = new Set((h.played || []).filter(t => t.cards[C] && E.effSuit(t.cards[C], null) !== E.effSuit(t.cards[t.leader], null)).map(t => E.effSuit(t.cards[t.leader], null)));
@@ -290,7 +318,7 @@
     return t.length ? t[0] : legal[0];
   }
 
-  const api = { HUSTLE: 6, sharpsHunt, MARGIN, SHARE, MIS_SAFE, misDanger, misWorst, misPlay, cost, cheapest, dearest, unseen, after, safe, wins, play, lead, estimate, bid, nod, discard, gift, legacyPlay };
+  const api = { misCardDanger, MIS_SAFE_ACT, OPEN_SAFE, HUSTLE: 6, sharpsHunt, MARGIN, SHARE, MIS_SAFE, misDanger, misWorst, misPlay, cost, cheapest, dearest, unseen, after, safe, wins, play, lead, estimate, bid, nod, discard, gift, legacyPlay };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.BtpAI = api;
 })(typeof window !== 'undefined' ? window : this);
