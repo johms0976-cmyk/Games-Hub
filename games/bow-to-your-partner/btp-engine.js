@@ -291,6 +291,21 @@
     const gone = L.removed || [];
     return deckFor(L.act).filter(c => !gone.includes(c)).concat((L.forged || []).filter(c => !gone.includes(c) && deckFor(L.act).includes(base(c))));
   }
+  /* Every card of the table deck is somewhere, exactly once: in a hand, the kitty, put back under it, on the
+     table, or in a team's tricks (once a trick is scored its cards are in `taken` until it is cleared). */
+  function census(L) {
+    const h = L.h, seen = {};
+    const add = c => { if (c) seen[c] = (seen[c] || 0) + 1; };
+    h.hands.forEach(x => x.forEach(add));
+    (h.kitty || []).forEach(add);
+    (h.discards || []).forEach(add);
+    h.taken[0].concat(h.taken[1]).forEach(add);
+    if (h.phase !== 'trick') h.trick.forEach(add);
+    // against the deck this hand was dealt from: Glass can shatter out of the table deck mid-hand
+    const deck = h.deck || deckOf(L), missing = deck.filter(c => !seen[c]);
+    const extra = Object.keys(seen).filter(c => !deck.includes(c) || seen[c] > 1);
+    return { ok: !missing.length && !extra.length, missing, extra };
+  }
   function deal(L) {
     const A = ACTS[L.act];
     const deck = deckOf(L);
@@ -313,7 +328,7 @@
       phase: 'bid', hands, kitty, seeded, turn: first, bids: [], passed: [false, false, false, false], high: null,
       contractor: null, contract: null, trump: null, trick: [null, null, null, null], leader: null,
       tricks: [0, 0], taken: [[], []], trickNo: 0, winners: [], last: null, result: null,
-      locked: null, unlocked: false, misere: false, out: null, fail: false, dir: L.call === 'corner' ? -1 : 1
+      locked: null, unlocked: false, misere: false, out: null, fail: false, dir: L.call === 'corner' ? -1 : 1, deck
     };
     if (L.curse === 'locked') {
       L.h.locked = pick(L, hands[0]);
@@ -589,7 +604,7 @@
 
   const api = {
     SUITS, SYM, NAME, TWIN, RED, RANKV, VNAME, SEATS, ACTS, ENH_WORD,
-    rnd, shuffle, pick, rankOf, suitOf, base, label, deckFor, deckOf, team, partnerOf, grown, maxUp, stepDown,
+    rnd, shuffle, pick, rankOf, suitOf, base, label, deckFor, deckOf, census, team, partnerOf, grown, maxUp, stepDown,
     K, plainK, kSuit, kRank, kTrumpRank, kIsTrump, kBeats, kLabel,
     effSuit, trumpRank, isTrump, canPlay, winnerOf, beats, explain,
     bidValue, bidList, sweepValue, bidText, damageOf, rankOfBid, mustBid, WALL, extraTricks, extraBids, counted, resolveTwo,

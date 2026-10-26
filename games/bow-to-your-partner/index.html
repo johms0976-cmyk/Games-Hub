@@ -88,6 +88,7 @@ select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid
 .pill { border-radius: 999px; padding: 3px 10px; background: var(--bg); border: 1px solid var(--line); font-size: 14px; white-space: nowrap; }
 .pill.neg b { color: var(--bad); }
 .iconbtn { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 4px 10px; font-size: 14px; min-height: 32px; }
+.iconbtn[data-act="takeback"] { min-height: 40px; margin-left: 6px; border-color: var(--accent); color: var(--accent); }
 .objective { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #fffaf0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
 .objective .ot { flex: 1; min-width: 0; }
 .objective .on { font-weight: 700; }
@@ -289,10 +290,26 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
 (function () {
   'use strict';
   const E = window.BtpEngine, R = window.BtpRun, AI = window.BtpAI;
-  const KEY = 'btp-run-v2', TIPS_DONE = 'btp-tips-done';
+  const KEY = 'btp-run-v2', TIPS_DONE = 'btp-tips-done', PREFS = 'btp-prefs';
+  /* Pace (the menu): every wait the page makes, in one table. `undo` is how long the computer holds back after
+     a move you can take back. ?fast (the tests) makes every wait 0. */
+  const PACE = {
+    relaxed: { bid: 1000, play: 1100, undo: 2000, readBase: 1500, readPer: 36, readMax: 4500 },
+    brisk:   { bid: 650,  play: 750,  undo: 1300, readBase: 1100, readPer: 28, readMax: 3400 },
+    quick:   { bid: 300,  play: 350,  undo: 800,  readBase: 600,  readPer: 14, readMax: 1800 }
+  };
+  const PACE_NAME = { relaxed: 'Relaxed', brisk: 'Brisk', quick: 'Quick' };
+  /* Settings kept in this browser: the pace, and whether a finished trick waits for your tap (the default: you
+     are the whole table, so nobody else is reading) or clears itself after its reading time. */
+  function loadPrefs() {
+    const d = { pace: 'brisk', tricks: 'tap' };
+    try { return Object.assign(d, JSON.parse(localStorage.getItem(PREFS) || '{}')); } catch (e) { return d; }
+  }
   const FAST = /[?&]fast\b/.test(location.search);
   const $ = id => document.getElementById(id);
-  const P = { L: null, timer: null, guardUntil: 0, sheet: null, shown: null };
+  const P = { L: null, timer: null, guardUntil: 0, sheet: null, shown: null, undo: [], stuck: null, prefs: loadPrefs() };
+  function setPref(k, v) { P.prefs[k] = v; try { localStorage.setItem(PREFS, JSON.stringify(P.prefs)); } catch (e) {} }
+  const wait = k => FAST ? 0 : (PACE[P.prefs.pace] || PACE.brisk)[k];
   window.BtpPage = P;
 
   /* ---------------- storage ---------------- */
@@ -476,7 +493,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     return ({ dance: (['', 'one', 'two', 'three', 'four'][R.HANDS[L.act].dance] || R.HANDS[L.act].dance) + ' hands with one objective',
       event: 'a choice with a trade-off', camp: 'rest, polish, cleanse' + (E.ACTS[L.act].forge ? ', forge or remove' : '') + ', or shop',
       elite: 'harder: one curse, pays a buff', store: 'cards, an enhancement, a buff, a tonic',
-      raffle: R.RAFFLE.gold + ' gold and a free buff', boss: 'a race, ' + R.HANDS[L.act].boss + ' hands' })[k];
+      raffle: R.RAFFLE.gold + ' gold and a free buff', boss: 'a race, up to ' + (R.BOSS[L.map.boss].hands || R.HANDS[L.act].boss) + ' hands' })[k];
   }
   function mapHTML(L) {
     const SH = R.MAPSHAPE, gx = 70, step = 78, W = 60 + (SH.cols - 1) * gx, H = 80 + SH.floors * step + 36;
@@ -645,14 +662,15 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const room = E.extraTricks(L, 0), extraRows = Object.keys(A.extra || {}).map(Number).filter(t => t - A.hand <= room);
     const tricks = base.concat(extraRows);
     const valueOf = (t, s) => (A.bids[t] || A.extra[t])[s];
-    const mine = h.turn === 0, min = h.high ? E.rankOfBid(h.high) : 0;
+    // every button comes from the engine's own list, so the page can never offer a bid it would refuse
+    const mine = h.turn === 0, legal = mine ? E.legalBids(L) : [], can = (t, s) => legal.some(b => b.t === t && b.s === s);
     let g = '<div class="bidgrid' + (tricks.length >= 5 ? ' tall' : '') + '" style="grid-template-columns: 34px repeat(' + suits.length + ', 1fr)"><span></span>' +
       suits.map(s => '<span class="h">' + (s === 'NT' ? 'No trumps' : E.NAME[s]) + '</span>').join('');
     for (const t of tricks) {
       g += '<span class="rl">' + t + '</span>';
       for (const s of suits) {
         const v = valueOf(t, s);
-        g += '<button data-bid="' + t + s + '" class="' + (E.RED[s] ? 'red' : '') + '"' + (!mine || v <= min || (L.boss === 'wallflowers' && t < E.WALL.min) ? ' disabled' : '') + '>' + t + (s === 'NT' ? 'NT' : E.SYM[s]) + '<span class="v">' + v + '</span></button>';
+        g += '<button data-bid="' + t + s + '" class="' + (E.RED[s] ? 'red' : '') + '"' + (!can(t, s) ? ' disabled' : '') + '>' + t + (s === 'NT' ? 'NT' : E.SYM[s]) + '<span class="v">' + v + '</span></button>';
       }
     }
     g += '</div>';
@@ -663,7 +681,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     if (R.has(L, 'peek')) extras += '<span class="nod">Peek: the kitty holds ' + h.kitty.map(E.label).join(', ') + '</span>';
     bp.innerHTML = '<div><b>' + (mine ? 'Your bid' : E.SEATS[h.turn] + ' is bidding…') + '</b> ' + (h.high ? '(to beat: ' + bidPlain(h.high) + ' by ' + (h.high.seat === 0 ? 'you' : E.SEATS[h.high.seat]) + ')' : '(tricks you and Nan promise, out of ' + E.ACTS[L.act].hand + ')') + extras + '</div>' + g +
       '<div class="btns" style="margin-top:4px"><button class="btn alt" data-act="pass"' + (mine && !E.mustBid(L, 0) ? '' : ' disabled') + '>Pass</button>' +
-      (A.misere ? '<button class="btn alt" data-bid="0MIS" title="Lose every trick, playing alone; Nan sits out. Ranks between 5NT and 6♠."' + (!mine || A.misere <= min ? ' disabled' : '') + '>Misère · ' + A.misere + '</button>' + (A.openMisere ? '<button class="btn alt" data-bid="0OMIS" title="Lose every trick alone, with your hand face up after the first trick. Ranks between 10♦ and 10♥."' + (!mine || 490 <= min ? ' disabled' : '') + '>Open · ' + A.openMisere + '</button>' : '<span class="bidlog" style="align-self:center;margin:0">lose every trick alone</span>') : '') + '</div>' +
+      (A.misere ? '<button class="btn alt" data-bid="0MIS" title="Lose every trick, playing alone; Nan sits out. Ranks between 5NT and 6♠."' + (!can(0, 'MIS') ? ' disabled' : '') + '>Misère · ' + A.misere + '</button>' + (A.openMisere ? '<button class="btn alt" data-bid="0OMIS" title="Lose every trick alone, with your hand face up after the first trick. Ranks between 10♦ and 10♥."' + (!can(0, 'OMIS') ? ' disabled' : '') + '>Open · ' + A.openMisere + '</button>' : '<span class="bidlog" style="align-self:center;margin:0">lose every trick alone</span>') : '') + '</div>' +
       (log ? '<div class="bidlog">' + esc(log) + '</div>' : '');
   }
   function renderStatus() {
@@ -689,6 +707,9 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
         }
       }
     }
+    if (P.stuck) { t = 'The computer could not move (' + P.stuck + '). Your run is saved: reload the page to carry on.'; btn = ''; }
+    const u = P.undo[P.undo.length - 1];
+    if (u && L.phase === 'hand') btn += '<button class="iconbtn" data-act="takeback">Take back ' + esc(u.name) + '</button>';
     st.innerHTML = esc(t) + btn;
   }
 
@@ -762,7 +783,10 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     '<li><b>Nan</b> never outbids you.</li></ul><div class="btns"><button class="btn" data-act="closesheet">Got it</button></div>';
   function menuHTML() {
     const L = P.L;
-    return '<h2>Menu</h2><p>Your run is saved after every move.</p>' + (L ? '<h3>Your cards and buffs</h3>' + mineHTML() +
+    const opt = (k, v, label) => '<button class="btn' + (P.prefs[k] === v ? '' : ' alt') + '" data-act="pref" data-k="' + k + '" data-v="' + v + '" aria-pressed="' + (P.prefs[k] === v) + '">' + label + '</button>';
+    return '<h2>Menu</h2><p>Your run is saved after every move.</p>' +
+      '<h3>Pace</h3><div class="btns">' + Object.keys(PACE).map(k => opt('pace', k, PACE_NAME[k])).join('') + '</div>' +
+      '<h3>Finished tricks</h3><div class="btns">' + opt('tricks', 'tap', 'Wait for a tap') + opt('tricks', 'auto', 'Clear by themselves') + '</div>' + (L ? '<h3>Your cards and buffs</h3>' + mineHTML() +
       '<ul class="lines">' + L.owned.filter(c => L.mods[c] && L.mods[c].enh).map(c => '<li>' + esc(E.label(c)) + ': ' + esc(R.ENH[L.mods[c].enh].text) + '</li>').join('') +
       L.buffs.map(b => '<li>' + esc(R.BUFFS[b].name) + ': ' + esc(R.BUFFS[b].text) + '</li>').join('') + '</ul>' : '') +
       '<div class="btns"><button class="btn" data-act="closesheet">Back</button><button class="btn alt" data-act="quit">Title screen</button></div>';
@@ -770,7 +794,16 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   function openSheet(which) { P.sheet = which; P.shown = which; P.guardUntil = 0; $('sheet').innerHTML = which === 'rules' ? RULES : menuHTML(); $('veil').hidden = false; }
 
   /* ---------------- the loop: AI seats and holds, paced for reading ---------------- */
-  function readMs(text) { return FAST ? 0 : Math.min(3400, 1100 + 28 * text.length); }
+  function readMs(text) { const t = PACE[P.prefs.pace] || PACE.brisk; return FAST ? 0 : Math.min(t.readMax, t.readBase + t.readPer * text.length); }
+  /* One computer move. A refused move never spins: the run takes the first legal move instead and says so; if
+     even that is refused the loop stops with the reason on screen. Any computer move ends the take-back window. */
+  function aiMove(L) {
+    const res = R.aiStep(L);
+    P.undo = [];
+    if (res && res.ok !== false) return;
+    const fb = R.aiFallback(L);
+    if (!fb || !fb.ok) P.stuck = (fb && fb.why) || 'no legal move';
+  }
   function step() {
     clearTimeout(P.timer);
     P.timer = null;
@@ -778,18 +811,42 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     if (!L) return;
     if (L.tips && L.levelsDone >= 3 && L.phase !== 'hand') markTipsDone();
     if (L.phase === 'victory' || L.phase === 'runover') markTipsDone();
+    if (L.phase !== 'hand') P.undo = [];
     render();
     save();
-    if (P.sheet) return;
+    // paused while a sheet is open, while the page is hidden (visibilitychange resumes it) or if a move was refused twice
+    if (P.sheet || document.hidden || P.stuck) return;
     const w = R.whoseMove(L);
-    if (w === 'ai') P.timer = setTimeout(() => { R.aiStep(L); step(); }, FAST ? 0 : (L.h.phase === 'play' ? 750 : 650));
-    else if (w === 'hold' && L.h.phase === 'trick') P.timer = setTimeout(() => { R.act(L, 'ack'); step(); }, readMs(L.h.last.reason));
+    if (w === 'ai') P.timer = setTimeout(() => { aiMove(L); step(); }, Math.max(P.undo.length ? wait('undo') : 0, wait(L.h.phase === 'play' ? 'play' : 'bid')));
+    else if (w === 'hold' && L.h.phase === 'trick' && P.prefs.tricks === 'auto') P.timer = setTimeout(() => { R.act(L, 'ack'); step(); }, readMs(L.h.last.reason));
+  }
+  /* Your moves in a hand can be taken back until the computer's next move: a snapshot of the whole run (it is
+     plain JSON with the rng inside it), restored exactly. */
+  const UNDOABLE = { bid: 1, discard: 1, play: 1, swing: 1 };
+  function moveName(L, kind, arg) {
+    if (kind === 'bid') return arg ? 'your ' + bidPlain(arg) + ' bid' : 'your pass';
+    if (kind === 'discard') return 'putting back the ' + E.label(arg);
+    if (kind === 'swing') return L.h.pass === 'grand' ? 'passing the ' + E.label(arg) : arg ? 'swapping the ' + E.label(arg) : 'keeping your hand';
+    return 'your ' + E.label(arg);
   }
   function move(kind, arg) {
+    const L0 = P.L, undoable = L0.phase === 'hand' && UNDOABLE[kind];
+    const snap = undoable ? JSON.stringify(L0) : null, name = undoable ? moveName(L0, kind, arg) : '';
     const res = R.act(P.L, kind, arg);
     if (res && !res.ok) { P.L.note = res.why; if (P.L.phase === 'hand') $('status').textContent = res.why; else render(); return; }
+    if (undoable) P.undo.push({ snap, name });
     step();
   }
+  function takeBack() {
+    const u = P.undo.pop();
+    if (!u) return;
+    P.L = JSON.parse(u.snap);   // exactly as it was, note line and all
+    step();
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { clearTimeout(P.timer); P.timer = null; }
+    else if (P.L && $('title').hidden) step();
+  });
 
   /* ---------------- input ---------------- */
   document.addEventListener('click', ev => {
@@ -818,6 +875,8 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       case 'continue': { const s = loadSaved(); if (s) { P.L = s; show(); } break; }
       case 'rules': openSheet('rules'); break;
       case 'menu': openSheet('menu'); break;
+      case 'pref': setPref(d.k, d.v); openSheet('menu'); break;
+      case 'takeback': takeBack(); break;
       case 'closesheet': P.sheet = null; P.shown = null; $('veil').hidden = true; if (P.L && $('title').hidden) step(); break;
       case 'quit': P.sheet = null; clearTimeout(P.timer); $('veil').hidden = true; title(); break;
       case 'pass': move('bid', null); break;
@@ -839,7 +898,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     P.L = R.newRun({ seed, objective: $('objPick').value || undefined, tips: $('tipsPick').checked });
     show();
   }
-  function show() { $('title').hidden = true; P.sheet = null; P.shown = null; step(); }
+  function show() { $('title').hidden = true; P.sheet = null; P.shown = null; P.undo = []; P.stuck = null; step(); }
   function title() {
     clearTimeout(P.timer);
     $('game').hidden = true; $('screen').hidden = true; $('title').hidden = false; $('veil').hidden = true;
@@ -848,7 +907,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     $('tipsPick').checked = !tipsDone();
   }
   $('objPick').innerHTML += Object.entries(R.OBJECTIVES).map(([k, o]) => '<option value="' + k + '">' + esc(o.name) + ': ' + esc(o.text) + '</option>').join('');
-  Object.assign(P, { render, step, move, title, newRun, save, loadSaved });
+  Object.assign(P, { render, step, move, title, newRun, save, loadSaved, takeBack, PACE });
   title();
 })();
 </script>

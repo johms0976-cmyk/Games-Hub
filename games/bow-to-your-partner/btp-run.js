@@ -94,12 +94,12 @@
               yours: { text: 'Defeat 2 of their mis\u00e8res', of: 2 },
               theirs: { text: 'Make 2 mis\u00e8res', of: 2 },
               hint: 'One trick sinks a mis\u00e8re: lead low and stay under their card. Or outbid them with a 6 to keep them out.' },
-    caller: { name: 'The Caller', short: 'Caller', act: 3, head: 100, rule: 'Before each hand he calls a figure that changes the rules, aimed at the cards you were dealt from your own. His set starts on +100.',
+    caller: { name: 'The Caller', short: 'Caller', act: 3, head: 150, rule: 'Before each hand he calls a figure that changes the rules, aimed at the cards you were dealt from your own. His set starts on +150.',
               yours: { text: 'Reach +250 this Hoedown', of: 250 },
               theirs: { text: 'Reach +250 this Hoedown', of: 250 },
               hint: 'Each call is chosen to hurt your seeded cards, and he tells you why. A run that only works one way gets punished.' },
-    wallflowers: { name: 'The Wallflowers', short: 'Wallflowers', act: 3, rule: 'They never bid, so your team must bid every hand.',
-              yours: { text: 'Make 2 contracts', of: 2 },
+    wallflowers: { name: 'The Wallflowers', short: 'Wallflowers', act: 3, hands: 4, rule: 'They never bid, so your team must bid every hand, and at least 7.',
+              yours: { text: 'Make 3 contracts', of: 3 },
               theirs: { text: 'Set 2 of your contracts', of: 2 },
               hint: 'Nobody can pass the hand out: if Nan passes, you must bid. Bid what you can make, not what you hope.' }
   };
@@ -139,7 +139,13 @@
      team made to bid, were beaten 82% at the usual 6-trick floor, so with them your bids start at 7 (E.WALL.min): 55%.
      The Caller, an even race to +250, was beaten 64% (the race usually ends on the score, and your side outscores
      his); targets of 250 against 150 gave 55%; a head start of +100 for his set gives 47% (+80: 50%, +130: 41%).
-     Calls seen: Reverse most (any seeded Ace, King or the Joker), then Promenade, Corner, Grand, Allemande, No Kitty. */
+     Calls seen: Reverse most (any seeded Ace, King or the Joker), then Promenade, Corner, Grand, Allemande, No Kitty.
+     Re-tuned for the branching map (2026-10-27, 300 whole stand-in runs each): the map's runs arrive stronger, so
+     the final Hoedown was beaten 56% (Caller) / 61% (Wallflowers) and 51% of runs were won (44% on the five-stop
+     card). Caller +150: 48% (+170: 43%, +200: 39%). Wallflowers at 8 tricks: 40%; needing one set: 36%; making 3
+     before they set 2 (up to 4 hands, from 7 tricks): 49%. Together: 43% of runs won. Also measured and dropped:
+     later floors' Dances a hand longer made runs EASIER (60%), and a Raffle buff drawn for you instead of picked
+     barely moved it (53%). */
   /* Which bosses can end each act, one drawn per run (the user's call, 2026-10-24: Act II draws from the Card Sharps and the Hustlers). */
   const BOSS_POOL = { 1: ['twins'], 2: ['sharps', 'hustlers'], 3: ['caller', 'wallflowers'] };   // Act III (the user's call, 2026-10-25)
   /* Buffs (relics). A partner's own ability is never offered. */
@@ -214,7 +220,9 @@
      Dance-off or Punch Bowl on the first two floors, and no two stores, Punch Bowls or Dance-offs in a row. */
   const MAPSHAPE = { floors: 7, cols: 5, paths: 4, raffle: 3 };
   const ROOMS = f => [['dance', 45], ['event', 22], ['elite', f >= 2 ? 14 : 0], ['store', f >= 2 ? 12 : 3], ['camp', f >= 2 && f !== MAPSHAPE.floors - 2 ? 9 : 0]];
-  const RAFFLE = { gold: 25, noBuff: 60, buff: true };
+  const RAFFLE = { gold: 25, noBuff: 60, buff: true, pick: 2 };   // pick: buffs to choose from (0 = one drawn for you)
+  /* The map's later floors: Dances from this floor up are this many hands longer (0 = off). */
+  const LATE = { floor: 4, dance: 0 };
   const KIND_NAME = { dance: 'Dance', event: 'Barn Gossip', camp: 'Punch Bowl', elite: 'Dance-off', boss: 'Hoedown', store: 'General Store', raffle: 'The Raffle' };
   const int = (L, a, b) => a + Math.floor(E.rnd(L) * (b - a + 1));
   function weighted(L, pairs) {
@@ -307,7 +315,7 @@
   /* The act-start pick: 1 of 3 cards to own. A new act offers the cards it adds
      (Act II: the black suits). */
   function actStart(L) {
-    const deck = E.deckFor(L.act), before = L.act > 1 ? E.deckFor(L.act - 1) : [];
+    const deck = E.deckOf(L), before = L.act > 1 ? E.deckFor(L.act - 1) : [];
     let pool = deck.filter(c => !L.owned.includes(c) && !before.includes(c));
     if (pool.length < 3) pool = deck.filter(c => !L.owned.includes(c));
     L.offer = E.shuffle(L, pool).slice(0, 3);
@@ -375,7 +383,8 @@
     if (!fb.length || !RAFFLE.buff) { L.gold += RAFFLE.noBuff; note(L, 'The Raffle: you hold every buff already, so your ticket wins ' + RAFFLE.noBuff + ' gold.'); nextStop(L); return; }
     L.gold += RAFFLE.gold;
     note(L, 'The Raffle: +' + RAFFLE.gold + ' gold, and your ticket wins a buff.');
-    L.reward = { steps: [{ type: 'buff', options: draw(L, fb, 2) }], raffle: true };
+    if (!RAFFLE.pick) { const b = E.pick(L, fb); grantBuff(L, b); note(L, 'The Raffle: +' + RAFFLE.gold + ' gold, and your ticket wins ' + BUFFS[b].name + '.'); nextStop(L); return; }
+    L.reward = { steps: [{ type: 'buff', options: draw(L, fb, RAFFLE.pick) }], raffle: true };
     advanceReward(L);
   }
   function nextStop(L) {
@@ -407,7 +416,7 @@
     }
     L.you = 0; L.opp = 0; L.startHealth = L.health; L.startGold = L.gold;
     if (L.boss === 'caller') { L.opp = BOSS.caller.head; L.race.them = L.opp; }     // he's a regular here: his set starts ahead
-    L.handNo = 1; L.hands = HANDS[L.act][kind]; L.baseHands = L.hands; L.extraBought = false;
+    L.handNo = 1; L.hands = (kind === 'boss' && BOSS[L.boss].hands) || HANDS[L.act][kind] + (kind === 'dance' && LATE.dance && floorOf(L) >= LATE.floor ? LATE.dance : 0); L.baseHands = L.hands; L.extraBought = false;
     L.captured = [];
     L.phase = 'hand';
     L.reaction = null;
@@ -780,7 +789,7 @@
     if (fx.health) L.health += fx.health;
     let msg = o.text.replace(/:.*/, '') + '.';
     if (fx.card === 'face') {
-      const pool = E.deckFor(L.act).filter(c => ['J', 'Q', 'K'].includes(E.rankOf(c)) && !L.owned.includes(c));
+      const pool = E.deckOf(L).filter(c => ['J', 'Q', 'K'].includes(E.rankOf(c)) && !L.owned.includes(c));
       if (pool.length) { const c = E.pick(L, pool); L.owned.push(c); msg = 'The stranger’s card is the ' + E.label(c) + '. It’s yours now.'; }
     }
     if (fx.hex) {
@@ -788,7 +797,7 @@
       if (card) { placeHex(L, card, fx.hex.kind); msg += ' ' + HEXES[fx.hex.kind].name + ' lands on ' + (L.owned.includes(card) ? 'your ' : 'the ') + E.label(card) + '.'; }
     }
     if (fx.curse === 'twoleft') {
-      const pool = E.deckFor(L.act).filter(c => c !== 'JK' && E.rankOf(c) !== 'J' && !L.owned.includes(c) && !(L.hexes || {})[c] && ['9', '10'].includes(E.rankOf(c)));
+      const pool = E.deckOf(L).filter(c => c !== 'JK' && E.rankOf(c) !== 'J' && !L.owned.includes(c) && !(L.hexes || {})[c] && ['9', '10'].includes(E.rankOf(c)));
       if (pool.length) { const c = E.pick(L, pool); L.owned.push(c); placeHex(L, c, 'twoleft'); msg += ' You now own the ' + E.label(c) + ', with Two Left Feet.'; }
     }
     note(L, msg);
@@ -1000,6 +1009,28 @@
     if (h.phase === 'play') return after(L, E.play(L, seat, AI.play(L, seat)));
     return false;
   }
+  /* A refused computer move must never spin (the page would ask again for ever): take the first legal move
+     instead and say so in the log. Counted on the run (`L.fallbacks`), so a test can demand zero. */
+  function aiFallback(L) {
+    if (L.phase !== 'hand') return no('not in a hand');
+    const h = L.h, seat = h.turn, who = E.SEATS[seat];
+    let res = no('nothing it could do'), what = '';
+    if (h.phase === 'bid') {
+      const b = E.mustBid(L, seat) ? E.legalBids(L).find(x => x.s !== 'MIS' && x.s !== 'OMIS') : null;
+      what = b ? 'bids ' + E.bidText(b) : 'passes';
+      E.say(L, '(' + who + '’s move was refused, so it ' + what + ' instead.)', 'rule');
+      res = E.bid(L, seat, b ? { t: b.t, s: b.s } : null);
+    } else if (h.phase === 'kitty') {
+      const c = h.hands[seat][0];
+      E.say(L, '(' + who + '’s move was refused, so it puts back its first card instead.)', 'rule');
+      res = E.discard(L, seat, c);
+    } else if (h.phase === 'play') {
+      const c = E.legalPlays(L, seat)[0];
+      if (c) { E.say(L, '(' + who + '’s move was refused, so it plays the ' + E.label(c) + ' instead.)', 'rule'); res = E.play(L, seat, c); }
+    }
+    L.fallbacks = (L.fallbacks || 0) + 1;
+    return after(L, res);
+  }
   /* Play the current level to its stars with the AI in every seat. */
   function autoLevel(L) {
     let guard = 0;
@@ -1021,9 +1052,9 @@
     if (O && O.kind === 'limit') return 'holding';
     return o.n + ' / ' + o.of;
   }
-  const api = { enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HANDS, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
+  const api = { enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HANDS, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, REST, restOf, ACT2, ACT3, CASH, runSummary, LATE, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
     cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, canExtra,
-    newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, track, trackHand, coach, has };
+    newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;
   else root.BtpRun = api;
 })(typeof window !== 'undefined' ? window : this);
