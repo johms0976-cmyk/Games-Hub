@@ -87,6 +87,42 @@ select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid
 .top .name { font-family: Georgia, serif; font-weight: 700; color: var(--accent); margin-right: auto; }
 .pill { border-radius: 999px; padding: 3px 10px; background: var(--bg); border: 1px solid var(--line); font-size: 14px; white-space: nowrap; }
 .pill.neg b { color: var(--bad); }
+/* health and gold: the two numbers a run is played for, big enough to read at a glance */
+.stats { display: flex; gap: 8px; align-items: stretch; flex: 1 1 auto; min-width: 0; }
+.stat { position: relative; display: flex; flex-direction: column; justify-content: center; padding: 4px 10px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); min-width: 0; }
+.stat .lab { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); line-height: 1.1; }
+.stat .val { font-size: 22px; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat.hp { flex: 1 1 auto; }
+.stat.hp .val { color: var(--ok); }
+.stat.hp.low .val { color: #b7791f; }
+.stat.hp.danger { border-color: var(--bad); background: #fbeae6; }
+.stat.hp.danger .val { color: var(--bad); }
+.stat.hp .hpm { display: block; height: 5px; border-radius: 3px; background: #e7dcc8; margin-top: 3px; overflow: hidden; }
+.stat.hp .hpm i { display: block; height: 100%; background: var(--ok); }
+.stat.hp.low .hpm i { background: #d69e2e; }
+.stat.hp.danger .hpm i { background: var(--bad); }
+.stat.hp small { font-size: 11px; color: var(--muted); line-height: 1.2; }
+.stat.gold .val { color: #8a6412; }
+.stat .delta { position: absolute; right: 6px; top: 2px; font-size: 13px; font-weight: 800; animation: deltafade 2.6s ease-out forwards; }
+.stat .delta.up { color: var(--ok); } .stat .delta.down { color: var(--bad); }
+@keyframes deltafade { 0% { opacity: 0; transform: translateY(4px); } 12% { opacity: 1; transform: none; } 75% { opacity: 1; } 100% { opacity: 0; } }
+.lvlpill { font-size: 13px; color: var(--muted); white-space: nowrap; }
+/* what the objective is worth: the stars you'd get if the level ended now, and what they pay */
+.objective .pay { width: 100%; display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; font-size: 14px; padding: 4px 8px; margin-top: 2px; border-radius: 8px; background: #fff; border: 1px dashed var(--line); text-align: left; color: var(--ink); }
+.objective .pay .st { color: var(--gold); letter-spacing: 1px; font-size: 16px; }
+.objective .pay .st .off { color: #d8cbb4; }
+.objective .pay .more { margin-left: auto; color: var(--accent); text-decoration: underline; white-space: nowrap; }
+.objective .pay .nx { color: var(--muted); }
+.paytable { width: 100%; border-collapse: collapse; margin: 6px 0; }
+.paytable td { padding: 6px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.paytable td:first-child { color: var(--gold); white-space: nowrap; font-size: 18px; }
+.paytable tr.now td { background: #fff6dc; }
+/* cards: hold one down for what it does */
+.card { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.cardinfo > .card { display: flex; margin: 0 auto 8px; }
+.cardinfo .tags span { display: inline-block; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 2px 8px; margin: 0 4px 4px 0; }
+.cardinfo .tags .buff { background: #fff3cf; color: #8a6412; } .cardinfo .tags .hex { background: #fbeae6; color: var(--bad); } .cardinfo .tags .plain { background: var(--bg); color: var(--muted); }
+.cardinfo ul { padding-left: 18px; } .cardinfo li { margin: 6px 0; }
 .iconbtn { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 4px 10px; font-size: 14px; min-height: 32px; }
 .iconbtn[data-act="takeback"] { min-height: 40px; margin-left: 6px; border-color: var(--accent); color: var(--accent); }
 .objective { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #fffaf0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
@@ -224,7 +260,8 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   .hand.lots .card + .card { margin-left: -28px; }
   .hand.lots.spread { gap: 6px 4px; }
   .hand.lots.spread .card + .card { margin-left: 0; }
-  .top .pill:first-of-type { margin-right: auto; }
+  .stat { padding: 3px 8px; } .stat .val { font-size: 20px; }
+  .lvlpill { width: 100%; order: 5; }
 }
 </style>
 </head>
@@ -262,10 +299,8 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
 
 <section id="game" hidden>
   <div class="top">
-    <span class="name">Bow to Your Partner</span>
-    <span class="pill" id="hp">Health <b>0</b></span>
-    <span class="pill" id="handpill">Hand 1 of 3</span>
-    <span class="pill" id="goldpill">0 gold</span>
+    <div class="stats"><div class="stat hp" id="hp"></div><div class="stat gold" id="goldstat"></div></div>
+    <span class="lvlpill" id="handpill">Hand 1 of 3</span>
     <button class="iconbtn" data-act="rules">Rules</button>
     <button class="iconbtn" data-act="menu">Menu</button>
   </div>
@@ -333,7 +368,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const cls = ['card', o.small ? 'small' : '', o.big ? 'big' : '', c !== 'JK' && E.RED[E.suitOf(c)] ? 'red' : '', c === 'JK' ? 'joker' : '',
       trump && E.kIsTrump(k, trump) ? 'trump' : '', enh ? 'enh' : '', hx ? 'hexed' : '', o.locked ? 'locked' : '', o.cls || ''].filter(Boolean).join(' ');
     const hxHTML = hx ? '<span class="hx">' + esc(R.HEXES[hx].short) + '</span>' : '';
-    const attr = o.data ? ' data-' + o.data + '="' + c + '"' : ' tabindex="-1"';
+    const attr = (o.data ? ' data-' + o.data + '="' + c + '"' : ' tabindex="-1"') + ' data-c="' + c + '"';
     const flag = o.flag || (enh ? R.ENH[enh].name : c.includes('~') ? 'Forged' : '');
     if (c === 'JK') return '<button class="' + cls + '"' + attr + (o.dis ? ' disabled' : '') + ' aria-label="Joker"><span class="s">JOKER</span>' + hxHTML + (flag ? '<span class="flag">' + esc(flag) + '</span>' : '') + '</button>';
     const up = k.m && k.m.up ? E.grown(c, k.m.up) : 0;
@@ -365,14 +400,27 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   }
 
   /* ---------------- run screens ---------------- */
+  /* Health is the run's score and its life: it starts at 0 and the run ends at −500, so the meter runs from −500
+     (empty) to +500 (full), and the box turns amber below −150 and red below −350. */
+  const hpClass = h => h <= -350 ? ' danger' : h < -150 ? ' low' : '';
+  function hpInner(L, delta) {
+    const pct = Math.max(0, Math.min(100, (L.health + 500) / 10));
+    return '<span class="lab">Health</span><span class="val">' + num(L.health) + '</span><span class="hpm" aria-hidden="true"><i style="width:' + pct + '%"></i></span>' +
+      '<small>' + (L.health <= -350 ? 'Danger: the run ends at −500' : 'the run ends at −500') + '</small>' +
+      (delta ? '<span class="delta ' + (delta > 0 ? 'up' : 'down') + '">' + (delta > 0 ? '+' : '−') + Math.abs(delta) + '</span>' : '');
+  }
+  function goldInner(L, delta) {
+    return '<span class="lab">Gold</span><span class="val">' + L.gold + '</span>' + (delta ? '<span class="delta ' + (delta > 0 ? 'up' : 'down') + '">' + (delta > 0 ? '+' : '−') + Math.abs(delta) + '</span>' : '');
+  }
   function bar() {
     const L = P.L;
     return '<div class="screenbar"><span class="name">Act ' + R.ROMAN[L.act] + ' · ' + E.ACTS[L.act].name + '</span>' +
-      '<span class="pill' + (L.health < 0 ? ' neg' : '') + '">Health <b>' + num(L.health) + '</b></span><span class="pill">' + L.gold + ' gold</span>' +
+      '<div class="stats"><div class="stat hp' + hpClass(L.health) + '">' + hpInner(L) + '</div><div class="stat gold">' + goldInner(L) + '</div></div>' +
       '<button class="iconbtn" data-act="rules">Rules</button><button class="iconbtn" data-act="menu">Menu</button></div>';
   }
   function renderScreen() {
     const L = P.L, tip = R.coach(L);
+    P.hpShown = P.goldShown = null;   // the table's +/− flash is for changes during a level
     let body = '';
     const noteHTML = L.note ? '<div class="note">' + esc(L.note) + '</div>' : '';
     switch (L.phase) {
@@ -551,11 +599,11 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   /* ---------------- the table ---------------- */
   function renderTable() {
     const L = P.L, h = L.h;
-    const hp = $('hp');
-    hp.innerHTML = 'Health <b>' + num(L.health) + '</b>';
-    hp.classList.toggle('neg', L.health < 0);
-    $('handpill').textContent = (L.kind === 'boss' ? 'Hoedown' : R.KIND_NAME[L.kind]) + ' · Hand ' + L.handNo + ' of ' + L.hands;
-    $('goldpill').textContent = L.gold + ' gold';
+    // repaint the stat boxes only when a number changes, so the +/− flash plays once and isn't restarted
+    const hp = $('hp'), gs = $('goldstat');
+    if (P.hpShown !== L.health) { hp.innerHTML = hpInner(L, P.hpShown == null ? 0 : L.health - P.hpShown); hp.className = 'stat hp' + hpClass(L.health); P.hpShown = L.health; }
+    if (P.goldShown !== L.gold) { gs.innerHTML = goldInner(L, P.goldShown == null ? 0 : L.gold - P.goldShown); P.goldShown = L.gold; }
+    $('handpill').textContent = (L.kind === 'boss' ? 'Hoedown' : R.KIND_NAME[L.kind]) + ' · hand ' + L.handNo + ' of ' + L.hands;
     renderObjective();
     const ct = $('contract');
     if (h.contract) {
@@ -603,7 +651,39 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       '<div class="oc">' + R.objProgress(L) + '</div>' +
       (L.obj.id === 'royal' && (L.obj.got || []).length && !L.obj.done ? '<div class="ox" style="flex:none">' + L.obj.got.map(E.label).join(' ') + '</div>' : '') +
       (L.obj.id === 'every' && !L.obj.done && !L.obj.fail && L.phase === 'hand' && h.tricks[0] > 0 ? '<div class="ox" style="flex:none">this hand ✓</div>' : '') +
-      (L.curse ? '<div class="curse">Curse: <b>' + esc(R.CURSES[L.curse].name) + '</b> — ' + esc(R.CURSES[L.curse].text) + '</div>' : '');
+      (L.curse ? '<div class="curse">Curse: <b>' + esc(R.CURSES[L.curse].name) + '</b> — ' + esc(R.CURSES[L.curse].text) + '</div>' : '') +
+      payHTML(L);
+  }
+  /* The stars this level would give if it ended now, and what they pay. Tap for the whole table. */
+  function starsNow(L) {
+    const O = R.OBJECTIVES[L.obj.id], done = L.obj.done || (O && O.kind === 'limit' && !L.obj.fail);
+    return done ? (L.you > L.opp && !L.extraBought ? 3 : 2) : 1;
+  }
+  const PRIZE = { dance: ['', 'no prize', 'pick 1 of 2 enhancements', 'pick 1 of 3 enhancements, or keep a card you won'],
+                  elite: ['', 'no prize', 'a buff', 'pick 1 of 2 buffs'] };
+  function payHTML(L) {
+    if (L.race) return '<button class="pay" data-act="levelinfo"><span><b>Win the race:</b> 100 gold + pick 1 of 3 buffs. <b>Lose:</b> ' +
+      (L.act >= R.LAST_ACT ? 'the run is over.' : '−100 health, 50 gold and a hex.') + '</span><span class="more">Rewards</span></button>';
+    const n = starsNow(L), pay = R.PAY[L.kind][n], score = '(you ' + num(L.you) + ' · them ' + num(L.opp) + ')';
+    const next = n === 1 ? 'Complete the objective for ★★' : n === 2 ? (L.extraBought ? 'An extra hand rules out ★★★' : 'Outscore them for ★★★ ' + score) : 'Keep outscoring them ' + score;
+    return '<button class="pay" data-act="levelinfo"><span class="st">' + stars(n) + '</span><span><b>Now:</b> ' + pay + ' gold' + (n > 1 ? ' + ' + PRIZE[L.kind][n] : '') + '</span>' +
+      '<span class="nx">' + esc(next) + '</span><span class="more">Rewards</span></button>';
+  }
+  function levelInfoHTML(L) {
+    const B = L.race ? R.BOSS[L.boss] : null;
+    if (B) return '<h2>The Hoedown: ' + esc(B.name) + '</h2><p>' + esc(B.rule) + '</p><p>A race: the first side to finish its goal wins.</p>' +
+      '<table class="paytable"><tr><td>You</td><td>' + esc(B.yours.text) + '</td></tr><tr><td>' + esc(B.short) + '</td><td>' + esc(B.theirs.text) + '</td></tr></table>' +
+      '<p><b>Win:</b> 100 gold and pick 1 of 3 buffs (★★★ if you also outscore them). <b>Lose:</b> ' + (L.act >= R.LAST_ACT ? 'the run is over: this is the final Hoedown.' : '−100 health and 50 gold, and they leave a hex on one of your cards until you beat the next Hoedown.') + '</p>' +
+      '<p>If nobody finishes, the side with more points this level wins.</p><div class="btns"><button class="btn" data-act="closesheet">Back</button></div>';
+    const O = R.OBJECTIVES[L.obj.id], n = starsNow(L), pay = R.PAY[L.kind];
+    const row = (k, what) => '<tr' + (k === n ? ' class="now"' : '') + '><td>' + '★'.repeat(k) + '</td><td><b>' + what + '</b><br>' + pay[k] + ' gold' + (k > 1 ? ' + ' + PRIZE[L.kind][k] : '') + '</td></tr>';
+    return '<h2>' + esc(R.KIND_NAME[L.kind]) + ': what it pays</h2><p><b>Objective:</b> ' + esc(O.text) + ' (' + esc(R.objProgress(L)) + ').</p>' +
+      '<table class="paytable">' + row(1, 'Get through the level') + row(2, 'Complete the objective') + row(3, 'The objective, and outscore them over the level') + '</table>' +
+      '<p>Outscoring means your points this level beat theirs: contracts you make, and 10 a trick when you defend. Right now: you ' + num(L.you) + ', them ' + num(L.opp) + '.' +
+      (L.extraBought ? ' You bought an extra hand, so ★★★ is off the table this level.' : '') + '</p>' +
+      '<p>Enhancements go on a card you own and stay all run; buffs change the rules in your favour. Gold buys cards, enhancements and buffs at the General Store.</p>' +
+      (L.curse ? '<p><b>Curse:</b> ' + esc(R.CURSES[L.curse].name) + ' — ' + esc(R.CURSES[L.curse].text) + '</p>' : '') +
+      '<div class="btns"><button class="btn" data-act="closesheet">Back</button></div>';
   }
   function seatTag(L, seat) {
     const h = L.h;
@@ -716,7 +796,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   /* ---------------- sheets (announced pop-ups) ---------------- */
   function renderSheet() {
     const L = P.L, h = L.h;
-    if (P.sheet === 'rules' || P.sheet === 'menu') return;
+    if (P.sheet === 'rules' || P.sheet === 'menu' || P.sheet === 'info') return;
     let html = '', key = '';
     if (L.phase === 'hand' && h.phase === 'intent') {
       key = 'intent' + L.level + '-' + L.handNo;
@@ -772,6 +852,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   const RULES = '<h2>How 500 works here</h2><ul class="lines">' +
     '<li><b>Deck:</b> Act I is hearts and diamonds 9 to Ace plus the Joker, 3 cards each. Act II adds spades and clubs: 6 cards each. Act III is the whole 500 pack (red 4s and black 5s up): 10 cards each. The kitty takes the rest (1, 1, then 3).</li>' +
     '<li><b>Bidding:</b> promise more than half the tricks with your partner (2–3 in Act I, 4–6 in Act II, 6–10 in Act III), naming trumps or no trumps. Each bid must beat the last. Act I bids are worth 20 to 100; Act II\u2019s 20 to 180; Act III\u2019s are standard 500, 40 to 520. Suits rank ♠ < ♣ < ♦ < ♥ < no trumps.</li>' +
+    '<li><b>Hold any card</b> (or right-click it) to see what it does: its buff, its hex, and what it is this hand.</li>' +
     '<li><b>Hexes</b> (from Act II) sit on a card and hit whoever holds it, marked in red: Loose Lips (shown face-up), Hot Potato (the team that catches it loses 20), Itchy Feet (must be played when it can be), Stepped On (one rank lower), and the Two Left Feet curse card (never wins a trick). Cleanse them at the Punch Bowl.</li>' +
     '<li><b>Open misère</b> (Act III, worth 500, ranked between 10♦ and 10♥): a misère with your hand laid face up after the first trick.</li>' +
     '<li><b>Misère</b> (Act II, worth 130; 250 in Act III): you promise to lose every trick, playing alone while your partner sits out, with no trumps. The Joker wins any trick it is in, so put it under the kitty. The defenders score nothing; take a single trick and it fails.</li>' +
@@ -791,7 +872,43 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       L.buffs.map(b => '<li>' + esc(R.BUFFS[b].name) + ': ' + esc(R.BUFFS[b].text) + '</li>').join('') + '</ul>' : '') +
       '<div class="btns"><button class="btn" data-act="closesheet">Back</button><button class="btn alt" data-act="quit">Title screen</button></div>';
   }
-  function openSheet(which) { P.sheet = which; P.shown = which; P.guardUntil = 0; $('sheet').innerHTML = which === 'rules' ? RULES : menuHTML(); $('veil').hidden = false; }
+  function openSheet(which, html) {
+    P.sheet = which; P.shown = which;
+    // an info sheet opens under a finger that is still down: ignore taps on it for a moment (ghost clicks)
+    P.guardUntil = which === 'info' ? Date.now() + (FAST ? 0 : 550) : 0;
+    $('sheet').innerHTML = which === 'rules' ? RULES : which === 'menu' ? menuHTML() : html;
+    $('veil').hidden = false;
+  }
+  /* What a card does: its buff (enhancement or polish), its hex, whether it is yours, and what it is this hand. */
+  function cardInfoHTML(c) {
+    const L = P.L, h = L.phase === 'hand' ? L.h : null, tr = h ? h.trump : null;
+    const m = L.mods[c] || {}, hx = (L.hexes || {})[c], owned = L.owned.includes(c), tags = [], lines = [];
+    if (m.enh) {
+      const e = R.ENH[m.enh];
+      tags.push('<span class="buff">Buff: ' + esc(e.name) + '</span>');
+      lines.push('<b>' + esc(e.name) + '.</b> ' + esc(e.text) + (m.enh === 'glass' ? ' It has won ' + (m.wins || 0) + ' of ' + R.GLASS_WINS + '.' : ''));
+    }
+    if (m.up) {
+      tags.push('<span class="buff">' + (m.enh === 'growing' ? 'Grown' : 'Polished') + ' +' + m.up + '</span>');
+      lines.push('<b>' + (m.enh === 'growing' ? 'Grown' : 'Polished') + ':</b> it plays as ' + esc(E.kLabel({ c, m }).replace(/^.*\(now /, '').replace(/\)$/, '')) + ', ' + m.up + ' rank' + (m.up > 1 ? 's' : '') + ' above its print.');
+    }
+    if (hx) {
+      const x = R.HEXES[hx];
+      tags.push('<span class="hex">Hex: ' + esc(x.name) + '</span>');
+      lines.push('<b>' + esc(x.name) + '.</b> ' + esc(x.text) + (hx === 'twoleft' ? '' : ' A hex hurts whoever holds the card, you or them.'));
+    }
+    if (c.includes('~')) lines.push('<b>Forged copy</b> of the ' + esc(E.label(c)) + ': the two tie, so whichever is played first wins.');
+    if (tr && c !== 'JK' && E.rankOf(c) === 'J' && E.suitOf(c) === tr) lines.push('This hand it is the <b>right bower</b>: only the Joker beats it' + (L.call === 'allemande' ? ' (and tonight, Allemande Left puts the left bower above it)' : '') + '.');
+    else if (tr && c !== 'JK' && E.rankOf(c) === 'J' && E.suitOf(c) === E.TWIN[tr]) lines.push('This hand it is the <b>left bower</b>: it counts as a ' + E.NAME[tr].slice(0, -1) + '.');
+    if (c === 'JK') lines.push('The Joker wins any trick it is in.');
+    if (!tags.length) tags.push('<span class="plain">No buff or hex</span>');
+    if (owned) lines.push('<b>Yours:</b> it can be dealt to you in a seed slot. ' + (m.enh || m.up ? 'Its buff works only in your team\u2019s hands (yours and Nan\u2019s); if West or East holds it, it is a plain card.' : ''));
+    if (!lines.length) lines.push('A plain card.');
+    return '<div class="cardinfo">' + cardHTML(c, { owned: true, big: true }) + '<h2 style="text-align:center;margin:0 0 6px">' + esc(E.label(c)) + '</h2>' +
+      '<div class="tags" style="text-align:center">' + tags.join('') + '</div><ul>' + lines.map(x => '<li>' + x + '</li>').join('') + '</ul>' +
+      '<div class="btns"><button class="btn" data-act="closesheet">Back</button></div></div>';
+  }
+  function showCardInfo(c) { if (P.L && c) openSheet('info', cardInfoHTML(c)); }
 
   /* ---------------- the loop: AI seats and holds, paced for reading ---------------- */
   function readMs(text) { const t = PACE[P.prefs.pace] || PACE.brisk; return FAST ? 0 : Math.min(t.readMax, t.readBase + t.readPer * text.length); }
@@ -849,7 +966,27 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   });
 
   /* ---------------- input ---------------- */
+  /* Hold a card down (or right-click it) to see what it does. The click that follows a hold is swallowed, so the
+     card isn't played as well. */
+  const HOLD_MS = 450;
+  let holdT = null, holdAt = null;
+  const cancelHold = () => { clearTimeout(holdT); holdT = null; };
+  document.addEventListener('pointerdown', ev => {
+    const card = ev.target.closest && ev.target.closest('.card[data-c]');
+    if (!card || card.closest('#sheet')) return;
+    holdAt = [ev.clientX, ev.clientY];
+    cancelHold();
+    holdT = setTimeout(() => { holdT = null; P.held = Date.now(); showCardInfo(card.dataset.c); }, HOLD_MS);
+  });
+  document.addEventListener('pointerup', cancelHold);
+  document.addEventListener('pointercancel', cancelHold);
+  document.addEventListener('pointermove', ev => { if (holdT && holdAt && Math.hypot(ev.clientX - holdAt[0], ev.clientY - holdAt[1]) > 10) cancelHold(); });
+  document.addEventListener('contextmenu', ev => { const card = ev.target.closest && ev.target.closest('.card[data-c]'); if (card && !card.closest('#sheet')) { ev.preventDefault(); showCardInfo(card.dataset.c); } });
   document.addEventListener('click', ev => {
+    if (P.held && Date.now() - P.held < 1500) { P.held = 0; ev.preventDefault(); return; }
+    // a card that can't be played or picked (your cards panel, a hand while it isn't your turn): a tap explains it
+    const plain = ev.target.closest('.card[data-c]');
+    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-buy],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip]')) { showCardInfo(plain.dataset.c); return; }
     const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-buy],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip]');
     if (!t || t.disabled) return;
     if (t.closest('#sheet') && Date.now() < P.guardUntil) return;
@@ -877,6 +1014,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       case 'menu': openSheet('menu'); break;
       case 'pref': setPref(d.k, d.v); openSheet('menu'); break;
       case 'takeback': takeBack(); break;
+      case 'levelinfo': openSheet('info', levelInfoHTML(L)); break;
       case 'closesheet': P.sheet = null; P.shown = null; $('veil').hidden = true; if (P.L && $('title').hidden) step(); break;
       case 'quit': P.sheet = null; clearTimeout(P.timer); $('veil').hidden = true; title(); break;
       case 'pass': move('bid', null); break;
@@ -907,7 +1045,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     $('tipsPick').checked = !tipsDone();
   }
   $('objPick').innerHTML += Object.entries(R.OBJECTIVES).map(([k, o]) => '<option value="' + k + '">' + esc(o.name) + ': ' + esc(o.text) + '</option>').join('');
-  Object.assign(P, { render, step, move, title, newRun, save, loadSaved, takeBack, PACE });
+  Object.assign(P, { render, step, move, title, newRun, save, loadSaved, takeBack, PACE, showCardInfo });
   title();
 })();
 </script>
