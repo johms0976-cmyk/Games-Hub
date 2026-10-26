@@ -951,6 +951,7 @@
     if (h.phase !== 'play' || h.turn !== 0) return null;
     if (h.trump && h.hands[0].some(c => E.rankOf(c) === 'J' && E.suitOf(c) === E.TWIN[h.trump]))
       { const t = tip('bower', 'Your J' + E.SYM[E.TWIN[h.trump]] + ' is the left bower this hand: it counts as a ' + E.NAME[h.trump].slice(0, -1) + ', and only the Joker and J' + E.SYM[h.trump] + ' beat it.'); if (t) return t; }
+    if (h.hands[0].some(c => (L.mods[c] && (L.mods[c].enh || L.mods[c].up)) || (L.hexes || {})[c])) { const t = tip('hold', 'See the marked card, dear? Hold any card down to see what it does: its buff, its hex, what it is this hand.'); if (t) return t; }
     if (h.locked && !h.unlocked && h.hands[0].includes(h.locked)) { const t = tip('locked', 'That chained card can’t be played until we win a trick.'); if (t) return t; }
     const led = E.ledSuit(L);
     if (!led) return tip('lead', 'Your lead. A sure winner is a fine lead; if we bid, lead trumps to draw theirs out.');
