@@ -33,7 +33,7 @@
   const LAST_ACT = 3;                       // the County Fair ends the run
   const ROMAN = { 1: 'I', 2: 'II', 3: 'III' };
   const PARTNERS = {
-    nan: { id: 'nan', name: 'Nan', title: 'the Steady One', start: 'AH', ability: 'nod',
+    nan: { id: 'nan', name: 'Nan', title: 'the Steady Hand', start: 'AH', ability: 'nod',
            lines: { won: ['Lovely, dear.', 'That’s the way.', 'Steady does it.'],
                     lost: ['Never mind, dear.', 'Chin up.', 'We’ll have the next one.'],
                     made: ['Well bid!', 'Just as we planned.'], set: ['We stopped them, dear!', 'Not today, thank you.'],
@@ -59,16 +59,16 @@
   const OBJECTIVES = {
     every:    { name: 'Every Hand', text: 'Win a trick in every hand', of: 3, easy: true, acts: [1] },
     lowly9:   { name: 'Small Fry', text: 'Win a trick with a 9 or a 10', of: 1, acts: [1] },
-    harvest:  { name: 'Red Harvest', text: 'Win 11 hearts across the level', of: 11, acts: [1] },
-    setthem:  { name: 'Set Them', text: 'Defeat an opponents\u2019 contract', of: 1, acts: [1, 2] },
-    lastword: { name: 'Strong Finish', text: 'Win the last trick of hands 2 and 3', of: 2, acts: [1] },
-    bagjack:  { name: 'Bag a Jack', text: 'Win 3 tricks that hold a red Jack', of: 3, acts: [1] },
-    blacks:   { name: 'Black Suits Rising', text: 'Win BLACKS black cards across the level', of: 0, acts: [2], easy: true },
+    harvest:  { name: 'Red Rush', text: 'Win 11 hearts across the level', of: 11, acts: [1] },
+    setthem:  { name: 'Ambush', text: 'Defeat an opponents\u2019 contract', of: 1, acts: [1, 2] },
+    lastword: { name: 'Last Man Standing', text: 'Win the last trick of hands 2 and 3', of: 2, acts: [1] },
+    bagjack:  { name: 'Wanted: Jacks', text: 'Win 3 tricks that hold a red Jack', of: 3, acts: [1] },
+    blacks:   { name: 'Black Hats', text: 'Win BLACKS black cards across the level', of: 0, acts: [2], easy: true },
     showoff:  { name: 'Show Off', text: 'Win SHOWOFF tricks with cards you own', of: 0, acts: [2, 3] },
-    acehunter: { name: 'Ace Hunter', text: 'Capture 3 Aces the opponents played', of: 3, acts: [2] },
+    acehunter: { name: 'Bounty Hunter', text: 'Capture 3 Aces the opponents played', of: 3, acts: [2] },
     ruff:     { name: 'Ruff Stuff', text: 'Win 2 tricks by trumping a suit you\u2019re out of', of: 2, acts: [2] },
     lefthook: { name: 'Left Hook', text: 'Win a trick with the left bower', of: 1, acts: [2] },
-    holdline: { name: 'Hold the Line', text: 'The opponents make no contract this level', of: 0, acts: [2], kind: 'limit' },
+    holdline: { name: 'Hold the Fort', text: 'The opponents make no contract this level', of: 0, acts: [2], kind: 'limit' },
     smoke:    { name: 'Smoke Out the Joker', text: 'Make an opponent play the Joker on a trick your team led', of: 1, acts: [2] },
     makemis:  { name: 'Make a Mis\u00e8re', text: 'You or Nan make a mis\u00e8re', of: 1, acts: [2], elite: true },
     little4:  { name: 'The Little 4', text: 'Win a trick with the 4\u2665 or 4\u2666', of: 1, acts: [3] },
@@ -76,7 +76,9 @@
     royal:    { name: 'Royal Flush', text: 'Capture all four Kings', of: 4, acts: [3] },
     bowerhunt: { name: 'Bower Hunt', text: 'Win 2 tricks that hold a bower', of: 2, acts: [3], easy: true },
     make8:    { name: 'Make 8', text: 'You or Nan make a contract of 8 or more', of: 1, acts: [3], elite: true },
-    openmis:  { name: 'Open Mis\u00e8re Night', text: 'You or Nan make an open mis\u00e8re', of: 1, acts: [3], elite: true }
+    openmis:  { name: 'Open Mis\u00e8re', text: 'You or Nan make an open mis\u00e8re', of: 1, acts: [3], elite: true },
+    // the Bank's only objective, never drawn anywhere else (see BANK)
+    robbery:  { name: 'Stop the Robbery', text: 'Outscore the gang this hand', of: 1, acts: [1], bank: true }
   };
   /* The Hoedown: a race. Both objectives are public; checked at the end of each
      hand; the first team to finish wins, and a tie or no finish goes to the
@@ -95,10 +97,10 @@
               theirs: { text: 'Make 2 mis\u00e8res', of: 2 },
               hint: 'One trick sinks a mis\u00e8re: lead low and stay under their card. Or outbid them with a 6 to keep them out.' },
     caller: { name: 'The Caller', short: 'Caller', act: 3, head: 150, rule: 'Before each hand he calls a figure that changes the rules, aimed at the cards you were dealt from your own. His set starts on +150.',
-              yours: { text: 'Reach +250 this Hoedown', of: 250 },
-              theirs: { text: 'Reach +250 this Hoedown', of: 250 },
+              yours: { text: 'Reach +250 this Showdown', of: 250 },
+              theirs: { text: 'Reach +250 this Showdown', of: 250 },
               hint: 'Each call is chosen to hurt your seeded cards, and he tells you why. A run that only works one way gets punished.' },
-    wallflowers: { name: 'The Wallflowers', short: 'Wallflowers', act: 3, hands: 4, rule: 'They never bid, so your team must bid every hand, and at least 7.',
+    wallflowers: { name: 'The Undertakers', short: 'Undertakers', act: 3, hands: 4, rule: 'They never bid, so your team must bid every hand, and at least 7.',
               yours: { text: 'Make 3 contracts', of: 3 },
               theirs: { text: 'Set 2 of your contracts', of: 2 },
               hint: 'Nobody can pass the hand out: if Nan passes, you must bid. Bid what you can make, not what you hope.' }
@@ -151,10 +153,10 @@
   /* Buffs (relics). A partner's own ability is never offered. */
   const BUFFS = {
     nod:      { name: 'Partner’s Nod', text: 'Your partner shows their strongest suit while you bid.' },
-    swing:    { name: 'Swing Your Partner', text: 'After the kitty, swap one card with Nan, every hand.' },
+    swing:    { name: 'Under the Table', text: 'After the kitty, slip Nan a card and she slips you one back, every hand.' },
     peek:     { name: 'Peek', text: 'See the kitty before you bid.' },
-    bowertie: { name: 'Remove the Bower Order', text: 'Your bowers tie the Joker: whichever is played first wins.' },
-    nearmiss: { name: 'Near Miss', text: 'Miss your contract by one trick and lose nothing.' }
+    bowertie: { name: 'Quick Draw', text: 'Your bowers tie the Joker: whichever is played first wins.' },
+    nearmiss: { name: 'Just a Flesh Wound', text: 'Miss your contract by one trick and lose nothing.' }
   };
   /* Card enhancements, by the act that adds them to the reward pool (one new
      system per act). Act III adds Glass and the Triple Threat (not built yet). */
@@ -162,7 +164,7 @@
     growing: { name: 'Growing', text: '+1 rank each time it wins a trick, for the whole run; stops at Ace.', acts: [1, 2, 3] },
     sworn:   { name: 'Trump-sworn', text: 'Counts as the trump suit at its printed rank and ties the real card; plain in no trumps.', acts: [1, 2, 3] },
     giant:   { name: 'Giant-killer', text: 'Beats the Ace of its own suit, and only the Ace.', acts: [1, 2, 3] },
-    magnet:  { name: 'Magnet', text: 'Counts double toward collect objectives (Red Harvest, Black Suits Rising).', acts: [1, 2, 3] },
+    magnet:  { name: 'Magnet', text: 'Counts double toward collect objectives (Red Rush, Black Hats).', acts: [1, 2, 3] },
     gilded:  { name: 'Gilded', text: 'Earns 5 gold each time it wins a trick.', acts: [1, 2, 3] },
     outcast: { name: 'Outcast', text: 'Has no suit: it can always be played, and never wins a trick. A safe throw, and a mis\u00e8re\u2019s best friend.', acts: [2, 3] },
     reverse: { name: 'Reverse', text: 'If you lead it, the lowest card of the suit led wins the trick, and nobody can trump in.', acts: [2, 3] },
@@ -175,17 +177,17 @@
   };
   const enhPool = L => Object.keys(ENH).filter(k => ENH[k].acts.includes(L.act));
   const CURSES = {
-    locked:  { name: 'Locked', text: 'One card in your hand is chained until your team wins a trick.' },
-    ticking: { name: 'Ticking', text: 'One card must be played by trick 2, or −20 health.' },
+    locked:  { name: 'Handcuffed', text: 'One card in your hand is chained until your team wins a trick.' },
+    ticking: { name: 'Lit Fuse', text: 'One card must be played by trick 2, or −20 health.' },
     nokitty: { name: 'No Kitty', text: 'The contractor never picks up the kitty.' }
   };
   /* Hexes (from Act II): on a card, they hit whoever holds it (see the engine's header). */
   const HEXES = {
-    loose:   { name: 'Loose Lips', short: 'Lips', text: 'Shown face-up to the table while held.' },
-    potato:  { name: 'Hot Potato', short: 'Hot', text: 'The team that captures it loses 20.' },
-    itchy:   { name: 'Itchy Feet', short: 'Itch', text: 'If it\u2019s legal to play, it must be played.' },
-    stepped: { name: 'Stepped On', short: '−1', text: '\u22121 rank, tying the card below.' },
-    twoleft: { name: 'Two Left Feet', short: '2LF', text: 'Can never win a trick. A curse card you own: it takes a seed slot when dealt.' }
+    loose:   { name: 'A Tell', short: 'Tell', text: 'Shown face-up to the table while held.' },
+    potato:  { name: 'Dynamite', short: 'Dyn', text: 'The team that captures it loses 20.' },
+    itchy:   { name: 'Itchy Trigger Finger', short: 'Itch', text: 'If it\u2019s legal to play, it must be played.' },
+    stepped: { name: 'Dog-eared', short: '−1', text: '\u22121 rank, tying the card below.' },
+    twoleft: { name: 'Misfire', short: 'Dud', text: 'Can never win a trick. A curse card you own: it takes a seed slot when dealt.' }
   };
   const BOSS_HEXES = ['stepped', 'loose', 'itchy', 'potato'];
   const CLEANSE_PRICE = 60;
@@ -193,27 +195,34 @@
      hex { kind, on: 'owned' | 'table' }, curse ('twoleft': a new owned card).
      acts: where the event can come up (Act II adds the hex events). */
   const EVENTS = {
-    fiddler:  { name: 'The Fiddler’s Wager', text: 'The fiddler bets you can’t name the next tune. You can.',
+    fiddler:  { name: 'The Piano Player\u2019s Wager', text: 'The saloon pianist bets you can\u2019t name his next tune. You can.',
                 options: [{ text: 'Take the purse: +30 gold', fx: { gold: 30 } }, { text: 'Take the encore: +50 health', fx: { health: 50 } }] },
-    punch:    { name: 'Spilled Punch', text: 'Someone has knocked the punch bowl over your shoes.',
-                options: [{ text: 'Help mop up: −40 health, then pick 1 of 2 enhancements', fx: { health: -40, enh: 2 } }, { text: 'Walk on by', fx: {} }] },
-    stranger: { name: 'A Stranger’s Card', text: 'A stranger in a string tie presses a card into your hand.',
-                options: [{ text: 'Keep it: own a random face card, −20 health', fx: { health: -20, card: 'face' } }, { text: 'Hand it back politely', fx: {} }] },
-    knitting: { name: 'Nan’s Knitting Circle', text: 'Nan’s friends offer to tidy up your cards.',
-                options: [{ text: 'Let them: release a card you own, free', fx: { release: true } }, { text: 'Tea and gossip instead: +20 gold', fx: { gold: 20 } }] },
-    apprentice: { name: 'The Caller\u2019s Apprentice', text: 'A young caller offers to teach you a fancy step.', acts: [2],
-                options: [{ text: 'Learn it: pick 1 of 2 enhancements, but a random card in the deck is Stepped On', fx: { enh: 2, hex: { kind: 'stepped', on: 'table' } } }, { text: 'Watch from the side', fx: {} }] },
-    gossip:   { name: 'Gossip Spreads', text: 'Word of your bidding is going round the barn.', acts: [2],
-                options: [{ text: 'Pay them to hush: \u221240 gold', fx: { gold: -40 } }, { text: 'Let them talk: Loose Lips lands on one of your cards', fx: { hex: { kind: 'loose', on: 'owned' } } }] },
-    jig:      { name: 'The Hot Potato Jig', text: 'The band strikes up a jig and a potato starts flying round the room.', acts: [2],
-                options: [{ text: 'Join in: +60 health, and a Hot Potato lands on a random card in the deck', fx: { health: 60, hex: { kind: 'potato', on: 'table' } } }, { text: 'Sit this one out', fx: {} }] },
-    cousin:   { name: 'The Clumsy Cousin', text: 'Nan\u2019s cousin asks you for a dance. He is not light on his feet.', acts: [2],
-                options: [{ text: 'Dance with him: +60 gold, but he leaves you Two Left Feet (a curse card you own)', fx: { gold: 60, curse: 'twoleft' } }, { text: 'Make your excuses', fx: {} }] },
-    dare:     { name: 'The Fiddler\u2019s Dare', text: 'The fiddler dares you to keep up with his fastest reel.', acts: [2],
-                options: [{ text: 'Take the dare: pick 1 of 3 enhancements, and Itchy Feet lands on one of your cards', fx: { enh: 3, hex: { kind: 'itchy', on: 'owned' } } }, { text: 'Decline', fx: {} }] }
+    punch:    { name: 'Spilled Sarsaparilla', text: 'Someone knocks a whole jug of sarsaparilla over your boots.',
+                options: [{ text: 'Help mop up: \u221240 health, then pick 1 of 2 enhancements', fx: { health: -40, enh: 2 } }, { text: 'Walk on by', fx: {} }] },
+    stranger: { name: 'A Stranger\u2019s Card', text: 'A stranger in a string tie presses a card into your hand.',
+                options: [{ text: 'Keep it: own a random face card, \u221220 health', fx: { health: -20, card: 'face' } }, { text: 'Hand it back politely', fx: {} }] },
+    knitting: { name: 'Nan\u2019s Sewing Circle', text: 'Nan\u2019s friends offer to tidy up your cards over tea.',
+                options: [{ text: 'Let them: turn loose a card you own, free', fx: { release: true } }, { text: 'Tea and gossip instead: +20 gold', fx: { gold: 20 } }] },
+    apprentice: { name: 'The Card Sharp\u2019s Apprentice', text: 'A kid in the smoking car offers to teach you a fancy shuffle.', acts: [2],
+                options: [{ text: 'Learn it: pick 1 of 2 enhancements, but a random card in the deck is Dog-eared', fx: { enh: 2, hex: { kind: 'stepped', on: 'table' } } }, { text: 'Watch from your seat', fx: {} }] },
+    gossip:   { name: 'Word Gets Around', text: 'Word of your bidding is going up and down the carriages.', acts: [2],
+                options: [{ text: 'Pay them to hush: \u221240 gold', fx: { gold: -40 } }, { text: 'Let them talk: one of your cards gets A Tell', fx: { hex: { kind: 'loose', on: 'owned' } } }] },
+    jig:      { name: 'Dynamite in the Dining Car', text: 'A lit stick of dynamite skids down the dining car, and everybody passes it on.', acts: [2],
+                options: [{ text: 'Grab it and throw it clear: +60 health, and the Dynamite lands on a random card in the deck', fx: { health: 60, hex: { kind: 'potato', on: 'table' } } }, { text: 'Duck under the table', fx: {} }] },
+    cousin:   { name: 'The Clumsy Deputy', text: 'Nan\u2019s nephew, a brand-new deputy, insists on helping. He is not careful.', acts: [2],
+                options: [{ text: 'Let him help: +60 gold, but he leaves you a Misfire (a curse card you own)', fx: { gold: 60, curse: 'twoleft' } }, { text: 'Make your excuses', fx: {} }] },
+    dare:     { name: 'The Gunslinger\u2019s Dare', text: 'A gunslinger dares you to match his fastest shuffle.', acts: [2],
+                options: [{ text: 'Take the dare: pick 1 of 3 enhancements, and one of your cards gets an Itchy Trigger Finger', fx: { enh: 3, hex: { kind: 'itchy', on: 'owned' } } }, { text: 'Decline', fx: {} }] }
   };
   Object.keys(EVENTS).forEach(k => { if (!EVENTS[k].acts) EVENTS[k].acts = [1, 2, 3]; else if (!EVENTS[k].acts.includes(3)) EVENTS[k].acts.push(3); });
   const PAY = { dance: [0, 10, 25, 40], elite: [0, 20, 40, 60] };
+  /* The Bank (2026-10-27): one building on Dustwater's map, on a middle floor. Walk in and a gang is robbing
+     it: one hand of 500 against them, the stakes shown at the door, and you may still walk on by. Outscore
+     them and the bank pays a bounty and lets you pick an enhancement; lose and they ride off with a share of
+     your gold. Either way the teller will then cash in health for gold. Tuned in tests/bank.js. */
+  const BANK = { acts: [1], floors: [1, 2, 4, 5], hands: 1, bounty: 60, take: 0.5, enh: 2 };
+  const bankTake = L => Math.floor(L.gold * BANK.take);
+  const bankShare = () => ({ 0.25: 'a quarter', 0.5: 'half', 0.75: 'three quarters' })[BANK.take] || Math.round(100 * BANK.take) + '%';
   /* The map (2026-10-26, after Gwent's The Path, which is after Slay the Spire): each act is seven floors on
      a grid five wide, four paths up it that never cross, and the Hoedown above them all. Floor 1 is always a
      Dance, floor 4 the Raffle (a free buff), floor 7 a Punch Bowl; the rest are drawn at Gwent's odds, with no
@@ -223,7 +232,14 @@
   const RAFFLE = { gold: 25, noBuff: 60, buff: true, pick: 2 };   // pick: buffs to choose from (0 = one drawn for you)
   /* The map's later floors: Dances from this floor up are this many hands longer (0 = off). */
   const LATE = { floor: 4, dance: 0 };
-  const KIND_NAME = { dance: 'Dance', event: 'Barn Gossip', camp: 'Punch Bowl', elite: 'Dance-off', boss: 'Hoedown', store: 'General Store', raffle: 'The Raffle' };
+  /* What players read for each stop type (the western glossary): KIND_NAME is the rules name, used in the
+     legend, the rules and the screens; PLACE is where each act puts that stop on its map. The ids stay. */
+  const KIND_NAME = { dance: 'Card table', event: 'Gossip', camp: 'Hotel', elite: 'Duel', boss: 'Showdown', store: 'General Store', raffle: 'Gold strike', bank: 'Bank' };
+  const PLACE = {
+    1: { dance: 'A card table', event: 'The barber shop', camp: 'The hotel', elite: 'High noon on Main Street', boss: 'The Saloon', store: 'The general store', raffle: 'The town square', bank: 'The Dustwater bank' },
+    2: { dance: 'The smoking car', event: 'A passenger\u2019s tale', camp: 'The sleeper car', elite: 'On the carriage roof', boss: 'The locomotive', store: 'The candy butcher\u2019s cart', raffle: 'The observation car' },
+    3: { dance: 'The card tent', event: 'The fortune teller\u2019s tent', camp: 'The chuck wagon', elite: 'The shooting gallery', boss: 'The grandstand', store: 'Merchants\u2019 row', raffle: 'The prize raffle' }
+  };
   const int = (L, a, b) => a + Math.floor(E.rnd(L) * (b - a + 1));
   function weighted(L, pairs) {
     const live = pairs.filter(p => p[1] > 0), tot = live.reduce((n, p) => n + p[1], 0);
@@ -271,8 +287,38 @@
       const m = byId[id];
       if (m && m.kind === n.kind && ['store', 'camp', 'elite'].includes(m.kind) && m.f !== FL - 1) m.kind = 'dance';
     }
+    if (BANK.acts.includes(L.act)) {
+      const spots = floors.filter((row, f) => BANK.floors.includes(f)).flat();
+      if (spots.length) E.pick(L, spots).kind = 'bank';
+    }
+    if (TOWN.acts.includes(L.act)) townRules(floors);
     L.map = { floors, boss: E.pick(L, BOSS_POOL[L.act]) };
     L.pos = null; L.path = []; L.route = [];
+  }
+  /* Dustwater's town rules (2026-10-27, the user's: a town this size has one hotel, and two hotels side by side
+     are one hotel). The last floor's Hotels become the one Hotel every route reaches (every route rested there
+     anyway). Side-by-side stops of the same building kind on a floor become one stop: both ways in reach it,
+     and it leads on to everywhere either did. `span` keeps the columns a merged stop covers, so the town draws
+     it between them. No randomness: a seed's map is the same up to here. */
+  const TOWN = { acts: [1], merge: ['camp', 'store', 'bank'] };
+  const spanOf = n => n.span || [n.c, n.c];
+  function mergeInto(floors, keep, gone) {
+    keep.span = [Math.min(spanOf(keep)[0], spanOf(gone)[0]), Math.max(spanOf(keep)[1], spanOf(gone)[1])];
+    keep.next = [...new Set(keep.next.concat(gone.next))].sort();
+    for (const row of floors) for (const n of row) if (n.next.includes(gone.id)) n.next = [...new Set(n.next.map(id => id === gone.id ? keep.id : id))].sort();
+    floors[gone.f].splice(floors[gone.f].indexOf(gone), 1);
+  }
+  function townRules(floors) {
+    const last = floors[floors.length - 1];
+    while (last.length > 1) mergeInto(floors, last[0], last[1]);
+    for (let f = 1; f < floors.length - 1; f++) {
+      const row = floors[f];
+      for (let i = 0; i + 1 < row.length;) {
+        const a = row[i], b = row[i + 1];
+        if (a.kind === b.kind && TOWN.merge.includes(a.kind) && b.c === spanOf(a)[1] + 1) mergeInto(floors, a, b);
+        else i++;
+      }
+    }
   }
   function mapNode(L, id) {
     if (id === 'boss') return { id: 'boss', f: MAPSHAPE.floors, c: (MAPSHAPE.cols - 1) / 2, kind: 'boss', next: [] };
@@ -328,13 +374,13 @@
       // the final Hoedown decides the run (the design: losing it loses the run)
       const lost = L.result && L.result.kind === 'boss' && !L.result.won;
       L.phase = lost ? 'runover' : 'victory';
-      if (lost) { L.lostFinal = L.boss; note(L, BOSS[L.boss].name + ' won the final Hoedown: the run is lost.'); }
+      if (lost) { L.lostFinal = L.boss; note(L, BOSS[L.boss].name + ' won the final Showdown: the run is lost.'); }
       return;
     }
     L.pastPaths = (L.pastPaths || []).concat([L.path]);
     L.act++;
     L.actLevels = 0;
-    note(L, 'Act ' + ROMAN[L.act - 1] + ' is done. On to the ' + E.ACTS[L.act].name + '!');
+    note(L, 'Act ' + ROMAN[L.act - 1] + ' is done. On to ' + E.ACTS[L.act].name + '!');
     if (L.act === 3) note(L, 'Act II is done. On to the County Fair: the 4s to 8s join the deck, hands are 10 cards, and three of your cards are dealt to you.');
     actStart(L);
   }
@@ -374,16 +420,36 @@
       stock(L); L.phase = 'shop';
     } else if (kind === 'raffle') {
       raffle(L);
+    } else if (kind === 'bank') {
+      L.phase = 'bank'; L.bank = { stage: 'door', take: bankTake(L) }; L.cashed = false;
     } else startLevel(L, kind);
     return yes();
+  }
+  /* The Bank: at the door, stop the robbery or walk on by; after it, cash in or leave. */
+  function bank(L, what) {
+    if (L.phase !== 'bank') return no('not at the bank');
+    const door = L.bank.stage === 'door';
+    if (what === 'fight' && door) { startLevel(L, 'bank'); return yes(); }
+    if (what === 'cashin' && !door) {
+      if (L.cashed) return no('you have cashed in here already');
+      L.health -= CASH.health; L.gold += CASH.gold; L.cashed = true;
+      note(L, 'Cashed in ' + CASH.health + ' health for ' + CASH.gold + ' gold.');
+      if (L.health <= -500) L.phase = 'runover';
+      return yes();
+    }
+    if (what === 'leave') {
+      if (door) note(L, 'You tip your hat and walk on by. The gang rides off with the bank’s gold.');
+      L.bank = null; nextStop(L); return yes();
+    }
+    return no(door ? 'the gang is still inside' : 'the robbery is over');
   }
   /* The Raffle (floor 4): a little gold, and the ticket wins a buff (pick 1 of 2). */
   function raffle(L) {
     const fb = freeBuffs(L);
-    if (!fb.length || !RAFFLE.buff) { L.gold += RAFFLE.noBuff; note(L, 'The Raffle: you hold every buff already, so your ticket wins ' + RAFFLE.noBuff + ' gold.'); nextStop(L); return; }
+    if (!fb.length || !RAFFLE.buff) { L.gold += RAFFLE.noBuff; note(L, 'Gold strike: you hold every buff already, so the claim pays ' + RAFFLE.noBuff + ' gold.'); nextStop(L); return; }
     L.gold += RAFFLE.gold;
-    note(L, 'The Raffle: +' + RAFFLE.gold + ' gold, and your ticket wins a buff.');
-    if (!RAFFLE.pick) { const b = E.pick(L, fb); grantBuff(L, b); note(L, 'The Raffle: +' + RAFFLE.gold + ' gold, and your ticket wins ' + BUFFS[b].name + '.'); nextStop(L); return; }
+    note(L, 'Gold strike: +' + RAFFLE.gold + ' gold, and a buff.');
+    if (!RAFFLE.pick) { const b = E.pick(L, fb); grantBuff(L, b); note(L, 'Gold strike: +' + RAFFLE.gold + ' gold, and ' + BUFFS[b].name + '.'); nextStop(L); return; }
     L.reward = { steps: [{ type: 'buff', options: draw(L, fb, RAFFLE.pick) }], raffle: true };
     advanceReward(L);
   }
@@ -395,7 +461,7 @@
   /* ---------------- a level ---------------- */
   function startLevel(L, kind, objective) {
     kind = kind || 'dance';
-    const ids = Object.keys(OBJECTIVES).filter(k => OBJECTIVES[k].acts.includes(L.act));
+    const ids = Object.keys(OBJECTIVES).filter(k => OBJECTIVES[k].acts.includes(L.act) && !OBJECTIVES[k].bank);
     L.level++;
     L.kind = kind;
     L.curse = null; L.dealRule = null; L.race = null; L.boss = null; L.call = null; L.calls = []; L.callWhy = null;
@@ -410,20 +476,22 @@
       const fit = ids.filter(k => kind === 'elite' || !OBJECTIVES[k].elite);
       const pool = first ? fit.filter(k => OBJECTIVES[k].easy) : fit;
       const want = objective || (L.levelsDone === 0 ? L.firstObjective : null);
-      const id = OBJECTIVES[want] && OBJECTIVES[want].acts.includes(L.act) ? want : E.pick(L, pool.length ? pool : fit);
+      const id = kind === 'bank' ? 'robbery' : OBJECTIVES[want] && OBJECTIVES[want].acts.includes(L.act) ? want : E.pick(L, pool.length ? pool : fit);
       L.obj = { id, n: 0, of: OBJECTIVES[id].of, fail: false, done: false };
       if (kind === 'elite') L.curse = E.pick(L, Object.keys(CURSES));
+      if (kind === 'bank') L.bank = Object.assign({ take: bankTake(L) }, L.bank, { stage: 'fight' });
     }
     L.you = 0; L.opp = 0; L.startHealth = L.health; L.startGold = L.gold;
     if (L.boss === 'caller') { L.opp = BOSS.caller.head; L.race.them = L.opp; }     // he's a regular here: his set starts ahead
-    L.handNo = 1; L.hands = (kind === 'boss' && BOSS[L.boss].hands) || HANDS[L.act][kind] + (kind === 'dance' && LATE.dance && floorOf(L) >= LATE.floor ? LATE.dance : 0); L.baseHands = L.hands; L.extraBought = false;
+    L.handNo = 1; L.hands = (kind === 'boss' && BOSS[L.boss].hands) || (kind === 'bank' && BANK.hands) || HANDS[L.act][kind] +(kind === 'dance' && LATE.dance && floorOf(L) >= LATE.floor ? LATE.dance : 0); L.baseHands = L.hands; L.extraBought = false;
     L.captured = [];
     L.phase = 'hand';
     L.reaction = null;
     L.log = [];
     L.result = null;
-    if (kind === 'boss') E.say(L, 'Level ' + L.level + ' \u00b7 the Hoedown: ' + BOSS[L.boss].name + '. ' + BOSS[L.boss].rule, 'level');
-    else E.say(L, 'Level ' + L.level + ' · ' + KIND_NAME[kind] + ' · objective: ' + OBJECTIVES[L.obj.id].text + '.' + (L.curse ? ' Curse: ' + CURSES[L.curse].name + ' — ' + CURSES[L.curse].text : ''), 'level');
+    if (kind === 'boss') E.say(L, 'Game ' + L.level + ' \u00b7 the Showdown: ' + BOSS[L.boss].name + '. ' + BOSS[L.boss].rule, 'level');
+    else if (kind === 'bank') E.say(L, 'Game ' + L.level + ' · the Bank: a gang is robbing it. Outscore them this hand for ' + BANK.bounty + ' gold and an enhancement; lose and they take ' + L.bank.take + ' gold.', 'level');
+    else E.say(L, 'Game ' + L.level + ' · ' + KIND_NAME[kind] + ' · objective: ' + OBJECTIVES[L.obj.id].text + '.' + (L.curse ? ' Curse: ' + CURSES[L.curse].name + ' — ' + CURSES[L.curse].text : ''), 'level');
     dealHand(L);
     return L;
   }
@@ -438,7 +506,7 @@
     }
     if (L.curse === 'ticking') {
       L.h.ticking = E.pick(L, L.h.hands[0]);
-      E.say(L, 'Ticking: play your ' + E.label(L.h.ticking) + ' by trick 2, or lose 20 health.', 'rule');
+      E.say(L, 'Lit Fuse: play your ' + E.label(L.h.ticking) + ' by trick 2, or lose 20 health.', 'rule');
     }
   }
 
@@ -471,7 +539,7 @@
       }
     }
     if (h.ticking && trick.no === 2) {
-      if (h.hands[0].includes(h.ticking)) { L.health -= 20; L.tickLoss = (L.tickLoss || 0) + 20; E.say(L, 'Ticking: your ' + E.label(h.ticking) + ' was not played by trick 2: −20 health.', 'rule'); }
+      if (h.hands[0].includes(h.ticking)) { L.health -= 20; L.tickLoss = (L.tickLoss || 0) + 20; E.say(L, 'Lit Fuse: your ' + E.label(h.ticking) + ' was not played by trick 2: −20 health.', 'rule'); }
       h.ticking = null;
     } else if (h.ticking && trick.cards[0] === h.ticking) h.ticking = null;
     if (L.race) {
@@ -538,6 +606,7 @@
     }
     if (o.done || o.fail) return;
     if (o.id === 'every') { if (r.tricks[0] > 0) o.n++; else o.fail = true; }
+    if (o.id === 'robbery') { if (L.you > L.opp) o.n++; else { o.fail = true; E.say(L, 'The gang outscored you: the robbery goes ahead.', 'objective'); } }
     if (o.id === 'setthem' && E.team(r.contractor) === 1 && !r.made) o.n++;
     if (o.id === 'makemis' && r.misere && E.team(r.contractor) === 0 && r.made) o.n++;
     const ct = L.h.contract;
@@ -545,7 +614,7 @@
     if (o.id === 'make8' && E.team(r.contractor) === 0 && !r.misere && r.made && ct.t >= 8) o.n++;
     if (o.id === 'openmis' && r.misere && L.h.open && E.team(r.contractor) === 0 && r.made) o.n++;
     if (o.id === 'holdline') {
-      if (E.team(r.contractor) === 1 && r.made) { o.n++; o.fail = true; E.say(L, 'Hold the Line is broken: the opponents made a contract.', 'objective'); }
+      if (E.team(r.contractor) === 1 && r.made) { o.n++; o.fail = true; E.say(L, OBJECTIVES.holdline.name + ' is broken: the opponents made a contract.', 'objective'); }
       return;
     }
     o.n = Math.min(o.n, o.of);
@@ -605,7 +674,7 @@
       if (h.locked === card) h.locked = null;
       if (h.ticking === card) h.ticking = null;
       E.sort(L, 0); E.sort(L, 2);
-      E.say(L, 'Swing Your Partner: you gave Nan your ' + E.label(card) + ' and she gave you her ' + E.label(back) + '.', 'rule');
+      E.say(L, (L.call === 'swing' ? CALLS.swing.name : BUFFS.swing.name) + ': you gave Nan your ' + E.label(card) + ' and she gave you her ' + E.label(back) + '.', 'rule');
     } else E.say(L, 'You kept your hand.', 'rule');
     h.swingDone = true;
     h.phase = h.swingNext;
@@ -671,7 +740,7 @@
           const kind = E.pick(L, BOSS_HEXES);
           placeHex(L, card, kind);
           L.bossHex = { card, kind, boss: L.boss };
-          E.say(L, BOSS[L.boss].name + ' leave a hex on your ' + E.label(card) + ': ' + HEXES[kind].name + ' (' + HEXES[kind].text + ') Beat the next Hoedown to lift it.', 'rule');
+          E.say(L, BOSS[L.boss].name + ' leave a hex on your ' + E.label(card) + ': ' + HEXES[kind].name + ' (' + HEXES[kind].text + ') Beat the next Showdown to lift it.', 'rule');
         }
       } else if (L.bossHex && L.bossHex.boss !== L.boss) {
         if (L.hexes && L.hexes[L.bossHex.card] === L.bossHex.kind) delete L.hexes[L.bossHex.card];
@@ -682,7 +751,12 @@
       if (OBJECTIVES[o.id] && OBJECTIVES[o.id].kind === 'limit' && !o.fail && !o.done) finishObjective(L);
       if (o.done) stars = 2;
       if (o.done && outscored && !L.extraBought) stars = 3;
-      gold = PAY[L.kind][stars];
+      if (L.kind === 'bank') {
+        // the stakes were fixed at the door: what you win and lose doesn't move with gold earned in the hand
+        won = o.done; stars = won ? 3 : 1; L.bank.stage = 'after';
+        gold = won ? BANK.bounty : -Math.min(L.gold, L.bank.take);
+        E.say(L, won ? 'You stopped the robbery! The bank pays a ' + BANK.bounty + ' gold bounty.' : 'The gang gets away with ' + -gold + ' of your gold.', 'gold');
+      } else gold = PAY[L.kind][stars];
     }
     L.gold += gold;
     L.levelsDone++;
@@ -692,7 +766,7 @@
     // one line per level for the run's ending
     L.record = (L.record || []).concat({ act: L.act, level: L.level, kind: L.kind, id: L.race ? L.boss : o.id, stars, won: L.race ? won : o.done });
     L.phase = L.health <= -500 ? 'runover' : 'over';
-    E.say(L, 'Level ' + L.level + ' over: ' + stars + ' star' + (stars > 1 ? 's' : '') + ', ' + gold + ' gold.', 'end');
+    E.say(L, 'Game ' + L.level + ' over: ' + stars + ' star' + (stars > 1 ? 's' : '') + ', ' + (gold < 0 ? '−' + -gold : gold) + ' gold.', 'end');
     L.curse = null; L.dealRule = null;
   }
 
@@ -710,14 +784,15 @@
       if (r.stars === 3) steps.push({ type: 'enh', options: draw(L, enhPool(L), 3), claim: claimable(L) });
     } else if (r.kind === 'elite') {
       const fb = freeBuffs(L);
-      if (r.stars === 2 && fb.length) { const b = E.pick(L, fb); grantBuff(L, b); note(L, 'Dance-off prize: ' + BUFFS[b].name + '.'); }
+      if (r.stars === 2 && fb.length) { const b = E.pick(L, fb); grantBuff(L, b); note(L, 'Duel prize: ' + BUFFS[b].name + '.'); }
       if (r.stars === 3 && fb.length) steps.push({ type: 'buff', options: draw(L, fb, 2) });
     } else if (r.kind === 'boss' && r.won) {
       const fb = freeBuffs(L);
       if (fb.length) steps.push({ type: 'buff', options: draw(L, fb, 3) });
-    }
-    L.reward = { steps };
-    advanceReward(L);
+    } else if (r.kind === 'bank' && r.won) steps.push({ type: 'enh', options: draw(L, enhPool(L), BANK.enh) });
+    // after the robbery, back inside to the teller
+    L.reward = { steps, back: r.kind === 'bank' ? 'bank' : undefined };
+    advanceReward(L, L.reward.back);
     return yes();
   }
   function advanceReward(L, back) {
@@ -798,7 +873,7 @@
     }
     if (fx.curse === 'twoleft') {
       const pool = E.deckOf(L).filter(c => c !== 'JK' && E.rankOf(c) !== 'J' && !L.owned.includes(c) && !(L.hexes || {})[c] && ['9', '10'].includes(E.rankOf(c)));
-      if (pool.length) { const c = E.pick(L, pool); L.owned.push(c); placeHex(L, c, 'twoleft'); msg += ' You now own the ' + E.label(c) + ', with Two Left Feet.'; }
+      if (pool.length) { const c = E.pick(L, pool); L.owned.push(c); placeHex(L, c, 'twoleft'); msg += ' You now own the ' + E.label(c) + ', a Misfire: it can never win a trick.'; }
     }
     note(L, msg);
     if (L.health <= -500) { L.phase = 'runover'; return yes(); }
@@ -810,7 +885,7 @@
 
   /* ---------------- the Punch Bowl and the General Store ---------------- */
   function camp(L, what) {
-    if (L.phase !== 'camp') return no('not at the Punch Bowl');
+    if (L.phase !== 'camp') return no('not at the Hotel');
     if (what === 'cashin') {
       if (L.cashed) return no('you have cashed in here already');
       L.health -= CASH.health; L.gold += CASH.gold; L.cashed = true;
@@ -935,18 +1010,19 @@
     const tip = (id, text) => L.seen[id] ? null : { id, text };
     const ph = L.phase;
     if (ph === 'actstart' && L.act === 3) return tip('actstart3', 'The County Fair, dear: the little cards join in and we play the whole deck. A failed 10 no trumps can finish us, so bid carefully.');
-    if (ph === 'actstart' && L.act === 2) return tip('actstart2', 'Spades and clubs join us now, dear, and two of your cards come to you each hand. A black Jack is a bower when black is trumps.');
+    if (ph === 'actstart' && L.act === 2) return tip('actstart2', 'All aboard, dear. Spades and clubs join us on the train, and two of your cards come to you each hand. A black Jack is a bower when black is trumps.');
     if (ph === 'actstart') return tip('actstart', 'The Joker wins every trick it’s in. A red Jack becomes a bower whenever red is trumps. A 9 or 10 is a gamble that enhancements can make special.');
     if (ph === 'map' && reachable(L).includes('boss') && L.act === 2) return tip('boss2', 'Act II ends with the Card Sharps or the Hustlers. The Sharps can see the cards dealt to you from your own; the Hustlers bid mis\u00e8re all night, so lead low and stay under them.');
-    if (ph === 'map') return reachable(L).includes('boss') ? (L.act === 1 ? tip('boss', 'The Twins always hold both red Jacks. Bid no trumps and their Jacks are just Jacks.') : null) : tip('map', 'This is tonight’s dance card. Pick your way up it a floor at a time, along the dotted lines: Barn Gossip is a gamble, a Dance-off is harder but pays a buff, and the Raffle halfway always gives one.');
-    if (ph === 'map' && hexed(L).length) { const t = tip('hex', 'A hex! Hexed cards are marked in red, and they hurt whoever holds them. Cleanse one at the Punch Bowl.'); if (t) return t; }
+    if (ph === 'map') return reachable(L).includes('boss') ? (L.act === 1 ? tip('boss', 'That\u2019s the Saloon, dear, and the Twins are waiting in it. They always hold both red Jacks: bid no trumps and their Jacks are just Jacks.') : null) : tip('map', 'Welcome to Dustwater, dear. Work your way up the trail a stop at a time, along the roads: gossip is a gamble, a duel is harder but pays a buff, and the gold strike halfway always gives one.');
+    if (ph === 'map' && hexed(L).length) { const t = tip('hex', 'A hex! Hexed cards are marked in red, and they hurt whoever holds them. The Doc at the Hotel can lift one.'); if (t) return t; }
     if (ph === 'reward') return tip('reward', 'A reward! An enhancement goes on a card you own and stays all run.');
-    if (ph === 'camp') return tip('camp', 'The Punch Bowl: do one thing — shop, rest or polish a card. Cashing in health for gold is extra.');
+    if (ph === 'bank') return L.bank.stage !== 'door' ? null : tip('bank', 'Robbers, dear! It’s one hand: make our bid or set theirs and we win. Lose, and they take ' + bankShare() + ' of your purse. Walking on by costs nothing.');
+    if (ph === 'camp') return tip('camp', 'The Hotel: do one thing — shop, rest or polish a card. Cashing in health for gold is extra.');
     if (ph !== 'hand' || L.levelsDone >= 3) return null;
     const h = L.h;
     if (h.phase === 'bid' && h.turn === 0) return tip('bid', 'Count sure tricks: the Joker, a bower, the Ace of trumps. We need more than half the tricks. Weak hand? Pass — defending pays 10 a trick.');
     if (h.phase === 'kitty' && h.turn === 0) return tip('kitty', 'You took the kitty card. Put back your weakest card that isn’t a trump.');
-    if (h.phase === 'swing') return tip('swing', 'Swing Your Partner: give me a card you don’t want and I’ll hand you my best one.');
+    if (h.phase === 'swing') return tip('swing', 'Under the table, dear: slip me a card you don’t want and I’ll slip you my best one.');
     if (h.phase === 'intent') return tip('intent', 'Their bid is their attack. Take enough tricks to stop them and it misses.');
     if (h.phase !== 'play' || h.turn !== 0) return null;
     if (h.trump && h.hands[0].some(c => E.rankOf(c) === 'J' && E.suitOf(c) === E.TWIN[h.trump]))
@@ -988,6 +1064,7 @@
       case 'leave': if (L.phase !== 'shop') return no('not in the store'); nextStop(L); return yes();
       case 'release': return release(L, arg);
       case 'cleanse': return cleanse(L, arg);
+      case 'bank': return bank(L, arg);
     }
     if (L.phase !== 'hand') return no('the hand is not in play');
     if (kind === 'ack') return after(L, E.ack(L));
@@ -1050,10 +1127,11 @@
     const o = L.obj, O = OBJECTIVES[o.id];
     if (o.done) return '\u2713 done';
     if (o.fail) return 'missed';
+    if (o.id === 'robbery') return L.you > L.opp ? 'ahead' : 'not ahead';
     if (O && O.kind === 'limit') return 'holding';
     return o.n + ' / ' + o.of;
   }
-  const api = { enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HANDS, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, REST, restOf, ACT2, ACT3, CASH, runSummary, LATE, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
+  const api = { enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HANDS, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, PLACE, BANK, bankTake, bankShare, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, LATE, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
     cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, canExtra,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;

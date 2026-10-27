@@ -49,12 +49,12 @@
 
   /* The three acts. Hands stay a fixed size per act; the kitty takes the rest. */
   const ACTS = {
-    1: { name: 'Church Hall', suits: ['D', 'H'], low: { D: 9, H: 9 }, hand: 3, seeds: 1,
+    1: { name: 'Dustwater', suits: ['D', 'H'], low: { D: 9, H: 9 }, hand: 3, seeds: 1,
          bids: { 2: { D: 20, H: 30, NT: 40 }, 3: { D: 60, H: 80, NT: 100 } } },
-    2: { name: 'Barn Dance', suits: SUITS, low: { S: 9, C: 9, D: 9, H: 9 }, hand: 6, seeds: 2,
+    2: { name: 'the Westbound Express', suits: SUITS, low: { S: 9, C: 9, D: 9, H: 9 }, hand: 6, seeds: 2,
          bids: { 4: { S: 20, C: 30, D: 40, H: 50, NT: 60 }, 5: { S: 80, C: 90, D: 100, H: 110, NT: 120 },
                  6: { S: 140, C: 150, D: 160, H: 170, NT: 180 } } },
-    3: { name: 'County Fair', suits: SUITS, low: { S: 5, C: 5, D: 4, H: 4 }, hand: 10, seeds: 3, bids: (() => {
+    3: { name: 'the County Fair', suits: SUITS, low: { S: 5, C: 5, D: 4, H: 4 }, hand: 10, seeds: 3, bids: (() => {
       const b = {}, base = { S: 40, C: 60, D: 80, H: 100, NT: 120 };
       for (let t = 6; t <= 10; t++) { b[t] = {}; for (const s in base) b[t][s] = base[s] + (t - 6) * 100; }
       return b; })() }
@@ -250,7 +250,7 @@
     const jokerOut = cards.some((x, s) => x === 'JK' && s !== winner);
     if (c === 'JK') return who + ' ' + verb + ' with the Joker, the highest card in the game.';
     if (k.tie && trump && rankOf(c) === 'J' && (suitOf(c) === trump || suitOf(c) === TWIN[trump]) && jokerOut)
-      return who + ' ' + verb + ' with ' + label(c) + ': under Remove the Bower Order your bowers tie the Joker, and it was played first.';
+      return who + ' ' + verb + ' with ' + label(c) + ': under Quick Draw your bowers tie the Joker, and it was played first.';
     if (trump && rankOf(c) === 'J' && suitOf(c) === trump) return who + ' ' + verb + ' with the right bower (J' + SYM[trump] + '), the top trump after the Joker.';
     if (trump && rankOf(c) === 'J' && suitOf(c) === TWIN[trump]) return who + ' ' + verb + ' with the left bower: ' + label(c) + ' counts as a ' + NAME[trump].slice(0, -1) + ' this hand and ranks just under J' + SYM[trump] + '.';
     const beatAce = k.m && k.m.enh === 'giant' && cards.some((x, s) => s !== winner && x && rankOf(x) === 'A' && kSuit(K(L, s, x), trump) === kSuit(k, trump));
@@ -332,7 +332,7 @@
     };
     if (L.curse === 'locked') {
       L.h.locked = pick(L, hands[0]);
-      say(L, 'Locked: your ' + label(L.h.locked) + ' is chained until your team wins a trick.', 'rule');
+      say(L, 'Handcuffed: your ' + label(L.h.locked) + ' is chained until your team wins a trick.', 'rule');
     }
     sort(L, 0);
   }
@@ -375,8 +375,8 @@
   function bid(L, seat, b) {
     const h = L.h;
     if (h.phase !== 'bid' || h.turn !== seat) return no('not your turn to bid');
-    if (!b && mustBid(L, seat)) return no('the Wallflowers never bid: your team must bid this hand');
-    if (b && tooLow(L, seat, b)) return no('against the Wallflowers your team must bid at least ' + WALL.min);
+    if (!b && mustBid(L, seat)) return no('the Undertakers never bid: your team must bid this hand');
+    if (b && tooLow(L, seat, b)) return no('against the Undertakers your team must bid at least ' + WALL.min);
     if (b) {
       const ex = extraBids(L, seat).find(x => x.t === b.t && x.s === b.s);
       const v = b.s === 'MIS' ? ACTS[L.act].misere : b.s === 'OMIS' ? ACTS[L.act].openMisere : ex ? ex.v : ACTS[L.act].bids[b.t] && ACTS[L.act].bids[b.t][b.s];
@@ -533,7 +533,7 @@
     if (hot.length) {
       h.potato = h.potato || [0, 0];
       h.potato[t] += 20 * hot.length;
-      say(L, (t === 0 ? 'Your team catches' : 'They catch') + ' the Hot Potato (' + hot.map(label).join(', ') + '): \u2212' + 20 * hot.length + '.', 'rule');
+      say(L, (t === 0 ? 'Your team catches' : 'They catch') + ' the Dynamite (' + hot.map(label).join(', ') + '): \u2212' + 20 * hot.length + '.', 'rule');
     }
     // in a misère the opponents taking a trick is good for your side, whoever bid it
     say(L, h.last.reason, (h.misere ? t === 1 : t === 0) ? 'won' : 'lost');
@@ -564,7 +564,7 @@
     const lines = [];
     const who = ct === 0 ? (h.contractor === 0 ? 'You' : 'North') : SEATS[h.contractor];
     if (made) lines.push(who + ' made ' + bidText(c) + (sweep && value > c.v ? ' and swept every trick, scoring ' + value + ' instead of ' + c.v : '') + ': ' + (ct === 0 ? '+' : 'they score ') + value + '.');
-    else if (near) lines.push(who + ' needed ' + c.t + ' tricks and took ' + got + ', one short: Near Miss, so it costs nothing.');
+    else if (near) lines.push(who + ' needed ' + c.t + ' tricks and took ' + got + ', one short: Just a Flesh Wound, so it costs nothing.');
     else lines.push(who + ' needed ' + c.t + ' tricks and took ' + got + ': ' + (ct === 0 ? '−' + c.v + ' for your team.' : 'set! They lose ' + c.v + ' and their attack misses.'));
     if (gotD) lines.push((dt === 0 ? 'Your team' : 'They') + ' took ' + gotD + ' trick' + (gotD > 1 ? 's' : '') + ' defending: ' + (dt === 0 ? '+' : '') + 10 * gotD + '.');
     if (h.bonus && (h.bonus[0] || h.bonus[1])) lines.push('(Doubly Woubly and Triple Threat cards counted ' + (h.bonus[0] + h.bonus[1]) + ' extra trick' + (h.bonus[0] + h.bonus[1] > 1 ? 's' : '') + '.)');
@@ -599,7 +599,7 @@
   /* Hot Potatoes caught this hand come off each team's points. */
   function potatoLines(h, pts, lines) {
     if (!h.potato) return;
-    for (const t of [0, 1]) if (h.potato[t]) { pts[t] -= h.potato[t]; lines.push((t === 0 ? 'Your team' : 'They') + ' caught a Hot Potato: \u2212' + h.potato[t] + '.'); }
+    for (const t of [0, 1]) if (h.potato[t]) { pts[t] -= h.potato[t]; lines.push((t === 0 ? 'Your team' : 'They') + ' caught the Dynamite: \u2212' + h.potato[t] + '.'); }
   }
 
   const api = {
