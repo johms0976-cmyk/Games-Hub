@@ -7,11 +7,11 @@
  *   2 Dance  or Barn Gossip (an event)
  *   3 Punch Bowl (one action: General Store, Rest, Polish or Cleanse; Cash in is free)
  *   4 Dance  or Dance-off (an elite: one curse, pays a buff)
- *   5 Hoedown   the act's rival pair, a race (see BOSS)
+ *   5 Hoedown   the act's Showdown: a boss gang with health and an ability (see BOSS)
  *
- * Your running 500 score is the run's health (-500 ends it). The run is plain
- * JSON (L), saved by the page after every step. Every number here is a first
- * guess from the design doc, to be retuned after play.
+ * Every table is a fight (2026-10-27): a gang with health (L.foe), played hand after hand until your team's
+ * points reach it; their points hit your health (500 to start, 0 ends the run anywhere). See FIGHT. The run is
+ * plain JSON (L), saved by the page after every step. Every number here is a first guess, to be retuned after play.
  *
  *   newRun({ seed, objective, tips })  the run, at the act-start pick
  *   act(L, kind, arg)                  your move (see the switch at the foot)
@@ -28,8 +28,52 @@
   const E = node ? require('./btp-engine.js') : root.BtpEngine;
   const AI = node ? require('./btp-ai.js') : root.BtpAI;
 
-  /* Hands per level, by act: shorter levels as hands get bigger (the design's 3 / 3 / 2). */
-  const HANDS = { 1: { dance: 3, elite: 3, boss: 4 }, 2: { dance: 3, elite: 3, boss: 3 }, 3: { dance: 2, elite: 2, boss: 3 } };
+  /* Fights (the user's redesign, 2026-10-27: "enemies need health; you play 500 until your total score for
+     that fight is equal to or greater than the enemy's health"). A gang's health: Card tables rise up the map
+     (base + step a floor), a Duel is half as tough again and always has an ability, the Showdowns are 100 / 300 /
+     500 (the user's numbers: the last is a real game of 500). Measured before the build (1,200 AI hands an act):
+     your side gains about 20 / 35 / 54 points a hand, so a Card table is about three hands. Your health starts
+     at 500 and never goes above HEALTH.max; nothing heals it during a fight. Their points hit it at the engine's
+     share (E.HIT); a Showdown's gang hits harder (`bossHit`, or the boss's own `hit`). PAR: win within this many
+     hands for a star (about the median). STACK: the chance, rising up the map, that the gang gets the better of
+     two deals (by `gangStrength`); a Showdown deals at the top floor's chance. From floor TRAIT.floor a Card
+     table gang may have a trait.
+     Tuned 2026-10-27 over whole stand-in runs (250-300 a setting, two seed sets; the stand-in rests below 300
+     health and walks the map blindly). The first guesses (hit 1/2, 1/3, 1/4; tables 50 / 90 / 130 + 5 / 8 / 12 a
+     floor; stack 45%; no boss hit) won 11% of runs: scoring is lumpy (a quarter of Act I hands score nothing for
+     you, then a contract lands), so a 50-health Card table took 4 hands, not 2.5. With softer hits and tables,
+     runs were won 46%, but nearly every death was attrition at Card tables and the Showdowns were beaten 93-100%,
+     so the Showdowns now hit harder and the tables softer. Now: runs won 34-37%; the Twins beaten 91%, the
+     Hustlers 80% (they stall a fight: a defeated misère scores you nothing, hence their 200 health and lighter
+     hit), the Sharps 91%, the Caller 77-84%, the Undertakers 62-70% (bids from 8; from 7 they were beaten 98%).
+     Fights last about 4.5 / 3.7 / 3 hands at Card tables, 5.5 / 4.8 / 4.2 in Duels, 8 / 10 / 8 at Showdowns. */
+  const HEALTH = { start: 500, max: 500 };
+  const FOE = { base: { 1: 40, 2: 80, 3: 110 }, step: { 1: 5, 2: 8, 3: 10 }, elite: 1.5, boss: { 1: 100, 2: 300, 3: 500 }, bossHit: 2 };
+  const PAR = { dance: { 1: 4, 2: 3, 3: 3 }, elite: { 1: 5, 2: 4, 3: 4 }, boss: { 1: 7, 2: 9, 3: 8 } };
+  const STACK = { max: 0.3 };
+  const TRAIT = { floor: 2, p: 1 / 3, pool: ['tough', 'lucky', 'deadeye'] };
+  const TRAITS = {
+    tough:   { name: 'Tough', text: 'A quarter more health.' },
+    lucky:   { name: 'Lucky', text: 'A stacked deck every hand: they get the better of two deals.' },
+    deadeye: { name: 'Dead Eye', text: 'Their points hit you half as hard again.' }
+  };
+  /* Who you face: a name and the two figures that sit at West and East (the card cast, baked for the table by
+     bakery/saloon_px.py: s<card> the courts, p<key> the poster outlaws). A Duel draws one ability from
+     DUEL_ABILITIES: the three old Duel curses or a trait. */
+  const GANGS = {
+    1: [['Two Cowpokes', 'sJH', 'sJC'], ['The Miller Brothers', 'sKH', 'sKD'], ['A Pair of Drifters', 'sJH', 'sJS'], ['Two Prospectors', 'sKS', 'sJD'],
+        ['The Ranch Hands', 'sJC', 'sKC'], ['The Barber and His Cousin', 'sKS', 'sJS'], ['Two Mule Skinners', 'sJD', 'sJH']],
+    2: [['Two Gamblers', 'pKX', 'sKS'], ['The Brakemen', 'sJC', 'sJS'], ['Two Snake-oil Salesmen', 'sKH', 'pKX'], ['The Cattle Buyers', 'sKD', 'sKC'],
+        ['Two Pickpockets', 'sJD', 'pJY'], ['The Mail Clerks', 'sJC', 'sKS'], ['Two Card Counters', 'sQS', 'pKX']],
+    3: [['The Pie Judges', 'sQH', 'sKC'], ['Two Rodeo Riders', 'sJH', 'sJS'], ['The Carnival Barkers', 'sKH', 'pJY'], ['The Strongman and His Manager', 'sKD', 'sKS'],
+        ['Two Horse Traders', 'sKC', 'sJD'], ['The Shooting-gallery Men', 'sJS', 'sJC'], ['Two Fortune Tellers', 'sQS', 'sQC']]
+  };
+  const DUELISTS = {
+    1: [['Quick-draw Quinn and Pa', 'sJS', 'sKC'], ['The Dutton Kid and Sal', 'sJD', 'sQD'], ['Two-gun Tess and Hank', 'sQH', 'sJC']],
+    2: [['Diamond Jim and Lou', 'pKX', 'sQD'], ['The Railroad Baron’s Boys', 'sKD', 'sJD'], ['Silent Sam and Mags', 'sJH', 'sQC']],
+    3: [['The Champion Sharpshooters', 'sJS', 'sQS'], ['One-eyed Jack and Rosa', 'sJD', 'sQH'], ['The Prize Fighters', 'sKD', 'sKH']]
+  };
+  const DUEL_ABILITIES = ['locked', 'ticking', 'nokitty', 'lucky', 'deadeye'];
   const LAST_ACT = 3;                       // the County Fair ends the run
   const ROMAN = { 1: 'I', 2: 'II', 3: 'III' };
   const PARTNERS = {
@@ -57,18 +101,18 @@
      make8 2% and openmis 1%, so those two are for Dance-offs only.
      kind 'limit': holds until it breaks, judged at the end of the level. */
   const OBJECTIVES = {
-    every:    { name: 'Every Hand', text: 'Win a trick in every hand', of: 3, easy: true, acts: [1] },
+    every:    { name: 'Every Hand', text: 'Win a trick in every hand of the fight', of: 0, easy: true, acts: [1], kind: 'limit' },
     lowly9:   { name: 'Small Fry', text: 'Win a trick with a 9 or a 10', of: 1, acts: [1] },
-    harvest:  { name: 'Red Rush', text: 'Win 11 hearts across the level', of: 11, acts: [1] },
+    harvest:  { name: 'Red Rush', text: 'Win 11 hearts across the fight', of: 11, acts: [1] },
     setthem:  { name: 'Ambush', text: 'Defeat an opponents\u2019 contract', of: 1, acts: [1, 2] },
-    lastword: { name: 'Last Man Standing', text: 'Win the last trick of hands 2 and 3', of: 2, acts: [1] },
+    lastword: { name: 'Last Man Standing', text: 'Win the last trick of 2 hands', of: 2, acts: [1] },
     bagjack:  { name: 'Wanted: Jacks', text: 'Win 3 tricks that hold a red Jack', of: 3, acts: [1] },
-    blacks:   { name: 'Black Hats', text: 'Win BLACKS black cards across the level', of: 0, acts: [2], easy: true },
+    blacks:   { name: 'Black Hats', text: 'Win BLACKS black cards across the fight', of: 0, acts: [2], easy: true },
     showoff:  { name: 'Show Off', text: 'Win SHOWOFF tricks with cards you own', of: 0, acts: [2, 3] },
     acehunter: { name: 'Bounty Hunter', text: 'Capture 3 Aces the opponents played', of: 3, acts: [2] },
     ruff:     { name: 'Ruff Stuff', text: 'Win 2 tricks by trumping a suit you\u2019re out of', of: 2, acts: [2] },
     lefthook: { name: 'Left Hook', text: 'Win a trick with the left bower', of: 1, acts: [2] },
-    holdline: { name: 'Hold the Fort', text: 'The opponents make no contract this level', of: 0, acts: [2], kind: 'limit' },
+    holdline: { name: 'Hold the Fort', text: 'The opponents make no contract this fight', of: 0, acts: [2], kind: 'limit' },
     smoke:    { name: 'Smoke Out the Joker', text: 'Make an opponent play the Joker on a trick your team led', of: 1, acts: [2] },
     makemis:  { name: 'Make a Mis\u00e8re', text: 'You or Nan make a mis\u00e8re', of: 1, acts: [2], elite: true },
     little4:  { name: 'The Little 4', text: 'Win a trick with the 4\u2665 or 4\u2666', of: 1, acts: [3] },
@@ -80,29 +124,18 @@
     // the Bank's only objective, never drawn anywhere else (see BANK)
     robbery:  { name: 'Stop the Robbery', text: 'Outscore the gang this hand', of: 1, acts: [1], bank: true }
   };
-  /* The Hoedown: a race. Both objectives are public; checked at the end of each
-     hand; the first team to finish wins, and a tie or no finish goes to the
-     higher score this level. */
+  /* The Showdowns. Since the fight redesign each boss is a gang with health (FOE.boss) whose old race rule is now
+     its ability; beat its health or run out of your own. */
   const BOSS = {
-    twins:  { name: 'The Twins', short: 'Twins', act: 1, rule: 'West and East are always dealt the two red Jacks, one each.',
-              yours: { text: 'Win 2 tricks that hold a red Jack', of: 2 },
-              theirs: { text: 'Make 2 contracts', of: 2 },
+    twins:  { name: 'The Twins', short: 'Twins', act: 1, look: ['pJT', 'pJT'], hit: 1.75, rule: 'West and East are always dealt the two red Jacks, one each.',
               hint: 'In diamonds or hearts they hold both bowers. In no trumps their Jacks are just Jacks; the Joker beats them either way.' },
-    sharps: { name: 'The Card Sharps', short: 'Sharps', act: 2, rule: 'They can see your seeded cards.',
-              yours: { text: 'Win 3 tricks with your seeded cards', of: 3 },
-              theirs: { text: 'Capture 3 of your seeded cards', of: 3 },
-              hint: 'Lead your seeded cards when they can\u2019t be beaten, or let Nan cover them. Every one they catch counts.' },
-    hustlers: { name: 'The Hustlers', short: 'Hustlers', act: 2, rule: 'They bid mis\u00e8re whenever they dare.',
-              yours: { text: 'Defeat 2 of their mis\u00e8res', of: 2 },
-              theirs: { text: 'Make 2 mis\u00e8res', of: 2 },
+    sharps: { name: 'The Card Sharps', short: 'Sharps', act: 2, look: ['pKX', 'pKX'], hit: 2.5, rule: 'They can see your seeded cards, and hunt them.',
+              hint: 'Lead your seeded cards when they can\u2019t be beaten, or let Nan cover them.' },
+    hustlers: { name: 'The Hustlers', short: 'Hustlers', act: 2, look: ['pJY', 'pJY'], hp: 200, hit: 1.25, rule: 'They bid mis\u00e8re whenever they dare.',
               hint: 'One trick sinks a mis\u00e8re: lead low and stay under their card. Or outbid them with a 6 to keep them out.' },
-    caller: { name: 'The Caller', short: 'Caller', act: 3, head: 150, rule: 'Before each hand he calls a figure that changes the rules, aimed at the cards you were dealt from your own. His set starts on +150.',
-              yours: { text: 'Reach +250 this Showdown', of: 250 },
-              theirs: { text: 'Reach +250 this Showdown', of: 250 },
+    caller: { name: 'The Caller', short: 'Caller', act: 3, look: ['sJK', 'sQD'], hit: 2.5, rule: 'Before each hand he calls a figure that changes the rules, aimed at the cards you were dealt from your own.',
               hint: 'Each call is chosen to hurt your seeded cards, and he tells you why. A run that only works one way gets punished.' },
-    wallflowers: { name: 'The Undertakers', short: 'Undertakers', act: 3, hands: 4, rule: 'They never bid, so your team must bid every hand, and at least 7.',
-              yours: { text: 'Make 3 contracts', of: 3 },
-              theirs: { text: 'Set 2 of your contracts', of: 2 },
+    wallflowers: { name: 'The Undertakers', short: 'Undertakers', act: 3, look: ['pKU', 'pKU'], hit: 2, rule: 'They never bid, so your team must bid every hand, and at least 8.',
               hint: 'Nobody can pass the hand out: if Nan passes, you must bid. Bid what you can make, not what you hope.' }
   };
   /* The Caller's calls (Act III's Hoedown). Before each hand he picks the one that hurts the cards
@@ -134,20 +167,8 @@
     }
     return best;
   }
-  /* Act II race targets, measured with the stand-in (400 Hoedowns each, 2026-10-24): the Card Sharps at
-     3 against 3 are beaten 44% (3 against 2: 23%; 2 against 2: 36%); the Hustlers, with AI.HUSTLE 6, 46%
-     (their misère in about 1.6 hands a level, made 54%). The Twins: 41%. */
-  /* Act III (300-400 Hoedowns each, 2026-10-25, owned A♥ + three picks): the Wallflowers, 2 against 2 with your
-     team made to bid, were beaten 82% at the usual 6-trick floor, so with them your bids start at 7 (E.WALL.min): 55%.
-     The Caller, an even race to +250, was beaten 64% (the race usually ends on the score, and your side outscores
-     his); targets of 250 against 150 gave 55%; a head start of +100 for his set gives 47% (+80: 50%, +130: 41%).
-     Calls seen: Reverse most (any seeded Ace, King or the Joker), then Promenade, Corner, Grand, Allemande, No Kitty.
-     Re-tuned for the branching map (2026-10-27, 300 whole stand-in runs each): the map's runs arrive stronger, so
-     the final Hoedown was beaten 56% (Caller) / 61% (Wallflowers) and 51% of runs were won (44% on the five-stop
-     card). Caller +150: 48% (+170: 43%, +200: 39%). Wallflowers at 8 tricks: 40%; needing one set: 36%; making 3
-     before they set 2 (up to 4 hands, from 7 tricks): 49%. Together: 43% of runs won. Also measured and dropped:
-     later floors' Dances a hand longer made runs EASIER (60%), and a Raffle buff drawn for you instead of picked
-     barely moved it (53%). */
+  /* Before the fight redesign the Showdowns were races, tuned over stand-in runs (see ARCHITECTURE.md's
+     history); the Wallflowers' 7-trick floor (E.WALL.min) and the Hustlers' AI.HUSTLE come from then. */
   /* Which bosses can end each act, one drawn per run (the user's call, 2026-10-24: Act II draws from the Card Sharps and the Hustlers). */
   const BOSS_POOL = { 1: ['twins'], 2: ['sharps', 'hustlers'], 3: ['caller', 'wallflowers'] };   // Act III (the user's call, 2026-10-25)
   /* Buffs (relics). A partner's own ability is never offered. */
@@ -230,8 +251,6 @@
   const MAPSHAPE = { floors: 7, cols: 5, paths: 4, raffle: 3 };
   const ROOMS = f => [['dance', 45], ['event', 22], ['elite', f >= 2 ? 14 : 0], ['store', f >= 2 ? 12 : 3], ['camp', f >= 2 && f !== MAPSHAPE.floors - 2 ? 9 : 0]];
   const RAFFLE = { gold: 25, noBuff: 60, buff: true, pick: 2 };   // pick: buffs to choose from (0 = one drawn for you)
-  /* The map's later floors: Dances from this floor up are this many hands longer (0 = off). */
-  const LATE = { floor: 4, dance: 0 };
   /* What players read for each stop type (the western glossary): KIND_NAME is the rules name, used in the
      legend, the rules and the screens; PLACE is where each act puts that stop on its map. The ids stay. */
   const KIND_NAME = { dance: 'Card table', event: 'Gossip', camp: 'Hotel', elite: 'Duel', boss: 'Showdown', store: 'General Store', raffle: 'Gold strike', bank: 'Bank' };
@@ -332,7 +351,7 @@
     return n ? n.next.slice() : [];
   }
   const floorOf = L => !L.pos ? -1 : mapNode(L, L.pos).f;
-  const REST = { 1: 50, 2: 100, 3: 250 }, CASH = { health: 200, gold: 100 };
+  const REST = { 1: 150, 2: 150, 3: 250 }, CASH = { health: 200, gold: 100 };
   const restOf = L => REST[L.act];
   /* Act II's targets, tuned on accident rates: see the header of OBJECTIVES. */
   const ACT2 = { blacks: 21, showoff: 3 };
@@ -346,12 +365,23 @@
 
   const has = (L, b) => (L.buffs || []).includes(b);
   function note(L, text) { L.note = text; }
+  /* Health goes up to HEALTH.max and no further; heal returns what it actually added. */
+  function heal(L, n) { const before = L.health; L.health = Math.min(HEALTH.max, L.health + n); return L.health - before; }
+  /* Cash in health for gold (the Hotel and the bank's teller), once a visit, never down to nothing. */
+  const canCash = L => !L.cashed && L.health > CASH.health;
+  function cashIn(L) {
+    if (L.cashed) return no('you have cashed in here already');
+    if (!canCash(L)) return no('you need more than ' + CASH.health + ' health to cash in');
+    L.health -= CASH.health; L.gold += CASH.gold; L.cashed = true;
+    note(L, 'Cashed in ' + CASH.health + ' health for ' + CASH.gold + ' gold.');
+    return yes();
+  }
 
   function newRun(o) {
     o = o || {};
     const P = PARTNERS.nan;
-    const L = { v: 2, rs: (o.seed >>> 0) || 1, act: o.act || 1, health: 0, gold: 0, partner: P.id,
-                owned: [P.start], mods: {}, hexes: {}, buffs: [P.ability], releases: 0, extraPrice: 40,
+    const L = { v: 3, rs: (o.seed >>> 0) || 1, act: o.act || 1, health: HEALTH.start, gold: 0, partner: P.id,
+                owned: [P.start], mods: {}, hexes: {}, buffs: [P.ability], releases: 0,
                 pos: null, path: [], route: [], pastPaths: [], actLevels: 0, levelsDone: 0, level: 0, log: [], history: [], dealer: 3,
                 tips: o.tips !== false, seen: {}, firstObjective: o.objective || null, note: '' };
     E.rnd(L);
@@ -368,15 +398,10 @@
     genMap(L);
     L.phase = 'actstart';
   }
-  /* After an act's Hoedown: on to the next act, or the end of what is built. */
+  /* After an act's Showdown (always won: losing one means your health ran out): on to the next act, or the
+     run is won. */
   function nextAct(L) {
-    if (L.act >= LAST_ACT) {
-      // the final Hoedown decides the run (the design: losing it loses the run)
-      const lost = L.result && L.result.kind === 'boss' && !L.result.won;
-      L.phase = lost ? 'runover' : 'victory';
-      if (lost) { L.lostFinal = L.boss; note(L, BOSS[L.boss].name + ' won the final Showdown: the run is lost.'); }
-      return;
-    }
+    if (L.act >= LAST_ACT) { L.phase = 'victory'; return; }
     L.pastPaths = (L.pastPaths || []).concat([L.path]);
     L.act++;
     L.actLevels = 0;
@@ -390,8 +415,9 @@
     const rec = L.record || [], hist = L.history || [];
     const ours = hist.filter(x => x.contractor % 2 === 0), theirs = hist.filter(x => x.contractor % 2 === 1);
     const best = hist.reduce((b, x) => !b || x.delta > b.delta ? x : b, null);
-    const dances = rec.filter(r => r.kind !== 'boss');
-    return { levels: rec.length, stars: rec.reduce((n, r) => n + r.stars, 0), maxStars: 3 * rec.length,
+    // the fight that ended a lost run is on the record (its Showdown shows as lost) but not among the fights finished
+    const done = rec.filter(r => !r.lost), dances = done.filter(r => r.kind !== 'boss');
+    return { levels: done.length, stars: done.reduce((n, r) => n + r.stars, 0), maxStars: 3 * done.length,
              objectives: dances.filter(r => r.won).length, objectiveLevels: dances.length,
              hoedowns: rec.filter(r => r.kind === 'boss').map(r => ({ act: r.act, boss: r.id, won: r.won })),
              hands: hist.length, ours: ours.length, made: ours.filter(x => x.made).length, theirs: theirs.length, set: theirs.filter(x => !x.made).length,
@@ -430,13 +456,7 @@
     if (L.phase !== 'bank') return no('not at the bank');
     const door = L.bank.stage === 'door';
     if (what === 'fight' && door) { startLevel(L, 'bank'); return yes(); }
-    if (what === 'cashin' && !door) {
-      if (L.cashed) return no('you have cashed in here already');
-      L.health -= CASH.health; L.gold += CASH.gold; L.cashed = true;
-      note(L, 'Cashed in ' + CASH.health + ' health for ' + CASH.gold + ' gold.');
-      if (L.health <= -500) L.phase = 'runover';
-      return yes();
-    }
+    if (what === 'cashin' && !door) return cashIn(L);
     if (what === 'leave') {
       if (door) note(L, 'You tip your hat and walk on by. The gang rides off with the bank’s gold.');
       L.bank = null; nextStop(L); return yes();
@@ -464,13 +484,10 @@
     const ids = Object.keys(OBJECTIVES).filter(k => OBJECTIVES[k].acts.includes(L.act) && !OBJECTIVES[k].bank);
     L.level++;
     L.kind = kind;
-    L.curse = null; L.dealRule = null; L.race = null; L.boss = null; L.call = null; L.calls = []; L.callWhy = null;
+    L.curse = null; L.dealRule = null; L.boss = null; L.call = null; L.calls = []; L.callWhy = null; L.obj = null; L.foe = null;
     if (kind === 'boss') {
       L.boss = L.map && L.map.boss && BOSS_POOL[L.act].includes(L.map.boss) ? L.map.boss : E.pick(L, BOSS_POOL[L.act]);
-      const B = BOSS[L.boss];
       if (L.boss === 'twins') L.dealRule = 'twins';
-      L.race = { you: 0, them: 0, of: B.yours.of, ofThem: B.theirs.of, winner: null };
-      L.obj = { id: 'boss', n: 0, of: B.yours.of, done: false, fail: false };
     } else {
       const first = (L.actLevels || 0) === 0;
       const fit = ids.filter(k => kind === 'elite' || !OBJECTIVES[k].elite);
@@ -478,27 +495,62 @@
       const want = objective || (L.levelsDone === 0 ? L.firstObjective : null);
       const id = kind === 'bank' ? 'robbery' : OBJECTIVES[want] && OBJECTIVES[want].acts.includes(L.act) ? want : E.pick(L, pool.length ? pool : fit);
       L.obj = { id, n: 0, of: OBJECTIVES[id].of, fail: false, done: false };
-      if (kind === 'elite') L.curse = E.pick(L, Object.keys(CURSES));
       if (kind === 'bank') L.bank = Object.assign({ take: bankTake(L) }, L.bank, { stage: 'fight' });
     }
+    if (kind !== 'bank') L.foe = makeFoe(L, kind);
     L.you = 0; L.opp = 0; L.startHealth = L.health; L.startGold = L.gold;
-    if (L.boss === 'caller') { L.opp = BOSS.caller.head; L.race.them = L.opp; }     // he's a regular here: his set starts ahead
-    L.handNo = 1; L.hands = (kind === 'boss' && BOSS[L.boss].hands) || (kind === 'bank' && BANK.hands) || HANDS[L.act][kind] +(kind === 'dance' && LATE.dance && floorOf(L) >= LATE.floor ? LATE.dance : 0); L.baseHands = L.hands; L.extraBought = false;
+    L.handNo = 1; L.hands = kind === 'bank' ? BANK.hands : null;
     L.captured = [];
     L.phase = 'hand';
     L.reaction = null;
     L.log = [];
     L.result = null;
-    if (kind === 'boss') E.say(L, 'Game ' + L.level + ' \u00b7 the Showdown: ' + BOSS[L.boss].name + '. ' + BOSS[L.boss].rule, 'level');
-    else if (kind === 'bank') E.say(L, 'Game ' + L.level + ' · the Bank: a gang is robbing it. Outscore them this hand for ' + BANK.bounty + ' gold and an enhancement; lose and they take ' + L.bank.take + ' gold.', 'level');
-    else E.say(L, 'Game ' + L.level + ' · ' + KIND_NAME[kind] + ' · objective: ' + OBJECTIVES[L.obj.id].text + '.' + (L.curse ? ' Curse: ' + CURSES[L.curse].name + ' — ' + CURSES[L.curse].text : ''), 'level');
+    const F = L.foe, ab = F ? F.traits.map(t => abilityOf(t).name + ' (' + abilityOf(t).text + ')') : [];
+    if (kind === 'boss') E.say(L, 'Game ' + L.level + ' \u00b7 the Showdown: ' + BOSS[L.boss].name + ', ' + F.hp + ' health. ' + BOSS[L.boss].rule, 'level');
+    else if (kind === 'bank') E.say(L, 'Game ' + L.level + ' \u00b7 the Bank: a gang is robbing it. Outscore them this hand for ' + BANK.bounty + ' gold and an enhancement; lose and they take ' + L.bank.take + ' gold.', 'level');
+    else E.say(L, 'Game ' + L.level + ' \u00b7 ' + KIND_NAME[kind] + ': ' + F.name + ', ' + F.hp + ' health' + (ab.length ? ', ' + ab.join(', ') : '') + '. Bounty: ' + OBJECTIVES[L.obj.id].text + '.', 'level');
     dealHand(L);
     return L;
   }
+  /* The gang across the table: its name, health and abilities. A Duel's ability that is one of the old curses
+     also sets L.curse, which the engine reads. */
+  const abilityOf = id => TRAITS[id] || CURSES[id];
+  function makeFoe(L, kind) {
+    const a = L.act, f = Math.max(0, Math.min(MAPSHAPE.floors - 1, floorOf(L)));
+    if (kind === 'boss') return { name: BOSS[L.boss].name, look: BOSS[L.boss].look, hp: BOSS[L.boss].hp || FOE.boss[a], traits: [], hitMul: BOSS[L.boss].hit || FOE.bossHit, boss: L.boss };
+    const traits = [];
+    if (kind === 'elite') {
+      const ab = E.pick(L, DUEL_ABILITIES);
+      traits.push(ab);
+      if (CURSES[ab]) L.curse = ab;
+    } else if (f >= TRAIT.floor && E.rnd(L) < TRAIT.p) traits.push(E.pick(L, TRAIT.pool));
+    let hp = (FOE.base[a] + FOE.step[a] * f) * (kind === 'elite' ? FOE.elite : 1) * (traits.includes('tough') ? 1.25 : 1);
+    hp = Math.round(hp / 10) * 10;
+    const g = E.pick(L, (kind === 'elite' ? DUELISTS : GANGS)[a]);
+    return { name: g[0], look: [g[1], g[2]], hp, traits, hitMul: traits.includes('deadeye') ? 1.5 : 1 };
+  }
+  /* How good a deal is for West and East (the stacked deck keeps the better of two for them). */
+  function gangStrength(h) {
+    const v = c => c === 'JK' ? 4 : ({ J: 2, A: 1.5, K: 1, Q: 0.5 })[E.rankOf(c)] || 0;
+    return h.hands[1].concat(h.hands[3]).reduce((n, c) => n + v(c), 0);
+  }
+  const stackChance = L => !L.foe ? 0 : L.foe.traits.includes('lucky') ? 1 :
+    STACK.max * (L.kind === 'boss' ? 1 : Math.max(0, floorOf(L)) / (MAPSHAPE.floors - 1));
   function dealHand(L) {
     L.call = null;
+    const n = L.log.length;
     E.deal(L);
+    const p = stackChance(L);
+    if (p && E.rnd(L) < p) {
+      const first = L.h, said = L.log.slice(n);
+      L.log.length = n;
+      E.deal(L);
+      if (gangStrength(first) > gangStrength(L.h)) { L.h = first; L.log.length = n; L.log.push(...said); }
+      L.h.stacked = true;
+      E.say(L, 'A stacked deck: ' + L.foe.name + ' get the better of two deals.', 'rule');
+    }
     if (L.boss === 'caller') {
+      if (Object.keys(CALLS).every(id => L.calls.includes(id))) L.calls = [];     // a long Showdown: he starts the round again
       const c = chooseCall(L);
       L.call = c.id; L.calls.push(c.id); L.callWhy = c.why;
       L.h.dir = c.id === 'corner' ? -1 : 1;
@@ -539,26 +591,18 @@
       }
     }
     if (h.ticking && trick.no === 2) {
-      if (h.hands[0].includes(h.ticking)) { L.health -= 20; L.tickLoss = (L.tickLoss || 0) + 20; E.say(L, 'Lit Fuse: your ' + E.label(h.ticking) + ' was not played by trick 2: −20 health.', 'rule'); }
+      if (h.hands[0].includes(h.ticking)) { L.health = Math.max(0, L.health - 20); L.tickLoss = (L.tickLoss || 0) + 20; E.say(L, 'Lit Fuse: your ' + E.label(h.ticking) + ' was not played by trick 2: −20 health.', 'rule'); }
       h.ticking = null;
     } else if (h.ticking && trick.cards[0] === h.ticking) h.ticking = null;
-    if (L.race) {
-      const r = L.race, seeded = h.seeded || [];
-      if (L.boss === 'twins' && mine && trick.cards.some(c => c === 'JH' || c === 'JD')) r.you = Math.min(r.of, r.you + 1);
-      if (L.boss === 'sharps') {
-        if (trick.winner === 0 && seeded.includes(trick.cards[0])) r.you = Math.min(r.of, r.you + 1);
-        if (!mine && seeded.includes(trick.cards[0])) { r.them = Math.min(r.ofThem, r.them + 1); E.say(L, 'The Card Sharps caught your ' + E.label(trick.cards[0]) + '.', 'rule'); }
-      }
-      L.obj.n = r.you;
-      return;
-    }
+    if (L.boss === 'sharps' && !mine && (h.seeded || []).includes(trick.cards[0])) E.say(L, 'The Card Sharps caught your ' + E.label(trick.cards[0]) + '.', 'rule');
+    if (!L.obj) return;
     const o = L.obj, id = o.id;
     if (o.done || o.fail) return;
     const wc = trick.cards[trick.winner];
     if (id === 'lowly9' && mine && ['9', '10'].includes(E.rankOf(wc))) o.n++;
     if (id === 'harvest' && mine) trick.cards.forEach((c, s) => { if (c && E.suitOf(c) === 'H') { const k = E.K(L, s, c); o.n += k.m && k.m.enh === 'magnet' ? 2 : 1; } });
     if (id === 'bagjack' && mine && trick.cards.some(c => c === 'JH' || c === 'JD')) o.n++;
-    if (id === 'lastword' && mine && trick.no === E.ACTS[L.act].hand && (L.handNo === L.baseHands - 1 || L.handNo === L.baseHands)) o.n++;
+    if (id === 'lastword' && mine && trick.no === E.ACTS[L.act].hand) o.n++;
     if (id === 'blacks' && mine) trick.cards.forEach((c, s) => { if (c && (E.suitOf(c) === 'S' || E.suitOf(c) === 'C')) { const k = E.K(L, s, c); o.n += k.m && k.m.enh === 'magnet' ? 2 : 1; } });
     if (id === 'showoff' && mine && L.owned.includes(wc)) o.n++;
     if (id === 'acehunter' && mine) o.n += trick.cards.filter((c, s) => c && s % 2 === 1 && E.rankOf(c) === 'A').length;
@@ -585,27 +629,8 @@
   }
   function trackHand(L) {
     const o = L.obj, r = L.h.result;
-    if (L.race) {
-      const race = L.race, B = BOSS[L.boss], ofThem = race.ofThem || race.of;
-      if (L.boss === 'twins' && E.team(r.contractor) === 1 && r.made) race.them = Math.min(ofThem, race.them + 1);
-      if (L.boss === 'caller') { race.you = Math.max(0, Math.min(race.of, L.you)); race.them = Math.max(0, Math.min(ofThem, L.opp)); L.obj.n = race.you; }
-      if (L.boss === 'wallflowers' && E.team(r.contractor) === 0) {
-        if (r.made) race.you = Math.min(race.of, race.you + 1); else race.them = Math.min(ofThem, race.them + 1);
-        L.obj.n = race.you;
-      }
-      if (L.boss === 'hustlers' && r.misere && E.team(r.contractor) === 1) {
-        if (r.made) race.them = Math.min(ofThem, race.them + 1); else race.you = Math.min(race.of, race.you + 1);
-        L.obj.n = race.you;
-      }
-      const youDone = race.you >= race.of, themDone = race.them >= ofThem;
-      if (youDone && themDone) race.winner = L.you >= L.opp ? 'you' : 'them';
-      else if (youDone) race.winner = 'you';
-      else if (themDone) race.winner = 'them';
-      if (race.winner) E.say(L, race.winner === 'you' ? 'You win the race against ' + B.name.replace(/^The/, 'the') + '!' : B.name + ' win the race.', 'objective');
-      return;
-    }
-    if (o.done || o.fail) return;
-    if (o.id === 'every') { if (r.tricks[0] > 0) o.n++; else o.fail = true; }
+    if (!o || o.done || o.fail) return;
+    if (o.id === 'every') { if (r.tricks[0] === 0) { o.fail = true; E.say(L, OBJECTIVES.every.name + ' is broken: a hand without a trick.', 'objective'); } return; }
     if (o.id === 'robbery') { if (L.you > L.opp) o.n++; else { o.fail = true; E.say(L, 'The gang outscored you: the robbery goes ahead.', 'objective'); } }
     if (o.id === 'setthem' && E.team(r.contractor) === 1 && !r.made) o.n++;
     if (o.id === 'makemis' && r.misere && E.team(r.contractor) === 0 && r.made) o.n++;
@@ -619,7 +644,6 @@
     }
     o.n = Math.min(o.n, o.of);
     if (o.n >= o.of) finishObjective(L);
-    if (!o.done && o.id === 'lastword' && L.handNo >= L.baseHands - 1 && o.n + (L.baseHands - L.handNo) < o.of) o.fail = true;
   }
   function finishObjective(L) {
     L.obj.done = true;
@@ -681,40 +705,33 @@
     h.pass = null;
     return yes();
   }
+  /* After each hand: your points shoot the gang, theirs hit you. The fight goes on until your total reaches
+     their health (the Bank: its one hand), or your health runs out, which ends the run wherever you are. */
   function endHand(L) {
     const r = L.h.result;
-    L.health += r.delta;
+    L.health = Math.max(0, L.health - r.dmg);
     L.you += r.pts[0];
     L.opp += r.pts[1];
     trackHand(L);
     react(L, E.team(r.contractor) === 0 ? (r.made || r.near ? 'made' : 'failed') : (r.made ? 'theirs' : 'set'));
-    L.history.push({ act: L.act, level: L.level, kind: L.kind, hand: L.handNo, contract: L.h.contract, contractor: r.contractor, made: r.made, delta: r.delta, health: L.health });
-    E.say(L, 'Health ' + (r.delta >= 0 ? '+' : '−') + Math.abs(r.delta) + ' → ' + L.health + '.', 'health');
-    if (L.health <= -500) {
+    L.history.push({ act: L.act, level: L.level, kind: L.kind, hand: L.handNo, contract: L.h.contract, contractor: r.contractor, made: r.made, delta: r.delta, hit: r.pts[0], dmg: r.dmg, health: L.health });
+    if (L.foe) E.say(L, (r.pts[0] >= 0 ? 'You hit ' + L.foe.name + ' for ' + r.pts[0] : 'Your set costs you ' + -r.pts[0]) + ': ' + Math.max(0, L.foe.hp - L.you) + ' of their ' + L.foe.hp + ' health left.', 'health');
+    E.say(L, r.dmg ? 'They hit you for ' + r.dmg + ': health ' + L.health + '.' : 'They didn\u2019t touch you: health ' + L.health + '.', 'health');
+    if (L.health <= 0) {
       L.phase = 'runover';
-      E.say(L, 'Health has fallen to −500: the run is over.', 'end');
+      L.lostTo = L.kind === 'boss' ? L.boss : (L.foe ? L.foe.name : 'the gang');
+      L.record = (L.record || []).concat({ act: L.act, level: L.level, kind: L.kind, id: L.kind === 'boss' ? L.boss : L.obj.id, stars: 0, won: false, lost: true });
+      E.say(L, 'Your health is gone: the run is over.', 'end');
       return;
     }
     L.phase = 'summary';
   }
-  /* The extra hand: on the last hand's summary, while the objective can still be met. */
-  function canExtra(L) {
-    return L.phase === 'summary' && !L.race && L.handNo >= L.hands && !L.extraBought && !L.obj.done && !L.obj.fail && L.gold >= L.extraPrice &&
-      OBJECTIVES[L.obj.id].kind !== 'limit';
-  }
-  function buyExtra(L) {
-    if (!canExtra(L)) return no('no extra hand on offer');
-    L.gold -= L.extraPrice;
-    E.say(L, 'One more hand for ' + L.extraPrice + ' gold (no third star this level).', 'gold');
-    L.extraPrice = 80;
-    L.extraBought = true;
-    L.hands++;
-    return next(L);
-  }
-  /* After the summary: the next hand, or the level's stars. */
+  const fightOver = L => L.kind === 'bank' ? L.handNo >= L.hands : L.you >= L.foe.hp;
+  const parOf = L => (PAR[L.kind] || {})[L.act] || 1;
+  /* After the summary: the next hand, or the fight's stars. */
   function next(L) {
     if (L.phase !== 'summary') return no('no summary showing');
-    if (L.handNo >= L.hands || (L.race && L.race.winner)) { finishLevel(L); return yes(); }
+    if (fightOver(L)) { finishLevel(L); return yes(); }
     L.handNo++;
     L.dealer = (L.dealer + 1) % 4;
     L.phase = 'hand';
@@ -722,51 +739,41 @@
     dealHand(L);
     return yes();
   }
+  /* A won fight's stars: one for the win, one for the bounty, one for winning within par. A Showdown has no
+     bounty: two stars, three within par. */
   function finishLevel(L) {
-    const o = L.obj, outscored = L.you > L.opp;
-    let stars = 1, gold = 0, won = null;
-    if (L.race) {
-      if (!L.race.winner) L.race.winner = L.you >= L.opp ? 'you' : 'them';
-      won = L.race.winner === 'you';
-      stars = won ? (outscored ? 3 : 2) : 1;
-      gold = won ? 100 : 50;
-      if (!won) {
-        L.health -= 100;
-        E.say(L, 'Losing to ' + BOSS[L.boss].name.replace(/^The/, 'the') + ' costs 100 health.', 'health');
-        // the user's call (2026-10-24): a lost Hoedown also leaves a hex on a card for the rest of the run
-        L.bossLosses = (L.bossLosses || []).concat(L.boss);
-        const card = hexTarget(L, 'owned');
-        if (card) {
-          const kind = E.pick(L, BOSS_HEXES);
-          placeHex(L, card, kind);
-          L.bossHex = { card, kind, boss: L.boss };
-          E.say(L, BOSS[L.boss].name + ' leave a hex on your ' + E.label(card) + ': ' + HEXES[kind].name + ' (' + HEXES[kind].text + ') Beat the next Showdown to lift it.', 'rule');
-        }
-      } else if (L.bossHex && L.bossHex.boss !== L.boss) {
+    const o = L.obj, par = parOf(L), fast = L.kind !== 'bank' && L.handNo <= par;
+    let stars = 1, gold = 0, won = true;
+    if (L.kind === 'boss') {
+      stars = fast ? 3 : 2;
+      gold = 100;
+      E.say(L, BOSS[L.boss].name + ' are beaten!', 'objective');
+      if (L.bossHex && L.bossHex.boss !== L.boss) {     // a hex from a lost Showdown (saved runs from before the redesign)
         if (L.hexes && L.hexes[L.bossHex.card] === L.bossHex.kind) delete L.hexes[L.bossHex.card];
-        E.say(L, 'Beating ' + BOSS[L.boss].name.replace(/^The/, 'the') + ' lifts the hex on your ' + E.label(L.bossHex.card) + '.', 'rule');
         L.bossHex = null;
       }
     } else {
       if (OBJECTIVES[o.id] && OBJECTIVES[o.id].kind === 'limit' && !o.fail && !o.done) finishObjective(L);
-      if (o.done) stars = 2;
-      if (o.done && outscored && !L.extraBought) stars = 3;
       if (L.kind === 'bank') {
         // the stakes were fixed at the door: what you win and lose doesn't move with gold earned in the hand
         won = o.done; stars = won ? 3 : 1; L.bank.stage = 'after';
         gold = won ? BANK.bounty : -Math.min(L.gold, L.bank.take);
         E.say(L, won ? 'You stopped the robbery! The bank pays a ' + BANK.bounty + ' gold bounty.' : 'The gang gets away with ' + -gold + ' of your gold.', 'gold');
-      } else gold = PAY[L.kind][stars];
+      } else {
+        stars = 1 + (o.done ? 1 : 0) + (fast ? 1 : 0);
+        gold = PAY[L.kind][stars];
+        E.say(L, L.foe.name + ' are beaten in ' + L.handNo + ' hand' + (L.handNo > 1 ? 's' : '') + (fast ? ' (par ' + par + ')' : ', over par ' + par) + '.', 'objective');
+      }
     }
     L.gold += gold;
     L.levelsDone++;
     L.actLevels = (L.actLevels || 0) + 1;
-    L.result = { kind: L.kind, stars, gold, objective: L.race ? won : o.done, outscored, won, you: L.you, opp: L.opp,
-                 health: L.health, change: L.health - L.startHealth, goldChange: L.gold - L.startGold, extra: L.extraBought };
+    L.result = { kind: L.kind, stars, gold, objective: o ? o.done : null, fast, hands: L.handNo, par, won, you: L.you, opp: L.opp,
+                 health: L.health, change: L.health - L.startHealth, goldChange: L.gold - L.startGold, foe: L.foe };
     // one line per level for the run's ending
-    L.record = (L.record || []).concat({ act: L.act, level: L.level, kind: L.kind, id: L.race ? L.boss : o.id, stars, won: L.race ? won : o.done });
-    L.phase = L.health <= -500 ? 'runover' : 'over';
-    E.say(L, 'Game ' + L.level + ' over: ' + stars + ' star' + (stars > 1 ? 's' : '') + ', ' + (gold < 0 ? '−' + -gold : gold) + ' gold.', 'end');
+    L.record = (L.record || []).concat({ act: L.act, level: L.level, kind: L.kind, id: L.kind === 'boss' ? L.boss : o.id, stars, won: L.kind === 'boss' ? true : o.done });
+    L.phase = 'over';
+    E.say(L, 'Game ' + L.level + ' over: ' + stars + ' star' + (stars > 1 ? 's' : '') + ', ' + (gold < 0 ? '\u2212' + -gold : gold) + ' gold.', 'end');
     L.curse = null; L.dealRule = null;
   }
 
@@ -860,8 +867,10 @@
     const fx = o.fx;
     if (fx.release && L.owned.length < 2) return no('you have only one card to keep');
     if (fx.gold < 0 && L.gold < -fx.gold) return no('not enough gold');
+    if (fx.health < 0 && L.health + fx.health <= 0) return no('that would finish you');
     if (fx.gold) L.gold += fx.gold;
-    if (fx.health) L.health += fx.health;
+    if (fx.health > 0) heal(L, fx.health);
+    else if (fx.health) L.health += fx.health;
     let msg = o.text.replace(/:.*/, '') + '.';
     if (fx.card === 'face') {
       const pool = E.deckOf(L).filter(c => ['J', 'Q', 'K'].includes(E.rankOf(c)) && !L.owned.includes(c));
@@ -876,7 +885,6 @@
       if (pool.length) { const c = E.pick(L, pool); L.owned.push(c); placeHex(L, c, 'twoleft'); msg += ' You now own the ' + E.label(c) + ', a Misfire: it can never win a trick.'; }
     }
     note(L, msg);
-    if (L.health <= -500) { L.phase = 'runover'; return yes(); }
     if (fx.enh) { L.reward = { steps: [{ type: 'enh', options: draw(L, enhPool(L), fx.enh) }] }; advanceReward(L); return yes(); }
     if (fx.release) { L.releaseBack = 'map-next'; L.phase = 'release'; return yes(); }
     nextStop(L);
@@ -886,14 +894,8 @@
   /* ---------------- the Punch Bowl and the General Store ---------------- */
   function camp(L, what) {
     if (L.phase !== 'camp') return no('not at the Hotel');
-    if (what === 'cashin') {
-      if (L.cashed) return no('you have cashed in here already');
-      L.health -= CASH.health; L.gold += CASH.gold; L.cashed = true;
-      note(L, 'Cashed in ' + CASH.health + ' health for ' + CASH.gold + ' gold.');
-      if (L.health <= -500) L.phase = 'runover';
-      return yes();
-    }
-    if (what === 'rest') { L.health += restOf(L); note(L, 'A rest and a cup of punch: +' + restOf(L) + ' health.'); nextStop(L); return yes(); }
+    if (what === 'cashin') return cashIn(L);
+    if (what === 'rest') { const got = heal(L, restOf(L)); note(L, 'A night’s rest: +' + got + ' health.'); nextStop(L); return yes(); }
     if (what === 'polish') { if (!polishable(L).length) return no('nothing to polish'); L.phase = 'polish'; return yes(); }
     if (what === 'cleanse') { if (!hexed(L).length) return no('no hexes to cleanse'); L.cleanseBack = 'map-next'; L.phase = 'cleanse'; return yes(); }
     if (what === 'shop') { stock(L); L.phase = 'shop'; return yes(); }
@@ -963,7 +965,7 @@
     if (it.type === 'card') { L.owned.push(it.id); note(L, 'Bought the ' + E.label(it.id) + '.'); }
     if (it.type === 'buff') { grantBuff(L, it.id); note(L, 'Bought ' + BUFFS[it.id].name + '.'); }
     if (it.type === 'enh') { L.target = it.id; L.targetBack = 'shop'; L.phase = 'target'; }
-    if (it.type === 'tonic') { L.health += TONIC.health; note(L, 'Drank the tonic: +' + TONIC.health + ' health.'); }
+    if (it.type === 'tonic') { const got = heal(L, TONIC.health); note(L, 'Drank the tonic: +' + got + ' health.'); }
     if (it.type === 'cleanse') { L.cleanseBack = 'shop'; L.phase = 'cleanse'; }
     return yes();
   }
@@ -1020,6 +1022,7 @@
     if (ph === 'camp') return tip('camp', 'The Hotel: do one thing — shop, rest or polish a card. Cashing in health for gold is extra.');
     if (ph !== 'hand' || L.levelsDone >= 3) return null;
     const h = L.h;
+    if (L.foe && L.handNo === 1 && h.phase === 'bid') { const t = tip('fight', 'Every table is a fight, dear. Our points shoot their health down, hand after hand, until it’s gone; their points hit ours, and nothing heals us until the fight is over.'); if (t) return t; }
     if (h.phase === 'bid' && h.turn === 0) return tip('bid', 'Count sure tricks: the Joker, a bower, the Ace of trumps. We need more than half the tricks. Weak hand? Pass — defending pays 10 a trick.');
     if (h.phase === 'kitty' && h.turn === 0) return tip('kitty', 'You took the kitty card. Put back your weakest card that isn’t a trump.');
     if (h.phase === 'swing') return tip('swing', 'Under the table, dear: slip me a card you don’t want and I’ll slip you my best one.');
@@ -1050,7 +1053,6 @@
       case 'go': return goTo(L, arg);
       case 'tip': if (arg) L.seen[arg] = true; return yes();
       case 'next': return next(L);
-      case 'extra': return buyExtra(L);
       case 'collect': return collect(L);
       case 'choose': return choose(L, arg);
       case 'reroll': return reroll(L);
@@ -1124,15 +1126,16 @@
 
   /* How the objective's progress reads on screen. */
   function objProgress(L) {
-    const o = L.obj, O = OBJECTIVES[o.id];
+    const o = L.obj, O = o && OBJECTIVES[o.id];
+    if (!o) return '';
     if (o.done) return '\u2713 done';
     if (o.fail) return 'missed';
     if (o.id === 'robbery') return L.you > L.opp ? 'ahead' : 'not ahead';
     if (O && O.kind === 'limit') return 'holding';
     return o.n + ' / ' + o.of;
   }
-  const api = { enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HANDS, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, PLACE, BANK, bankTake, bankShare, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, LATE, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
-    cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, canExtra,
+  const api = { enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, PLACE, BANK, bankTake, bankShare, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
+    cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;
   else root.BtpRun = api;

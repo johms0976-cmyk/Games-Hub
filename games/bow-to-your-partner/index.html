@@ -70,22 +70,30 @@ html.art .hero .lyr, html.art .hero .train, html.art .hero .puff { display: bloc
 
 /* The opening (storyboard frames 2-5, 2026-10-27): Start blows the whistle and the title's words drop away (2);
    the hero fills the screen and its rig tilts down past the plains to the trail, where the stagecoach rolls in
-   (3); the town sign passes and the coach's dust wipes the screen (4); the act card (5); then the card pick (6).
+   (3); the coach pulls up at the town sign, the camera closes in on it and the WELCOME plank falls away to show
+   DANGER! DO NOT ENTER, then the coach's dust wipes the screen (4); the act card (5); then the card pick (6).
+   Paced at 60% of the first cut (the user's, 2026-10-27: too fast to read the sign). The sign is planted in the
+   ground, so it moves at the trail's speed, and the coach brakes the whole stage to a stop (signRun).
    A tap, a key or Skip ends it at once; reduced motion is a plain fade to the act card; Continue is a short dust
    wipe. The stage under the hero (.below) is clipped until the tilt. */
-.hero .rig { position: absolute; left: 0; right: 0; top: 0; transition: transform 1.6s cubic-bezier(.55, 0, .35, 1); }
+.hero .rig { position: absolute; left: 0; right: 0; top: 0; transition: transform 2.6s cubic-bezier(.55, 0, .35, 1); }
 .hero .below { position: absolute; left: 0; right: 0; display: none; }
 html.art .hero .below { display: block; }
 .hero .meadow { position: absolute; inset: 0; image-rendering: pixelated; animation: hscroll var(--dur) linear infinite; }
-.hero .stagecoach { position: absolute; image-rendering: pixelated; animation: wheels .5s steps(4) infinite; transform: translateX(-120vw);
-  transition: transform 1.5s cubic-bezier(.2, .7, .3, 1); }
+.hero .stagecoach { position: absolute; image-rendering: pixelated; animation: wheels .83s steps(4) infinite; transform: translateX(-120vw);
+  transition: transform 2.5s cubic-bezier(.2, .7, .3, 1); }
 .hero .townsign { position: absolute; left: 100%; image-rendering: pixelated; }
+.hero .signcover { position: absolute; image-rendering: pixelated; }
+body.signdrop .hero .signcover { animation: plankfall 1.5s cubic-bezier(.4, 0, .6, 1) forwards; }
+/* it hangs on its left nail: the right end drops, it swings, the nail gives and it falls out of the frame */
+@keyframes plankfall { 0% { transform: none; } 12% { transform: rotate(9deg); } 24% { transform: rotate(5deg); }
+  48% { transform: rotate(72deg); } 60% { transform: rotate(58deg); } 70% { transform: rotate(66deg); opacity: 1; }
+  100% { transform: translateY(420%) rotate(120deg); opacity: 0; } }
 body.tilt .hero .stagecoach { transform: none; }
-body.signpass .hero .townsign { animation: signpass 1.3s linear forwards; }
-@keyframes signpass { to { left: -60%; } }
 #title > :not(.hero) { transition: transform .6s ease-in, opacity .5s ease-in; }
 body.opening #title > :not(.hero) { transform: translateY(60px); opacity: 0; pointer-events: none; }
 body.tilt .hero { position: fixed; left: 0; right: 0; top: 0; margin: 0; z-index: 60; transition: height .45s ease-out; }
+body.signzoom .hero { transform-origin: 0 0; transition: transform 1s cubic-bezier(.45, 0, .3, 1); }
 #dustwipe, #actcard { position: fixed; inset: 0; z-index: 70; pointer-events: none; opacity: 0; }
 #dustwipe { z-index: 75; background: #ead6ae; transition: opacity .45s; overflow: hidden; }
 #dustwipe .dp { position: absolute; image-rendering: pixelated; animation: dustgrow 1s ease-out forwards; }
@@ -243,11 +251,11 @@ html.art .wanted.hasart .w { grid-column: 2; }
 @keyframes deltafade { 0% { opacity: 0; transform: translateY(4px); } 12% { opacity: 1; transform: none; } 75% { opacity: 1; } 100% { opacity: 0; } }
 .lvlpill { font-size: 13px; color: var(--muted); white-space: nowrap; }
 /* what the objective is worth: the stars you'd get if the level ended now, and what they pay */
-.objective .pay { width: 100%; display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; font-size: 14px; padding: 4px 8px; margin-top: 2px; border-radius: 8px; background: #fff; border: 1px dashed var(--line); text-align: left; color: var(--ink); }
+.objective .pay { width: 100%; display: flex; flex-wrap: wrap; gap: 0 8px; align-items: baseline; font-size: 13px; padding: 2px 8px; margin-top: 0; border-radius: 8px; background: #fff; border: 1px dashed var(--line); text-align: left; color: var(--ink); }
 .objective .pay .st { color: var(--gold); letter-spacing: 1px; font-size: 16px; }
 .objective .pay .st .off { color: #d8cbb4; }
 .objective .pay .more { margin-left: auto; color: var(--accent); text-decoration: underline; white-space: nowrap; }
-.objective .pay .nx { color: var(--muted); }
+.objective .pay .nx { color: var(--muted); font-size: 12px; }
 .paytable { width: 100%; border-collapse: collapse; margin: 6px 0; }
 .paytable td { padding: 6px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
 .paytable td:first-child { color: var(--gold); white-space: nowrap; font-size: 18px; }
@@ -260,10 +268,11 @@ html.art .wanted.hasart .w { grid-column: 2; }
 .cardinfo ul { padding-left: 18px; } .cardinfo li { margin: 6px 0; }
 .iconbtn { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 4px 10px; font-size: 14px; min-height: 40px; }
 .iconbtn[data-act="takeback"] { min-height: 40px; margin-left: 6px; border-color: var(--accent); color: var(--accent); }
-.objective { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #fffaf0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.objective { display: flex; align-items: center; gap: 4px 10px; padding: 5px 12px; background: #fffaf0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
 .objective .ot { flex: 1; min-width: 0; }
 .objective .on { font-weight: 700; }
-.objective .ox { color: var(--muted); font-size: 14px; }
+.objective .ox { color: var(--muted); font-size: 13px; line-height: 1.3; }
+.objective .ot .on { display: inline; margin-right: 6px; } .objective .ot .on + .ox { display: inline; }
 .objective .curse { width: 100%; font-size: 14px; color: var(--bad); }
 .meter { width: 90px; height: 8px; background: #eadfca; border-radius: 4px; overflow: hidden; flex: none; }
 .meter i { display: block; height: 100%; background: var(--gold); }
@@ -271,23 +280,26 @@ html.art .wanted.hasart .w { grid-column: 2; }
 .objective .oc { font-weight: 700; min-width: 44px; text-align: right; }
 .objective.done .oc { color: var(--ok); }
 .objective.fail .oc { color: var(--bad); }
-.race { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 8px; align-items: center; width: 100%; font-size: 14px; }
-.race .meter { width: 100%; }
+/* the gang you are fighting: name, abilities, what is left of its health */
+.foe { width: 100%; }
+.foe .fn { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.foe .fn b { font-size: 16px; }
+.foe .ftag { font-size: 12px; font-weight: 700; color: var(--bad); background: #fbeae6; border-radius: 999px; padding: 1px 8px; }
+.foe .fhit { font-size: 12px; color: var(--muted); }
+.foe .fhp { margin-left: auto; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--bad); }
+.foebar { height: 8px; border-radius: 4px; background: #eadfca; overflow: hidden; margin: 2px 0 0; }
+.foebar i { display: block; height: 100%; background: linear-gradient(#d0503c, #a8322a); transition: width .6s ease-out; }
 .contract { padding: 8px 12px; font-size: 15px; border-bottom: 1px solid var(--line); background: #fff; }
 .contract.theirs { background: #fbeeea; }
 .contract .intent { color: var(--bad); font-weight: 700; }
 
-.felt { flex: 1; background: radial-gradient(ellipse at center, var(--felt) 0%, var(--felt-2) 100%); color: #fff; position: relative;
-  display: grid; grid-template-columns: 1fr 2.2fr 1fr; grid-template-rows: auto 1fr; gap: 6px; padding: 8px; min-height: 250px; }
+.felt { flex: none; background: radial-gradient(ellipse at center, var(--felt) 0%, var(--felt-2) 100%); color: #fff; position: relative; overflow: hidden; }
 .seat { text-align: center; font-size: 14px; }
 .seat .who { font-weight: 700; }
 .seat .backs { display: flex; justify-content: center; gap: 2px; margin-top: 4px; }
 .seat .backs i { width: 14px; height: 20px; border-radius: 3px; border: 1px solid rgba(255,255,255,.6); }
 .seat .tag { display: inline-block; margin-top: 4px; padding: 1px 8px; border-radius: 999px; background: rgba(255,255,255,.18); font-size: 13px; }
 .seat.turn .who { color: #ffe08a; }
-.seat.north { grid-column: 2; grid-row: 1; }
-.seat.west { grid-column: 1; grid-row: 2; align-self: center; }
-.seat.east { grid-column: 3; grid-row: 2; align-self: center; }
 .nan { display: flex; align-items: center; justify-content: center; gap: 8px; }
 .face { width: 38px; height: 38px; border-radius: 50%; background: #f1d3b3; border: 2px solid #fff; position: relative; flex: none; }
 .face::before { content: ""; position: absolute; left: 4px; right: 4px; top: -3px; height: 14px; border-radius: 12px 12px 4px 4px; background: #d9d9d9; }
@@ -295,28 +307,90 @@ html.art .wanted.hasart .w { grid-column: 2; }
 .face.cheer { animation: bob .5s ease 2; }
 @keyframes bob { 50% { transform: translateY(-5px); } }
 .bubble { background: #fff; color: var(--ink); border-radius: 10px; padding: 3px 9px; font-size: 13px; max-width: 170px; text-align: left; }
-.trickzone { grid-column: 2; grid-row: 2; position: relative; min-height: 180px; }
-.trickzone .slot { position: absolute; transform: translate(-50%, -50%); }
-.trickzone .s0 { left: 50%; top: 80%; } .trickzone .s1 { left: 18%; top: 50%; }
-.trickzone .s2 { left: 50%; top: 20%; } .trickzone .s3 { left: 82%; top: 50%; }
+/* The card table, look B (the user's pick, 2026-10-28): across the table at eye level. The stage (wall, the
+   gang's figures, Nan, the table's rim and baize, the gang's nameplate) is built once a fight and kept, so the
+   gang's flinch and gloat play out; the seats' plaques, bids and the trick are a layer over it, redrawn every
+   render. Art pixels are --k screen pixels (2-4, by width); the stage is 200 x 112 art px, centred, the gang at
+   x ±(22..62) from the middle with their chests behind the rim (EDGE, 76). Without the art (html.art unset) the
+   felt is the plain green it always was and the same plaques and trick sit on it. Art: bakery/saloon_px.py. */
+.felt { --k: 3; --ax: calc(var(--k) * 1px); --lift: 5; }
+.stage, .dyn { position: absolute; inset: 0; }
+/* --drop: where the scale is small the nameplate would cover the gang's faces, so everything under it moves down */
+.stage .wall, .stage .tbl, .stage .fig, .stage .nanfig { translate: 0 var(--drop, 0px); }
+.dyn { top: var(--drop, 0px); }
+.stage .wall, .stage .tbl { position: absolute; left: 50%; top: calc(-1 * var(--lift) * var(--ax)); width: calc(200 * var(--ax)); height: calc(112 * var(--ax)); transform: translateX(-50%);
+  background: center / 100% 100% no-repeat; image-rendering: pixelated; display: none; }
+.stage .tbl { z-index: 2; }
+html.art .felt.dressed { background: #2b6748; }
+html.art .felt.dressed .wall, html.art .felt.dressed .tbl, html.art .felt.dressed .fig { display: block; }
+.stage .fig { position: absolute; display: none; top: calc((24 - var(--lift)) * var(--ax)); width: calc(40 * var(--ax)); height: calc(56 * var(--ax)); z-index: 1; }
+.stage .fig img { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+.stage .fig.w { left: calc(50% - 62 * var(--ax)); } .stage .fig.w img { transform: scaleX(-1); }
+.stage .fig.e { left: calc(50% + 22 * var(--ax)); }
+.stage .fig.turn img { filter: drop-shadow(0 0 2px #ffe08a) drop-shadow(0 0 1px #ffe08a); }
+.stage .fig.hit { animation: flinch .55s; } .stage .fig.hit img { filter: brightness(1.45) saturate(.6) sepia(.35); }
+@keyframes flinch { 15% { transform: translate(-5px, 2px) rotate(-2deg); } 35% { transform: translate(5px, -1px) rotate(2deg); } 55% { transform: translate(-3px, 0); } 75% { transform: translate(2px, 0); } }
+.stage .fig.gloat { animation: gloat .45s 2; }
+@keyframes gloat { 50% { transform: translateY(-6px); } }
+.stage .nanfig { position: absolute; z-index: 1; left: calc(50% - 18.5 * var(--ax)); top: calc((38 - var(--lift)) * var(--ax)); width: calc(37 * var(--ax)); height: calc(44 * var(--ax)); }
+.felt:not(.dressed) .stage .nanfig, html:not(.art) .stage .nanfig { top: calc(22 * var(--ax)); }
+.nansvg { width: 100%; height: 100%; display: block; overflow: visible; }
+.nansvg .breathe { animation: breathe 3.2s ease-in-out infinite; transform-origin: 50% 100%; transform-box: fill-box; }
+@keyframes breathe { 50% { transform: translateY(1.2px) scaleY(.985); } }
+.nansvg .lids { animation: blink 4.6s infinite; transform-origin: 50% 50%; transform-box: fill-box; }
+@keyframes blink { 0%, 94%, 100% { transform: scaleY(0); } 96% { transform: scaleY(1); } }
+.stage .nanfig.cheer { animation: gloat .45s 2; }
+/* the gang's nameplate: one health bar for the pair */
+.stage .foe { position: absolute; z-index: 4; left: 8px; right: 8px; top: 5px; width: auto; color: #f6e7c4; background: #6e4630; border: 3px solid #2a1b16;
+  box-shadow: inset 0 0 0 2px #9a6e48; border-radius: 4px; padding: 1px 8px 4px; max-width: 520px; margin: 0 auto; line-height: 1.25; }
+.stage .foe .fn b { color: #fff3d0; font-family: Georgia, serif; font-size: 16px; }
+.stage .foe .fhp { color: #fff3d0; } .stage .foe .fhit { color: #e8d3a8; }
+.stage .foe .foebar { background: rgba(0,0,0,.35); position: relative; }
+.stage .foe .foebar i { position: absolute; left: 0; top: 0; bottom: 0; z-index: 1; }
+.stage .foe .foebar s { position: absolute; left: 0; top: 0; bottom: 0; background: #f3d070; text-decoration: none; transition: width 1.2s .5s ease-out; }
+.stage .foe .ox { color: #f3d070; font-size: 12px; }
+.pop { position: absolute; z-index: 9; font-weight: 900; font-size: 26px; color: #fff; -webkit-text-stroke: 1px #2a1b16; text-shadow: 0 2px 0 #2a1b16; pointer-events: none;
+  animation: pop 1.2s ease-out forwards; transform: translateX(-50%); }
+.pop.bad { color: #ffb3a6; }
+@keyframes pop { 0% { opacity: 0; margin-top: 8px; } 15% { opacity: 1; } 100% { opacity: 0; margin-top: -36px; } }
+@media (prefers-reduced-motion: reduce) { .stage .fig, .stage .nanfig, .nansvg .breathe, .nansvg .lids, .pop { animation: none !important; } }
+/* the seats over the stage: a bid bubble over each head, a plaque on the rim (name, cards left, a Tell) */
+.dyn { z-index: 3; }
+.dyn .seat { position: absolute; top: 0; width: 0; }
+.dyn .seat.west { left: calc(50% - 42 * var(--ax)); } .dyn .seat.east { left: calc(50% + 42 * var(--ax)); } .dyn .seat.north { left: 50%; }
+.dyn .plaque { position: absolute; top: calc(var(--edge) * var(--ax) - 24px); transform: translateX(-50%); left: 0; display: flex; align-items: center; gap: 4px; background: rgba(28,20,14,.72);
+  border-radius: 999px; padding: 1px 8px 1px 6px; font-size: 13px; white-space: nowrap; }
+.dyn .seat .who { font-weight: 700; }
+.dyn .seat .backs { margin-top: 0; }
+.dyn .seat .backs i { width: 9px; height: 13px; border-radius: 2px; }
+.dyn .seat .tag { position: absolute; bottom: 4px; left: 0; transform: translateX(-50%); margin: 0; background: #fff; color: var(--ink); border: 2px solid #2a1b16; font-weight: 800; white-space: nowrap; }
+.dyn .bidbox { position: absolute; top: calc((18 - var(--lift)) * var(--ax)); height: 0; }
+.dyn .seat.north .bidbox { top: calc((34 - var(--lift)) * var(--ax)); }
+.dyn .seat.turn .plaque { background: #8a6412; color: #fff3d0; }
+.dyn .lips { position: absolute; z-index: 1; top: calc(var(--edge) * var(--ax) + 2px); left: 50%; transform: translateX(-50%); }
+.dyn .nanbubble { position: absolute; left: calc(50% + 20 * var(--ax)); top: calc((30 - var(--lift)) * var(--ax)); z-index: 5; max-width: 150px; }
+.trickzone { position: absolute; left: 0; right: 0; top: calc(var(--edge) * var(--ax) + 6px); bottom: 0; }
+.trickzone .slot { position: absolute; transform: translateX(-50%); }
+.trickzone .s1 { left: calc(50% - 80px); top: 4px; } .trickzone .s3 { left: calc(50% + 80px); top: 4px; }
+.trickzone .s2 { left: calc(50% - 25px); top: 0; } .trickzone .s0 { left: calc(50% + 25px); top: 10px; }
 .trickzone .slot.win .card { outline: 3px solid #ffe08a; outline-offset: 1px; }
-.tally { position: absolute; top: 4px; right: 6px; font-size: 13px; opacity: .9; }
+.felt.strip .stage > :not(.plate) { display: none !important; }
+.felt.strip .dyn .seat.west { left: 18%; } .felt.strip .dyn .seat.east { left: 82%; }
+.felt.strip .dyn .plaque { top: 50px; }
+.felt.strip .dyn .plaque .tag { position: static; transform: none; border-width: 1px; padding: 0 6px; margin-left: 2px; }
+.tally { position: absolute; bottom: 2px; left: 0; right: 0; text-align: center; font-size: 12px; opacity: .9; }
 .coach { display: flex; gap: 10px; align-items: flex-start; background: #fff8e6; border-top: 1px solid var(--gold); padding: 8px 12px; font-size: 15px; }
 .coach .face { width: 32px; height: 32px; }
 .coach .face::after { left: 9px; top: 14px; box-shadow: 8px 0 0 #3a2a20; }
 .coach p { margin: 0; flex: 1; }
 .coach button { border: 1px solid var(--gold); background: #fff; border-radius: 8px; padding: 4px 10px; min-height: 40px; flex: none; }
 #screen .coach { border: 1px solid var(--gold); border-radius: 10px; margin-top: 12px; }
-.felt.tipping .seat.west, .felt.tipping .seat.east { align-self: start; }
-.felt.compact { min-height: 0; flex: none; }
+
 .bidgrid.tall { gap: 3px; }
 .bidgrid.tall button { min-height: 32px; padding: 1px 2px; }
 .bidgrid.tall button .v { font-size: 11px; }
 .seat .backs b { font-size: 12px; margin-left: 3px; align-self: center; }
-.felt.compact .trickzone { min-height: 40px; }
-.felt.compact .seat .backs { margin-top: 2px; }
-.felt.compact .nan .face { width: 30px; height: 30px; }
-.feltcoach { position: absolute; left: 8px; right: 8px; bottom: 8px; border: 1px solid var(--gold); border-radius: 10px; color: var(--ink); font-size: 14px; }
+.feltcoach { position: absolute; z-index: 8; left: 8px; right: 8px; bottom: 8px; border: 1px solid var(--gold); border-radius: 10px; color: var(--ink); font-size: 14px; }
 
 /* ---------- cards ----------
    Every face is drawn here: the pixel rank and suit (SVG, built in cardHTML), pip layouts on the number cards,
@@ -407,8 +481,6 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   .card { width: 58px; height: 82px; }
   .card.small { --rp: 1.5; --sp: 1; --pp: .8; --bp: 2; --ip: .8; width: 46px; height: 66px; }
   .card.big { --rp: 2.5; --sp: 2; --pp: 1.3; --bp: 3.5; --ip: 1.3; width: 74px; height: 104px; }
-  .felt { grid-template-columns: 0.8fr 2.4fr 0.8fr; min-height: 230px; }
-  .trickzone { min-height: 165px; }
   .meter { width: 60px; }
   .top .name { display: none; }
   .hand.many { gap: 0; }
@@ -473,17 +545,19 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
 
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
-<script src="btp-engine.js"></script>
-<script src="btp-ai.js"></script>
-<script src="btp-run.js"></script>
-<script src="btp-town.js"></script>
-<script src="art/dustwater/sprites.js"></script>
-<script src="art/title/scene.js"></script>
+<!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
+<script src="btp-engine.js?v=3"></script>
+<script src="btp-ai.js?v=3"></script>
+<script src="btp-run.js?v=3"></script>
+<script src="btp-town.js?v=3"></script>
+<script src="art/dustwater/sprites.js?v=3"></script>
+<script src="art/title/scene.js?v=3"></script>
+<script src="art/table/scene.js?v=3"></script>
 <script>
 (function () {
   'use strict';
   const E = window.BtpEngine, R = window.BtpRun, AI = window.BtpAI;
-  const KEY = 'btp-run-v2', TIPS_DONE = 'btp-tips-done', PREFS = 'btp-prefs';
+  const KEY = 'btp-run-v3', TIPS_DONE = 'btp-tips-done', PREFS = 'btp-prefs';
   /* Pace (the menu): every wait the page makes, in one table. `undo` is how long the computer holds back after
      a move you can take back. ?fast (the tests) makes every wait 0. */
   const PACE = {
@@ -502,7 +576,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 7, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 9, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -517,7 +591,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
 
   /* ---------------- storage ---------------- */
   function save() { try { if (P.L) localStorage.setItem(KEY, JSON.stringify(P.L)); } catch (e) {} }
-  function loadSaved() { try { const s = localStorage.getItem(KEY); const L = s ? JSON.parse(s) : null; return L && L.v === 2 ? L : null; } catch (e) { return null; } }
+  function loadSaved() { try { const s = localStorage.getItem(KEY); const L = s ? JSON.parse(s) : null; return L && L.v === 3 ? L : null; } catch (e) { return null; } }
   function clearSaved() { try { localStorage.removeItem(KEY); } catch (e) {} }
   function tipsDone() { try { return localStorage.getItem(TIPS_DONE) === '1'; } catch (e) { return false; } }
   function markTipsDone() { try { localStorage.setItem(TIPS_DONE, '1'); } catch (e) {} }
@@ -637,13 +711,13 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   }
 
   /* ---------------- run screens ---------------- */
-  /* Health is the run's score and its life: it starts at 0 and the run ends at −500, so the meter runs from −500
-     (empty) to +500 (full), and the box turns amber below −150 and red below −350. */
-  const hpClass = h => h <= -350 ? ' danger' : h < -150 ? ' low' : '';
+  /* Health (the fight redesign, 2026-10-27): 500 at the start and the most it can be; the gangs' points chip it
+     away and nothing heals it during a fight; at 0 the run ends. Amber below 200, red below 100. */
+  const hpClass = h => h < 100 ? ' danger' : h < 200 ? ' low' : '';
   function hpInner(L, delta) {
-    const pct = Math.max(0, Math.min(100, (L.health + 500) / 10));
-    return '<span class="lab">Health</span><span class="val">' + num(L.health) + '</span><span class="hpm" aria-hidden="true"><i style="width:' + pct + '%"></i></span>' +
-      '<small>' + (L.health <= -350 ? 'Danger: the run ends at −500' : 'the run ends at −500') + '</small>' +
+    const pct = Math.max(0, Math.min(100, 100 * L.health / R.HEALTH.max));
+    return '<span class="lab">Health</span><span class="val">' + L.health + '</span><span class="hpm" aria-hidden="true"><i style="width:' + pct + '%"></i></span>' +
+      '<small>' + (L.health < 100 ? 'Danger: the run ends at 0' : 'of ' + R.HEALTH.max + '; the run ends at 0') + '</small>' +
       (delta ? '<span class="delta ' + (delta > 0 ? 'up' : 'down') + '">' + (delta > 0 ? '+' : '−') + Math.abs(delta) + '</span>' : '');
   }
   function goldInner(L, delta) {
@@ -693,7 +767,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       case 'event': {
         const ev = R.EVENTS[L.event];
         body = '<div class="panel"><h2>Gossip: ' + esc(ev.name) + '</h2><p>' + esc(ev.text) + '</p>' +
-          ev.options.map((o, i) => '<button class="choice" data-option="' + i + '"' + ((o.fx.release && L.owned.length < 2) || (o.fx.gold < 0 && L.gold < -o.fx.gold) ? ' disabled' : '') + '><b>' + esc(o.text) + '</b></button>').join('') + '</div>' +
+          ev.options.map((o, i) => '<button class="choice" data-option="' + i + '"' + ((o.fx.release && L.owned.length < 2) || (o.fx.gold < 0 && L.gold < -o.fx.gold) || (o.fx.health < 0 && L.health + o.fx.health <= 0) ? ' disabled' : '') + '><b>' + esc(o.text) + '</b></button>').join('') + '</div>' +
           '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
         break;
       }
@@ -707,7 +781,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
             '<button class="choice" data-camp="forge"' + (R.forgeable(L).length ? '' : ' disabled') + '><b>Forge</b><span>' + (R.kittyOf(L) >= R.KITTY.max ? 'The kitty is full (' + R.KITTY.max + ' cards): nothing more can be forged.' : 'Copy a card you own. The copy is yours too, joins the deck, and ties the original: the first played wins.') + '</span></button>' +
             '<button class="choice" data-camp="remove"' + (R.removable(L).length ? '' : ' disabled') + '><b>Run Out of Town</b><span>' + (R.kittyOf(L) <= R.KITTY.min ? 'The kitty is down to ' + R.KITTY.min + ' card: nothing more can come out.' : 'Take a card you don’t own out of the deck for the rest of the run. Everyone feels it.') + '</span></button>' +
             '<p class="sub" style="margin:4px 0 0">The kitty takes the difference: it holds ' + R.kittyOf(L) + ' card' + (R.kittyOf(L) === 1 ? '' : 's') + ' now (' + R.KITTY.min + ' to ' + R.KITTY.max + ').</p>' : '') +
-          '<h3>Free extra</h3><button class="choice" data-camp="cashin"' + (L.cashed ? ' disabled' : '') + '><b>Cash in</b><span>Turn ' + R.CASH.health + ' health into ' + R.CASH.gold + ' gold' + (L.cashed ? ' (done)' : '') + '.</span></button></div>' +
+          '<h3>Free extra</h3><button class="choice" data-camp="cashin"' + (R.canCash(L) ? '' : ' disabled') + '><b>Cash in</b><span>Turn ' + R.CASH.health + ' health into ' + R.CASH.gold + ' gold' + (L.cashed ? ' (done)' : R.canCash(L) ? '' : ' (you need more than ' + R.CASH.health + ' health)') + '.</span></button></div>' +
           '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
         break;
       case 'bank': {
@@ -718,7 +792,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
           '<button class="choice" data-bank="fight"><b>Stop the robbery</b><span>One hand. Your health rides on it as usual.</span></button>' +
           '<button class="choice" data-bank="leave"><b>Walk on by</b><span>Not your business. Nothing won, nothing lost.</span></button></div>'
           : '<div class="panel"><h2>The teller’s window</h2><p>' + (L.result && L.result.won ? 'The bank is grateful, and open for business.' : 'The bank is shaken, but open for business.') + '</p>' +
-          '<button class="choice" data-bank="cashin"' + (L.cashed ? ' disabled' : '') + '><b>Cash in</b><span>Turn ' + R.CASH.health + ' health into ' + R.CASH.gold + ' gold' + (L.cashed ? ' (done)' : '') + '.</span></button>' +
+          '<button class="choice" data-bank="cashin"' + (R.canCash(L) ? '' : ' disabled') + '><b>Cash in</b><span>Turn ' + R.CASH.health + ' health into ' + R.CASH.gold + ' gold' + (L.cashed ? ' (done)' : R.canCash(L) ? '' : ' (you need more than ' + R.CASH.health + ' health)') + '.</span></button>' +
           '<div class="btns"><button class="btn" data-act="leavebank">Back to the street</button></div></div>') +
           '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
         break;
@@ -823,11 +897,11 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   };
   const icon = k => '<svg viewBox="0 0 24 24" aria-hidden="true">' + ICON[k] + '</svg>';
   function nodeWhat(L, k) {
-    return ({ dance: (['', 'one', 'two', 'three', 'four'][R.HANDS[L.act].dance] || R.HANDS[L.act].dance) + ' hands with one objective',
+    return ({ dance: 'shoot down a gang (' + R.FOE.base[L.act] + '+ health), with a bounty for extra stars',
       event: 'a choice with a trade-off', camp: 'rest, polish, cleanse' + (E.ACTS[L.act].forge ? ', forge or remove' : '') + ', or shop',
-      elite: 'harder: one curse, pays a buff', store: 'cards, an enhancement, a buff, a tonic',
+      elite: 'a tougher gang with an ability; pays a buff', store: 'cards, an enhancement, a buff, a tonic',
       raffle: R.RAFFLE.gold + ' gold and a free buff',
-      bank: 'stop a robbery in one hand: win ' + R.BANK.bounty + ' gold and an enhancement, lose ' + R.bankShare() + ' of your gold', boss: 'a race, up to ' + (R.BOSS[L.map.boss].hands || R.HANDS[L.act].boss) + ' hands' })[k];
+      bank: 'stop a robbery in one hand: win ' + R.BANK.bounty + ' gold and an enhancement, lose ' + R.bankShare() + ' of your gold', boss: R.BOSS[L.map.boss].name + ', ' + (R.BOSS[L.map.boss].hp || R.FOE.boss[L.act]) + ' health: beat them or the run is over' })[k];
   }
   /* Each act's boss, wanted: the name, the rule, and where the Showdown is. */
   function wantedHTML(L) {
@@ -922,11 +996,11 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
         (hd ? '<span class="' + (hd.won ? 'good' : 'badc') + '">' + esc(R.BOSS[hd.boss].name) + (hd.won ? ': beaten' : ': lost') + '</span>' : '') + '</div>';
     }).join('');
     const head = won ? '<h2>The County Fair is won!</h2><p class="big">You and Nan beat ' + esc(R.BOSS[L.boss].name.replace(/^The/, 'the')) + ' and take the championship.</p>'
-      : '<h2>The trail ends here</h2><p class="big badc">' + (L.lostFinal ? esc(R.BOSS[L.lostFinal].name) + ' won the final Showdown at the County Fair.' : 'Health fell to ' + num(L.health) + ' in Act ' + R.ROMAN[L.act] + ', game ' + L.level + '.') + '</p>';
+      : '<h2>The trail ends here</h2><p class="big badc">' + (L.lostTo ? esc((R.BOSS[L.lostTo] ? R.BOSS[L.lostTo].name : L.lostTo)) + ' shot your health down' + (R.BOSS[L.lostTo] ? ' in the Showdown' : '') : 'Your health ran out') + ' in Act ' + R.ROMAN[L.act] + ', game ' + L.level + '.</p>';
     const best = S.best ? '+' + S.best.delta + ' (' + (S.best.contractor === 0 ? 'your ' : S.best.contractor === 2 ? 'Nan’s ' : '') + esc(bidPlain(S.best.contract)) + (S.best.contractor % 2 ? ', set by you' : '') + ', Act ' + R.ROMAN[S.best.act || L.act] + ')' : 'none';
     return '<div class="panel end">' + head + acts +
       '<div class="kv"><span>Stars</span><span>' + S.stars + ' of ' + S.maxStars + '</span>' +
-      '<span>Objectives</span><span>' + S.objectives + ' of ' + S.objectiveLevels + '</span>' +
+      '<span>Bounties</span><span>' + S.objectives + ' of ' + S.objectiveLevels + '</span>' +
       '<span>Your contracts</span><span>' + S.made + ' made of ' + S.ours + '</span>' +
       '<span>Theirs</span><span>' + S.set + ' set of ' + S.theirs + '</span>' +
       '<span>Best hand</span><span>' + best + '</span>' +
@@ -942,7 +1016,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const hp = $('hp'), gs = $('goldstat');
     if (P.hpShown !== L.health) { hp.innerHTML = hpInner(L, P.hpShown == null ? 0 : L.health - P.hpShown); hp.className = 'stat hp' + hpClass(L.health); P.hpShown = L.health; }
     if (P.goldShown !== L.gold) { gs.innerHTML = goldInner(L, P.goldShown == null ? 0 : L.gold - P.goldShown); P.goldShown = L.gold; }
-    $('handpill').textContent = (L.kind === 'boss' ? 'Showdown' : R.KIND_NAME[L.kind]) + ' · hand ' + L.handNo + ' of ' + L.hands;
+    $('handpill').textContent = (L.kind === 'boss' ? 'Showdown' : R.KIND_NAME[L.kind]) + ' · hand ' + L.handNo + (L.kind === 'bank' ? ' of 1' : ' · par ' + R.parOf(L));
     renderObjective();
     const ct = $('contract');
     if (h.contract) {
@@ -953,10 +1027,10 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       const shown = h.open && h.trickNo >= 1 && h.contractor !== 0 ? ' · <b>' + (h.contractor === 2 ? 'Nan' : E.SEATS[h.contractor]) + '\u2019s hand:</b> ' + h.hands[h.contractor].map(E.label).join(' ') : '';
       ct.innerHTML = h.misere ? (mine
         ? '<b>' + (h.contractor === 0 ? 'You' : 'Nan') + '</b> bid ' + misWord + ' · ' + (h.contractor === 0 ? 'you' : 'she') + ' must lose every trick, playing alone · made: +' + h.contract.v + ', failed: −' + h.contract.v + shown
-        : '<b>' + E.SEATS[h.contractor] + '</b> bid ' + misWord + ' · <span class="intent">Intent: −' + E.damageOf(h.contract.v) + ' health if they lose every trick</span> · make ' + E.SEATS[h.contractor] + ' win one trick to block' + shown)
+        : '<b>' + E.SEATS[h.contractor] + '</b> bid ' + misWord + ' · <span class="intent">Intent: −' + E.damageOf(h.contract.v, L) + ' health if they lose every trick</span> · make ' + E.SEATS[h.contractor] + ' win one trick to block' + shown)
         : mine
         ? '<b>' + (h.contractor === 0 ? 'You' : 'Nan') + '</b> bid ' + bidHTML(h.contract) + ' · your team needs ' + need + ' tricks (' + got + ' so far) · made: +' + h.contract.v + ', failed: ' + (R.has(L, 'nearmiss') ? '−' + h.contract.v + ' (one short: 0)' : '−' + h.contract.v)
-        : '<b>' + E.SEATS[h.contractor] + '</b> bid ' + bidHTML(h.contract) + ' · <span class="intent">Intent: −' + E.damageOf(h.contract.v) + ' health if they take ' + need + '</span> · they have ' + got + ' · stop them at ' + (need - 1) + ' to block';
+        : '<b>' + E.SEATS[h.contractor] + '</b> bid ' + bidHTML(h.contract) + ' · <span class="intent">Intent: −' + E.damageOf(h.contract.v, L) + ' health if they take ' + need + '</span> · they have ' + got + ' · stop them at ' + (need - 1) + ' to block';
     } else ct.hidden = true;
     renderFelt();
     renderHand();
@@ -969,64 +1043,72 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     $('felt').classList.toggle('tipping', !!inFelt);
     // a tall bid grid (Act II's three rows) needs the room the empty trick area isn't using
     $('felt').classList.toggle('compact', L.phase === 'hand' && h.phase === 'bid' && !inFelt && Object.keys(E.ACTS[L.act].bids).length >= 3);
+    // Act III's bid grid is so tall that while bidding the table folds to a strip: the nameplate and the seats' bids
+    $('felt').classList.toggle('strip', $('felt').classList.contains('compact') && Object.keys(E.ACTS[L.act].bids).length >= 5);
+    const fold = $('felt').className;
+    if (P.compactShown !== fold) { P.compactShown = fold; renderFelt(); }
     if (inFelt) $('felt').insertAdjacentHTML('beforeend', '<div class="coach feltcoach">' + coachHTML(tip) + '</div>');
     $('log').innerHTML = L.log.slice().reverse().slice(0, 60).map(e => '<li class="' + e.kind + '">' + esc(e.text) + '</li>').join('');
   }
+  /* The gang across the table: its health bar (what your points still have to knock off), its abilities, the
+     Caller's call; then the bounty and what the stars pay. */
   function renderObjective() {
     const L = P.L, ob = $('objective');
-    if (L.race) {
-      const B = R.BOSS[L.boss], r = L.race;
+    if (!L.obj) {
+      const B = R.BOSS[L.boss];
       ob.className = 'objective';
-      ob.innerHTML = '<div class="ot"><div class="on">The Showdown: ' + esc(B.name) + '</div><div class="ox">' + esc(B.rule) + '</div></div>' +
-        '<div class="race"><span>You: ' + esc(B.yours.text) + '</span><div class="meter"><i style="width:' + Math.round(100 * r.you / r.of) + '%"></i></div><b>' + r.you + ' / ' + r.of + '</b>' +
-        '<span>' + B.short + ': ' + esc(B.theirs.text) + '</span><div class="meter them"><i style="width:' + Math.round(100 * r.them / (r.ofThem || r.of)) + '%"></i></div><b>' + r.them + ' / ' + (r.ofThem || r.of) + '</b></div>' +
-        (L.call ? '<div class="curse">The call: <b>' + esc(R.CALLS[L.call].name) + '</b> — ' + esc(R.CALLS[L.call].text) + ' <i>' + esc(L.callWhy || '') + '</i></div>' : '');
+      ob.innerHTML = '<div class="ot"><div class="ox"><b>Showdown:</b> ' + esc(B.rule) + '</div></div>' +
+        (L.call ? '<div class="curse">The call: <b>' + esc(R.CALLS[L.call].name) + '</b> — ' + esc(R.CALLS[L.call].text) + ' <i>' + esc(L.callWhy || '') + '</i></div>' : '') +
+        payHTML(L);
       return;
     }
     const O = R.OBJECTIVES[L.obj.id], h = L.h;
     ob.className = 'objective' + (L.obj.done ? ' done' : L.obj.fail ? ' fail' : '');
-    ob.innerHTML = '<div class="ot"><div class="on">' + esc(O.name) + '</div><div class="ox">' + esc(O.text) + '</div></div>' +
+    ob.innerHTML = '<div class="ot"><div class="on">' + (L.kind === 'bank' ? '' : 'Bounty: ') + esc(O.name) + '</div><div class="ox">' + esc(O.text) + '</div></div>' +
       '<div class="meter" aria-hidden="true"><i style="width:' + (O.kind === 'limit' ? (L.obj.fail ? 0 : 100) : Math.round(100 * L.obj.n / L.obj.of)) + '%"></i></div>' +
       '<div class="oc">' + R.objProgress(L) + '</div>' +
       (L.obj.id === 'royal' && (L.obj.got || []).length && !L.obj.done ? '<div class="ox" style="flex:none">' + L.obj.got.map(E.label).join(' ') + '</div>' : '') +
-      (L.obj.id === 'every' && !L.obj.done && !L.obj.fail && L.phase === 'hand' && h.tricks[0] > 0 ? '<div class="ox" style="flex:none">this hand ✓</div>' : '') +
-      (L.curse ? '<div class="curse">Curse: <b>' + esc(R.CURSES[L.curse].name) + '</b> — ' + esc(R.CURSES[L.curse].text) + '</div>' : '') +
+      (L.obj.id === 'every' && !L.obj.fail && L.phase === 'hand' && h.tricks[0] > 0 ? '<div class="ox" style="flex:none">this hand ✓</div>' : '') +
       payHTML(L);
   }
-  /* The stars this level would give if it ended now, and what they pay. Tap for the whole table. */
+  /* The stars this fight would give if it were won now, and what they pay. Tap for the whole table. */
   function starsNow(L) {
+    const fast = L.handNo <= R.parOf(L);
+    if (!L.obj) return fast ? 3 : 2;
     const O = R.OBJECTIVES[L.obj.id], done = L.obj.done || (O && O.kind === 'limit' && !L.obj.fail);
-    return done ? (L.you > L.opp && !L.extraBought ? 3 : 2) : 1;
+    return 1 + (done ? 1 : 0) + (fast ? 1 : 0);
   }
   const PRIZE = { dance: ['', 'no prize', 'pick 1 of 2 enhancements', 'pick 1 of 3 enhancements, or keep a card you won'],
                   elite: ['', 'no prize', 'a buff', 'pick 1 of 2 buffs'] };
+  // the same, short enough for the line under the bounty on a phone
+  const PRIZE_SHORT = { dance: ['', '', '1 of 2 enhancements', '1 of 3 enhancements or a card'], elite: ['', '', 'a buff', '1 of 2 buffs'] };
   function payHTML(L) {
-    if (L.race) return '<button class="pay" data-act="levelinfo"><span><b>Win the race:</b> 100 gold + pick 1 of 3 buffs. <b>Lose:</b> ' +
-      (L.act >= R.LAST_ACT ? 'the run is over.' : '−100 health, 50 gold and a hex.') + '</span><span class="more">Rewards</span></button>';
+    const par = R.parOf(L), fast = L.handNo <= par;
+    if (!L.obj) return '<button class="pay" data-act="levelinfo"><span class="st">' + stars(starsNow(L)) + '</span><span><b>Win:</b> 100 gold + pick 1 of 3 buffs. <b>Lose your health:</b> the run is over.</span>' +
+      '<span class="nx">' + (fast ? 'Win by hand ' + par + ' for ★★★' : 'Over par: ★★') + '</span><span class="more">Rewards</span></button>';
     if (L.kind === 'bank') return '<button class="pay" data-act="levelinfo"><span><b>Outscore the gang:</b> ' + R.BANK.bounty + ' gold + pick 1 of ' + R.BANK.enh + ' enhancements. <b>Lose:</b> they take ' + L.bank.take + ' gold.</span>' +
       '<span class="nx">' + esc('You ' + num(L.you) + ' · them ' + num(L.opp)) + '</span><span class="more">Rewards</span></button>';
-    const n = starsNow(L), pay = R.PAY[L.kind][n], score = '(you ' + num(L.you) + ' · them ' + num(L.opp) + ')';
-    const next = n === 1 ? 'Complete the objective for ★★' : n === 2 ? (L.extraBought ? 'An extra hand rules out ★★★' : 'Outscore them for ★★★ ' + score) : 'Keep outscoring them ' + score;
-    return '<button class="pay" data-act="levelinfo"><span class="st">' + stars(n) + '</span><span><b>Now:</b> ' + pay + ' gold' + (n > 1 ? ' + ' + PRIZE[L.kind][n] : '') + '</span>' +
+    const n = starsNow(L), pay = R.PAY[L.kind][n], done = n - (fast ? 1 : 0) > 1;
+    const next = [done ? '' : 'the bounty for a star', fast ? 'win by hand ' + par + ' for a star' : 'over par'].filter(Boolean).join(' · ');
+    return '<button class="pay" data-act="levelinfo"><span class="st">' + stars(n) + '</span><span><b>Win now:</b> ' + pay + 'g' + (n > 1 ? ' + ' + PRIZE_SHORT[L.kind][n] : '') + '</span>' +
       '<span class="nx">' + esc(next) + '</span><span class="more">Rewards</span></button>';
   }
   function levelInfoHTML(L) {
-    const B = L.race ? R.BOSS[L.boss] : null;
-    if (B) return '<h2>The Showdown: ' + esc(B.name) + '</h2><p>' + esc(B.rule) + '</p><p>A race: the first side to finish its goal wins.</p>' +
-      '<table class="paytable"><tr><td>You</td><td>' + esc(B.yours.text) + '</td></tr><tr><td>' + esc(B.short) + '</td><td>' + esc(B.theirs.text) + '</td></tr></table>' +
-      '<p><b>Win:</b> 100 gold and pick 1 of 3 buffs (★★★ if you also outscore them). <b>Lose:</b> ' + (L.act >= R.LAST_ACT ? 'the run is over: this is the final Showdown.' : '−100 health and 50 gold, and they leave a hex on one of your cards until you beat the next Showdown.') + '</p>' +
-      '<p>If nobody finishes, the side with more points this game wins.</p><div class="btns"><button class="btn" data-act="closesheet">Back</button></div>';
+    const par = R.parOf(L), F = L.foe;
+    const abil = F && F.traits.length ? '<p><b>Their ability:</b> ' + F.traits.map(t => esc(R.abilityOf(t).name) + ' — ' + esc(R.abilityOf(t).text)).join('; ') + '</p>' : '';
+    const how = '<p>Every point your team scores (a made contract, 10 a defending trick) hits them; a set takes its value back off. Every point they score hits your health at ' + E.hitWord(L) + '. Nothing heals you until the fight is won.</p>';
+    if (!L.obj) { const B = R.BOSS[L.boss];
+      return '<h2>The Showdown: ' + esc(B.name) + '</h2><p>' + esc(B.rule) + '</p><p>' + F.hp + ' health; ' + Math.max(0, F.hp - L.you) + ' left.</p>' + how +
+      '<p><b>Win:</b> 100 gold and pick 1 of 3 buffs: ★★★ within ' + par + ' hands, ★★ after. <b>Lose your health:</b> the run is over.</p><div class="btns"><button class="btn" data-act="closesheet">Back</button></div>'; }
     if (L.kind === 'bank') return '<h2>The Bank: the stakes</h2><p>One hand against the gang. You stop them if your points this hand beat theirs: make your contract, or set theirs. A tie goes to the gang.</p>' +
-      '<p><b>Win:</b> a ' + R.BANK.bounty + ' gold bounty and pick 1 of ' + R.BANK.enh + ' enhancements. <b>Lose:</b> they ride off with ' + L.bank.take + ' of your gold. Health moves with the hand as at any table.</p>' +
+      '<p><b>Win:</b> a ' + R.BANK.bounty + ' gold bounty and pick 1 of ' + R.BANK.enh + ' enhancements. <b>Lose:</b> they ride off with ' + L.bank.take + ' of your gold. Their points hit your health as at any table.</p>' +
       '<p>Either way, the teller will cash in health for gold afterwards.</p><div class="btns"><button class="btn" data-act="closesheet">Back</button></div>';
     const O = R.OBJECTIVES[L.obj.id], n = starsNow(L), pay = R.PAY[L.kind];
     const row = (k, what) => '<tr' + (k === n ? ' class="now"' : '') + '><td>' + '★'.repeat(k) + '</td><td><b>' + what + '</b><br>' + pay[k] + ' gold' + (k > 1 ? ' + ' + PRIZE[L.kind][k] : '') + '</td></tr>';
-    return '<h2>' + esc(R.KIND_NAME[L.kind]) + ': what it pays</h2><p><b>Objective:</b> ' + esc(O.text) + ' (' + esc(R.objProgress(L)) + ').</p>' +
-      '<table class="paytable">' + row(1, 'Get through the game') + row(2, 'Complete the objective') + row(3, 'The objective, and outscore them over the game') + '</table>' +
-      '<p>Outscoring means your points this game beat theirs: contracts you make, and 10 a trick when you defend. Right now: you ' + num(L.you) + ', them ' + num(L.opp) + '.' +
-      (L.extraBought ? ' You bought an extra hand, so ★★★ is off the table this game.' : '') + '</p>' +
+    return '<h2>' + esc(F.name) + ': ' + F.hp + ' health</h2>' + abil + how +
+      '<table class="paytable">' + row(1, 'Shoot them down') + row(2, 'And the bounty, or win within ' + par + ' hands') + row(3, 'The bounty and within ' + par + ' hands') + '</table>' +
+      '<p><b>Bounty:</b> ' + esc(O.text) + ' (' + esc(R.objProgress(L)) + '). This is hand ' + L.handNo + '.</p>' +
       '<p>Enhancements go on a card you own and stay all run; buffs change the rules in your favour. Gold buys cards, enhancements and buffs at the General Store.</p>' +
-      (L.curse ? '<p><b>Curse:</b> ' + esc(R.CURSES[L.curse].name) + ' — ' + esc(R.CURSES[L.curse].text) + '</p>' : '') +
       '<div class="btns"><button class="btn" data-act="closesheet">Back</button></div>';
   }
   function seatTag(L, seat) {
@@ -1041,21 +1123,114 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   }
   // a long hand shows a few backs and the count, so the side seats stay narrow
   function backs(n) { let s = ''; for (let i = 0; i < Math.min(n, n > 6 ? 3 : n); i++) s += '<i class="gingham"></i>'; if (n > 6) s += '<b>' + n + '</b>'; return '<div class="backs">' + s + '</div>'; }
+  /* Nan: a flat vector granny with a dark outline (the user's call: she stays a drawing, not pixel art), breathing
+     and blinking; she bobs when your side does well. */
+  const NAN_SVG = '<svg class="nansvg" viewBox="0 0 60 72" aria-hidden="true"><g class="breathe" stroke="#2a1b16" stroke-width="1.6" stroke-linejoin="round">' +
+    '<path d="M6 72 C7 54 16 47 30 47 C44 47 53 54 54 72 Z" fill="#8a6aa8"/><path d="M18 50 L30 63 L42 50" fill="none" stroke="#5e4478"/>' +
+    '<path d="M22 48 Q30 55 38 48 L36 46 Q30 50 24 46 Z" fill="#fbf3e2"/><circle cx="30" cy="30" r="15" fill="#f1d3b3"/>' +
+    '<path d="M15 29 C14 15 22 11 30 11 C38 11 46 15 45 29 C42 21 36 18 30 18 C24 18 18 21 15 29 Z" fill="#d9d6d2"/><circle cx="30" cy="8" r="6.5" fill="#d9d6d2"/>' +
+    '<circle cx="23.5" cy="31" r="5" fill="#fff" fill-opacity=".35" stroke="#7a5a44" stroke-width="1.3"/><circle cx="36.5" cy="31" r="5" fill="#fff" fill-opacity=".35" stroke="#7a5a44" stroke-width="1.3"/>' +
+    '<path d="M28.5 31 H31.5" stroke="#7a5a44" stroke-width="1.3"/><circle cx="23.5" cy="31.5" r="1.4" fill="#2a1b16" stroke="none"/><circle cx="36.5" cy="31.5" r="1.4" fill="#2a1b16" stroke="none"/>' +
+    '<g class="lids" stroke="none" fill="#e6c3a0"><rect x="20" y="28" width="7" height="5"/><rect x="33" y="28" width="7" height="5"/></g>' +
+    '<circle cx="19.5" cy="37" r="2.4" fill="#f0a8a0" stroke="none" opacity=".8"/><circle cx="40.5" cy="37" r="2.4" fill="#f0a8a0" stroke="none" opacity=".8"/>' +
+    '<path d="M26 39 Q30 42.5 34 39" fill="none" stroke-width="1.4"/></g></svg>';
+  /* The stage's numbers from art/table/scene.js (written by the bake), with the same defaults if it is missing. */
+  const STAGE = Object.assign({ W: 200, H: 112, edge: 76, figs: [] }, window.TABLE_SCENE || {});
+  const BANK_LOOK = ['pJT', 'sJD'], LIFT = 5, LIFT_COMPACT = 12;   // art rows of wall cropped off the top (--lift)
+  // a fight saved before the gangs had figures gets two from its name
+  function lookOf(L) {
+    if (!L.foe) return BANK_LOOK;
+    if (L.foe.look) return L.foe.look;
+    const pool = ['sJH', 'sJS', 'sJD', 'sJC', 'sKH', 'sKD', 'sKS', 'sKC'];
+    let n = 0; for (const ch of L.foe.name) n = (n * 31 + ch.charCodeAt(0)) >>> 0;
+    return [pool[n % 8], pool[(n >> 3) % 8]];
+  }
+  /* Art pixels to screen pixels: 3 on a phone, 2 when narrower, 4 on a wide page. The stage is tall enough for
+     the trick under the rim even at 2. */
+  function stageScale(w) { return Math.max(2, Math.min(4, Math.floor(w / 125))); }
+  function foePlate(L) {
+    const F = L.foe;
+    if (!F) return '<div class="foe"><div class="fn"><b>The bank robbers</b><span class="fhp">you ' + num(L.you) + ' · them ' + num(L.opp) + '</span></div><div class="ox">Outscore them this hand.</div></div>';
+    const left = Math.max(0, F.hp - L.you), pct = Math.round(100 * left / F.hp);
+    // the rules of the fight (their hit, what each ability does) are on the Rewards sheet; here, just the names
+    const tags = F.traits.map(t => '<span class="ftag" title="' + esc(R.abilityOf(t).text) + '">' + esc(R.abilityOf(t).name) + '</span>').join('') +
+      (L.h && L.h.stacked ? '<span class="ftag" title="They got the better of two deals this hand.">Stacked deck</span>' : '') +
+      '<span class="fhit" title="Their points hit your health at this share">hit ' + E.hitWord(L) + '</span>';
+    return '<div class="foe"><div class="fn"><b>' + esc(F.name) + '</b>' + tags + '<span class="fhp">' + left + ' / ' + F.hp + '</span></div>' +
+      '<div class="foebar" role="meter" aria-label="Their health" aria-valuemin="0" aria-valuemax="' + F.hp + '" aria-valuenow="' + left + '"><i style="width:' + pct + '%"></i><s style="width:' + pct + '%"></s></div>' +
+      (L.you < 0 ? '<div class="ox">Your sets have put you ' + -L.you + ' behind: make contracts to get back.</div>' : '') + '</div>';
+  }
+  /* The stage: rebuilt only when the fight, the act's wall, the gang or the scale changes. */
+  function buildStage(L, felt, k) {
+    const look = lookOf(L), fig = (key, side) => '<div class="fig ' + side + '"><img src="' + artURL('table/fig_' + key + '.webp') + '" alt=""></div>';
+    felt.innerHTML = '<div class="stage"><div class="wall" style="background-image:url(' + artURL('table/wall' + L.act + '.webp') + ')"></div>' +
+      fig(look[0], 'w') + fig(look[1], 'e') + '<div class="nanfig">' + NAN_SVG + '</div>' +
+      '<div class="tbl" style="background-image:url(' + artURL('table/table.webp') + ')"></div><div class="plate"></div></div><div class="dyn"></div>';
+    felt.classList.toggle('dressed', look.every(x => !STAGE.figs.length || STAGE.figs.includes(x)));
+  }
+  const restartFx = (el, cls) => { if (!el) return; el.classList.remove('hit', 'gloat', 'cheer'); void el.offsetWidth; el.classList.add(cls); };
+  function popAt(felt, text, bad, x, y) {
+    if (FAST) return;
+    const p = document.createElement('div');
+    p.className = 'pop' + (bad ? ' bad' : ''); p.textContent = text; p.style.left = x; p.style.top = y;
+    felt.appendChild(p); setTimeout(() => p.remove(), 1300);
+  }
+  /* The gang's flinch and gloat, Nan's bob, the damage numbers: once for each finished trick and each hand. */
+  function stageFx(L, felt) {
+    const h = L.h, figs = felt.querySelectorAll('.stage .fig'), nan = felt.querySelector('.nanfig');
+    let key = null, good = null, hand = null;
+    if (L.phase === 'hand' && h.phase === 'trick' && h.last) { key = 't' + L.level + '-' + L.handNo + '-' + h.trickNo; good = h.misere ? E.team(h.last.winner) === 1 : E.team(h.last.winner) === 0; }
+    if (L.phase === 'summary' && h.result) { key = 's' + L.level + '-' + L.handNo; hand = h.result; }
+    if (!key || key === P.fxKey) return;
+    P.fxKey = key;
+    if (hand) {
+      if (hand.pts[0] > 0) { figs.forEach(f => restartFx(f, 'hit')); restartFx(nan, 'cheer'); popAt(felt, '−' + hand.pts[0], false, '50%', '46px'); }
+      if (hand.dmg > 0) { if (hand.pts[0] <= 0) figs.forEach(f => restartFx(f, 'gloat')); popAt(felt, '−' + hand.dmg + ' health', true, '50%', 'calc(var(--edge) * var(--ax) + 30px)'); }
+    } else if (good) { figs.forEach(f => restartFx(f, 'hit')); restartFx(nan, 'cheer'); }
+    else figs.forEach(f => restartFx(f, 'gloat'));
+  }
   function renderFelt() {
     const L = P.L, h = L.h, turn = (L.phase === 'hand' && ['bid', 'play', 'kitty'].includes(h.phase)) ? h.turn : -1;
-    const re = L.reaction;
+    const re = L.reaction, felt = $('felt');
+    // while bidding a tall grid (felt.compact) the stage shrinks to 2 and crops more wall, so the grid's Pass stays on screen
+    const compact = felt.classList.contains('compact'), lift = compact ? LIFT_COMPACT : LIFT;
+    const k = compact ? Math.min(2, stageScale(felt.clientWidth || innerWidth)) : stageScale(felt.clientWidth || innerWidth);
+    const skey = [L.act, L.level, lookOf(L).join(), k].join('|');
+    if (P.stageKey !== skey || !felt.querySelector('.stage')) { buildStage(L, felt, k); P.stageKey = skey; P.fxKey = null; }
+    felt.style.setProperty('--k', k);
+    const rim = STAGE.edge - lift;
+    felt.style.setProperty('--edge', rim);
+    felt.style.setProperty('--lift', lift);
+    // the rim, then room for the trick's cards under it; while bidding a tall grid, only down to the rim
+    const drop = compact ? 0 : Math.max(0, 50 - (24 - lift) * k);
+    felt.style.setProperty('--drop', drop + 'px');
+    felt.style.height = (felt.classList.contains('strip') ? 78 : drop + rim * k + (compact ? 4 : 98)) + 'px';
+    const plate = felt.querySelector('.plate'), ph = foePlate(L);
+    if (plate.dataset.html !== ph) {
+      const old = plate.querySelector('.foebar i'), was = old ? old.style.width : null;
+      plate.innerHTML = ph; plate.dataset.html = ph;
+      // the red falls at once and the gold trails it, so you see the chunk you knocked off
+      const s = plate.querySelector('.foebar s'), i = plate.querySelector('.foebar i');
+      if (s && was) { const now = s.style.width; s.style.transition = 'none'; s.style.width = was; void s.offsetWidth; s.style.transition = ''; s.style.width = now; i.style.width = was; void i.offsetWidth; i.style.width = now; }
+    }
+    felt.querySelectorAll('.stage .fig').forEach((f, i) => f.classList.toggle('turn', turn === (i ? 3 : 1)));
     const lips = seat => { const cs = h.hands[seat].filter(c => L.hexes && L.hexes[c] === 'loose'); return cs.length ? '<div class="lips">' + cs.map(c => cardHTML(c, { small: true, seat })).join('') + '</div>' : ''; };
-    const north = '<div class="seat north' + (turn === 2 ? ' turn' : '') + '"><div class="nan"><div class="face' + (re && /won|made|set/.test(re.kind) ? ' cheer' : '') + '"></div>' +
-      (re ? '<div class="bubble">' + esc(re.text) + '</div>' : '') + '</div><div class="who">Nan (North)</div>' + backs(h.hands[2].length) + lips(2) + seatTag(L, 2) + '</div>';
-    const side = (seat, cls) => '<div class="seat ' + cls + (turn === seat ? ' turn' : '') + '"><div class="who">' + E.SEATS[seat] + '</div>' + backs(h.hands[seat].length) + lips(seat) + seatTag(L, seat) + '</div>';
-    let zone = '<div class="trickzone" data-act="tapfelt">';
+    const strip = felt.classList.contains('strip');
+    const seat = (s, cls, name) => '<div class="seat ' + cls + (turn === s ? ' turn' : '') + '">' + (strip
+      ? '<div class="plaque"><span class="who">' + name + '</span>' + seatTag(L, s) + '</div>'
+      : '<div class="bidbox">' + seatTag(L, s) + '</div><div class="plaque"><span class="who">' + name + '</span>' + backs(h.hands[s].length) + '</div>' + lips(s)) + '</div>';
+    // a tap on the table clears a finished trick: only then is it a control
+    let zone = '<div class="trickzone"' + (h.phase === 'trick' ? ' data-act="tapfelt"' : '') + '>';
     if (h.phase === 'play' || h.phase === 'trick' || h.phase === 'swing' || h.phase === 'intent') {
       const showWin = h.phase === 'trick' ? h.last.winner : -1;
       for (let s = 0; s < 4; s++) if (h.trick[s]) zone += '<div class="slot s' + s + (s === showWin ? ' win' : '') + '">' + cardHTML(h.trick[s], { small: true, seat: s }) + '</div>';
       zone += '<div class="tally">Tricks: you ' + h.tricks[0] + (h.bonus && h.bonus[0] ? ' (+' + h.bonus[0] + ')' : '') + ' · them ' + h.tricks[1] + '</div>';
     }
     zone += '</div>';
-    $('felt').innerHTML = north + side(1, 'west') + zone + side(3, 'east');
+    felt.querySelector('.dyn').innerHTML = seat(1, 'west', 'West') + seat(2, 'north', 'Nan') + seat(3, 'east', 'East') + zone +
+      (re ? '<div class="bubble nanbubble">' + esc(re.text) + '</div>' : '');
+    felt.querySelectorAll('.feltcoach').forEach(x => x.remove());
+    stageFx(L, felt);
   }
   function renderHand() {
     const L = P.L, h = L.h, hand = h.hands[0];
@@ -1145,43 +1320,39 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     if (L.phase === 'hand' && h.phase === 'intent') {
       key = 'intent' + L.level + '-' + L.handNo;
       if (h.misere) html = '<h2>Their intent</h2><p class="big">' + E.SEATS[h.contractor] + ' bids ' + (h.open ? 'open misère' : 'misère') + '</p>' + (h.open ? '<p>Their hand goes face up after the first trick: use it.</p>' : '') +
-        '<p>' + E.SEATS[h.contractor] + ' plays alone and must lose every trick. If they do, you lose <b class="badc">' + h.intent.dmg + ' health</b> (half of ' + h.contract.v + ').</p>' +
+        '<p>' + E.SEATS[h.contractor] + ' plays alone and must lose every trick. If they do, you lose <b class="badc">' + h.intent.dmg + ' health</b> (' + E.hitWord(L) + ' of ' + h.contract.v + ').</p>' +
         '<p>Make ' + E.SEATS[h.contractor] + ' win just one trick and the attack misses: they lose ' + h.contract.v + '. Lead low cards, and when they play, stay under their card.</p>' +
         '<div class="btns"><button class="btn" data-act="ackintent">Defend</button></div>';
       else html = '<h2>Their intent</h2><p class="big">' + E.SEATS[h.contractor] + ' bids ' + bidHTML(h.contract) + '</p>' +
-        '<p>If they take <b>' + h.contract.t + '</b> of the ' + E.ACTS[L.act].hand + ' tricks, you lose <b class="badc">' + h.intent.dmg + ' health</b> (half of ' + h.contract.v + ')' +
+        '<p>If they take <b>' + h.contract.t + '</b> of the ' + E.ACTS[L.act].hand + ' tricks, you lose <b class="badc">' + h.intent.dmg + ' health</b> (' + E.hitWord(L) + ' of ' + h.contract.v + ')' +
         (h.intent.dmgSweep > h.intent.dmg ? ', or ' + h.intent.dmgSweep + ' if they take all ' + E.ACTS[L.act].hand : '') + '.</p>' +
-        '<p>Hold them to ' + (h.contract.t - 1) + ' and the attack misses: they lose ' + h.contract.v + ' and you score 10 a trick.</p>' +
+        '<p>Hold them to ' + (h.contract.t - 1) + ' and the attack misses: they lose ' + h.contract.v + ', and your 10 a trick hits them. Their defending tricks still hit you.</p>' +
         '<div class="btns"><button class="btn" data-act="ackintent">Defend</button></div>';
     } else if (L.phase === 'summary') {
       const r = h.result;
       key = 'sum' + L.level + '-' + L.handNo;
-      const goal = L.race ? 'Race: you ' + L.race.you + ' / ' + L.race.of + ' · ' + R.BOSS[L.boss].short + ' ' + L.race.them + ' / ' + (L.race.ofThem || L.race.of) :
-        R.OBJECTIVES[L.obj.id].name + ': ' + (L.obj.done ? '<span class="good">done</span>' : L.obj.fail ? '<span class="badc">missed</span>' : R.objProgress(L));
-      const last = L.handNo >= L.hands || (L.race && L.race.winner);
-      html = '<h2>Hand ' + L.handNo + ' of ' + L.hands + '</h2>' +
-        '<p class="big ' + (r.delta >= 0 ? 'good' : 'badc') + '">Health ' + (r.delta >= 0 ? '+' : '−') + Math.abs(r.delta) + ' → ' + num(L.health) + '</p>' +
+      const F = L.foe, over = R.fightOver(L);
+      const goal = L.obj ? R.OBJECTIVES[L.obj.id].name + ': ' + (L.obj.done ? '<span class="good">done</span>' : L.obj.fail ? '<span class="badc">missed</span>' : R.objProgress(L)) : '';
+      html = '<h2>Hand ' + L.handNo + (F ? ' against ' + esc(F.name) : '') + '</h2>' +
+        '<div class="kv"><span>You hit them</span><span class="' + (r.pts[0] > 0 ? 'good' : r.pts[0] < 0 ? 'badc' : '') + '">' + num(r.pts[0]) + (F ? ' · ' + Math.max(0, F.hp - L.you) + ' of ' + F.hp + ' left' : '') + '</span>' +
+        '<span>They hit you</span><span class="' + (r.dmg ? 'badc' : 'good') + '">' + (r.dmg ? '−' + r.dmg : 'nothing') + ' · health ' + L.health + '</span></div>' +
         '<ul class="lines">' + r.lines.map(t => '<li>' + esc(t) + '</li>').join('') + '</ul>' +
-        '<div class="kv"><span>' + (L.race ? 'Showdown' : 'Objective') + '</span><span>' + goal + '</span>' +
-        '<span>Score this game</span><span>you ' + num(L.you) + ' · them ' + num(L.opp) + '</span></div>' +
-        (L.race && L.race.winner ? '<p class="big ' + (L.race.winner === 'you' ? 'good' : 'badc') + '">' + (L.race.winner === 'you' ? 'You win the race!' : R.BOSS[L.boss].name + ' win the race.') + '</p>' : '') +
-        (R.canExtra(L) ? '<p>The objective isn’t done yet. One more hand costs <b>' + L.extraPrice + ' gold</b> (no third star this game).</p>' : '') +
-        '<div class="btns"><button class="btn" data-act="next">' + (last ? 'See the stars' : 'Next hand') + '</button>' +
-        (R.canExtra(L) ? '<button class="btn alt" data-act="extra">One more hand (' + L.extraPrice + 'g)</button>' : '') + '</div>';
+        (goal ? '<div class="kv"><span>' + (L.kind === 'bank' ? 'Objective' : 'Bounty') + '</span><span>' + goal + '</span></div>' : '') +
+        (over && F ? '<p class="big good">' + esc(F.name) + ' are beaten!</p>' : '') +
+        '<div class="btns"><button class="btn" data-act="next">' + (over ? 'See the stars' : 'Next hand') + '</button></div>';
     } else if (L.phase === 'over') {
       const r = L.result;
       key = 'over' + L.level;
-      const goal = r.kind === 'boss' ? '<span>Showdown</span><span>' + (r.won ? '<span class="good">you won the race</span>' : '<span class="badc">' + R.BOSS[L.boss].name.replace(/^The/, 'the') + ' won</span> (−100 health)') + '</span>'
-        : '<span>Objective</span><span>' + esc(R.OBJECTIVES[L.obj.id].text) + ': ' + (r.objective ? '<span class="good">done</span>' : '<span class="badc">missed</span>') + '</span>';
+      const goal = r.kind === 'boss' ? '' : '<span>' + (r.kind === 'bank' ? 'Objective' : 'Bounty') + '</span><span>' + esc(R.OBJECTIVES[L.obj.id].text) + ': ' + (r.objective ? '<span class="good">done</span>' : '<span class="badc">missed</span>') + '</span>';
       const next = r.kind === 'dance' ? (r.stars === 3 ? 'Pick 1 of 3 enhancements, or keep a card you won.' : r.stars === 2 ? 'Pick 1 of 2 enhancements.' : 'No reward beyond the gold.')
         : r.kind === 'elite' ? (r.stars === 3 ? 'Pick 1 of 2 buffs.' : r.stars === 2 ? 'A buff.' : 'No buff.')
         : r.kind === 'bank' ? (r.won ? 'Pick 1 of ' + R.BANK.enh + ' enhancements, then the teller.' : 'Nothing. The teller is still open.')
         : (r.won ? 'Pick 1 of 3 buffs.' : 'No buff.');
       html = '<h2>' + (r.kind === 'boss' ? 'The Showdown over' : r.kind === 'bank' ? (r.won ? 'The robbery is foiled' : 'The gang gets away') : R.KIND_NAME[r.kind] + ' over') + '</h2><div class="stars" aria-label="' + r.stars + ' stars">' + stars(r.stars) + '</div>' +
-        '<div class="kv"><span>Survived</span><span class="good">yes</span>' + goal +
-        '<span>Outscored them</span><span>' + (r.outscored ? '<span class="good">yes</span>' : '<span class="badc">no</span>') + ' (you ' + num(r.you) + ', them ' + num(r.opp) + ')' + (r.extra ? ' · extra hand bought' : '') + '</span>' +
+        '<div class="kv">' + (r.kind === 'bank' ? '<span>Score</span><span>you ' + num(r.you) + ', them ' + num(r.opp) + '</span>' :
+          '<span>Beaten in</span><span>' + r.hands + ' hand' + (r.hands > 1 ? 's' : '') + ' ' + (r.fast ? '<span class="good">(par ' + r.par + ')</span>' : '<span class="badc">(par ' + r.par + ')</span>') + '</span>') + goal +
         '<span>Gold</span><span>' + (r.gold < 0 ? '<span class="badc">−' + -r.gold + '</span>' : '+' + r.gold) + ' (now ' + L.gold + ')</span>' +
-        '<span>Health</span><span>' + num(L.health) + ' (' + (r.change >= 0 ? '+' : '−') + Math.abs(r.change) + ' this game)</span>' +
+        '<span>Health</span><span>' + L.health + (r.change ? ' (−' + -r.change + ' this fight)' : ' (untouched)') + '</span>' +
         '<span>Reward</span><span>' + next + '</span></div>' +
         '<div class="btns"><button class="btn" data-act="collect">Collect</button></div>';
     }
@@ -1204,7 +1375,8 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     '<li><b>Trumps:</b> the Joker is highest, then the <b>right bower</b> (the Jack of trumps), then the <b>left bower</b> (the other red Jack, which counts as a trump), then A, K, Q, 10, 9.</li>' +
     '<li><b>Play:</b> the winner of the auction takes the kitty, puts a card back and leads. Follow the suit led if you can; the highest trump wins, otherwise the highest card of the suit led. Equal cards: the first played wins.</li>' +
     '<li><b>Scoring:</b> make your bid and score it; fail and lose it. Defenders score 10 a trick. Take every trick and you score your suit’s top bid.</li>' +
-    '<li><b>Health:</b> your score is your health. When West and East win the auction, their bid is their attack: if they make it you lose half its value. Set them to block it. At −500 the run ends.</li>' +
+    '<li><b>Fights:</b> every table is a gang with health. Your team\u2019s points each hand (a made contract, 10 a defending trick) shoot it down; a set takes its value back off. Hand follows hand until they are beaten.</li>' +
+    '<li><b>Health:</b> you start with 500, and that is the most you can have. Every point West and East score hits you, at 30% in Act I, 20% in Act II and 15% in Act III (Showdown gangs hit harder). Nothing heals you during a fight; at 0 the run is over, Showdown or not.</li>' +
     '<li><b>Your cards:</b> each hand, one card you own is dealt straight to you. Enhancements on your cards work for you and Nan only.</li>' +
     '<li><b>Nan</b> never outbids you.</li></ul><div class="btns"><button class="btn" data-act="closesheet">Got it</button></div>';
   function menuHTML() {
@@ -1370,7 +1542,6 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       case 'ackintent': move('ack'); break;
       case 'tapfelt': if (L && L.phase === 'hand' && L.h.phase === 'trick') move('ack'); break;
       case 'next': move('next'); break;
-      case 'extra': move('extra'); break;
       case 'collect': move('collect'); break;
       case 'skipreward': move('choose', { skip: true }); break;
       case 'reroll': move('reroll'); break;
@@ -1410,11 +1581,12 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       return '<div class="puff" style="left:calc(50% + ' + u(T.stack[0] - T.w / 2 - p.w / 2) + ');top:' + u(T.y + T.stack[1] - p.h / 2) + ';width:' + u(p.w) + ';height:' + u(p.h) +
         ';background:' + url(p.img) + ' 0 0 / 100% 100%;animation-delay:' + (i * 0.4).toFixed(1) + 's"></div>'; }).join('');
     const I = S.intro, below = I ? '<div class="below" style="top:' + u(S.H) + ';height:' + u(BELOW) + '">' +
-      '<div class="meadow" style="background:' + url(I.meadow.img) + ' 0 0 / ' + u(I.meadow.w) + ' ' + u(I.meadow.h) + ' repeat;--tw:' + u(I.meadow.w) + ';--dur:' + (I.meadow.w / 52).toFixed(2) + 's"></div>' +
-      lyr({ img: I.trail.img, w: I.trail.w, h: I.trail.h, y: TRAIL_Y, speed: 52 }) +
+      '<div class="meadow" style="background:' + url(I.meadow.img) + ' 0 0 / ' + u(I.meadow.w) + ' ' + u(I.meadow.h) + ' repeat;--tw:' + u(I.meadow.w) + ';--dur:' + (I.meadow.w / STAGE_SPEED).toFixed(2) + 's"></div>' +
+      lyr({ img: I.trail.img, w: I.trail.w, h: I.trail.h, y: TRAIL_Y, speed: STAGE_SPEED }) +
       '<div class="stagecoach" style="left:calc(50% - ' + u(I.stage.w / 2) + ');top:' + u(TRAIL_Y + 18 - 24) + ';width:' + u(I.stage.w) + ';height:' + u(I.stage.h) +
       ';background-image:' + url(I.stage.img) + ';background-size:' + u(I.stage.w * I.stage.frames) + ' ' + u(I.stage.h) + ';--fw:' + u(I.stage.w) + '"></div>' +
-      '<div class="townsign" style="top:' + u(TRAIL_Y + 14) + ';width:' + u(I.sign.w * 1.5) + ';height:' + u(I.sign.h * 1.5) + ';background:' + url(I.sign.img) + ' 0 0 / 100% 100%"></div></div>' : '';
+      '<div class="townsign" style="top:' + u(TRAIL_Y + 14) + ';width:' + u(I.sign.w * SIGN_K) + ';height:' + u(I.sign.h * SIGN_K) + ';background:' + url(I.sign.img) + ' 0 0 / 100% 100%">' +
+      (I.sign.panel && I.signcover ? signCover(I.sign, url(I.signcover.img)) : '') + '</div></div>' : '';
     HERO.top = innerHeight - S.H * s;                   // the scene's top edge: it sits on the bottom of the screen
     HERO.trainTop = HERO.top + T.y * s;
     hero.innerHTML = '<div class="rig" style="top:' + HERO.top + 'px">' + S.layers.filter(l => !l.front).map(lyr).join('') +
@@ -1422,8 +1594,16 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       ';background-size:' + u(T.w * T.frames) + ' ' + u(T.h) + ';--fw:' + u(T.w) + '"></div>' + puffs +
       S.layers.filter(l => l.front).map(lyr).join('') + below + '</div>';
   }
-  // the stage under the title scene, in art pixels: the trail runs across it TRAIL_Y down
-  const BELOW = 560, TRAIL_Y = 280, HERO = { s: 2, top: 0, trainTop: 0 };
+  /* The WELCOME plank over the sign's painted panel, placed in the sign's own pixels; it hangs on the nail two
+     pixels in from its top left, so that is where it turns. */
+  function signCover(sign, bg) {
+    const [x, y, w, h] = sign.panel, pc = (v, of) => (100 * v / of).toFixed(3) + '%';
+    return '<div class="signcover" style="left:' + pc(x, sign.w) + ';top:' + pc(y, sign.h) + ';width:' + pc(w, sign.w) + ';height:' + pc(h, sign.h) +
+      ';transform-origin:' + pc(2.5, w) + ' ' + pc(2.5, h) + ';background:' + bg + ' 0 0 / 100% 100%"></div>';
+  }
+  // the stage under the title scene, in art pixels: the trail runs across it TRAIL_Y down; the stage scrolls at
+  // STAGE_SPEED art pixels a second (60% of the first cut's 52) and the sign is drawn SIGN_K times its art size
+  const BELOW = 560, TRAIL_Y = 280, HERO = { s: 2, top: 0, trainTop: 0 }, STAGE_SPEED = 31, SIGN_K = 1.2;
   /* The title's words: pictures once the art is on, placed in the sky by where the train is: the logo a fifth of
      the way down to it, Start Game about two thirds, Continue under Start, Options on the grass at the bottom. */
   function layoutTitle() {
@@ -1453,7 +1633,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { if (!$('title').hidden && !OPEN.done) { buildHero(); layoutTitle(); } }, 150); });
 
   /* The opening: storyboard frames 2-5 (see the CSS above), then `done` deals the act's cards (frame 6). */
-  const OPEN = { timers: [], done: null };
+  const OPEN = { timers: [], done: null, raf: 0 };
   function reduceMotion() { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
   function heroAnims(rate) { try { document.getAnimations().forEach(a => { const t = a.effect && a.effect.target; if (t && t.closest && t.closest('#hero')) a.updatePlaybackRate(rate); }); } catch (e) { /* no Web Animations */ } }
   function at(ms, fn) { OPEN.timers.push(setTimeout(fn, ms)); }
@@ -1478,9 +1658,11 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     OPEN.timers = [];
     const done = OPEN.done;
     OPEN.done = null;
-    document.body.classList.remove('opening', 'tilt', 'signpass');
-    const hero = $('hero');
-    hero.style.height = '';
+    cancelAnimationFrame(OPEN.raf);
+    document.body.classList.remove('opening', 'tilt', 'signzoom', 'signdrop');
+    const hero = $('hero'), sign = hero.querySelector('.townsign');
+    hero.style.height = ''; hero.style.transform = '';
+    if (sign) sign.style.left = '';
     const rig = hero.querySelector('.rig');
     if (rig) { rig.style.transition = 'none'; rig.style.transform = ''; void rig.offsetHeight; rig.style.transition = ''; }
     heroAnims(1);
@@ -1498,7 +1680,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     document.body.classList.add('opening');
     heroAnims(2.2);
     // 3: the hero fills the screen and tilts down to the trail; the stagecoach rolls in
-    at(1200, () => {
+    at(1600, () => {
       const hero = $('hero'), rig = hero.querySelector('.rig');
       hero.style.height = innerHeight + 'px';
       document.body.classList.add('tilt');
@@ -1507,12 +1689,52 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       void rig.offsetHeight;                    // let the full-screen height land before the tilt starts
       rig.style.transform = 'translateY(' + Math.round(innerHeight * 0.58 - trail) + 'px)';
     });
-    // 4: the town sign rushes past, then the coach's dust wipes the screen
-    at(2900, () => document.body.classList.add('signpass'));
-    at(3800, () => dust(true));
+    // 4: the town sign comes along the trail and the coach pulls up at it; the camera closes in, the WELCOME
+    // plank falls away (DANGER! DO NOT ENTER), and the coach's dust wipes the screen
+    at(1600, () => signRun(performance.now() + 5000));
+    at(6800, signZoom);
+    at(7900, () => document.body.classList.add('signdrop'));
+    at(10300, () => dust(true));
     // 5: the act card comes up under the dust, and the dust clears off it
-    at(4700, () => { actCard(L, L.tips); undust(); });
-    at(4700 + (L.tips ? 2600 : 1400), endOpening);
+    at(11200, () => { actCard(L, L.tips); undust(); });
+    at(11200 + (L.tips ? 2600 : 1400), endOpening);
+  }
+  /* The sign is planted by the trail, so it moves at the stage's speed; the coach brakes to a stop over the last
+     BRAKE ms with the sign beside it, and the ground, the wheels and the trot slow with it. `stopAt` is when it
+     stands still; until it is due the sign waits off the right edge. */
+  const BRAKE = 1200;
+  function signRun(stopAt) {
+    const sign = $('hero').querySelector('.townsign');
+    if (!sign) return;
+    const v = STAGE_SPEED * HERO.s / 1000, W = innerWidth, sw = sign.offsetWidth || 0;
+    const stopLeft = OPEN.signStop = Math.round(W * 0.62 - sw / 2);
+    let rate = 1;
+    const tick = () => {
+      const tau = stopAt - performance.now();
+      // distance still to go: half a braking distance while braking (it falls with the square of the time left)
+      const left = tau <= 0 ? 0 : tau < BRAKE ? v * tau * tau / (2 * BRAKE) : v * BRAKE / 2 + v * (tau - BRAKE);
+      sign.style.left = Math.min(W + 10, stopLeft + left) + 'px';
+      const r = tau <= 0 ? 0 : Math.min(1, tau / BRAKE);
+      if (r !== rate) heroAnims(rate = r);
+      if (tau > 0) OPEN.raf = requestAnimationFrame(tick);
+    };
+    OPEN.raf = requestAnimationFrame(tick);
+  }
+  /* Close in on the sign: scale the whole full-screen hero about its top left so the sign sits in the middle,
+     as big as the screen allows (never more than 3 times). */
+  function signZoom() {
+    const hero = $('hero'), sign = hero.querySelector('.townsign');
+    if (!sign) return;
+    // the coach has stopped by now; make sure of it even where animation frames were held back
+    cancelAnimationFrame(OPEN.raf);
+    if (OPEN.signStop != null) sign.style.left = OPEN.signStop + 'px';
+    heroAnims(0);
+    const r = sign.getBoundingClientRect();
+    if (!r.width) return;
+    const k = Math.min(3, innerWidth * 0.9 / r.width, innerHeight * 0.55 / r.height);
+    const tx = innerWidth / 2 - k * (r.left + r.width / 2), ty = innerHeight * 0.45 - k * (r.top + r.height / 2);
+    document.body.classList.add('signzoom');
+    hero.style.transform = 'translate(' + Math.round(tx) + 'px,' + Math.round(ty) + 'px) scale(' + k.toFixed(3) + ')';
   }
   // Continue: a short dust wipe into the run (none under reduced motion or ?fast)
   function dustInto(done) {
@@ -1520,6 +1742,8 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     dust(true);
     setTimeout(() => { done(); undust(); }, 800);
   }
+  // the table's stage is scaled to the page's width: a new width rescales it
+  addEventListener('resize', () => { clearTimeout(P.stageT); P.stageT = setTimeout(() => { if (P.L && !$('game').hidden && P.L.h) renderFelt(); }, 120); });
   // any tap or key during the opening skips it
   ['pointerdown', 'keydown'].forEach(e => addEventListener(e, ev => { if (OPEN.done && !(ev.target.closest && ev.target.closest('#skipOpening'))) endOpening(); }, true));
   $('objPick').innerHTML += Object.entries(R.OBJECTIVES).filter(([k, o]) => !o.bank).map(([k, o]) => '<option value="' + k + '">' + esc(o.name) + ': ' + esc(o.text) + '</option>').join('');

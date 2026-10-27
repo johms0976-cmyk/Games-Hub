@@ -277,8 +277,14 @@
   /* A sweep scores the top-level value of the bid suit. */
   function sweepValue(act, s) { const ts = Object.keys(ACTS[act].bids).map(Number); return ACTS[act].bids[Math.max(...ts)][s]; }
   const bidText = b => b.s === 'MIS' ? 'Mis\u00e8re' : b.s === 'OMIS' ? 'Open mis\u00e8re' : b.t + (b.s === 'NT' ? 'NT' : SYM[b.s]);
-  /* Half a made opponent contract, to the nearest 5: the opponents' attack. */
-  const damageOf = v => Math.round(v / 2 / 5) * 5;
+  /* The opponents' attack (the fight redesign, 2026-10-27): every point they score in a hand (a made contract,
+     10 a defending trick) hits your health at the act's share, to the nearest 5. The share shrinks as the acts'
+     scores grow (Act I bids are 20-100, Act III's 40-520). A gang's Dead Eye (L.foe.hitMul) hits harder.
+     Without a run (L), half. */
+  const HIT = { 1: 0.3, 2: 0.2, 3: 0.15 };   // tuned over whole stand-in runs (btp-run.js, FOE)
+  const hitShare = L => L ? HIT[L.act] * ((L.foe && L.foe.hitMul) || 1) : 1 / 2;
+  const hitWord = L => Math.round(100 * hitShare(L)) + '%';
+  const damageOf = (v, L) => Math.round(Math.max(0, v) * hitShare(L) / 5) * 5;
 
   /* ---------------- the hand ---------------- */
   function say(L, text, kind) { L.log.push({ n: L.log.length, hand: L.handNo, text, kind: kind || '' }); }
@@ -369,7 +375,7 @@
   const no = why => ({ ok: false, why });
   /* The Wallflowers never bid, so your team must: the second of you to speak may not pass with no bid made. */
   // and with them at the table your team's contracts start at this many tricks (misère aside)
-  const WALL = { min: 7 };   // measured: 2 against 2 at 6 tricks the stand-in won 82%; at 7, 55%
+  const WALL = { min: 8 };   // the fight redesign (2026-10-27): at 7 the Undertakers were beaten 98% of the time, at 8 about 65%
   const tooLow = (L, seat, b) => L.boss === 'wallflowers' && team(seat) === 0 && b.t > 0 && b.t < WALL.min;
   const mustBid = (L, seat) => L.boss === 'wallflowers' && team(seat) === 0 && !!L.h && !L.h.high && L.h.passed[partnerOf(seat)];
   function bid(L, seat, b) {
@@ -454,7 +460,7 @@
     }
     if (team(h.contractor) === 1) {
       const v = h.contract.v;
-      h.intent = { seat: h.contractor, contract: h.contract, dmg: damageOf(v), dmgSweep: h.misere ? damageOf(v) : damageOf(sweepValue(L.act, h.contract.s)) };
+      h.intent = { seat: h.contractor, contract: h.contract, dmg: damageOf(v, L), dmgSweep: h.misere ? damageOf(v, L) : damageOf(sweepValue(L.act, h.contract.s), L) };
       if (h.misere) say(L, SEATS[h.contractor] + "'s intent: misère costs you " + h.intent.dmg + ' if they lose every trick. Make ' + SEATS[h.contractor] + ' win one trick to block it.', 'intent');
       else say(L, SEATS[h.contractor] + "'s intent: " + bidText(h.contract) + ' costs you ' + h.intent.dmg + ' if they make it. Stop them taking ' + h.contract.t + ' tricks to block it.', 'intent');
       h.phase = 'intent';
@@ -547,8 +553,8 @@
     return { ok: true, trick: h.last };
   }
 
-  /* Score the hand. Health is your team's running score; a made opponent
-     contract also costs you half its value. */
+  /* Score the hand. Your team's points shoot the gang's health down (the run adds them up); theirs hit your
+     health at the act's share (damageOf). A set takes its value off the side that bid. */
   function score(L) {
     const h = L.h, act = L.act, c = h.contract, ct = team(h.contractor), dt = 1 - ct;
     if (h.misere) return scoreMisere(L);
@@ -560,7 +566,6 @@
     const pts = [0, 0];
     pts[ct] += made ? value : (near ? 0 : -c.v);
     pts[dt] += 10 * gotD;
-    const dmg = (ct === 1 && made) ? damageOf(value) : 0;
     const lines = [];
     const who = ct === 0 ? (h.contractor === 0 ? 'You' : 'North') : SEATS[h.contractor];
     if (made) lines.push(who + ' made ' + bidText(c) + (sweep && value > c.v ? ' and swept every trick, scoring ' + value + ' instead of ' + c.v : '') + ': ' + (ct === 0 ? '+' : 'they score ') + value + '.');
@@ -568,8 +573,9 @@
     else lines.push(who + ' needed ' + c.t + ' tricks and took ' + got + ': ' + (ct === 0 ? '−' + c.v + ' for your team.' : 'set! They lose ' + c.v + ' and their attack misses.'));
     if (gotD) lines.push((dt === 0 ? 'Your team' : 'They') + ' took ' + gotD + ' trick' + (gotD > 1 ? 's' : '') + ' defending: ' + (dt === 0 ? '+' : '') + 10 * gotD + '.');
     if (h.bonus && (h.bonus[0] || h.bonus[1])) lines.push('(Doubly Woubly and Triple Threat cards counted ' + (h.bonus[0] + h.bonus[1]) + ' extra trick' + (h.bonus[0] + h.bonus[1] > 1 ? 's' : '') + '.)');
-    if (dmg) lines.push('Their contract lands: −' + dmg + ' health (half of ' + value + ').');
     potatoLines(h, pts, lines);
+    const dmg = damageOf(pts[1], L);
+    if (dmg) lines.push('Their ' + pts[1] + ' points hit you: −' + dmg + ' health (' + hitWord(L) + ').');
     const delta = pts[0] - dmg;
     h.result = { made, sweep, value, pts, dmg, delta, lines, tricks: h.tricks.slice(), counted: [counted(h, 0), counted(h, 1)], contractor: h.contractor, near };
     lines.forEach(t => say(L, t, 'score'));
@@ -577,17 +583,17 @@
   }
 
   /* Misère: made if the contractor took no trick. No defender points; a made
-     opponents' misère costs you half its value like any other contract. */
+     opponents' misère hits you like any other points they score. */
   function scoreMisere(L) {
     const h = L.h, c = h.contract, ct = team(h.contractor);
     const made = h.tricks[ct] === 0, pts = [0, 0];
     pts[ct] = made ? c.v : -c.v;
-    const dmg = ct === 1 && made ? damageOf(c.v) : 0;
     const who = h.contractor === 0 ? 'You' : h.contractor === 2 ? 'Nan' : SEATS[h.contractor];
     const lines = [made ? who + ' lost every trick: misère made, ' + (ct === 0 ? '+' : 'they score ') + c.v + '.'
       : who + (h.contractor === 0 ? ' were' : ' was') + ' made to take a trick: misère failed, ' + (ct === 0 ? '\u2212' + c.v + ' for your team.' : 'they lose ' + c.v + ' and their attack misses.')];
-    if (dmg) lines.push('Their misère lands: \u2212' + dmg + ' health (half of ' + c.v + ').');
     potatoLines(h, pts, lines);
+    const dmg = damageOf(pts[1], L);
+    if (dmg) lines.push('Their ' + pts[1] + ' points hit you: −' + dmg + ' health (' + hitWord(L) + ').');
     const delta = pts[0] - dmg;
     h.result = { made, sweep: false, value: c.v, pts, dmg, delta, lines, tricks: h.tricks.slice(), contractor: h.contractor, near: false, misere: true };
     lines.forEach(t => say(L, t, 'score'));
@@ -607,7 +613,7 @@
     rnd, shuffle, pick, rankOf, suitOf, base, label, deckFor, deckOf, census, team, partnerOf, grown, maxUp, stepDown,
     K, plainK, kSuit, kRank, kTrumpRank, kIsTrump, kBeats, kLabel,
     effSuit, trumpRank, isTrump, canPlay, winnerOf, beats, explain,
-    bidValue, bidList, sweepValue, bidText, damageOf, rankOfBid, mustBid, WALL, extraTricks, extraBids, counted, resolveTwo,
+    bidValue, bidList, sweepValue, bidText, damageOf, HIT, hitShare, hitWord, rankOfBid, mustBid, WALL, extraTricks, extraBids, counted, resolveTwo,
     say, deal, sort, legalBids, bid, discard, afterKitty, ack, ledSuit, legalPlays, play, score
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
