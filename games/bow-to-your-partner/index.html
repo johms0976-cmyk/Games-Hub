@@ -29,13 +29,34 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .app { max-width: 760px; margin: 0 auto; min-height: 100%; display: flex; flex-direction: column; }
 
 /* ---------- title and run screens ---------- */
-#title, #screen { padding: 0 16px 32px; }
+#screen { padding: 0 16px 32px; }
 /* the title scene (bakery/title.py, title_px.py; art/title/scene.js): the train holds still in the middle of its
    trestle while the trestle, the plains and the buffalo scroll left at their own speeds (nearer, faster), so it
    rolls along. Every layer is a strip that tiles sideways; one art pixel is --s css px. Without the art it is
    just the banded sky and the ground. */
-.hero { --s: 2; position: relative; height: 300px; margin: 0 -16px 6px; overflow: hidden;
+/* The title is the scene, full screen (the user, 2026-10-27): the train on its trestle sits on the bottom edge, the
+   sky above it, and the words float in the sky: the logo, Start Game, Continue; Options on the grass. The words
+   are wood type drawn as pixels (title_px.py WOOD), shown once the art is on; until then their own text, in a
+   serif. layoutTitle() places them by where the train actually is, so they clear it on any screen. */
+#title { position: fixed; inset: 0; overflow: hidden; z-index: 1; }
+.hero { --s: 2; position: absolute; inset: 0; overflow: hidden;
   background: linear-gradient(#8cc4e0 0 25%, #a8d2e4 25% 45%, #cfe0d8 45% 60%, #f0dcb8 60% 62%, #d8bc70 62% 100%); }
+html.art .hero { background: linear-gradient(#7cbadb 0 22%, #8cc4e0 22% 44%, #a8d2e4 44% 64%, #cfe0d8 64% 80%, #f0dcb8 80% 100%); }
+.titlemenu .wood { position: absolute; left: 50%; transform: translate(-50%, -50%); margin: 0; padding: 0; border: 0; background: none; z-index: 5;
+  cursor: pointer; font: 800 30px/1.1 Georgia, serif; letter-spacing: .06em; color: #fbf0d0; text-transform: uppercase;
+  text-shadow: 0 0 0 #3a1a12, 2px 2px 0 #3a1a12, -1px -1px 0 #3a1a12, 1px -1px 0 #3a1a12, -1px 1px 0 #3a1a12, 3px 4px 0 rgba(42,22,18,.5); }
+.titlemenu .logo { cursor: default; font-size: 36px; color: #f3d070; white-space: nowrap; }
+.titlemenu .more { font-size: 20px; }
+.titlemenu .wood img { display: none; image-rendering: pixelated; }
+html.art .titlemenu .wood.drawn img { display: block; }
+html.art .titlemenu .wood.drawn > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.titlemenu .go { padding: 10px 14px; animation: float 2.6s ease-in-out infinite; }
+@keyframes float { 50% { transform: translate(-50%, calc(-50% - 6px)); } }
+.titlemenu .go:active, .titlemenu .more:active { filter: brightness(1.15); }
+.titlemenu .more { padding: 8px 12px; }
+.titlemenu .wood:focus-visible { outline: 3px solid #fff6d2; outline-offset: 4px; border-radius: 6px; }
+.titleopts { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); width: min(420px, calc(100% - 32px)); z-index: 10; margin: 0; }
+@media (prefers-reduced-motion: reduce) { .titlemenu .go { animation: none; } }
 .hero .lyr, .hero .train, .hero .puff { position: absolute; display: none; image-rendering: pixelated; pointer-events: none; }
 html.art .hero .lyr, html.art .hero .train, html.art .hero .puff { display: block; }
 .hero .lyr { left: 0; right: 0; background-repeat: repeat-x; animation: hscroll var(--dur) linear infinite; }
@@ -95,8 +116,6 @@ body.opening #skipOpening { display: block; }
 .wanted.drop { animation: posterdrop .7s cubic-bezier(.3, 1.4, .5, 1) .35s both; }
 @keyframes posterdrop { from { transform: translateY(-50px) rotate(-9deg); opacity: 0; } to { transform: rotate(-1.2deg); } }
 @media (prefers-reduced-motion: reduce) { .cardrow.deal > *, .wanted.drop, #actcard .board, #actcard .nanline { animation: none; } .hero .rig { transition: none; } }
-#title h1 { font-family: Georgia, "Times New Roman", serif; font-size: 34px; margin: 8px 0 2px; color: var(--accent); }
-#title .sub { color: var(--muted); margin: 0 0 18px; }
 .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin: 12px 0; box-shadow: var(--shadow); }
 .panel h2 { font-size: 18px; margin: 0 0 8px; font-family: Georgia, serif; color: var(--accent); }
 .panel h3 { font-size: 15px; margin: 12px 0 6px; }
@@ -407,27 +426,22 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
 
 <section id="title">
   <div class="hero" id="hero" aria-hidden="true"></div>
-  <h1>Draw, Partner!</h1>
-  <p class="sub">A trick-taking roguelike · Dustwater, the Westbound Express and the County Fair</p>
-  <div class="panel">
-    <h2>Out west</h2>
-    <ul>
-      <li>You and <b>Nan</b> (North) partner up against West and East in a small game of 500: hearts, diamonds and the Joker, 3 cards each.</li>
-      <li>Each act is a map, like Slay the Spire’s: work your way up seven floors of card tables, duels, gossip, general stores and hotels, with a gold strike halfway and a hotel before the Showdown against a rival pair at the top. Get through the boomtown of <b>Dustwater</b> and you board the <b>Westbound Express</b>: spades and clubs join in, and hands grow to 6 cards. Then the <b>County Fair</b>: the whole 500 deck, 10 cards each, and a final Showdown you must win.</li>
-      <li>Each card table has one <b>objective</b>. Stars: 1 for surviving, 2 for the objective, 3 for the objective and outscoring them. Stars pay gold and rewards.</li>
-      <li>Your score is your <b>health</b>. Fail your own contract and you lose its value; let them make theirs and you lose half of it. At −500 the run ends.</li>
-    </ul>
+  <div class="titlemenu">
+    <h1 class="wood logo" data-word="logo"><span>Draw, Partner!</span></h1>
+    <button class="wood go" data-act="start" data-word="start"><span>Start Game</span></button>
+    <button class="wood more" data-act="continue" id="continueBtn" data-word="continue" hidden><span>Continue</span></button>
+    <button class="wood more opts" data-act="options" data-word="options" aria-expanded="false" aria-controls="titleOptions"><span>Options</span></button>
   </div>
-  <div class="panel">
+  <div class="panel titleopts" id="titleOptions" hidden>
+    <h2>Options</h2>
     <label class="row">First objective
       <select id="objPick"><option value="">Random (the easy one)</option></select>
     </label>
     <label class="row" style="margin-top:10px"><input type="checkbox" id="tipsPick" checked> Nan's tips (for your first run)</label>
     <div class="btns">
-      <button class="btn" data-act="start">Start a run</button>
-      <button class="btn alt" data-act="continue" id="continueBtn" hidden>Continue</button>
       <button class="btn alt" data-act="rules">How 500 works</button>
       <a class="btn alt" href="../../index.html" style="text-decoration:none">Games hub</a>
+      <button class="btn" data-act="options">Done</button>
     </div>
   </div>
 </section>
@@ -488,7 +502,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 6, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 7, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -798,7 +812,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   /* The act's map: seven floors and the Hoedown, after Gwent's The Path. Paths are an SVG behind; the stops
      are buttons over it, placed in the same coordinates (a viewBox W × H, in percent). */
   const ICON = {
-    dance: '<path d="M9 17V5l10-2v12"/><circle cx="6.5" cy="17" r="2.5"/><circle cx="16.5" cy="15" r="2.5"/>',
+    dance: '<path d="M3.6 8.4 9.4 6.8l2.8 10.7-5.8 1.6z"/><path d="M11 4.5h7.5v13H11z"/><path d="M14.75 8.2l1.7 2.55-1.7 2.55-1.7-2.55z"/>',
     event: '<path d="M4 5h16v10H10l-5 4v-4H4z"/><path d="M8 9h8M8 12h5"/>',
     elite: '<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
     camp: '<path d="M3 10h18a9 8 0 0 1-18 0z"/><path d="M9 6c0-2 2-2 2-4M14 6c0-2 2-2 2-4"/>',
@@ -1342,6 +1356,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     switch (d.act) {
       case 'start': newRun(); break;
       case 'skipopening': endOpening(); break;
+      case 'options': { const o = $('titleOptions'); o.hidden = !o.hidden; document.querySelector('.titlemenu .opts').setAttribute('aria-expanded', String(!o.hidden)); break; }
       case 'continue': { const s = loadSaved(); if (s) dustInto(() => { P.L = s; show(); }); break; }
       case 'rules': openSheet('rules'); break;
       case 'menu': openSheet('menu'); break;
@@ -1374,6 +1389,8 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   function title() {
     clearTimeout(P.timer);
     $('game').hidden = true; $('screen').hidden = true; $('title').hidden = false; $('veil').hidden = true;
+    buildHero();                                   // the screen may have changed size since the title was last up
+    layoutTitle();
     const s = loadSaved();
     $('continueBtn').hidden = !(s && s.phase !== 'runover' && s.phase !== 'victory');
     $('tipsPick').checked = !tipsDone();
@@ -1382,8 +1399,10 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   function buildHero() {
     const S = window.TITLE_SCENE, hero = $('hero');
     if (!S || !hero) return;
-    const s = 2, u = v => (v * s) + 'px', url = n => 'url(' + artURL('title/' + n + '.webp') + ')';
-    hero.style.height = u(S.H);
+    // three art pixels to a css pixel on a phone held upright, two when the screen is too narrow or too short
+    const s = HERO.s = innerWidth >= 360 && innerHeight >= 600 ? (innerWidth >= 1100 && innerHeight >= 900 ? 4 : 3) : 2;
+    const u = v => (v * s) + 'px', url = n => 'url(' + artURL('title/' + n + '.webp') + ')';
+    hero.style.setProperty('--s', s);
     const lyr = l => '<div class="lyr" style="top:' + u(l.y) + ';height:' + u(l.h) + ';background-image:' + url(l.img) + ';background-size:' + u(l.w) + ' ' + u(l.h) +
       ';--tw:' + u(l.w) + ';--dur:' + (l.w / l.speed).toFixed(2) + 's"></div>';
     const T = S.train, tl = 'calc(50% - ' + u(T.w / 2) + ')';
@@ -1396,14 +1415,42 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       '<div class="stagecoach" style="left:calc(50% - ' + u(I.stage.w / 2) + ');top:' + u(TRAIL_Y + 18 - 24) + ';width:' + u(I.stage.w) + ';height:' + u(I.stage.h) +
       ';background-image:' + url(I.stage.img) + ';background-size:' + u(I.stage.w * I.stage.frames) + ' ' + u(I.stage.h) + ';--fw:' + u(I.stage.w) + '"></div>' +
       '<div class="townsign" style="top:' + u(TRAIL_Y + 14) + ';width:' + u(I.sign.w * 1.5) + ';height:' + u(I.sign.h * 1.5) + ';background:' + url(I.sign.img) + ' 0 0 / 100% 100%"></div></div>' : '';
-    hero.innerHTML = '<div class="rig">' + S.layers.filter(l => !l.front).map(lyr).join('') +
+    HERO.top = innerHeight - S.H * s;                   // the scene's top edge: it sits on the bottom of the screen
+    HERO.trainTop = HERO.top + T.y * s;
+    hero.innerHTML = '<div class="rig" style="top:' + HERO.top + 'px">' + S.layers.filter(l => !l.front).map(lyr).join('') +
       '<div class="train" style="left:' + tl + ';top:' + u(T.y) + ';width:' + u(T.w) + ';height:' + u(T.h) + ';background-image:' + url(T.img) +
       ';background-size:' + u(T.w * T.frames) + ' ' + u(T.h) + ';--fw:' + u(T.w) + '"></div>' + puffs +
       S.layers.filter(l => l.front).map(lyr).join('') + below + '</div>';
   }
   // the stage under the title scene, in art pixels: the trail runs across it TRAIL_Y down
-  const BELOW = 560, TRAIL_Y = 280;
+  const BELOW = 560, TRAIL_Y = 280, HERO = { s: 2, top: 0, trainTop: 0 };
+  /* The title's words: pictures once the art is on, placed in the sky by where the train is: the logo a fifth of
+     the way down to it, Start Game about two thirds, Continue under Start, Options on the grass at the bottom. */
+  function layoutTitle() {
+    const S = window.TITLE_SCENE, art = document.documentElement.classList.contains('art');
+    const s = HERO.s, sky = S ? Math.max(120, HERO.trainTop - 12) : innerHeight * 0.6;
+    const place = (sel, y) => { const el = document.querySelector(sel); if (el) el.style.top = Math.round(y) + 'px'; };
+    place('.titlemenu .logo', sky * 0.22);
+    place('.titlemenu .go', sky * 0.6);
+    place('#continueBtn', sky * 0.6 + 58);
+    place('.titlemenu .opts', innerHeight - 34);
+    document.querySelectorAll('.titlemenu .wood').forEach(el => {
+      const t = S && S.type && S.type[el.dataset.word];
+      if (!t || !art) return;
+      const k = el.classList.contains('more') ? Math.max(2, s - 1) : s;
+      let img = el.querySelector('img');
+      if (!img) { img = document.createElement('img'); img.alt = ''; el.appendChild(img); }
+      img.src = artURL('title/' + t.img + '.webp');
+      img.width = t.w * k; img.height = t.h * k;
+      el.classList.add('drawn');
+    });
+  }
   buildHero();
+  layoutTitle();
+  // html.art arrives when the probe picture loads: draw the words then; a new screen size rebuilds the scene
+  new MutationObserver(layoutTitle).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  let resizeT = 0;
+  addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { if (!$('title').hidden && !OPEN.done) { buildHero(); layoutTitle(); } }, 150); });
 
   /* The opening: storyboard frames 2-5 (see the CSS above), then `done` deals the act's cards (frame 6). */
   const OPEN = { timers: [], done: null };
@@ -1456,7 +1503,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       hero.style.height = innerHeight + 'px';
       document.body.classList.add('tilt');
       heroAnims(1);
-      const trail = (S.H + TRAIL_Y + 18) * 2;
+      const trail = HERO.top + (S.H + TRAIL_Y + 18) * HERO.s;
       void rig.offsetHeight;                    // let the full-screen height land before the tilt starts
       rig.style.transform = 'translateY(' + Math.round(innerHeight * 0.58 - trail) + 'px)';
     });
