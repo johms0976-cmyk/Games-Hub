@@ -70,10 +70,12 @@ html.art .hero .lyr, html.art .hero .train, html.art .hero .puff { display: bloc
 
 /* The opening (storyboard frames 2-5, 2026-10-27): Start blows the whistle and the title's words drop away (2);
    the hero fills the screen and its rig tilts down past the plains to the trail, where the stagecoach rolls in
-   (3); the coach pulls up at the town sign, the camera closes in on it and the WELCOME plank falls away to show
-   DANGER! DO NOT ENTER, then the coach's dust wipes the screen (4); the act card (5); then the card pick (6).
+   (3); the camera pulls up at the town sign while the coach rolls on into town and out of the frame (the user's,
+   2026-10-29: it used to stop at the sign), the camera closes in on the sign and the WELCOME plank falls away to
+   show DANGER! DO NOT ENTER, then the coach's dust wipes the screen (4); the act card (5); then the card pick (6).
    Paced at 60% of the first cut (the user's, 2026-10-27: too fast to read the sign). The sign is planted in the
-   ground, so it moves at the trail's speed, and the coach brakes the whole stage to a stop (signRun).
+   ground, so it moves at the trail's speed; the camera brakes the ground to a stop, and the coach, still at the
+   trail's speed, drives on and speeds off the right edge (signRun).
    A tap, a key or Skip ends it at once; reduced motion is a plain fade to the act card; Continue is a short dust
    wipe. The stage under the hero (.below) is clipped until the tilt. */
 .hero .rig { position: absolute; left: 0; right: 0; top: 0; transition: transform 2.6s cubic-bezier(.55, 0, .35, 1); }
@@ -264,7 +266,7 @@ html.art .wanted.hasart .w { grid-column: 2; }
 .card { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
 .cardinfo > .card { display: flex; margin: 0 auto 8px; }
 .cardinfo .tags span { display: inline-block; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 2px 8px; margin: 0 4px 4px 0; }
-.cardinfo .tags .buff { background: #fff3cf; color: #8a6412; } .cardinfo .tags .hex { background: #fbeae6; color: var(--bad); } .cardinfo .tags .plain { background: var(--bg); color: var(--muted); }
+.cardinfo .tags .buff { background: #fff3cf; color: #8a6412; } .cardinfo .tags .buff.legendary { background: #efe4ff; color: #4a2a6e; } .cardinfo .tags .hex { background: #fbeae6; color: var(--bad); } .cardinfo .tags .plain { background: var(--bg); color: var(--muted); }
 .cardinfo ul { padding-left: 18px; } .cardinfo li { margin: 6px 0; }
 .iconbtn { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 4px 10px; font-size: 14px; min-height: 40px; }
 .iconbtn[data-act="takeback"] { min-height: 40px; margin-left: 6px; border-color: var(--accent); color: var(--accent); }
@@ -419,6 +421,17 @@ html.art .felt.dressed .wall, html.art .felt.dressed .tbl, html.art .felt.dresse
 html.art .card .art { display: block; }
 .card .eb, .card .hb { position: absolute; z-index: 3; padding: 2px; border-radius: 3px; line-height: 0; box-shadow: 0 0 0 1px #2a1b16; }
 .card .eb { left: 2px; bottom: 2px; background: var(--gold); } .card .hb { right: 2px; top: 2px; background: var(--bad); }
+/* a card's enhancement badges in a row at its foot; a Legendary card (two enhancements, 2026-10-29) has a foil
+   frame: violet and gold, with a sheen that sweeps across it */
+.card .ebs { position: absolute; left: 2px; bottom: 2px; z-index: 3; display: flex; gap: 2px; }
+.card .ebs .eb { position: static; }
+.card.legendary .ebs .eb { background: #e8c45a; box-shadow: 0 0 0 1px #4a2a6e; }
+.card.legendary { border-color: #4a2a6e; box-shadow: inset 0 0 0 2px #e8c45a, inset 0 0 0 4px #9a6ad0, 0 0 0 1px #c9a8f0, 0 2px 0 rgba(0,0,0,.22); }
+.card.legendary::after { content: ''; position: absolute; inset: 0; z-index: 2; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(115deg, transparent 35%, rgba(255,244,214,.5) 46%, rgba(200,160,255,.35) 54%, transparent 65%) 0 0 / 260% 100% no-repeat;
+  animation: foil 3.2s linear infinite; }
+@keyframes foil { from { background-position: 130% 0; } to { background-position: -130% 0; } }
+@media (prefers-reduced-motion: reduce) { .card.legendary::after { animation: none; background-position: 50% 0; } }
 .card .eb svg, .card .hb svg { --p: var(--ip); }
 .card .crack { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; pointer-events: none; }
 .card .hx, .card .flag.en { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -431,7 +444,7 @@ html.art .card .art { display: block; }
 .card.locked { background: repeating-linear-gradient(45deg, #fffdf8, #fffdf8 6px, #eee5d4 6px, #eee5d4 12px); }
 .seat .lips { display: flex; justify-content: center; gap: 2px; margin-top: 4px; }
 .seat .lips .card { --rp: 1; --sp: .8; width: 36px; height: 50px; border-width: 1px; }
-.seat .lips .card .s, .seat .lips .card .ix2, .seat .lips .card .eb, .seat .lips .card .hb, .seat .lips .card .flag, .seat .lips .card .art { display: none; }
+.seat .lips .card .s, .seat .lips .card .ix2, .seat .lips .card .ebs, .seat .lips .card .hb, .seat .lips .card .flag, .seat .lips .card .art { display: none; }
 .chip.hexchip { background: #fbe3df; color: var(--bad); }
 .card.small { --rp: 1.5; --sp: 1.2; --pp: .9; --bp: 2.5; --ip: .9; width: 52px; height: 74px; }
 .card.big { --rp: 2.5; --sp: 2; --pp: 1.4; --bp: 4; --ip: 1.4; width: 84px; height: 118px; }
@@ -546,13 +559,13 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=3"></script>
-<script src="btp-ai.js?v=3"></script>
-<script src="btp-run.js?v=3"></script>
-<script src="btp-town.js?v=3"></script>
-<script src="art/dustwater/sprites.js?v=3"></script>
-<script src="art/title/scene.js?v=3"></script>
-<script src="art/table/scene.js?v=3"></script>
+<script src="btp-engine.js?v=4"></script>
+<script src="btp-ai.js?v=4"></script>
+<script src="btp-run.js?v=4"></script>
+<script src="btp-town.js?v=4"></script>
+<script src="art/dustwater/sprites.js?v=4"></script>
+<script src="art/title/scene.js?v=4"></script>
+<script src="art/table/scene.js?v=4"></script>
 <script>
 (function () {
   'use strict';
@@ -576,7 +589,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 9, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 10, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -628,6 +641,21 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     e_glass: ['#######', '#.....#', '.#...#.', '..###..', '...#...', '...#...', '.#####.'],
     e_double: ['.###.', '#...#', '....#', '...#.', '..#..', '.#...', '#####'],
     e_triple: ['####.', '....#', '....#', '.###.', '....#', '....#', '####.'],
+    e_hollow: ['...#...', '..###..', '..#.#..', '.#####.', '.#####.', '.#####.', '.#####.'],
+    e_plate: ['##...##', '#######', '#.###.#', '#######', '#.###.#', '#######', '.#####.'],
+    e_ricochet: ['#......', '.#.....', '..#...#', '...#.#.', '....#..', '.......', '.......'],
+    e_bullseye: ['.#####.', '#.....#', '#.###.#', '#.#.#.#', '#.###.#', '#.....#', '.#####.'],
+    e_highnoon: ['#..#..#', '.#...#.', '..###..', '#.###.#', '..###..', '.#...#.', '#..#..#'],
+    e_spurs: ['...#...', '.#.#.#.', '..###..', '###.###', '..###..', '.#.#.#.', '...#...'],
+    e_steady: ['...#...', '.##.##.', '.#...#.', '###.###', '.#...#.', '.##.##.', '...#...'],
+    e_hole: ['.###.', '#...#', '#.#.#', '#####', '#...#', '#...#', '#...#'],
+    e_lastdraw: ['#######', '.#...#.', '..#.#..', '...#...', '..#.#..', '.#.#.#.', '#######'],
+    e_desperado: ['.#####.', '#######', '#..#..#', '#######', '.##.##.', '.#####.', '.#.#.#.'],
+    e_knuckles: ['.......', '#.#.#.#', '#######', '#######', '.#####.', '..###..', '..###..'],
+    e_poster: ['#######', '#.....#', '#.#.#.#', '#.#.#.#', '#..#..#', '#.....#', '#######'],
+    e_keg: ['.....#.', '....#..', '.####..', '#.##.#.', '######.', '#.##.#.', '.####..'],
+    e_deadman: ['.##.##.', '#..#..#', '#..#..#', '.##.##.', '#..#..#', '#..#..#', '.##.##.'],
+    e_horseshoe: ['..###..', '.#...#.', '#.....#', '#.....#', '#.....#', '#.....#', '##...##'],
     // hexes: on a red badge
     h_loose: ['.......', '..###..', '.#...#.', '#..#..#', '.#...#.', '..###..', '.......'],
     h_potato: ['...#...', '..##...', '..###..', '.##.#..', '.#..##.', '.#..#..', '..##...'],
@@ -666,15 +694,15 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     o = o || {};
     const L = P.L, h = L && L.h, trump = h && L.phase === 'hand' ? h.trump : null;
     const k = (o.seat === 0 || o.seat === 2 || o.owned) && L ? { c, m: L.mods[c] || null, tie: false } : E.plainK(c);
-    const enh = k.m && k.m.enh, hx = L && L.hexes ? L.hexes[c] : null;
+    const ens = E.enhsOf(k.m), enh = ens[0], legend = ens.length > 1, hx = L && L.hexes ? L.hexes[c] : null;
     const cls = ['card', o.small ? 'small' : '', o.big ? 'big' : '', c !== 'JK' && E.RED[E.suitOf(c)] ? 'red' : '', c === 'JK' ? 'joker' : '',
-      trump && E.kIsTrump(k, trump) ? 'trump' : '', enh ? 'enh' : '', hx ? 'hexed' : '', o.locked ? 'locked' : '', o.cls || ''].filter(Boolean).join(' ');
+      trump && E.kIsTrump(k, trump) ? 'trump' : '', enh ? 'enh' : '', legend ? 'legendary' : '', hx ? 'hexed' : '', o.locked ? 'locked' : '', o.cls || ''].filter(Boolean).join(' ');
     const attr = (o.data ? ' data-' + o.data + '="' + c + '"' : ' tabindex="-1"') + ' data-c="' + c + '"';
-    const flag = o.flag || (enh ? R.ENH[enh].name : c.includes('~') ? 'Forged' : '');
+    const flag = o.flag || (enh ? (legend ? 'Legendary: ' : '') + ens.map(x => R.ENH[x].name).join(' and ') : c.includes('~') ? 'Forged' : '');
     const enName = !o.flag && !!enh;
     const layers = (hx ? '<span class="hx">' + esc(R.HEXES[hx].short) + '</span><i class="hb">' + px('h_' + hx, '#fff3cf') + '</i>' : '') +
-      (enh ? '<i class="eb">' + px('e_' + enh, '#2a1b16') + '</i>' : '') +
-      (enh === 'glass' ? crackHTML((k.m && k.m.wins) || 0) : '') +
+      (enh ? '<span class="ebs">' + ens.map(x => '<i class="eb">' + px('e_' + x, '#2a1b16') + '</i>').join('') + '</span>' : '') +
+      (ens.includes('glass') ? crackHTML((k.m && k.m.wins) || 0) : '') +
       (flag ? '<span class="flag' + (enName ? ' en' : '') + '">' + esc(flag) + '</span>' : '');
     if (c === 'JK') return '<button class="' + cls + '"' + attr + (o.dis ? ' disabled' : '') + ' aria-label="Joker">' + artHTML('JK') +
       '<span class="ix r jk">' + [...'JOKER'].map(ch => px(ch, JOKER_INK)).join('') + '</span><span class="s">' + px('star', JOKER_INK) + '</span>' + layers + '</button>';
@@ -686,6 +714,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     return '<button class="' + cls + '"' + attr + (o.dis ? ' disabled' : '') + ' aria-label="' + esc(E.label(c) + (up ? ', grown to ' + E.VNAME[up] : '') + (flag ? ', ' + flag : '') + (hx ? ', hexed: ' + R.HEXES[hx].name : '')) + '">' +
       (court ? artHTML(rk + su) : '') + '<span class="ix r">' + ix + '</span><span class="s">' + face + '</span>' + (flag ? '' : '<span class="ix ix2" aria-hidden="true">' + ix + '</span>') + layers + '</button>';
   }
+  const rerollLabel = L => R.rerollPrice(L) ? 'Reroll (' + R.rerollPrice(L) + 'g)' : 'Reroll (free)';
   const bidHTML = b => b.s === 'MIS' ? 'Misère' : b.s === 'OMIS' ? 'Open misère' : b.t + (b.s === 'NT' ? 'NT' : '<span style="color:' + (E.RED[b.s] ? 'var(--red)' : 'inherit') + '">' + E.SYM[b.s] + '</span>');
   const bidPlain = b => b.s === 'MIS' ? 'Misère' : b.s === 'OMIS' ? 'Open misère' : b.t + (b.s === 'NT' ? 'NT' : E.SYM[b.s]);
   const denom = s => s === 'NT' ? 'no trumps' : E.NAME[s];
@@ -715,9 +744,9 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
      away and nothing heals it during a fight; at 0 the run ends. Amber below 200, red below 100. */
   const hpClass = h => h < 100 ? ' danger' : h < 200 ? ' low' : '';
   function hpInner(L, delta) {
-    const pct = Math.max(0, Math.min(100, 100 * L.health / R.HEALTH.max));
+    const pct = Math.max(0, Math.min(100, 100 * L.health / R.maxHealth(L)));
     return '<span class="lab">Health</span><span class="val">' + L.health + '</span><span class="hpm" aria-hidden="true"><i style="width:' + pct + '%"></i></span>' +
-      '<small>' + (L.health < 100 ? 'Danger: the run ends at 0' : 'of ' + R.HEALTH.max + '; the run ends at 0') + '</small>' +
+      '<small>' + (L.health < 100 ? 'Danger: the run ends at 0' : 'of ' + R.maxHealth(L) + '; the run ends at 0') + '</small>' +
       (delta ? '<span class="delta ' + (delta > 0 ? 'up' : 'down') + '">' + (delta > 0 ? '+' : '−') + Math.abs(delta) + '</span>' : '');
   }
   function goldInner(L, delta) {
@@ -740,7 +769,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
           '<div class="cardrow deal">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div>' + ownedRow(L) + '</div>' :
           L.act === 2 ? '<div class="panel baize"><h2>Act II: the Westbound Express</h2><p>Spades and clubs join the deck and hands grow to 6 cards. Two of the cards you own are now dealt to you each hand. Pick a new card to own.</p>' +
           '<div class="cardrow deal">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div>' + ownedRow(L) + '</div>' :
-          '<div class="panel baize"><h2>Act I: Dustwater</h2><p>A boomtown since the gold strike, and every chair in it has a card game. Pick a card to own. You already own Nan’s A♥. Each hand, one card you own is dealt straight to you (your seed slot), so owning two means you won’t know which comes.</p>' +
+          '<div class="panel baize"><h2>Act I: Dustwater</h2><p>You ride into Dustwater a bounty hunter, with Nan riding shotgun. Every gang in town is wanted, and they settle everything over cards. Pick a card to own. You already own Nan’s A♥. Each hand, one card you own is dealt straight to you (your seed slot), so owning two means you won’t know which comes.</p>' +
           '<div class="cardrow deal">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div>' + ownedRow(L) + '</div>');
         break;
       case 'map':
@@ -750,20 +779,26 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
         const s = L.reward.steps[0];
         if (s.type === 'buff') {
           body = noteHTML + '<div class="panel"><h2>' + (L.reward.raffle ? 'Gold strike: pick a buff' : 'Pick a buff') + '</h2>' + s.options.map(b => '<button class="choice" data-choose="' + b + '"><b>' + esc(R.BUFFS[b].name) + '</b><span>' + esc(R.BUFFS[b].text) + '</span></button>').join('') +
-            '<div class="btns"><button class="btn alt" data-act="reroll"' + (L.gold < R.REROLL || R.freeBuffs(L).length <= s.options.length ? ' disabled' : '') + '>Reroll (' + R.REROLL + 'g)</button></div></div>';
+            '<div class="btns"><button class="btn alt" data-act="reroll"' + (L.gold < R.rerollPrice(L) || R.freeBuffs(L).length <= s.options.length ? ' disabled' : '') + '>' + rerollLabel(L) + '</button></div></div>';
         } else {
-          body = noteHTML + '<div class="panel"><h2>Pick an enhancement</h2><p>It goes on a card you own and stays all run (one per card).</p>' +
+          body = noteHTML + '<div class="panel"><h2>Pick an enhancement</h2><p>It goes on a card you own and stays all run. A card takes two and becomes <b>Legendary</b>; none is ever replaced.</p>' +
             s.options.map(e => '<button class="choice" data-choose="' + e + '"><b>' + esc(R.ENH[e].name) + '</b><span>' + esc(R.ENH[e].text) + '</span></button>').join('') +
             (s.claim && s.claim.length ? '<h3>Or keep a card your team won this game</h3><div class="cardrow">' + s.claim.map(c => cardHTML(c, { data: 'claim', small: true })).join('') + '</div>' : '') +
-            '<div class="btns"><button class="btn alt" data-act="reroll"' + (L.gold < R.REROLL ? ' disabled' : '') + '>Reroll (' + R.REROLL + 'g)</button><button class="btn alt" data-act="skipreward">Skip</button></div></div>';
+            '<div class="btns"><button class="btn alt" data-act="reroll"' + (L.gold < R.rerollPrice(L) ? ' disabled' : '') + '>' + rerollLabel(L) + '</button><button class="btn alt" data-act="skipreward">Skip</button></div></div>';
         }
         body += '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
         break;
       }
-      case 'target':
-        body = '<div class="panel"><h2>' + esc(R.ENH[L.target].name) + '</h2><p>' + esc(R.ENH[L.target].text) + '</p><p>Put it on which card? A card that already has an enhancement swaps it for this one.</p>' +
-          '<div class="cardrow">' + R.enhanceable(L).map(c => cardHTML(c, { data: 'enhance', owned: true, big: true })).join('') + '</div></div>';
+      case 'target': {
+        const can = R.enhanceable(L), full = L.owned.filter(c => c !== 'JK' && !can.includes(c));
+        body = '<div class="panel"><h2>' + esc(R.ENH[L.target].name) + '</h2><p>' + esc(R.ENH[L.target].text) + '</p>' +
+          (can.length ? '<p>Put it on which card? A card with one enhancement already takes this as its second and becomes <b>Legendary</b>.</p>' +
+            '<div class="cardrow">' + can.map(c => cardHTML(c, { data: 'enhance', owned: true, big: true })).join('') + '</div>'
+            : '<p>None of your cards can take it: each is Legendary already, or holds something it can\u2019t share a card with.</p>') +
+          (full.length ? '<p class="sub">Can\u2019t take it: ' + full.map(c => esc(E.label(c)) + (R.legendary(L, c) ? ' (Legendary)' : '')).join(', ') + '.</p>' : '') +
+          '<div class="btns"><button class="btn alt" data-act="leaveenh">Leave it</button></div></div>';
         break;
+      }
       case 'event': {
         const ev = R.EVENTS[L.event];
         body = '<div class="panel"><h2>Gossip: ' + esc(ev.name) + '</h2><p>' + esc(ev.text) + '</p>' +
@@ -897,7 +932,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   };
   const icon = k => '<svg viewBox="0 0 24 24" aria-hidden="true">' + ICON[k] + '</svg>';
   function nodeWhat(L, k) {
-    return ({ dance: 'shoot down a gang (' + R.FOE.base[L.act] + '+ health), with a bounty for extra stars',
+    return ({ dance: 'bring in a wanted gang (' + R.FOE.base[L.act] + '+ health), with a bonus for extra stars',
       event: 'a choice with a trade-off', camp: 'rest, polish, cleanse' + (E.ACTS[L.act].forge ? ', forge or remove' : '') + ', or shop',
       elite: 'a tougher gang with an ability; pays a buff', store: 'cards, an enhancement, a buff, a tonic',
       raffle: R.RAFFLE.gold + ' gold and a free buff',
@@ -1064,7 +1099,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     }
     const O = R.OBJECTIVES[L.obj.id], h = L.h;
     ob.className = 'objective' + (L.obj.done ? ' done' : L.obj.fail ? ' fail' : '');
-    ob.innerHTML = '<div class="ot"><div class="on">' + (L.kind === 'bank' ? '' : 'Bounty: ') + esc(O.name) + '</div><div class="ox">' + esc(O.text) + '</div></div>' +
+    ob.innerHTML = '<div class="ot"><div class="on">' + (L.kind === 'bank' ? '' : 'Bonus: ') + esc(O.name) + '</div><div class="ox">' + esc(O.text) + '</div></div>' +
       '<div class="meter" aria-hidden="true"><i style="width:' + (O.kind === 'limit' ? (L.obj.fail ? 0 : 100) : Math.round(100 * L.obj.n / L.obj.of)) + '%"></i></div>' +
       '<div class="oc">' + R.objProgress(L) + '</div>' +
       (L.obj.id === 'royal' && (L.obj.got || []).length && !L.obj.done ? '<div class="ox" style="flex:none">' + L.obj.got.map(E.label).join(' ') + '</div>' : '') +
@@ -1080,7 +1115,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   }
   const PRIZE = { dance: ['', 'no prize', 'pick 1 of 2 enhancements', 'pick 1 of 3 enhancements, or keep a card you won'],
                   elite: ['', 'no prize', 'a buff', 'pick 1 of 2 buffs'] };
-  // the same, short enough for the line under the bounty on a phone
+  // the same, short enough for the line under the bonus on a phone
   const PRIZE_SHORT = { dance: ['', '', '1 of 2 enhancements', '1 of 3 enhancements or a card'], elite: ['', '', 'a buff', '1 of 2 buffs'] };
   function payHTML(L) {
     const par = R.parOf(L), fast = L.handNo <= par;
@@ -1089,14 +1124,14 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     if (L.kind === 'bank') return '<button class="pay" data-act="levelinfo"><span><b>Outscore the gang:</b> ' + R.BANK.bounty + ' gold + pick 1 of ' + R.BANK.enh + ' enhancements. <b>Lose:</b> they take ' + L.bank.take + ' gold.</span>' +
       '<span class="nx">' + esc('You ' + num(L.you) + ' · them ' + num(L.opp)) + '</span><span class="more">Rewards</span></button>';
     const n = starsNow(L), pay = R.PAY[L.kind][n], done = n - (fast ? 1 : 0) > 1;
-    const next = [done ? '' : 'the bounty for a star', fast ? 'win by hand ' + par + ' for a star' : 'over par'].filter(Boolean).join(' · ');
+    const next = [done ? '' : 'the bonus for a star', fast ? 'bring them in by hand ' + par + ' for a star' : 'over par'].filter(Boolean).join(' · ');
     return '<button class="pay" data-act="levelinfo"><span class="st">' + stars(n) + '</span><span><b>Win now:</b> ' + pay + 'g' + (n > 1 ? ' + ' + PRIZE_SHORT[L.kind][n] : '') + '</span>' +
       '<span class="nx">' + esc(next) + '</span><span class="more">Rewards</span></button>';
   }
   function levelInfoHTML(L) {
     const par = R.parOf(L), F = L.foe;
-    const abil = F && F.traits.length ? '<p><b>Their ability:</b> ' + F.traits.map(t => esc(R.abilityOf(t).name) + ' — ' + esc(R.abilityOf(t).text)).join('; ') + '</p>' : '';
-    const how = '<p>Every point your team scores (a made contract, 10 a defending trick) hits them; a set takes its value back off. Every point they score hits your health at ' + E.hitWord(L) + '. Nothing heals you until the fight is won.</p>';
+    const abil = F && F.traits.length ? '<p><b>Their abilit' + (F.traits.length > 1 ? 'ies' : 'y') + ':</b> ' + F.traits.map(t => esc(R.abilityOf(t).name) + ' — ' + esc(R.abilityOf(t).text)).join('; ') + '</p>' : '';
+    const how = '<p>Every point your team scores (a made contract, 10 a defending trick) hits them. Every point they score hits your health at ' + E.hitWord(L) + ', and a contract of yours that fails backfires: it hits you for its value at the same share. Nothing heals you until the fight is won.</p>';
     if (!L.obj) { const B = R.BOSS[L.boss];
       return '<h2>The Showdown: ' + esc(B.name) + '</h2><p>' + esc(B.rule) + '</p><p>' + F.hp + ' health; ' + Math.max(0, F.hp - L.you) + ' left.</p>' + how +
       '<p><b>Win:</b> 100 gold and pick 1 of 3 buffs: ★★★ within ' + par + ' hands, ★★ after. <b>Lose your health:</b> the run is over.</p><div class="btns"><button class="btn" data-act="closesheet">Back</button></div>'; }
@@ -1105,9 +1140,9 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       '<p>Either way, the teller will cash in health for gold afterwards.</p><div class="btns"><button class="btn" data-act="closesheet">Back</button></div>';
     const O = R.OBJECTIVES[L.obj.id], n = starsNow(L), pay = R.PAY[L.kind];
     const row = (k, what) => '<tr' + (k === n ? ' class="now"' : '') + '><td>' + '★'.repeat(k) + '</td><td><b>' + what + '</b><br>' + pay[k] + ' gold' + (k > 1 ? ' + ' + PRIZE[L.kind][k] : '') + '</td></tr>';
-    return '<h2>' + esc(F.name) + ': ' + F.hp + ' health</h2>' + abil + how +
-      '<table class="paytable">' + row(1, 'Shoot them down') + row(2, 'And the bounty, or win within ' + par + ' hands') + row(3, 'The bounty and within ' + par + ' hands') + '</table>' +
-      '<p><b>Bounty:</b> ' + esc(O.text) + ' (' + esc(R.objProgress(L)) + '). This is hand ' + L.handNo + '.</p>' +
+    return '<h2>Wanted: ' + esc(F.name) + ', ' + F.hp + ' health</h2>' + abil + how +
+      '<table class="paytable">' + row(1, 'Bring them in') + row(2, 'And the bonus, or within ' + par + ' hands') + row(3, 'The bonus and within ' + par + ' hands') + '</table>' +
+      '<p><b>Bonus:</b> ' + esc(O.text) + ' (' + esc(R.objProgress(L)) + '). This is hand ' + L.handNo + '.</p>' +
       '<p>Enhancements go on a card you own and stay all run; buffs change the rules in your favour. Gold buys cards, enhancements and buffs at the General Store.</p>' +
       '<div class="btns"><button class="btn" data-act="closesheet">Back</button></div>';
   }
@@ -1136,14 +1171,16 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     '<path d="M26 39 Q30 42.5 34 39" fill="none" stroke-width="1.4"/></g></svg>';
   /* The stage's numbers from art/table/scene.js (written by the bake), with the same defaults if it is missing. */
   const STAGE = Object.assign({ W: 200, H: 112, edge: 76, figs: [] }, window.TABLE_SCENE || {});
-  const BANK_LOOK = ['pJT', 'sJD'], LIFT = 5, LIFT_COMPACT = 12;   // art rows of wall cropped off the top (--lift)
+  const BANK_LOOK = ['pJT', 'gJpp2'], LIFT = 5, LIFT_COMPACT = 12;   // art rows of wall cropped off the top (--lift)
   // a fight saved before the gangs had figures gets two from its name
   function lookOf(L) {
     if (!L.foe) return BANK_LOOK;
-    if (L.foe.look) return L.foe.look;
-    const pool = ['sJH', 'sJS', 'sJD', 'sJC', 'sKH', 'sKD', 'sKS', 'sKC'];
+    // a gang's own pair; a run saved before the gangs had their own art (card figures) picks a pair by its name
+    if (L.foe.look && (!STAGE.figs.length || L.foe.look.every(x => STAGE.figs.includes(x)))) return L.foe.look;
+    const pool = STAGE.figs.filter(x => x[0] === 'g');
+    if (!pool.length) return L.foe.look || BANK_LOOK;
     let n = 0; for (const ch of L.foe.name) n = (n * 31 + ch.charCodeAt(0)) >>> 0;
-    return [pool[n % 8], pool[(n >> 3) % 8]];
+    return [pool[n % pool.length], pool[(n >> 5) % pool.length]];
   }
   /* Art pixels to screen pixels: 3 on a phone, 2 when narrower, 4 on a wide page. The stage is tall enough for
      the trick under the rim even at 2. */
@@ -1157,8 +1194,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       (L.h && L.h.stacked ? '<span class="ftag" title="They got the better of two deals this hand.">Stacked deck</span>' : '') +
       '<span class="fhit" title="Their points hit your health at this share">hit ' + E.hitWord(L) + '</span>';
     return '<div class="foe"><div class="fn"><b>' + esc(F.name) + '</b>' + tags + '<span class="fhp">' + left + ' / ' + F.hp + '</span></div>' +
-      '<div class="foebar" role="meter" aria-label="Their health" aria-valuemin="0" aria-valuemax="' + F.hp + '" aria-valuenow="' + left + '"><i style="width:' + pct + '%"></i><s style="width:' + pct + '%"></s></div>' +
-      (L.you < 0 ? '<div class="ox">Your sets have put you ' + -L.you + ' behind: make contracts to get back.</div>' : '') + '</div>';
+      '<div class="foebar" role="meter" aria-label="Their health" aria-valuemin="0" aria-valuemax="' + F.hp + '" aria-valuenow="' + left + '"><i style="width:' + pct + '%"></i><s style="width:' + pct + '%"></s></div></div>';
   }
   /* The stage: rebuilt only when the fight, the act's wall, the gang or the scale changes. */
   function buildStage(L, felt, k) {
@@ -1334,24 +1370,24 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       const F = L.foe, over = R.fightOver(L);
       const goal = L.obj ? R.OBJECTIVES[L.obj.id].name + ': ' + (L.obj.done ? '<span class="good">done</span>' : L.obj.fail ? '<span class="badc">missed</span>' : R.objProgress(L)) : '';
       html = '<h2>Hand ' + L.handNo + (F ? ' against ' + esc(F.name) : '') + '</h2>' +
-        '<div class="kv"><span>You hit them</span><span class="' + (r.pts[0] > 0 ? 'good' : r.pts[0] < 0 ? 'badc' : '') + '">' + num(r.pts[0]) + (F ? ' · ' + Math.max(0, F.hp - L.you) + ' of ' + F.hp + ' left' : '') + '</span>' +
+        '<div class="kv"><span>You hit them</span><span class="' + ((F ? r.hit : r.pts[0]) > 0 ? 'good' : (F ? r.hit : r.pts[0]) < 0 ? 'badc' : '') + '">' + (F ? (r.hit ? String(r.hit) : 'nothing') : num(r.pts[0])) + (F ? ' · ' + Math.max(0, F.hp - L.you) + ' of ' + F.hp + ' left' : '') + '</span>' +
         '<span>They hit you</span><span class="' + (r.dmg ? 'badc' : 'good') + '">' + (r.dmg ? '−' + r.dmg : 'nothing') + ' · health ' + L.health + '</span></div>' +
         '<ul class="lines">' + r.lines.map(t => '<li>' + esc(t) + '</li>').join('') + '</ul>' +
-        (goal ? '<div class="kv"><span>' + (L.kind === 'bank' ? 'Objective' : 'Bounty') + '</span><span>' + goal + '</span></div>' : '') +
-        (over && F ? '<p class="big good">' + esc(F.name) + ' are beaten!</p>' : '') +
+        (goal ? '<div class="kv"><span>' + (L.kind === 'bank' ? 'Objective' : 'Bonus') + '</span><span>' + goal + '</span></div>' : '') +
+        (over && F ? '<p class="big good">' + esc(F.name) + (L.kind === 'boss' ? ' are brought to justice!' : ' are brought in!') + '</p>' : '') +
         '<div class="btns"><button class="btn" data-act="next">' + (over ? 'See the stars' : 'Next hand') + '</button></div>';
     } else if (L.phase === 'over') {
       const r = L.result;
       key = 'over' + L.level;
-      const goal = r.kind === 'boss' ? '' : '<span>' + (r.kind === 'bank' ? 'Objective' : 'Bounty') + '</span><span>' + esc(R.OBJECTIVES[L.obj.id].text) + ': ' + (r.objective ? '<span class="good">done</span>' : '<span class="badc">missed</span>') + '</span>';
+      const goal = r.kind === 'boss' ? '' : '<span>' + (r.kind === 'bank' ? 'Objective' : 'Bonus') + '</span><span>' + esc(R.OBJECTIVES[L.obj.id].text) + ': ' + (r.objective ? '<span class="good">done</span>' : '<span class="badc">missed</span>') + '</span>';
       const next = r.kind === 'dance' ? (r.stars === 3 ? 'Pick 1 of 3 enhancements, or keep a card you won.' : r.stars === 2 ? 'Pick 1 of 2 enhancements.' : 'No reward beyond the gold.')
         : r.kind === 'elite' ? (r.stars === 3 ? 'Pick 1 of 2 buffs.' : r.stars === 2 ? 'A buff.' : 'No buff.')
         : r.kind === 'bank' ? (r.won ? 'Pick 1 of ' + R.BANK.enh + ' enhancements, then the teller.' : 'Nothing. The teller is still open.')
         : (r.won ? 'Pick 1 of 3 buffs.' : 'No buff.');
-      html = '<h2>' + (r.kind === 'boss' ? 'The Showdown over' : r.kind === 'bank' ? (r.won ? 'The robbery is foiled' : 'The gang gets away') : R.KIND_NAME[r.kind] + ' over') + '</h2><div class="stars" aria-label="' + r.stars + ' stars">' + stars(r.stars) + '</div>' +
+      html = '<h2>' + (r.kind === 'boss' ? 'The Showdown is won' : r.kind === 'bank' ? (r.won ? 'The robbery is foiled' : 'The gang gets away') : 'Bounty collected') + '</h2><div class="stars" aria-label="' + r.stars + ' stars">' + stars(r.stars) + '</div>' +
         '<div class="kv">' + (r.kind === 'bank' ? '<span>Score</span><span>you ' + num(r.you) + ', them ' + num(r.opp) + '</span>' :
-          '<span>Beaten in</span><span>' + r.hands + ' hand' + (r.hands > 1 ? 's' : '') + ' ' + (r.fast ? '<span class="good">(par ' + r.par + ')</span>' : '<span class="badc">(par ' + r.par + ')</span>') + '</span>') + goal +
-        '<span>Gold</span><span>' + (r.gold < 0 ? '<span class="badc">−' + -r.gold + '</span>' : '+' + r.gold) + ' (now ' + L.gold + ')</span>' +
+          '<span>Brought in</span><span>after ' + r.hands + ' hand' + (r.hands > 1 ? 's' : '') + ' ' + (r.fast ? '<span class="good">(par ' + r.par + ')</span>' : '<span class="badc">(par ' + r.par + ')</span>') + '</span>') + goal +
+        '<span>' + (r.kind === 'bank' ? 'Gold' : 'Bounty paid') + '</span><span>' + (r.gold < 0 ? '<span class="badc">−' + -r.gold + '</span>' : '+' + r.gold) + ' gold (now ' + L.gold + ')</span>' +
         '<span>Health</span><span>' + L.health + (r.change ? ' (−' + -r.change + ' this fight)' : ' (untouched)') + '</span>' +
         '<span>Reward</span><span>' + next + '</span></div>' +
         '<div class="btns"><button class="btn" data-act="collect">Collect</button></div>';
@@ -1375,8 +1411,10 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     '<li><b>Trumps:</b> the Joker is highest, then the <b>right bower</b> (the Jack of trumps), then the <b>left bower</b> (the other red Jack, which counts as a trump), then A, K, Q, 10, 9.</li>' +
     '<li><b>Play:</b> the winner of the auction takes the kitty, puts a card back and leads. Follow the suit led if you can; the highest trump wins, otherwise the highest card of the suit led. Equal cards: the first played wins.</li>' +
     '<li><b>Scoring:</b> make your bid and score it; fail and lose it. Defenders score 10 a trick. Take every trick and you score your suit’s top bid.</li>' +
-    '<li><b>Fights:</b> every table is a gang with health. Your team\u2019s points each hand (a made contract, 10 a defending trick) shoot it down; a set takes its value back off. Hand follows hand until they are beaten.</li>' +
-    '<li><b>Health:</b> you start with 500, and that is the most you can have. Every point West and East score hits you, at 30% in Act I, 20% in Act II and 15% in Act III (Showdown gangs hit harder). Nothing heals you during a fight; at 0 the run is over, Showdown or not.</li>' +
+    '<li><b>You are a bounty hunter.</b> Every table is a wanted gang with health and a price on its head. Your team\u2019s points each hand (a made contract, 10 a defending trick) shoot it down. Hand follows hand until they are brought in, and the reward is yours.</li>' +
+    '<li><b>Health:</b> you start with 500, and that is the most you can have. Every point West and East score hits you, at 50% in Act I, 35% in Act II and 22% in Act III (Showdown gangs hit harder). A contract of yours that fails <b>backfires</b>: it hits you for its value at the same share. Nothing heals you during a fight; at 0 the run is over, Showdown or not.</li>' +
+    '<li><b>Legendary cards:</b> a card you own takes up to two enhancements; with two it is Legendary. An enhancement is never replaced.</li>' +
+    '<li><b>The gangs</b> grow tougher up the trail, and many carry an ability or a debuff on you: Rusty Guns, Gut Shot, Bushwhack and more. Tap their name on the plate to read it.</li>' +
     '<li><b>Your cards:</b> each hand, one card you own is dealt straight to you. Enhancements on your cards work for you and Nan only.</li>' +
     '<li><b>Nan</b> never outbids you.</li></ul><div class="btns"><button class="btn" data-act="closesheet">Got it</button></div>';
   function menuHTML() {
@@ -1385,7 +1423,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     return '<h2>Menu</h2><p>Your run is saved after every move.</p>' +
       '<h3>Pace</h3><div class="btns">' + Object.keys(PACE).map(k => opt('pace', k, PACE_NAME[k])).join('') + '</div>' +
       '<h3>Finished tricks</h3><div class="btns">' + opt('tricks', 'tap', 'Wait for a tap') + opt('tricks', 'auto', 'Clear by themselves') + '</div>' + (L ? '<h3>Your cards and buffs</h3>' + mineHTML() +
-      '<ul class="lines">' + L.owned.filter(c => L.mods[c] && L.mods[c].enh).map(c => '<li>' + esc(E.label(c)) + ': ' + esc(R.ENH[L.mods[c].enh].text) + '</li>').join('') +
+      '<ul class="lines">' + L.owned.filter(c => L.mods[c] && L.mods[c].enh).map(c => '<li>' + esc(E.label(c)) + (R.legendary(L, c) ? ' (Legendary)' : '') + ': ' + E.enhsOf(L.mods[c]).map(x => esc(R.ENH[x].name + ': ' + R.ENH[x].text)).join(' ') + '</li>').join('') +
       L.buffs.map(b => '<li>' + esc(R.BUFFS[b].name) + ': ' + esc(R.BUFFS[b].text) + '</li>').join('') + '</ul>' : '') +
       '<div class="btns"><button class="btn" data-act="closesheet">Back</button><button class="btn alt" data-act="quit">Title screen</button></div>';
   }
@@ -1400,11 +1438,13 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   function cardInfoHTML(c) {
     const L = P.L, h = L.phase === 'hand' ? L.h : null, tr = h ? h.trump : null;
     const m = L.mods[c] || {}, hx = (L.hexes || {})[c], owned = L.owned.includes(c), tags = [], lines = [];
-    if (m.enh) {
-      const e = R.ENH[m.enh];
+    if (m.enh2) tags.push('<span class="buff legendary">Legendary</span>');
+    E.enhsOf(m).forEach(id => {
+      const e = R.ENH[id];
       tags.push('<span class="buff">Buff: ' + esc(e.name) + '</span>');
-      lines.push('<b>' + esc(e.name) + '.</b> ' + esc(e.text) + (m.enh === 'glass' ? ' It has won ' + (m.wins || 0) + ' of ' + R.GLASS_WINS + '.' : ''));
-    }
+      lines.push('<b>' + esc(e.name) + '.</b> ' + esc(e.text) + (id === 'glass' ? ' It has won ' + (m.wins || 0) + ' of ' + R.GLASS_WINS + '.' : ''));
+    });
+    if (m.enh && !m.enh2 && owned) lines.push('It can take one more enhancement and become <b>Legendary</b>.');
     if (m.up) {
       tags.push('<span class="buff">' + (m.enh === 'growing' ? 'Grown' : 'Polished') + ' +' + m.up + '</span>');
       lines.push('<b>' + (m.enh === 'growing' ? 'Grown' : 'Polished') + ':</b> it plays as ' + esc(E.kLabel({ c, m }).replace(/^.*\(now /, '').replace(/\)$/, '')) + ', ' + m.up + ' rank' + (m.up > 1 ? 's' : '') + ' above its print.');
@@ -1544,6 +1584,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       case 'next': move('next'); break;
       case 'collect': move('collect'); break;
       case 'skipreward': move('choose', { skip: true }); break;
+      case 'leaveenh': move('enhance', null); break;
       case 'reroll': move('reroll'); break;
       case 'leave': move('leave'); break;
       case 'leavebank': move('bank', 'leave'); break;
@@ -1633,15 +1674,16 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { if (!$('title').hidden && !OPEN.done) { buildHero(); layoutTitle(); } }, 150); });
 
   /* The opening: storyboard frames 2-5 (see the CSS above), then `done` deals the act's cards (frame 6). */
-  const OPEN = { timers: [], done: null, raf: 0 };
+  const OPEN = { timers: [], done: null, raf: 0, coachOff: 0 };
   function reduceMotion() { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
-  function heroAnims(rate) { try { document.getAnimations().forEach(a => { const t = a.effect && a.effect.target; if (t && t.closest && t.closest('#hero')) a.updatePlaybackRate(rate); }); } catch (e) { /* no Web Animations */ } }
+  // every animation in the hero runs at `rate`; with `coach`, the stagecoach's wheels and trot keep their own pace
+  function heroAnims(rate, coach) { try { document.getAnimations().forEach(a => { const t = a.effect && a.effect.target; if (t && t.closest && t.closest('#hero') && !(coach && t.classList.contains('stagecoach'))) a.updatePlaybackRate(rate); }); } catch (e) { /* no Web Animations */ } }
   function at(ms, fn) { OPEN.timers.push(setTimeout(fn, ms)); }
   function actCard(L, tips) {
     const card = $('actcard');
     card.style.backgroundImage = 'url(' + artURL('dustwater/plate.webp') + ')';
-    card.innerHTML = '<div class="board"><small>ACT I</small><b>DUSTWATER</b><span>A boomtown since the gold strike</span></div>' +
-      (tips ? '<div class="nanline"><b>Nan:</b> Here we are, dear. Every chair in this town has a card game, and every one of them wants our money.</div>' : '');
+    card.innerHTML = '<div class="board"><small>ACT I</small><b>DUSTWATER</b><span>Every gang in the territory is holed up here</span></div>' +
+      (tips ? '<div class="nanline"><b>Nan:</b> Here we are, dear. Every outlaw in this town has a price on his head, and they all settle things over cards. Let\u2019s go and collect.</div>' : '');
     card.classList.add('on');
   }
   function dust(full) {
@@ -1660,9 +1702,10 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     OPEN.done = null;
     cancelAnimationFrame(OPEN.raf);
     document.body.classList.remove('opening', 'tilt', 'signzoom', 'signdrop');
-    const hero = $('hero'), sign = hero.querySelector('.townsign');
+    const hero = $('hero'), sign = hero.querySelector('.townsign'), coach = hero.querySelector('.stagecoach');
     hero.style.height = ''; hero.style.transform = '';
     if (sign) sign.style.left = '';
+    if (coach) { coach.style.transition = ''; coach.style.transform = ''; }
     const rig = hero.querySelector('.rig');
     if (rig) { rig.style.transition = 'none'; rig.style.transform = ''; void rig.offsetHeight; rig.style.transition = ''; }
     heroAnims(1);
@@ -1689,25 +1732,33 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       void rig.offsetHeight;                    // let the full-screen height land before the tilt starts
       rig.style.transform = 'translateY(' + Math.round(innerHeight * 0.58 - trail) + 'px)';
     });
-    // 4: the town sign comes along the trail and the coach pulls up at it; the camera closes in, the WELCOME
-    // plank falls away (DANGER! DO NOT ENTER), and the coach's dust wipes the screen
+    // 4: the town sign comes along the trail and the camera pulls up at it while the coach rolls on out of the
+    // frame; the camera closes in, the WELCOME plank falls away (DANGER! DO NOT ENTER), and the dust wipes the screen
     at(1600, () => signRun(performance.now() + 5000));
-    at(6800, signZoom);
-    at(7900, () => document.body.classList.add('signdrop'));
-    at(10300, () => dust(true));
+    const Z = 6600 + EXIT + 300;                 // the coach is gone: close in on the sign
+    at(Z, signZoom);
+    at(Z + 1100, () => document.body.classList.add('signdrop'));
+    at(Z + 3500, () => dust(true));
     // 5: the act card comes up under the dust, and the dust clears off it
-    at(11200, () => { actCard(L, L.tips); undust(); });
-    at(11200 + (L.tips ? 2600 : 1400), endOpening);
+    at(Z + 4400, () => { actCard(L, L.tips); undust(); });
+    at(Z + 4400 + (L.tips ? 2600 : 1400), endOpening);
   }
-  /* The sign is planted by the trail, so it moves at the stage's speed; the coach brakes to a stop over the last
-     BRAKE ms with the sign beside it, and the ground, the wheels and the trot slow with it. `stopAt` is when it
-     stands still; until it is due the sign waits off the right edge. */
-  const BRAKE = 1200;
+  /* The sign is planted by the trail, so it moves at the stage's speed. The camera follows the coach until the
+     last BRAKE ms before `stopAt`, then brakes to a stop with the sign beside it: the ground slows with it, but the
+     coach keeps the trail's speed (its wheels and trot too), so it pulls ahead across the screen, and once the
+     camera stands still it whips up and is off the right edge EXIT ms later. Until it is due the sign waits off
+     the right edge. */
+  const BRAKE = 1200, EXIT = 2000;
   function signRun(stopAt) {
-    const sign = $('hero').querySelector('.townsign');
+    const hero = $('hero'), sign = hero.querySelector('.townsign'), coach = hero.querySelector('.stagecoach');
     if (!sign) return;
     const v = STAGE_SPEED * HERO.s / 1000, W = innerWidth, sw = sign.offsetWidth || 0;
     const stopLeft = OPEN.signStop = Math.round(W * 0.62 - sw / 2);
+    // the coach's lead on the camera when it stops is half a braking distance; from there it must cover `far`
+    const d0 = v * BRAKE / 2, far = W / 2 + (coach ? coach.offsetWidth / 2 : 0) + 8 - d0;
+    const acc = Math.max(0, 2 * (far - v * EXIT) / (EXIT * EXIT));
+    OPEN.coachOff = Math.ceil(far + d0);
+    if (coach) coach.style.transition = 'none';
     let rate = 1;
     const tick = () => {
       const tau = stopAt - performance.now();
@@ -1715,8 +1766,12 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       const left = tau <= 0 ? 0 : tau < BRAKE ? v * tau * tau / (2 * BRAKE) : v * BRAKE / 2 + v * (tau - BRAKE);
       sign.style.left = Math.min(W + 10, stopLeft + left) + 'px';
       const r = tau <= 0 ? 0 : Math.min(1, tau / BRAKE);
-      if (r !== rate) heroAnims(rate = r);
-      if (tau > 0) OPEN.raf = requestAnimationFrame(tick);
+      if (r !== rate) heroAnims(rate = r, true);
+      // the coach's lead on the camera: what it drove since braking began less what the camera did
+      const t = -tau;
+      const lead = tau >= BRAKE ? 0 : tau > 0 ? v * (BRAKE - tau) - (d0 - left) : d0 + v * t + acc * t * t / 2;
+      if (coach) coach.style.transform = 'translateX(' + Math.round(Math.min(lead, OPEN.coachOff)) + 'px)';
+      if (lead < OPEN.coachOff) OPEN.raf = requestAnimationFrame(tick);
     };
     OPEN.raf = requestAnimationFrame(tick);
   }
@@ -1725,9 +1780,11 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   function signZoom() {
     const hero = $('hero'), sign = hero.querySelector('.townsign');
     if (!sign) return;
-    // the coach has stopped by now; make sure of it even where animation frames were held back
+    // the camera has stopped and the coach is gone by now; make sure of it even where animation frames were held back
     cancelAnimationFrame(OPEN.raf);
     if (OPEN.signStop != null) sign.style.left = OPEN.signStop + 'px';
+    const coach = hero.querySelector('.stagecoach');
+    if (coach && OPEN.coachOff) coach.style.transform = 'translateX(' + OPEN.coachOff + 'px)';
     heroAnims(0);
     const r = sign.getBoundingClientRect();
     if (!r.width) return;

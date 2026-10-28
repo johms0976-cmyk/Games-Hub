@@ -31,7 +31,7 @@
   function cost(L, seat, c) {
     const k = K(L, seat, c), trump = L.h.trump;
     if (c === 'JK') return 200;
-    if (k.m && k.m.enh === 'outcast') return 1;          // it never wins, so it's the first card to throw
+    if (E.en(k, 'outcast')) return 1;          // it never wins, so it's the first card to throw
     if (kIsTrump(k, trump)) return 50 + kTrumpRank(k, trump);
     return kRank(k);
   }
@@ -147,7 +147,7 @@
       } else {
         est += v === 14 ? 0.75 : v === 13 ? 0.35 : v === 12 ? 0.1 : 0;
       }
-      if (k.m && k.m.enh === 'giant') est += 0.15;
+      if (E.en(k, 'giant')) est += 0.15;
     }
     if (trump) est += Math.max(0, nTrump - Math.ceil(A.hand / 3)) * 0.3;
     return est + A.hand * SHARE[act];

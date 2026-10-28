@@ -1,3 +1,3 @@
 /* Written by bakery/saloon_px.py: the card table's stage (art pixels) and the gang figures baked for it.
    The page reads it only to place pictures: never load-bearing. */
-window.TABLE_SCENE = {"W":200,"H":112,"edge":76,"fig":[40,56],"figs":["sJH","sJS","sJD","sJC","sKH","sKD","sKS","sKC","sQH","sQD","sQS","sQC","pJT","pKX","pJY","pKU","sJK"]};
+window.TABLE_SCENE = {"W":200,"H":112,"edge":76,"fig":[40,56],"figs":["pJT","pKX","pJY","pKU","sJK","sQD","gJbc","gJbk1","gJcbk","gJcc1","gJcp1","gJcp2","gJcs","gJdk","gJdr1","gJdr2","gJgb2","gJht2","gJmc1","gJmc2","gJms1","gJoj","gJpp1","gJpp2","gJqq","gJrb1","gJrb2","gJrh1","gJrh2","gJrr1","gJrr2","gJsg1","gJsn2","gJss","gKbb","gKbk2","gKcb1","gKcb2","gKcbk","gKcc2","gKdj","gKgb1","gKhank","gKht1","gKmb1","gKmb2","gKmg","gKms2","gKpa","gKpf1","gKpf2","gKpj","gKpr1","gKpr2","gKsg2","gKsm","gKsn1","gQcs","gQft1","gQft2","gQlou","gQmags","gQpj","gQrosa","gQsal","gQtess"]};

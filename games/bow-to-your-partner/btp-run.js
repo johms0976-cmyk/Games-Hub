@@ -51,29 +51,46 @@
   const FOE = { base: { 1: 40, 2: 80, 3: 110 }, step: { 1: 5, 2: 8, 3: 10 }, elite: 1.5, boss: { 1: 100, 2: 300, 3: 500 }, bossHit: 2 };
   const PAR = { dance: { 1: 4, 2: 3, 3: 3 }, elite: { 1: 5, 2: 4, 3: 4 }, boss: { 1: 7, 2: 9, 3: 8 } };
   const STACK = { max: 0.3 };
-  const TRAIT = { floor: 2, p: 1 / 3, pool: ['tough', 'lucky', 'deadeye'] };
+  /* From floor TRAIT.floor a Card table gang may have one ability (TRAIT.p by act): a trait or a debuff. A Duel
+     always has one, and two from Act II (the second a trait or a debuff, never a second curse). */
+  const TRAIT = { floor: 1, p: { 1: 0.3, 2: 0.45, 3: 0.6 }, pool: ['tough', 'lucky', 'deadeye'], duel2: 2 };
   const TRAITS = {
     tough:   { name: 'Tough', text: 'A quarter more health.' },
     lucky:   { name: 'Lucky', text: 'A stacked deck every hand: they get the better of two deals.' },
     deadeye: { name: 'Dead Eye', text: 'Their points hit you half as hard again.' }
   };
-  /* Who you face: a name and the two figures that sit at West and East (the card cast, baked for the table by
-     bakery/saloon_px.py: s<card> the courts, p<key> the poster outlaws). A Duel draws one ability from
-     DUEL_ABILITIES: the three old Duel curses or a trait. */
+  /* Who you face: a name and the two figures that sit at West and East. Since 2026-10-29 every gang has two people
+     of its own (bakery/gang.py, baked for the table by bakery/saloon_px.py as g<key>); the Showdowns keep their
+     wanted-poster outlaws. A Duel draws its abilities from DUEL_ABILITIES and DEBUFFS (see makeFoe). */
   const GANGS = {
-    1: [['Two Cowpokes', 'sJH', 'sJC'], ['The Miller Brothers', 'sKH', 'sKD'], ['A Pair of Drifters', 'sJH', 'sJS'], ['Two Prospectors', 'sKS', 'sJD'],
-        ['The Ranch Hands', 'sJC', 'sKC'], ['The Barber and His Cousin', 'sKS', 'sJS'], ['Two Mule Skinners', 'sJD', 'sJH']],
-    2: [['Two Gamblers', 'pKX', 'sKS'], ['The Brakemen', 'sJC', 'sJS'], ['Two Snake-oil Salesmen', 'sKH', 'pKX'], ['The Cattle Buyers', 'sKD', 'sKC'],
-        ['Two Pickpockets', 'sJD', 'pJY'], ['The Mail Clerks', 'sJC', 'sKS'], ['Two Card Counters', 'sQS', 'pKX']],
-    3: [['The Pie Judges', 'sQH', 'sKC'], ['Two Rodeo Riders', 'sJH', 'sJS'], ['The Carnival Barkers', 'sKH', 'pJY'], ['The Strongman and His Manager', 'sKD', 'sKS'],
-        ['Two Horse Traders', 'sKC', 'sJD'], ['The Shooting-gallery Men', 'sJS', 'sJC'], ['Two Fortune Tellers', 'sQS', 'sQC']]
+    1: [['Two Cowpokes', 'gJcp1', 'gJcp2'], ['The Miller Brothers', 'gKmb1', 'gKmb2'], ['A Pair of Drifters', 'gJdr1', 'gJdr2'], ['Two Prospectors', 'gKpr1', 'gKpr2'],
+        ['The Ranch Hands', 'gJrh1', 'gJrh2'], ['The Barber and His Cousin', 'gKbb', 'gJbc'], ['Two Mule Skinners', 'gJms1', 'gKms2']],
+    2: [['Two Gamblers', 'gKgb1', 'gJgb2'], ['The Brakemen', 'gJbk1', 'gKbk2'], ['Two Snake-oil Salesmen', 'gKsn1', 'gJsn2'], ['The Cattle Buyers', 'gKcb1', 'gKcb2'],
+        ['Two Pickpockets', 'gJpp1', 'gJpp2'], ['The Mail Clerks', 'gJmc1', 'gJmc2'], ['Two Card Counters', 'gJcc1', 'gKcc2']],
+    3: [['The Pie Judges', 'gQpj', 'gKpj'], ['Two Rodeo Riders', 'gJrr1', 'gJrr2'], ['The Carnival Barkers', 'gKcbk', 'gJcbk'], ['The Strongman and His Manager', 'gKsm', 'gKmg'],
+        ['Two Horse Traders', 'gKht1', 'gJht2'], ['The Shooting-gallery Men', 'gJsg1', 'gKsg2'], ['Two Fortune Tellers', 'gQft1', 'gQft2']]
   };
   const DUELISTS = {
-    1: [['Quick-draw Quinn and Pa', 'sJS', 'sKC'], ['The Dutton Kid and Sal', 'sJD', 'sQD'], ['Two-gun Tess and Hank', 'sQH', 'sJC']],
-    2: [['Diamond Jim and Lou', 'pKX', 'sQD'], ['The Railroad Baron’s Boys', 'sKD', 'sJD'], ['Silent Sam and Mags', 'sJH', 'sQC']],
-    3: [['The Champion Sharpshooters', 'sJS', 'sQS'], ['One-eyed Jack and Rosa', 'sJD', 'sQH'], ['The Prize Fighters', 'sKD', 'sKH']]
+    1: [['Quick-draw Quinn and Pa', 'gJqq', 'gKpa'], ['The Dutton Kid and Sal', 'gJdk', 'gQsal'], ['Two-gun Tess and Hank', 'gQtess', 'gKhank']],
+    2: [['Diamond Jim and Lou', 'gKdj', 'gQlou'], ['The Railroad Baron\u2019s Boys', 'gJrb1', 'gJrb2'], ['Silent Sam and Mags', 'gJss', 'gQmags']],
+    3: [['The Champion Sharpshooters', 'gQcs', 'gJcs'], ['One-eyed Jack and Rosa', 'gJoj', 'gQrosa'], ['The Prize Fighters', 'gKpf1', 'gKpf2']]
   };
   const DUEL_ABILITIES = ['locked', 'ticking', 'nokitty', 'lucky', 'deadeye'];
+  /* The gang's debuffs on you (the user's ask, 2026-10-29: "some enemies need to apply a debuff, e.g. the
+     player's cards are worth one rank less"). The engine reads them (E.foeHas); Gagged and Shakedown are read
+     here. A Steady Aim card shrugs off Rusty Guns and Sand in Your Eyes. */
+  const DEBUFFS = {
+    rusty:     { name: 'Rusty Guns', text: 'Your cards play one rank lower (not the Joker or the bowers).' },
+    sand:      { name: 'Sand in Your Eyes', text: 'On each hand\u2019s first trick your own cards play as printed: no enhancements, no polish.' },
+    shakedown: { name: 'Shakedown', text: 'Every trick they take costs you 5 gold.' },
+    gutshot:   { name: 'Gut Shot', text: 'You bleed 10 health every hand of the fight.' },
+    armour:    { name: 'Thick Hide', text: 'Your defending tricks don\u2019t hurt them: only your contracts do.' },
+    sleeve:    { name: 'Aces up Their Sleeves', text: 'West and East are each dealt an Ace.' },
+    gag:       { name: 'Gagged', text: 'Nan is gagged: she can\u2019t bid.' },
+    marked:    { name: 'Marked Deck', text: 'None of your own cards are dealt to you.' },
+    snakebite: { name: 'Snakebite', text: 'Every trick they take hits you for 5 more.' },
+    bushwhack: { name: 'Bushwhack', text: 'When your team wins the bid, West leads the first trick.' }
+  };
   const LAST_ACT = 3;                       // the County Fair ends the run
   const ROMAN = { 1: 'I', 2: 'II', 3: 'III' };
   const PARTNERS = {
@@ -103,21 +120,21 @@
   const OBJECTIVES = {
     every:    { name: 'Every Hand', text: 'Win a trick in every hand of the fight', of: 0, easy: true, acts: [1], kind: 'limit' },
     lowly9:   { name: 'Small Fry', text: 'Win a trick with a 9 or a 10', of: 1, acts: [1] },
-    harvest:  { name: 'Red Rush', text: 'Win 11 hearts across the fight', of: 11, acts: [1] },
-    setthem:  { name: 'Ambush', text: 'Defeat an opponents\u2019 contract', of: 1, acts: [1, 2] },
-    lastword: { name: 'Last Man Standing', text: 'Win the last trick of 2 hands', of: 2, acts: [1] },
-    bagjack:  { name: 'Wanted: Jacks', text: 'Win 3 tricks that hold a red Jack', of: 3, acts: [1] },
+    harvest:  { name: 'Red Rush', text: 'Win 13 hearts across the fight', of: 13, acts: [1] },
+    setthem:  { name: 'Ambush', text: 'Defeat 2 of the opponents\u2019 contracts', of: 2, acts: [1, 2] },
+    lastword: { name: 'Last Man Standing', text: 'Take the last trick yourself in 2 hands', of: 2, acts: [1] },
+    bagjack:  { name: 'Wanted: Jacks', text: 'Win 4 tricks that hold a red Jack', of: 4, acts: [1] },
     blacks:   { name: 'Black Hats', text: 'Win BLACKS black cards across the fight', of: 0, acts: [2], easy: true },
     showoff:  { name: 'Show Off', text: 'Win SHOWOFF tricks with cards you own', of: 0, acts: [2, 3] },
-    acehunter: { name: 'Bounty Hunter', text: 'Capture 3 Aces the opponents played', of: 3, acts: [2] },
+    acehunter: { name: 'Aces High', text: 'Capture 3 Aces the opponents played', of: 3, acts: [2] },
     ruff:     { name: 'Ruff Stuff', text: 'Win 2 tricks by trumping a suit you\u2019re out of', of: 2, acts: [2] },
-    lefthook: { name: 'Left Hook', text: 'Win a trick with the left bower', of: 1, acts: [2] },
+    lefthook: { name: 'Left Hook', text: 'Take a trick yourself with the left bower', of: 1, acts: [2] },
     holdline: { name: 'Hold the Fort', text: 'The opponents make no contract this fight', of: 0, acts: [2], kind: 'limit' },
     smoke:    { name: 'Smoke Out the Joker', text: 'Make an opponent play the Joker on a trick your team led', of: 1, acts: [2] },
     makemis:  { name: 'Make a Mis\u00e8re', text: 'You or Nan make a mis\u00e8re', of: 1, acts: [2], elite: true },
-    little4:  { name: 'The Little 4', text: 'Win a trick with the 4\u2665 or 4\u2666', of: 1, acts: [3] },
+    little4:  { name: 'Small Change', text: 'Win 2 tricks with a 4 or a 5', of: 2, acts: [3] },
     setbig:   { name: 'Set the Big One', text: 'Defeat an opponents\u2019 bid of BIG or more', of: 1, acts: [3] },
-    royal:    { name: 'Royal Flush', text: 'Capture all four Kings', of: 4, acts: [3] },
+    royal:    { name: 'Royal Flush', text: 'Capture all four Kings and all four Queens', of: 8, acts: [3] },
     bowerhunt: { name: 'Bower Hunt', text: 'Win 2 tricks that hold a bower', of: 2, acts: [3], easy: true },
     make8:    { name: 'Make 8', text: 'You or Nan make a contract of 8 or more', of: 1, acts: [3], elite: true },
     openmis:  { name: 'Open Mis\u00e8re', text: 'You or Nan make an open mis\u00e8re', of: 1, acts: [3], elite: true },
@@ -127,13 +144,13 @@
   /* The Showdowns. Since the fight redesign each boss is a gang with health (FOE.boss) whose old race rule is now
      its ability; beat its health or run out of your own. */
   const BOSS = {
-    twins:  { name: 'The Twins', short: 'Twins', act: 1, look: ['pJT', 'pJT'], hit: 1.75, rule: 'West and East are always dealt the two red Jacks, one each.',
+    twins:  { name: 'The Twins', short: 'Twins', act: 1, look: ['pJT', 'pJT'], hit: 1.25, rule: 'West and East are always dealt the two red Jacks, one each.',
               hint: 'In diamonds or hearts they hold both bowers. In no trumps their Jacks are just Jacks; the Joker beats them either way.' },
-    sharps: { name: 'The Card Sharps', short: 'Sharps', act: 2, look: ['pKX', 'pKX'], hit: 2.5, rule: 'They can see your seeded cards, and hunt them.',
+    sharps: { name: 'The Card Sharps', short: 'Sharps', act: 2, look: ['pKX', 'pKX'], hit: 2, rule: 'They can see your seeded cards, and hunt them.',
               hint: 'Lead your seeded cards when they can\u2019t be beaten, or let Nan cover them.' },
     hustlers: { name: 'The Hustlers', short: 'Hustlers', act: 2, look: ['pJY', 'pJY'], hp: 200, hit: 1.25, rule: 'They bid mis\u00e8re whenever they dare.',
               hint: 'One trick sinks a mis\u00e8re: lead low and stay under their card. Or outbid them with a 6 to keep them out.' },
-    caller: { name: 'The Caller', short: 'Caller', act: 3, look: ['sJK', 'sQD'], hit: 2.5, rule: 'Before each hand he calls a figure that changes the rules, aimed at the cards you were dealt from your own.',
+    caller: { name: 'The Caller', short: 'Caller', act: 3, look: ['sJK', 'sQD'], hit: 2, rule: 'Before each hand he calls a figure that changes the rules, aimed at the cards you were dealt from your own.',
               hint: 'Each call is chosen to hurt your seeded cards, and he tells you why. A run that only works one way gets punished.' },
     wallflowers: { name: 'The Undertakers', short: 'Undertakers', act: 3, look: ['pKU', 'pKU'], hit: 2, rule: 'They never bid, so your team must bid every hand, and at least 8.',
               hint: 'Nobody can pass the hand out: if Nan passes, you must bid. Bid what you can make, not what you hope.' }
@@ -177,7 +194,23 @@
     swing:    { name: 'Under the Table', text: 'After the kitty, slip Nan a card and she slips you one back, every hand.' },
     peek:     { name: 'Peek', text: 'See the kitty before you bid.' },
     bowertie: { name: 'Quick Draw', text: 'Your bowers tie the Joker: whichever is played first wins.' },
-    nearmiss: { name: 'Just a Flesh Wound', text: 'Miss your contract by one trick and lose nothing.' }
+    nearmiss: { name: 'Just a Flesh Wound', text: 'Miss your contract by one trick and lose nothing: no backfire.' },
+    // fifteen more (2026-10-29), most of them about the fight
+    vest:     { name: 'Leather Vest', text: 'Every hand that hurts you hurts 5 less.' },
+    canteen:  { name: 'Canteen', text: '+25 health after every fight you win.' },
+    ledger:   { name: 'Bounty Ledger', text: '+15 gold for every gang you bring in.' },
+    horse:    { name: 'Fast Horse', text: 'Par is one hand longer in every fight.' },
+    watch:    { name: 'Pocket Watch', text: 'Once an act, a hit that would finish you stops at the watch: you hang on with 1 health.' },
+    holster:  { name: 'Quick Holster', text: 'The first hand of every fight hits the gang double.' },
+    scope:    { name: 'Rifle Scope', text: 'Your team\u2019s made contracts hit the gang a quarter harder.' },
+    map:      { name: 'Treasure Map', text: 'Every pick of enhancements or buffs offers one more.' },
+    credit:   { name: 'Store Credit', text: 'Everything at the General Store costs a fifth less.' },
+    holdout:  { name: 'Holdout Sleeve', text: 'One more of your own cards is dealt to you each hand.' },
+    bandolier: { name: 'Bandolier', text: 'Your defending tricks hit the gang for 15, not 10.' },
+    iron:     { name: 'Iron Constitution', text: 'Your health goes up to 600, and you heal 100 now.' },
+    pillow:   { name: 'Feather Pillow', text: 'A night at the Hotel heals 100 more.' },
+    warrant:  { name: 'Signed Warrant', text: 'Every gang starts with a tenth less health.' },
+    dice:     { name: 'Loaded Dice', text: 'Rerolling a reward is free.' }
   };
   /* Card enhancements, by the act that adds them to the reward pool (one new
      system per act). Act III adds Glass and the Triple Threat (not built yet). */
@@ -194,8 +227,37 @@
     twoface: { name: 'Two-faced', text: 'Counts as either suit of its colour: it may follow either, and it ruffs when its twin suit is trumps.', acts: [2, 3] },
     glass:   { name: 'Glass', text: 'Counts as the Ace of trumps (a tie: the first played wins). Leaves the deck the third time it wins a trick.', acts: [3] },
     triple:  { name: 'Triple Threat', text: 'A trick it wins counts as three toward your contract (and your defending tricks). Holding it lets you bid two tricks more than the hand.', acts: [3] },
-    double:  { name: 'Doubly Woubly', text: 'A trick it wins counts as two toward your contract (and your defending tricks). Holding it lets you bid one trick more than the hand.', acts: [2, 3] }
+    double:  { name: 'Doubly Woubly', text: 'A trick it wins counts as two toward your contract (and your defending tricks). Holding it lets you bid one trick more than the hand.', acts: [2, 3] },
+    // fifteen more (2026-10-29): shots and armour for the fight, ranks that move with the trick, and a few oddities
+    hollow:   { name: 'Hollow Point', text: 'A trick it wins hits the gang for 15 more.', acts: [1, 2, 3] },
+    plate:    { name: 'Iron Plate', text: 'A trick it wins blocks 15 of the damage you take this hand.', acts: [1, 2, 3] },
+    ricochet: { name: 'Ricochet', text: 'A trick the gang takes from it still hits them for 10.', acts: [1, 2, 3] },
+    bullseye: { name: 'Bullseye', text: 'Win the hand\u2019s last trick with it and the gang takes 40.', acts: [1, 2, 3] },
+    highnoon: { name: 'High Noon', text: 'Two ranks higher on the hand\u2019s first trick (no higher than an Ace).', acts: [1, 2, 3] },
+    spurs:    { name: 'Spurs', text: 'One rank higher when you lead it (no higher than an Ace).', acts: [1, 2, 3] },
+    steady:   { name: 'Steady Aim', text: 'No hex touches it, and nor do the gang\u2019s Rusty Guns or Sand in Your Eyes.', acts: [1, 2, 3] },
+    hole:     { name: 'Ace in the Hole', text: 'On the hand\u2019s last trick it plays as the Ace of its suit (tying the real one).', acts: [2, 3] },
+    lastdraw: { name: 'Last to Draw', text: 'Two ranks higher when it is the last card played to a trick.', acts: [2, 3] },
+    desperado: { name: 'Desperado', text: 'One rank higher for every trick the gang has taken this hand.', acts: [2, 3] },
+    knuckles: { name: 'Brass Knuckles', text: 'Two ranks higher in no trumps (and mis\u00e8res).', acts: [2, 3] },
+    poster:   { name: 'Wanted Poster', text: 'A trick it wins counts twice toward the fight\u2019s bonus.', acts: [2, 3] },
+    keg:      { name: 'Powder Keg', text: 'A trick it wins hits the gang for 30 more; a trick the gang takes from it burns you for 15.', acts: [3] },
+    deadman:  { name: 'Dead Man\u2019s Hand', text: 'A trick it wins that holds an Ace or an 8 hits the gang for 25 more.', acts: [3] },
+    horseshoe: { name: 'Lucky Horseshoe', text: 'If it wins a trick in a hand your contract fails, the backfire is halved.', acts: [3] }
   };
+  /* Legendary cards (the user's, 2026-10-29: "stack buffs into Legendary cards", and an enhancement on a card
+     can't be overwritten). A card takes a second enhancement and becomes Legendary; a Legendary card is full.
+     Pairs that cancel or repeat each other never share a card, and an Outcast (which never wins) only pairs with
+     what works without winning. */
+  const LEGEND = { slots: 2, clash: [['reverse', 'sanctuary'], ['sworn', 'glass'], ['double', 'triple']], outcastOk: ['herald', 'ricochet', 'steady', 'magnet', 'twoface'] };
+  function fits(L, card, id) {
+    if (!L.owned.includes(card) || card === 'JK' || !ENH[id]) return false;
+    const have = E.enhsOf(L.mods[card]);
+    if (have.length >= LEGEND.slots || have.includes(id)) return false;
+    return have.every(x => !LEGEND.clash.some(pr => pr.includes(x) && pr.includes(id)) &&
+      (x !== 'outcast' || LEGEND.outcastOk.includes(id)) && (id !== 'outcast' || LEGEND.outcastOk.includes(x)));
+  }
+  const legendary = (L, c) => E.enhsOf(L.mods && L.mods[c]).length >= LEGEND.slots;
   const enhPool = L => Object.keys(ENH).filter(k => ENH[k].acts.includes(L.act));
   const CURSES = {
     locked:  { name: 'Handcuffed', text: 'One card in your hand is chained until your team wins a trick.' },
@@ -352,9 +414,9 @@
   }
   const floorOf = L => !L.pos ? -1 : mapNode(L, L.pos).f;
   const REST = { 1: 150, 2: 150, 3: 250 }, CASH = { health: 200, gold: 100 };
-  const restOf = L => REST[L.act];
+  const restOf = L => REST[L.act] + (has(L, 'pillow') ? 100 : 0);
   /* Act II's targets, tuned on accident rates: see the header of OBJECTIVES. */
-  const ACT2 = { blacks: 21, showoff: 3 };
+  const ACT2 = { blacks: 21, showoff: 4 };
   OBJECTIVES.blacks.of = ACT2.blacks; OBJECTIVES.blacks.text = OBJECTIVES.blacks.text.replace('BLACKS', ACT2.blacks);
   OBJECTIVES.showoff.of = ACT2.showoff; OBJECTIVES.showoff.text = OBJECTIVES.showoff.text.replace('SHOWOFF', ACT2.showoff);
   /* Act III's targets (tests/measure.js): see the header of OBJECTIVES. */
@@ -366,7 +428,12 @@
   const has = (L, b) => (L.buffs || []).includes(b);
   function note(L, text) { L.note = text; }
   /* Health goes up to HEALTH.max and no further; heal returns what it actually added. */
-  function heal(L, n) { const before = L.health; L.health = Math.min(HEALTH.max, L.health + n); return L.health - before; }
+  const maxHealth = L => HEALTH.max + (has(L, 'iron') ? 100 : 0);
+  function heal(L, n) { const before = L.health; L.health = Math.min(maxHealth(L), L.health + n); return L.health - before; }
+  // the General Store's prices, less a fifth with Store Credit (to the nearest 5)
+  const priced = (L, n) => has(L, 'credit') ? Math.round(n * 0.8 / 5) * 5 : n;
+  // one more option in every pick of enhancements or buffs, with the Treasure Map
+  const picks = (L, n) => n + (has(L, 'map') ? 1 : 0);
   /* Cash in health for gold (the Hotel and the bank's teller), once a visit, never down to nothing. */
   const canCash = L => !L.cashed && L.health > CASH.health;
   function cashIn(L) {
@@ -470,7 +537,7 @@
     L.gold += RAFFLE.gold;
     note(L, 'Gold strike: +' + RAFFLE.gold + ' gold, and a buff.');
     if (!RAFFLE.pick) { const b = E.pick(L, fb); grantBuff(L, b); note(L, 'Gold strike: +' + RAFFLE.gold + ' gold, and ' + BUFFS[b].name + '.'); nextStop(L); return; }
-    L.reward = { steps: [{ type: 'buff', options: draw(L, fb, RAFFLE.pick) }], raffle: true };
+    L.reward = { steps: [{ type: 'buff', options: draw(L, fb, picks(L, RAFFLE.pick)) }], raffle: true };
     advanceReward(L);
   }
   function nextStop(L) {
@@ -508,23 +575,24 @@
     const F = L.foe, ab = F ? F.traits.map(t => abilityOf(t).name + ' (' + abilityOf(t).text + ')') : [];
     if (kind === 'boss') E.say(L, 'Game ' + L.level + ' \u00b7 the Showdown: ' + BOSS[L.boss].name + ', ' + F.hp + ' health. ' + BOSS[L.boss].rule, 'level');
     else if (kind === 'bank') E.say(L, 'Game ' + L.level + ' \u00b7 the Bank: a gang is robbing it. Outscore them this hand for ' + BANK.bounty + ' gold and an enhancement; lose and they take ' + L.bank.take + ' gold.', 'level');
-    else E.say(L, 'Game ' + L.level + ' \u00b7 ' + KIND_NAME[kind] + ': ' + F.name + ', ' + F.hp + ' health' + (ab.length ? ', ' + ab.join(', ') : '') + '. Bounty: ' + OBJECTIVES[L.obj.id].text + '.', 'level');
+    else E.say(L, 'Game ' + L.level + ' \u00b7 ' + KIND_NAME[kind] + ', wanted: ' + F.name + ', ' + F.hp + ' health' + (ab.length ? ', ' + ab.join(', ') : '') + '. Bonus: ' + OBJECTIVES[L.obj.id].text + '.', 'level');
     dealHand(L);
     return L;
   }
   /* The gang across the table: its name, health and abilities. A Duel's ability that is one of the old curses
      also sets L.curse, which the engine reads. */
-  const abilityOf = id => TRAITS[id] || CURSES[id];
+  const abilityOf = id => TRAITS[id] || CURSES[id] || DEBUFFS[id];
   function makeFoe(L, kind) {
     const a = L.act, f = Math.max(0, Math.min(MAPSHAPE.floors - 1, floorOf(L)));
-    if (kind === 'boss') return { name: BOSS[L.boss].name, look: BOSS[L.boss].look, hp: BOSS[L.boss].hp || FOE.boss[a], traits: [], hitMul: BOSS[L.boss].hit || FOE.bossHit, boss: L.boss };
-    const traits = [];
+    if (kind === 'boss') return { name: BOSS[L.boss].name, look: BOSS[L.boss].look, hp: Math.round((BOSS[L.boss].hp || FOE.boss[a]) * (has(L, 'warrant') ? 0.9 : 1) / 10) * 10, traits: [], hitMul: BOSS[L.boss].hit || FOE.bossHit, boss: L.boss };
+    const traits = [], debuffs = Object.keys(DEBUFFS);
     if (kind === 'elite') {
-      const ab = E.pick(L, DUEL_ABILITIES);
+      const ab = E.pick(L, DUEL_ABILITIES.concat(debuffs));
       traits.push(ab);
       if (CURSES[ab]) L.curse = ab;
-    } else if (f >= TRAIT.floor && E.rnd(L) < TRAIT.p) traits.push(E.pick(L, TRAIT.pool));
-    let hp = (FOE.base[a] + FOE.step[a] * f) * (kind === 'elite' ? FOE.elite : 1) * (traits.includes('tough') ? 1.25 : 1);
+      if (a >= TRAIT.duel2) traits.push(E.pick(L, TRAIT.pool.concat(debuffs).filter(x => x !== ab)));
+    } else if (f >= TRAIT.floor && E.rnd(L) < TRAIT.p[a]) traits.push(E.pick(L, TRAIT.pool.concat(debuffs)));
+    let hp = (FOE.base[a] + FOE.step[a] * f) * (kind === 'elite' ? FOE.elite : 1) * (traits.includes('tough') ? 1.25 : 1) * (has(L, 'warrant') ? 0.9 : 1);
     hp = Math.round(hp / 10) * 10;
     const g = E.pick(L, (kind === 'elite' ? DUELISTS : GANGS)[a]);
     return { name: g[0], look: [g[1], g[2]], hp, traits, hitMul: traits.includes('deadeye') ? 1.5 : 1 };
@@ -576,16 +644,37 @@
   /* ---------------- tracking ---------------- */
   function track(L, trick) {
     const h = L.h, mine = E.team(trick.winner) === 0;
-    const wk = E.K(L, trick.winner, trick.cards[trick.winner]);
+    const wk = E.K(L, trick.winner, trick.cards[trick.winner]), X = E.FX;
+    h.fx = h.fx || { hit: 0, block: 0, burn: 0 };
+    const shot = (n, text) => { h.fx.hit += n; E.say(L, text, 'rule'); };
+    if (mine && wk.m) {
+      const lb = E.label(wk.c);
+      if (E.en(wk, 'hollow')) shot(X.hollow, lb + ' is a Hollow Point: +' + X.hollow + ' to the gang.');
+      if (E.en(wk, 'keg')) shot(X.keg, lb + ' is a Powder Keg: +' + X.keg + ' to the gang.');
+      if (E.en(wk, 'bullseye') && trick.no === E.ACTS[L.act].hand) shot(X.bullseye, 'Bullseye! ' + lb + ' took the last trick: +' + X.bullseye + ' to the gang.');
+      if (E.en(wk, 'deadman') && trick.cards.some(c => c && c !== 'JK' && ['A', '8'].includes(E.rankOf(c)))) shot(X.deadman, lb + ' holds a Dead Man\u2019s Hand: +' + X.deadman + ' to the gang.');
+      if (E.en(wk, 'plate')) { h.fx.block += X.plate; E.say(L, lb + ' is an Iron Plate: ' + X.plate + ' of this hand\u2019s damage will be blocked.', 'rule'); }
+      if (E.en(wk, 'horseshoe')) h.shoe = true;
+    }
+    if (!mine) {
+      // your team's cards in a trick the gang took
+      trick.cards.forEach((c, s) => {
+        if (!c || E.team(s) !== 0) return;
+        const k = E.K(L, s, c);
+        if (E.en(k, 'ricochet')) shot(X.ricochet, E.label(c) + ' ricochets: +' + X.ricochet + ' to the gang.');
+        if (E.en(k, 'keg')) { h.fx.burn += X.kegBurn; E.say(L, E.label(c) + ' is a Powder Keg, and it went off in your hands: ' + X.kegBurn + ' burn.', 'rule'); }
+      });
+      if (E.foeHas(L, 'shakedown') && L.gold > 0) { const g = Math.min(5, L.gold); L.gold -= g; E.say(L, 'Shakedown: they take ' + g + ' gold.', 'gold'); }
+    }
     if (mine) {
       L.captured.push(...trick.cards.filter(Boolean));
-      if (wk.m && wk.m.enh === 'gilded') { L.gold += 5; E.say(L, E.label(wk.c) + ' is Gilded: +5 gold.', 'gold'); }
-      if (wk.m && wk.m.enh === 'glass') {
+      if (E.en(wk, 'gilded')) { L.gold += 5; E.say(L, E.label(wk.c) + ' is Gilded: +5 gold.', 'gold'); }
+      if (E.en(wk, 'glass')) {
         wk.m.wins = (wk.m.wins || 0) + 1;
         if (wk.m.wins >= GLASS_WINS) shatter(L, wk.c);
         else E.say(L, E.label(wk.c) + ' is Glass: ' + (GLASS_WINS - wk.m.wins) + ' more win' + (GLASS_WINS - wk.m.wins > 1 ? 's' : '') + ' before it shatters.', 'rule');
       }
-      if (wk.m && wk.m.enh === 'growing' && (wk.m.up || 0) < E.maxUp(wk.c)) {
+      if (E.en(wk, 'growing') && (wk.m.up || 0) < E.maxUp(wk.c)) {
         wk.m.up = (wk.m.up || 0) + 1;
         E.say(L, E.label(wk.c) + ' grows: it is now ' + E.kLabel(wk).replace(/^.*\(now /, '').replace(')', '') + '.', 'rule');
       }
@@ -598,20 +687,22 @@
     if (!L.obj) return;
     const o = L.obj, id = o.id;
     if (o.done || o.fail) return;
-    const wc = trick.cards[trick.winner];
+    const wc = trick.cards[trick.winner], n0 = o.n;
     if (id === 'lowly9' && mine && ['9', '10'].includes(E.rankOf(wc))) o.n++;
-    if (id === 'harvest' && mine) trick.cards.forEach((c, s) => { if (c && E.suitOf(c) === 'H') { const k = E.K(L, s, c); o.n += k.m && k.m.enh === 'magnet' ? 2 : 1; } });
+    if (id === 'harvest' && mine) trick.cards.forEach((c, s) => { if (c && E.suitOf(c) === 'H') { const k = E.K(L, s, c); o.n += E.en(k, 'magnet') ? 2 : 1; } });
     if (id === 'bagjack' && mine && trick.cards.some(c => c === 'JH' || c === 'JD')) o.n++;
-    if (id === 'lastword' && mine && trick.no === E.ACTS[L.act].hand) o.n++;
-    if (id === 'blacks' && mine) trick.cards.forEach((c, s) => { if (c && (E.suitOf(c) === 'S' || E.suitOf(c) === 'C')) { const k = E.K(L, s, c); o.n += k.m && k.m.enh === 'magnet' ? 2 : 1; } });
+    if (id === 'lastword' && trick.winner === 0 && trick.no === E.ACTS[L.act].hand) o.n++;
+    if (id === 'blacks' && mine) trick.cards.forEach((c, s) => { if (c && (E.suitOf(c) === 'S' || E.suitOf(c) === 'C')) { const k = E.K(L, s, c); o.n += E.en(k, 'magnet') ? 2 : 1; } });
     if (id === 'showoff' && mine && L.owned.includes(wc)) o.n++;
     if (id === 'acehunter' && mine) o.n += trick.cards.filter((c, s) => c && s % 2 === 1 && E.rankOf(c) === 'A').length;
     if (id === 'ruff' && mine && h.trump && E.kSuit(E.K(L, trick.leader, trick.cards[trick.leader]), h.trump) !== h.trump && E.kIsTrump(wk, h.trump)) o.n++;
-    if (id === 'lefthook' && mine && h.trump && wc !== 'JK' && E.rankOf(wc) === 'J' && E.suitOf(wc) === E.TWIN[h.trump]) o.n++;
-    if (id === 'little4' && mine && (E.base(wc) === '4H' || E.base(wc) === '4D')) o.n++;
-    if (id === 'royal' && mine) { o.got = o.got || []; trick.cards.forEach(c => { if (c && c !== 'JK' && E.rankOf(c) === 'K' && !o.got.includes(E.base(c))) o.got.push(E.base(c)); }); o.n = o.got.length; }
+    if (id === 'lefthook' && trick.winner === 0 && h.trump && wc !== 'JK' && E.rankOf(wc) === 'J' && E.suitOf(wc) === E.TWIN[h.trump]) o.n++;
+    if (id === 'little4' && mine && wc !== 'JK' && ['4', '5'].includes(E.rankOf(wc))) o.n++;
+    if (id === 'royal' && mine) { o.got = o.got || []; trick.cards.forEach(c => { if (c && c !== 'JK' && ['K', 'Q'].includes(E.rankOf(c)) && !o.got.includes(E.base(c))) o.got.push(E.base(c)); }); o.n = o.got.length; }
     if (id === 'bowerhunt' && mine && h.trump && trick.cards.some(c => c && c !== 'JK' && E.rankOf(c) === 'J' && (E.suitOf(c) === h.trump || E.suitOf(c) === E.TWIN[h.trump]))) o.n++;
     if (id === 'smoke' && trick.leader % 2 === 0 && trick.cards.some((c, s) => c === 'JK' && s % 2 === 1)) o.n++;
+    // a Wanted Poster that won the trick counts its progress twice
+    if (mine && o.n > n0 && E.en(wk, 'poster')) { o.n += o.n - n0; E.say(L, E.label(wk.c) + ' is a Wanted Poster: that counts twice toward the bonus.', 'objective'); }
     if (OBJECTIVES[id].kind === 'limit') return;         // judged at the end of the level
     o.n = Math.min(o.n, o.of);
     if (o.n >= o.of) finishObjective(L);
@@ -709,13 +800,18 @@
      their health (the Bank: its one hand), or your health runs out, which ends the run wherever you are. */
   function endHand(L) {
     const r = L.h.result;
+    if (r.dmg >= L.health && L.health > 1 && has(L, 'watch') && L.watchAct !== L.act) {
+      r.dmg = L.health - 1; L.watchAct = L.act;
+      E.say(L, 'Pocket Watch: the shot stops at your watch! You hang on with 1 health.', 'health');
+    }
     L.health = Math.max(0, L.health - r.dmg);
-    L.you += r.pts[0];
+    // in a fight your shots only ever bring the gang down (r.hit is never below nothing); the Bank keeps the score
+    L.you += L.foe ? r.hit : r.pts[0];
     L.opp += r.pts[1];
     trackHand(L);
     react(L, E.team(r.contractor) === 0 ? (r.made || r.near ? 'made' : 'failed') : (r.made ? 'theirs' : 'set'));
-    L.history.push({ act: L.act, level: L.level, kind: L.kind, hand: L.handNo, contract: L.h.contract, contractor: r.contractor, made: r.made, delta: r.delta, hit: r.pts[0], dmg: r.dmg, health: L.health });
-    if (L.foe) E.say(L, (r.pts[0] >= 0 ? 'You hit ' + L.foe.name + ' for ' + r.pts[0] : 'Your set costs you ' + -r.pts[0]) + ': ' + Math.max(0, L.foe.hp - L.you) + ' of their ' + L.foe.hp + ' health left.', 'health');
+    L.history.push({ act: L.act, level: L.level, kind: L.kind, hand: L.handNo, contract: L.h.contract, contractor: r.contractor, made: r.made, delta: r.delta, hit: L.foe ? r.hit : r.pts[0], dmg: r.dmg, health: L.health });
+    if (L.foe) E.say(L, (r.hit > 0 ? 'You hit ' + L.foe.name + ' for ' + r.hit : 'You didn\u2019t touch ' + L.foe.name) + ': ' + Math.max(0, L.foe.hp - L.you) + ' of their ' + L.foe.hp + ' health left.', 'health');
     E.say(L, r.dmg ? 'They hit you for ' + r.dmg + ': health ' + L.health + '.' : 'They didn\u2019t touch you: health ' + L.health + '.', 'health');
     if (L.health <= 0) {
       L.phase = 'runover';
@@ -727,7 +823,7 @@
     L.phase = 'summary';
   }
   const fightOver = L => L.kind === 'bank' ? L.handNo >= L.hands : L.you >= L.foe.hp;
-  const parOf = L => (PAR[L.kind] || {})[L.act] || 1;
+  const parOf = L => ((PAR[L.kind] || {})[L.act] || 1) + (has(L, 'horse') && L.kind !== 'bank' ? 1 : 0);
   /* After the summary: the next hand, or the fight's stars. */
   function next(L) {
     if (L.phase !== 'summary') return no('no summary showing');
@@ -747,7 +843,7 @@
     if (L.kind === 'boss') {
       stars = fast ? 3 : 2;
       gold = 100;
-      E.say(L, BOSS[L.boss].name + ' are beaten!', 'objective');
+      E.say(L, BOSS[L.boss].name + ' are brought to justice!', 'objective');
       if (L.bossHex && L.bossHex.boss !== L.boss) {     // a hex from a lost Showdown (saved runs from before the redesign)
         if (L.hexes && L.hexes[L.bossHex.card] === L.bossHex.kind) delete L.hexes[L.bossHex.card];
         L.bossHex = null;
@@ -762,8 +858,12 @@
       } else {
         stars = 1 + (o.done ? 1 : 0) + (fast ? 1 : 0);
         gold = PAY[L.kind][stars];
-        E.say(L, L.foe.name + ' are beaten in ' + L.handNo + ' hand' + (L.handNo > 1 ? 's' : '') + (fast ? ' (par ' + par + ')' : ', over par ' + par) + '.', 'objective');
+        E.say(L, L.foe.name + ' are brought in after ' + L.handNo + ' hand' + (L.handNo > 1 ? 's' : '') + (fast ? ' (par ' + par + ')' : ', over par ' + par) + '.', 'objective');
       }
+    }
+    if (won && L.foe) {
+      if (has(L, 'ledger')) { gold += 15; E.say(L, 'Bounty Ledger: +15 gold.', 'gold'); }
+      if (has(L, 'canteen')) { const got = heal(L, 25); if (got) E.say(L, 'Canteen: +' + got + ' health.', 'health'); }
     }
     L.gold += gold;
     L.levelsDone++;
@@ -787,16 +887,16 @@
     if (L.phase !== 'over') return no('no level to collect');
     const r = L.result, steps = [];
     if (r.kind === 'dance') {
-      if (r.stars === 2) steps.push({ type: 'enh', options: draw(L, enhPool(L), 2) });
-      if (r.stars === 3) steps.push({ type: 'enh', options: draw(L, enhPool(L), 3), claim: claimable(L) });
+      if (r.stars === 2) steps.push({ type: 'enh', options: draw(L, enhPool(L), picks(L, 2)) });
+      if (r.stars === 3) steps.push({ type: 'enh', options: draw(L, enhPool(L), picks(L, 3)), claim: claimable(L) });
     } else if (r.kind === 'elite') {
       const fb = freeBuffs(L);
       if (r.stars === 2 && fb.length) { const b = E.pick(L, fb); grantBuff(L, b); note(L, 'Duel prize: ' + BUFFS[b].name + '.'); }
-      if (r.stars === 3 && fb.length) steps.push({ type: 'buff', options: draw(L, fb, 2) });
+      if (r.stars === 3 && fb.length) steps.push({ type: 'buff', options: draw(L, fb, picks(L, 2)) });
     } else if (r.kind === 'boss' && r.won) {
       const fb = freeBuffs(L);
-      if (fb.length) steps.push({ type: 'buff', options: draw(L, fb, 3) });
-    } else if (r.kind === 'bank' && r.won) steps.push({ type: 'enh', options: draw(L, enhPool(L), BANK.enh) });
+      if (fb.length) steps.push({ type: 'buff', options: draw(L, fb, picks(L, 3)) });
+    } else if (r.kind === 'bank' && r.won) steps.push({ type: 'enh', options: draw(L, enhPool(L), picks(L, BANK.enh)) });
     // after the robbery, back inside to the teller
     L.reward = { steps, back: r.kind === 'bank' ? 'bank' : undefined };
     advanceReward(L, L.reward.back);
@@ -809,20 +909,25 @@
     if (back) { L.phase = back; return; }
     nextStop(L);
   }
-  /* Reroll the current reward's options for 15 gold (any number of times). */
+  /* Reroll the current reward's options for 15 gold (any number of times; free with Loaded Dice). */
+  const rerollPrice = L => has(L, 'dice') ? 0 : REROLL;
   function reroll(L) {
     const s = L.reward && L.reward.steps[0];
     if (L.phase !== 'reward' || !s) return no('nothing to reroll');
-    if (L.gold < REROLL) return no('not enough gold');
+    if (L.gold < rerollPrice(L)) return no('not enough gold');
     const pool = s.type === 'buff' ? freeBuffs(L) : enhPool(L);
     if (pool.length <= s.options.length && s.type === 'buff') return no('no other buffs to draw');
-    L.gold -= REROLL;
+    L.gold -= rerollPrice(L);
     const n = s.options.length, fresh = pool.filter(x => !s.options.includes(x));
     s.options = draw(L, fresh.length >= n ? fresh : pool, n);
-    note(L, 'Rerolled for ' + REROLL + ' gold.');
+    note(L, rerollPrice(L) ? 'Rerolled for ' + REROLL + ' gold.' : 'Rerolled with the Loaded Dice.');
     return yes();
   }
-  function grantBuff(L, b) { if (!L.buffs.includes(b)) L.buffs.push(b); }
+  function grantBuff(L, b) {
+    if (L.buffs.includes(b)) return;
+    L.buffs.push(b);
+    if (b === 'iron') heal(L, 100);
+  }
   function choose(L, arg) {
     const s = L.reward && L.reward.steps[0];
     if (L.phase !== 'reward' || !s) return no('nothing to choose');
@@ -845,19 +950,30 @@
     }
     return no('unknown reward');
   }
-  /* Put the chosen enhancement on an owned card (one per card: it replaces). */
+  /* Put the chosen enhancement on an owned card: a card's first, or its second, which makes it Legendary. An
+     enhancement is never overwritten; `null` leaves it unused (when no card can take it, or you'd rather not). */
   function enhance(L, card) {
     if (L.phase !== 'target') return no('no enhancement to place');
+    if (card === null || card === undefined || (card && card.skip)) {
+      note(L, 'You leave ' + ENH[L.target].name + ' unused.');
+      L.target = null; advanceReward(L, L.targetBack); return yes();
+    }
     if (!L.owned.includes(card) || card === 'JK') return no('pick a card you own (not the Joker)');
+    if (!fits(L, card, L.target)) return no(legendary(L, card) ? 'that card is Legendary already: it holds two enhancements' : 'that card can\u2019t take ' + ENH[L.target].name + ' with what it has');
     const m = L.mods[card] || (L.mods[card] = {});
-    const old = m.enh;
-    m.enh = L.target;
-    note(L, E.label(card) + ' is now ' + ENH[L.target].name + (old ? ' (it was ' + ENH[old].name + ')' : '') + '.');
+    if (m.enh) {
+      m.enh2 = L.target;
+      note(L, E.label(card) + ' is Legendary: ' + ENH[m.enh].name + ' and ' + ENH[m.enh2].name + '.');
+    } else {
+      m.enh = L.target;
+      note(L, E.label(card) + ' is now ' + ENH[L.target].name + '.');
+    }
     L.target = null;
     advanceReward(L, L.targetBack);
     return yes();
   }
-  const enhanceable = L => L.owned.filter(c => c !== 'JK');
+  // the cards that can take the enhancement being placed (every card you own but the Joker, outside that)
+  const enhanceable = L => L.owned.filter(c => c !== 'JK' && (L.phase !== 'target' || !L.target || fits(L, c, L.target)));
 
   /* ---------------- events ---------------- */
   function option(L, i) {
@@ -885,7 +1001,7 @@
       if (pool.length) { const c = E.pick(L, pool); L.owned.push(c); placeHex(L, c, 'twoleft'); msg += ' You now own the ' + E.label(c) + ', a Misfire: it can never win a trick.'; }
     }
     note(L, msg);
-    if (fx.enh) { L.reward = { steps: [{ type: 'enh', options: draw(L, enhPool(L), fx.enh) }] }; advanceReward(L); return yes(); }
+    if (fx.enh) { L.reward = { steps: [{ type: 'enh', options: draw(L, enhPool(L), picks(L, fx.enh)) }] }; advanceReward(L); return yes(); }
     if (fx.release) { L.releaseBack = 'map-next'; L.phase = 'release'; return yes(); }
     nextStop(L);
     return yes();
@@ -943,13 +1059,13 @@
   function stock(L) {
     const cards = E.shuffle(L, E.deckOf(L).filter(c => !L.owned.includes(c))).slice(0, 2);
     const fb = freeBuffs(L);
-    L.stock = cards.map(c => ({ type: 'card', id: c, price: cardPrice(c) }))
-      .concat([{ type: 'enh', id: E.pick(L, enhPool(L)), price: ENH_PRICE }])
-      .concat(fb.length ? [{ type: 'buff', id: E.pick(L, fb), price: 150 + 25 * Math.floor(E.rnd(L) * 3) }] : [])
-      .concat([{ type: 'tonic', id: 'tonic', price: TONIC.price }])
-      .concat(hexed(L).length ? [{ type: 'cleanse', id: 'cleanse', price: CLEANSE_PRICE }] : []);
+    L.stock = cards.map(c => ({ type: 'card', id: c, price: priced(L, cardPrice(c)) }))
+      .concat([{ type: 'enh', id: E.pick(L, enhPool(L)), price: priced(L, ENH_PRICE) }])
+      .concat(fb.length ? [{ type: 'buff', id: E.pick(L, fb), price: priced(L, 150 + 25 * Math.floor(E.rnd(L) * 3)) }] : [])
+      .concat([{ type: 'tonic', id: 'tonic', price: priced(L, TONIC.price) }])
+      .concat(hexed(L).length ? [{ type: 'cleanse', id: 'cleanse', price: priced(L, CLEANSE_PRICE) }] : []);
   }
-  const releasePrice = L => 50 + 25 * L.releases;
+  const releasePrice = L => priced(L, 50 + 25 * L.releases);
   function buy(L, i) {
     if (L.phase !== 'shop') return no('the store is closed');
     if (i === 'release') {
@@ -961,6 +1077,7 @@
     if (!it || it.sold) return no('sold out');
     if (L.gold < it.price) return no('not enough gold');
     if (it.type === 'cleanse' && !hexed(L).length) return no('no hexes to cleanse');
+    if (it.type === 'enh' && !L.owned.some(c => fits(L, c, it.id))) return no('none of your cards can take it');
     L.gold -= it.price; it.sold = true;
     if (it.type === 'card') { L.owned.push(it.id); note(L, 'Bought the ' + E.label(it.id) + '.'); }
     if (it.type === 'buff') { grantBuff(L, it.id); note(L, 'Bought ' + BUFFS[it.id].name + '.'); }
@@ -1015,14 +1132,14 @@
     if (ph === 'actstart' && L.act === 2) return tip('actstart2', 'All aboard, dear. Spades and clubs join us on the train, and two of your cards come to you each hand. A black Jack is a bower when black is trumps.');
     if (ph === 'actstart') return tip('actstart', 'The Joker wins every trick it’s in. A red Jack becomes a bower whenever red is trumps. A 9 or 10 is a gamble that enhancements can make special.');
     if (ph === 'map' && reachable(L).includes('boss') && L.act === 2) return tip('boss2', 'Act II ends with the Card Sharps or the Hustlers. The Sharps can see the cards dealt to you from your own; the Hustlers bid mis\u00e8re all night, so lead low and stay under them.');
-    if (ph === 'map') return reachable(L).includes('boss') ? (L.act === 1 ? tip('boss', 'That\u2019s the Saloon, dear, and the Twins are waiting in it. They always hold both red Jacks: bid no trumps and their Jacks are just Jacks.') : null) : tip('map', 'Welcome to Dustwater, dear. Work your way up the trail a stop at a time, along the roads: gossip is a gamble, a duel is harder but pays a buff, and the gold strike halfway always gives one.');
+    if (ph === 'map') return reachable(L).includes('boss') ? (L.act === 1 ? tip('boss', 'That\u2019s the Saloon, dear, and the Twins are waiting in it. They always hold both red Jacks: bid no trumps and their Jacks are just Jacks.') : null) : tip('map', 'Welcome to Dustwater, dear. Every gang on this map has a price on its head: we work our way up the trail a stop at a time and bring them in. Gossip is a gamble, a duel is harder but pays a buff, and the gold strike halfway always gives one.');
     if (ph === 'map' && hexed(L).length) { const t = tip('hex', 'A hex! Hexed cards are marked in red, and they hurt whoever holds them. The Doc at the Hotel can lift one.'); if (t) return t; }
     if (ph === 'reward') return tip('reward', 'A reward! An enhancement goes on a card you own and stays all run.');
     if (ph === 'bank') return L.bank.stage !== 'door' ? null : tip('bank', 'Robbers, dear! It’s one hand: make our bid or set theirs and we win. Lose, and they take ' + bankShare() + ' of your purse. Walking on by costs nothing.');
     if (ph === 'camp') return tip('camp', 'The Hotel: do one thing — shop, rest or polish a card. Cashing in health for gold is extra.');
     if (ph !== 'hand' || L.levelsDone >= 3) return null;
     const h = L.h;
-    if (L.foe && L.handNo === 1 && h.phase === 'bid') { const t = tip('fight', 'Every table is a fight, dear. Our points shoot their health down, hand after hand, until it’s gone; their points hit ours, and nothing heals us until the fight is over.'); if (t) return t; }
+    if (L.foe && L.handNo === 1 && h.phase === 'bid') { const t = tip('fight', 'They\u2019re wanted, dear, so let\u2019s bring them in. Our points shoot their health down, hand after hand; their points hit ours, and a bid of ours that fails backfires on us. Nothing heals us until it\u2019s over.'); if (t) return t; }
     if (h.phase === 'bid' && h.turn === 0) return tip('bid', 'Count sure tricks: the Joker, a bower, the Ace of trumps. We need more than half the tricks. Weak hand? Pass — defending pays 10 a trick.');
     if (h.phase === 'kitty' && h.turn === 0) return tip('kitty', 'You took the kitty card. Put back your weakest card that isn’t a trump.');
     if (h.phase === 'swing') return tip('swing', 'Under the table, dear: slip me a card you don’t want and I’ll slip you my best one.');
@@ -1084,7 +1201,7 @@
     if (h.phase === 'trick' || h.phase === 'intent') return false;
     if (h.phase === 'swing') return stand ? after(L, swing(L, AI.cheapest(L, 0, h.hands[0]))) : false;
     if (seat === 0 && !stand) return false;
-    if (h.phase === 'bid') return after(L, E.bid(L, seat, AI.bid(L, seat)));
+    if (h.phase === 'bid') return after(L, E.bid(L, seat, seat === 2 && E.foeHas(L, 'gag') && !E.mustBid(L, seat) ? null : AI.bid(L, seat)));
     if (h.phase === 'kitty') return after(L, E.discard(L, seat, AI.discard(L, seat)));
     if (h.phase === 'play') return after(L, E.play(L, seat, AI.play(L, seat)));
     return false;
@@ -1134,7 +1251,7 @@
     if (O && O.kind === 'limit') return 'holding';
     return o.n + ' / ' + o.of;
   }
-  const api = { enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, PLACE, BANK, bankTake, bankShare, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
+  const api = { DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, PLACE, BANK, bankTake, bankShare, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
     cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;
