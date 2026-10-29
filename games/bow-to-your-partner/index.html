@@ -55,6 +55,59 @@ html.art .titlemenu .wood.drawn > span { position: absolute; width: 1px; height:
 .titlemenu .go:active, .titlemenu .more:active { filter: brightness(1.15); }
 .titlemenu .more { padding: 8px 12px; }
 .titlemenu .wood:focus-visible { outline: 3px solid #fff6d2; outline-offset: 4px; border-radius: 6px; }
+/* The payout, counted out line by line (2026-10-30): in every fight's stars pop-up, and on the sheriff's desk after
+   a Showdown. Each line comes in after the one before; a tap shows them all at once. */
+.payout { list-style: none; margin: 8px 0; padding: 0; font-size: 15px; }
+.payout li { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; border-bottom: 1px dashed #d8c8a8; animation: payin .35s ease-out both; animation-delay: calc(var(--i) * .3s); }
+.payout li b { white-space: nowrap; color: #6b4a10; }
+.payout li.minus b { color: var(--bad); }
+.payout li.hp b { color: #2e7a3a; }
+.payout li .st { color: #c99a2a; }
+.payout li.tot { border-bottom: 0; border-top: 2px solid #8a6412; margin-top: 2px; font-weight: 800; }
+.payout.done li { animation: none; }
+@keyframes payin { from { opacity: 0; transform: translateX(-10px); } }
+@media (prefers-reduced-motion: reduce) { .payout li { animation: none; } }
+/* The Showdown's payday (2026-10-30, the user's): the boss's wanted poster on the saloon wall, your gloved hand
+   crosses it out in red crayon and stamps it with a red sheriff's star reading PAID, then it slides onto the
+   sheriff's desk and the bounty is counted out in his ledger. Art in art/paid (bakery/paid.py); Skip always lands on
+   the reward pick, never past it. */
+#paid { position: fixed; inset: 0; z-index: 70; overflow: hidden; background: #3a2416; }
+#paid[hidden] { display: none; }
+#paid .pwall { position: absolute; inset: 0; image-rendering: pixelated; background-repeat: repeat; background-position: 50% 30%; transition: opacity .7s; }
+#paid .pdesk { position: absolute; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity .7s; }
+#paid .pdesk img { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+#paid.desk .pwall { opacity: 0; } #paid.desk .pdesk { opacity: 1; }
+#paid .pposter { position: absolute; left: 50%; top: 14%; width: min(270px, 74vw); transform-origin: 50% 0; padding: 12px 14px 16px; text-align: center;
+  background: #f1dfb6; color: #3a1a12; border: 2px solid #8a5a2c; box-shadow: 0 6px 0 rgba(20,10,6,.35), inset 0 0 30px rgba(140,90,40,.35);
+  transition: transform .9s cubic-bezier(.4, 0, .2, 1); z-index: 2; }
+#paid .pposter.hang { animation: hang 1s ease-out; }
+@keyframes hang { 0% { transform: translate(-50%, -120%) rotate(-6deg); } 55% { transform: translate(-50%, 0) rotate(3deg); } 75% { transform: translate(-50%, 0) rotate(-1.5deg); } 100% { transform: translate(-50%, 0); } }
+#paid .pposter .nail { position: absolute; left: 50%; top: 5px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; background: #5a5a60; box-shadow: inset -1px -1px 0 #2a2a30; }
+#paid .pposter .w { display: block; margin-top: 6px; font: 900 44px/1 Georgia, serif; letter-spacing: .08em; }
+#paid .pposter .d { display: block; font: 800 13px/1.4 Georgia, serif; letter-spacing: .3em; }
+#paid .pposter img { display: block; width: 100%; margin: 8px 0; image-rendering: pixelated; border: 2px solid #8a5a2c; }
+#paid .pposter .n { display: block; font: 800 22px/1.15 Georgia, serif; }
+#paid .pposter .rw { display: block; margin-top: 6px; font: 800 15px/1.3 Georgia, serif; letter-spacing: .1em; }
+#paid .pposter.shake { animation: thump .35s; }
+@keyframes thump { 20% { translate: 0 4px; } 45% { translate: -3px 0; } 70% { translate: 2px 0; } }
+#paid .px { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+#paid .px path { fill: none; stroke: #c0201a; stroke-width: 3.6; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0; }
+#paid .px path.go { opacity: .92; }
+#paid .pstamp { position: absolute; left: 50%; top: 56%; width: 84%; aspect-ratio: 1; transform: translate(-50%, -50%) rotate(-14deg) scale(1.2); opacity: 0; pointer-events: none;
+  filter: drop-shadow(0 0 1px rgba(90,10,6,.5)); }
+#paid .pstamp.on { opacity: .94; transform: translate(-50%, -50%) rotate(-14deg) scale(1); transition: transform .12s ease-out, opacity .08s; }
+#paid .pglove { position: absolute; left: 0; top: 0; image-rendering: pixelated; z-index: 4; pointer-events: none; display: none; }
+#paid .ledger { position: absolute; z-index: 3; font: italic 600 13px/1.25 Georgia, serif; color: #3a2a20; }
+#paid .ledger h3 { margin: 0 0 4px; font: 800 14px/1.2 Georgia, serif; letter-spacing: .12em; text-align: center; }
+#paid .ledger .payout { font-size: inherit; margin: 0; }
+#paid .ledger .payout li { border-bottom-color: rgba(74,58,58,.35); padding: 2px 0; }
+#paid .coin { position: absolute; z-index: 5; width: 14px; height: 14px; margin: -7px; border-radius: 50%; background: #e8b840; box-shadow: inset -2px -2px 0 #b8862a, 0 0 0 1px #6b4a10; pointer-events: none; }
+#paid .pbtns { position: absolute; left: 0; right: 0; bottom: 14px; display: flex; justify-content: center; gap: 10px; z-index: 6; }
+#paid .pbtns [data-act="paidcollect"] { display: none; }
+#paid.counted .pbtns [data-act="paidcollect"] { display: inline-block; }
+#actcard .train2 { position: absolute; left: 0; bottom: 18%; image-rendering: pixelated; animation: wheels .56s steps(4) infinite, trainby 5s linear forwards; }
+@keyframes trainby { from { transform: translateX(-110%); } to { transform: translateX(110vw); } }
+@media (prefers-reduced-motion: reduce) { #paid .pposter, #paid .pposter.hang { animation: none; } #actcard .train2 { display: none; } }
 /* Game over (the user's, 2026-10-30): a freshly covered grave on Boot Hill at dusk. The sky is painted here, the
    buttes and the graveyard are art (art/grave, bakery/grave.py); the camera pushes in on the fresh grave, the buzzard
    watches, a tumbleweed rolls by, then the epitaph comes up. Skip, or the epitaph's button, goes to the run's ending
@@ -670,6 +723,13 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   </div>
 </section>
 
+<div id="paid" hidden>
+  <div class="pwall" aria-hidden="true"></div>
+  <div class="pdesk" aria-hidden="true"></div>
+  <div class="pposter" role="img"></div>
+  <img class="pglove" alt="">
+  <div class="pbtns"><button class="btn" data-act="paidcollect">Collect</button><button class="btn alt" data-act="paidskip">Skip</button></div>
+</div>
 <div id="grave" hidden>
   <div class="gsun" aria-hidden="true"></div>
   <div class="grig" aria-hidden="true"><div class="gfar"></div><div class="gground"></div><div class="gplain"></div><div class="gplate"></div></div>
@@ -704,16 +764,17 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=9"></script>
-<script src="btp-ai.js?v=9"></script>
-<script src="btp-run.js?v=9"></script>
-<script src="btp-town.js?v=9"></script>
-<script src="art/dustwater/sprites.js?v=9"></script>
-<script src="btp-train.js?v=9"></script>
-<script src="art/train/sprites.js?v=9"></script>
-<script src="art/title/scene.js?v=9"></script>
-<script src="art/table/scene.js?v=9"></script>
-<script src="art/grave/scene.js?v=9"></script>
+<script src="btp-engine.js?v=10"></script>
+<script src="btp-ai.js?v=10"></script>
+<script src="btp-run.js?v=10"></script>
+<script src="btp-town.js?v=10"></script>
+<script src="art/dustwater/sprites.js?v=10"></script>
+<script src="btp-train.js?v=10"></script>
+<script src="art/train/sprites.js?v=10"></script>
+<script src="art/title/scene.js?v=10"></script>
+<script src="art/table/scene.js?v=10"></script>
+<script src="art/grave/scene.js?v=10"></script>
+<script src="art/paid/scene.js?v=10"></script>
 <script>
 (function () {
   'use strict';
@@ -737,7 +798,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 13, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 14, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -928,6 +989,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const noteHTML = L.note ? '<div class="note">' + esc(L.note) + '</div>' : '';
     switch (L.phase) {
       case 'actstart':
+        laterActCard(L);
         body = noteHTML + (L.act === 3 ? '<div class="panel baize"><h2>Act III: the County Fair</h2><p>The 4s to 8s join the deck: the whole 500 pack, 10 cards each and 3 in the kitty. Three of the cards you own are now dealt to you each hand. Pick a new card to own.</p>' +
           '<div class="cardrow deal">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div>' + ownedRow(L) + '</div>' :
           L.act === 2 ? '<div class="panel baize"><h2>Act II: the Westbound Express</h2><p>Spades and clubs join the deck and hands grow to 6 cards. Two of the cards you own are now dealt to you each hand. Pick a new card to own.</p>' +
@@ -1841,12 +1903,29 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       html = '<h2>' + (r.kind === 'boss' ? 'The Showdown is won' : r.kind === 'bank' ? (r.won ? 'The robbery is foiled' : 'The gang gets away') : 'Bounty collected') + '</h2><div class="stars" aria-label="' + r.stars + ' stars">' + stars(r.stars) + '</div>' +
         '<div class="kv">' + (r.kind === 'bank' ? '<span>Score</span><span>you ' + num(r.you) + ', them ' + num(r.opp) + '</span>' :
           '<span>Brought in</span><span>after ' + r.hands + ' hand' + (r.hands > 1 ? 's' : '') + ' ' + (r.fast ? '<span class="good">(par ' + r.par + ')</span>' : '<span class="badc">(par ' + r.par + ')</span>') + '</span>') + goal +
-        '<span>' + (r.kind === 'bank' ? 'Gold' : 'Bounty paid') + '</span><span>' + (r.gold < 0 ? '<span class="badc">−' + -r.gold + '</span>' : '+' + r.gold) + ' gold (now ' + L.gold + ')</span>' +
         '<span>Health</span><span>' + L.health + (r.change ? ' (−' + -r.change + ' this fight)' : ' (untouched)') + '</span>' +
-        '<span>Reward</span><span>' + next + '</span></div>' +
+        '<span>Reward</span><span>' + next + '</span></div>' + payoutHTML(r, L.gold) +
         '<div class="btns"><button class="btn" data-act="collect">Collect</button></div>';
+      // a Showdown pays out on the sheriff's desk instead (the pop-up stays for ?fast and without the art)
+      if (r.kind === 'boss' && playPaid(L)) { showSheet('', null); return; }
     }
     showSheet(html, key);
+    if (L.phase === 'over') countUp($('sheet').querySelector('.payout'));
+  }
+  /* The fight's payout, line by line, adding up to the gold it paid; the total counts up as the lines come in. */
+  function payoutHTML(r, now) {
+    const pay = r.pay || [{ t: r.kind === 'bank' ? 'Gold' : 'Bounty paid', g: r.gold }];
+    return '<ul class="payout" data-act="paydone" aria-label="The payout">' + pay.map((x, i) => '<li style="--i:' + i + '" class="' + (x.h ? 'hp' : x.g < 0 ? 'minus' : '') + '"><span>' + esc(x.t) + (x.star ? ' <span class="st">★</span>' : '') + '</span><b>' +
+      (x.h ? '+' + x.h + ' health' : (x.g < 0 ? '−' + -x.g : '+' + x.g) + 'g') + '</b></li>').join('') +
+      '<li class="tot" style="--i:' + pay.length + '"><span>' + (r.gold < 0 ? 'Lost' : 'Total') + ' <small>(you have ' + now + ')</small></span><b data-to="' + r.gold + '">' + (r.gold < 0 ? '−' : '+') + Math.abs(r.gold) + 'g</b></li></ul>';
+  }
+  // the total ticks up while the lines come in; a tap on the list (paydone) shows the end at once
+  function countUp(ul) {
+    if (!ul || FAST || reduceMotion()) { if (ul) ul.classList.add('done'); return; }
+    const b = ul.querySelector('.tot b'), to = +b.dataset.to, n = ul.querySelectorAll('li').length, dur = 300 * n, t0 = performance.now();
+    const tick = now => { if (ul.classList.contains('done') || !ul.isConnected) { b.textContent = (to < 0 ? '−' : '+') + Math.abs(to) + 'g'; return; }
+      const t = Math.min(1, (now - t0) / dur), v = Math.round(to * t); b.textContent = (v < 0 ? '−' : '+') + Math.abs(v) + 'g'; if (t < 1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
   }
   function showSheet(html, key) {
     const v = $('veil');
@@ -2043,6 +2122,8 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       case 'backenh': move('unplace'); break;
       case 'foeinfo': openSheet('info', foeHelpHTML(L, d.k)); break;
       case 'skipgrave': endGrave(); break;
+      case 'paydone': { const ul = t.closest('.payout'); if (ul) ul.classList.add('done'); break; }
+      case 'paidskip': case 'paidcollect': endPaid(); move('collect'); break;
       case 'skipopening': endOpening(); break;
       case 'options': { const o = $('titleOptions'); o.hidden = !o.hidden; document.querySelector('.titlemenu .opts').setAttribute('aria-expanded', String(!o.hidden)); break; }
       case 'continue': { const s = loadSaved(); if (s) dustInto(() => { P.L = s; show(); }); break; }
@@ -2117,6 +2198,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     $('continueBtn').hidden = !storyLive(loadSaved());
     $('tipsPick').checked = !tipsDone();
     endGrave(true);
+    endPaid();
   }
   /* The title scene, from art/title/scene.js (never load-bearing: without it, or the art, the hero is a banded sky). */
   function buildHero() {
@@ -2306,6 +2388,139 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const tx = innerWidth / 2 - k * (r.left + r.width / 2), ty = innerHeight * 0.45 - k * (r.top + r.height / 2);
     document.body.classList.add('signzoom');
     hero.style.transform = 'translate(' + Math.round(tx) + 'px,' + Math.round(ty) + 'px) scale(' + k.toFixed(3) + ')';
+  }
+  /* The Showdown's payday. Returns false when it can't play (?fast, no art), so the stars pop-up shows instead. */
+  const PAID = { run: 0 };
+  function playPaid(L) {
+    const S = window.PAID_SCENE, r = L.result, key = L.rs + ':' + L.level;
+    if (FAST || !S || !document.documentElement.classList.contains('art')) return false;
+    if (P.paidFor === key) return !$('paid').hidden;
+    P.paidFor = key;
+    const run = ++PAID.run, alive = () => PAID.run === run && !$('paid').hidden;
+    const g = $('paid'), wall = g.querySelector('.pwall'), deskEl = g.querySelector('.pdesk'), poster = g.querySelector('.pposter'), glove = g.querySelector('.pglove');
+    const boss = R.BOSS[r.boss || L.boss], k = Math.max(2, Math.min(4, Math.floor(innerWidth / 125)));
+    g.className = '';
+    wall.style.backgroundImage = 'url(' + artURL('table/wall' + (r.act || L.act) + '.webp') + ')';
+    wall.style.backgroundSize = 200 * k + 'px ' + 112 * k + 'px';
+    poster.style.transform = 'translate(-50%, 0)';
+    poster.innerHTML = '<i class="nail"></i><span class="w">WANTED</span><span class="d">DEAD OR ALIVE</span><img src="' + artURL('wanted/' + (r.boss || L.boss) + '.webp') + '" alt="">' +
+      '<span class="n">' + esc(boss.name.toUpperCase()) + '</span><span class="rw">REWARD 100 GOLD</span>' +
+      '<svg class="px" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M10 12 Q48 46 90 90"/><path pathLength="1" d="M89 10 Q54 50 12 88"/></svg>' + stampSVG();
+    poster.setAttribute('aria-label', 'Wanted: ' + boss.name);
+    poster.classList.remove('hang', 'shake'); void poster.offsetWidth; poster.classList.add('hang');
+    // the desk, scaled to the screen, and the ledger's place on it
+    const D = S.desk, dk = Math.min(innerWidth / D.size[0], (innerHeight - 70) / D.size[1]);
+    const dw = D.size[0] * dk, dh = D.size[1] * dk, dtop = Math.max(0, (innerHeight - 64 - dh) / 2);
+    deskEl.style.width = dw + 'px'; deskEl.style.height = dh + 'px'; deskEl.style.top = dtop + 'px';
+    deskEl.innerHTML = '<img src="' + artURL('paid/desk.webp') + '" alt="">';
+    const dx = innerWidth / 2 - dw / 2, at = p => [dx + p[0] * dk, dtop + p[1] * dk];
+    g.querySelectorAll('.ledger, .coin').forEach(x => x.remove());
+    g.hidden = false;
+    const wait = ms => new Promise(res => setTimeout(res, ms));
+    const anim = (el, frames, o) => el.animate(frames, Object.assign({ fill: 'forwards' }, o)).finished.catch(() => {});
+    (async () => {
+      await wait(1100);
+      if (!alive()) return;
+      // the crayon's tip draws each stroke of the X: the hand follows the stroke's own curve
+      const pr = poster.getBoundingClientRect(), pt = (x, y) => [pr.left + pr.width * x / 100, pr.top + pr.height * y / 100];
+      const strokes = [[[10, 12], [48, 46], [90, 90]], [[89, 10], [54, 50], [12, 88]]];
+      const G = S.glove_pencil, gk = k;
+      glove.src = artURL('paid/glove_pencil.webp'); glove.style.width = G.size[0] * gk + 'px'; glove.style.display = 'block';
+      const place = (p, tip) => 'translate(' + Math.round(p[0] - tip[0] * gk) + 'px,' + Math.round(p[1] - tip[1] * gk) + 'px)';
+      glove.style.transform = place([innerWidth + 40, innerHeight], G.tip);
+      const paths = poster.querySelectorAll('.px path');
+      for (let i = 0; i < 2 && alive(); i++) {
+        const [a, c, b] = strokes[i], pts = [];
+        for (let s = 0; s <= 10; s++) { const t = s / 10, u = 1 - t; pts.push(pt(u * u * a[0] + 2 * u * t * c[0] + t * t * b[0], u * u * a[1] + 2 * u * t * c[1] + t * t * b[1])); }
+        await anim(glove, [{ transform: i ? place(pts[0], G.tip) : place([innerWidth + 40, innerHeight], G.tip) }, { transform: place(pts[0], G.tip) }], { duration: i ? 260 : 450, easing: 'ease-out' });
+        paths[i].classList.add('go');
+        anim(paths[i], [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 480, easing: 'linear' });
+        await anim(glove, pts.map(p => ({ transform: place(p, G.tip) })), { duration: 480, easing: 'linear' });
+      }
+      if (!alive()) return;
+      // then the stamp: the hand comes down on the middle of the poster and lifts away from a red star
+      const T = S.glove_stamp, mid = pt(50, 52), up = [mid[0] + 30, mid[1] - innerHeight * 0.6];
+      await anim(glove, [{ transform: getComputedStyle(glove).transform }, { transform: place([innerWidth + 60, mid[1] + 60], G.tip) }], { duration: 260, easing: 'ease-in' });
+      glove.src = artURL('paid/glove_stamp.webp'); glove.style.width = T.size[0] * gk + 'px';
+      await anim(glove, [{ transform: place(up, T.tip) }, { transform: place([mid[0], mid[1] - 26], T.tip) }], { duration: 420, easing: 'cubic-bezier(.5,0,1,.6)' });
+      await anim(glove, [{ transform: place([mid[0], mid[1] - 26], T.tip) }, { transform: place(mid, T.tip) }], { duration: 70, easing: 'ease-in' });
+      poster.querySelector('.pstamp').classList.add('on');
+      poster.classList.remove('hang'); void poster.offsetWidth; poster.classList.add('shake');
+      await wait(160);
+      await anim(glove, [{ transform: place(mid, T.tip) }, { transform: place(up, T.tip) }], { duration: 420, easing: 'ease-in' });
+      glove.style.display = 'none';
+      await wait(450);
+      if (!alive()) return;
+      // onto the sheriff's desk: the poster settles on the blotter, and the bounty is written in the ledger
+      g.classList.add('desk');
+      // scaled about its top middle to sit inside the blotter, clear of the ledger
+      const bl = at(D.blotter[0]), br = at(D.blotter[1]), sc = Math.min((br[0] - bl[0]) * 0.86 / pr.width, (br[1] - bl[1]) * 0.9 / pr.height);
+      // pin it where it hangs in pixels first (no transition), then let it travel
+      poster.style.transition = 'none'; poster.style.left = pr.left + 'px'; poster.style.top = pr.top + 'px'; poster.style.transform = 'none';
+      void poster.offsetWidth; poster.style.transition = '';
+      poster.style.transform = 'translate(' + Math.round((bl[0] + br[0]) / 2 - pr.left - pr.width / 2) + 'px,' + Math.round(bl[1] + (br[1] - bl[1]) * 0.05 - pr.top) + 'px) scale(' + sc.toFixed(3) + ') rotate(-5deg)';
+      await wait(1000);
+      if (!alive()) return;
+      const l0 = at([D.ledger[0][0] - 68, D.ledger[0][1] + 4]), l1 = at([D.ledger[1][0] - 4, D.ledger[1][1]]);
+      const led = document.createElement('div');
+      led.className = 'ledger';
+      led.style.left = l0[0] + 'px'; led.style.top = l0[1] + 'px'; led.style.width = (l1[0] - l0[0]) + 'px';
+      led.innerHTML = '<h3>BOUNTY PAID</h3>' + payoutHTML(r, L.gold);
+      g.appendChild(led);
+      countUp(led.querySelector('.payout'));
+      // a coin hops from the sheriff's stack to the ledger for every line that paid
+      const from = at(D.coins), lines = led.querySelectorAll('.payout li');
+      (r.pay || []).forEach((x, i) => { if (!(x.g > 0)) return; setTimeout(() => {
+        if (!alive()) return;
+        const c = document.createElement('i'); c.className = 'coin'; g.appendChild(c);
+        const to = lines[i].getBoundingClientRect();
+        anim(c, [{ transform: 'translate(' + from[0] + 'px,' + from[1] + 'px)' }, { transform: 'translate(' + ((from[0] + to.right) / 2) + 'px,' + (Math.min(from[1], to.top) - 50) + 'px)' }, { transform: 'translate(' + (to.right - 10) + 'px,' + (to.top + 8) + 'px)', opacity: 0 }], { duration: 650, easing: 'ease-in-out' }).then(() => c.remove());
+      }, 300 * i + 150); });
+      await wait(300 * (lines.length + 1));
+      if (alive()) g.classList.add('counted');
+    })();
+    return true;
+  }
+  // the red sheriff's star, inked: six points with balls at their tips, PAID knocked out of the middle, a grainy edge
+  function stampSVG() {
+    let pts = '', balls = '';
+    for (let i = 0; i < 12; i++) { const a = Math.PI / 6 * i - Math.PI / 2, rr = i % 2 ? 23 : 44; pts += (50 + rr * Math.cos(a)).toFixed(1) + ',' + (50 + rr * Math.sin(a)).toFixed(1) + ' ';
+      if (!(i % 2)) balls += '<circle cx="' + (50 + 46 * Math.cos(a)).toFixed(1) + '" cy="' + (50 + 46 * Math.sin(a)).toFixed(1) + '" r="4.5"/>'; }
+    return '<svg class="pstamp" viewBox="0 0 100 100" aria-hidden="true"><defs><filter id="ink" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7" result="n"/>' +
+      '<feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.6 2.3" result="m"/><feComposite in="SourceGraphic" in2="m" operator="in"/></filter>' +
+      '</defs><g filter="url(#ink)"><g fill="#c0201a"><polygon points="' + pts + '"/>' + balls + '</g>' +
+      '<polygon points="' + pts + '" fill="none" stroke="#f1dfb6" stroke-width="1.6" transform="translate(50 50) scale(.8) translate(-50 -50)"/>' +
+      '<text x="50" y="56.5" text-anchor="middle" font-family="Georgia, serif" font-weight="900" font-size="17" letter-spacing="1" fill="#f1dfb6">PAID</text></g></svg>';
+  }
+  function endPaid() {
+    PAID.run++;
+    const g = $('paid');
+    if (!g || g.hidden) return;
+    g.hidden = true;
+    g.className = '';
+    g.getAnimations({ subtree: true }).forEach(a => a.cancel());
+    g.querySelectorAll('.ledger, .coin').forEach(x => x.remove());
+    const poster = g.querySelector('.pposter'); poster.style.left = ''; poster.style.top = ''; poster.style.transform = '';
+  }
+  /* A new act after a Showdown: its title card over the act's own ground (the user's, 2026-10-30), the train
+     rolling through for the Westbound Express; a tap or a few seconds clears it. Never in ?fast. */
+  function laterActCard(L) {
+    const key = L.rs + ':' + L.act;
+    if (FAST || L.act < 2 || P.actCardFor === key) return;
+    P.actCardFor = key;
+    const card = $('actcard'), S = window.TITLE_SCENE, art = document.documentElement.classList.contains('art');
+    const A = { 2: ['ACT II', 'THE WESTBOUND EXPRESS', 'Every gang on the line is wanted', 'All aboard, dear! The Twins are behind us and the whole line ahead is full of outlaws.'],
+                3: ['ACT III', 'THE COUNTY FAIR', 'The last gangs in the territory', 'The County Fair, dear. Last stop: let\u2019s finish this and go home rich.'] }[L.act];
+    card.style.backgroundImage = art ? (L.act === 2 ? 'url(' + artURL('train/band_desert.webp') + ')' : 'repeating-linear-gradient(90deg, #b8322a 0 36px, #f4e3bf 36px 72px)') : '';
+    card.style.backgroundSize = L.act === 2 ? 'auto 100%' : '';
+    const T = S && S.train, tk = 3;
+    card.innerHTML = '<div class="board"><small>' + A[0] + '</small><b>' + A[1] + '</b><span>' + A[2] + '</span></div>' +
+      (L.tips ? '<div class="nanline"><b>Nan:</b> ' + esc(A[3]) + '</div>' : '') +
+      (art && T && L.act === 2 ? '<div class="train2" style="width:' + T.w * tk + 'px;height:' + T.h * tk + 'px;background-image:url(' + artURL('title/' + T.img + '.webp') + ');background-size:' + T.w * T.frames * tk + 'px ' + T.h * tk + 'px;--fw:' + T.w * tk + 'px"></div>' : '');
+    card.classList.add('on');
+    const off = () => { card.classList.remove('on'); card.removeEventListener('pointerdown', off); };
+    card.addEventListener('pointerdown', off);
+    setTimeout(off, reduceMotion() ? 2200 : 4200);
   }
   /* Game over: the grave, then the run's ending (already drawn behind it). Once a run; never in ?fast. */
   const GRAVE = { timers: [] };

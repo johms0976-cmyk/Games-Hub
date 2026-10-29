@@ -982,9 +982,13 @@
   function finishLevel(L) {
     const o = L.obj, par = parOf(L), fast = L.kind !== 'bank' && L.handNo <= par;
     let stars = 1, gold = 0, won = true;
+    /* The payout, line by line (2026-10-30: the stars pop-up and the Showdown's desk count it out), adding up to
+       `gold`: { t: what, g: gold } and { t, h: health } for the Canteen. */
+    const pay = [];
     if (L.kind === 'boss') {
       stars = fast ? 3 : 2;
       gold = 100;
+      pay.push({ t: 'Bounty: ' + BOSS[L.boss].name.replace(/^The /, 'the '), g: gold });
       E.say(L, BOSS[L.boss].name + ' are brought to justice!', 'objective');
       if (L.bossHex && L.bossHex.boss !== L.boss) {     // a hex from a lost Showdown (saved runs from before the redesign)
         if (L.hexes && L.hexes[L.bossHex.card] === L.bossHex.kind) delete L.hexes[L.bossHex.card];
@@ -996,22 +1000,29 @@
         // the stakes were fixed at the door: what you win and lose doesn't move with gold earned in the hand
         won = o.done; stars = won ? 3 : 1; L.bank.stage = 'after';
         gold = won ? bankBounty(L) : -Math.min(L.gold, L.bank.take);
+        pay.push(won ? { t: holdup(L).payer + '’s bounty', g: gold } : { t: 'The gang rode off with', g: gold });
         E.say(L, won ? 'You stopped the robbery! ' + holdup(L).payer + ' pays a ' + bankBounty(L) + ' gold bounty.' : 'The gang gets away with ' + -gold + ' of your gold.', 'gold');
       } else {
         stars = 1 + (o.done ? 1 : 0) + (fast ? 1 : 0);
         gold = bountyOf(L.kind, L.foe, stars);
+        // the star by star rise of PAY, then what the gang's extra tricks add on top
+        const P = PAY[L.kind], plain = P[stars], b = o.done ? 1 : 0;
+        pay.push({ t: 'Bounty: ' + L.foe.name.replace(/^The /, 'the '), g: P[1] });
+        if (b) pay.push({ t: 'Bonus: ' + OBJECTIVES[o.id].name, g: P[1 + b] - P[1], star: true });
+        if (fast) pay.push({ t: 'Within par (' + par + ' hands)', g: P[stars] - P[1 + b], star: true });
+        if (gold !== plain) pay.push({ t: 'Wanted for their tricks', g: gold - plain });
         E.say(L, L.foe.name + ' are brought in after ' + L.handNo + ' hand' + (L.handNo > 1 ? 's' : '') + (fast ? ' (par ' + par + ')' : ', over par ' + par) + '.', 'objective');
       }
     }
     if (won && L.foe) {
-      if (has(L, 'ledger')) { gold += 15; E.say(L, 'Bounty Ledger: +15 gold.', 'gold'); }
-      if (has(L, 'canteen')) { const got = heal(L, 25); if (got) E.say(L, 'Canteen: +' + got + ' health.', 'health'); }
+      if (has(L, 'ledger')) { gold += 15; pay.push({ t: BUFFS.ledger.name, g: 15 }); E.say(L, 'Bounty Ledger: +15 gold.', 'gold'); }
+      if (has(L, 'canteen')) { const got = heal(L, 25); if (got) { pay.push({ t: BUFFS.canteen.name, h: got }); E.say(L, 'Canteen: +' + got + ' health.', 'health'); } }
     }
     L.gold += gold;
     L.levelsDone++;
     L.actLevels = (L.actLevels || 0) + 1;
     L.result = { kind: L.kind, stars, gold, objective: o ? o.done : null, fast, hands: L.handNo, par, won, you: L.you, opp: L.opp,
-                 health: L.health, change: L.health - L.startHealth, goldChange: L.gold - L.startGold, foe: L.foe };
+                 health: L.health, change: L.health - L.startHealth, goldChange: L.gold - L.startGold, foe: L.foe, pay, boss: L.boss, act: L.act };
     // one line per level for the run's ending
     L.record = (L.record || []).concat({ act: L.act, level: L.level, kind: L.kind, id: L.kind === 'boss' ? L.boss : o.id, stars, won: L.kind === 'boss' ? true : o.done });
     L.phase = 'over';
