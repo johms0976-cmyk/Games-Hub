@@ -77,17 +77,41 @@ html.art .titlemenu .wood.drawn > span { position: absolute; width: 1px; height:
 #paid .pdesk { position: absolute; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity .7s; }
 #paid .pdesk img { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
 #paid.desk .pwall { opacity: 0; } #paid.desk .pdesk { opacity: 1; }
-#paid .pposter { position: absolute; left: 50%; top: 14%; width: min(270px, 74vw); transform-origin: 50% 0; padding: 12px 14px 16px; text-align: center;
-  background: #f1dfb6; color: #3a1a12; border: 2px solid #8a5a2c; box-shadow: 0 6px 0 rgba(20,10,6,.35), inset 0 0 30px rgba(140,90,40,.35);
-  transition: transform .9s cubic-bezier(.4, 0, .2, 1); z-index: 2; }
+/* the boss's wanted poster: the act's job when it starts (#bounty), crossed out on payday (#paid) */
+.wposter { position: relative; width: min(270px, 74vw); padding: 12px 14px 16px; text-align: center;
+  background: #f1dfb6; color: #3a1a12; border: 2px solid #8a5a2c; box-shadow: 0 6px 0 rgba(20,10,6,.35), inset 0 0 30px rgba(140,90,40,.35); }
+.wposter .nail { position: absolute; left: 50%; top: 5px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; background: #5a5a60; box-shadow: inset -1px -1px 0 #2a2a30; }
+.wposter .w { display: block; margin-top: 6px; font: 900 44px/1 Georgia, serif; letter-spacing: .08em; }
+.wposter .d { display: block; font: 800 13px/1.4 Georgia, serif; letter-spacing: .3em; }
+.wposter img { display: block; width: 100%; margin: 8px 0; image-rendering: pixelated; border: 2px solid #8a5a2c; }
+.wposter .n { display: block; font: 800 22px/1.15 Georgia, serif; }
+.wposter .rw { display: block; margin-top: 6px; font: 800 15px/1.3 Georgia, serif; letter-spacing: .1em; }
+#paid .pposter { position: absolute; left: 50%; top: 14%; transform-origin: 50% 0; transition: transform .9s cubic-bezier(.4, 0, .2, 1); z-index: 2; }
+/* The job (the user's, 2026-10-30): once the map's opening pan has come down from the Showdown to where you start,
+   the boss's poster unrolls from its rod, the one you will cross out on payday: the reason you rode in. On "Let's
+   ride" it folds away onto the map's own wanted board. Once an act (L.sawPoster); never in ?fast. */
+#bounty { position: fixed; inset: 0; z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 16px;
+  background: rgba(24,14,8,.72); transition: background .5s; }
+#bounty[hidden] { display: none; }
+#bounty .why { margin: 0; font: 800 13px/1.3 Georgia, serif; letter-spacing: .28em; color: #f3d070; text-align: center; text-transform: uppercase; }
+#bounty .scroll { position: relative; padding-top: 10px; }
+#bounty .scroll::before { content: ''; position: absolute; left: -10px; right: -10px; top: 0; height: 14px; z-index: 2; border-radius: 7px;
+  background: linear-gradient(#a0703e, #6e4424); box-shadow: 0 2px 0 rgba(0,0,0,.35); }
+#bounty .wposter { animation: unroll 1.5s cubic-bezier(.35, 0, .2, 1) .25s both; }
+#bounty .rod { position: absolute; left: -12px; right: -12px; height: 18px; z-index: 3; border-radius: 9px; background: linear-gradient(#e8d4a6, #c8a870 45%, #8a6a40);
+  box-shadow: 0 3px 0 rgba(0,0,0,.3); animation: rolldown 1.5s cubic-bezier(.35, 0, .2, 1) .25s both; }
+@keyframes unroll { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes rolldown { from { top: 8px; } 92% { opacity: 1; } to { top: calc(100% - 9px); opacity: 0; } }
+#bounty .nanline { max-width: 320px; background: #fffaf0; color: #3a2a20; border-radius: 10px; padding: 10px 14px; box-shadow: 0 2px 0 rgba(58,42,32,.3); font-size: 15px;
+  opacity: 0; animation: fadein .5s 1.8s forwards; }
+#bounty .btn { opacity: 0; animation: fadein .4s 2s forwards; }
+@keyframes fadein { to { opacity: 1; } }
+#bounty.away { background: rgba(24,14,8,0); pointer-events: none; }
+#bounty.away .scroll { transition: transform .7s cubic-bezier(.5, 0, .7, .4), opacity .7s; }
+#bounty.away .nanline, #bounty.away .btn, #bounty.away .why { opacity: 0; animation: none; transition: opacity .2s; }
+@media (prefers-reduced-motion: reduce) { #bounty .wposter, #bounty .rod, #bounty .nanline, #bounty .btn { animation: none; opacity: 1; } #bounty .rod { display: none; } }
 #paid .pposter.hang { animation: hang 1s ease-out; }
 @keyframes hang { 0% { transform: translate(-50%, -120%) rotate(-6deg); } 55% { transform: translate(-50%, 0) rotate(3deg); } 75% { transform: translate(-50%, 0) rotate(-1.5deg); } 100% { transform: translate(-50%, 0); } }
-#paid .pposter .nail { position: absolute; left: 50%; top: 5px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; background: #5a5a60; box-shadow: inset -1px -1px 0 #2a2a30; }
-#paid .pposter .w { display: block; margin-top: 6px; font: 900 44px/1 Georgia, serif; letter-spacing: .08em; }
-#paid .pposter .d { display: block; font: 800 13px/1.4 Georgia, serif; letter-spacing: .3em; }
-#paid .pposter img { display: block; width: 100%; margin: 8px 0; image-rendering: pixelated; border: 2px solid #8a5a2c; }
-#paid .pposter .n { display: block; font: 800 22px/1.15 Georgia, serif; }
-#paid .pposter .rw { display: block; margin-top: 6px; font: 800 15px/1.3 Georgia, serif; letter-spacing: .1em; }
 #paid .pposter.shake { animation: thump .35s; }
 @keyframes thump { 20% { translate: 0 4px; } 45% { translate: -3px 0; } 70% { translate: 2px 0; } }
 #paid .px { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
@@ -723,10 +747,11 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   </div>
 </section>
 
+<div id="bounty" hidden></div>
 <div id="paid" hidden>
   <div class="pwall" aria-hidden="true"></div>
   <div class="pdesk" aria-hidden="true"></div>
-  <div class="pposter" role="img"></div>
+  <div class="pposter wposter" role="img"></div>
   <img class="pglove" alt="">
   <div class="pbtns"><button class="btn" data-act="paidcollect">Collect</button><button class="btn alt" data-act="paidskip">Skip</button></div>
 </div>
@@ -764,17 +789,17 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=10"></script>
-<script src="btp-ai.js?v=10"></script>
-<script src="btp-run.js?v=10"></script>
-<script src="btp-town.js?v=10"></script>
-<script src="art/dustwater/sprites.js?v=10"></script>
-<script src="btp-train.js?v=10"></script>
-<script src="art/train/sprites.js?v=10"></script>
-<script src="art/title/scene.js?v=10"></script>
-<script src="art/table/scene.js?v=10"></script>
-<script src="art/grave/scene.js?v=10"></script>
-<script src="art/paid/scene.js?v=10"></script>
+<script src="btp-engine.js?v=11"></script>
+<script src="btp-ai.js?v=11"></script>
+<script src="btp-run.js?v=11"></script>
+<script src="btp-town.js?v=11"></script>
+<script src="art/dustwater/sprites.js?v=11"></script>
+<script src="btp-train.js?v=11"></script>
+<script src="art/train/sprites.js?v=11"></script>
+<script src="art/title/scene.js?v=11"></script>
+<script src="art/table/scene.js?v=11"></script>
+<script src="art/grave/scene.js?v=11"></script>
+<script src="art/paid/scene.js?v=11"></script>
 <script>
 (function () {
   'use strict';
@@ -1144,7 +1169,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       P.mapScrolled = L.act + ':' + L.pos;
       // an act's first look at its map: start on the Showdown and pan down to where you begin (Slay's opening)
       const panKey = L.act + ':' + L.levelsDone;
-      if (!L.pos && P.panned !== panKey) { P.panned = panKey; setTimeout(panMap, 0); }
+      if (!L.pos && P.panned !== panKey) { P.panned = panKey; setTimeout(() => panMap(() => unrollJob(P.L)), 0); }
       else setTimeout(() => { const n = document.querySelector('.mapbox .nd.can'); if (!n || !n.getBoundingClientRect) return; const r = n.getBoundingClientRect(); if (r.height && (r.bottom > innerHeight - 20 || r.top < 60)) try { window.scrollTo(0, Math.max(0, r.top + scrollY - innerHeight * 0.6)); } catch (e) { /* no layout (tests) */ } }, 0);
     }
   }
@@ -1171,18 +1196,20 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   /* The act-start pan: from the top of the map (the Showdown) down to the first choices, eased, over a couple of
      seconds; any touch, wheel or key hands the scroll back at once. Skipped when it all fits, in ?fast, and
      under reduced motion. */
-  function panMap() {
+  function panMap(done) {
+    let called = false;
+    const fin = () => { if (!called && done) { called = true; done(); } };
     const box = document.querySelector('.mapbox'), first = [...document.querySelectorAll('.mapbox .nd.can')];
-    if (!box || !box.getBoundingClientRect || !first.length) return;
+    if (!box || !box.getBoundingClientRect || !first.length) return fin();
     const r = box.getBoundingClientRect();
-    if (!r.height || r.height < innerHeight * 0.8) return;
+    if (!r.height || r.height < innerHeight * 0.8) return fin();
     const low = Math.max(...first.map(n => n.getBoundingClientRect().bottom)) + scrollY;
     const from = Math.max(0, r.top + scrollY - 70), to = Math.max(from, low - innerHeight + 90);
     let reduce = false;
     try { reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { /* old browser */ }
-    if (FAST || reduce || typeof requestAnimationFrame === 'undefined') { try { window.scrollTo(0, to); } catch (e) { /* no layout */ } return; }
+    if (FAST || reduce || typeof requestAnimationFrame === 'undefined') { try { window.scrollTo(0, to); } catch (e) { /* no layout */ } return fin(); }
     let stop = false, t0 = 0;
-    const quit = () => { stop = true; ['touchstart', 'wheel', 'keydown', 'pointerdown'].forEach(e => removeEventListener(e, quit)); };
+    const quit = () => { stop = true; ['touchstart', 'wheel', 'keydown', 'pointerdown'].forEach(e => removeEventListener(e, quit)); setTimeout(fin, 250); };
     ['touchstart', 'wheel', 'keydown', 'pointerdown'].forEach(e => addEventListener(e, quit, { passive: true }));
     window.scrollTo(0, from);
     const poster = document.querySelector('.wanted');
@@ -2122,6 +2149,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       case 'backenh': move('unplace'); break;
       case 'foeinfo': openSheet('info', foeHelpHTML(L, d.k)); break;
       case 'skipgrave': endGrave(); break;
+      case 'takejob': takeJob(); break;
       case 'paydone': { const ul = t.closest('.payout'); if (ul) ul.classList.add('done'); break; }
       case 'paidskip': case 'paidcollect': endPaid(); move('collect'); break;
       case 'skipopening': endOpening(); break;
@@ -2199,6 +2227,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     $('tipsPick').checked = !tipsDone();
     endGrave(true);
     endPaid();
+    $('bounty').hidden = true;
   }
   /* The title scene, from art/title/scene.js (never load-bearing: without it, or the art, the hero is a banded sky). */
   function buildHero() {
@@ -2389,6 +2418,40 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     document.body.classList.add('signzoom');
     hero.style.transform = 'translate(' + Math.round(tx) + 'px,' + Math.round(ty) + 'px) scale(' + k.toFixed(3) + ')';
   }
+  /* The boss's wanted poster, as it hangs: the job at an act's start, crossed out on payday. */
+  function wantedFace(id) {
+    const B = R.BOSS[id];
+    return '<i class="nail"></i><span class="w">WANTED</span><span class="d">DEAD OR ALIVE</span><img src="' + artURL('wanted/' + id + '.webp') + '" alt="">' +
+      '<span class="n">' + esc(B.name.toUpperCase()) + '</span><span class="rw">REWARD 100 GOLD</span>';
+  }
+  const JOB = {
+    1: ['The reason you rode into Dustwater', 'That\u2019s them, dear. The Twins. Every other gang in this town is just the road to the Saloon.'],
+    2: ['The reason you boarded the Westbound Express', 'They\u2019re up in the locomotive, dear. Car by car, that\u2019s where we\u2019re headed.'],
+    3: ['The reason you came to the County Fair', 'The last of them, dear. Bring this one in and we can go home.']
+  };
+  function unrollJob(L) {
+    if (FAST || !L || L.phase !== 'map' || !L.map || (L.sawPoster || []).includes(L.act)) return;
+    L.sawPoster = (L.sawPoster || []).concat(L.act);
+    save();
+    const b = $('bounty'), J = JOB[L.act] || JOB[1];
+    b.className = '';
+    b.innerHTML = '<p class="why">' + esc(J[0]) + '</p><div class="scroll"><div class="wposter" role="img" aria-label="' + esc('Wanted: ' + R.BOSS[L.map.boss].name + ', reward 100 gold') + '">' +
+      wantedFace(L.map.boss) + '</div><i class="rod" aria-hidden="true"></i></div>' +
+      '<div class="nanline"><b>' + esc(R.PARTNERS[L.partner].name) + ':</b> ' + esc(J[1]) + '</div><button class="btn" data-act="takejob">Let\u2019s ride</button>';
+    b.hidden = false;
+  }
+  // the poster folds away onto the map's own wanted board, where it stays for the act
+  function takeJob() {
+    const b = $('bounty'), sc = b.querySelector('.scroll'), target = document.querySelector('.wanted');
+    if (b.hidden) return;
+    if (sc && target && target.getBoundingClientRect && !reduceMotion()) {
+      const a = sc.getBoundingClientRect(), t = target.getBoundingClientRect();
+      b.classList.add('away');
+      sc.style.transform = 'translate(' + Math.round(t.left + t.width / 2 - (a.left + a.width / 2)) + 'px,' + Math.round(t.top + t.height / 2 - (a.top + a.height / 2)) + 'px) scale(' + Math.max(0.1, t.height / a.height).toFixed(3) + ')';
+      sc.style.opacity = '0.2';
+      setTimeout(() => { b.hidden = true; b.innerHTML = ''; }, 720);
+    } else { b.hidden = true; b.innerHTML = ''; }
+  }
   /* The Showdown's payday. Returns false when it can't play (?fast, no art), so the stars pop-up shows instead. */
   const PAID = { run: 0 };
   function playPaid(L) {
@@ -2403,8 +2466,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     wall.style.backgroundImage = 'url(' + artURL('table/wall' + (r.act || L.act) + '.webp') + ')';
     wall.style.backgroundSize = 200 * k + 'px ' + 112 * k + 'px';
     poster.style.transform = 'translate(-50%, 0)';
-    poster.innerHTML = '<i class="nail"></i><span class="w">WANTED</span><span class="d">DEAD OR ALIVE</span><img src="' + artURL('wanted/' + (r.boss || L.boss) + '.webp') + '" alt="">' +
-      '<span class="n">' + esc(boss.name.toUpperCase()) + '</span><span class="rw">REWARD 100 GOLD</span>' +
+    poster.innerHTML = wantedFace(r.boss || L.boss) +
       '<svg class="px" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M10 12 Q48 46 90 90"/><path pathLength="1" d="M89 10 Q54 50 12 88"/></svg>' + stampSVG();
     poster.setAttribute('aria-label', 'Wanted: ' + boss.name);
     poster.classList.remove('hang', 'shake'); void poster.offsetWidth; poster.classList.add('hang');
