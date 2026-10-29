@@ -160,6 +160,18 @@ html.art #grave .gplain { display: none; }
 #grave .gcard p { margin: 6px 0 10px; font-size: 15px; line-height: 1.35; }
 #grave .gskip { position: absolute; right: 12px; bottom: 12px; }
 @media (prefers-reduced-motion: reduce) { #grave .grig { transition: none; } #grave .tumble { display: none; } #grave .gcard { transition: none; } }
+/* Choosing a partner and the act's card pick sit over the act's map (the user's, 2026-10-30), as a sheet from the
+   bottom; the map stays in view behind a dim. Above the town's sprites, under the job's poster. */
+.mapdim { position: fixed; inset: 0; z-index: 2500; background: rgba(20,12,8,.45); }
+.panel.mapmodal { position: fixed; left: 50%; bottom: 0; z-index: 2600; width: min(560px, 100%); max-height: 86vh; overflow: auto; margin: 0; transform: translateX(-50%);
+  border-radius: 14px 14px 0 0; border-bottom: 0; animation: sheetup .45s cubic-bezier(.2, .7, .3, 1); }
+@keyframes sheetup { from { transform: translate(-50%, 100%); } }
+.mapmodal .coach { margin: 0 0 10px; }
+.panel.baize.mapmodal .coach p, .panel.baize.mapmodal .coach button { color: #3a2a20; }
+#bounty .say { display: flex; gap: 12px; align-items: flex-start; max-width: 360px; background: #fffaf0; color: #3a2a20; border-radius: 12px; padding: 12px 14px; box-shadow: 0 3px 0 rgba(58,42,32,.35); }
+#bounty .say .face { flex: none; width: 60px; height: 72px; }
+#bounty .say p { margin: 0; font-size: 15px; line-height: 1.4; }
+@media (prefers-reduced-motion: reduce) { .panel.mapmodal { animation: none; } }
 /* the main menu (2026-10-30): Start opens it in the sky over the train; the words are wood type like Start's */
 .titlemenu .item { display: none; }
 #title.menu .titlemenu .item { display: block; }
@@ -789,17 +801,17 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=11"></script>
-<script src="btp-ai.js?v=11"></script>
-<script src="btp-run.js?v=11"></script>
-<script src="btp-town.js?v=11"></script>
-<script src="art/dustwater/sprites.js?v=11"></script>
-<script src="btp-train.js?v=11"></script>
-<script src="art/train/sprites.js?v=11"></script>
-<script src="art/title/scene.js?v=11"></script>
-<script src="art/table/scene.js?v=11"></script>
-<script src="art/grave/scene.js?v=11"></script>
-<script src="art/paid/scene.js?v=11"></script>
+<script src="btp-engine.js?v=12"></script>
+<script src="btp-ai.js?v=12"></script>
+<script src="btp-run.js?v=12"></script>
+<script src="btp-town.js?v=12"></script>
+<script src="art/dustwater/sprites.js?v=12"></script>
+<script src="btp-train.js?v=12"></script>
+<script src="art/train/sprites.js?v=12"></script>
+<script src="art/title/scene.js?v=12"></script>
+<script src="art/table/scene.js?v=12"></script>
+<script src="art/grave/scene.js?v=12"></script>
+<script src="art/paid/scene.js?v=12"></script>
 <script>
 (function () {
   'use strict';
@@ -1002,7 +1014,6 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const L = P.L;
     if (L.mode === 'standard') return '<div class="screenbar"><span class="name">Standard 500 · against ' + esc(L.std.name.replace(/^The /, 'the ')) + '</span>' +
       '<button class="iconbtn" data-act="rules">Rules</button><button class="iconbtn" data-act="menu">Menu</button></div>';
-    if (L.phase === 'partner') return '<div class="screenbar"><span class="name">A new story</span></div>';
     return '<div class="screenbar"><span class="name">Act ' + R.ROMAN[L.act] + ' · ' + E.ACTS[L.act].name + '</span>' +
       '<div class="stats"><div class="stat hp' + hpClass(L.health) + '">' + hpInner(L) + '</div><div class="stat gold">' + goldInner(L) + '</div></div>' +
       '<button class="iconbtn" data-act="rules">Rules</button><button class="iconbtn" data-act="menu">Menu</button></div>';
@@ -1015,12 +1026,12 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     switch (L.phase) {
       case 'actstart':
         laterActCard(L);
-        body = noteHTML + (L.act === 3 ? '<div class="panel baize"><h2>Act III: the County Fair</h2><p>The 4s to 8s join the deck: the whole 500 pack, 10 cards each and 3 in the kitty. Three of the cards you own are now dealt to you each hand. Pick a new card to own.</p>' +
+        body = noteHTML + mapHTML(L) + overMap(L, tip, (L.act === 3 ? '<div class="panel baize"><h2>Act III: the County Fair</h2><p>The 4s to 8s join the deck: the whole 500 pack, 10 cards each and 3 in the kitty. Three of the cards you own are now dealt to you each hand. Pick a new card to own.</p>' +
           '<div class="cardrow deal">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div>' + ownedRow(L) + '</div>' :
           L.act === 2 ? '<div class="panel baize"><h2>Act II: the Westbound Express</h2><p>Spades and clubs join the deck and hands grow to 6 cards. Two of the cards you own are now dealt to you each hand. Pick a new card to own.</p>' +
           '<div class="cardrow deal">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div>' + ownedRow(L) + '</div>' :
           '<div class="panel baize"><h2>Act I: Dustwater</h2><p>You ride into Dustwater a bounty hunter, with Nan riding shotgun. Every gang in town is wanted, and they settle everything over cards. Pick a card to own. You already own Nan’s A♥. Each hand, one card you own is dealt straight to you (your seed slot), so owning two means you won’t know which comes.</p>' +
-          '<div class="cardrow deal">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div>' + ownedRow(L) + '</div>');
+          '<div class="cardrow deal">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div>' + ownedRow(L) + '</div>'));
         break;
       case 'map':
         body = noteHTML + mapHTML(L) + '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
@@ -1152,9 +1163,9 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
         playGrave(L);
         break;
       case 'partner':
-        body = '<div class="panel baize"><h2>Choose your partner</h2><p>Who rides with you into Dustwater? Your partner sits across the table, bids with you and brings a card of their own.</p>' +
+        body = mapHTML(L) + overMap(L, tip, '<div class="panel baize"><h2>Choose your partner</h2><p>Who rides with you into Dustwater? Your partner sits across the table, bids with you and brings a card of their own.</p>' +
           '<div class="roster">' + R.ROSTER.map(p => '<button class="rider" data-partner="' + p.id + '"' + (p.locked ? ' disabled' : '') + '>' + (p.id === 'nan' ? '<span class="face">' + NAN_SVG + '</span>' : '<span class="face" aria-hidden="true"></span>') +
-            '<b>' + esc(p.name) + '</b><i>' + esc(p.title) + '</i><span>' + esc(p.text) + '</span>' + (p.locked ? '<span class="lock">Not riding yet</span>' : '') + '</button>').join('') + '</div></div>';
+            '<b>' + esc(p.name) + '</b><i>' + esc(p.title) + '</i><span>' + esc(p.text) + '</span>' + (p.locked ? '<span class="lock">Not riding yet</span>' : '') + '</button>').join('') + '</div></div>');
         break;
       case 'stdover': {
         const won = L.result && L.result.won, F = L.std;
@@ -1163,17 +1174,27 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
         break;
       }
     }
-    $('screen').innerHTML = bar() + (tip ? '<div class="coach">' + coachHTML(tip) + '</div>' : '') + body;
+    const tipTop = tip && !(L.phase === 'partner' || L.phase === 'actstart');   // over the map the tip rides in the sheet
+    $('screen').innerHTML = bar() + (tipTop ? '<div class="coach">' + coachHTML(tip) + '</div>' : '') + body;
     // on the map, bring the next choice into view once per stop (the map is taller than a phone)
-    if (L.phase === 'map' && P.mapScrolled !== L.act + ':' + L.pos) {
+    const onMap = L.phase === 'map' || L.phase === 'partner' || L.phase === 'actstart';
+    if (onMap && P.mapScrolled !== L.act + ':' + L.pos) {
       P.mapScrolled = L.act + ':' + L.pos;
-      // an act's first look at its map: start on the Showdown and pan down to where you begin (Slay's opening)
+      // an act's first look at its map: start on the Showdown and pan down to where you begin (Slay's opening), then
+      // the job's poster; the partner pick and the card pick wait for it (overMap). A new act's title card goes first.
       const panKey = L.act + ':' + L.levelsDone;
-      if (!L.pos && P.panned !== panKey) { P.panned = panKey; setTimeout(() => panMap(() => unrollJob(P.L)), 0); }
+      const go = () => $('actcard').classList.contains('on') ? setTimeout(go, 200) : panMap(() => unrollJob(P.L));
+      if (!L.pos && P.panned !== panKey) { P.panned = panKey; setTimeout(go, 0); }
       else setTimeout(() => { const n = document.querySelector('.mapbox .nd.can'); if (!n || !n.getBoundingClientRect) return; const r = n.getBoundingClientRect(); if (r.height && (r.bottom > innerHeight - 20 || r.top < 60)) try { window.scrollTo(0, Math.max(0, r.top + scrollY - innerHeight * 0.6)); } catch (e) { /* no layout (tests) */ } }, 0);
     }
   }
 
+  /* The partner pick and the card pick, as a sheet over the act's map: shown once the act's job poster has been
+     unrolled (or at once in ?fast), with Nan's tip, if any, inside it. */
+  function overMap(L, tip, html) {
+    if (!FAST && (!(L.sawPoster || []).includes(L.act) || !$('bounty').hidden)) return '';
+    return '<div class="mapdim"></div>' + html.replace('<div class="panel baize">', '<div class="panel baize mapmodal" role="dialog">' + (tip ? '<div class="coach">' + coachHTML(tip) + '</div>' : ''));
+  }
   // the act-start pick's reminder of what you already own (Nan's A\u2665 on a first act)
   /* The enhancement screen's choice so far, kept on the page (nothing is spent until Use): starts empty for each
      new pick. */
@@ -1199,7 +1220,9 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   function panMap(done) {
     let called = false;
     const fin = () => { if (!called && done) { called = true; done(); } };
-    const box = document.querySelector('.mapbox'), first = [...document.querySelectorAll('.mapbox .nd.can')];
+    const box = document.querySelector('.mapbox');
+    let first = [...document.querySelectorAll('.mapbox .nd.can')];
+    if (!first.length) first = [...document.querySelectorAll('.mapbox .nd[data-n^="0:"]')];      // before the run starts
     if (!box || !box.getBoundingClientRect || !first.length) return fin();
     const r = box.getBoundingClientRect();
     if (!r.height || r.height < innerHeight * 0.8) return fin();
@@ -2133,7 +2156,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       if (why) { s.why = why.charAt(0).toUpperCase() + why.slice(1) + '.'; s.card = null; } else { s.card = s.card === d.pickcard ? null : d.pickcard; s.why = ''; }
       render(); return;
     }
-    if (d.partner) { move('partner', d.partner); return; }
+    if (d.partner) { move('partner', d.partner); if (P.L.phase === 'actstart') { partnerSays(P.L); render(); } return; }
     if (d.foe) { startStandard(d.foe); return; }
     switch (d.act) {
       case 'start': mainMenu(true); break;
@@ -2305,8 +2328,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   function actCard(L, tips) {
     const card = $('actcard');
     card.style.backgroundImage = 'url(' + artURL('dustwater/plate.webp') + ')';
-    card.innerHTML = '<div class="board"><small>ACT I</small><b>DUSTWATER</b><span>Every gang in the territory is holed up here</span></div>' +
-      (tips ? '<div class="nanline"><b>Nan:</b> Here we are, dear. Every outlaw in this town has a price on his head, and they all settle things over cards. Let\u2019s go and collect.</div>' : '');
+    card.innerHTML = '<div class="board"><small>ACT I</small><b>DUSTWATER</b><span>Every gang in the territory is holed up here</span></div>';
     card.classList.add('on');
   }
   function dust(full) {
@@ -2430,14 +2452,25 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     3: ['The reason you came to the County Fair', 'The last of them, dear. Bring this one in and we can go home.']
   };
   function unrollJob(L) {
-    if (FAST || !L || L.phase !== 'map' || !L.map || (L.sawPoster || []).includes(L.act)) return;
+    if (FAST || !L || !['map', 'partner', 'actstart'].includes(L.phase) || !L.map || (L.sawPoster || []).includes(L.act)) return;
     L.sawPoster = (L.sawPoster || []).concat(L.act);
     save();
     const b = $('bounty'), J = JOB[L.act] || JOB[1];
     b.className = '';
+    const chosen = L.phase !== 'partner';       // a new story: nobody rides with you yet, so nobody speaks
     b.innerHTML = '<p class="why">' + esc(J[0]) + '</p><div class="scroll"><div class="wposter" role="img" aria-label="' + esc('Wanted: ' + R.BOSS[L.map.boss].name + ', reward 100 gold') + '">' +
       wantedFace(L.map.boss) + '</div><i class="rod" aria-hidden="true"></i></div>' +
-      '<div class="nanline"><b>' + esc(R.PARTNERS[L.partner].name) + ':</b> ' + esc(J[1]) + '</div><button class="btn" data-act="takejob">Let\u2019s ride</button>';
+      (chosen ? '<div class="nanline"><b>' + esc(R.PARTNERS[L.partner].name) + ':</b> ' + esc(J[1]) + '</div>' : '') +
+      '<button class="btn" data-act="takejob">' + (chosen ? 'Let\u2019s ride' : 'Take the job') + '</button>';
+    b.hidden = false;
+  }
+  /* The partner you just chose has their say, about the ride ahead and what they bring (once, on the map). */
+  function partnerSays(L) {
+    const p = R.ROSTER.find(x => x.id === L.partner), b = $('bounty');
+    if (FAST || !p || !p.intro) return;
+    b.className = '';
+    b.innerHTML = '<div class="say" role="status"><span class="face">' + (p.id === 'nan' ? NAN_SVG : '') + '</span><p><b>' + esc(p.name) + ':</b> ' + esc(p.intro) + '</p></div>' +
+      '<button class="btn" data-act="takejob">Let\u2019s ride</button>';
     b.hidden = false;
   }
   // the poster folds away onto the map's own wanted board, where it stays for the act
@@ -2449,8 +2482,12 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       b.classList.add('away');
       sc.style.transform = 'translate(' + Math.round(t.left + t.width / 2 - (a.left + a.width / 2)) + 'px,' + Math.round(t.top + t.height / 2 - (a.top + a.height / 2)) + 'px) scale(' + Math.max(0.1, t.height / a.height).toFixed(3) + ')';
       sc.style.opacity = '0.2';
-      setTimeout(() => { b.hidden = true; b.innerHTML = ''; }, 720);
-    } else { b.hidden = true; b.innerHTML = ''; }
+      setTimeout(() => { b.hidden = true; b.innerHTML = ''; afterJob(); }, 720);
+    } else { b.hidden = true; b.innerHTML = ''; afterJob(); }
+  }
+  // the partner pick or the card pick waited for the poster (or the partner's say): bring it up now
+  function afterJob() {
+    if (P.L && (P.L.phase === 'partner' || P.L.phase === 'actstart')) render();
   }
   /* The Showdown's payday. Returns false when it can't play (?fast, no art), so the stars pop-up shows instead. */
   const PAID = { run: 0 };

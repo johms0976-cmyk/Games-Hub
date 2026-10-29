@@ -490,7 +490,9 @@
   }
   /* Who can ride with you. Only Nan is built; the rest are the design doc's, shown locked on the pick. */
   const ROSTER = [
-    { id: 'nan', name: 'Nan', title: 'the Steady Hand', text: 'Cautious bidder. Shows you her strongest suit while you bid. Brings her A♥.' },
+    { id: 'nan', name: 'Nan', title: 'the Steady Hand', text: 'Cautious bidder. Shows you her strongest suit while you bid. Brings her A♥.',
+      // what she says once you've chosen her (the user's, 2026-10-30: a partner speaks only after being picked)
+      intro: 'Steady does it, dear. We take this town one table at a time and walk into that Saloon with health to spare. I\u2019ll nod at my best suit while you bid, and I\u2019ve brought my A\u2665 for the ride.' },
     { id: 'showboat', name: 'Showboat', title: 'the Big Talker', text: 'Bids bold. Swaps you a card under the table. Brings a Trump-sworn 9♥.', locked: true },
     { id: 'sharp', name: 'The Sharp', title: 'the Card Counter', text: 'Bids precise. Keeps count of the trumps out. Brings a Giant-killer 10♦.', locked: true },
     { id: 'quiet', name: 'The Quiet One', title: 'the Silent Partner', text: 'Never bids. Two more kitty cards when you win the bid. Brings the K♦.', locked: true }
