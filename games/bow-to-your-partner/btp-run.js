@@ -297,6 +297,9 @@
                 options: [{ text: 'Grab it and throw it clear: +60 health, and the Dynamite lands on a random card in the deck', fx: { health: 60, hex: { kind: 'potato', on: 'table' } } }, { text: 'Duck under the table', fx: {} }] },
     cousin:   { name: 'The Clumsy Deputy', text: 'Nan\u2019s nephew, a brand-new deputy, insists on helping. He is not careful.', acts: [2],
                 options: [{ text: 'Let him help: +60 gold, but he leaves you a Misfire (a curse card you own)', fx: { gold: 60, curse: 'twoleft' } }, { text: 'Make your excuses', fx: {} }] },
+    // the controlled shunt (2026-10-29, the user's idea): swap two carriages ahead on one stretch of line, to replan
+    switchman: { name: 'The Switchman', text: 'At a siding the switchman leans on his lever. \u201cWant a couple of cars shuffled up the line? Nobody\u2019ll know.\u201d', acts: [2],
+                options: [{ text: 'Throw the switch: swap two carriages on one stretch of line ahead', fx: { shunt: true } }, { text: 'Tip your hat: he hands you 25 gold he found on the tracks', fx: { gold: 25 } }] },
     dare:     { name: 'The Gunslinger\u2019s Dare', text: 'A gunslinger dares you to match his fastest shuffle.', acts: [2],
                 options: [{ text: 'Take the dare: pick 1 of 3 enhancements, and one of your cards gets an Itchy Trigger Finger', fx: { enh: 3, hex: { kind: 'itchy', on: 'owned' } } }, { text: 'Decline', fx: {} }] }
   };
@@ -410,7 +413,7 @@
   const CLUES = {
     1: ['Hoofprints heading for the Saloon', 'A torn wanted poster with a new face pencilled in', 'The livery boy saw two of them ride in', 'A spent cartridge by the water trough', 'A red bandana snagged on a fence'],
     2: ['A cigar band from the smoking car', 'Soot on a passenger\u2019s cuff', 'A telegram they forgot to burn', 'Bootprints on the carriage roof', 'The conductor counted one ticket too many'],
-    3: ['A ticket stub from the grandstand', 'Mud from the cattle pens', 'The pie judge overheard them', 'A marked card behind the card tent', 'Sawdust from the barn dance floor']
+    3: ['A ticket stub from the grandstand', 'Mud from the cattle pens', 'The pie judge overheard them', 'A marked card behind the card tent', 'Hay from the barn loft']
   };
   const trailCut = L => TRAIL.cut * Math.min((L.trail || []).length, TRAIL.max);
   function takeClue(L, text, where) {
@@ -600,6 +603,32 @@
     }
     if (what === 'cleanse') { if (!hexed(L).length) return no('no hexes to scrub'); L.cleanseBack = 'map-next'; L.phase = 'cleanse'; return yes(); }
     return no('unknown action');
+  }
+  /* The Switchman's shunt: pick a carriage on a stretch of line ahead (a floor above the one you stand on, with two
+     or more stops), then another on the same stretch; they swap tracks. What happens there moves with the
+     carriage (its kind, its gang, its clue), the rails stay, so the ways to it change. `null` leaves it. */
+  function shuntable(L) {
+    if (!L.map) return [];
+    const here = floorOf(L), pick = L.shunt && L.shunt.pick ? mapNode(L, L.shunt.pick) : null;
+    if (pick) return L.map.floors[pick.f].filter(n => n.id !== pick.id).map(n => n.id);
+    return L.map.floors.filter((row, f) => f > here && row.length >= 2).flat().map(n => n.id);
+  }
+  function shunt(L, id) {
+    if (L.phase !== 'shunt') return no('no switch to throw');
+    if (id === null) { L.shunt = null; note(L, 'You leave the lever alone.'); nextStop(L); return yes(); }
+    if (L.shunt.pick === id) { L.shunt.pick = null; return yes(); }
+    if (!shuntable(L).includes(id)) return no(L.shunt.pick ? 'pick a carriage on the same stretch of line' : 'pick a carriage on a stretch ahead with two or more');
+    if (!L.shunt.pick) { L.shunt.pick = id; return yes(); }
+    const a = mapNode(L, L.shunt.pick), b = mapNode(L, id);
+    // what a carriage holds, mid-sentence: the gang's name for a fight, else the place ("the sleeper car")
+    const low = t => t.charAt(0).toLowerCase() + t.slice(1);
+    const kindOf = n => n.foe ? (n.kind === 'elite' ? 'the duel with ' : 'the table with ') + low(n.foe.name) : low((PLACE[L.act] || {})[n.kind] || KIND_NAME[n.kind]);
+    for (const k of ['kind', 'foe', 'clue']) { const t = a[k]; if (b[k] === undefined) delete a[k]; else a[k] = b[k]; if (t === undefined) delete b[k]; else b[k] = t; }
+    L.shunted = (L.shunted || []).concat([[a.id, b.id]]);
+    note(L, 'The switchman throws the lever: ' + kindOf(b) + ' and ' + kindOf(a) + ' swap tracks.');
+    L.shunt = null;
+    nextStop(L);
+    return yes();
   }
   /* The Raffle (floor 4): a little gold, and the ticket wins a buff (pick 1 of 2). */
   function raffle(L) {
@@ -1067,6 +1096,8 @@
     if (fx.release && L.owned.length < 2) return no('you have only one card to keep');
     if (fx.gold < 0 && L.gold < -fx.gold) return no('not enough gold');
     if (fx.health < 0 && L.health + fx.health <= 0) return no('that would finish you');
+    if (fx.shunt && !shuntable(L).length) return no('no stretch ahead has two carriages to swap');
+    if (fx.shunt) { L.shunt = { pick: null }; L.phase = 'shunt'; return yes(); }
     if (fx.gold) L.gold += fx.gold;
     if (fx.health > 0) heal(L, fx.health);
     else if (fx.health) L.health += fx.health;
@@ -1271,6 +1302,7 @@
       case 'cleanse': return cleanse(L, arg);
       case 'bank': return bank(L, arg);
       case 'water': return water(L, arg);
+      case 'shunt': return shunt(L, arg);
     }
     if (L.phase !== 'hand') return no('the hand is not in play');
     if (kind === 'ack') return after(L, E.ack(L));
@@ -1338,7 +1370,7 @@
     if (O && O.kind === 'limit') return 'holding';
     return o.n + ' / ' + o.of;
   }
-  const api = { DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, TRAIL, CLUES, trailCut, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
+  const api = { DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, TRAIL, CLUES, trailCut, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
     cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;

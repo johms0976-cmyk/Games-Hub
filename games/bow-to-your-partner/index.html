@@ -70,8 +70,9 @@ html.art .hero .lyr, html.art .hero .train, html.art .hero .puff { display: bloc
 
 /* The opening (storyboard frames 2-5, 2026-10-27): Start blows the whistle and the title's words drop away (2);
    the hero fills the screen and its rig tilts down past the plains to the trail, where the stagecoach rolls in
-   (3); the camera pulls up at the town sign while the coach rolls on into town and out of the frame (the user's,
-   2026-10-29: it used to stop at the sign), the camera closes in on the sign and the WELCOME plank falls away to
+   (3); the camera pulls up at the town sign while the coach rolls on into town (the user's, 2026-10-29: it used
+   to stop at the sign), and closes in on the sign as the coach passes it, so the coach drives out of the frame
+   during the zoom (the user's, later 2026-10-29); the WELCOME plank falls away to
    show DANGER! DO NOT ENTER, then the coach's dust wipes the screen (4); the act card (5); then the card pick (6).
    Paced at 60% of the first cut (the user's, 2026-10-27: too fast to read the sign). The sign is planted in the
    ground, so it moves at the trail's speed; the camera brakes the ground to a stop, and the coach, still at the
@@ -244,7 +245,28 @@ html.art .mapbox.dust.hasplate .stage { display: none; }
 .mapbox.train .rl.can .rail { stroke: #ffd65a; stroke-width: 1.7; animation: railglow 1.1s ease-in-out infinite; }
 @keyframes railglow { 50% { stroke: #fff6d2; } }
 .mapbox.train .amb.puff { animation-duration: .7s; }
-@media (prefers-reduced-motion: reduce) { .mapbox.train .rl.can .rail { animation: none; } }
+/* Under way (2026-10-29): the ground streams down past the carriages in three strips (desert, red rock, canyon;
+   each a tile that repeats, its .roll one tile taller than the strip and slid down by a tile, over and over), the
+   rails' ties stream with it (each tie path timed so its ties fall as fast as the ground: trainBox), and the
+   carriages rock on their wheels and drift a little ahead and behind, as trains on side-by-side tracks would.
+   --ap is one art pixel. The strips fade into each other where they overlap. */
+.mapbox.train { container-type: inline-size; --ap: calc(100cqw / 180); }
+.mapbox.train .band { position: absolute; left: 0; width: 100%; overflow: hidden; display: none; pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade), #000 calc(100% - var(--fade)), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade), #000 calc(100% - var(--fade)), transparent 100%); }
+html.art .mapbox.train .band { display: block; }
+.mapbox.train .band .roll { position: absolute; left: 0; top: 0; width: 100%; background-repeat: repeat-y; image-rendering: pixelated;
+  animation: groundroll var(--period) linear infinite; }
+@keyframes groundroll { from { transform: translateY(calc(-1 * var(--tile))); } to { transform: translateY(0); } }
+.mapbox.train .rl .tie { animation: ties 1s linear infinite; }
+@keyframes ties { to { stroke-dashoffset: 3.8; } }
+.mapbox.train .spr.car { animation: rock var(--rock, .7s) steps(1) var(--late, 0s) infinite, drift var(--drift, 11s) ease-in-out var(--late, 0s) infinite alternate; }
+@keyframes rock { 50% { transform: translateY(calc(var(--ap) * -1)); } }
+@keyframes drift { from { translate: 0 calc(var(--ap) * -1.5); } to { translate: 0 calc(var(--ap) * 1.5); } }
+/* for show only: now and then a carriage up the line slides across to the empty track beside it and back
+   (trainShuffle); its marker goes with it, the rails and the stop never change */
+.mapbox.train .spr.car, .mapbox.train .nd { transition: margin-left 1.4s ease-in-out; }
+@media (prefers-reduced-motion: reduce) { .mapbox.train .rl.can .rail, .mapbox.train .band .roll, .mapbox.train .rl .tie, .mapbox.train .spr.car { animation: none; } }
 /* the ambient loops: two frames side by side in one picture, flipped; a tumbleweed also rolls across its street */
 .mapbox.dust .amb { background-size: 200% 100%; background-repeat: no-repeat; animation: flip2 .5s steps(1) infinite; }
 @keyframes flip2 { 0%, 49.9% { background-position: 0 0; } 50%, 100% { background-position: 100% 0; } }
@@ -597,15 +619,15 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=5"></script>
-<script src="btp-ai.js?v=5"></script>
-<script src="btp-run.js?v=5"></script>
-<script src="btp-town.js?v=5"></script>
-<script src="art/dustwater/sprites.js?v=5"></script>
-<script src="btp-train.js?v=5"></script>
-<script src="art/train/sprites.js?v=5"></script>
-<script src="art/title/scene.js?v=5"></script>
-<script src="art/table/scene.js?v=5"></script>
+<script src="btp-engine.js?v=6"></script>
+<script src="btp-ai.js?v=6"></script>
+<script src="btp-run.js?v=6"></script>
+<script src="btp-town.js?v=6"></script>
+<script src="art/dustwater/sprites.js?v=6"></script>
+<script src="btp-train.js?v=6"></script>
+<script src="art/train/sprites.js?v=6"></script>
+<script src="art/title/scene.js?v=6"></script>
+<script src="art/table/scene.js?v=6"></script>
 <script>
 (function () {
   'use strict';
@@ -629,7 +651,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 11, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 12, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -842,7 +864,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       case 'event': {
         const ev = R.EVENTS[L.event];
         body = '<div class="panel"><h2>Gossip: ' + esc(ev.name) + '</h2><p>' + esc(ev.text) + '</p>' +
-          ev.options.map((o, i) => '<button class="choice" data-option="' + i + '"' + ((o.fx.release && L.owned.length < 2) || (o.fx.gold < 0 && L.gold < -o.fx.gold) || (o.fx.health < 0 && L.health + o.fx.health <= 0) ? ' disabled' : '') + '><b>' + esc(o.text) + '</b></button>').join('') + '</div>' +
+          ev.options.map((o, i) => '<button class="choice" data-option="' + i + '"' + ((o.fx.release && L.owned.length < 2) || (o.fx.gold < 0 && L.gold < -o.fx.gold) || (o.fx.health < 0 && L.health + o.fx.health <= 0) || (o.fx.shunt && !R.shuntable(L).length) ? ' disabled' : '') + '><b>' + esc(o.text) + '</b></button>').join('') + '</div>' +
           '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
         break;
       }
@@ -871,6 +893,14 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
           '<button class="choice" data-bank="cashin"' + (R.canCash(L) ? '' : ' disabled') + '><b>Cash in</b><span>Turn ' + R.CASH.health + ' health into ' + R.CASH.gold + ' gold' + (L.cashed ? ' (done)' : R.canCash(L) ? '' : ' (you need more than ' + R.CASH.health + ' health)') + '.</span></button>' +
           '<div class="btns"><button class="btn" data-act="leavebank">' + esc(HU.out) + '</button></div></div>') +
           '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
+        break;
+      }
+      case 'shunt': {
+        const pk = L.shunt && L.shunt.pick ? R.node(L, L.shunt.pick) : null;
+        body = noteHTML + '<div class="panel"><h2>The switchman\u2019s lever</h2><p>' + (pk ? 'Now tap the carriage to swap it with, on the same stretch of line. Tap the first one again to choose another.' :
+          'Tap a carriage on a stretch of line ahead. What happens there (the gang, its poster, a clue) moves with it; the rails stay where they are.') + '</p>' +
+          (window.BtpTrain && L.act === 2 ? trainBox(L, [], L.route || [], walkedOf(L), R.floorOf(L)) : plainBox(L, [], L.route || [], walkedOf(L), R.floorOf(L))) +
+          '<div class="btns"><button class="btn alt" data-act="noshunt">Leave the lever alone</button></div></div>';
         break;
       }
       case 'water': {
@@ -1018,12 +1048,13 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   }
   /* A stop's button on any map: its kind's icon, its name for screen readers, glowing when you can go there. */
   function stopButton(L, n, x, y, W, H, can, route, fNow, placeName) {
-    const isCan = can.includes(n.id), done = route.includes(n.id), dead = !isCan && !done && n.f <= fNow;
+    const shunting = L.phase === 'shunt', picked = shunting && L.shunt && L.shunt.pick === n.id;
+    const isCan = shunting ? picked || R.shuntable(L).includes(n.id) : can.includes(n.id), done = route.includes(n.id), dead = !isCan && !done && n.f <= fNow;
     const kindName = n.kind === 'boss' ? 'Showdown: ' + R.BOSS[L.map.boss].name : R.kindName(L.act, n.kind);
     const place = placeName || (L.act === 1 && R.PLACE[L.act][n.kind]);
     const name = place && n.kind !== 'boss' ? place + ' (' + kindName + ')' : kindName;
-    return '<button class="nd ' + n.kind + ' k-' + n.kind + (isCan ? ' can' : '') + (done ? ' done' : '') + (dead ? ' dead' : '') + (n.id === L.pos ? ' here' : '') + '"' +
-      ' style="left:' + (100 * x / W).toFixed(2) + '%;top:' + (100 * y / H).toFixed(2) + '%"' + (isCan ? ' data-go="' + n.id + '"' : ' disabled') +
+    return '<button class="nd ' + n.kind + ' k-' + n.kind + (isCan ? ' can' : '') + (done ? ' done' : '') + (dead ? ' dead' : '') + ((shunting ? picked : n.id === L.pos) ? ' here' : '') + '" data-n="' + n.id + '"' +
+      ' style="left:' + (100 * x / W).toFixed(2) + '%;top:' + (100 * y / H).toFixed(2) + '%"' + (isCan ? (shunting ? ' data-shunt="' : ' data-go="') + n.id + '"' : ' disabled') +
       ' aria-label="' + esc(name) + '" title="' + esc(name) + '">' + (n.kind === 'boss' && L.act === 1 ? '<span class="sign">SALOON</span>' : n.kind === 'bank' && L.act === 1 ? '<span class="sign">BANK</span>' : '') + icon(n.kind) +
       (n.clue && !done && !(L.trail || []).some(c => c.where === n.id) ? '<i class="boot got mk"></i>' : '') +
       (n.foe && n.foe.traits.length > (n.kind === 'elite' ? 1 : 0) && !done ? '<i class="pips">' + '<i></i>'.repeat(n.foe.traits.length - (n.kind === 'elite' ? 1 : 0)) + '</i>' : '') + '</button>';
@@ -1063,29 +1094,83 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   function trainBox(L, can, route, walked, fNow) {
     const T = window.BtpTrain, lay = T.layout(L.map), TS = window.TRAIN_SPRITES || { s: {} }, g = T.GAUGE / 2;
     const pct = (v, of) => (100 * v / of).toFixed(2) + '%';
-    const seg = (a, b) => { const p = T.px(a[0], a[1]), q = T.px(b[0], b[1]); return 'M' + p[0].toFixed(1) + ' ' + p[1].toFixed(1) + 'L' + q[0].toFixed(1) + ' ' + q[1].toFixed(1); };
+    // the ground falls GROUND art px a second (a tile every TRAIN_PERIOD s); a tie path's own speed along its slant
+    // makes its ties fall just as fast
+    const tile = TS.bands ? Object.values(TS.bands)[0][1] : 100, GROUND = tile / TRAIN_PERIOD;
+    // a rail is a curve that leaves one carriage along its line and meets the next along its own (btp-train.js
+    // railCurve); its length on the plate, by a few samples, times its ties so they fall as fast as the ground
+    const curve = (r, off) => { const c = T.railCurve(r, off).map(w => T.px(w[0], w[1]).map(v => v.toFixed(1)));
+      return 'M' + c[0].join(' ') + 'C' + c[1].join(' ') + ' ' + c[2].join(' ') + ' ' + c[3].join(' '); };
+    const plateLen = r => { const c = T.railCurve(r, 0).map(w => T.px(w[0], w[1])); let n = 0, last = c[0];
+      for (let i = 1; i <= 8; i++) { const t = i / 8, u = 1 - t, q = [0, 1].map(k => u * u * u * c[0][k] + 3 * u * u * t * c[1][k] + 3 * u * t * t * c[2][k] + t * t * t * c[3][k]); n += Math.hypot(q[0] - last[0], q[1] - last[1]); last = q; }
+      return [n || 1, Math.abs(c[3][1] - c[0][1]) || 1]; };
     const rail = (r, cls) => {
-      const dx = r.b[0] - r.a[0], dy = r.b[1] - r.a[1], len = Math.hypot(dx, dy) || 1, nx = -dy / len * g, ny = dx / len * g;
-      return '<g class="rl' + cls + '"><path class="tie" d="' + seg(r.a, r.b) + '"/><path class="rail" d="' + seg([r.a[0] + nx, r.a[1] + ny], [r.b[0] + nx, r.b[1] + ny]) + seg([r.a[0] - nx, r.a[1] - ny], [r.b[0] - nx, r.b[1] - ny]) + '"/></g>';
+      const [sl, sv] = plateLen(r);
+      return '<g class="rl' + cls + '"><path class="tie" style="animation-duration:' + (3.8 * sv / sl / GROUND).toFixed(3) + 's" d="' + curve(r, 0) + '"/><path class="rail" d="' + curve(r, g) + curve(r, -g) + '"/></g>';
     };
     const rails = lay.rails.map(r => rail(r, r.under ? (route.includes(r.from) ? ' walked' : '') :
       r.from === null ? (route[0] === r.to ? ' walked' : !L.pos && can.includes(r.to) ? ' can' : '') :
       walked.has(r.from + '>' + r.to) ? ' walked' : r.from === L.pos && can.includes(r.to) ? ' can' : '')).join('');
-    const spr = (key, w) => {
+    const spr = (key, w, id, rock) => {
       const d = TS.s[key];
       if (!d) return '';
-      const [x, y] = T.px(w[0], w[1]);
-      return '<img class="spr" alt="" src="' + artURL('train/' + key + '.webp') + '" style="left:' + pct(x - d[2], T.W) + ';top:' + pct(y - d[3], T.H) + ';width:' + pct(d[0], T.W) + ';z-index:' + (2 + Math.round(y)) + '">';
+      const [x, y] = T.px(w[0], w[1]), h = id ? window.BtpTown.hash(id, 9) : 0.5;
+      return '<img class="spr' + (rock ? ' car' : '') + '" alt="" src="' + artURL('train/' + key + '.webp') + '"' + (id ? ' data-n="' + id + '" data-at="' + w.join(',') + '"' : '') + ' style="left:' + pct(x - d[2], T.W) + ';top:' + pct(y - d[3], T.H) + ';width:' + pct(d[0], T.W) + ';z-index:' + (2 + Math.round(y)) +
+        (rock ? ';--rock:' + (0.55 + 0.3 * h).toFixed(2) + 's;--drift:' + (8 + 6 * h).toFixed(1) + 's;--late:-' + (9 * h).toFixed(1) + 's' : '') + '">';
     };
-    const sprites = lay.stops.map(s => spr(s.sprite.key, s.sprite.at)).join('') + ambientHTML(T, TS, 'train');
+    const bands = (TS.bands ? T.BANDS : []).map(([name, y0, y1]) => {
+      const sz = TS.bands[name];
+      if (!sz) return '';
+      const first = name === T.BANDS[0][0], last = name === T.BANDS[T.BANDS.length - 1][0];
+      const top = T.px(0, y1 + (last ? 0 : 4))[1], bot = T.px(0, y0 - (first ? 0 : 4))[1], h = bot - top, t = 100 * sz[1] / (h + sz[1]);
+      return '<div class="band" style="top:' + pct(top, T.H) + ';height:' + pct(h, T.H) + ';--fade:' + (100 * 4 * 0.5 / T.M / h).toFixed(2) + '%">' +
+        '<div class="roll" style="height:' + (100 * (h + sz[1]) / h).toFixed(3) + '%;background-image:url(' + artURL('train/band_' + name + '.webp') + ');background-size:100% ' + t.toFixed(3) + '%;--tile:' + t.toFixed(3) + '%;--period:' + TRAIN_PERIOD + 's"></div></div>';
+    }).join('');
+    const sprites = lay.stops.map(s => spr(s.sprite.key, s.sprite.at, s.kind === 'water' ? null : s.id, s.kind !== 'water')).join('') +
+      spr('ridge_d', [0, T.BOSS_Y + 33]) + spr('loco_d', [0, T.BOSS_Y], 'boss', true) + ambientHTML(T, TS, 'train');
     const buttons = lay.stops.map(s => stopButton(L, R.node(L, s.id), s.marker[0], s.marker[1], T.W, T.H, can, route, fNow, s.place)).join('') +
       stopButton(L, R.node(L, 'boss'), lay.boss.marker[0], lay.boss.marker[1], T.W, T.H, can, route, fNow);
     const depot = T.px(0, T.DEPOT_Y);
     return '<div class="mapbox dust train' + (TS.plate ? ' hasplate' : '') + '" style="aspect-ratio:' + T.W + ' / ' + T.H + '">' +
-      (TS.plate ? '<img class="plate" alt="" src="' + artURL('train/plate.webp') + '">' : '') +
+      (TS.plate ? '<img class="plate" alt="" src="' + artURL('train/plate.webp') + '">' : '') + bands +
       '<svg viewBox="0 0 ' + T.W + ' ' + T.H + '" preserveAspectRatio="none" aria-hidden="true">' + rails + '</svg>' + sprites + buttons +
       '<div class="stage" style="left:' + pct(depot[0], T.W) + ';top:' + pct(depot[1] + 8, T.H) + '">The depot</div></div>';
   }
+  const TRAIN_PERIOD = 6;          // seconds for the ground to fall one tile (btp-train.js PERIOD metres)
+  /* For show (2026-10-29, the user's pick): every few seconds a carriage up the line (two stretches or more ahead
+     of you, so never one you can ride to now) slides across to the empty track beside it, waits, and slides back,
+     its marker with it. The stops, the rails and your choices never change. Math.random: it is only a picture. */
+  function trainShuffle() {
+    const box = document.querySelector('.mapbox.train'), L = P.L;
+    if (!box || !L || L.phase !== 'map' || document.hidden) return;
+    const T = window.BtpTrain, fNow = R.floorOf(L), cand = [];
+    L.map.floors.forEach(row => {
+      if (!row.length || row[0].f < fNow + 2 || row.some(n => n.kind === 'water')) return;
+      const used = new Set(row.map(n => n.c));
+      row.forEach(n => [-1, 1].forEach(d => { if (n.c + d >= 0 && n.c + d <= 4 && !used.has(n.c + d)) cand.push([n.id, d]); }));
+    });
+    if (!cand.length) return;
+    const [id, d] = cand[Math.floor(Math.random() * cand.length)];
+    const els = [...box.querySelectorAll('[data-n="' + id + '"]')], img = els.find(e => e.tagName === 'IMG');
+    // it leans into the move across (LEAN x 2 toward where it is going), then straightens on the new track
+    const TS = window.TRAIN_SPRITES, own = img && img.getAttribute('src');
+    const lean = yaw => {
+      if (!img) return;
+      const m = own.match(/train\/(.+?)(?:_[lr]\d+)?_([mnd])\.webp/), key = m && T.yawKey(m[1], yaw) + '_' + m[2], dd = key && TS.s[key];
+      if (!dd) return;
+      const [x, y] = T.px(...img.dataset.at.split(',').map(Number));
+      img.src = artURL('train/' + key + '.webp');
+      Object.assign(img.style, { left: (100 * (x - dd[2]) / T.W).toFixed(2) + '%', top: (100 * (y - dd[3]) / T.H).toFixed(2) + '%', width: (100 * dd[0] / T.W).toFixed(2) + '%' });
+    };
+    const home = { src: own, left: img && img.style.left, top: img && img.style.top, width: img && img.style.width };
+    const straighten = () => { if (img) { img.src = home.src; Object.assign(img.style, { left: home.left, top: home.top, width: home.width }); } };
+    lean(2 * T.LEAN * d);
+    els.forEach(e => { e.style.marginLeft = (d * 100 * T.TRACK / T.M / T.W).toFixed(2) + '%'; });
+    setTimeout(straighten, 1400);
+    setTimeout(() => { lean(-2 * T.LEAN * d); els.forEach(e => { e.style.marginLeft = ''; }); }, 4400);
+    setTimeout(straighten, 5800);
+  }
+  try { if (!FAST && !matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(trainShuffle, 9000); } catch (e) { /* no matchMedia: no shuffling */ }
   /* Ambient life on the plate (bakery/dustwater_px.py AMB, train_px.py AMB): two-frame loops off every path, and
      tumbleweeds that roll the width of a cross street. */
   function ambientHTML(T, DS, dir) {
@@ -1115,9 +1200,13 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const nodes = all.concat([R.node(L, 'boss')]).map(n => { const [x, y] = xy(n); return stopButton(L, n, x, y, W, H, can, route, fNow); }).join('');
     return '<div class="mapbox" style="aspect-ratio:' + W + ' / ' + H + '"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + edges + '</svg>' + nodes + '</div>';
   }
-  function mapHTML(L) {
-    const town = L.act === 1, train = L.act === 2 && !!window.BtpTrain, can = R.reachable(L), route = L.route || [], walked = new Set(), fNow = R.floorOf(L);
+  function walkedOf(L) {
+    const route = L.route || [], walked = new Set();
     for (let i = 1; i < route.length; i++) walked.add(route[i - 1] + '>' + route[i]);
+    return walked;
+  }
+  function mapHTML(L) {
+    const town = L.act === 1, train = L.act === 2 && !!window.BtpTrain, can = R.reachable(L), route = L.route || [], walked = walkedOf(L), fNow = R.floorOf(L);
     const kinds = [...new Set(can.map(id => R.node(L, id).kind))];
     const wanted = can.map(id => R.node(L, id)).filter(n => n.foe), others = kinds.filter(k => !wanted.some(n => n.kind === k));
     return '<div class="panel"><h2>Act ' + R.ROMAN[L.act] + ': ' + esc(E.ACTS[L.act].name) + '</h2>' + wantedHTML(L) +
@@ -1651,8 +1740,8 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     if (P.held && Date.now() - P.held < 1500) { P.held = 0; ev.preventDefault(); return; }
     // a card that can't be played or picked (your cards panel, a hand while it isn't your turn): a tap explains it
     const plain = ev.target.closest('.card[data-c]');
-    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-water],[data-buy],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip]')) { showCardInfo(plain.dataset.c); return; }
-    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-water],[data-buy],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip]');
+    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-water],[data-shunt],[data-buy],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip]')) { showCardInfo(plain.dataset.c); return; }
+    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-water],[data-shunt],[data-buy],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip]');
     if (!t || t.disabled) return;
     if (t.closest('#sheet') && Date.now() < P.guardUntil) return;
     const L = P.L, d = t.dataset;
@@ -1668,6 +1757,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     if (d.camp) { move('camp', d.camp); return; }
     if (d.bank) { move('bank', d.bank); return; }
     if (d.water) { move('water', d.water); return; }
+    if (d.shunt) { move('shunt', d.shunt); return; }
     if (d.buy) { move('buy', d.buy === 'release' ? 'release' : +d.buy); return; }
     if (d.polish) { move('polish', d.polish); return; }
     if (d.forge) { move('forge', d.forge); return; }
@@ -1697,6 +1787,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       case 'reroll': move('reroll'); break;
       case 'leave': move('leave'); break;
       case 'leavebank': move('bank', 'leave'); break;
+      case 'noshunt': move('shunt', null); break;
       case 'newrun': clearSaved(); title(); break;
     }
   });
@@ -1828,15 +1919,19 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     OPEN.done = done;
     try { window.scrollTo(0, 0); } catch (e) { /* no layout */ }
     if (reduceMotion()) { document.body.classList.add('opening'); actCard(L, L.tips); at(1600, endOpening); return; }
-    // 2: the whistle (the smoke comes thick and fast), the words drop away, the train picks up speed
+    // 2: the whistle (the smoke comes thick and fast), the words drop away, the train picks up speed: smoothly, to
+    // RUSH, and it holds that speed from here to the sign, the trail below included (the user's, 2026-10-29: the speed
+    // used to snap back as the camera tilted down)
     document.body.classList.add('opening');
-    heroAnims(2.2);
+    const t0 = performance.now();
+    const rush = now => { const t = Math.min(1, (now - t0) / RAMP); heroAnims(1 + (RUSH - 1) * t * t * (3 - 2 * t)); if (t < 1 && OPEN.done) OPEN.raf = requestAnimationFrame(rush); };
+    OPEN.raf = requestAnimationFrame(rush);
     // 3: the hero fills the screen and tilts down to the trail; the stagecoach rolls in
     at(1600, () => {
       const hero = $('hero'), rig = hero.querySelector('.rig');
       hero.style.height = innerHeight + 'px';
       document.body.classList.add('tilt');
-      heroAnims(1);
+      heroAnims(RUSH);
       const trail = HERO.top + (S.H + TRAIL_Y + 18) * HERO.s;
       void rig.offsetHeight;                    // let the full-screen height land before the tilt starts
       rig.style.transform = 'translateY(' + Math.round(innerHeight * 0.58 - trail) + 'px)';
@@ -1844,8 +1939,8 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     // 4: the town sign comes along the trail and the camera pulls up at it while the coach rolls on out of the
     // frame; the camera closes in, the WELCOME plank falls away (DANGER! DO NOT ENTER), and the dust wipes the screen
     at(1600, () => signRun(performance.now() + 5000));
-    const Z = 6600 + EXIT + 300;                 // the coach is gone: close in on the sign
-    at(Z, signZoom);
+    const Z = 6600 + 100;                        // the camera has stopped as the coach passes the sign: close in on it,
+    at(Z, signZoom);                             // and the coach drives off the edge while it does (the user's, 2026-10-29)
     at(Z + 1100, () => document.body.classList.add('signdrop'));
     at(Z + 3500, () => dust(true));
     // 5: the act card comes up under the dust, and the dust clears off it
@@ -1857,11 +1952,11 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
      coach keeps the trail's speed (its wheels and trot too), so it pulls ahead across the screen, and once the
      camera stands still it whips up and is off the right edge EXIT ms later. Until it is due the sign waits off
      the right edge. */
-  const BRAKE = 1200, EXIT = 2000;
+  const BRAKE = 1200, EXIT = 2000, RUSH = 1.8, RAMP = 1200;
   function signRun(stopAt) {
     const hero = $('hero'), sign = hero.querySelector('.townsign'), coach = hero.querySelector('.stagecoach');
     if (!sign) return;
-    const v = STAGE_SPEED * HERO.s / 1000, W = innerWidth, sw = sign.offsetWidth || 0;
+    const v = STAGE_SPEED * RUSH * HERO.s / 1000, W = innerWidth, sw = sign.offsetWidth || 0;
     const stopLeft = OPEN.signStop = Math.round(W * 0.62 - sw / 2);
     // the coach's lead on the camera when it stops is half a braking distance; from there it must cover `far`
     const d0 = v * BRAKE / 2, far = W / 2 + (coach ? coach.offsetWidth / 2 : 0) + 8 - d0;
@@ -1875,7 +1970,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       const left = tau <= 0 ? 0 : tau < BRAKE ? v * tau * tau / (2 * BRAKE) : v * BRAKE / 2 + v * (tau - BRAKE);
       sign.style.left = Math.min(W + 10, stopLeft + left) + 'px';
       const r = tau <= 0 ? 0 : Math.min(1, tau / BRAKE);
-      if (r !== rate) heroAnims(rate = r, true);
+      if (r !== rate) heroAnims(RUSH * (rate = r), true);
       // the coach's lead on the camera: what it drove since braking began less what the camera did
       const t = -tau;
       const lead = tau >= BRAKE ? 0 : tau > 0 ? v * (BRAKE - tau) - (d0 - left) : d0 + v * t + acc * t * t / 2;
@@ -1889,12 +1984,10 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   function signZoom() {
     const hero = $('hero'), sign = hero.querySelector('.townsign');
     if (!sign) return;
-    // the camera has stopped and the coach is gone by now; make sure of it even where animation frames were held back
-    cancelAnimationFrame(OPEN.raf);
+    // the camera has stopped by now (make sure of it even where animation frames were held back); the coach is still
+    // driving off, so its wheels keep turning and signRun keeps moving it through the zoom
     if (OPEN.signStop != null) sign.style.left = OPEN.signStop + 'px';
-    const coach = hero.querySelector('.stagecoach');
-    if (coach && OPEN.coachOff) coach.style.transform = 'translateX(' + OPEN.coachOff + 'px)';
-    heroAnims(0);
+    heroAnims(0, true);
     const r = sign.getBoundingClientRect();
     if (!r.width) return;
     const k = Math.min(3, innerWidth * 0.9 / r.width, innerHeight * 0.55 / r.height);
