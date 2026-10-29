@@ -263,9 +263,10 @@ html.art .mapbox.train .band { display: block; }
 .mapbox.train .spr.car { animation: rock var(--rock, .7s) steps(1) var(--late, 0s) infinite, drift var(--drift, 11s) ease-in-out var(--late, 0s) infinite alternate; }
 @keyframes rock { 50% { transform: translateY(calc(var(--ap) * -1)); } }
 @keyframes drift { from { translate: 0 calc(var(--ap) * -1.5); } to { translate: 0 calc(var(--ap) * 1.5); } }
-/* for show only: now and then a carriage up the line slides across to the empty track beside it and back
-   (trainShuffle); its marker goes with it, the rails and the stop never change */
-.mapbox.train .spr.car, .mapbox.train .nd { transition: margin-left 1.4s ease-in-out; }
+/* for show only: now and then a crossover is laid ahead of a carriage up the line and streams down with the ground,
+   and the carriage runs over it onto the empty track beside it (trainShuffle, btp-train.js crossover). The S fades
+   in and out at the edges of its stretch (its mask); its ties ride on it, so they do not stream as well. */
+.mapbox.train .rl.xover .tie { animation: none; }
 @media (prefers-reduced-motion: reduce) { .mapbox.train .rl.can .rail, .mapbox.train .band .roll, .mapbox.train .rl .tie, .mapbox.train .spr.car { animation: none; } }
 /* the ambient loops: two frames side by side in one picture, flipped; a tumbleweed also rolls across its street */
 .mapbox.dust .amb { background-size: 200% 100%; background-repeat: no-repeat; animation: flip2 .5s steps(1) infinite; }
@@ -624,8 +625,8 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
 <script src="btp-run.js?v=6"></script>
 <script src="btp-town.js?v=6"></script>
 <script src="art/dustwater/sprites.js?v=6"></script>
-<script src="btp-train.js?v=6"></script>
-<script src="art/train/sprites.js?v=6"></script>
+<script src="btp-train.js?v=7"></script>
+<script src="art/train/sprites.js?v=7"></script>
 <script src="art/title/scene.js?v=6"></script>
 <script src="art/table/scene.js?v=6"></script>
 <script>
@@ -1092,25 +1093,24 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
      each first track from the depot, under every carriage, and every way on from it. The plate and the carriages
      are art and never load-bearing: the rails and markers are the map. */
   function trainBox(L, can, route, walked, fNow) {
-    const T = window.BtpTrain, lay = T.layout(L.map), TS = window.TRAIN_SPRITES || { s: {} }, g = T.GAUGE / 2;
+    const T = window.BtpTrain, lay = T.layout(L.map, trainCols(L)), TS = window.TRAIN_SPRITES || { s: {} }, g = T.GAUGE / 2;
     const pct = (v, of) => (100 * v / of).toFixed(2) + '%';
     // the ground falls GROUND art px a second (a tile every TRAIN_PERIOD s); a tie path's own speed along its slant
     // makes its ties fall just as fast
     const tile = TS.bands ? Object.values(TS.bands)[0][1] : 100, GROUND = tile / TRAIN_PERIOD;
-    // a rail is a curve that leaves one carriage along its line and meets the next along its own (btp-train.js
-    // railCurve); its length on the plate, by a few samples, times its ties so they fall as fast as the ground
-    const curve = (r, off) => { const c = T.railCurve(r, off).map(w => T.px(w[0], w[1]).map(v => v.toFixed(1)));
-      return 'M' + c[0].join(' ') + 'C' + c[1].join(' ') + ' ' + c[2].join(' ') + ' ' + c[3].join(' '); };
+    // a rail is a curve that leaves one carriage along its line and meets the next along its own (railPath); its
+    // length on the plate, by a few samples, times its ties so they fall as fast as the ground
+    const curve = (r, off) => railPath(T, r, off);
     const plateLen = r => { const c = T.railCurve(r, 0).map(w => T.px(w[0], w[1])); let n = 0, last = c[0];
       for (let i = 1; i <= 8; i++) { const t = i / 8, u = 1 - t, q = [0, 1].map(k => u * u * u * c[0][k] + 3 * u * u * t * c[1][k] + 3 * u * t * t * c[2][k] + t * t * t * c[3][k]); n += Math.hypot(q[0] - last[0], q[1] - last[1]); last = q; }
       return [n || 1, Math.abs(c[3][1] - c[0][1]) || 1]; };
-    const rail = (r, cls) => {
+    const rail = (r, cls, i) => {
       const [sl, sv] = plateLen(r);
-      return '<g class="rl' + cls + '"><path class="tie" style="animation-duration:' + (3.8 * sv / sl / GROUND).toFixed(3) + 's" d="' + curve(r, 0) + '"/><path class="rail" d="' + curve(r, g) + curve(r, -g) + '"/></g>';
+      return '<g class="rl' + cls + '" data-r="' + i + '"><path class="tie" style="animation-duration:' + (3.8 * sv / sl / GROUND).toFixed(3) + 's" d="' + curve(r, 0) + '"/><path class="rail" d="' + curve(r, g) + curve(r, -g) + '"/></g>';
     };
-    const rails = lay.rails.map(r => rail(r, r.under ? (route.includes(r.from) ? ' walked' : '') :
+    const rails = lay.rails.map((r, i) => rail(r, r.under ? (route.includes(r.from) ? ' walked' : '') :
       r.from === null ? (route[0] === r.to ? ' walked' : !L.pos && can.includes(r.to) ? ' can' : '') :
-      walked.has(r.from + '>' + r.to) ? ' walked' : r.from === L.pos && can.includes(r.to) ? ' can' : '')).join('');
+      walked.has(r.from + '>' + r.to) ? ' walked' : r.from === L.pos && can.includes(r.to) ? ' can' : '', i)).join('');
     const spr = (key, w, id, rock) => {
       const d = TS.s[key];
       if (!d) return '';
@@ -1137,40 +1137,102 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       '<div class="stage" style="left:' + pct(depot[0], T.W) + ';top:' + pct(depot[1] + 8, T.H) + '">The depot</div></div>';
   }
   const TRAIN_PERIOD = 6;          // seconds for the ground to fall one tile (btp-train.js PERIOD metres)
-  /* For show (2026-10-29, the user's pick): every few seconds a carriage up the line (two stretches or more ahead
-     of you, so never one you can ride to now) slides across to the empty track beside it, waits, and slides back,
-     its marker with it. The stops, the rails and your choices never change. Math.random: it is only a picture. */
+  /* A rail's path on the plate: the cubic of btp-train.js railCurve, `off` metres to its left (a rail of the pair). */
+  function railPath(T, r, off) {
+    const c = T.railCurve(r, off).map(w => T.px(w[0], w[1]).map(v => v.toFixed(1)));
+    return 'M' + c[0].join(' ') + 'C' + c[1].join(' ') + ' ' + c[2].join(' ') + ' ' + c[3].join(' ');
+  }
+  /* The tracks the carriages have crossed over to, this map ({ id: column }, btp-train.js layout(map, cols)): for
+     show, so kept on the page, not in the run; a new map (the next act, a take-back) starts from its own tracks. */
+  function trainCols(L) {
+    if (!P.trackCols || P.trackCols.map !== L.map) P.trackCols = { map: L.map, cols: {} };
+    return P.trackCols.cols;
+  }
+  /* For show (2026-10-29, the user's: "the train tracks change and then the carriages follow along on them, but
+     curve when the tracks change and are straight when the tracks are straight"): every so often a crossover is laid
+     ahead of a carriage up the line (two stretches or more ahead of you, so never one you can ride to now) to the
+     empty track beside it. It streams down with the ground, and the carriage runs over it: it swings across on the
+     S, and its marker and the rails to and from it follow it; then it stands straight on its new track, and the line
+     keeps that shape. Only crossovers that touch no other carriage, change no other carriage's lean and put no
+     carriage beside its twin. The stops' graph, the rails' ways and your choices never change. Math.random: it is
+     only a picture. */
+  let trainXing = null;
   function trainShuffle() {
     const box = document.querySelector('.mapbox.train'), L = P.L;
-    if (!box || !L || L.phase !== 'map' || document.hidden) return;
-    const T = window.BtpTrain, fNow = R.floorOf(L), cand = [];
-    L.map.floors.forEach(row => {
-      if (!row.length || row[0].f < fNow + 2 || row.some(n => n.kind === 'water')) return;
-      const used = new Set(row.map(n => n.c));
-      row.forEach(n => [-1, 1].forEach(d => { if (n.c + d >= 0 && n.c + d <= 4 && !used.has(n.c + d)) cand.push([n.id, d]); }));
-    });
+    if (trainXing || !box || !L || L.phase !== 'map' || document.hidden) return;
+    const T = window.BtpTrain, TS = window.TRAIN_SPRITES || { s: {} }, fNow = R.floorOf(L), cols = trainCols(L), A = T.layout(L.map, cols), cand = [];
+    for (const row of L.map.floors) {
+      if (!row.length || row[0].f < fNow + 2 || row.some(n => n.kind === 'water')) continue;
+      const here = A.stops.filter(o => o.f === row[0].f), used = new Set(here.map(o => o.c));
+      for (const st of here) for (const d of [-1, 1]) {
+        const c = st.c + d;
+        if (c < 0 || c > 4 || used.has(c)) continue;
+        const B = T.layout(L.map, Object.assign({}, cols, { [st.id]: c }));
+        if (B.stops.some((o, i) => o.id !== st.id && (o.yaw !== A.stops[i].yaw || o.at[0] !== A.stops[i].at[0]))) continue;
+        if (T.CARS[st.kind].length > 1 && B.stops.some(o => o.f === st.f && o.id !== st.id && Math.abs(o.c - c) === 1 && o.name === st.name)) continue;
+        const X = T.crossover(A, B, st.id);
+        if (X.clear) cand.push([st.id, c, X]);
+      }
+    }
     if (!cand.length) return;
-    const [id, d] = cand[Math.floor(Math.random() * cand.length)];
-    const els = [...box.querySelectorAll('[data-n="' + id + '"]')], img = els.find(e => e.tagName === 'IMG');
-    // it leans into the move across (LEAN x 2 toward where it is going), then straightens on the new track
-    const TS = window.TRAIN_SPRITES, own = img && img.getAttribute('src');
-    const lean = yaw => {
-      if (!img) return;
-      const m = own.match(/train\/(.+?)(?:_[lr]\d+)?_([mnd])\.webp/), key = m && T.yawKey(m[1], yaw) + '_' + m[2], dd = key && TS.s[key];
-      if (!dd) return;
-      const [x, y] = T.px(...img.dataset.at.split(',').map(Number));
-      img.src = artURL('train/' + key + '.webp');
-      Object.assign(img.style, { left: (100 * (x - dd[2]) / T.W).toFixed(2) + '%', top: (100 * (y - dd[3]) / T.H).toFixed(2) + '%', width: (100 * dd[0] / T.W).toFixed(2) + '%' });
+    const [id, c, X] = cand[Math.floor(Math.random() * cand.length)];
+    const img = box.querySelector('img[data-n="' + id + '"]'), btn = box.querySelector('button[data-n="' + id + '"]'), svg = box.querySelector('svg');
+    if (!svg) return;
+    cols[id] = c;           // from now on the line is drawn this way (a re-render mid-crossing shows it there)
+    const NS = 'http://www.w3.org/2000/svg', g = T.GAUGE / 2, pct = (v, of) => (100 * v / of).toFixed(2) + '%';
+    // the rails to, under and from it (their paths are redrawn to meet it wherever it is)
+    const mine = A.rails.map((r, i) => [r, i]).filter(([r]) => r.from === id || r.to === id)
+      .map(([r, i]) => [r, svg.querySelector('.rl[data-r="' + i + '"]')]).filter(([, el]) => el);
+    // the S, under the rails, masked to fade in and out at the edges of its stretch
+    const [ya, yb] = X.show.map(v => T.px(0, v)[1]);
+    const defs = document.createElementNS(NS, 'defs');
+    defs.innerHTML = '<linearGradient id="xgrad" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="' + yb.toFixed(1) + '" y2="' + ya.toFixed(1) + '">' +
+      '<stop offset="0" stop-color="#000"/><stop offset=".22" stop-color="#fff"/><stop offset=".78" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>' +
+      '<mask id="xmask" maskUnits="userSpaceOnUse" x="0" y="0" width="' + T.W + '" height="' + T.H + '"><rect width="' + T.W + '" height="' + T.H + '" fill="url(#xgrad)"/></mask>';
+    const xg = document.createElementNS(NS, 'g');
+    xg.setAttribute('class', 'rl xover');
+    xg.setAttribute('mask', 'url(#xmask)');
+    xg.innerHTML = '<path class="tie"/><path class="rail"/>';
+    svg.insertBefore(defs, svg.firstChild);
+    svg.insertBefore(xg, defs.nextSibling);
+    const line = pts => 'M' + pts.map(w => T.px(w[0], w[1]).map(v => v.toFixed(1)).join(' ')).join('L');
+    // a rail of the pair: the centre line shifted `off` metres to its left
+    const side = (pts, off) => pts.map((w, i) => { const q = pts[Math.min(i + 1, pts.length - 1)], o = pts[Math.max(i - 1, 0)], dx = q[0] - o[0], dy = q[1] - o[1], k = off / Math.hypot(dx, dy);
+      return [w[0] - dy * k, w[1] + dx * k]; });
+    // every angle it will lean at, fetched before it needs them
+    T.YAWS.forEach(yw => { const k = T.yawKey(X.a.name, yw) + '_' + T.grade(X.a.f); if (TS.s[k]) new Image().src = artURL('train/' + k + '.webp'); });
+    let shown = null;
+    const put = p => {
+      if (img && TS.s[p.key]) {
+        const d = TS.s[p.key], [x, y] = T.px(p.at[0], p.at[1]);
+        if (shown !== p.key) { img.src = artURL('train/' + p.key + '.webp'); img.style.width = pct(d[0], T.W); shown = p.key; }
+        img.style.left = pct(x - d[2], T.W);
+        img.style.top = pct(y - d[3], T.H);
+        img.dataset.at = p.at.join(',');
+      }
+      if (btn) { btn.style.left = pct(p.marker[0], T.W); btn.style.top = pct(p.marker[1], T.H); }
+      for (const [r0, el] of mine) {
+        const r = Object.assign({}, r0);
+        if (r.under) Object.assign(r, { a: p.rear, b: p.front, ta: p.dir, tb: p.dir });
+        else if (r.to === id) Object.assign(r, { b: p.rear, tb: p.dir });
+        else Object.assign(r, { a: p.front, ta: p.dir });
+        el.children[0].setAttribute('d', railPath(T, r, 0));
+        el.children[1].setAttribute('d', railPath(T, r, g) + railPath(T, r, -g));
+      }
     };
-    const home = { src: own, left: img && img.style.left, top: img && img.style.top, width: img && img.style.width };
-    const straighten = () => { if (img) { img.src = home.src; Object.assign(img.style, { left: home.left, top: home.top, width: home.width }); } };
-    lean(2 * T.LEAN * d);
-    els.forEach(e => { e.style.marginLeft = (d * 100 * T.TRACK / T.M / T.W).toFixed(2) + '%'; });
-    setTimeout(straighten, 1400);
-    setTimeout(() => { lean(-2 * T.LEAN * d); els.forEach(e => { e.style.marginLeft = ''; }); }, 4400);
-    setTimeout(straighten, 5800);
+    const speed = T.PERIOD / TRAIN_PERIOD, t0 = performance.now();     // metres a second: the ground's
+    const frame = now => {
+      if (!box.isConnected) { trainXing = null; return; }
+      const sl = Math.min(X.end, Math.max(0, now - t0) / 1000 * speed), pts = X.track(sl);
+      put(X.pose(sl));
+      xg.children[0].setAttribute('d', line(pts));
+      xg.children[1].setAttribute('d', line(side(pts, g)) + line(side(pts, -g)));
+      if (sl < X.end) { trainXing = requestAnimationFrame(frame); return; }
+      defs.remove(); xg.remove(); trainXing = null;
+    };
+    trainXing = requestAnimationFrame(frame);
   }
-  try { if (!FAST && !matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(trainShuffle, 9000); } catch (e) { /* no matchMedia: no shuffling */ }
+  try { if (!FAST && !matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(trainShuffle, 12000); } catch (e) { /* no matchMedia: no shuffling */ }
   /* Ambient life on the plate (bakery/dustwater_px.py AMB, train_px.py AMB): two-frame loops off every path, and
      tumbleweeds that roll the width of a cross street. */
   function ambientHTML(T, DS, dir) {
