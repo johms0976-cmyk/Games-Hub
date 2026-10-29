@@ -427,6 +427,14 @@
     if (h.phase !== 'bid' || h.turn !== seat) return no('not your turn to bid');
     if (!b && mustBid(L, seat)) return no('the Undertakers never bid: your team must bid this hand');
     if (b && tooLow(L, seat, b)) return no('against the Undertakers your team must bid at least ' + WALL.min);
+    // the raise window (below): a pass keeps your bid as it stands
+    if (!b && h.raise) {
+      h.raise = false;
+      h.bids.push({ seat, keep: true });
+      say(L, 'You keep ' + bidText(h.high) + '.');
+      win(L);
+      return { ok: true };
+    }
     if (b) {
       const ex = extraBids(L, seat).find(x => x.t === b.t && x.s === b.s);
       const v = b.s === 'MIS' ? ACTS[L.act].misere : b.s === 'OMIS' ? ACTS[L.act].openMisere : ex ? ex.v : ACTS[L.act].bids[b.t] && ACTS[L.act].bids[b.t][b.s];
@@ -434,7 +442,7 @@
       const r = b.s === "OMIS" ? 490 : v;
       if (h.high && r <= rankOfBid(h.high)) return no('a bid must beat ' + bidText(h.high));
       h.high = { seat, t: b.t, s: b.s, v, r };
-      h.bids.push({ seat, t: b.t, s: b.s, v, r });
+      h.bids.push(h.raise ? { seat, t: b.t, s: b.s, v, r, raise: true } : { seat, t: b.t, s: b.s, v, r });
       say(L, SEATS[seat] + (seat === 0 ? ' bid ' : ' bids ') + bidText(b) + ' (' + v + ').');
     } else {
       h.passed[seat] = true;
@@ -449,7 +457,19 @@
       deal(L);
       return { ok: true, redeal: true };
     }
-    if (h.high && passes === 3) { win(L); return { ok: true }; }
+    /* Outbidding yourself (the user's, 2026-10-30): when the other three pass on your bid you get one more turn
+       to raise it (more tricks, or a higher suit), or keep it. Passers stay out, so a raise ends the auction. */
+    if (h.high && passes === 3) {
+      if (h.high.seat === 0 && !h.raised) {
+        h.raised = h.raise = true;
+        h.turn = 0;
+        say(L, 'Everyone else passed on your ' + bidText(h.high) + ': raise your own bid, or keep it.');
+        return { ok: true, raise: true };
+      }
+      h.raise = false;
+      win(L);
+      return { ok: true };
+    }
     do h.turn = (h.turn + 1) % 4; while (h.passed[h.turn]);
     return { ok: true };
   }
@@ -635,13 +655,16 @@
   const FX = { backfire: 1, hollow: 15, plate: 15, ricochet: 10, bullseye: 40, deadman: 25, keg: 30, kegBurn: 15, vest: 5, bandolier: 5, snakebite: 5, gutshot: 10, scope: 0.25 };
   function fight(L, pts, lines, o) {
     const h = L.h, fx = h.fx || { hit: 0, block: 0, burn: 0 };
+    if (L.mode === 'standard') return { hit: pts[0], dmg: 0, backfire: 0 };     // a plain game of 500: scores only
     let hit = pts[0];
     if (o.defend && hasBuff(L, 'bandolier')) { hit += FX.bandolier * o.defend; lines.push('Bandolier: your defending tricks hit ' + FX.bandolier * o.defend + ' harder.'); }
     if (o.defend && foeHas(L, 'armour')) { const d = 10 * o.defend + (hasBuff(L, 'bandolier') ? FX.bandolier * o.defend : 0); hit -= d; lines.push('Thick Hide: your defending tricks don\u2019t hurt them (' + d + ').'); }
     if (o.ct === 0 && o.made && hasBuff(L, 'scope') && !h.misere) { const x = Math.round(o.value * FX.scope / 5) * 5; hit += x; lines.push('Rifle Scope: your contract hits ' + x + ' harder.'); }
+    // your cards' shots (Hollow Point and the rest) land on the trick that fires them, so a set can't take them
+    // back: the gang's bar drops as the trick is won (2026-10-30)
+    hit = Math.max(0, hit);
     if (fx.hit) { hit += fx.hit; lines.push('Your cards\u2019 shots this hand: +' + fx.hit + '.'); }
     if (hasBuff(L, 'holster') && L.handNo === 1 && L.foe && hit > 0) { lines.push('Quick Holster: the fight\u2019s first hand hits double (+' + hit + ').'); hit *= 2; }
-    hit = Math.max(0, hit);
     let dmg = damageOf(pts[1], L);
     if (dmg) lines.push('Their ' + pts[1] + ' points hit you: \u2212' + dmg + ' health (' + hitWord(L) + ').');
     let backfire = 0;

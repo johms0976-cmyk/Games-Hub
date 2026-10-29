@@ -55,6 +55,51 @@ html.art .titlemenu .wood.drawn > span { position: absolute; width: 1px; height:
 .titlemenu .go:active, .titlemenu .more:active { filter: brightness(1.15); }
 .titlemenu .more { padding: 8px 12px; }
 .titlemenu .wood:focus-visible { outline: 3px solid #fff6d2; outline-offset: 4px; border-radius: 6px; }
+/* Game over (the user's, 2026-10-30): a freshly covered grave on Boot Hill at dusk. The sky is painted here, the
+   buttes and the graveyard are art (art/grave, bakery/grave.py); the camera pushes in on the fresh grave, the buzzard
+   watches, a tumbleweed rolls by, then the epitaph comes up. Skip, or the epitaph's button, goes to the run's ending
+   behind it. Without the art: the sky, a plain mound and the words. */
+#grave { position: fixed; inset: 0; z-index: 70; overflow: hidden; background: linear-gradient(#2e1f4a 0%, #6a3a6a 32%, #c8604a 58%, #f0a050 74%, #f6c070 82%, #edab6a 82.1%); }
+#grave[hidden] { display: none; }
+#grave .gsun { position: absolute; left: 66%; top: 55%; width: 90px; height: 90px; margin: -45px; border-radius: 50%; background: radial-gradient(#fff3c8 0 40%, #ffd27a 41% 60%, rgba(255,190,100,0) 72%); }
+#grave .grig { position: absolute; left: 0; right: 0; bottom: 0; transform-origin: 50% 70%; transition: transform 7s cubic-bezier(.3, 0, .2, 1); }
+#grave.push .grig { transform: scale(var(--push, 1.8)); }
+#grave .gfar { position: absolute; left: 0; right: 0; image-rendering: pixelated; background-repeat: repeat-x; background-position: 50% 0; }
+#grave .gground { position: absolute; left: 0; right: 0; bottom: 0; background: #edab6a; }
+#grave .gplate { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); image-rendering: pixelated; }
+#grave .gplate img { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+#grave .gplain { position: absolute; left: 50%; bottom: 18%; width: 160px; height: 46px; margin-left: -80px; border-radius: 50% 50% 8px 8px; background: #6a4228; }
+html.art #grave .gplain { display: none; }
+#grave .rip { position: absolute; transform: translate(-50%, -50%); font: 800 calc(var(--gk) * 2.4px)/1 Georgia, serif; color: #2a1610; letter-spacing: .02em; opacity: 0; transition: opacity 1.2s 3s; white-space: nowrap; }
+#grave.push .rip { opacity: .85; }
+#grave .tumble { position: absolute; left: -60px; image-rendering: pixelated; background-size: 200% 100%; animation: tframes .5s steps(2) infinite, troll 6s 1.2s linear forwards; }
+@keyframes tframes { to { background-position-x: -200%; } }
+@keyframes troll { 0% { transform: translate(0, 0); } 25% { transform: translate(28vw, -10px); } 50% { transform: translate(56vw, 0); } 75% { transform: translate(84vw, -8px); } 100% { transform: translate(calc(100vw + 120px), 0); } }
+#grave .gcard { position: absolute; left: 50%; top: 9%; transform: translate(-50%, 10px); width: min(360px, calc(100% - 32px)); padding: 16px 18px 14px; text-align: center;
+  background: #f4e3bf; color: #2a1b16; border: 3px solid #5a3a22; border-radius: 6px; box-shadow: 0 6px 0 rgba(30,14,10,.45); opacity: 0; transition: opacity .9s, transform .9s; }
+#grave.said .gcard { opacity: 1; transform: translate(-50%, 0); }
+#grave .gcard small { display: block; font: 800 12px/1 Georgia, serif; letter-spacing: .3em; color: #7a1d17; }
+#grave .gcard b { display: block; margin: 6px 0 2px; font: 800 24px/1.15 Georgia, serif; }
+#grave .gcard p { margin: 6px 0 10px; font-size: 15px; line-height: 1.35; }
+#grave .gskip { position: absolute; right: 12px; bottom: 12px; }
+@media (prefers-reduced-motion: reduce) { #grave .grig { transition: none; } #grave .tumble { display: none; } #grave .gcard { transition: none; } }
+/* the main menu (2026-10-30): Start opens it in the sky over the train; the words are wood type like Start's */
+.titlemenu .item { display: none; }
+#title.menu .titlemenu .item { display: block; }
+#title.menu .titlemenu .go { display: none; }
+.titlemenu .item:disabled { opacity: .55; cursor: default; }
+.titlemenu .item small { display: block; font: 700 12px/1.2 Georgia, serif; letter-spacing: .04em; text-transform: none; color: #fbf0d0; }
+html.art .titlemenu .item.drawn small { position: static; width: auto; height: auto; clip: auto; overflow: visible; margin-top: 2px; text-shadow: 1px 1px 0 #3a1a12; }
+.titlemenu .back { font-size: 16px; }
+/* choosing a partner and the Standard 500 opponents: cards on a board */
+.roster { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 10px 0; }
+.rider { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; padding: 10px 8px; min-height: 120px; border: 2px solid #8a5a2c;
+  border-radius: 8px; background: #f4e3bf; color: #2a1b16; font: inherit; cursor: pointer; }
+.rider b { font: 700 16px/1.2 Georgia, serif; } .rider i { font-size: 12px; color: #6b4a10; } .rider span { font-size: 13px; line-height: 1.3; }
+.rider .face { width: 54px; height: 64px; }
+.rider .face img { width: 100%; height: 100%; image-rendering: pixelated; object-fit: contain; }
+.rider:disabled { cursor: default; filter: grayscale(1); opacity: .55; }
+.rider .lock { font-size: 12px; font-weight: 700; color: #7a1d17; }
 .titleopts { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); width: min(420px, calc(100% - 32px)); z-index: 10; margin: 0; }
 @media (prefers-reduced-motion: reduce) { .titlemenu .go { animation: none; } }
 .hero .lyr, .hero .train, .hero .puff { position: absolute; display: none; image-rendering: pixelated; pointer-events: none; }
@@ -180,17 +225,11 @@ select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid
    route reads and plays the same with no art at all. */
 .k-dance { --k: #9a6a3a; } .k-elite { --k: #b8483a; } .k-event { --k: #4f8a94; } .k-store { --k: #5d8a4e; }
 .k-camp { --k: #4f6a9a; } .k-raffle { --k: #d4a940; } .k-boss { --k: #7a3b2a; } .k-bank { --k: #8d8577; } .k-water { --k: #3f7fae; }
-/* the trail (2026-10-29): a boot print for a clue; a red pip for each trick a gang carries */
-.boot { display: inline-block; width: 9px; height: 12px; vertical-align: -1px; margin-right: 3px; border-radius: 45% 45% 40% 40% / 55% 55% 45% 45%;
-  background: #cdbb98; box-shadow: inset 0 -3px 0 #f4e3bf; }
-.boot.got { background: #6a3d1e; }
-.mapbox .nd .boot.mk { position: absolute; top: -5px; left: -6px; width: 9px; height: 12px; margin: 0; box-shadow: 0 0 0 1.5px #fbf3e2, inset 0 -3px 0 #fbf3e2; }
+/* a red pip for each trick a gang carries */
 .pips { display: inline-flex; gap: 2px; vertical-align: 1px; margin-right: 3px; font-style: normal; }
 .pips i { width: 7px; height: 7px; border-radius: 50%; background: #c0392b; box-shadow: 0 0 0 1.5px #fbf3e2; }
 .mapbox .nd .pips { position: absolute; bottom: -4px; right: -6px; margin: 0; }
-.mapbox .nd.dead .pips, .mapbox .nd.dead .boot { display: none; }
-.wanted .trail { margin-top: 3px; font-size: 13px; color: #5a3b28; }
-.wanted .trail .boots { margin-right: 4px; }
+.mapbox .nd.dead .pips { display: none; }
 /* the wanted posters under the map */
 .posters { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin: 8px 0 4px; }
 .poster { display: grid; grid-template-columns: auto 1fr; gap: 0 8px; align-items: start; text-align: left; padding: 7px 8px 8px; min-width: 0;
@@ -207,7 +246,6 @@ select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid
 .poster li { color: #8a2a1e; }
 .poster li b { font-family: inherit; font-size: 12px; line-height: 1.3; color: #8a2a1e; }
 .poster .bty { margin-top: 2px; font-size: 12px; font-weight: 700; color: #6b4a10; }
-.poster .clue { font-size: 12px; color: #5a3b28; }
 .mapbox.dust { background: #e3c48e; border-radius: 12px; overflow: hidden; box-shadow: inset 0 0 0 1px #c9a46a; }
 .mapbox.dust .road { position: absolute; top: 0; bottom: 0; background: #d2a874; }
 .mapbox.dust .plate, .mapbox.dust .spr, .mapbox.dust .amb { position: absolute; display: none; image-rendering: pixelated; pointer-events: none; }
@@ -347,6 +385,15 @@ html.art .wanted.hasart .w { grid-column: 2; }
 .foe { width: 100%; }
 .foe .fn { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
 .foe .fn b { font-size: 16px; }
+/* a gang's abilities and its hit are buttons: tap for what they mean (the user's, 2026-10-30) */
+.foe .ftag, .foe .fhit { border: 0; font-family: inherit; cursor: pointer; }
+.foe .fhit { background: none; padding: 1px 2px; font-weight: 700; }
+/* the chips are short on the nameplate: a taller invisible hit area round each (a finger is 40px) */
+.foe .ftag, .foe .fhit { position: relative; }
+.foe .ftag::before, .foe .fhit::before { content: ''; position: absolute; left: -3px; right: -3px; top: -12px; bottom: -12px; }
+.foe .ftag::after, .foe .fhit::after { content: '?'; display: inline-block; margin-left: 4px; width: 13px; height: 13px; border-radius: 50%; font-size: 10px; line-height: 13px;
+  text-align: center; background: currentColor; color: inherit; box-shadow: inset 0 0 0 9px rgba(255,255,255,.75); }
+.stage .plate { pointer-events: auto; }
 .foe .ftag { font-size: 12px; font-weight: 700; color: var(--bad); background: #fbeae6; border-radius: 999px; padding: 1px 8px; }
 .foe .fhit { font-size: 12px; color: var(--muted); }
 .foe .fhp { margin-left: auto; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--bad); }
@@ -394,6 +441,32 @@ html.art .felt.dressed .wall, html.art .felt.dressed .tbl, html.art .felt.dresse
 .stage .fig.hit { animation: flinch .55s; } .stage .fig.hit img { filter: brightness(1.45) saturate(.6) sepia(.35); }
 @keyframes flinch { 15% { transform: translate(-5px, 2px) rotate(-2deg); } 35% { transform: translate(5px, -1px) rotate(2deg); } 55% { transform: translate(-3px, 0); } 75% { transform: translate(2px, 0); } }
 .stage .fig.gloat { animation: gloat .45s 2; }
+/* a card's shot (Hollow Point and the rest) lands on the trick: the gang is knocked back and flashes red */
+.stage .fig.shot { animation: shot .7s; } .stage .fig.shot img { animation: shotflash .7s; }
+@keyframes shot { 8% { transform: translate(7px, -3px) rotate(5deg); } 22% { transform: translate(-4px, 1px) rotate(-3deg); } 40% { transform: translate(3px, 0) rotate(1deg); } 60% { transform: translate(-1px, 0); } }
+@keyframes shotflash { 0%, 30% { filter: brightness(1.6) sepia(1) saturate(5) hue-rotate(-40deg); } 100% { filter: none; } }
+.stage .plate.shake { animation: plateshake .45s; }
+@keyframes plateshake { 20% { transform: translateX(-3px); } 40% { transform: translateX(3px); } 60% { transform: translateX(-2px); } 80% { transform: translateX(1px); } }
+.pop.shot { color: #ffe08a; font-size: 22px; }
+.pop.shot small { display: block; font-size: 12px; -webkit-text-stroke: 0; color: #fff3d0; }
+/* who bid what, at the table after the auction (the user's, 2026-10-30): the winner's bid in gold, the rest faded */
+.dyn .seat .tag.won { background: #f3d070; border-color: #6b4a10; }
+.dyn .seat .tag.lost { background: #e8e0d0; color: #6a5a48; border-color: #8a7a68; font-weight: 700; }
+.bidwon { position: absolute; left: 50%; top: calc(var(--edge) * var(--ax) + 12px); transform: translateX(-50%); z-index: 6; padding: 6px 14px; border-radius: 8px;
+  background: rgba(28,20,14,.86); color: #fff3d0; font-size: 15px; text-align: center; white-space: nowrap; box-shadow: 0 2px 0 rgba(0,0,0,.3); animation: bidwon .5s ease-out; }
+.bidwon b { color: #f3d070; } .bidwon small { display: block; font-size: 12px; color: #e8d3a8; }
+@keyframes bidwon { from { transform: translate(-50%, 8px); opacity: 0; } }
+.bidlog { display: flex; flex-wrap: wrap; gap: 4px; }
+.bidlog .bl { padding: 1px 7px; border-radius: 999px; background: #efe6d6; color: #5a4a38; font-size: 13px; }
+.bidlog .bl.hi { background: #f3d070; color: #2a1b16; font-weight: 800; }
+.bidlog .bl.ps { opacity: .7; }
+.raisehead { color: #6b4a10; }
+/* the enhancement pick: the chosen enhancement and card, and why a card can't take it */
+.choice.on { border-color: #8a6412; box-shadow: inset 0 0 0 2px var(--gold); background: #fff8e2; }
+.pickrow { align-items: flex-start; }
+.pickc { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; }
+.pickc small { font-size: 11px; color: var(--muted); min-height: 14px; }
+.card.picked { transform: translateY(-8px); outline: 3px solid var(--gold); outline-offset: 1px; }
 @keyframes gloat { 50% { transform: translateY(-6px); } }
 .stage .nanfig { position: absolute; z-index: 1; left: calc(50% - 18.5 * var(--ax)); top: calc((38 - var(--lift)) * var(--ax)); width: calc(37 * var(--ax)); height: calc(44 * var(--ax)); }
 .felt:not(.dressed) .stage .nanfig, html:not(.art) .stage .nanfig { top: calc(22 * var(--ax)); }
@@ -440,7 +513,8 @@ html.art .felt.dressed .wall, html.art .felt.dressed .tbl, html.art .felt.dresse
 .felt.strip .stage > :not(.plate) { display: none !important; }
 .felt.strip .dyn .seat.west { left: 18%; } .felt.strip .dyn .seat.east { left: 82%; }
 .felt.strip .dyn .plaque { top: 50px; }
-.felt.strip .dyn .plaque .tag { position: static; transform: none; border-width: 1px; padding: 0 6px; margin-left: 2px; }
+.felt.strip .dyn .plaque .tag, .dyn .plaque .tag { position: static; transform: none; border-width: 1px; padding: 0 6px; margin-left: 2px; }
+.dyn .plaque .tag { font-size: 12px; line-height: 16px; }
 .tally { position: absolute; bottom: 2px; left: 0; right: 0; text-align: center; font-size: 12px; opacity: .9; }
 .coach { display: flex; gap: 10px; align-items: flex-start; background: #fff8e6; border-top: 1px solid var(--gold); padding: 8px 12px; font-size: 15px; }
 .coach .face { width: 32px; height: 32px; }
@@ -574,8 +648,12 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   <div class="hero" id="hero" aria-hidden="true"></div>
   <div class="titlemenu">
     <h1 class="wood logo" data-word="logo"><span>Draw, Partner!</span></h1>
-    <button class="wood go" data-act="start" data-word="start"><span>Start Game</span></button>
-    <button class="wood more" data-act="continue" id="continueBtn" data-word="continue" hidden><span>Continue</span></button>
+    <button class="wood go" data-act="start" data-word="start"><span>Start</span></button>
+    <button class="wood more item" data-act="newstory" data-word="newstory"><span>New Story</span></button>
+    <button class="wood more item" data-act="continue" id="continueBtn" data-word="continue"><span>Continue Current Story</span></button>
+    <button class="wood more item" data-act="daily" data-word="daily"><span>Daily Challenge</span><small>coming soon</small></button>
+    <button class="wood more item" data-act="standard" data-word="standard"><span>Standard 500</span></button>
+    <button class="wood more item back" data-act="mainback" data-word="back"><span>Back</span></button>
     <button class="wood more opts" data-act="options" data-word="options" aria-expanded="false" aria-controls="titleOptions"><span>Options</span></button>
   </div>
   <div class="panel titleopts" id="titleOptions" hidden>
@@ -592,6 +670,12 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   </div>
 </section>
 
+<div id="grave" hidden>
+  <div class="gsun" aria-hidden="true"></div>
+  <div class="grig" aria-hidden="true"><div class="gfar"></div><div class="gground"></div><div class="gplain"></div><div class="gplate"></div></div>
+  <div class="gcard" role="status"></div>
+  <button class="btn alt gskip" data-act="skipgrave">Skip</button>
+</div>
 <div id="dustwipe" aria-hidden="true"></div>
 <div id="actcard" aria-live="polite"></div>
 <button class="btn alt" id="skipOpening" data-act="skipopening">Skip</button>
@@ -620,15 +704,16 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=6"></script>
-<script src="btp-ai.js?v=6"></script>
-<script src="btp-run.js?v=6"></script>
-<script src="btp-town.js?v=6"></script>
-<script src="art/dustwater/sprites.js?v=6"></script>
-<script src="btp-train.js?v=7"></script>
-<script src="art/train/sprites.js?v=7"></script>
-<script src="art/title/scene.js?v=6"></script>
-<script src="art/table/scene.js?v=6"></script>
+<script src="btp-engine.js?v=9"></script>
+<script src="btp-ai.js?v=9"></script>
+<script src="btp-run.js?v=9"></script>
+<script src="btp-town.js?v=9"></script>
+<script src="art/dustwater/sprites.js?v=9"></script>
+<script src="btp-train.js?v=9"></script>
+<script src="art/train/sprites.js?v=9"></script>
+<script src="art/title/scene.js?v=9"></script>
+<script src="art/table/scene.js?v=9"></script>
+<script src="art/grave/scene.js?v=9"></script>
 <script>
 (function () {
   'use strict';
@@ -652,7 +737,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 12, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 13, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -666,7 +751,19 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   window.BtpPage = P;
 
   /* ---------------- storage ---------------- */
-  function save() { try { if (P.L) localStorage.setItem(KEY, JSON.stringify(P.L)); } catch (e) {} }
+  /* A story saves under KEY, a game of Standard 500 under STD_KEY, so neither overwrites the other. The profile
+     remembers which Showdown gangs you have beaten in any story: they become Standard 500 opponents. */
+  const STD_KEY = 'btp-std-v1', PROFILE = 'btp-profile';
+  function save() { try { if (P.L) { localStorage.setItem(P.L.mode === 'standard' ? STD_KEY : KEY, JSON.stringify(P.L)); noteBeaten(P.L); } } catch (e) {} }
+  function loadStd() { try { const s = localStorage.getItem(STD_KEY); const L = s ? JSON.parse(s) : null; return L && L.mode === 'standard' && L.phase !== 'stdover' ? L : null; } catch (e) { return null; } }
+  function clearStd() { try { localStorage.removeItem(STD_KEY); } catch (e) {} }
+  function profile() { try { return JSON.parse(localStorage.getItem(PROFILE)) || { beaten: [] }; } catch (e) { return { beaten: [] }; } }
+  function noteBeaten(L) {
+    if (L.mode === 'standard') return;
+    const won = (L.record || []).filter(r => r.kind === 'boss' && r.won).map(r => r.id), pr = profile();
+    const add = won.filter(id => !pr.beaten.includes(id));
+    if (add.length) { pr.beaten = pr.beaten.concat(add); try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} }
+  }
   function loadSaved() { try { const s = localStorage.getItem(KEY); const L = s ? JSON.parse(s) : null; return L && L.v === 3 ? L : null; } catch (e) { return null; } }
   function clearSaved() { try { localStorage.removeItem(KEY); } catch (e) {} }
   function tipsDone() { try { return localStorage.getItem(TIPS_DONE) === '1'; } catch (e) { return false; } }
@@ -817,6 +914,9 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   }
   function bar() {
     const L = P.L;
+    if (L.mode === 'standard') return '<div class="screenbar"><span class="name">Standard 500 · against ' + esc(L.std.name.replace(/^The /, 'the ')) + '</span>' +
+      '<button class="iconbtn" data-act="rules">Rules</button><button class="iconbtn" data-act="menu">Menu</button></div>';
+    if (L.phase === 'partner') return '<div class="screenbar"><span class="name">A new story</span></div>';
     return '<div class="screenbar"><span class="name">Act ' + R.ROMAN[L.act] + ' · ' + E.ACTS[L.act].name + '</span>' +
       '<div class="stats"><div class="stat hp' + hpClass(L.health) + '">' + hpInner(L) + '</div><div class="stat gold">' + goldInner(L) + '</div></div>' +
       '<button class="iconbtn" data-act="rules">Rules</button><button class="iconbtn" data-act="menu">Menu</button></div>';
@@ -844,8 +944,12 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
           body = noteHTML + '<div class="panel"><h2>' + (L.reward.raffle ? 'Gold strike: pick a buff' : 'Pick a buff') + '</h2>' + s.options.map(b => '<button class="choice" data-choose="' + b + '"><b>' + esc(R.BUFFS[b].name) + '</b><span>' + esc(R.BUFFS[b].text) + '</span></button>').join('') +
             '<div class="btns"><button class="btn alt" data-act="reroll"' + (L.gold < R.rerollPrice(L) || R.freeBuffs(L).length <= s.options.length ? ' disabled' : '') + '>' + rerollLabel(L) + '</button></div></div>';
         } else {
-          body = noteHTML + '<div class="panel"><h2>Pick an enhancement</h2><p>It goes on a card you own and stays all run. A card takes two and becomes <b>Legendary</b>; none is ever replaced.</p>' +
-            s.options.map(e => '<button class="choice" data-choose="' + e + '"><b>' + esc(R.ENH[e].name) + '</b><span>' + esc(R.ENH[e].text) + '</span></button>').join('') +
+          // Balatro's way (the user's, 2026-10-30): pick the enhancement and the card, change either freely, then Use
+          const sel = enhSel(L, s.options.join());
+          body = noteHTML + '<div class="panel"><h2>Pick an enhancement</h2><p>Choose one, then the card it goes on. Nothing is spent until you press <b>Use</b>. A card takes two and becomes <b>Legendary</b>; none is ever replaced.</p>' +
+            s.options.map(e => '<button class="choice' + (sel.enh === e ? ' on' : '') + '" data-pickenh="' + e + '" aria-pressed="' + (sel.enh === e) + '"><b>' + esc(R.ENH[e].name) + '</b><span>' + esc(R.ENH[e].text) + '</span></button>').join('') +
+            pickCardsHTML(L, sel) +
+            '<div class="btns"><button class="btn" data-act="useenh"' + (sel.enh && sel.card ? '' : ' disabled') + '>' + (sel.enh && sel.card ? 'Use: ' + esc(R.ENH[sel.enh].name) + ' on the ' + esc(E.label(sel.card)) : 'Use') + '</button></div>' +
             (s.claim && s.claim.length ? '<h3>Or keep a card your team won this game</h3><div class="cardrow">' + s.claim.map(c => cardHTML(c, { data: 'claim', small: true })).join('') + '</div>' : '') +
             '<div class="btns"><button class="btn alt" data-act="reroll"' + (L.gold < R.rerollPrice(L) ? ' disabled' : '') + '>' + rerollLabel(L) + '</button><button class="btn alt" data-act="skipreward">Skip</button></div></div>';
         }
@@ -853,13 +957,16 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
         break;
       }
       case 'target': {
-        const can = R.enhanceable(L), full = L.owned.filter(c => c !== 'JK' && !can.includes(c));
+        const sel = enhSel(L, 'target:' + L.target);
+        sel.enh = L.target;
+        const any = L.owned.some(c => !R.cantTake(L, c, L.target));
         body = '<div class="panel"><h2>' + esc(R.ENH[L.target].name) + '</h2><p>' + esc(R.ENH[L.target].text) + '</p>' +
-          (can.length ? '<p>Put it on which card? A card with one enhancement already takes this as its second and becomes <b>Legendary</b>.</p>' +
-            '<div class="cardrow">' + can.map(c => cardHTML(c, { data: 'enhance', owned: true, big: true })).join('') + '</div>'
+          (any ? '<p>Put it on which card? Tap one, then <b>Use</b>. A card with one enhancement already takes this as its second and becomes <b>Legendary</b>.</p>'
             : '<p>None of your cards can take it: each is Legendary already, or holds something it can\u2019t share a card with.</p>') +
-          (full.length ? '<p class="sub">Can\u2019t take it: ' + full.map(c => esc(E.label(c)) + (R.legendary(L, c) ? ' (Legendary)' : '')).join(', ') + '.</p>' : '') +
-          '<div class="btns"><button class="btn alt" data-act="leaveenh">Leave it</button></div></div>';
+          pickCardsHTML(L, sel) +
+          '<div class="btns"><button class="btn" data-act="useenh"' + (sel.card ? '' : ' disabled') + '>' + (sel.card ? 'Use on the ' + esc(E.label(sel.card)) : 'Use') + '</button>' +
+          (L.targetStep || L.targetBuy != null ? '<button class="btn alt" data-act="backenh">' + (L.targetBack === 'shop' ? 'Give it back (refund)' : 'Back') + '</button>' : '') +
+          '<button class="btn alt" data-act="leaveenh">Leave it unused</button></div></div>';
         break;
       }
       case 'event': {
@@ -899,16 +1006,16 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       case 'shunt': {
         const pk = L.shunt && L.shunt.pick ? R.node(L, L.shunt.pick) : null;
         body = noteHTML + '<div class="panel"><h2>The switchman\u2019s lever</h2><p>' + (pk ? 'Now tap the carriage to swap it with, on the same stretch of line. Tap the first one again to choose another.' :
-          'Tap a carriage on a stretch of line ahead. What happens there (the gang, its poster, a clue) moves with it; the rails stay where they are.') + '</p>' +
+          'Tap a carriage on a stretch of line ahead. What happens there (the gang and its poster) moves with it; the rails stay where they are.') + '</p>' +
           (window.BtpTrain && L.act === 2 ? trainBox(L, [], L.route || [], walkedOf(L), R.floorOf(L)) : plainBox(L, [], L.route || [], walkedOf(L), R.floorOf(L))) +
           '<div class="btns"><button class="btn alt" data-act="noshunt">Leave the lever alone</button></div></div>';
         break;
       }
       case 'water': {
-        const full = (L.trail || []).length >= R.TRAIL.max, bn = R.BOSS[L.map.boss].name, hx = R.hexed(L).length;
+        const hx = R.hexed(L).length;
         body = noteHTML + '<div class="panel"><h2>The water stop</h2><p>The train hisses to a halt under the water tower. You have a few minutes before the whistle: do one thing.</p>' +
           '<button class="choice" data-water="drink"><b>Fill your canteen</b><span>+' + R.WATER.health + ' health.</span></button>' +
-          '<button class="choice" data-water="scout"' + (full ? ' disabled' : '') + '><b>Scout the line</b><span>' + (full ? 'Your trail on ' + esc(bn.replace(/^The /, 'the ')) + ' is as good as it gets.' : 'Climb the tower and look for signs of ' + esc(bn.replace(/^The /, 'the ')) + ': a clue takes a tenth off their health at the Showdown.') + '</span></button>' +
+          '<button class="choice" data-water="wood"><b>Load the tender</b><span>Help the fireman with the wood: +' + R.WATER.gold + ' gold.</span></button>' +
           '<button class="choice" data-water="cleanse"' + (hx ? '' : ' disabled') + '><b>Ask the fireman</b><span>' + (hx ? 'He scrubs one hex off a card, free (' + hx + ' on the cards).' : 'He can scrub a hex off a card. No card is hexed.') + '</span></button></div>' +
           '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
         break;
@@ -955,7 +1062,19 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       }
       case 'runover':
         body = endHTML(L, false);
+        playGrave(L);
         break;
+      case 'partner':
+        body = '<div class="panel baize"><h2>Choose your partner</h2><p>Who rides with you into Dustwater? Your partner sits across the table, bids with you and brings a card of their own.</p>' +
+          '<div class="roster">' + R.ROSTER.map(p => '<button class="rider" data-partner="' + p.id + '"' + (p.locked ? ' disabled' : '') + '>' + (p.id === 'nan' ? '<span class="face">' + NAN_SVG + '</span>' : '<span class="face" aria-hidden="true"></span>') +
+            '<b>' + esc(p.name) + '</b><i>' + esc(p.title) + '</i><span>' + esc(p.text) + '</span>' + (p.locked ? '<span class="lock">Not riding yet</span>' : '') + '</button>').join('') + '</div></div>';
+        break;
+      case 'stdover': {
+        const won = L.result && L.result.won, F = L.std;
+        body = '<div class="panel end"><h2>' + (won ? 'You and Nan win!' : esc(F.name) + ' win') + '</h2><p class="big ' + (won ? 'good' : 'badc') + '">' + num(L.you) + ' to ' + num(L.opp) + ', after ' + L.handNo + ' hand' + (L.handNo > 1 ? 's' : '') + '.</p>' +
+          '<div class="btns"><button class="btn" data-act="stdagain">Play them again</button><button class="btn alt" data-act="stdtitle">Title screen</button></div></div>';
+        break;
+      }
     }
     $('screen').innerHTML = bar() + (tip ? '<div class="coach">' + coachHTML(tip) + '</div>' : '') + body;
     // on the map, bring the next choice into view once per stop (the map is taller than a phone)
@@ -969,6 +1088,23 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   }
 
   // the act-start pick's reminder of what you already own (Nan's A\u2665 on a first act)
+  /* The enhancement screen's choice so far, kept on the page (nothing is spent until Use): starts empty for each
+     new pick. */
+  function enhSel(L, key) {
+    key = L.level + '|' + key;
+    if (!P.enhSel || P.enhSel.key !== key) P.enhSel = { key, enh: null, card: null, why: '' };
+    return P.enhSel;
+  }
+  /* Your cards to put it on: every card you own, raised when picked, faded with the reason when it can't take the
+     chosen enhancement (the Joker never can). */
+  function pickCardsHTML(L, sel) {
+    const why = c => c === 'JK' ? 'No enhancements' : sel.enh ? (R.cantTake(L, c, sel.enh) ? (R.legendary(L, c) ? 'Legendary: full' : 'Can’t share') : '') : '';
+    return '<h3>On which of your cards?</h3><div class="cardrow pickrow">' + L.owned.map(c => {
+      const w = why(c);
+      return '<span class="pickc">' + cardHTML(c, { data: 'pickcard', owned: true, big: true, cls: (sel.card === c ? 'picked' : '') + (w ? ' no' : '') }) +
+        '<small>' + esc(w || (sel.card === c ? 'Chosen' : ' ')) + '</small></span>';
+    }).join('') + '</div>' + (sel.why ? '<p class="sub badc" role="status">' + esc(sel.why) + '</p>' : '');
+  }
   function ownedRow(L) { return L.owned.length ? '<div class="yours">Already yours: ' + L.owned.map(c => cardHTML(c, { small: true, owned: true })).join('') + '</div>' : ''; }
   /* The act-start pan: from the top of the map (the Showdown) down to the first choices, eased, over a couple of
      seconds; any touch, wheel or key hands the scroll back at once. Skipped when it all fits, in ?fast, and
@@ -1018,21 +1154,14 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       event: 'a choice with a trade-off', camp: 'rest, polish, cleanse' + (E.ACTS[L.act].forge ? ', forge or remove' : '') + ', or shop',
       elite: 'a tougher gang with an ability; pays a buff', store: 'cards, an enhancement, a buff, a tonic',
       raffle: R.RAFFLE.gold + ' gold and a free buff',
-      water: 'fill your canteen (+' + R.WATER.health + ' health), scout for a clue, or have a hex scrubbed off',
+      water: 'fill your canteen (+' + R.WATER.health + ' health), earn ' + R.WATER.gold + ' gold, or have a hex scrubbed off',
       bank: 'stop a robbery in one hand: win ' + R.bankBounty(L) + ' gold and an enhancement, lose ' + R.bankShare() + ' of your gold', boss: R.BOSS[L.map.boss].name + ', ' + (R.BOSS[L.map.boss].hp || R.FOE.boss[L.act]) + ' health: beat them or the run is over' })[k];
   }
   /* Each act's boss, wanted: the name, the rule, and where the Showdown is. */
   function wantedHTML(L) {
     const B = R.BOSS[L.map.boss], where = R.PLACE[L.act] && R.PLACE[L.act].boss;
     return '<div class="wanted hasart"><img class="mug" src="' + artURL('wanted/' + L.map.boss + '.webp') + '" alt=""><span class="w">WANTED</span><b>' + esc(B.name) + '</b><span>' + esc(B.rule) + '</span>' +
-      (where ? '<span>Showdown at ' + esc(where.replace(/^The /, 'the ')) + '.</span>' : '') + trailHTML(L) + '</div>';
-  }
-  /* Your trail on the Showdown's gang (2026-10-29): a boot print for each clue, up to R.TRAIL.max. */
-  function trailHTML(L) {
-    const got = (L.trail || []).length, n = Math.min(got, R.TRAIL.max);
-    const boots = Array.from({ length: R.TRAIL.max }, (_, i) => '<i class="boot' + (i < n ? ' got' : '') + '"></i>').join('');
-    return '<span class="trail" title="' + esc((L.trail || []).map(c => c.text).join('. ')) + '"><span class="boots" aria-hidden="true">' + boots + '</span>' +
-      (n ? 'Your trail: ' + n + ' of ' + R.TRAIL.max + ', they start ' + Math.round(100 * R.trailCut(L)) + '% weaker' : 'No trail yet: clues (boot prints) weaken them') + '</span>';
+      (where ? '<span>Showdown at ' + esc(where.replace(/^The /, 'the ')) + '.</span>' : '') + '</div>';
   }
   /* The wanted posters of the gangs you can ride to next (2026-10-29): who they are, their health, the tricks they
      carry and what they are worth. A poster is a way to go there, like its marker. */
@@ -1040,12 +1169,10 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const F = n.foe, top = R.bountyOf(n.kind, F, 3), look = F.look || [];
     const figs = look.map(k => '<img src="' + artURL('table/fig_' + k + '.webp') + '" alt="">').join('');
     const ab = F.traits.map(t => { const a = R.abilityOf(t); return '<li><b>' + esc(a.name) + '</b> ' + esc(a.text) + '</li>'; }).join('');
-    const clue = n.clue && !(L.trail || []).some(c => c.where === n.id);
     return '<button class="poster k-' + n.kind + '" data-go="' + n.id + '"><span class="figs" aria-hidden="true">' + figs + '</span><span class="pbody">' +
       '<span class="w">WANTED</span><b>' + esc(F.name) + '</b><span class="pk">' + esc(R.kindName(L.act, n.kind)) + ' \u00b7 ' + R.foeHp(L, F) + ' health</span>' +
       (ab ? '<ul>' + ab + '</ul>' : '<span class="plainp">Nothing up their sleeve</span>') +
-      '<span class="bty">Bounty: up to ' + top + ' gold' + (F.bounty > 1 ? ' (+' + Math.round(100 * (F.bounty - 1)) + '% for their tricks)' : '') + '</span>' +
-      (clue ? '<span class="clue"><i class="boot got"></i>A clue on ' + esc(R.BOSS[L.map.boss].name.replace(/^The /, 'the ')) + '</span>' : '') + '</span></button>';
+      '<span class="bty">Bounty: up to ' + top + ' gold' + (F.bounty > 1 ? ' (+' + Math.round(100 * (F.bounty - 1)) + '% for their tricks)' : '') + '</span></span></button>';
   }
   /* A stop's button on any map: its kind's icon, its name for screen readers, glowing when you can go there. */
   function stopButton(L, n, x, y, W, H, can, route, fNow, placeName) {
@@ -1057,7 +1184,6 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     return '<button class="nd ' + n.kind + ' k-' + n.kind + (isCan ? ' can' : '') + (done ? ' done' : '') + (dead ? ' dead' : '') + ((shunting ? picked : n.id === L.pos) ? ' here' : '') + '" data-n="' + n.id + '"' +
       ' style="left:' + (100 * x / W).toFixed(2) + '%;top:' + (100 * y / H).toFixed(2) + '%"' + (isCan ? (shunting ? ' data-shunt="' : ' data-go="') + n.id + '"' : ' disabled') +
       ' aria-label="' + esc(name) + '" title="' + esc(name) + '">' + (n.kind === 'boss' && L.act === 1 ? '<span class="sign">SALOON</span>' : n.kind === 'bank' && L.act === 1 ? '<span class="sign">BANK</span>' : '') + icon(n.kind) +
-      (n.clue && !done && !(L.trail || []).some(c => c.where === n.id) ? '<i class="boot got mk"></i>' : '') +
       (n.foe && n.foe.traits.length > (n.kind === 'elite' ? 1 : 0) && !done ? '<i class="pips">' + '<i></i>'.repeat(n.foe.traits.length - (n.kind === 'elite' ? 1 : 0)) + '</i>' : '') + '</button>';
   }
   /* Act I: Dustwater, a long Main Street that scrolls (btp-town.js lays it out; see .mapbox.dust). The baked
@@ -1273,12 +1399,11 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const wanted = can.map(id => R.node(L, id)).filter(n => n.foe), others = kinds.filter(k => !wanted.some(n => n.kind === k));
     return '<div class="panel"><h2>Act ' + R.ROMAN[L.act] + ': ' + esc(E.ACTS[L.act].name) + '</h2>' + wantedHTML(L) +
       '<div class="legend">' + ['dance', 'elite', 'event', 'store', 'camp', 'raffle'].concat(R.BANK.acts.includes(L.act) ? ['bank'] : [], R.WATER.acts.includes(L.act) ? ['water'] : []).map(k => '<span>' + (town || train ? '<i class="sw k-' + k + '"></i>' : '') + icon(k) + esc(R.kindName(L.act, k)) + '</span>').join('') +
-      '<span><i class="boot got"></i>A clue</span><span><i class="pips"><i></i></i>A trick up their sleeve</span></div>' +
+      '<span><i class="pips"><i></i></i>A trick up their sleeve</span></div>' +
       (town ? townBox(L, can, route, walked, fNow) : train ? trainBox(L, can, route, walked, fNow) : plainBox(L, can, route, walked, fNow)) +
       (kinds.length ? '<p style="margin:8px 0 0"><b>Next</b>: tap a glowing stop' + (wanted.length ? ' or a poster' : '') + '.</p>' +
         (wanted.length ? '<div class="posters">' + wanted.map(n => posterHTML(L, n)).join('') + '</div>' : '') +
-        (others.length ? '<ul class="nextup">' + others.map(k => '<li><b>' + esc(k === 'boss' ? 'The Showdown' : R.kindName(L.act, k)) + '</b>: ' + esc(nodeWhat(L, k)) +
-          (can.some(id => R.node(L, id).kind === k && R.node(L, id).clue && !(L.trail || []).some(c => c.where === id)) ? ' (one has a clue)' : '') + '</li>').join('') + '</ul>' : '') : '') + '</div>';
+        (others.length ? '<ul class="nextup">' + others.map(k => '<li><b>' + esc(k === 'boss' ? 'The Showdown' : R.kindName(L.act, k)) + '</b>: ' + esc(nodeWhat(L, k)) + '</li>').join('') + '</ul>' : '') : '') + '</div>';
   }
 
   /* The run's ending, won or lost: each act's path and Hoedown, then the totals. */
@@ -1308,9 +1433,17 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const L = P.L, h = L.h;
     // repaint the stat boxes only when a number changes, so the +/− flash plays once and isn't restarted
     const hp = $('hp'), gs = $('goldstat');
+    if (L.mode === 'standard') {
+      // the score instead of health and gold
+      const sc = (lab, v) => '<span class="lab">' + lab + '</span><span class="val">' + num(v) + '</span><small>first to 500</small>';
+      if (P.hpShown !== 's' + L.you) { hp.innerHTML = sc('You & Nan', L.you); hp.className = 'stat hp'; P.hpShown = 's' + L.you; }
+      if (P.goldShown !== 's' + L.opp) { gs.innerHTML = sc('Them', L.opp); P.goldShown = 's' + L.opp; }
+      $('handpill').textContent = 'Standard 500 · hand ' + L.handNo;
+    } else {
     if (P.hpShown !== L.health) { hp.innerHTML = hpInner(L, P.hpShown == null ? 0 : L.health - P.hpShown); hp.className = 'stat hp' + hpClass(L.health); P.hpShown = L.health; }
     if (P.goldShown !== L.gold) { gs.innerHTML = goldInner(L, P.goldShown == null ? 0 : L.gold - P.goldShown); P.goldShown = L.gold; }
     $('handpill').textContent = (L.kind === 'boss' ? 'Showdown' : R.kindName(L.act, L.kind)) + ' · hand ' + L.handNo + (L.kind === 'bank' ? ' of 1' : ' · par ' + R.parOf(L));
+    }
     renderObjective();
     const ct = $('contract');
     if (h.contract) {
@@ -1348,6 +1481,12 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
      Caller's call; then the bounty and what the stars pay. */
   function renderObjective() {
     const L = P.L, ob = $('objective');
+    if (L.mode === 'standard') {
+      ob.className = 'objective';
+      ob.innerHTML = '<div class="ot"><div class="on">Standard 500</div><div class="ox">First to 500 wins: reach it by making a bid. Defending tricks stop at 490. ' + (L.boss ? esc(L.std.name) + ': ' + esc(L.std.rule) : '') + '</div></div>' +
+        (L.call ? '<div class="curse">The call: <b>' + esc(R.CALLS[L.call].name) + '</b> — ' + esc(R.CALLS[L.call].text) + '</div>' : '');
+      return;
+    }
     if (!L.obj) {
       const B = R.BOSS[L.boss];
       ob.className = 'objective';
@@ -1387,6 +1526,22 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     return '<button class="pay" data-act="levelinfo"><span class="st">' + stars(n) + '</span><span><b>Win now:</b> ' + pay + 'g' + (n > 1 ? ' + ' + PRIZE_SHORT[L.kind][n] : '') + '</span>' +
       '<span class="nx">' + esc(next) + '</span><span class="more">Rewards</span></button>';
   }
+  /* Tap a gang's ability or its hit on the nameplate: what it means, in plain words (the user's, 2026-10-30:
+     "what does the Dead Eye mean? And the percentage next to it?"). */
+  function foeHelpHTML(L, k) {
+    const share = E.hitWord(L), base = Math.round(100 * E.HIT[L.act]) + '%', eg = L.act === 1 ? 80 : L.act === 2 ? 110 : 160;
+    const back = '<div class="btns"><button class="btn" data-act="closesheet">Got it</button></div>';
+    if (k === 'hit') return '<h2>They hit ' + share + '</h2><p>Every point this gang scores comes off your health at ' + share + '. If they make an ' + eg + '-point contract, you lose ' + E.damageOf(eg, L) + ' health; each trick they take defending (10 points) costs you ' + E.damageOf(10, L) + '.</p>' +
+      '<p>In ' + esc(E.ACTS[L.act].name) + ' a gang normally hits at ' + base + '.' + (L.foe && L.foe.hitMul > 1 ? (L.kind === 'boss' ? ' Showdown gangs hit harder, so this one is ' + share + '.' : ' This gang has <b>Dead Eye</b>, so it hits half as hard again: ' + share + '.') : '') +
+      ' A contract of yours that fails backfires at the same share. Stop them making their bid and their attack misses.</p>' + back;
+    if (k === 'stacked') return '<h2>Stacked deck</h2><p>The cards were dealt twice this hand and the gang got the better deal. It happens more often further up the map, and every hand against a <b>Lucky</b> gang.</p>' + back;
+    const a = R.abilityOf(k);
+    if (!a) return back;
+    const more = { deadeye: 'Their points hit your health 1.5 times as hard as a normal gang\u2019s: ' + base + ' becomes ' + share + '. Holding them to fewer points matters more than ever.',
+      tough: 'They have a quarter more health than a gang of their kind would, so the fight takes longer.',
+      lucky: 'Every hand is dealt twice and they keep the better deal. Expect them to hold the good cards.' }[k];
+    return '<h2>' + esc(a.name) + '</h2><p>' + esc(a.text) + '</p>' + (more ? '<p>' + esc(more) + '</p>' : '') + back;
+  }
   function levelInfoHTML(L) {
     const par = R.parOf(L), F = L.foe;
     const abil = F && F.traits.length ? '<p><b>Their abilit' + (F.traits.length > 1 ? 'ies' : 'y') + ':</b> ' + F.traits.map(t => esc(R.abilityOf(t).name) + ' — ' + esc(R.abilityOf(t).text)).join('; ') + '</p>' : '';
@@ -1407,16 +1562,23 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   }
   function seatTag(L, seat) {
     const h = L.h;
-    if (h.phase === 'bid') {
-      const mine = h.bids.filter(b => b.seat === seat), b = mine[mine.length - 1];
-      return b ? '<span class="tag">' + (b.pass ? 'pass' : bidPlain(b)) + '</span>' : '';
-    }
-    if (h.out === seat) return '<span class="tag">sits out</span>';
-    if (h.contractor === seat) return '<span class="tag">' + bidPlain(h.contract) + '</span>';
-    return '';
+    const mine = h.bids.filter(b => b.seat === seat && !b.keep), last = mine[mine.length - 1], top = mine.filter(b => !b.pass).pop();
+    if (h.phase === 'bid') return last ? '<span class="tag">' + (last.pass ? 'pass' : bidPlain(last)) + '</span>' : '';
+    if (h.out === seat) return '<span class="tag lost">sits out</span>';
+    // after the auction every seat keeps what it said: the winner in gold, the rest faded (the user's, 2026-10-30)
+    if (h.contractor === seat) return '<span class="tag won" title="Won the bid">' + bidPlain(h.contract) + '</span>';
+    return top ? '<span class="tag lost" title="Their best bid">' + bidPlain(top) + '</span>' : last ? '<span class="tag lost">pass</span>' : '';
+  }
+  // the auction's result on the felt until the first card is played
+  function bidWonHTML(L) {
+    const h = L.h;
+    if (!h.contract || h.trickNo > 0 || h.trick.some(Boolean) || !['kitty', 'play', 'swing'].includes(h.phase)) return '';
+    const who = h.contractor === 0 ? 'You win' : (h.contractor === 2 ? 'Nan wins' : E.SEATS[h.contractor] + ' wins');
+    const need = h.misere ? 'must lose every trick' : 'needs ' + h.contract.t + ' of ' + E.ACTS[L.act].hand + ' tricks';
+    return '<div class="bidwon">' + who + ' the bid: <b>' + bidHTML(h.contract) + '</b><small>' + (E.team(h.contractor) === 0 ? 'your team ' : 'they ') + need + ' · worth ' + h.contract.v + '</small></div>';
   }
   // a long hand shows a few backs and the count, so the side seats stay narrow
-  function backs(n) { let s = ''; for (let i = 0; i < Math.min(n, n > 6 ? 3 : n); i++) s += '<i class="gingham"></i>'; if (n > 6) s += '<b>' + n + '</b>'; return '<div class="backs">' + s + '</div>'; }
+  function backs(n, slim) { if (slim && n) return '<div class="backs"><i class="gingham"></i><b>' + n + '</b></div>'; let s = ''; for (let i = 0; i < Math.min(n, n > 6 ? 3 : n); i++) s += '<i class="gingham"></i>'; if (n > 6) s += '<b>' + n + '</b>'; return '<div class="backs">' + s + '</div>'; }
   /* Nan: a flat vector granny with a dark outline (the user's call: she stays a drawing, not pixel art), breathing
      and blinking; she bobs when your side does well. */
   const NAN_SVG = '<svg class="nansvg" viewBox="0 0 60 72" aria-hidden="true"><g class="breathe" stroke="#2a1b16" stroke-width="1.6" stroke-linejoin="round">' +
@@ -1433,6 +1595,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   const BANK_LOOK = ['pJT', 'gJpp2'], LIFT = 5, LIFT_COMPACT = 12;   // art rows of wall cropped off the top (--lift)
   // a fight saved before the gangs had figures gets two from its name
   function lookOf(L) {
+    if (L.mode === 'standard') return L.std.look;
     if (!L.foe) return BANK_LOOK;
     // a gang's own pair; a run saved before the gangs had their own art (card figures) picks a pair by its name
     if (L.foe.look && (!STAGE.figs.length || L.foe.look.every(x => STAGE.figs.includes(x)))) return L.foe.look;
@@ -1446,12 +1609,16 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   function stageScale(w) { return Math.max(2, Math.min(4, Math.floor(w / 125))); }
   function foePlate(L) {
     const F = L.foe;
+    if (L.mode === 'standard') return '<div class="foe"><div class="fn"><b>' + esc(L.std.name) + '</b><span class="fhp">you ' + num(L.you) + ' · them ' + num(L.opp) + '</span></div>' +
+      '<div class="foebar" aria-hidden="true"><i style="width:' + Math.max(0, Math.min(100, L.opp / 5)) + '%"></i><s style="width:' + Math.max(0, Math.min(100, L.opp / 5)) + '%"></s></div></div>';
     if (!F) return '<div class="foe"><div class="fn"><b>The bank robbers</b><span class="fhp">you ' + num(L.you) + ' · them ' + num(L.opp) + '</span></div><div class="ox">Outscore them this hand.</div></div>';
-    const left = Math.max(0, F.hp - L.you), pct = Math.round(100 * left / F.hp);
-    // the rules of the fight (their hit, what each ability does) are on the Rewards sheet; here, just the names
-    const tags = F.traits.map(t => '<span class="ftag" title="' + esc(R.abilityOf(t).text) + '">' + esc(R.abilityOf(t).name) + '</span>').join('') +
-      (L.h && L.h.stacked ? '<span class="ftag" title="They got the better of two deals this hand.">Stacked deck</span>' : '') +
-      '<span class="fhit" title="Their points hit your health at this share">hit ' + E.hitWord(L) + '</span>';
+    // your cards' shots this hand (Hollow Point and the rest) are off the bar as soon as the trick is won
+    const shots = L.phase === 'hand' && L.h && L.h.fx ? L.h.fx.hit : 0;
+    const left = Math.max(0, F.hp - L.you - shots), pct = Math.round(100 * left / F.hp);
+    // each ability and their hit is a button: tap for what it means
+    const tags = F.traits.map(t => '<button class="ftag" data-act="foeinfo" data-k="' + t + '" aria-label="' + esc(R.abilityOf(t).name + ': what it means') + '">' + esc(R.abilityOf(t).name) + '</button>').join('') +
+      (L.h && L.h.stacked ? '<button class="ftag" data-act="foeinfo" data-k="stacked">Stacked deck</button>' : '') +
+      '<button class="fhit" data-act="foeinfo" data-k="hit" aria-label="How hard they hit: what it means">hits ' + E.hitWord(L) + '</button>';
     return '<div class="foe"><div class="fn"><b>' + esc(F.name) + '</b>' + tags + '<span class="fhp">' + left + ' / ' + F.hp + '</span></div>' +
       '<div class="foebar" role="meter" aria-label="Their health" aria-valuemin="0" aria-valuemax="' + F.hp + '" aria-valuenow="' + left + '"><i style="width:' + pct + '%"></i><s style="width:' + pct + '%"></s></div></div>';
   }
@@ -1463,7 +1630,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       '<div class="tbl" style="background-image:url(' + artURL('table/table.webp') + ')"></div><div class="plate"></div></div><div class="dyn"></div>';
     felt.classList.toggle('dressed', look.every(x => !STAGE.figs.length || STAGE.figs.includes(x)));
   }
-  const restartFx = (el, cls) => { if (!el) return; el.classList.remove('hit', 'gloat', 'cheer'); void el.offsetWidth; el.classList.add(cls); };
+  const restartFx = (el, cls) => { if (!el) return; el.classList.remove('hit', 'gloat', 'cheer', 'shot', 'shake'); void el.offsetWidth; el.classList.add(cls); };
   function popAt(felt, text, bad, x, y) {
     if (FAST) return;
     const p = document.createElement('div');
@@ -1478,8 +1645,22 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     if (L.phase === 'summary' && h.result) { key = 's' + L.level + '-' + L.handNo; hand = h.result; }
     if (!key || key === P.fxKey) return;
     P.fxKey = key;
+    // a card's shot this trick: the bar has dropped already; knock the gang back and say what hit them
+    const shotNow = h.fx ? h.fx.hit : 0, shotKey = L.level + '-' + L.handNo;
+    if (P.shotKey !== shotKey) { P.shotKey = shotKey; P.shotSeen = 0; }
+    if (!hand && L.foe && shotNow > P.shotSeen) {
+      const fired = shotNow - P.shotSeen, by = L.log.slice(-8).reverse().find(e => / to the gang|ricochets|Bullseye/.test(e.text));
+      const what = by ? (by.text.match(/is an? ([A-Z][\w’']*(?: [A-Z][\w’']*)*)/) || by.text.match(/^(Bullseye)/) || [])[1] : '';
+      P.shotSeen = shotNow;
+      figs.forEach(f => restartFx(f, 'shot'));
+      const plate = felt.querySelector('.plate'); restartFx(plate, 'shake');
+      if (!FAST) { const p = document.createElement('div'); p.className = 'pop shot'; p.innerHTML = '−' + fired + (what ? '<small>' + esc(what) + '</small>' : ''); p.style.left = '50%'; p.style.top = '38%'; felt.appendChild(p); setTimeout(() => p.remove(), 1300); }
+      restartFx(nan, 'cheer');
+      return;
+    }
     if (hand) {
-      if (hand.pts[0] > 0) { figs.forEach(f => restartFx(f, 'hit')); restartFx(nan, 'cheer'); popAt(felt, '−' + hand.pts[0], false, '50%', '46px'); }
+      const main = L.mode === 'standard' ? hand.pts[0] : (L.foe ? hand.hit - (P.shotKey === shotKey ? P.shotSeen : 0) : hand.pts[0]);
+      if (hand.pts[0] > 0 || main > 0) { figs.forEach(f => restartFx(f, 'hit')); restartFx(nan, 'cheer'); if (main > 0) popAt(felt, (L.mode === 'standard' ? '+' : '−') + main, false, '50%', '46px'); }
       if (hand.dmg > 0) { if (hand.pts[0] <= 0) figs.forEach(f => restartFx(f, 'gloat')); popAt(felt, '−' + hand.dmg + ' health', true, '50%', 'calc(var(--edge) * var(--ax) + 30px)'); }
     } else if (good) { figs.forEach(f => restartFx(f, 'hit')); restartFx(nan, 'cheer'); }
     else figs.forEach(f => restartFx(f, 'gloat'));
@@ -1513,7 +1694,9 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const strip = felt.classList.contains('strip');
     const seat = (s, cls, name) => '<div class="seat ' + cls + (turn === s ? ' turn' : '') + '">' + (strip
       ? '<div class="plaque"><span class="who">' + name + '</span>' + seatTag(L, s) + '</div>'
-      : '<div class="bidbox">' + seatTag(L, s) + '</div><div class="plaque"><span class="who">' + name + '</span>' + backs(h.hands[s].length) + '</div>' + lips(s)) + '</div>';
+      // while bidding the bid floats over the head; after the auction it sits on the plaque, clear of the nameplate
+      : h.phase === 'bid' ? '<div class="bidbox">' + seatTag(L, s) + '</div><div class="plaque"><span class="who">' + name + '</span>' + backs(h.hands[s].length) + '</div>' + lips(s)
+      : '<div class="plaque"><span class="who">' + name + '</span>' + seatTag(L, s) + backs(h.hands[s].length, true) + '</div>' + lips(s)) + '</div>';
     // a tap on the table clears a finished trick: only then is it a control
     let zone = '<div class="trickzone"' + (h.phase === 'trick' ? ' data-act="tapfelt"' : '') + '>';
     if (h.phase === 'play' || h.phase === 'trick' || h.phase === 'swing' || h.phase === 'intent') {
@@ -1522,7 +1705,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       zone += '<div class="tally">Tricks: you ' + h.tricks[0] + (h.bonus && h.bonus[0] ? ' (+' + h.bonus[0] + ')' : '') + ' · them ' + h.tricks[1] + '</div>';
     }
     zone += '</div>';
-    felt.querySelector('.dyn').innerHTML = seat(1, 'west', 'West') + seat(2, 'north', 'Nan') + seat(3, 'east', 'East') + zone +
+    felt.querySelector('.dyn').innerHTML = seat(1, 'west', 'West') + seat(2, 'north', 'Nan') + seat(3, 'east', 'East') + zone + bidWonHTML(L) +
       (re ? '<div class="bubble nanbubble">' + esc(re.text) + '</div>' : '');
     felt.querySelectorAll('.feltcoach').forEach(x => x.remove());
     stageFx(L, felt);
@@ -1568,22 +1751,26 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       }
     }
     g += '</div>';
-    const log = h.bids.map(b => E.SEATS[b.seat] + ' ' + (b.pass ? 'passed' : bidPlain(b))).join(' · ');
+    // the auction so far, in order: who said what, the bid to beat in gold
+    const nm = s => s === 0 ? 'You' : s === 2 ? 'Nan' : E.SEATS[s];
+    const log = h.bids.filter(b => !b.keep).map(b => '<span class="bl' + (b.pass ? ' ps' : h.high && b.seat === h.high.seat && b.t === h.high.t && b.s === h.high.s ? ' hi' : '') + '">' + nm(b.seat) + ' ' + (b.pass ? 'pass' : (b.raise ? 'raise ' : '') + bidHTML(b)) + '</span>').join('');
     let extras = '';
     if (R.has(L, 'nod')) { const n = AI.nod(L, 2); extras += '<span class="nod">Nan’s nod: ' + (n ? denom(n) : 'nothing strong') + '</span>'; }
     if (L.boss === 'wallflowers') extras += '<span class="nod">' + (mine && E.mustBid(L, 0) ? 'Nan passed and the Undertakers never bid: you must bid' : 'Against the Undertakers your team bids ' + E.WALL.min + ' or more') + '</span>';
     if (R.has(L, 'peek')) extras += '<span class="nod">Peek: the kitty holds ' + h.kitty.map(E.label).join(', ') + '</span>';
-    bp.innerHTML = '<div><b>' + (mine ? 'Your bid' : E.SEATS[h.turn] + ' is bidding…') + '</b> ' + (h.high ? '(to beat: ' + bidPlain(h.high) + ' by ' + (h.high.seat === 0 ? 'you' : E.SEATS[h.high.seat]) + ')' : '(tricks you and Nan promise, out of ' + E.ACTS[L.act].hand + ')') + extras + '</div>' + g +
-      '<div class="btns" style="margin-top:4px"><button class="btn alt" data-act="pass"' + (mine && !E.mustBid(L, 0) ? '' : ' disabled') + '>Pass</button>' +
+    const raise = mine && h.raise;
+    bp.innerHTML = '<div>' + (raise ? '<b class="raisehead">Everyone passed on your ' + bidHTML(h.high) + '.</b> Raise your own bid (more tricks or a higher suit), or keep it.' :
+      '<b>' + (mine ? 'Your bid' : E.SEATS[h.turn] + ' is bidding…') + '</b> ' + (h.high ? 'High bid: <b>' + bidHTML(h.high) + '</b> by ' + (h.high.seat === 0 ? 'you' : nm(h.high.seat)) : '(tricks you and Nan promise, out of ' + E.ACTS[L.act].hand + ')')) + extras + '</div>' + g +
+      '<div class="btns" style="margin-top:4px"><button class="btn alt" data-act="pass"' + (mine && !E.mustBid(L, 0) ? '' : ' disabled') + '>' + (raise ? 'Keep ' + bidHTML(h.high) : 'Pass') + '</button>' +
       (A.misere ? '<button class="btn alt" data-bid="0MIS" title="Lose every trick, playing alone; Nan sits out. Ranks between 5NT and 6♠."' + (!can(0, 'MIS') ? ' disabled' : '') + '>Misère · ' + A.misere + '</button>' + (A.openMisere ? '<button class="btn alt" data-bid="0OMIS" title="Lose every trick alone, with your hand face up after the first trick. Ranks between 10♦ and 10♥."' + (!can(0, 'OMIS') ? ' disabled' : '') + '>Open · ' + A.openMisere + '</button>' : '<span class="bidlog" style="align-self:center;margin:0">lose every trick alone</span>') : '') + '</div>' +
-      (log ? '<div class="bidlog">' + esc(log) + '</div>' : '');
+      (log ? '<div class="bidlog" aria-label="The bids so far">' + log + '</div>' : '');
   }
   function renderStatus() {
     const L = P.L, h = L.h, st = $('status');
     let t = '', btn = '';
     if (L.phase !== 'hand') t = '';
-    else if (h.phase === 'bid') t = h.turn === 0 ? 'Bid, or pass if your hand is weak.' : E.SEATS[h.turn] + ' is thinking…';
-    else if (h.phase === 'kitty') t = h.turn === 0 ? 'You picked up the kitty. Tap a card to put back.' : E.SEATS[h.turn] + ' is taking the kitty…';
+    else if (h.phase === 'bid') t = h.turn === 0 ? (h.raise ? 'The others passed: raise your bid, or keep it.' : 'Bid, or pass if your hand is weak.') : E.SEATS[h.turn] + ' is thinking…';
+    else if (h.phase === 'kitty') t = h.turn === 0 ? 'You picked up the kitty. Tap a card to put back.' : (h.turn === 2 ? 'Nan' : E.SEATS[h.turn]) + ' is taking the kitty…';
     else if (h.phase === 'swing' && h.pass === 'grand') t = 'Grand Right and Left: tap a card to pass to West. East passes one to you.';
     else if (h.phase === 'swing') { t = (L.call === 'swing' ? R.CALLS.swing.name : R.BUFFS.swing.name) + ': tap a card to give Nan.'; btn = '<button class="iconbtn" data-act="keephand">Keep my hand</button>'; }
     else if (h.phase === 'intent') t = E.SEATS[h.contractor] + ' is about to play ' + bidPlain(h.contract) + '.';
@@ -1627,6 +1814,14 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       const r = h.result;
       key = 'sum' + L.level + '-' + L.handNo;
       const F = L.foe, over = R.fightOver(L);
+      if (L.mode === 'standard') {
+        showSheet('<h2>Hand ' + L.handNo + '</h2><div class="kv"><span>You and Nan</span><span class="' + (r.pts[0] > 0 ? 'good' : r.pts[0] < 0 ? 'badc' : '') + '">' + (r.pts[0] > 0 ? '+' : '') + num(r.pts[0]) + ' · ' + num(L.you) + '</span>' +
+          '<span>' + esc(L.std.name) + '</span><span class="' + (r.pts[1] > 0 ? 'badc' : '') + '">' + (r.pts[1] > 0 ? '+' : '') + num(r.pts[1]) + ' · ' + num(L.opp) + '</span></div>' +
+          '<ul class="lines">' + r.lines.map(t => '<li>' + esc(t) + '</li>').join('') + '</ul>' +
+          (over ? '<p class="big ' + (L.std.winner === 0 ? 'good">You and Nan win the game!' : 'badc">' + esc(L.std.name) + ' win the game.') + '</p>' : '') +
+          '<div class="btns"><button class="btn" data-act="next">' + (over ? 'Finish' : 'Next hand') + '</button></div>', key);
+        return;
+      }
       const goal = L.obj ? R.OBJECTIVES[L.obj.id].name + ': ' + (L.obj.done ? '<span class="good">done</span>' : L.obj.fail ? '<span class="badc">missed</span>' : R.objProgress(L)) : '';
       html = '<h2>Hand ' + L.handNo + (F ? ' against ' + esc(F.name) : '') + '</h2>' +
         '<div class="kv"><span>You hit them</span><span class="' + ((F ? r.hit : r.pts[0]) > 0 ? 'good' : (F ? r.hit : r.pts[0]) < 0 ? 'badc' : '') + '">' + (F ? (r.hit ? String(r.hit) : 'nothing') : num(r.pts[0])) + (F ? ' · ' + Math.max(0, F.hp - L.you) + ' of ' + F.hp + ' left' : '') + '</span>' +
@@ -1757,7 +1952,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
      plain JSON with the rng inside it), restored exactly. */
   const UNDOABLE = { bid: 1, discard: 1, play: 1, swing: 1 };
   function moveName(L, kind, arg) {
-    if (kind === 'bid') return arg ? 'your ' + bidPlain(arg) + ' bid' : 'your pass';
+    if (kind === 'bid') return arg ? 'your ' + bidPlain(arg) + ' bid' : L.h.raise ? 'keeping your bid' : 'your pass';
     if (kind === 'discard') return 'putting back the ' + E.label(arg);
     if (kind === 'swing') return L.h.pass === 'grand' ? 'passing the ' + E.label(arg) : arg ? 'swapping the ' + E.label(arg) : 'keeping your hand';
     return 'your ' + E.label(arg);
@@ -1802,8 +1997,8 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     if (P.held && Date.now() - P.held < 1500) { P.held = 0; ev.preventDefault(); return; }
     // a card that can't be played or picked (your cards panel, a hand while it isn't your turn): a tap explains it
     const plain = ev.target.closest('.card[data-c]');
-    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-water],[data-shunt],[data-buy],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip]')) { showCardInfo(plain.dataset.c); return; }
-    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-water],[data-shunt],[data-buy],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip]');
+    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-water],[data-shunt],[data-buy],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe]')) { showCardInfo(plain.dataset.c); return; }
+    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-water],[data-shunt],[data-buy],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe]');
     if (!t || t.disabled) return;
     if (t.closest('#sheet') && Date.now() < P.guardUntil) return;
     const L = P.L, d = t.dataset;
@@ -1826,8 +2021,28 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     if (d.remove) { move('remove', d.remove); return; }
     if (d.release) { move('release', d.release); return; }
     if (d.cleanse) { move('cleanse', d.cleanse); return; }
+    if (d.pickenh) { const s = P.enhSel; s.enh = d.pickenh; s.why = ''; if (s.card && R.cantTake(L, s.card, s.enh)) s.card = null; render(); return; }
+    if (d.pickcard) {
+      const s = P.enhSel, why = d.pickcard === 'JK' ? R.cantTake(L, 'JK', s.enh) : s.enh ? R.cantTake(L, d.pickcard, s.enh) : '';
+      if (why) { s.why = why.charAt(0).toUpperCase() + why.slice(1) + '.'; s.card = null; } else { s.card = s.card === d.pickcard ? null : d.pickcard; s.why = ''; }
+      render(); return;
+    }
+    if (d.partner) { move('partner', d.partner); return; }
+    if (d.foe) { startStandard(d.foe); return; }
     switch (d.act) {
-      case 'start': newRun(); break;
+      case 'start': mainMenu(true); break;
+      case 'mainback': mainMenu(false); break;
+      case 'newstory': if (loadSaved() && storyLive(loadSaved())) openSheet('info', abandonHTML()); else newRun(); break;
+      case 'abandon': clearSaved(); P.sheet = null; P.shown = null; $('veil').hidden = true; newRun(); break;
+      case 'daily': openSheet('info', '<h2>Daily Challenge</h2><p>Coming soon: one ride a day, the same deal and the same gangs for everyone, and your stars to compare.</p><div class="btns"><button class="btn" data-act="closesheet">Back</button></div>'); break;
+      case 'standard': openSheet('info', standardHTML()); break;
+      case 'resumestd': { const g = loadStd(); P.sheet = null; P.shown = null; $('veil').hidden = true; if (g) dustInto(() => { P.L = g; show(); }); break; }
+      case 'stdagain': startStandard(P.L.std.id); break;
+      case 'stdtitle': clearStd(); title(); break;
+      case 'useenh': { const s = P.enhSel; if (!s || !s.card) break; if (L.phase === 'reward') move('place', { enh: s.enh, card: s.card }); else move('enhance', s.card); break; }
+      case 'backenh': move('unplace'); break;
+      case 'foeinfo': openSheet('info', foeHelpHTML(L, d.k)); break;
+      case 'skipgrave': endGrave(); break;
       case 'skipopening': endOpening(); break;
       case 'options': { const o = $('titleOptions'); o.hidden = !o.hidden; document.querySelector('.titlemenu .opts').setAttribute('aria-expanded', String(!o.hidden)); break; }
       case 'continue': { const s = loadSaved(); if (s) dustInto(() => { P.L = s; show(); }); break; }
@@ -1851,13 +2066,46 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       case 'leavebank': move('bank', 'leave'); break;
       case 'noshunt': move('shunt', null); break;
       case 'newrun': clearSaved(); title(); break;
+      case 'mainmenu': clearSaved(); title(); mainMenu(true); break;
     }
   });
 
   function newRun() {
     const seed = (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
-    const L = R.newRun({ seed, objective: $('objPick').value || undefined, tips: $('tipsPick').checked });
+    const L = R.newRun({ seed, objective: $('objPick').value || undefined, tips: $('tipsPick').checked, pickPartner: true });
     playOpening(L, () => { P.L = L; show(); });
+  }
+  /* The main menu (the user's, 2026-10-30): Start, then New Story, Continue Current Story, Daily Challenge or
+     Standard 500, over the moving train. */
+  const storyLive = s => !!s && s.phase !== 'runover' && s.phase !== 'victory';
+  function mainMenu(on) {
+    $('title').classList.toggle('menu', on);
+    $('continueBtn').hidden = !storyLive(loadSaved());
+    layoutTitle();
+    const first = on ? document.querySelector('.titlemenu .item:not([hidden])') : document.querySelector('.titlemenu .go');
+    if (first && first.focus) try { first.focus({ preventScroll: true }); } catch (e) { /* old browser */ }
+  }
+  function abandonHTML() {
+    const s = loadSaved();
+    return '<h2>Abandon your story?</h2><p>Are you sure you want to abandon your current game?' + (s ? ' You are in Act ' + R.ROMAN[s.act] + ', ' + esc(E.ACTS[s.act].name) + ', with ' + s.health + ' health and ' + s.gold + ' gold.' : '') + '</p>' +
+      '<div class="btns"><button class="btn" data-act="abandon">Yes</button><button class="btn alt" data-act="closesheet">Cancel</button></div>';
+  }
+  /* Standard 500: the Dustwater Regulars always; each Showdown gang once you have beaten it in a story. */
+  function standardHTML() {
+    const beaten = profile().beaten, g = loadStd();
+    const face = look => '<span class="face"><img src="' + artURL('table/fig_' + look[0] + '.webp') + '" alt=""></span>';
+    const opp = (id, F, open) => '<button class="rider" data-foe="' + id + '"' + (open ? '' : ' disabled') + '>' + face(F.look) + '<b>' + esc(F.name) + '</b><span>' + esc(F.rule) + '</span>' +
+      (open ? '' : '<span class="lock">Beat them in a story to play them</span>') + '</button>';
+    return '<h2>Standard 500</h2><p>A plain game of 500 with the 43-card pack: you and Nan against the pair you choose. No health, gold or buffs: first to 500 wins, and 500 must be reached by making a bid.</p>' +
+      (g ? '<div class="btns"><button class="btn" data-act="resumestd">Resume: you ' + num(g.you) + ', ' + esc(g.std.name.replace(/^The /, 'the ')) + ' ' + num(g.opp) + '</button></div><h3>Or start a new game against</h3>' : '<h3>Choose your opponents</h3>') +
+      '<div class="roster">' + opp('regulars', R.standardFoe(null), true) + Object.keys(R.BOSS).map(id => opp(id, R.standardFoe(id), beaten.includes(id))).join('') + '</div>' +
+      '<div class="btns"><button class="btn alt" data-act="closesheet">Back</button></div>';
+  }
+  function startStandard(id) {
+    const seed = (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
+    const L = R.newStandard({ seed, boss: id === 'regulars' ? null : id });
+    P.sheet = null; P.shown = null; $('veil').hidden = true;
+    dustInto(() => { P.L = L; show(); });
   }
   function show() { $('title').hidden = true; P.sheet = null; P.shown = null; P.undo = []; P.stuck = null; step(); }
   function title() {
@@ -1865,9 +2113,10 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     $('game').hidden = true; $('screen').hidden = true; $('title').hidden = false; $('veil').hidden = true;
     buildHero();                                   // the screen may have changed size since the title was last up
     layoutTitle();
-    const s = loadSaved();
-    $('continueBtn').hidden = !(s && s.phase !== 'runover' && s.phase !== 'victory');
+    $('title').classList.remove('menu');
+    $('continueBtn').hidden = !storyLive(loadSaved());
     $('tipsPick').checked = !tipsDone();
+    endGrave(true);
   }
   /* The title scene, from art/title/scene.js (never load-bearing: without it, or the art, the hero is a banded sky). */
   function buildHero() {
@@ -1915,14 +2164,15 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const place = (sel, y) => { const el = document.querySelector(sel); if (el) el.style.top = Math.round(y) + 'px'; };
     place('.titlemenu .logo', sky * 0.22);
     place('.titlemenu .go', sky * 0.6);
-    place('#continueBtn', sky * 0.6 + 58);
+    const items = [...document.querySelectorAll('.titlemenu .item')].filter(el => !el.hidden), gap = Math.min(58, (sky * 0.92 - sky * 0.4) / Math.max(1, items.length - 1));
+    items.forEach((el, i) => { el.style.top = Math.round(sky * 0.4 + gap * i) + 'px'; });
     place('.titlemenu .opts', innerHeight - 34);
     document.querySelectorAll('.titlemenu .wood').forEach(el => {
       const t = S && S.type && S.type[el.dataset.word];
       if (!t || !art) return;
       const k = el.classList.contains('more') ? Math.max(2, s - 1) : s;
       let img = el.querySelector('img');
-      if (!img) { img = document.createElement('img'); img.alt = ''; el.appendChild(img); }
+      if (!img) { img = document.createElement('img'); img.alt = ''; el.insertBefore(img, el.querySelector('small')); }
       img.src = artURL('title/' + t.img + '.webp');
       img.width = t.w * k; img.height = t.h * k;
       el.classList.add('drawn');
@@ -2056,6 +2306,51 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const tx = innerWidth / 2 - k * (r.left + r.width / 2), ty = innerHeight * 0.45 - k * (r.top + r.height / 2);
     document.body.classList.add('signzoom');
     hero.style.transform = 'translate(' + Math.round(tx) + 'px,' + Math.round(ty) + 'px) scale(' + k.toFixed(3) + ')';
+  }
+  /* Game over: the grave, then the run's ending (already drawn behind it). Once a run; never in ?fast. */
+  const GRAVE = { timers: [] };
+  function playGrave(L) {
+    const key = L.rs + ':' + L.level + ':' + L.handNo;
+    if (FAST || P.graveFor === key) return;
+    P.graveFor = key;
+    const g = $('grave'), S = window.GRAVE_SCENE, art = document.documentElement.classList.contains('art') && S;
+    const W = S ? S.W : 240, H = S ? S.H : 112;
+    // art pixels to the screen: a phone held upright shows about the middle 125 (the fresh grave and its neighbours)
+    const k = Math.max(2, Math.min(Math.floor(innerWidth / 125), Math.floor(innerHeight * 0.62 / H))) || 2;
+    const rig = g.querySelector('.grig'), plate = g.querySelector('.gplate'), far = g.querySelector('.gfar');
+    rig.style.height = (H * k) + 'px';
+    g.style.setProperty('--gk', k);
+    plate.style.width = W * k + 'px'; plate.style.height = H * k + 'px';
+    // the ground under the plate's horizon runs on to the screen's edges; the buttes sit on the horizon
+    const horizon = S ? 26 : 30;
+    g.querySelector('.gground').style.height = ((H - horizon) * k) + 'px';
+    plate.innerHTML = art ? '<img src="' + artURL('grave/plate.webp') + '" alt="">' +
+      '<span class="rip" style="left:' + (100 * S.board[0] / W).toFixed(2) + '%;top:' + (100 * (S.board[1] - 1) / H).toFixed(2) + '%">R.I.P.</span>' : '';
+    if (art && S.mesas) { far.style.height = S.mesas.h * k + 'px'; far.style.bottom = ((H - horizon) * k - 2) + 'px'; far.style.backgroundImage = 'url(' + artURL('grave/' + S.mesas.img + '.webp') + ')'; far.style.backgroundSize = S.mesas.w * k + 'px ' + S.mesas.h * k + 'px'; }
+    else far.style.backgroundImage = 'none';
+    // push in on the fresh grave
+    const gx = S ? S.grave[0] / W : 0.5, gy = S ? S.grave[1] / H : 0.7;
+    rig.style.transformOrigin = 'calc(50% + ' + ((gx - 0.5) * W * k).toFixed(0) + 'px) ' + (gy * 100).toFixed(1) + '%';
+    g.style.setProperty('--push', innerWidth < 500 ? 1.7 : 2.2);
+    g.querySelectorAll('.tumble').forEach(t => t.remove());
+    if (art) { const t = document.createElement('div'); t.className = 'tumble'; t.style.width = 12 * k + 'px'; t.style.height = 10 * k + 'px'; t.style.bottom = (H * 0.18 * k) + 'px';
+      t.style.backgroundImage = 'url(' + artURL('dustwater/tumble.webp') + ')'; g.appendChild(t); }
+    const who = L.lostTo ? (R.BOSS[L.lostTo] ? R.BOSS[L.lostTo].name : L.lostTo) : 'a stray bullet';
+    const where = L.kind === 'boss' && R.PLACE[L.act] ? R.PLACE[L.act].boss : E.ACTS[L.act].name;
+    g.querySelector('.gcard').innerHTML = '<small>HERE LIES</small><b>A Bounty Hunter</b><p>Shot down by ' + esc(who.replace(/^The /, 'the ')) + ' at ' + esc(where.replace(/^The /, 'the ')) + ', Act ' + R.ROMAN[L.act] + '.<br>Nan says a few kind words.</p>' +
+      '<button class="btn" data-act="skipgrave">See how the ride went</button>';
+    g.classList.remove('push', 'said');
+    g.hidden = false;
+    GRAVE.timers.forEach(clearTimeout);
+    GRAVE.timers = [setTimeout(() => g.classList.add('push'), 300), setTimeout(() => g.classList.add('said'), reduceMotion() ? 600 : 4200)];
+  }
+  function endGrave(quiet) {
+    GRAVE.timers.forEach(clearTimeout); GRAVE.timers = [];
+    const g = $('grave');
+    if (!g || g.hidden) return;
+    g.hidden = true;
+    g.classList.remove('push', 'said');
+    if (!quiet) try { window.scrollTo(0, 0); } catch (e) { /* no layout */ }
   }
   // Continue: a short dust wipe into the run (none under reduced motion or ?fast)
   function dustInto(done) {
