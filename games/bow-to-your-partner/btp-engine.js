@@ -223,6 +223,9 @@
   const dirOf = L => L && L.h && L.h.dir === -1 ? 3 : 1;
   const seatAfter = (L, p, i) => (p + i * dirOf(L)) % 4;
   // the Caller's Reverse: the first trick of the hand goes to the lowest card of the suit led
+  /* A call's words in the log: the Caller's own name for it, or a gang's table rule (2026-10-30). The name only counts
+     while it belongs to the call in force (L.callFor), else the Caller's default. */
+  const callWords = (L, dflt) => L && L.callFor === L.call && L.callName ? [L.callName, L.callBy || 'calls the Caller'] : [dflt, 'calls the Caller'];
   const callReverse = L => !!L && L.call === 'reverse' && !!L.h && L.h.winners && L.h.winners.length === 0;
   function winnerOf(cards, leader, trump, L) {
     let w = leader, wk = Object.assign(K(L, leader, cards[leader]), { led: true });
@@ -270,7 +273,7 @@
     let led = kSuit(K(L, leader, cards[leader]), trump), who = SEATS[winner];
     if (L && L.call === 'reverse' && L.h && L.h.trickNo === 1 && !(en(lk, 'sanctuary')) && winner !== null) {
       const nm = NAME[led] ? NAME[led].slice(0, -1) : 'card';
-      return SEATS[winner] + (winner === 0 ? ' win' : ' wins') + ' with ' + kLabel(k) + ': the Caller called Reverse, so the lowest ' + nm + ' takes the first trick and nobody can trump in.';
+      return SEATS[winner] + (winner === 0 ? ' win' : ' wins') + ' with ' + kLabel(k) + ': ' + (callWords(L, '')[1] === 'the table rule' ? 'the table rule is ' + callWords(L, '')[0] : 'the Caller called Reverse') + ', so the lowest ' + nm + ' takes the first trick and nobody can trump in.';
     }
     if (en(lk, 'reverse') && winner !== null) {
       const nm = NAME[led] ? NAME[led].slice(0, -1) : 'card';
@@ -493,7 +496,7 @@
     h.turn = c.seat;
     for (let p = 0; p < 4; p++) sort(L, p);
     if (L.curse === 'nokitty' || L.call === 'nokitty') {
-      say(L, L.call === 'nokitty' ? 'No Kitty, calls the Caller: the kitty stays face down.' : 'No kitty this level: the kitty stays face down.', 'rule');
+      say(L, L.call === 'nokitty' ? callWords(L, 'No Kitty').join(', ') + ': the kitty stays face down.' : 'No kitty this level: the kitty stays face down.', 'rule');
       afterKitty(L);
       return;
     }
@@ -522,9 +525,18 @@
     if (foeHas(L, 'bushwhack') && team(h.contractor) === 0) {
       h.leader = h.turn = 1;
       say(L, 'Bushwhacked: West leads the first trick.', 'rule');
+    } else if (L.call === 'dealerleads' && !h.misere) {
+      // a table rule (2026-10-30): the dealer leads, whoever won the bid
+      h.leader = h.turn = L.dealer;
+      say(L, callWords(L, 'Dealer\u2019s Lead')[0] + ': ' + (L.dealer === 0 ? 'you lead' : L.dealer === 2 ? 'Nan leads' : SEATS[L.dealer] + ' leads') + ' the first trick, as the dealer.', 'rule');
     } else if (L.call === 'promenade' && !h.misere) {
       h.leader = h.turn = partnerOf(h.contractor);
-      say(L, 'Promenade: ' + (h.leader === 0 ? 'you lead' : (h.leader === 2 ? 'Nan leads' : SEATS[h.leader] + ' leads')) + ' the first trick for ' + (h.contractor === 0 ? 'you' : h.contractor === 2 ? 'Nan' : SEATS[h.contractor]) + '.', 'rule');
+      say(L, callWords(L, 'Promenade')[0] + ': ' + (h.leader === 0 ? 'you lead' : (h.leader === 2 ? 'Nan leads' : SEATS[h.leader] + ' leads')) + ' the first trick for ' + (h.contractor === 0 ? 'you' : h.contractor === 2 ? 'Nan' : SEATS[h.contractor]) + '.', 'rule');
+    }
+    else if (hasBuff(L, 'firstdraw') && team(h.contractor) === 0 && !h.misere && h.contractor !== 0) {
+      // First Draw (a buff, 2026-10-30): when your team wins the bid, you lead the first trick
+      h.leader = h.turn = 0;
+      say(L, 'First Draw: you lead the first trick for Nan.', 'rule');
     }
     if (team(h.contractor) === 1) {
       const v = h.contract.v;
@@ -578,7 +590,7 @@
       h.herald = { seat, partner: p, suit, n, trick: h.trickNo + 1 };
       say(L, 'Herald: ' + (p === 2 ? 'Nan holds ' : 'You hold ') + n + ' ' + (suit === '*' || suit === '#' ? 'cards of that suit' : NAME[suit]) + '.', 'rule');
     }
-    if (leading && h.trickNo === 0 && L.call === 'reverse' && !(en(k, 'sanctuary'))) say(L, 'Reverse, calls the Caller: the lowest ' + (NAME[kSuit(k, h.trump)] || 'card').replace(/s$/, '') + ' wins this first trick, and nobody can trump in.', 'rule');
+    if (leading && h.trickNo === 0 && L.call === 'reverse' && !(en(k, 'sanctuary'))) say(L, callWords(L, 'Reverse').join(', ') + ': the lowest ' + (NAME[kSuit(k, h.trump)] || 'card').replace(/s$/, '') + ' wins this first trick, and nobody can trump in.', 'rule');
     else if (en(k, 'reverse') && leading) say(L, 'Reverse: the lowest ' + (NAME[kSuit(k, h.trump)] || 'card').replace(/s$/, '') + ' wins this trick, and nobody can trump in.', 'rule');
     if (en(k, 'sanctuary') && leading) say(L, 'Sanctuary: nobody can trump in on this trick.', 'rule');
     if (h.trump && rankOf(card) === 'J' && suitOf(card) === TWIN[h.trump])
@@ -713,7 +725,7 @@
     K, plainK, kSuit, kRank, kTrumpRank, kIsTrump, kBeats, kLabel,
     effSuit, trumpRank, isTrump, canPlay, winnerOf, beats, explain,
     bidValue, bidList, sweepValue, bidText, damageOf, HIT, hitShare, hitWord, rankOfBid, mustBid, WALL, extraTricks, extraBids, counted, resolveTwo,
-    en, enhsOf, foeHas, hasBuff, FX, fight,
+    en, enhsOf, foeHas, hasBuff, FX, fight, callWords,
     say, deal, sort, legalBids, bid, discard, afterKitty, ack, ledSuit, legalPlays, play, score
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

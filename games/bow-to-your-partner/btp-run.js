@@ -72,11 +72,18 @@
     3: [['The Pie Judges', 'gQpj', 'gKpj'], ['Two Rodeo Riders', 'gJrr1', 'gJrr2'], ['The Carnival Barkers', 'gKcbk', 'gJcbk'], ['The Strongman and His Manager', 'gKsm', 'gKmg'],
         ['Two Horse Traders', 'gKht1', 'gJht2'], ['The Shooting-gallery Men', 'gJsg1', 'gKsg2'], ['Two Fortune Tellers', 'gQft1', 'gQft2']]
   };
+  // three more gangs an act (2026-10-30), dressed from the figures already baked
+  GANGS[1].push(['The Saddle Thieves', 'gJdr2', 'gJcp1'], ['The Widow and Her Boy', 'gQsal', 'gJrh2'], ['The Blacksmith Brothers', 'gKbb', 'gKmb1']);
+  GANGS[2].push(['The Pullman Porters', 'gJmc2', 'gJbk1'], ['Two Oil Speculators', 'gKcb2', 'gKgb1'], ['The Lady Gamblers', 'gQlou', 'gQmags']);
+  GANGS[3].push(['The Pie-eating Champions', 'gKpj', 'gKpf1'], ['Two Lemonade Sellers', 'gQpj', 'gJsn2'], ['The Ferris Wheel Men', 'gJcbk', 'gKsg2']);
   const DUELISTS = {
     1: [['Quick-draw Quinn and Pa', 'gJqq', 'gKpa'], ['The Dutton Kid and Sal', 'gJdk', 'gQsal'], ['Two-gun Tess and Hank', 'gQtess', 'gKhank']],
     2: [['Diamond Jim and Lou', 'gKdj', 'gQlou'], ['The Railroad Baron\u2019s Boys', 'gJrb1', 'gJrb2'], ['Silent Sam and Mags', 'gJss', 'gQmags']],
     3: [['The Champion Sharpshooters', 'gQcs', 'gJcs'], ['One-eyed Jack and Rosa', 'gJoj', 'gQrosa'], ['The Prize Fighters', 'gKpf1', 'gKpf2']]
   };
+  DUELISTS[1].push(['Dead-eye Dora and Clem', 'gQtess', 'gJdk'], ['The Hangman and the Judge', 'gKpa', 'gKhank']);
+  DUELISTS[2].push(['The Brakeman and Rosa', 'gKbk2', 'gQrosa'], ['Gentleman Jim and Sal', 'gKdj', 'gQsal']);
+  DUELISTS[3].push(['The Rodeo Queen and Her Rider', 'gQcs', 'gJrr1'], ['Two Trick Shooters', 'gJsg1', 'gJcs']);
   const DUEL_ABILITIES = ['locked', 'ticking', 'nokitty', 'lucky', 'deadeye'];
   /* The gang's debuffs on you (the user's ask, 2026-10-29: "some enemies need to apply a debuff, e.g. the
      player's cards are worth one rank less"). The engine reads them (E.foeHas); Gagged and Shakedown are read
@@ -179,6 +186,28 @@
     corner: { name: 'Honour Your Corner', text: 'Play goes the other way round: East plays after you, West before.',
       hurt: () => ({ score: 1, why: 'Everyone\u2019s position at the table changes.' }) }
   };
+  /* Table rules (2026-10-30, the review's #1: hands at the Card tables all felt the same). Every Card-table gang
+     plays by one rule for the whole fight, shown on its poster and nameplate. Each is one of the engine's switches
+     (the Caller's calls) under a saloon name, or one of two new ones: the kitty dealt face up (you see it while
+     bidding) and the dealer's lead. Act I draws from the gentle ones; the trick-bending ones join from Act II. */
+  const TABLE_RULES = {
+    facekitty:   { name: 'Open Kitty', text: 'The kitty is dealt face up: you can see it while you bid.' },
+    dealerleads: { name: 'Dealer\u2019s Lead', text: 'The dealer leads the first trick, whoever wins the bid.' },
+    promenade:   { name: 'Gentleman\u2019s Lead', text: 'The bid winner\u2019s partner leads the first trick.' },
+    corner:      { name: 'Widdershins', text: 'Play goes the other way round: East plays after you, West before.' },
+    nokitty:     { name: 'Closed Kitty', text: 'Nobody picks up the kitty: bid on the cards you hold.' },
+    reverse:     { name: 'Low Card Takes It', text: 'The lowest card of the suit led wins the first trick, and nobody can trump in.' },
+    allemande:   { name: 'Left Hand Rules', text: 'The left bower outranks the right.' },
+    grand:       { name: 'Pass to the Left', text: 'Before play, everyone passes one card to the left: you to West, East to you.' }
+  };
+  const RULE_POOL = { 1: ['facekitty', 'dealerleads', 'promenade', 'corner', 'nokitty'],
+                      2: ['facekitty', 'dealerleads', 'promenade', 'corner', 'nokitty', 'reverse', 'allemande', 'grand'] };
+  RULE_POOL[3] = RULE_POOL[2];
+  // the rule in force this fight: a next-fight rule (an event's) over the gang's own
+  const ruleOf = L => (L.fight && L.fight.rule) || (L.foe && L.foe.rule) || null;
+  /* What the next fight brings (events and the General Store, 2026-10-30): { peek, spy, double, tough, rule }, taken
+     up when the fight starts (L.fight) and gone when it ends. sees(L, x): a buff, or this fight's gift. */
+  const sees = (L, x) => has(L, x) || !!(L.fight && L.fight[x]);
   function chooseCall(L) {
     let best = null;
     for (const id of Object.keys(CALLS)) {
@@ -194,6 +223,11 @@
   const BOSS_POOL = { 1: ['twins'], 2: ['sharps', 'hustlers'], 3: ['caller', 'wallflowers'] };   // Act III (the user's call, 2026-10-25)
   /* Buffs (relics). A partner's own ability is never offered. */
   const BUFFS = {
+    // that change how a hand is played (2026-10-30, the review's #5)
+    spyglass: { name: 'Spyglass', text: 'While you bid, you see one card from West\u2019s hand and one from East\u2019s.' },
+    freshdeck: { name: 'Fresh Deck', text: 'Once a fight, before you bid, call for a new deal.' },
+    firstdraw: { name: 'First Draw', text: 'When Nan wins the bid, you lead the first trick.' },
+    sleeve:   { name: 'Card up Your Sleeve', text: 'Once a hand, before you bid, swap one of your cards for the kitty\u2019s top card, unseen.' },
     // the Act II bosses' secrets, carried by the risky train's last gang (COUNTER); never drawn or sold
     tell:     { name: 'The Sharps\u2019 Signals', text: 'You know their signals: the Card Sharps can\u2019t see your seeded cards, or hunt them, and they start the Showdown a quarter down.', secret: 'sharps' },
     bluff:    { name: 'Called Bluff', text: 'The Hustlers\u2019 mis\u00e8re is always played open: their hand goes face up after the first trick, and they start the Showdown a quarter down.', secret: 'hustlers' },
@@ -301,6 +335,17 @@
                 options: [{ text: 'Grab it and throw it clear: +60 health, and the Dynamite lands on a random card in the deck', fx: { health: 60, hex: { kind: 'potato', on: 'table' } } }, { text: 'Duck under the table', fx: {} }] },
     cousin:   { name: 'The Clumsy Deputy', text: 'Nan\u2019s nephew, a brand-new deputy, insists on helping. He is not careful.', acts: [2],
                 options: [{ text: 'Let him help: +60 gold, but he leaves you a Misfire (a curse card you own)', fx: { gold: 60, curse: 'twoleft' } }, { text: 'Make your excuses', fx: {} }] },
+    // events that change the next fight (2026-10-30, the review's #9: Act I had four events)
+    faro:     { name: 'The Faro Dealer\u2019s Lesson', text: 'An old faro dealer offers to show you how to read a kitty without lifting it.',
+                options: [{ text: 'Take the lesson: see the kitty in every hand of your next fight', fx: { next: { peek: true } } }, { text: 'Buy him a drink instead: +20 gold from his tips', fx: { gold: 20 } }] },
+    swapper:  { name: 'The Drunk Gambler', text: 'A gambler with one boot on offers to swap you a card, sight unseen.',
+                options: [{ text: 'Swap: one of your cards (and anything on it) for a random card from the deck', fx: { swap: true } }, { text: 'Walk on by', fx: {} }] },
+    preacher: { name: 'The Travelling Preacher', text: 'A preacher on a crate says the meek shall win the first trick.',
+                options: [{ text: 'Take his blessing: +60 health, and in your next fight the lowest card takes the first trick', fx: { health: 60, next: { rule: 'reverse' } } }, { text: 'Slip away', fx: {} }] },
+    telegraph: { name: 'The Telegraph Clerk', text: 'The clerk has read the gangs\u2019 telegrams, and he\u2019ll sell what he knows.',
+                options: [{ text: 'Pay 30 gold: in your next fight, see one card from each opponent\u2019s hand while you bid', fx: { gold: -30, next: { spy: true } } }, { text: 'Not today', fx: {} }] },
+    posting:  { name: 'The Sheriff\u2019s Posting', text: 'The sheriff pins up a fresh notice: double the bounty on the next gang, but they\u2019re tougher than they look.',
+                options: [{ text: 'Take it: your next fight pays double, and its gang has a quarter more health', fx: { next: { double: true, tough: true } } }, { text: 'Leave it on the board', fx: {} }] },
     // the controlled shunt (2026-10-29, the user's idea): swap two carriages ahead on one stretch of line, to replan
     // off the train with the braided tracks (2026-10-30: nothing there is left to switch); the Fair still has him
     switchman: { name: 'The Switchman', text: 'At a siding the switchman leans on his lever. \u201cWant a couple of cars shuffled up the line? Nobody\u2019ll know.\u201d', acts: [],
@@ -752,6 +797,13 @@
       // a Duel's ability that is one of the old curses also sets L.curse, which the engine reads
       for (const t of L.foe.traits) if (CURSES[t]) L.curse = t;
     }
+    L.fight = null;
+    // (a Card table's or a Duel's: a Showdown is no "next gang", so what was bought waits for the next one)
+    if ((kind === 'dance' || kind === 'elite') && L.nextFight) {
+      L.fight = L.nextFight; L.nextFight = null;
+      if (L.fight.tough && L.foe) L.foe.hp = Math.round(L.foe.hp * 1.25 / 10) * 10;
+    }
+    L.freshUsed = false;
     L.you = 0; L.opp = 0; L.startHealth = L.health; L.startGold = L.gold;
     L.handNo = 1; L.hands = kind === 'bank' ? BANK.hands : null;
     L.captured = [];
@@ -780,13 +832,14 @@
       traits.push(ab);
       if (a >= TRAIT.duel2) traits.push(E.pick(L, TRAIT.pool.concat(debuffs).filter(x => x !== ab)));
     } else if (f >= TRAIT.floor && E.rnd(L) < TRAIT.p[a]) traits.push(E.pick(L, TRAIT.pool.concat(debuffs)));
+    const rule = kind === 'dance' ? E.pick(L, RULE_POOL[a] || RULE_POOL[2]) : null;
     let hp = (FOE.base[a] + FOE.step[a] * f) * (kind === 'elite' ? FOE.elite : 1) * (traits.includes('tough') ? 1.25 : 1);
     hp = Math.round(hp / 10) * 10;
     const all = (kind === 'elite' ? DUELISTS : GANGS)[a], fresh = seen ? all.filter(g => !seen.includes(g[0])) : all;
     const g = E.pick(L, fresh.length ? fresh : all);
     if (seen) seen.push(g[0]);
     const extra = traits.length - (kind === 'elite' ? 1 : 0);
-    return { name: g[0], look: [g[1], g[2]], hp, traits, hitMul: traits.includes('deadeye') ? 1.5 : 1, bounty: 1 + BOUNTY.ability * extra };
+    return Object.assign({ name: g[0], look: [g[1], g[2]], hp, traits, hitMul: traits.includes('deadeye') ? 1.5 : 1, bounty: 1 + BOUNTY.ability * extra }, rule ? { rule } : {});
   }
   /* How good a deal is for West and East (the stacked deck keeps the better of two for them). */
   function gangStrength(h) {
@@ -796,7 +849,8 @@
   const stackChance = L => !L.foe ? 0 : L.foe.traits.includes('lucky') ? 1 :
     STACK.max * (L.kind === 'boss' ? 1 : Math.max(0, floorOf(L)) / (MAPSHAPE.floors - 1));
   function dealHand(L) {
-    L.call = null;
+    const rule = ruleOf(L);
+    L.call = L.callFor = rule; L.callName = rule ? TABLE_RULES[rule].name : null; L.callBy = rule ? 'the table rule' : null;
     const n = L.log.length;
     E.deal(L);
     const p = stackChance(L);
@@ -811,10 +865,13 @@
     if (L.boss === 'caller') {
       if (Object.keys(CALLS).every(id => L.calls.includes(id))) L.calls = [];     // a long Showdown: he starts the round again
       const c = chooseCall(L);
-      L.call = c.id; L.calls.push(c.id); L.callWhy = c.why;
+      L.call = c.id; L.calls.push(c.id); L.callWhy = c.why; L.callFor = c.id; L.callName = CALLS[c.id].name; L.callBy = 'calls the Caller';
       L.h.dir = c.id === 'corner' ? -1 : 1;
       E.say(L, 'The Caller calls ' + CALLS[c.id].name + '! ' + CALLS[c.id].text + ' ' + c.why, 'call');
     }
+    if (rule && L.handNo === 1) E.say(L, 'Table rule: ' + TABLE_RULES[rule].name + '. ' + TABLE_RULES[rule].text, 'rule');
+    // the Spyglass: one card from each opponent's hand, seen while bidding
+    if (sees(L, 'spyglass')) L.h.spy = [E.pick(L, L.h.hands[1]), E.pick(L, L.h.hands[3])];
     if (L.curse === 'ticking') {
       L.h.ticking = E.pick(L, L.h.hands[0]);
       E.say(L, 'Lit Fuse: play your ' + E.label(L.h.ticking) + ' by trick 2, or lose 20 health.', 'rule');
@@ -965,7 +1022,7 @@
       if (h.locked === card) h.locked = null;
       if (h.ticking === card) h.ticking = null;
       for (let p = 0; p < 4; p++) E.sort(L, p);
-      E.say(L, 'Grand Right and Left: you passed your ' + E.label(card) + ' to West, and East passed you the ' + E.label(give[3]) + '.', 'rule');
+      E.say(L, E.callWords(L, 'Grand Right and Left')[0] + ': you passed your ' + E.label(card) + ' to West, and East passed you the ' + E.label(give[3]) + '.', 'rule');
       h.grandDone = true;
       h.phase = h.swingNext;
       h.pass = null;
@@ -1062,6 +1119,7 @@
         if (b) pay.push({ t: 'Bonus: ' + OBJECTIVES[o.id].name, g: P[1 + b] - P[1], star: true });
         if (fast) pay.push({ t: 'Within par (' + par + ' hands)', g: P[stars] - P[1 + b], star: true });
         if (gold !== plain) pay.push({ t: 'Wanted for their tricks', g: gold - plain });
+        if (L.fight && L.fight.double) { pay.push({ t: 'The sheriff\u2019s posting: paid double', g: gold }); gold *= 2; }
         E.say(L, L.foe.name + ' are brought in after ' + L.handNo + ' hand' + (L.handNo > 1 ? 's' : '') + (fast ? ' (par ' + par + ')' : ', over par ' + par) + '.', 'objective');
       }
     }
@@ -1088,7 +1146,7 @@
     L.record = (L.record || []).concat({ act: L.act, level: L.level, kind: L.kind, id: L.kind === 'boss' ? L.boss : o.id, stars, won: L.kind === 'boss' ? true : o.done });
     L.phase = 'over';
     E.say(L, 'Game ' + L.level + ' over: ' + stars + ' star' + (stars > 1 ? 's' : '') + ', ' + (gold < 0 ? '\u2212' + -gold : gold) + ' gold.', 'end');
-    L.curse = null; L.dealRule = null;
+    L.curse = null; L.dealRule = null; L.fight = null;
   }
 
   /* ---------------- rewards ---------------- */
@@ -1234,13 +1292,21 @@
     if (fx.health < 0 && L.health + fx.health <= 0) return no('that would finish you');
     if (fx.shunt && !shuntable(L).length) return no('no stretch ahead has two carriages to swap');
     if (fx.shunt) { L.shunt = { pick: null }; L.phase = 'shunt'; return yes(); }
+    if (fx.swap && !L.owned.some(c => c !== 'JK')) return no('you have no card to swap');
     if (fx.gold) L.gold += fx.gold;
+    if (fx.next) L.nextFight = Object.assign(L.nextFight || {}, fx.next);
     if (fx.health > 0) heal(L, fx.health);
     else if (fx.health) L.health += fx.health;
     let msg = o.text.replace(/:.*/, '') + '.';
     if (fx.card === 'face') {
       const pool = E.deckOf(L).filter(c => ['J', 'Q', 'K'].includes(E.rankOf(c)) && !L.owned.includes(c));
       if (pool.length) { const c = E.pick(L, pool); L.owned.push(c); msg = 'The stranger’s card is the ' + E.label(c) + '. It’s yours now.'; }
+    }
+    if (fx.swap) {
+      const mine = L.owned.filter(c => c !== 'JK'), out = E.pick(L, mine), pool = E.deckOf(L).filter(c => !L.owned.includes(c) && c !== 'JK');
+      const got = E.pick(L, pool);
+      L.owned = L.owned.filter(c => c !== out).concat(got); delete L.mods[out];
+      msg = 'The gambler takes your ' + E.label(out) + ' and hands you the ' + E.label(got) + '.';
     }
     if (fx.hex) {
       const card = hexTarget(L, fx.hex.on);
@@ -1313,8 +1379,15 @@
       .concat([{ type: 'enh', id: E.pick(L, enhPool(L)), price: priced(L, ENH_PRICE) }])
       .concat(fb.length ? [{ type: 'buff', id: E.pick(L, fb), price: priced(L, 150 + 25 * Math.floor(E.rnd(L) * 3)) }] : [])
       .concat([{ type: 'tonic', id: 'tonic', price: priced(L, TONIC.price) }])
-      .concat(hexed(L).length ? [{ type: 'cleanse', id: 'cleanse', price: priced(L, CLEANSE_PRICE) }] : []);
+      .concat(hexed(L).length ? [{ type: 'cleanse', id: 'cleanse', price: priced(L, CLEANSE_PRICE) }] : [])
+      // things to spend gold on (2026-10-30, the review's #10: gold piled up), each changing a fight to come
+      .concat([{ type: 'marked', id: 'marked', price: priced(L, SHOP.marked), name: 'A marked deck', text: 'See the kitty in every hand of your next fight.' },
+               { type: 'posting', id: 'posting', price: priced(L, SHOP.posting), name: 'The sheriff\u2019s posting', text: 'Your next fight pays double bounty.' }])
+      .concat(L.act === 2 && L.map && COUNTER[L.map.boss] && !has(L, COUNTER[L.map.boss]) ? [{ type: 'secret', id: COUNTER[L.map.boss], price: priced(L, SHOP.secret),
+               name: 'The boss\u2019s secret', text: BUFFS[COUNTER[L.map.boss]].name + ': ' + BUFFS[COUNTER[L.map.boss]].text }] : [])
+      .concat([{ type: 'restock', id: 'restock', price: priced(L, SHOP.restock), name: 'Ask what\u2019s out back', text: 'A new set of goods on the shelves.' }]);
   }
+  const SHOP = { marked: 45, posting: 50, secret: 150, restock: 15 };
   const releasePrice = L => priced(L, 50 + 25 * L.releases);
   function buy(L, i) {
     if (L.phase !== 'shop') return no('the store is closed');
@@ -1334,6 +1407,10 @@
     if (it.type === 'enh') { L.target = it.id; L.targetBack = 'shop'; L.targetBuy = i; L.phase = 'target'; }
     if (it.type === 'tonic') { const got = heal(L, TONIC.health); note(L, 'Drank the tonic: +' + got + ' health.'); }
     if (it.type === 'cleanse') { L.cleanseBack = 'shop'; L.phase = 'cleanse'; }
+    if (it.type === 'marked') { L.nextFight = Object.assign(L.nextFight || {}, { peek: true }); note(L, 'A marked deck: your next fight, you\u2019ll see the kitty every hand.'); }
+    if (it.type === 'posting') { L.nextFight = Object.assign(L.nextFight || {}, { double: true }); note(L, 'The sheriff\u2019s posting: your next fight pays double.'); }
+    if (it.type === 'secret') { grantBuff(L, it.id); note(L, 'Bought the boss\u2019s secret: ' + BUFFS[it.id].name + '.'); }
+    if (it.type === 'restock') { stock(L); note(L, 'The storekeeper brings out new goods.'); }
     return yes();
   }
   function release(L, card) {
@@ -1346,6 +1423,31 @@
     if (L.hexes && L.hexes[card] === 'twoleft') delete L.hexes[card];   // a curse card goes with you
     note(L, 'Released the ' + E.label(card) + '.');
     if (L.releaseBack === 'shop') L.phase = 'shop'; else nextStop(L);
+    return yes();
+  }
+
+  /* Fresh Deck: once a fight, before you bid, a new deal. Card up Your Sleeve: once a hand, before you bid, one of
+     your cards for the kitty's top card. */
+  const beforeYouBid = L => L.phase === 'hand' && L.h.phase === 'bid' && L.h.turn === 0 && !L.h.raise && !L.h.bids.some(b => b.seat === 0);
+  function freshDeal(L) {
+    if (!has(L, 'freshdeck')) return no('you have no Fresh Deck');
+    if (L.freshUsed) return no('the fresh deal is used for this fight');
+    if (!beforeYouBid(L)) return no('only before you bid');
+    L.freshUsed = true;
+    E.say(L, BUFFS.freshdeck.name + ': you call for a new deal.', 'rule');
+    dealHand(L);
+    return yes();
+  }
+  function sleeveSwap(L, card) {
+    const h = L.h;
+    if (!has(L, 'sleeve')) return no('nothing up your sleeve');
+    if (!beforeYouBid(L) || h.sleeved) return no('once a hand, before you bid');
+    if (!h.hands[0].includes(card) || card === h.locked) return no('pick a card from your hand');
+    if (!h.kitty.length) return no('the kitty is empty');
+    const got = h.kitty[0];
+    h.hands[0].splice(h.hands[0].indexOf(card), 1, got); h.kitty[0] = card; h.sleeved = true;
+    E.sort(L, 0);
+    E.say(L, BUFFS.sleeve.name + ': you slip your ' + E.label(card) + ' under the kitty and come up with the ' + E.label(got) + '.', 'rule');
     return yes();
   }
 
@@ -1441,6 +1543,8 @@
       case 'place': return place(L, arg);
       case 'unplace': return unplace(L);
       case 'partner': return choosePartner(L, arg);
+      case 'freshdeal': return freshDeal(L);
+      case 'sleeve': return sleeveSwap(L, arg);
     }
     if (L.phase !== 'hand') return no('the hand is not in play');
     if (kind === 'ack') return after(L, E.ack(L));
@@ -1511,7 +1615,7 @@
     return o.n + ' / ' + o.of;
   }
   const api = { DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
-    cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, EXPRESS, DRIVER, COUNTER, makeDriver, ROSTER, STANDARD, standardFoe, newStandard,
+    cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, EXPRESS, DRIVER, COUNTER, makeDriver, ROSTER, STANDARD, standardFoe, newStandard,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;
   else root.BtpRun = api;

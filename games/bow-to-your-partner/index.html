@@ -492,6 +492,7 @@ html.art .wanted.hasart .w { grid-column: 2; }
 .foe .ftag::after, .foe .fhit::after { content: '?'; display: inline-block; margin-left: 4px; width: 13px; height: 13px; border-radius: 50%; font-size: 10px; line-height: 13px;
   text-align: center; background: currentColor; color: inherit; box-shadow: inset 0 0 0 9px rgba(255,255,255,.75); }
 .stage .plate { pointer-events: auto; }
+.foe .ftag.rule { color: #2a4a8a; background: #e6eefb; }
 .foe .ftag { font-size: 12px; font-weight: 700; color: var(--bad); background: #fbeae6; border-radius: 999px; padding: 1px 8px; }
 .foe .fhit { font-size: 12px; color: var(--muted); }
 .foe .fhp { margin-left: auto; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--bad); }
@@ -567,6 +568,8 @@ html.art .standing .bchip.s-H { background-image: url(art/ui/chip_H.png); } html
 .bidwon b { color: #f3d070; } .bidwon small { display: block; font-size: 12px; color: #e8d3a8; }
 @keyframes bidwon { from { transform: translate(-50%, 8px); opacity: 0; } }
 .bidlog { display: flex; flex-wrap: wrap; gap: 4px; }
+.btn.mini { min-height: 36px; padding: 4px 10px; font: 700 13px/1.2 Bitter, Georgia, serif; margin: 4px 4px 0 0; }   /* the pixel C reads as an O this small */
+html.art .btn.mini { border-width: 8px; border-image-width: 8px; padding: 0 4px; }
 .bidlog .bl { padding: 1px 7px; border-radius: 999px; background: #efe6d6; color: #5a4a38; font-size: 13px; }
 .bidlog .bl.hi { background: #f3d070; color: #2a1b16; font-weight: 800; }
 .bidlog .bl.ps { opacity: .7; }
@@ -908,17 +911,17 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=17"></script>
-<script src="btp-ai.js?v=17"></script>
-<script src="btp-run.js?v=17"></script>
-<script src="btp-town.js?v=17"></script>
-<script src="art/dustwater/sprites.js?v=17"></script>
-<script src="btp-train.js?v=17"></script>
-<script src="art/train/sprites.js?v=17"></script>
-<script src="art/title/scene.js?v=17"></script>
-<script src="art/table/scene.js?v=17"></script>
-<script src="art/grave/scene.js?v=17"></script>
-<script src="art/paid/scene.js?v=17"></script>
+<script src="btp-engine.js?v=19"></script>
+<script src="btp-ai.js?v=19"></script>
+<script src="btp-run.js?v=19"></script>
+<script src="btp-town.js?v=19"></script>
+<script src="art/dustwater/sprites.js?v=19"></script>
+<script src="btp-train.js?v=19"></script>
+<script src="art/train/sprites.js?v=19"></script>
+<script src="art/title/scene.js?v=19"></script>
+<script src="art/table/scene.js?v=19"></script>
+<script src="art/grave/scene.js?v=19"></script>
+<script src="art/paid/scene.js?v=19"></script>
 <script>
 (function () {
   'use strict';
@@ -966,6 +969,26 @@ html.art .coach { border-radius: 0; }
   function loadStd() { try { const s = localStorage.getItem(STD_KEY); const L = s ? JSON.parse(s) : null; return L && L.mode === 'standard' && L.phase !== 'stdover' ? L : null; } catch (e) { return null; } }
   function clearStd() { try { localStorage.removeItem(STD_KEY); } catch (e) {} }
   function profile() { try { return JSON.parse(localStorage.getItem(PROFILE)) || { beaten: [] }; } catch (e) { return { beaten: [] }; } }
+  /* The ride clock (2026-10-30, the review's #2: time a real run): seconds of play by act, counted while the page is
+     in front and a story is going (L.clock); each finished ride is kept in the profile (the last 30). */
+  setInterval(() => {
+    const L = P.L;
+    if (!L || DEMO || document.hidden || !$('title').hidden || L.mode === 'standard' || L.phase === 'runover' || L.phase === 'victory') return;
+    L.clock = L.clock || {};
+    L.clock[L.act] = (L.clock[L.act] || 0) + 5;
+  }, 5000);
+  const mins = s => Math.max(1, Math.round((s || 0) / 60));
+  function rideTime(L) {
+    const c = L.clock || {}, total = Object.values(c).reduce((a, b) => a + b, 0);
+    return total ? mins(total) + ' min (' + [1, 2, 3].filter(a => c[a]).map(a => 'Act ' + R.ROMAN[a] + ' ' + mins(c[a])).join(', ') + ')' : 'not timed';
+  }
+  function noteRide(L) {
+    if (L.rideNoted || L.mode === 'standard') return;
+    L.rideNoted = true;
+    const pr = profile(), total = Object.values(L.clock || {}).reduce((a, b) => a + b, 0);
+    pr.rides = (pr.rides || []).concat({ won: L.phase === 'victory', act: L.act, secs: total, hands: (L.history || []).length, clock: L.clock || {} }).slice(-30);
+    try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {}
+  }
   function noteBeaten(L) {
     if (L.mode === 'standard') return;
     const won = (L.record || []).filter(r => r.kind === 'boss' && r.won).map(r => r.id), pr = profile();
@@ -1230,8 +1253,8 @@ html.art .coach { border-radius: 0; }
       }
       case 'shop': {
         const items = L.stock.map((it, i) => {
-          const name = it.type === 'card' ? 'The ' + E.label(it.id) : it.type === 'enh' ? 'Enhancement: ' + R.ENH[it.id].name : it.type === 'tonic' ? 'Snake oil' : it.type === 'cleanse' ? 'See the Doc' : 'Buff: ' + R.BUFFS[it.id].name;
-          const text = it.type === 'card' ? 'Own it: it can be dealt to you in your seed slot.' : it.type === 'enh' ? R.ENH[it.id].text : it.type === 'tonic' ? '+' + R.TONIC.health + ' health.' : it.type === 'cleanse' ? 'Remove a hex from any card.' : R.BUFFS[it.id].text;
+          const name = it.name ? it.name : it.type === 'card' ? 'The ' + E.label(it.id) : it.type === 'enh' ? 'Enhancement: ' + R.ENH[it.id].name : it.type === 'tonic' ? 'Snake oil' : it.type === 'cleanse' ? 'See the Doc' : 'Buff: ' + R.BUFFS[it.id].name;
+          const text = it.text ? it.text : it.type === 'card' ? 'Own it: it can be dealt to you in your seed slot.' : it.type === 'enh' ? R.ENH[it.id].text : it.type === 'tonic' ? '+' + R.TONIC.health + ' health.' : it.type === 'cleanse' ? 'Remove a hex from any card.' : R.BUFFS[it.id].text;
           return '<button class="choice" data-buy="' + i + '"' + (it.sold || L.gold < it.price ? ' disabled' : '') + '><span class="price">' + (it.sold ? 'sold' : it.price + 'g') + '</span><b>' + esc(name) + '</b><span>' + esc(text) + '</span></button>';
         }).join('');
         body = noteHTML + '<div class="panel"><h2>The General Store</h2>' + items +
@@ -1395,6 +1418,7 @@ html.art .coach { border-radius: 0; }
       '<span class="w">WANTED</span><b>' + esc(F.name) + '</b><span class="pk">' + esc(R.kindName(L.act, n.kind)) + ' \u00b7 ' + R.foeHp(L, F) + ' health</span>' +
       (ab ? '<ul>' + ab + '</ul>' : '<span class="plainp">Nothing up their sleeve</span>') +
       (F.tipoff ? '<span class="bty">Carrying ' + esc(R.BOSS[F.tipoff].name.replace(/^The /, 'the ')) + '\u2019 secret: ' + esc(R.BUFFS[R.COUNTER[F.tipoff]].name) + '</span>' : '') +
+      (F.rule ? '<span class="pk"><b>Table rule:</b> ' + esc(R.TABLE_RULES[F.rule].name) + '. ' + esc(R.TABLE_RULES[F.rule].text) + '</span>' : '') +
       (F.driver ? '<span class="pk">Sent by ' + esc(R.BOSS[F.driver].name.replace(/^The /, 'the ')) + '</span>' : '') +
       '<span class="bty">Bounty: up to ' + top + ' gold' + (F.bounty > 1 ? ' (+' + Math.round(100 * (F.bounty - 1)) + '% for their tricks)' : '') + '</span></span></button>';
   }
@@ -1666,7 +1690,8 @@ html.art .coach { border-radius: 0; }
       '<span>Your contracts</span><span>' + S.made + ' made of ' + S.ours + '</span>' +
       '<span>Theirs</span><span>' + S.set + ' set of ' + S.theirs + '</span>' +
       '<span>Best hand</span><span>' + best + '</span>' +
-      '<span>Health</span><span>' + num(L.health) + '</span><span>Gold</span><span>' + L.gold + '</span></div>' +
+      '<span>Health</span><span>' + num(L.health) + '</span><span>Gold</span><span>' + L.gold + '</span>' +
+      '<span>In the saddle</span><span>' + rideTime(L) + ', ' + (L.history || []).length + ' hands</span></div>' +
       '<h3>Your cards and buffs</h3>' + mineHTML() +
       '<div class="btns"><button class="btn" data-act="newrun">New run</button></div></div>';
   }
@@ -1731,7 +1756,7 @@ html.art .coach { border-radius: 0; }
     let el = felt.querySelector('.fold');
     if (!el) { el = document.createElement('div'); el.className = 'fold'; felt.appendChild(el); }
     const O = L.obj && R.OBJECTIVES[L.obj.id];
-    const notice = L.call ? '<div class="fbonus rule"><small>The call</small> <b>' + esc(R.CALLS[L.call].name) + '</b>: ' + esc(R.CALLS[L.call].text) + '</div>'
+    const notice = L.call && L.boss === 'caller' ? '<div class="fbonus rule"><small>The call</small> <b>' + esc(R.CALLS[L.call].name) + '</b>: ' + esc(R.CALLS[L.call].text) + '</div>'
       : O ? '<button class="notice" data-act="levelinfo"><small>Bonus</small><b>' + esc(O.name) + '</b><span>' + esc(R.objProgress(L)) + '</span><i class="st">' + stars(starsNow(L)) + '</i></button>'
       : L.mode === 'standard' ? '<div class="fbonus rule"><small>First to 500</small> ' + esc(L.std.rule) + '</div>'
       : L.boss ? '<button class="notice rule" data-act="levelinfo"><small>Showdown</small> ' + esc(R.BOSS[L.boss].rule) + '</button>' : '';
@@ -1786,14 +1811,14 @@ html.art .coach { border-radius: 0; }
     if (L.mode === 'standard') {
       ob.className = 'objective';
       ob.innerHTML = '<div class="ot"><div class="on">Standard 500</div><div class="ox">First to 500 wins: reach it by making a bid. Defending tricks stop at 490. ' + (L.boss ? esc(L.std.name) + ': ' + esc(L.std.rule) : '') + '</div></div>' +
-        (L.call ? '<div class="curse">The call: <b>' + esc(R.CALLS[L.call].name) + '</b> — ' + esc(R.CALLS[L.call].text) + '</div>' : '');
+        (L.call && R.CALLS[L.call] ? '<div class="curse">The call: <b>' + esc(R.CALLS[L.call].name) + '</b> — ' + esc(R.CALLS[L.call].text) + '</div>' : '');
       return;
     }
     if (!L.obj) {
       const B = R.BOSS[L.boss];
       ob.className = 'objective';
       ob.innerHTML = '<div class="ot"><div class="ox"><b>Showdown:</b> ' + esc(B.rule) + '</div></div>' +
-        (L.call ? '<div class="curse">The call: <b>' + esc(R.CALLS[L.call].name) + '</b> — ' + esc(R.CALLS[L.call].text) + ' <i>' + esc(L.callWhy || '') + '</i></div>' : '') +
+        (L.call && R.CALLS[L.call] ? '<div class="curse">The call: <b>' + esc(R.CALLS[L.call].name) + '</b> — ' + esc(R.CALLS[L.call].text) + ' <i>' + esc(L.callWhy || '') + '</i></div>' : '') +
         payHTML(L);
       return;
     }
@@ -1836,6 +1861,8 @@ html.art .coach { border-radius: 0; }
     if (k === 'hit') return '<h2>They hit ' + share + '</h2><p>Every point this gang scores comes off your health at ' + share + '. If they make an ' + eg + '-point contract, you lose ' + E.damageOf(eg, L) + ' health; each trick they take defending (10 points) costs you ' + E.damageOf(10, L) + '.</p>' +
       '<p>In ' + esc(E.ACTS[L.act].name) + ' a gang normally hits at ' + base + '.' + (L.foe && L.foe.hitMul > 1 ? (L.kind === 'boss' ? ' Showdown gangs hit harder, so this one is ' + share + '.' : ' This gang has <b>Dead Eye</b>, so it hits half as hard again: ' + share + '.') : '') +
       ' A contract of yours that fails backfires at the same share. Stop them making their bid and their attack misses.</p>' + back;
+    if (k === 'rule' && R.ruleOf(L)) { const T = R.TABLE_RULES[R.ruleOf(L)];
+      return '<h2>Table rule: ' + esc(T.name) + '</h2><p>' + esc(T.text) + '</p><p>' + (L.fight && L.fight.rule ? 'Every hand of this fight (it came with you from the road).' : 'Every Card-table gang plays by one house rule, every hand of the fight. It\u2019s on their wanted poster too.') + '</p>' + back; }
     if (k === 'stacked') return '<h2>Stacked deck</h2><p>The cards were dealt twice this hand and the gang got the better deal. It happens more often further up the map, and every hand against a <b>Lucky</b> gang.</p>' + back;
     const a = R.abilityOf(k);
     if (!a) return back;
@@ -1925,6 +1952,7 @@ html.art .coach { border-radius: 0; }
     const left = Math.max(0, F.hp - L.you - shots), pct = Math.round(100 * left / F.hp);
     // each ability and their hit is a button: tap for what it means
     const tags = F.traits.map(t => '<button class="ftag" data-act="foeinfo" data-k="' + t + '" aria-label="' + esc(R.abilityOf(t).name + ': what it means') + '">' + esc(R.abilityOf(t).name) + '</button>').join('') +
+      (R.ruleOf(L) ? '<button class="ftag rule" data-act="foeinfo" data-k="rule" aria-label="' + esc('Table rule: ' + R.TABLE_RULES[R.ruleOf(L)].name + ': what it means') + '">' + esc(R.TABLE_RULES[R.ruleOf(L)].name) + '</button>' : '') +
       (L.h && L.h.stacked ? '<button class="ftag" data-act="foeinfo" data-k="stacked">Stacked deck</button>' : '') +
       '<button class="fhit" data-act="foeinfo" data-k="hit" aria-label="How hard they hit: what it means">hits ' + E.hitWord(L) + '</button>';
     return '<div class="foe"><div class="fn"><b>' + esc(F.name) + '</b>' + tags + '<span class="fhp">' + left + ' / ' + F.hp + '</span></div>' +
@@ -2034,6 +2062,7 @@ html.art .coach { border-radius: 0; }
       const flag = locked ? 'locked' : h.ticking === c ? 'by trick 2!' : (L.mods[c] && L.mods[c].enh) ? null : (h.seeded || []).includes(c) ? (L.boss === 'sharps' ? 'they see it' : 'yours') :
         (h.trump && E.rankOf(c) === 'J' && E.suitOf(c) === E.TWIN[h.trump] ? 'left bower' : (h.trump && c === 'J' + h.trump ? 'right bower' : ''));
       const active = yourPlay || yourKitty || yourSwing;
+      if (P.sleeving && live && h.phase === 'bid') return cardHTML(c, { seat: 0, data: 'sleeve', cls: 'ok' });
       return cardHTML(c, { seat: 0, data: can ? 'card' : null, dis: !can && active, cls: active ? (can ? 'ok' : 'no') : '', flag: flag || undefined, locked });
     }).join('');
   }
@@ -2064,7 +2093,11 @@ html.art .coach { border-radius: 0; }
     let extras = '';
     if (R.has(L, 'nod')) { const n = AI.nod(L, 2); extras += '<span class="nod">Nan’s nod: ' + (n ? denom(n) : 'nothing strong') + '</span>'; }
     if (L.boss === 'wallflowers') extras += '<span class="nod">' + (mine && E.mustBid(L, 0) ? 'Nan passed and the Undertakers never bid: you must bid' : 'Against the Undertakers your team bids ' + E.WALL.min + ' or more') + '</span>';
-    if (R.has(L, 'peek')) extras += '<span class="nod">Peek: the kitty holds ' + h.kitty.map(E.label).join(', ') + '</span>';
+    if (R.sees(L, 'peek') || L.call === 'facekitty') extras += '<span class="nod">' + (L.call === 'facekitty' ? R.TABLE_RULES.facekitty.name : R.has(L, 'peek') ? 'Peek' : 'Marked deck') + ': the kitty holds ' + h.kitty.map(E.label).join(', ') + '</span>';
+    if (h.spy) extras += '<span class="nod">' + esc(R.BUFFS.spyglass.name) + ': West holds the ' + E.label(h.spy[0]) + ', East the ' + E.label(h.spy[1]) + '</span>';
+    const early = mine && !h.raise && !h.bids.some(b => b.seat === 0);
+    if (early && R.has(L, 'freshdeck') && !L.freshUsed) extras += '<button class="btn alt mini" data-act="freshdeal">' + esc(R.BUFFS.freshdeck.name) + ': new deal</button>';
+    if (early && R.has(L, 'sleeve') && !h.sleeved && h.kitty.length) extras += '<button class="btn alt mini" data-act="sleevemode" aria-pressed="' + !!P.sleeving + '">' + (P.sleeving ? 'Tap a card to swap (or here to stop)' : esc(R.BUFFS.sleeve.name) + ': swap a card') + '</button>';
     const raise = mine && h.raise;
     // the bid to beat (2026-10-30, players lost track of who leads): a chip with it, who holds it, and whose turn it is
     const hi = h.high, suitKey = b => b.s === 'NT' ? 'T' : b.s === 'MIS' || b.s === 'OMIS' ? 'T' : b.s;
@@ -2083,7 +2116,7 @@ html.art .coach { border-radius: 0; }
     if (L.phase !== 'hand') t = '';
     else if (h.phase === 'bid') t = h.turn === 0 ? (h.raise ? 'The others passed: raise your bid, or keep it.' : 'Bid, or pass if your hand is weak.') : E.SEATS[h.turn] + ' is thinking…';
     else if (h.phase === 'kitty') t = h.turn === 0 ? 'You picked up the kitty. Tap a card to put back.' : (h.turn === 2 ? 'Nan' : E.SEATS[h.turn]) + ' is taking the kitty…';
-    else if (h.phase === 'swing' && h.pass === 'grand') t = 'Grand Right and Left: tap a card to pass to West. East passes one to you.';
+    else if (h.phase === 'swing' && h.pass === 'grand') t = E.callWords(L, 'Grand Right and Left')[0] + ': tap a card to pass to West. East passes one to you.';
     else if (h.phase === 'swing') { t = (L.call === 'swing' ? R.CALLS.swing.name : R.BUFFS.swing.name) + ': tap a card to give Nan.'; btn = '<button class="iconbtn" data-act="keephand">Keep my hand</button>'; }
     else if (h.phase === 'intent') t = E.SEATS[h.contractor] + ' is about to play ' + bidPlain(h.contract) + '.';
     else if (h.phase === 'trick') t = h.last.reason + ' (Tap the table to go on.)';
@@ -2213,11 +2246,15 @@ html.art .coach { border-radius: 0; }
     const opt = (k, v, label) => '<button class="btn' + (P.prefs[k] === v ? '' : ' alt') + '" data-act="pref" data-k="' + k + '" data-v="' + v + '" aria-pressed="' + (P.prefs[k] === v) + '">' + label + '</button>';
     return '<h2>Menu</h2><p>Your run is saved after every move.</p>' +
       '<h3>Pace</h3><div class="btns">' + Object.keys(PACE).map(k => opt('pace', k, PACE_NAME[k])).join('') + '</div>' +
-      '<h3>Finished tricks</h3><div class="btns">' + opt('tricks', 'tap', 'Wait for a tap') + opt('tricks', 'auto', 'Clear by themselves') + '</div>' + (L ? '<h3>Your cards and buffs</h3>' + mineHTML() +
+      '<h3>Finished tricks</h3><div class="btns">' + opt('tricks', 'tap', 'Wait for a tap') + opt('tricks', 'auto', 'Clear by themselves') + '</div>' +
+      '<h3>When only one card can be played</h3><div class="btns">' + optVal('onecard', oneCard(), 'auto', 'Play it for me') + optVal('onecard', oneCard(), 'tap', 'Let me tap it') + '</div>' + (L ? '<h3>Your cards and buffs</h3>' + mineHTML() +
       '<ul class="lines">' + L.owned.filter(c => L.mods[c] && L.mods[c].enh).map(c => '<li>' + esc(E.label(c)) + (R.legendary(L, c) ? ' (Legendary)' : '') + ': ' + E.enhsOf(L.mods[c]).map(x => esc(R.ENH[x].name + ': ' + R.ENH[x].text)).join(' ') + '</li>').join('') +
       L.buffs.map(b => '<li>' + esc(R.BUFFS[b].name) + ': ' + esc(R.BUFFS[b].text) + '</li>').join('') + '</ul>' : '') +
       '<div class="btns"><button class="btn" data-act="closesheet">Back</button><button class="btn alt" data-act="quit">Title screen</button></div>';
   }
+  // a menu choice whose value has a default (the pref may be unset)
+  function optVal(k, cur, v, label) { return '<button class="btn' + (cur === v ? '' : ' alt') + '" data-act="pref" data-k="' + k + '" data-v="' + v + '" aria-pressed="' + (cur === v) + '">' + label + '</button>'; }
+  const oneCard = () => P.prefs.onecard || (FAST ? 'tap' : 'auto');
   function openSheet(which, html) {
     P.sheet = which; P.shown = which;
     // an info sheet opens under a finger that is still down: ignore taps on it for a moment (ghost clicks)
@@ -2275,13 +2312,22 @@ html.art .coach { border-radius: 0; }
     const L = P.L;
     if (!L) return;
     if (L.tips && L.levelsDone >= 3 && L.phase !== 'hand') markTipsDone();
-    if (L.phase === 'victory' || L.phase === 'runover') markTipsDone();
+    if (L.phase === 'victory' || L.phase === 'runover') { markTipsDone(); noteRide(L); }
     if (L.phase !== 'hand') P.undo = [];
     render();
     save();
     // paused while a sheet is open, while the page is hidden (visibilitychange resumes it) or if a move was refused twice
     if (P.sheet || document.hidden || P.stuck || DEMO) return;
     const w = R.whoseMove(L);
+    // your only legal card plays itself (2026-10-30, the review's #2: shorter runs); a setting in the menu
+    if (w === 'you' && L.h.phase === 'play' && oneCard() === 'auto') {
+      const legal = E.legalPlays(L, 0);
+      if (legal.length === 1) {
+        const c = legal[0];
+        P.timer = setTimeout(() => { if (P.L === L && L.phase === 'hand' && L.h.phase === 'play' && L.h.turn === 0 && L.h.hands[0].includes(c)) { P.autoPlayed = (P.autoPlayed || 0) + 1; move('play', c); } }, FAST ? 0 : wait('play'));
+        return;
+      }
+    }
     if (w === 'ai') P.timer = setTimeout(() => { aiMove(L); step(); }, Math.max(P.undo.length ? wait('undo') : 0, wait(L.h.phase === 'play' ? 'play' : 'bid')));
     else if (w === 'hold' && L.h.phase === 'trick' && P.prefs.tricks === 'auto') P.timer = setTimeout(() => { R.act(L, 'ack'); step(); }, readMs(L.h.last.reason));
   }
@@ -2334,8 +2380,8 @@ html.art .coach { border-radius: 0; }
     if (P.held && Date.now() - P.held < 1500) { P.held = 0; ev.preventDefault(); return; }
     // a card that can't be played or picked (your cards panel, a hand while it isn't your turn): a tap explains it
     const plain = ev.target.closest('.card[data-c]');
-    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-water],[data-shunt],[data-buy],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe]')) { showCardInfo(plain.dataset.c); return; }
-    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-water],[data-shunt],[data-buy],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe]');
+    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-water],[data-shunt],[data-buy],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe],[data-sleeve]')) { showCardInfo(plain.dataset.c); return; }
+    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-water],[data-shunt],[data-buy],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe],[data-sleeve]');
     if (!t || t.disabled) return;
     if (t.closest('#sheet') && Date.now() < P.guardUntil) return;
     const L = P.L, d = t.dataset;
@@ -2364,6 +2410,7 @@ html.art .coach { border-radius: 0; }
       if (why) { s.why = why.charAt(0).toUpperCase() + why.slice(1) + '.'; s.card = null; } else { s.card = s.card === d.pickcard ? null : d.pickcard; s.why = ''; }
       render(); return;
     }
+    if (d.sleeve) { P.sleeving = false; move('sleeve', d.sleeve); return; }
     if (d.partner) { move('partner', d.partner); if (P.L.phase === 'actstart') { partnerSays(P.L); render(); } return; }
     if (d.foe) { startStandard(d.foe); return; }
     switch (d.act) {
@@ -2381,6 +2428,8 @@ html.art .coach { border-radius: 0; }
       case 'foeinfo': openSheet('info', foeHelpHTML(L, d.k)); break;
       case 'skipgrave': endGrave(); break;
       case 'takejob': takeJob(); break;
+      case 'freshdeal': P.sleeving = false; move('freshdeal'); break;
+      case 'sleevemode': P.sleeving = !P.sleeving; render(); break;
       case 'raisebid': P.raiseSeen = 'raise' + L.level + '-' + L.handNo + '-' + (L.redeals || 0); showSheet('', null); render(); break;
       case 'paydone': { const ul = t.closest('.payout'); if (ul) ul.classList.add('done'); break; }
       case 'paidskip': case 'paidcollect': endPaid(); move('collect'); break;
