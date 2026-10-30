@@ -737,6 +737,90 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   .stat { padding: 3px 8px; } .stat .val { font-size: 20px; }
   .lvlpill { width: 100%; order: 5; }
 }
+
+/* ==================================================================================================================
+   The western UI (2026-10-30, style B of bakery/spike/ui, the user's pick): pixel-art frames and buttons, readable
+   type. Fonts ship with the game (fonts/, SIL OFL): Bitter for text and every number, Pixelify Sans for headings and
+   buttons. The frames are 12 x 12 tiles cut 4/4/4 (bakery/ui_frames.py -> art/ui), drawn at 3 screen px an art px
+   (2 on the small buttons); they apply only once the art has loaded (html.art), so without it the page keeps its
+   plain look. The table's strips fold into the saloon (foldIntoSaloon): the bonus or the rule is a line on the gang's
+   nameplate, the bid a ribbon under it, each side's tricks notches against what its bid needs. */
+@font-face { font-family: Bitter; src: url(fonts/Bitter.ttf) format('truetype'); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "Pixelify Sans"; src: url(fonts/PixelifySans.ttf) format('truetype'); font-weight: 400 700; font-display: swap; }
+body { font-family: Bitter, Georgia, serif; }
+/* the pixel face only where it is big enough to read (at 12px its C looks like an O) */
+h2, h3, .btn, .iconbtn, .status, .bidpanel > div > b, .choice b { font-family: "Pixelify Sans", Bitter, monospace; }
+h2, h3 { font-weight: 600; letter-spacing: .02em; }
+.btn, .iconbtn { font-weight: 600; }
+
+/* the folded table (always, with or without the art) */
+.objective, #contract:not(.keep), .felt .tally { display: none !important; }
+.fold { position: absolute; inset: 0; pointer-events: none; z-index: 6; }
+.stage .foe .fbonus { pointer-events: auto; display: flex; align-items: baseline; gap: 6px; width: 100%; margin: 3px 0 0; padding: 2px 0 0; border: 0; border-top: 1px dashed rgba(243,208,112,.45);
+  background: none; color: #f3e6cc; font: 12px/1.2 Bitter, Georgia, serif; text-align: left; }
+.stage .foe .fbonus small { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #f3d070; }
+.stage .foe .fbonus b { font-size: 12px; }
+.stage .foe .fbonus span { margin-left: auto; }
+.stage .foe .fbonus .st { font-style: normal; color: #f3d070; } .stage .foe .fbonus .st .off { color: rgba(243,208,112,.35); }
+.stage .foe .fbonus.rule { display: block; }
+/* a taller invisible hit area for the bonus line (a finger is 40px) */
+.stage .foe .fbonus { position: relative; }
+.stage .foe .fbonus::before { content: ''; position: absolute; left: 0; right: 0; top: -6px; bottom: -14px; }
+.stage .foe .ribbon { position: absolute; left: 50%; top: calc(100% + 1px); transform: translateX(-50%); white-space: nowrap; padding: 3px 12px; font-size: 13px; color: #fbeed0; z-index: 5;
+  background: #a8261e; box-shadow: 0 3px 0 #3a0e0a, inset 0 2px 0 #d8483a; }
+.stage .foe .ribbon:not(.theirs) { background: #2e5a3e; box-shadow: 0 3px 0 #10241a, inset 0 2px 0 #4e8a5e; }
+.stage .foe .ribbon em { font-style: normal; font-weight: 800; color: #ffc0b0; }
+.fold .tallies { position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%); display: flex; gap: 14px; white-space: nowrap; font-size: 12px; font-weight: 700; color: #fbeed0;
+  padding: 2px 10px; background: rgba(20,12,6,.7); }
+.fold .tallies i { display: inline-block; width: 7px; height: 12px; margin-left: 2px; vertical-align: -2px; border: 1px solid rgba(251,238,208,.35); }
+.fold .tallies i.need { border-color: #f3d070; } .fold .tallies i.on { background: #f3d070; border-color: #f3d070; }
+.felt.compact .stage .foe .fbonus, .felt.strip .stage .foe .fbonus { display: none; }
+
+/* the materials, once the art is on */
+html.art body { background: #24160c; }
+html.art .app { background: transparent; }
+html.art h2, html.art h3 { color: #6a1d14; }
+html.art .top, html.art .screenbar { background: #3a2212; border: 0; border-bottom: 6px solid #1a0e06; color: #fbeed0; padding: 8px 10px; }
+html.art .screenbar .name, html.art .lvlpill { color: #f3d9a8; }
+html.art .stat { border: 8px solid transparent; border-image: url(art/ui/brass.png) 4 fill / 8px stretch; border-radius: 0; background: none; padding: 0 4px; color: #2a1a0c; box-shadow: none; image-rendering: pixelated; }
+html.art .stat .lab { color: #5a3a10; } html.art .stat .val { color: #2a1a0c; font-weight: 800; }
+html.art .stat small { color: #5a3a10; }
+html.art .stat .hpm { background: #5a3a10; border-radius: 0; } html.art .stat .hpm i { background: #c8301e; border-radius: 0; box-shadow: inset 0 2px 0 #f06a4a; }
+html.art .btn, html.art .iconbtn { border: 12px solid transparent; border-image: url(art/ui/wood.png) 4 fill / 12px stretch; border-radius: 0; background: none; color: #fbeed0; padding: 0 6px;
+  min-height: 44px; text-shadow: 0 2px 0 #2e180c; box-shadow: none; image-rendering: pixelated; }
+html.art .btn.alt { border-image: url(art/ui/plank.png) 4 fill / 12px stretch; color: #3a1e12; text-shadow: none; }
+html.art .iconbtn { border-width: 8px; border-image-width: 8px; padding: 0 4px; min-height: 40px; }
+html.art .btn:disabled, html.art .iconbtn:disabled { filter: grayscale(.8); opacity: .55; }
+html.art .panel:not(.baize), html.art .sheet { border: 12px solid transparent; border-image: url(art/ui/paper.png) 4 fill / 12px stretch; border-radius: 0; background: none;
+  box-shadow: 0 6px 0 rgba(10,5,2,.45); color: #2a1a0c; padding: 6px 8px; image-rendering: pixelated; }
+html.art .panel.baize { border-radius: 0; }
+html.art .choice { border: 12px solid transparent; border-image: url(art/ui/paper.png) 4 fill / 12px stretch; border-radius: 0; background: none; padding: 0 4px; image-rendering: pixelated; }
+html.art .choice b { color: #6a1d14; }
+html.art .choice.on { border-image: url(art/ui/brass.png) 4 fill / 12px stretch; box-shadow: none; }
+html.art .choice .price { background: #e8b840; color: #2a1a0c; border-radius: 0; box-shadow: 2px 2px 0 #5a3a10; padding: 0 6px; font-weight: 800; }
+html.art .stage .foe { border: 12px solid transparent; border-image: url(art/ui/sign.png) 4 fill / 12px stretch; border-radius: 0; background: none; padding: 0 2px; box-shadow: none; image-rendering: pixelated; }
+html.art .stage .foe .foebar { border-radius: 0; }
+html.art .felt.compact .stage .foe, html.art .felt.strip .stage .foe { border-width: 6px; border-image-width: 6px; }
+html.art .screenbar .name { flex-basis: 100%; }
+/* the health box says "of 500; the run ends at 0" only when it matters (danger), so the bar fits a phone */
+.stat.hp:not(.danger) small { display: none; }
+html.art .felt { box-shadow: inset 0 -6px 0 #3a2212; }
+html.art .status { border: 12px solid transparent; border-image: url(art/ui/sign.png) 4 fill / 12px stretch; background: none; color: #fbeed0; padding: 0 4px; min-height: 0; image-rendering: pixelated; }
+html.art .hand, html.art .bidpanel { background: #2a5a3c repeating-conic-gradient(rgba(0,0,0,.06) 0 25%, transparent 0 50%) 0 0 / 6px 6px; border-top: 12px solid #6e4424; box-shadow: inset 0 3px 0 #9a6438; color: #fbeed0; }
+html.art .bidpanel b { color: #f3d070; }
+html.art .bidgrid .h, html.art .bidgrid .rl { color: #e8d8b0; }
+html.art .bidgrid button { width: 50px; height: 50px; min-height: 0; margin: 2px auto; padding: 0; border: 0; border-radius: 0; background: url(art/ui/chip_S.png) center / 100% 100% no-repeat; image-rendering: pixelated;
+  color: #1e1410; font-weight: 800; font-size: 14px; line-height: 1; }
+html.art .bidgrid button[data-bid$="C"] { background-image: url(art/ui/chip_C.png); } html.art .bidgrid button[data-bid$="D"] { background-image: url(art/ui/chip_D.png); }
+html.art .bidgrid button[data-bid$="H"] { background-image: url(art/ui/chip_H.png); } html.art .bidgrid button[data-bid$="T"] { background-image: url(art/ui/chip_T.png); }
+html.art .bidgrid button .v { font-size: 11px; color: #6a5a48; }
+html.art .bidgrid button:disabled { opacity: .25; }
+html.art .bidlog .bl { background: rgba(251,238,208,.15); color: #fbeed0; } html.art .bidlog .bl.hi { background: #f3d070; color: #2a1b16; }
+html.art .bidlog { color: #e8d8b0; }
+html.art .bidpanel .nod { background: #f3d070; color: #2a1a0c; }
+html.art .note { background: #f7e9a8; border: 0; border-radius: 0; box-shadow: 0 0 0 3px #b89a40; color: #2a1a0c; }
+html.art .log { background: #efe0bc; color: #2a1a0c; }
+html.art .coach { border-radius: 0; }
 </style>
 </head>
 <body>
@@ -810,17 +894,17 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=15"></script>
-<script src="btp-ai.js?v=15"></script>
-<script src="btp-run.js?v=15"></script>
-<script src="btp-town.js?v=15"></script>
-<script src="art/dustwater/sprites.js?v=15"></script>
-<script src="btp-train.js?v=15"></script>
-<script src="art/train/sprites.js?v=15"></script>
-<script src="art/title/scene.js?v=15"></script>
-<script src="art/table/scene.js?v=15"></script>
-<script src="art/grave/scene.js?v=15"></script>
-<script src="art/paid/scene.js?v=15"></script>
+<script src="btp-engine.js?v=16"></script>
+<script src="btp-ai.js?v=16"></script>
+<script src="btp-run.js?v=16"></script>
+<script src="btp-town.js?v=16"></script>
+<script src="art/dustwater/sprites.js?v=16"></script>
+<script src="btp-train.js?v=16"></script>
+<script src="art/train/sprites.js?v=16"></script>
+<script src="art/title/scene.js?v=16"></script>
+<script src="art/table/scene.js?v=16"></script>
+<script src="art/grave/scene.js?v=16"></script>
+<script src="art/paid/scene.js?v=16"></script>
 <script>
 (function () {
   'use strict';
@@ -841,10 +925,13 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     try { return Object.assign(d, JSON.parse(localStorage.getItem(PREFS) || '{}')); } catch (e) { return d; }
   }
   const FAST = /[?&]fast\b/.test(location.search);
+  /* ?demo=play|bid|store|sheet freezes the page on one moment (screenshots; the UI spike used it with its ?ui
+     styles). The game never sets it. */
+  const DEMO = (location.search.match(/[?&]demo=(\w+)/) || [])[1] || '';
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 14, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 15, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -1618,6 +1705,65 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     if (P.compactShown !== fold) { P.compactShown = fold; renderFelt(); }
     if (inFelt) $('felt').insertAdjacentHTML('beforeend', '<div class="coach feltcoach">' + coachHTML(tip) + '</div>');
     $('log').innerHTML = L.log.slice().reverse().slice(0, 60).map(e => '<li class="' + e.kind + '">' + esc(e.text) + '</li>').join('');
+    foldIntoSaloon(L);
+    $('contract').classList.toggle('keep', !!h.open);      // an open misère's face-up hand stays in its strip
+  }
+  /* The strips above the table fold into the saloon (2026-10-30, from the UI spike): the bonus (or the Showdown's
+     rule and the Caller's call) is a line on the gang's nameplate (a notice on the wall covered the gang at phone
+     width), the bid hangs on a ribbon under the nameplate, and each side's tricks are notches against what its bid
+     needs. A tap on the bonus line opens the rewards, as the strip's did. */
+  function foldIntoSaloon(L) {
+    const felt = $('felt'), h = L.h;
+    let el = felt.querySelector('.fold');
+    if (!el) { el = document.createElement('div'); el.className = 'fold'; felt.appendChild(el); }
+    const O = L.obj && R.OBJECTIVES[L.obj.id];
+    const notice = L.call ? '<div class="fbonus rule"><small>The call</small> <b>' + esc(R.CALLS[L.call].name) + '</b>: ' + esc(R.CALLS[L.call].text) + '</div>'
+      : O ? '<button class="notice" data-act="levelinfo"><small>Bonus</small><b>' + esc(O.name) + '</b><span>' + esc(R.objProgress(L)) + '</span><i class="st">' + stars(starsNow(L)) + '</i></button>'
+      : L.mode === 'standard' ? '<div class="fbonus rule"><small>First to 500</small> ' + esc(L.std.rule) + '</div>'
+      : L.boss ? '<button class="notice rule" data-act="levelinfo"><small>Showdown</small> ' + esc(R.BOSS[L.boss].rule) + '</button>' : '';
+    const c = h.contract, ct = c ? E.team(h.contractor) : null, who = s => s === 0 ? 'You' : s === 2 ? 'Nan' : E.SEATS[s];
+    const ribbon = !c ? '' : '<div class="ribbon' + (ct ? ' theirs' : '') + '">' + who(h.contractor) + ' bid <b>' + bidHTML(c) + '</b> · ' + (h.misere
+      ? (ct ? '<em>\u2212' + E.damageOf(c.v, L) + ' health</em> if they lose every trick' : 'lose every trick for ' + c.v)
+      : ct ? '<em>\u2212' + E.damageOf(c.v, L) + ' health</em> if they take ' + c.t : 'worth ' + c.v + ' if you take ' + c.t) + '</div>';
+    const notch = (n, of) => Array.from({ length: Math.max(of, n) }, (_, i) => '<i class="' + (i < n ? 'on' : '') + (i < of ? ' need' : '') + '"></i>').join('');
+    const tally = c && !h.misere && (h.phase === 'play' || h.phase === 'trick') ? '<div class="tallies"><span>You &amp; Nan ' + notch(h.tricks[0], ct === 0 ? c.t : 0) + '</span><span>Them ' + notch(h.tricks[1], ct === 1 ? c.t : 0) + '</span></div>' : '';
+    el.innerHTML = tally;
+    const plate = felt.querySelector('.stage .foe');
+    if (plate) {
+      plate.querySelectorAll('.fbonus, .ribbon').forEach(x => x.remove());
+      if (notice) plate.insertAdjacentHTML('beforeend', notice.replace('class="notice', 'class="fbonus'));
+      if (ribbon) plate.insertAdjacentHTML('beforeend', ribbon);
+      // the nameplate grew (the bonus line, the ribbon under it): move the scene down by as much, so no face is covered
+      const grew = Math.max(0, plate.offsetHeight + (ribbon ? 24 : 0) + 6 - 50 * (parseFloat(getComputedStyle(felt).getPropertyValue('--k')) || 3) / 3);
+      const drop = parseFloat(felt.style.getPropertyValue('--drop')) || 0, base = felt.dataset.baseDrop != null && felt.dataset.dropFor === felt.style.height ? +felt.dataset.baseDrop : drop;
+      if (!felt.classList.contains('strip') && !felt.classList.contains('compact')) {
+        felt.dataset.baseDrop = base;
+        felt.style.setProperty('--drop', (base + grew) + 'px');
+        felt.style.height = (parseFloat(felt.style.height) - (drop - base) + grew) + 'px';
+        felt.dataset.dropFor = felt.style.height;
+      }
+    }
+  }
+  /* The spike's frozen moments (?demo=): built with the run's own engine from fixed seeds. */
+  function demo(kind) {
+    const go = L => { R.act(L, 'take', L.offer[0]); R.act(L, 'go', R.reachable(L)[0]); return L; };
+    const until = (test, act) => {
+      for (let s = 1; s < 400; s++) {
+        const L = go(R.newRun({ seed: s * 17 + 3, act: act || 1, tips: false })); L.health = 5000;
+        for (let g = 0; g < 600 && !test(L); g++) {
+          if (L.phase === 'summary') { if (test(L)) break; R.next(L); continue; }
+          if (L.phase !== 'hand') break;
+          if (R.whoseMove(L) === 'hold') R.act(L, 'ack'); else R.aiStep(L, true);
+        }
+        if (test(L)) { L.health = 430; L.gold = 85; return L; }
+      }
+    };
+    let L;
+    if (kind === 'bid') L = until(L => L.phase === 'hand' && L.h.phase === 'bid' && L.h.turn === 0 && L.h.bids.length >= 2, 2);
+    else if (kind === 'sheet') L = until(L => L.phase === 'summary' && L.h.result && L.h.result.dmg > 0);
+    else if (kind === 'store') { L = R.newRun({ seed: 21, tips: false }); R.act(L, 'take', L.offer[0]); L.gold = 140; L.health = 380; L.phase = 'camp'; R.act(L, 'camp', 'shop'); }
+    else L = until(L => L.phase === 'hand' && L.h.phase === 'trick' && L.h.contractor === 1 && L.h.trickNo === 1);
+    P.L = L; show();
   }
   /* The gang across the table: its health bar (what your points still have to knock off), its abilities, the
      Caller's call; then the bounty and what the stars pay. */
@@ -2102,7 +2248,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     render();
     save();
     // paused while a sheet is open, while the page is hidden (visibilitychange resumes it) or if a move was refused twice
-    if (P.sheet || document.hidden || P.stuck) return;
+    if (P.sheet || document.hidden || P.stuck || DEMO) return;
     const w = R.whoseMove(L);
     if (w === 'ai') P.timer = setTimeout(() => { aiMove(L); step(); }, Math.max(P.undo.length ? wait('undo') : 0, wait(L.h.phase === 'play' ? 'play' : 'bid')));
     else if (w === 'hold' && L.h.phase === 'trick' && P.prefs.tricks === 'auto') P.timer = setTimeout(() => { R.act(L, 'ack'); step(); }, readMs(L.h.last.reason));
@@ -2709,7 +2855,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   ['pointerdown', 'keydown'].forEach(e => addEventListener(e, ev => { if (OPEN.done && !(ev.target.closest && ev.target.closest('#skipOpening'))) endOpening(); }, true));
   $('objPick').innerHTML += Object.entries(R.OBJECTIVES).filter(([k, o]) => !o.bank).map(([k, o]) => '<option value="' + k + '">' + esc(o.name) + ': ' + esc(o.text) + '</option>').join('');
   Object.assign(P, { render, step, move, title, newRun, save, loadSaved, takeBack, PACE, showCardInfo });
-  title();
+  if (DEMO) demo(DEMO); else title();
 })();
 </script>
 </body>
