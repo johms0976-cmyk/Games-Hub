@@ -549,6 +549,18 @@ html.art .felt.dressed .wall, html.art .felt.dressed .tbl, html.art .felt.dresse
 .pop.shot small { display: block; font-size: 12px; -webkit-text-stroke: 0; color: #fff3d0; }
 /* who bid what, at the table after the auction (the user's, 2026-10-30): the winner's bid in gold, the rest faded */
 .dyn .seat .tag.won { background: #f3d070; border-color: #6b4a10; }
+.dyn .seat .tag.lead { position: relative; background: #f3d070; border-color: #6b4a10; box-shadow: 0 0 0 2px rgba(243,208,112,.45), 0 0 10px rgba(243,208,112,.8); }
+.dyn .seat .tag.lead i { position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); margin-bottom: 1px; padding: 0 4px; font: 800 9px/12px Bitter, Georgia, serif; font-style: normal;
+  letter-spacing: .08em; background: #6b4a10; color: #fff3d0; }
+/* the bid to beat, at the head of the bid panel: a chip with the bid, and who holds it */
+.standing { display: flex; align-items: center; gap: 10px; padding: 6px 8px; margin-bottom: 4px; background: #2e2216; color: #fbeed0; border: 2px solid rgba(243,208,112,.55); }
+.standing .bchip { flex: none; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: #f6efe0; border: 3px solid #2a2a2e; color: #1e1410; font: 800 14px/1 Bitter, Georgia, serif; }
+html.art .standing .bchip { border: 0; border-radius: 0; background: url(art/ui/chip_S.png) center / 100% 100% no-repeat; image-rendering: pixelated; }
+html.art .standing .bchip.s-C { background-image: url(art/ui/chip_C.png); } html.art .standing .bchip.s-D { background-image: url(art/ui/chip_D.png); }
+html.art .standing .bchip.s-H { background-image: url(art/ui/chip_H.png); } html.art .standing .bchip.s-T { background-image: url(art/ui/chip_T.png); }
+.standing .bchip.none, html.art .standing .bchip.none { background: none; border: 2px dashed rgba(243,208,112,.6); color: #f3d070; font-size: 11px; }
+.standing .who2 { font-size: 16px; line-height: 1.25; } .standing .who2 b { color: #f3d070; } .standing .who2 small { display: block; font-size: 13px; color: #e8d8b0; }
+.standing.you { border-color: #8fd09a; } .standing.you .who2 b { color: #a8e8b0; }
 .dyn .seat .tag.lost { background: #e8e0d0; color: #6a5a48; border-color: #8a7a68; font-weight: 700; }
 .bidwon { position: absolute; left: 50%; top: calc(var(--edge) * var(--ax) + 12px); transform: translateX(-50%); z-index: 6; padding: 6px 14px; border-radius: 8px;
   background: rgba(28,20,14,.86); color: #fff3d0; font-size: 15px; text-align: center; white-space: nowrap; box-shadow: 0 2px 0 rgba(0,0,0,.3); animation: bidwon .5s ease-out; }
@@ -746,7 +758,9 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
    plain look. The table's strips fold into the saloon (foldIntoSaloon): the bonus or the rule is a line on the gang's
    nameplate, the bid a ribbon under it, each side's tricks notches against what its bid needs. */
 @font-face { font-family: Bitter; src: url(fonts/Bitter.ttf) format('truetype'); font-weight: 100 900; font-display: swap; }
-@font-face { font-family: "Pixelify Sans"; src: url(fonts/PixelifySans.ttf) format('truetype'); font-weight: 400 700; font-display: swap; }
+/* the pixel face never draws a digit (its 2 reads as an 8: a player saw "High bid: 8♥" for 2♥), so every number,
+   even inside a pixel word, falls through to Bitter */
+@font-face { font-family: "Pixelify Sans"; src: url(fonts/PixelifySans.ttf) format('truetype'); font-weight: 400 700; font-display: swap; unicode-range: U+0000-002F, U+003A-10FFFF; }
 body { font-family: Bitter, Georgia, serif; }
 /* the pixel face only where it is big enough to read (at 12px its C looks like an O) */
 h2, h3, .btn, .iconbtn, .status, .bidpanel > div > b, .choice b { font-family: "Pixelify Sans", Bitter, monospace; }
@@ -894,17 +908,17 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=16"></script>
-<script src="btp-ai.js?v=16"></script>
-<script src="btp-run.js?v=16"></script>
-<script src="btp-town.js?v=16"></script>
-<script src="art/dustwater/sprites.js?v=16"></script>
-<script src="btp-train.js?v=16"></script>
-<script src="art/train/sprites.js?v=16"></script>
-<script src="art/title/scene.js?v=16"></script>
-<script src="art/table/scene.js?v=16"></script>
-<script src="art/grave/scene.js?v=16"></script>
-<script src="art/paid/scene.js?v=16"></script>
+<script src="btp-engine.js?v=17"></script>
+<script src="btp-ai.js?v=17"></script>
+<script src="btp-run.js?v=17"></script>
+<script src="btp-town.js?v=17"></script>
+<script src="art/dustwater/sprites.js?v=17"></script>
+<script src="btp-train.js?v=17"></script>
+<script src="art/train/sprites.js?v=17"></script>
+<script src="art/title/scene.js?v=17"></script>
+<script src="art/table/scene.js?v=17"></script>
+<script src="art/grave/scene.js?v=17"></script>
+<script src="art/paid/scene.js?v=17"></script>
 <script>
 (function () {
   'use strict';
@@ -1851,7 +1865,13 @@ html.art .coach { border-radius: 0; }
   function seatTag(L, seat) {
     const h = L.h;
     const mine = h.bids.filter(b => b.seat === seat && !b.keep), last = mine[mine.length - 1], top = mine.filter(b => !b.pass).pop();
-    if (h.phase === 'bid') return last ? '<span class="tag">' + (last.pass ? 'pass' : bidPlain(last)) + '</span>' : '';
+    // while bidding (2026-10-30, players lost track of who leads): the standing bid in gold with a HIGH tab, every
+    // other seat's word faded
+    if (h.phase === 'bid') {
+      if (!last) return '';
+      const lead = !last.pass && h.high && h.high.seat === seat;
+      return '<span class="tag ' + (lead ? 'lead' : 'lost') + '"' + (lead ? ' title="The bid to beat"' : '') + '>' + (lead ? '<i>HIGH</i>' : '') + (last.pass ? 'pass' : bidPlain(last)) + '</span>';
+    }
     if (h.out === seat) return '<span class="tag lost">sits out</span>';
     // after the auction every seat keeps what it said: the winner in gold, the rest faded (the user's, 2026-10-30)
     if (h.contractor === seat) return '<span class="tag won" title="Won the bid">' + bidPlain(h.contract) + '</span>';
@@ -1982,8 +2002,7 @@ html.art .coach { border-radius: 0; }
     const strip = felt.classList.contains('strip');
     const seat = (s, cls, name) => '<div class="seat ' + cls + (turn === s ? ' turn' : '') + '">' + (strip
       ? '<div class="plaque"><span class="who">' + name + '</span>' + seatTag(L, s) + '</div>'
-      // while bidding the bid floats over the head; after the auction it sits on the plaque, clear of the nameplate
-      : h.phase === 'bid' ? '<div class="bidbox">' + seatTag(L, s) + '</div><div class="plaque"><span class="who">' + name + '</span>' + backs(h.hands[s].length) + '</div>' + lips(s)
+      // every seat's word sits on its plaque, while bidding and after (over the heads the gang's nameplate hid them)
       : '<div class="plaque"><span class="who">' + name + '</span>' + seatTag(L, s) + backs(h.hands[s].length, true) + '</div>' + lips(s)) + '</div>';
     // a tap on the table clears a finished trick: only then is it a control
     let zone = '<div class="trickzone"' + (h.phase === 'trick' ? ' data-act="tapfelt"' : '') + '>';
@@ -2047,8 +2066,13 @@ html.art .coach { border-radius: 0; }
     if (L.boss === 'wallflowers') extras += '<span class="nod">' + (mine && E.mustBid(L, 0) ? 'Nan passed and the Undertakers never bid: you must bid' : 'Against the Undertakers your team bids ' + E.WALL.min + ' or more') + '</span>';
     if (R.has(L, 'peek')) extras += '<span class="nod">Peek: the kitty holds ' + h.kitty.map(E.label).join(', ') + '</span>';
     const raise = mine && h.raise;
-    bp.innerHTML = '<div>' + (raise ? '<b class="raisehead">Everyone passed on your ' + bidHTML(h.high) + '.</b> Raise your own bid (more tricks or a higher suit), or keep it.' :
-      '<b>' + (mine ? 'Your bid' : E.SEATS[h.turn] + ' is bidding…') + '</b> ' + (h.high ? 'High bid: <b>' + bidHTML(h.high) + '</b> by ' + (h.high.seat === 0 ? 'you' : nm(h.high.seat)) : '(tricks you and Nan promise, out of ' + E.ACTS[L.act].hand + ')')) + extras + '</div>' + g +
+    // the bid to beat (2026-10-30, players lost track of who leads): a chip with it, who holds it, and whose turn it is
+    const hi = h.high, suitKey = b => b.s === 'NT' ? 'T' : b.s === 'MIS' || b.s === 'OMIS' ? 'T' : b.s;
+    const standing = '<div class="standing' + (hi && hi.seat % 2 === 0 ? ' you' : '') + '">' + (hi
+      ? '<span class="bchip s-' + suitKey(hi) + '">' + esc(bidPlain(hi)) + '</span><span class="who2"><b>' + (hi.seat === 0 ? 'You lead' : nm(hi.seat) + ' leads') + '</b> with ' + bidHTML(hi) + ' (' + hi.v + ')' +
+        '<small>' + (raise ? 'Everyone else passed: raise it or keep it' : mine ? 'Beat it, or pass' : nm(h.turn) + ' is bidding\u2026') + '</small></span>'
+      : '<span class="bchip none">NO BID</span><span class="who2"><b>Nobody has bid</b><small>' + (mine ? 'Open the bidding: tricks you and Nan promise, out of ' + E.ACTS[L.act].hand : nm(h.turn) + ' is bidding\u2026') + '</small></span>') + '</div>';
+    bp.innerHTML = standing + '<div>' + (raise ? '<b class="raisehead">Raise your own bid</b> (more tricks or a higher suit), or keep it.' : '<b>' + (mine ? 'Your bid' : nm(h.turn) + ' is bidding\u2026') + '</b>') + extras + '</div>' + g +
       '<div class="btns" style="margin-top:4px"><button class="btn alt" data-act="pass"' + (mine && !E.mustBid(L, 0) ? '' : ' disabled') + '>' + (raise ? 'Keep ' + bidHTML(h.high) : 'Pass') + '</button>' +
       (A.misere ? '<button class="btn alt" data-bid="0MIS" title="Lose every trick, playing alone; Nan sits out. Ranks between 5NT and 6♠."' + (!can(0, 'MIS') ? ' disabled' : '') + '>Misère · ' + A.misere + '</button>' + (A.openMisere ? '<button class="btn alt" data-bid="0OMIS" title="Lose every trick alone, with your hand face up after the first trick. Ranks between 10♦ and 10♥."' + (!can(0, 'OMIS') ? ' disabled' : '') + '>Open · ' + A.openMisere + '</button>' : '<span class="bidlog" style="align-self:center;margin:0">lose every trick alone</span>') : '') + '</div>' +
       (log ? '<div class="bidlog" aria-label="The bids so far">' + log + '</div>' : '');
@@ -2087,7 +2111,15 @@ html.art .coach { border-radius: 0; }
     const L = P.L, h = L.h;
     if (P.sheet === 'rules' || P.sheet === 'menu' || P.sheet === 'info') return;
     let html = '', key = '';
-    if (L.phase === 'hand' && h.phase === 'intent') {
+    // everyone passed on your bid (2026-10-30: players raised their own bid without noticing they had won it): say
+    // so in a pop-up, with Keep first; Raise it closes it to the grid (higher bids only), which still has Keep
+    const rkey = 'raise' + L.level + '-' + L.handNo + '-' + (L.redeals || 0);
+    if (L.phase === 'hand' && h.phase === 'bid' && h.raise && h.turn === 0 && P.raiseSeen !== rkey) {
+      key = rkey;
+      html = '<h2>You won the bid!</h2><p class="big">Everyone passed on your <b>' + bidHTML(h.high) + '</b>.</p>' +
+        '<p>Raise your own bid (more tricks or a higher suit), or keep it. Keeping it, you need <b>' + (h.high.t || 'no') + '</b> trick' + (h.high.t === 1 ? '' : 's') + (h.high.s === 'MIS' || h.high.s === 'OMIS' ? ' (lose every one)' : ' of ' + E.ACTS[L.act].hand) + ', worth ' + h.high.v + '.</p>' +
+        '<div class="btns"><button class="btn" data-act="pass">Keep ' + bidHTML(h.high) + '</button><button class="btn alt" data-act="raisebid">Raise it</button></div>';
+    } else if (L.phase === 'hand' && h.phase === 'intent') {
       key = 'intent' + L.level + '-' + L.handNo;
       if (h.misere) html = '<h2>Their intent</h2><p class="big">' + E.SEATS[h.contractor] + ' bids ' + (h.open ? 'open misère' : 'misère') + '</p>' + (h.open ? '<p>Their hand goes face up after the first trick: use it.</p>' : '') +
         '<p>' + E.SEATS[h.contractor] + ' plays alone and must lose every trick. If they do, you lose <b class="badc">' + h.intent.dmg + ' health</b> (' + E.hitWord(L) + ' of ' + h.contract.v + ').</p>' +
@@ -2349,6 +2381,7 @@ html.art .coach { border-radius: 0; }
       case 'foeinfo': openSheet('info', foeHelpHTML(L, d.k)); break;
       case 'skipgrave': endGrave(); break;
       case 'takejob': takeJob(); break;
+      case 'raisebid': P.raiseSeen = 'raise' + L.level + '-' + L.handNo + '-' + (L.redeals || 0); showSheet('', null); render(); break;
       case 'paydone': { const ul = t.closest('.payout'); if (ul) ul.classList.add('done'); break; }
       case 'paidskip': case 'paidcollect': endPaid(); move('collect'); break;
       case 'skipopening': endOpening(); break;
