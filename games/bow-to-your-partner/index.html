@@ -568,6 +568,27 @@ html.art .standing .bchip.s-H { background-image: url(art/ui/chip_H.png); } html
 .bidwon b { color: #f3d070; } .bidwon small { display: block; font-size: 12px; color: #e8d3a8; }
 @keyframes bidwon { from { transform: translate(-50%, 8px); opacity: 0; } }
 .bidlog { display: flex; flex-wrap: wrap; gap: 4px; }
+/* Dustwater's rooms (bakery/rooms.py, rooms_px.py; art/rooms/scene.js, 2026-10-30): the General Store with its
+   storekeeper behind the counter, and the hotel room at night. Shown only with the art (html.art), in Act I. */
+.room { display: none; position: relative; overflow: hidden; height: calc(100 * var(--ax)); margin: 0 0 10px; border: 3px solid #3a2018; border-radius: 6px; background: #3a2418; --ax: calc(var(--rk, 2) * 1px); }
+html.art .room { display: block; }
+.room > i { position: absolute; left: 50%; top: 0; width: calc(200 * var(--ax)); height: calc(100 * var(--ax)); transform: translateX(-50%); background-size: 100% 100%; image-rendering: pixelated; pointer-events: none; }
+.room .rc { z-index: 2; }
+.room .keeper { position: absolute; z-index: 1; left: calc(50% - 20 * var(--ax)); top: calc(var(--kt) * var(--ax)); width: calc(40 * var(--ax)); height: calc(56 * var(--ax)); image-rendering: pixelated; animation: keeperBob 3.4s steps(1) infinite; }
+@keyframes keeperBob { 0%, 55%, 100% { translate: 0 0; } 60%, 95% { translate: 0 var(--ax); } }
+.room .keeper.sold { animation: keeperHop .45s steps(3) 1; }
+@keyframes keeperHop { 50% { translate: 0 calc(-3 * var(--ax)); } }
+.room .say { position: absolute; z-index: 3; left: calc(50% + 21 * var(--ax)); top: calc(16 * var(--ax)); max-width: 44%; background: #fbf3dc; color: #2a1b16; font: 600 13px/1.25 Bitter, Georgia, serif; padding: 4px 8px; border: 2px solid #3a2018; border-radius: 8px; }
+.room .say::before { content: ''; position: absolute; left: -8px; top: 10px; border: 6px solid transparent; border-right: 6px solid #3a2018; border-left: 0; }
+.room .flame { position: absolute; z-index: 2; width: calc(40 * var(--ax)); height: calc(40 * var(--ax)); margin: calc(-20 * var(--ax)) 0 0 calc(-20 * var(--ax)); border-radius: 50%; background: radial-gradient(circle, rgba(255, 210, 130, .32), rgba(255, 210, 130, 0) 68%); animation: flicker 2.6s ease-in-out infinite; pointer-events: none; }
+@keyframes flicker { 0%, 100% { opacity: .9; } 30% { opacity: .65; } 55% { opacity: 1; } 80% { opacity: .75; } }
+.room.asleep::after { content: ''; position: absolute; inset: 0; z-index: 4; animation: lampDown 1.6s forwards; }
+@keyframes lampDown { from { background: rgba(10, 14, 40, 0); } to { background: rgba(10, 14, 40, .66); } }
+.room.asleep .flame { animation: none; opacity: 0; transition: opacity .5s; }
+.room .zzz { position: absolute; z-index: 5; display: none; color: #fbf3dc; font: 700 18px/1 'Pixelify Sans', Bitter, serif; text-shadow: 0 2px 0 #1c2448; pointer-events: none; }
+.room.asleep .zzz { display: block; animation: zzz 1.6s ease-out forwards; }
+@keyframes zzz { from { opacity: 0; translate: 0 0; } 30% { opacity: 1; } to { opacity: 0; translate: 10px -34px; } }
+@media (prefers-reduced-motion: reduce) { .room .keeper, .room .flame, .room .keeper.sold { animation: none; } }
 .btn.mini { min-height: 36px; padding: 4px 10px; font: 700 13px/1.2 Bitter, Georgia, serif; margin: 4px 4px 0 0; }   /* the pixel C reads as an O this small */
 html.art .btn.mini { border-width: 8px; border-image-width: 8px; padding: 0 4px; }
 .bidlog .bl { padding: 1px 7px; border-radius: 999px; background: #efe6d6; color: #5a4a38; font-size: 13px; }
@@ -911,17 +932,18 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=19"></script>
-<script src="btp-ai.js?v=19"></script>
-<script src="btp-run.js?v=19"></script>
-<script src="btp-town.js?v=19"></script>
-<script src="art/dustwater/sprites.js?v=19"></script>
-<script src="btp-train.js?v=19"></script>
-<script src="art/train/sprites.js?v=19"></script>
-<script src="art/title/scene.js?v=19"></script>
-<script src="art/table/scene.js?v=19"></script>
-<script src="art/grave/scene.js?v=19"></script>
-<script src="art/paid/scene.js?v=19"></script>
+<script src="btp-engine.js?v=21"></script>
+<script src="btp-ai.js?v=21"></script>
+<script src="btp-run.js?v=21"></script>
+<script src="btp-town.js?v=21"></script>
+<script src="art/dustwater/sprites.js?v=21"></script>
+<script src="btp-train.js?v=21"></script>
+<script src="art/train/sprites.js?v=21"></script>
+<script src="art/title/scene.js?v=21"></script>
+<script src="art/table/scene.js?v=21"></script>
+<script src="art/grave/scene.js?v=21"></script>
+<script src="art/paid/scene.js?v=21"></script>
+<script src="art/rooms/scene.js?v=21"></script>
 <script>
 (function () {
   'use strict';
@@ -948,7 +970,7 @@ html.art .coach { border-radius: 0; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 15, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 16, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -1208,9 +1230,9 @@ html.art .coach { border-radius: 0; }
         break;
       }
       case 'camp':
-        body = noteHTML + '<div class="panel"><h2>The Hotel</h2><p>Do one thing here.</p>' +
+        body = noteHTML + roomHTML(L, 'hotel') + '<div class="panel"><h2>The Hotel</h2><p>Do one thing here.</p>' +
           '<button class="choice" data-camp="shop"><b>General Store</b><span>Buy cards, an enhancement or a buff; release a card you own.</span></button>' +
-          '<button class="choice" data-camp="rest"><b>Rest</b><span>+' + R.restOf(L) + ' health.</span></button>' +
+          '<button class="choice" data-camp="rest"><b>Rest</b><span>A night in a real bed: +' + R.restOf(L) + ' health.</span></button>' +
           '<button class="choice" data-camp="polish"' + (R.polishable(L).length ? '' : ' disabled') + '><b>Polish</b><span>+1 rank on a card you own, up to Ace.</span></button>' +
           '<button class="choice" data-camp="cleanse"' + (R.hexed(L).length ? '' : ' disabled') + '><b>See the Doc</b><span>' + (R.hexed(L).length ? 'Remove a hex (' + R.hexed(L).length + ' on the cards).' : (L.act < 2 ? 'Remove a hex. No hexes yet: they arrive in Act II.' : 'Remove a hex. No card is hexed.')) + '</span></button>' +
           (E.ACTS[L.act].forge ? '<h3>The table deck</h3>' +
@@ -1257,7 +1279,7 @@ html.art .coach { border-radius: 0; }
           const text = it.text ? it.text : it.type === 'card' ? 'Own it: it can be dealt to you in your seed slot.' : it.type === 'enh' ? R.ENH[it.id].text : it.type === 'tonic' ? '+' + R.TONIC.health + ' health.' : it.type === 'cleanse' ? 'Remove a hex from any card.' : R.BUFFS[it.id].text;
           return '<button class="choice" data-buy="' + i + '"' + (it.sold || L.gold < it.price ? ' disabled' : '') + '><span class="price">' + (it.sold ? 'sold' : it.price + 'g') + '</span><b>' + esc(name) + '</b><span>' + esc(text) + '</span></button>';
         }).join('');
-        body = noteHTML + '<div class="panel"><h2>The General Store</h2>' + items +
+        body = noteHTML + roomHTML(L, 'store') + '<div class="panel"><h2>The General Store</h2>' + items +
           '<button class="choice" data-buy="release"' + (L.owned.length < 2 || L.gold < R.releasePrice(L) ? ' disabled' : '') + '><span class="price">' + R.releasePrice(L) + 'g</span><b>Turn a card loose</b><span>Stop owning a card, so your best ones come more often.</span></button>' +
           '<div class="btns"><button class="btn" data-act="leave">Leave the store</button></div></div>' +
           '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
@@ -1416,7 +1438,7 @@ html.art .coach { border-radius: 0; }
     const ab = F.traits.map(t => { const a = R.abilityOf(t); return '<li><b>' + esc(a.name) + '</b> ' + esc(a.text) + '</li>'; }).join('');
     return '<button class="poster k-' + n.kind + '" data-go="' + n.id + '"><span class="figs" aria-hidden="true">' + figs + '</span><span class="pbody">' +
       '<span class="w">WANTED</span><b>' + esc(F.name) + '</b><span class="pk">' + esc(R.kindName(L.act, n.kind)) + ' \u00b7 ' + R.foeHp(L, F) + ' health</span>' +
-      (ab ? '<ul>' + ab + '</ul>' : '<span class="plainp">Nothing up their sleeve</span>') +
+      (ab ? '<ul>' + ab + '</ul>' : F.rule ? '' : '<span class="plainp">Nothing up their sleeve</span>') +
       (F.tipoff ? '<span class="bty">Carrying ' + esc(R.BOSS[F.tipoff].name.replace(/^The /, 'the ')) + '\u2019 secret: ' + esc(R.BUFFS[R.COUNTER[F.tipoff]].name) + '</span>' : '') +
       (F.rule ? '<span class="pk"><b>Table rule:</b> ' + esc(R.TABLE_RULES[F.rule].name) + '. ' + esc(R.TABLE_RULES[F.rule].text) + '</span>' : '') +
       (F.driver ? '<span class="pk">Sent by ' + esc(R.BOSS[F.driver].name.replace(/^The /, 'the ')) + '</span>' : '') +
@@ -1959,6 +1981,38 @@ html.art .coach { border-radius: 0; }
       '<div class="foebar" role="meter" aria-label="Their health" aria-valuemin="0" aria-valuemax="' + F.hp + '" aria-valuenow="' + left + '"><i style="width:' + pct + '%"></i><s style="width:' + pct + '%"></s></div></div>';
   }
   /* The stage: rebuilt only when the fight, the act's wall, the gang or the scale changes. */
+  /* Dustwater's General Store and hotel room (2026-10-30), from art/rooms/scene.js: the room's picture above the
+     panel, the storekeeper between his wall and his counter with a word for you. Act I only: Acts II and III call
+     these stops the candy butcher's cart, the sleeper car, merchants' row and the chuck wagon, which this isn't. */
+  const KEEPER = {
+    hello: ['Howdy! What\u2019ll it be, partner?', 'Fresh in on the stage this mornin\u2019.', 'Mind the pickle barrel.', 'No credit, no haggling. Mostly.'],
+    thanks: ['Pleasure doin\u2019 business.', 'A fine choice, if I say so myself.', 'That\u2019ll serve you well out there.', 'Come again, partner!'],
+    broke: ['Lookin\u2019s free, partner.', 'Come back when the bounty\u2019s paid.']
+  };
+  function roomHTML(L, kind) {
+    const S = window.ROOMS_SCENE;
+    if (!S || L.act !== 1 || L.mode === 'standard') return '';
+    const rk = Math.max(2, Math.min(3, Math.floor(Math.min(innerWidth, 760) / 170)));
+    const u = n => 'calc(' + n + ' * var(--ax))', at = (x, y) => 'left:calc(50% + ' + (x - S.W / 2) + ' * var(--ax));top:' + u(y);
+    if (kind === 'store') {
+      const sold = (L.stock || []).filter(it => it.sold).length, cheapest = Math.min.apply(null, (L.stock || []).filter(it => !it.sold).map(it => it.price).concat([Infinity]));
+      const set = sold ? KEEPER.thanks : L.gold < cheapest ? KEEPER.broke : KEEPER.hello;
+      const line = set[((L.path || []).length + sold) % set.length];
+      const hop = P.keeperSold !== undefined && sold > P.keeperSold;
+      P.keeperSold = sold;
+      return '<div class="room store" style="--rk:' + rk + ';--kt:' + (S.rim[1] - 38) + '" aria-hidden="true">' +
+        '<i style="background-image:url(' + artURL('rooms/store_wall.webp') + ')"></i>' +
+        '<img class="keeper' + (hop ? ' sold' : '') + '" src="' + artURL('rooms/keeper.webp') + '" alt="">' +
+        '<i class="rc" style="background-image:url(' + artURL('rooms/store_counter.webp') + ')"></i>' +
+        '<div class="say">' + esc(line) + '</div></div>';
+    }
+    P.keeperSold = undefined;
+    // asleep survives a repaint (coming back to the page repaints it) while the rest's moment runs
+    return '<div class="room hotel' + (P.sleeping ? ' asleep' : '') + '" style="--rk:' + rk + '" aria-hidden="true">' +
+      '<i style="background-image:url(' + artURL('rooms/hotel.webp') + ')"></i>' +
+      '<span class="flame" style="' + at(S.lamp[0], S.lamp[1]) + '"></span>' +
+      '<span class="zzz" style="' + at(S.pillow[0] - 4, S.pillow[1] - 16) + '">z Z z</span></div>';
+  }
   function buildStage(L, felt, k) {
     const look = lookOf(L), fig = (key, side) => '<div class="fig ' + side + '"><img src="' + artURL('table/fig_' + key + '.webp') + '" alt=""></div>';
     felt.innerHTML = '<div class="stage"><div class="wall" style="background-image:url(' + artURL('table/wall' + L.act + '.webp') + ')"></div>' +
@@ -2394,6 +2448,12 @@ html.art .coach { border-radius: 0; }
     if (d.claim) { move('choose', { claim: d.claim }); return; }
     if (d.enhance) { move('enhance', d.enhance); return; }
     if (d.option) { move('option', +d.option); return; }
+    if (P.sleeping) return;
+    if (d.camp === 'rest' && !FAST && document.querySelector('html.art .room.hotel') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      P.sleeping = true; document.querySelector('.room.hotel').classList.add('asleep');
+      setTimeout(() => { P.sleeping = false; move('camp', 'rest'); }, 1600);
+      return;
+    }
     if (d.camp) { move('camp', d.camp); return; }
     if (d.bank) { move('bank', d.bank); return; }
     if (d.water) { move('water', d.water); return; }

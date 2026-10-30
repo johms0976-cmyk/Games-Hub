@@ -700,7 +700,7 @@
     } else if (kind === 'camp') {
       L.phase = 'camp'; L.cashed = false;
     } else if (kind === 'store') {
-      stock(L); L.phase = 'shop';
+      L.restocks = 0; stock(L); L.phase = 'shop';
     } else if (kind === 'raffle') {
       raffle(L);
     } else if (kind === 'bank') {
@@ -1330,7 +1330,7 @@
     if (what === 'rest') { const got = heal(L, restOf(L)); note(L, 'A night’s rest: +' + got + ' health.'); nextStop(L); return yes(); }
     if (what === 'polish') { if (!polishable(L).length) return no('nothing to polish'); L.phase = 'polish'; return yes(); }
     if (what === 'cleanse') { if (!hexed(L).length) return no('no hexes to cleanse'); L.cleanseBack = 'map-next'; L.phase = 'cleanse'; return yes(); }
-    if (what === 'shop') { stock(L); L.phase = 'shop'; return yes(); }
+    if (what === 'shop') { L.restocks = 0; stock(L); L.phase = 'shop'; return yes(); }
     if (what === 'forge') { if (!forgeable(L).length) return no('nothing to forge'); L.phase = 'forge'; return yes(); }
     if (what === 'remove') { if (!removable(L).length) return no('nothing to remove'); L.phase = 'remove'; return yes(); }
     return no('unknown action');
@@ -1380,14 +1380,17 @@
       .concat(fb.length ? [{ type: 'buff', id: E.pick(L, fb), price: priced(L, 150 + 25 * Math.floor(E.rnd(L) * 3)) }] : [])
       .concat([{ type: 'tonic', id: 'tonic', price: priced(L, TONIC.price) }])
       .concat(hexed(L).length ? [{ type: 'cleanse', id: 'cleanse', price: priced(L, CLEANSE_PRICE) }] : [])
-      // things to spend gold on (2026-10-30, the review's #10: gold piled up), each changing a fight to come
+      // things to spend gold on (2026-10-30, the review's #10: gold piled up), each changing a fight to come.
+      // The boss's secret is NOT sold here: it is the risky train's reward, and the safe train always has a Hotel
+      // (the second review found the store handing the safe side the risky side's prize).
       .concat([{ type: 'marked', id: 'marked', price: priced(L, SHOP.marked), name: 'A marked deck', text: 'See the kitty in every hand of your next fight.' },
-               { type: 'posting', id: 'posting', price: priced(L, SHOP.posting), name: 'The sheriff\u2019s posting', text: 'Your next fight pays double bounty.' }])
-      .concat(L.act === 2 && L.map && COUNTER[L.map.boss] && !has(L, COUNTER[L.map.boss]) ? [{ type: 'secret', id: COUNTER[L.map.boss], price: priced(L, SHOP.secret),
-               name: 'The boss\u2019s secret', text: BUFFS[COUNTER[L.map.boss]].name + ': ' + BUFFS[COUNTER[L.map.boss]].text }] : [])
-      .concat([{ type: 'restock', id: 'restock', price: priced(L, SHOP.restock), name: 'Ask what\u2019s out back', text: 'A new set of goods on the shelves.' }]);
+               { type: 'posting', id: 'posting', price: priced(L, SHOP.posting), name: 'The sheriff\u2019s posting', text: 'Your next fight pays double bounty: a bet on bringing them in with two stars or more.' }])
+      .concat([{ type: 'restock', id: 'restock', price: restockPrice(L), name: 'Ask what\u2019s out back', text: 'A new set of goods on the shelves. Costs more each time you ask.' }]);
   }
-  const SHOP = { marked: 45, posting: 50, secret: 150, restock: 15 };
+  /* The posting is a bet (a Card table pays 10 / 25 / 40 by stars: two stars breaks even, three wins); a restock
+     costs 15 more each time in one visit, so the store can't be rerolled for free. */
+  const SHOP = { marked: 45, posting: 25, restock: 15 };
+  const restockPrice = L => priced(L, SHOP.restock * (1 + (L.restocks || 0)));
   const releasePrice = L => priced(L, 50 + 25 * L.releases);
   function buy(L, i) {
     if (L.phase !== 'shop') return no('the store is closed');
@@ -1409,8 +1412,7 @@
     if (it.type === 'cleanse') { L.cleanseBack = 'shop'; L.phase = 'cleanse'; }
     if (it.type === 'marked') { L.nextFight = Object.assign(L.nextFight || {}, { peek: true }); note(L, 'A marked deck: your next fight, you\u2019ll see the kitty every hand.'); }
     if (it.type === 'posting') { L.nextFight = Object.assign(L.nextFight || {}, { double: true }); note(L, 'The sheriff\u2019s posting: your next fight pays double.'); }
-    if (it.type === 'secret') { grantBuff(L, it.id); note(L, 'Bought the boss\u2019s secret: ' + BUFFS[it.id].name + '.'); }
-    if (it.type === 'restock') { stock(L); note(L, 'The storekeeper brings out new goods.'); }
+    if (it.type === 'restock') { L.restocks = (L.restocks || 0) + 1; stock(L); note(L, 'The storekeeper brings out new goods.'); }
     return yes();
   }
   function release(L, card) {
@@ -1615,7 +1617,7 @@
     return o.n + ' / ' + o.of;
   }
   const api = { DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
-    cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, EXPRESS, DRIVER, COUNTER, makeDriver, ROSTER, STANDARD, standardFoe, newStandard,
+    cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, EXPRESS, DRIVER, COUNTER, makeDriver, ROSTER, STANDARD, standardFoe, newStandard,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;
   else root.BtpRun = api;
