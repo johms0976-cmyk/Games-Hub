@@ -214,7 +214,7 @@
      it's theirs. They only know your seeded cards, not the rest of your hand. */
   function sharpsHunt(L, seat, legal) {
     const h = L.h, trump = h.trump;
-    if (L.boss !== 'sharps' || team(seat) !== 1 || h.misere) return null;
+    if (L.boss !== 'sharps' || team(seat) !== 1 || h.misere || (L.buffs || []).includes('tell')) return null;    // their signals are known
     let best = null;
     for (const c0 of (h.seeded || []).filter(c => h.hands[0].includes(c))) {
       const k0 = K(L, 0, c0), s0 = kSuit(k0, trump);

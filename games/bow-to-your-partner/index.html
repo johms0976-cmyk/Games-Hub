@@ -95,6 +95,7 @@ html.art .titlemenu .wood.drawn > span { position: absolute; width: 1px; height:
 #bounty[hidden] { display: none; }
 #bounty .why { margin: 0; font: 800 13px/1.3 Georgia, serif; letter-spacing: .28em; color: #f3d070; text-align: center; text-transform: uppercase; }
 #bounty .scroll { position: relative; padding-top: 10px; }
+#bounty .why.long { max-width: 320px; font: italic 600 15px/1.35 Georgia, serif; letter-spacing: 0; text-transform: none; color: #f6e6c0; }
 #bounty .scroll::before { content: ''; position: absolute; left: -10px; right: -10px; top: 0; height: 14px; z-index: 2; border-radius: 7px;
   background: linear-gradient(#a0703e, #6e4424); box-shadow: 0 2px 0 rgba(0,0,0,.35); }
 #bounty .wposter { animation: unroll 1.5s cubic-bezier(.35, 0, .2, 1) .25s both; }
@@ -366,6 +367,14 @@ html.art .mapbox.dust.hasplate .stage { display: none; }
 /* Act II's map is the Westbound Express (btp-train.js, 2026-10-29): Dustwater's box and markers, the paths drawn
    as rails (ties, then the two rails) in the plate's own units, so they scale with it. The ways on glow gold. */
 .mapbox.train .rl path { fill: none; }
+/* the engineer's train goes over into the ravine; the two trains draw level from behind (2026-10-30) */
+.mapbox.train .spr.fallen { animation: ravine 1.6s cubic-bezier(.5, 0, .9, .5) forwards !important; }
+.mapbox.train .rl.fallen { animation: fadeout 1.2s forwards; }
+@keyframes ravine { 30% { transform: translateX(4%) rotate(4deg); } 100% { transform: translate(14%, 6%) rotate(22deg); opacity: 0; filter: grayscale(1); } }
+@keyframes fadeout { to { opacity: 0; } }
+.mapbox.train .spr.arrive { animation: drawlevel 1.8s cubic-bezier(.2, .7, .3, 1) both !important; }
+@keyframes drawlevel { from { transform: translateY(40%); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .mapbox.train .spr.fallen { animation: none !important; opacity: 0; } .mapbox.train .spr.arrive { animation: none !important; } }
 .mapbox.train .rl .tie { stroke: #6a4a30; stroke-width: 12; stroke-dasharray: 1.6 2.2; opacity: .9; }
 .mapbox.train .rl .rail { stroke: #4a4a50; stroke-width: 1.1; }
 .mapbox.train .rl.walked .rail { stroke: #e3d6b4; }
@@ -801,17 +810,17 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=12"></script>
-<script src="btp-ai.js?v=12"></script>
-<script src="btp-run.js?v=12"></script>
-<script src="btp-town.js?v=12"></script>
-<script src="art/dustwater/sprites.js?v=12"></script>
-<script src="btp-train.js?v=12"></script>
-<script src="art/train/sprites.js?v=12"></script>
-<script src="art/title/scene.js?v=12"></script>
-<script src="art/table/scene.js?v=12"></script>
-<script src="art/grave/scene.js?v=12"></script>
-<script src="art/paid/scene.js?v=12"></script>
+<script src="btp-engine.js?v=15"></script>
+<script src="btp-ai.js?v=15"></script>
+<script src="btp-run.js?v=15"></script>
+<script src="btp-town.js?v=15"></script>
+<script src="art/dustwater/sprites.js?v=15"></script>
+<script src="btp-train.js?v=15"></script>
+<script src="art/train/sprites.js?v=15"></script>
+<script src="art/title/scene.js?v=15"></script>
+<script src="art/table/scene.js?v=15"></script>
+<script src="art/grave/scene.js?v=15"></script>
+<script src="art/paid/scene.js?v=15"></script>
 <script>
 (function () {
   'use strict';
@@ -1091,8 +1100,8 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
         const B = R.BANK, door = L.bank.stage === 'door';
         const HU = R.holdup(L);
         body = noteHTML + (door ? '<div class="panel"><h2>' + esc(HU.place) + '</h2><p>' + (L.act === 2 ? 'A gang is blowing the express car\u2019s safe! The messenger is tied up, so it falls to you and Nan' : 'A gang is robbing the bank! The deputy is out of town, so it falls to you and Nan') + ': one hand of 500 against them.</p>' +
-          '<div class="kv"><span>Stop them</span><span>Outscore the gang this hand</span><span>Win</span><span class="good">+' + R.bankBounty(L) + ' gold bounty, and pick 1 of ' + B.enh + ' enhancements</span>' +
-          '<span>Lose</span><span class="badc">they ride off with ' + L.bank.take + ' gold (' + R.bankShare() + ' of yours)</span></div>' +
+          '<div class="kv"><span>Stop them</span><span>Outscore the gang this hand</span><span>Win</span><span class="good">' + (R.bankBounty(L) ? '+' + R.bankBounty(L) + ' gold bounty, and pick 1 of ' + B.enh + ' enhancements' : 'pick 1 of ' + B.enh + ' enhancements from their haul') + '</span>' +
+          '<span>Lose</span><span class="badc">they ride off with ' + L.bank.take + ' gold (' + R.bankShare(L) + ' of yours)</span></div>' +
           '<button class="choice" data-bank="fight"><b>Stop the robbery</b><span>One hand. Your health rides on it as usual.</span></button>' +
           '<button class="choice" data-bank="leave"><b>Walk on by</b><span>Not your business. Nothing won, nothing lost.</span></button></div>'
           : '<div class="panel"><h2>' + esc(HU.window) + '</h2><p>' + esc(HU.payer) + (L.result && L.result.won ? ' is grateful.' : ' is shaken.') + ' The window is still open, if you want to cash in health for gold.</p>' +
@@ -1267,7 +1276,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       elite: 'a tougher gang with an ability; pays a buff', store: 'cards, an enhancement, a buff, a tonic',
       raffle: R.RAFFLE.gold + ' gold and a free buff',
       water: 'fill your canteen (+' + R.WATER.health + ' health), earn ' + R.WATER.gold + ' gold, or have a hex scrubbed off',
-      bank: 'stop a robbery in one hand: win ' + R.bankBounty(L) + ' gold and an enhancement, lose ' + R.bankShare() + ' of your gold', boss: R.BOSS[L.map.boss].name + ', ' + (R.BOSS[L.map.boss].hp || R.FOE.boss[L.act]) + ' health: beat them or the run is over' })[k];
+      bank: 'stop a robbery in one hand: win ' + (R.bankBounty(L) ? R.bankBounty(L) + ' gold and ' : '') + 'an enhancement, lose ' + R.bankShare(L) + ' of your gold', boss: R.BOSS[L.map.boss].name + ', ' + (R.BOSS[L.map.boss].hp || R.FOE.boss[L.act]) + ' health: beat them or the run is over' })[k];
   }
   /* Each act's boss, wanted: the name, the rule, and where the Showdown is. */
   function wantedHTML(L) {
@@ -1284,6 +1293,8 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     return '<button class="poster k-' + n.kind + '" data-go="' + n.id + '"><span class="figs" aria-hidden="true">' + figs + '</span><span class="pbody">' +
       '<span class="w">WANTED</span><b>' + esc(F.name) + '</b><span class="pk">' + esc(R.kindName(L.act, n.kind)) + ' \u00b7 ' + R.foeHp(L, F) + ' health</span>' +
       (ab ? '<ul>' + ab + '</ul>' : '<span class="plainp">Nothing up their sleeve</span>') +
+      (F.tipoff ? '<span class="bty">Carrying ' + esc(R.BOSS[F.tipoff].name.replace(/^The /, 'the ')) + '\u2019 secret: ' + esc(R.BUFFS[R.COUNTER[F.tipoff]].name) + '</span>' : '') +
+      (F.driver ? '<span class="pk">Sent by ' + esc(R.BOSS[F.driver].name.replace(/^The /, 'the ')) + '</span>' : '') +
       '<span class="bty">Bounty: up to ' + top + ' gold' + (F.bounty > 1 ? ' (+' + Math.round(100 * (F.bounty - 1)) + '% for their tricks)' : '') + '</span></span></button>';
   }
   /* A stop's button on any map: its kind's icon, its name for screen readers, glowing when you can go there. */
@@ -1346,9 +1357,17 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       const [sl, sv] = plateLen(r);
       return '<g class="rl' + cls + '" data-r="' + i + '"><path class="tie" style="animation-duration:' + (3.8 * sv / sl / GROUND).toFixed(3) + 's" d="' + curve(r, 0) + '"/><path class="rail" d="' + curve(r, g) + curve(r, -g) + '"/></g>';
     };
-    const rails = lay.rails.map((r, i) => rail(r, r.under ? (route.includes(r.from) ? ' walked' : '') :
+    // the Westbound Express (2026-10-30): one train in view at a time. Train 1 up to its cab; when the engineer is
+    // down it goes over into the ravine (faded and falling) as the two trains draw level; once you have jumped, only
+    // your train. The boss's locomotive stays at the top: where every train is headed.
+    const X = L.map.express ? expressView(L) : null;
+    if (X) {
+      lay.stops = lay.stops.filter(s => X.show(R.node(L, s.id)));
+      lay.rails = lay.rails.filter(r => (r.from === null ? X.show(R.node(L, r.to)) : X.show(R.node(L, r.from))) && !(r.from && R.node(L, r.from).driver && !r.under) && (r.to === 'boss' || r.from === r.to || r.from === null || X.show(R.node(L, r.to))));
+    }
+    const rails = lay.rails.map((r, i) => rail(r, (X && X.fallen(r.from === null ? r.to : r.from) ? ' fallen' : '') + (r.under ? (route.includes(r.from) ? ' walked' : '') :
       r.from === null ? (route[0] === r.to ? ' walked' : !L.pos && can.includes(r.to) ? ' can' : '') :
-      walked.has(r.from + '>' + r.to) ? ' walked' : r.from === L.pos && can.includes(r.to) ? ' can' : '', i)).join('');
+      walked.has(r.from + '>' + r.to) ? ' walked' : r.from === L.pos && can.includes(r.to) ? ' can' : ''), i)).join('');
     const spr = (key, w, id, rock) => {
       const d = TS.s[key];
       if (!d) return '';
@@ -1364,9 +1383,10 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       return '<div class="band" style="top:' + pct(top, T.H) + ';height:' + pct(h, T.H) + ';--fade:' + (100 * 4 * 0.5 / T.M / h).toFixed(2) + '%">' +
         '<div class="roll" style="height:' + (100 * (h + sz[1]) / h).toFixed(3) + '%;background-image:url(' + artURL('train/band_' + name + '.webp') + ');background-size:100% ' + t.toFixed(3) + '%;--tile:' + t.toFixed(3) + '%;--period:' + TRAIN_PERIOD + 's"></div></div>';
     }).join('');
-    const sprites = lay.stops.map(s => spr(s.sprite.key, s.sprite.at, s.kind === 'water' ? null : s.id, s.kind !== 'water')).join('') +
+    const sprites = lay.stops.map(s => { const h = spr(s.sprite.key, s.sprite.at, s.kind === 'water' ? null : s.id, s.kind !== 'water');
+      return X && X.fallen(s.id) ? h.replace('class="spr', 'class="spr fallen') : X && X.arriving(s.id) ? h.replace('class="spr', 'class="spr arrive') : h; }).join('') +
       spr('ridge_d', [0, T.BOSS_Y + 33]) + spr('loco_d', [0, T.BOSS_Y], 'boss', true) + ambientHTML(T, TS, 'train');
-    const buttons = lay.stops.map(s => stopButton(L, R.node(L, s.id), s.marker[0], s.marker[1], T.W, T.H, can, route, fNow, s.place)).join('') +
+    const buttons = lay.stops.filter(s => !(X && X.fallen(s.id))).map(s => stopButton(L, R.node(L, s.id), s.marker[0], s.marker[1], T.W, T.H, can, route, fNow, s.place)).join('') +
       stopButton(L, R.node(L, 'boss'), lay.boss.marker[0], lay.boss.marker[1], T.W, T.H, can, route, fNow);
     const depot = T.px(0, T.DEPOT_Y);
     return '<div class="mapbox dust train' + (TS.plate ? ' hasplate' : '') + '" style="aspect-ratio:' + T.W + ' / ' + T.H + '">' +
@@ -1375,6 +1395,16 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       '<div class="stage" style="left:' + pct(depot[0], T.W) + ';top:' + pct(depot[1] + 8, T.H) + '">The depot</div></div>';
   }
   const TRAIN_PERIOD = 6;          // seconds for the ground to fall one tile (btp-train.js PERIOD metres)
+  /* Which train is in view on the Westbound Express: 'first' up to the cab, 'jump' once the engineer is down (Train
+     1 falls away, both trains draw level), then 'safe' or 'risky', the one you jumped to. */
+  function expressView(L) {
+    const here = L.pos && L.pos !== 'boss' ? R.node(L, L.pos) : null;
+    const stage = !here ? 'first' : here.train === 'safe' || here.train === 'risky' ? here.train : here.driver && R.reachable(L).length ? 'jump' : 'first';
+    return { stage,
+      show: n => !n ? true : stage === 'first' ? n.train === 'first' : stage === 'jump' ? true : n.train === stage,
+      fallen: id => { const n = id && id !== 'boss' ? R.node(L, id) : null; return stage === 'jump' && !!n && n.train === 'first'; },
+      arriving: id => { const n = id && id !== 'boss' ? R.node(L, id) : null; return stage === 'jump' && !!n && n.train !== 'first'; } };
+  }
   /* A rail's path on the plate: the cubic of btp-train.js railCurve, `off` metres to its left (a rail of the pair). */
   function railPath(T, r, off) {
     const c = T.railCurve(r, off).map(w => T.px(w[0], w[1]).map(v => v.toFixed(1)));
@@ -1397,7 +1427,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   let trainXing = null;
   function trainShuffle() {
     const box = document.querySelector('.mapbox.train'), L = P.L;
-    if (trainXing || !box || !L || L.phase !== 'map' || document.hidden) return;
+    if (trainXing || !box || !L || L.phase !== 'map' || document.hidden || (L.map && L.map.express)) return;
     const T = window.BtpTrain, TS = window.TRAIN_SPRITES || { s: {} }, fNow = R.floorOf(L), cols = trainCols(L), A = T.layout(L.map, cols), cand = [];
     for (const row of L.map.floors) {
       if (!row.length || row[0].f < fNow + 2 || row.some(n => n.kind === 'water')) continue;
@@ -1631,7 +1661,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const par = R.parOf(L), fast = L.handNo <= par;
     if (!L.obj) return '<button class="pay" data-act="levelinfo"><span class="st">' + stars(starsNow(L)) + '</span><span><b>Win:</b> 100 gold + pick 1 of 3 buffs. <b>Lose your health:</b> the run is over.</span>' +
       '<span class="nx">' + (fast ? 'Win by hand ' + par + ' for ★★★' : 'Over par: ★★') + '</span><span class="more">Rewards</span></button>';
-    if (L.kind === 'bank') return '<button class="pay" data-act="levelinfo"><span><b>Outscore the gang:</b> ' + R.bankBounty(L) + ' gold + pick 1 of ' + R.BANK.enh + ' enhancements. <b>Lose:</b> they take ' + L.bank.take + ' gold.</span>' +
+    if (L.kind === 'bank') return '<button class="pay" data-act="levelinfo"><span><b>Outscore the gang:</b> ' + (R.bankBounty(L) ? R.bankBounty(L) + ' gold + ' : '') + 'pick 1 of ' + R.BANK.enh + ' enhancements. <b>Lose:</b> they take ' + L.bank.take + ' gold.</span>' +
       '<span class="nx">' + esc('You ' + num(L.you) + ' · them ' + num(L.opp)) + '</span><span class="more">Rewards</span></button>';
     const n = starsNow(L), pay = R.PAY[L.kind][n], done = n - (fast ? 1 : 0) > 1;
     const next = [done ? '' : 'the bonus for a star', fast ? 'bring them in by hand ' + par + ' for a star' : 'over par'].filter(Boolean).join(' · ');
@@ -1662,7 +1692,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
       return '<h2>The Showdown: ' + esc(B.name) + '</h2><p>' + esc(B.rule) + '</p><p>' + F.hp + ' health; ' + Math.max(0, F.hp - L.you) + ' left.</p>' + how +
       '<p><b>Win:</b> 100 gold and pick 1 of 3 buffs: ★★★ within ' + par + ' hands, ★★ after. <b>Lose your health:</b> the run is over.</p><div class="btns"><button class="btn" data-act="closesheet">Back</button></div>'; }
     if (L.kind === 'bank') return '<h2>' + esc(R.kindName(L.act, 'bank')) + ': the stakes</h2><p>One hand against the gang. You stop them if your points this hand beat theirs: make your contract, or set theirs. A tie goes to the gang.</p>' +
-      '<p><b>Win:</b> a ' + R.bankBounty(L) + ' gold bounty and pick 1 of ' + R.BANK.enh + ' enhancements. <b>Lose:</b> they ride off with ' + L.bank.take + ' of your gold. Their points hit your health as at any table.</p>' +
+      '<p><b>Win:</b> ' + (R.bankBounty(L) ? 'a ' + R.bankBounty(L) + ' gold bounty and ' : '') + 'pick 1 of ' + R.BANK.enh + ' enhancements. <b>Lose:</b> they ride off with ' + L.bank.take + ' of your gold. Their points hit your health as at any table.</p>' +
       '<p>Either way, the teller will cash in health for gold afterwards.</p><div class="btns"><button class="btn" data-act="closesheet">Back</button></div>';
     const O = R.OBJECTIVES[L.obj.id], n = starsNow(L), pay = R.PAY[L.kind];
     const row = (k, what) => '<tr' + (k === n ? ' class="now"' : '') + '><td>' + '★'.repeat(k) + '</td><td><b>' + what + '</b><br>' + pay[k] + ' gold' + (k > 1 ? ' + ' + PRIZE[L.kind][k] : '') + '</td></tr>';
@@ -1966,7 +1996,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   function payoutHTML(r, now) {
     const pay = r.pay || [{ t: r.kind === 'bank' ? 'Gold' : 'Bounty paid', g: r.gold }];
     return '<ul class="payout" data-act="paydone" aria-label="The payout">' + pay.map((x, i) => '<li style="--i:' + i + '" class="' + (x.h ? 'hp' : x.g < 0 ? 'minus' : '') + '"><span>' + esc(x.t) + (x.star ? ' <span class="st">★</span>' : '') + '</span><b>' +
-      (x.h ? '+' + x.h + ' health' : (x.g < 0 ? '−' + -x.g : '+' + x.g) + 'g') + '</b></li>').join('') +
+      (x.h ? '+' + x.h + ' health' : x.buff ? 'yours' : x.g === 0 ? '—' : (x.g < 0 ? '−' + -x.g : '+' + x.g) + 'g') + '</b></li>').join('') +
       '<li class="tot" style="--i:' + pay.length + '"><span>' + (r.gold < 0 ? 'Lost' : 'Total') + ' <small>(you have ' + now + ')</small></span><b data-to="' + r.gold + '">' + (r.gold < 0 ? '−' : '+') + Math.abs(r.gold) + 'g</b></li></ul>';
   }
   // the total ticks up while the lines come in; a tap on the list (paydone) shows the end at once
@@ -2448,7 +2478,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   }
   const JOB = {
     1: ['The reason you rode into Dustwater', 'That\u2019s them, dear. The Twins. Every other gang in this town is just the road to the Saloon.'],
-    2: ['The reason you boarded the Westbound Express', 'They\u2019re up in the locomotive, dear. Car by car, that\u2019s where we\u2019re headed.'],
+    2: ['They want revenge for the Twins', 'They\u2019re up in the locomotive, dear, and they\u2019ve sent their engineer to meet us. Car by car, that\u2019s where we\u2019re headed.'],
     3: ['The reason you came to the County Fair', 'The last of them, dear. Bring this one in and we can go home.']
   };
   function unrollJob(L) {
@@ -2458,8 +2488,9 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     const b = $('bounty'), J = JOB[L.act] || JOB[1];
     b.className = '';
     const chosen = L.phase !== 'partner';       // a new story: nobody rides with you yet, so nobody speaks
+    const why = L.act === 2 && R.BOSS[L.map.boss].revenge ? R.BOSS[L.map.boss].revenge : '';
     b.innerHTML = '<p class="why">' + esc(J[0]) + '</p><div class="scroll"><div class="wposter" role="img" aria-label="' + esc('Wanted: ' + R.BOSS[L.map.boss].name + ', reward 100 gold') + '">' +
-      wantedFace(L.map.boss) + '</div><i class="rod" aria-hidden="true"></i></div>' +
+      wantedFace(L.map.boss) + '</div><i class="rod" aria-hidden="true"></i></div>' + (why ? '<p class="why long">' + esc(why) + '</p>' : '') +
       (chosen ? '<div class="nanline"><b>' + esc(R.PARTNERS[L.partner].name) + ':</b> ' + esc(J[1]) + '</div>' : '') +
       '<button class="btn" data-act="takejob">' + (chosen ? 'Let\u2019s ride' : 'Take the job') + '</button>';
     b.hidden = false;
@@ -2608,8 +2639,8 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
     if (FAST || L.act < 2 || P.actCardFor === key) return;
     P.actCardFor = key;
     const card = $('actcard'), S = window.TITLE_SCENE, art = document.documentElement.classList.contains('art');
-    const A = { 2: ['ACT II', 'THE WESTBOUND EXPRESS', 'Every gang on the line is wanted', 'All aboard, dear! The Twins are behind us and the whole line ahead is full of outlaws.'],
-                3: ['ACT III', 'THE COUNTY FAIR', 'The last gangs in the territory', 'The County Fair, dear. Last stop: let\u2019s finish this and go home rich.'] }[L.act];
+    const A = { 2: ['ACT II', 'THE WESTBOUND EXPRESS', 'Someone wants revenge for the Twins', 'All aboard, dear! Word is the Twins had friends on this line, and they\u2019re not happy with us.'],
+                3: ['ACT III', 'THE COUNTY FAIR', 'You took their train all the way to the Fair', 'Full steam ahead, dear! Their train is ours now, and the last bounty is waiting at the end of the line.'] }[L.act];
     card.style.backgroundImage = art ? (L.act === 2 ? 'url(' + artURL('train/band_desert.webp') + ')' : 'repeating-linear-gradient(90deg, #b8322a 0 36px, #f4e3bf 36px 72px)') : '';
     card.style.backgroundSize = L.act === 2 ? 'auto 100%' : '';
     const T = S && S.train, tk = 3;

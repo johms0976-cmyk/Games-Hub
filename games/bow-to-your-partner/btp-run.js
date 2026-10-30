@@ -149,8 +149,10 @@
     twins:  { name: 'The Twins', short: 'Twins', act: 1, look: ['pJT', 'pJT'], hit: 1.25, rule: 'West and East are always dealt the two red Jacks, one each.',
               hint: 'In diamonds or hearts they hold both bowers. In no trumps their Jacks are just Jacks; the Joker beats them either way.' },
     sharps: { name: 'The Card Sharps', short: 'Sharps', act: 2, look: ['pKX', 'pKX'], hit: 2, rule: 'They can see your seeded cards, and hunt them.',
+              revenge: 'The Twins owed them a fortune, and you brought the Twins in before they paid a cent.',
               hint: 'Lead your seeded cards when they can\u2019t be beaten, or let Nan cover them.' },
     hustlers: { name: 'The Hustlers', short: 'Hustlers', act: 2, look: ['pJY', 'pJY'], hp: 200, hit: 1.25, rule: 'They bid mis\u00e8re whenever they dare.',
+              revenge: 'The Twins were their little brothers, and they mean to settle it with you.',
               hint: 'One trick sinks a mis\u00e8re: lead low and stay under their card. Or outbid them with a 6 to keep them out.' },
     caller: { name: 'The Caller', short: 'Caller', act: 3, look: ['sJK', 'sQD'], hit: 2, rule: 'Before each hand he calls a figure that changes the rules, aimed at the cards you were dealt from your own.',
               hint: 'Each call is chosen to hurt your seeded cards, and he tells you why. A run that only works one way gets punished.' },
@@ -192,6 +194,9 @@
   const BOSS_POOL = { 1: ['twins'], 2: ['sharps', 'hustlers'], 3: ['caller', 'wallflowers'] };   // Act III (the user's call, 2026-10-25)
   /* Buffs (relics). A partner's own ability is never offered. */
   const BUFFS = {
+    // the Act II bosses' secrets, carried by the risky train's last gang (COUNTER); never drawn or sold
+    tell:     { name: 'The Sharps\u2019 Signals', text: 'You know their signals: the Card Sharps can\u2019t see your seeded cards, or hunt them, and they start the Showdown a quarter down.', secret: 'sharps' },
+    bluff:    { name: 'Called Bluff', text: 'The Hustlers\u2019 mis\u00e8re is always played open: their hand goes face up after the first trick, and they start the Showdown a quarter down.', secret: 'hustlers' },
     nod:      { name: 'Partner’s Nod', text: 'Your partner shows their strongest suit while you bid.' },
     swing:    { name: 'Under the Table', text: 'After the kitty, slip Nan a card and she slips you one back, every hand.' },
     peek:     { name: 'Peek', text: 'See the kitty before you bid.' },
@@ -297,7 +302,8 @@
     cousin:   { name: 'The Clumsy Deputy', text: 'Nan\u2019s nephew, a brand-new deputy, insists on helping. He is not careful.', acts: [2],
                 options: [{ text: 'Let him help: +60 gold, but he leaves you a Misfire (a curse card you own)', fx: { gold: 60, curse: 'twoleft' } }, { text: 'Make your excuses', fx: {} }] },
     // the controlled shunt (2026-10-29, the user's idea): swap two carriages ahead on one stretch of line, to replan
-    switchman: { name: 'The Switchman', text: 'At a siding the switchman leans on his lever. \u201cWant a couple of cars shuffled up the line? Nobody\u2019ll know.\u201d', acts: [2],
+    // off the train with the braided tracks (2026-10-30: nothing there is left to switch); the Fair still has him
+    switchman: { name: 'The Switchman', text: 'At a siding the switchman leans on his lever. \u201cWant a couple of cars shuffled up the line? Nobody\u2019ll know.\u201d', acts: [],
                 options: [{ text: 'Throw the switch: swap two carriages on one stretch of line ahead', fx: { shunt: true } }, { text: 'Tip your hat: he hands you 25 gold he found on the tracks', fx: { gold: 25 } }] },
     dare:     { name: 'The Gunslinger\u2019s Dare', text: 'A gunslinger dares you to match his fastest shuffle.', acts: [2],
                 options: [{ text: 'Take the dare: pick 1 of 3 enhancements, and one of your cards gets an Itchy Trigger Finger', fx: { enh: 3, hex: { kind: 'itchy', on: 'owned' } } }, { text: 'Decline', fx: {} }] }
@@ -308,7 +314,9 @@
      it: one hand of 500 against them, the stakes shown at the door, and you may still walk on by. Outscore
      them and the bank pays a bounty and lets you pick an enhancement; lose and they ride off with a share of
      your gold. Either way the teller will then cash in health for gold. Tuned in tests/bank.js. */
-  const BANK = { acts: [1, 2], floors: [1, 2, 4, 5], hands: 1, bounty: { 1: 60, 2: 90 }, take: 0.5, enh: 2 };
+  /* The train robbery (the user's, 2026-10-30): lose and they take all your gold; win and you pick an enhancement
+     from their haul, no gold; and no express agent cashes in health afterwards (`teller`). */
+  const BANK = { acts: [1, 2], floors: [1, 2, 4, 5], hands: 1, bounty: { 1: 60, 2: 0 }, take: { 1: 0.5, 2: 1 }, teller: { 1: true, 2: false }, enh: 2 };
   /* The same stop on the train (2026-10-29): the gang is blowing the express car's safe, and the express company
      pays the bounty. Only the words and the bounty change with the act. */
   const HOLDUP = {
@@ -316,9 +324,10 @@
     2: { place: 'The express car', what: 'a gang is blowing the express car\u2019s safe', payer: 'The express company', gone: 'the express company\u2019s gold', window: 'The express agent', clerk: 'the express agent', out: 'Back to your seat' }
   };
   const holdup = L => HOLDUP[L.act] || HOLDUP[1];
-  const bankBounty = L => BANK.bounty[L.act] || BANK.bounty[1];
-  const bankTake = L => Math.floor(L.gold * BANK.take);
-  const bankShare = () => ({ 0.25: 'a quarter', 0.5: 'half', 0.75: 'three quarters' })[BANK.take] || Math.round(100 * BANK.take) + '%';
+  const bankBounty = L => BANK.bounty[L.act] != null ? BANK.bounty[L.act] : BANK.bounty[1];
+  const takeOf = L => BANK.take[(L && L.act) || 1] || BANK.take[1];
+  const bankTake = L => Math.floor(L.gold * takeOf(L));
+  const bankShare = L => ({ 0.25: 'a quarter', 0.5: 'half', 0.75: 'three quarters', 1: 'all' })[takeOf(L)] || Math.round(100 * takeOf(L)) + '%';
   /* The map (2026-10-26, after Gwent's The Path, which is after Slay the Spire): each act is seven floors on
      a grid five wide, four paths up it that never cross, and the Hoedown above them all. Floor 1 is always a
      Dance, floor 4 the Raffle (a free buff), floor 7 a Punch Bowl; the rest are drawn at Gwent's odds, with no
@@ -350,7 +359,46 @@
     for (const p of live) if ((x -= p[1]) < 0) return p[0];
     return live[live.length - 1][0];
   }
+  /* Act II, the Westbound Express (the user's, 2026-10-30; it replaces the five braided tracks, which didn't read):
+     Train 1 runs straight through three carriages to its engine cab, where the boss's engineer waits (a Duel with a
+     debuff: the boss sent him). Beat him and his train runs off the rails into a ravine as two trains draw level and
+     you jump: the LEFT one is safe (two of the store, the water stop and gossip, then the sleeper car's rest) but
+     powers up few of your cards; the RIGHT one is risky (a card table and the robbery in either order, then a Duel
+     whose gang carries the boss's secret: beat them and the boss loses its trick, COUNTER). Both run on to the boss,
+     drawn at random with the map and fixed from the start. Floors 0-2 Train 1 (column 2), 3 the cab, 4-6 the two
+     trains (columns 1 and 3); MAPSHAPE's seven floors, so floorOf and the stacked deck read the same. */
+  const EXPRESS = { first: [['dance', 1], ['event', 3], ['store', 2], ['water', 2]], safe: ['store', 'water', 'event'], risky: ['dance', 'bank'], driver: 0.8, cut: 0.4, secretHp: 0.7 };
+  // the engineer: a Duel's health at the cab's floor (times EXPRESS.driver), with one of the gangs' debuffs on you
+  const DRIVER = { look: ['gKbk2', 'gJbk1'], name: { sharps: 'Lucky Lou, the Sharps\u2019 engineer', hustlers: 'Coal-eyed Pete, the Hustlers\u2019 engineer' } };
+  // what the risky train's last gang carries: the boss's secret, as a buff that takes away its trick and a
+  // quarter of its health (EXPRESS.cut); gone when the act is
+  const COUNTER = { sharps: 'tell', hustlers: 'bluff' };
+  function makeDriver(L, boss) {
+    const hp = Math.round((FOE.base[2] + FOE.step[2] * 3) * FOE.elite * EXPRESS.driver / 10) * 10;
+    return { name: DRIVER.name[boss] || 'The engineer', look: DRIVER.look.slice(), hp, traits: [E.pick(L, Object.keys(DEBUFFS))], hitMul: 1, bounty: 1, driver: boss };
+  }
+  function genExpress(L) {
+    const boss = E.pick(L, BOSS_POOL[2]), floors = [];
+    const stop = (f, c, kind, next) => ({ id: f + ':' + c, f, c, kind, next: [next] });
+    // the third carriage is the observation car's gold strike (the free buff the old map gave halfway up)
+    ['dance', weighted(L, EXPRESS.first), 'raffle'].forEach((k, f) => floors.push([stop(f, 2, k, (f + 1) + ':2')]));
+    floors.push([Object.assign(stop(3, 2, 'elite', '4:1'), { next: ['4:1', '4:3'], driver: true })]);
+    const safe = E.shuffle(L, EXPRESS.safe.slice()).slice(0, 2).concat('camp'), risky = E.shuffle(L, EXPRESS.risky.slice()).concat('elite');
+    for (let i = 0; i < 3; i++) {
+      const f = 4 + i, on = c => f === 6 ? 'boss' : (f + 1) + ':' + c;
+      floors.push([Object.assign(stop(f, 1, safe[i], on(1)), { train: 'safe' }), Object.assign(stop(f, 3, risky[i], on(3)), { train: 'risky' })]);
+    }
+    const seen = [];
+    for (const row of floors) for (const n of row) if (n.kind === 'dance' || n.kind === 'elite') n.foe = n.driver ? makeDriver(L, boss) : makeFoe(L, n.kind, n.f, seen);
+    // the secret's carriers: one trick up their sleeve, not a Duel's two
+    const sf = floors[6][1].foe;
+    Object.assign(sf, { tipoff: boss, traits: sf.traits.slice(0, 1), bounty: 1, hp: Math.round(sf.hp * EXPRESS.secretHp / 10) * 10 });
+    floors.slice(0, 4).forEach(row => row.forEach(n => { n.train = 'first'; }));
+    L.map = { floors, boss, express: true };
+    L.pos = null; L.path = []; L.route = [];
+  }
   function genMap(L) {
+    if (L.act === 2) return genExpress(L);
     const { floors: FL, cols: CO, paths: PA } = MAPSHAPE;
     const edges = {}, used = {};
     // a step from (f, a) to (f+1, b) crosses an existing edge from floor f if they swap sides
@@ -566,6 +614,7 @@
   function nextAct(L) {
     if (L.act >= LAST_ACT) { L.phase = 'victory'; return; }
     L.pastPaths = (L.pastPaths || []).concat([L.path]);
+    L.buffs = L.buffs.filter(b => !BUFFS[b].secret);       // a boss's secret is no use past its act
     L.act++;
     L.actLevels = 0;
     note(L, 'Act ' + ROMAN[L.act - 1] + ' is done. On to ' + E.ACTS[L.act].name + '!');
@@ -724,7 +773,7 @@
   function makeFoe(L, kind, f, seen) {
     const a = L.act;
     if (f == null) f = Math.max(0, Math.min(MAPSHAPE.floors - 1, floorOf(L)));
-    if (kind === 'boss') return { name: BOSS[L.boss].name, look: BOSS[L.boss].look, hp: Math.round((BOSS[L.boss].hp || FOE.boss[a]) * (has(L, 'warrant') ? 0.9 : 1) / 10) * 10, traits: [], hitMul: BOSS[L.boss].hit || FOE.bossHit, boss: L.boss };
+    if (kind === 'boss') return { name: BOSS[L.boss].name, look: BOSS[L.boss].look, hp: Math.round((BOSS[L.boss].hp || FOE.boss[a]) * (has(L, 'warrant') ? 0.9 : 1) * (has(L, COUNTER[L.boss]) ? 1 - EXPRESS.cut : 1) / 10) * 10, traits: [], hitMul: BOSS[L.boss].hit || FOE.bossHit, boss: L.boss };
     const traits = [], debuffs = Object.keys(DEBUFFS);
     if (kind === 'elite') {
       const ab = E.pick(L, DUEL_ABILITIES.concat(debuffs));
@@ -1002,8 +1051,8 @@
         // the stakes were fixed at the door: what you win and lose doesn't move with gold earned in the hand
         won = o.done; stars = won ? 3 : 1; L.bank.stage = 'after';
         gold = won ? bankBounty(L) : -Math.min(L.gold, L.bank.take);
-        pay.push(won ? { t: holdup(L).payer + '’s bounty', g: gold } : { t: 'The gang rode off with', g: gold });
-        E.say(L, won ? 'You stopped the robbery! ' + holdup(L).payer + ' pays a ' + bankBounty(L) + ' gold bounty.' : 'The gang gets away with ' + -gold + ' of your gold.', 'gold');
+        pay.push(won ? (gold ? { t: holdup(L).payer + '’s bounty', g: gold } : { t: 'Their haul: an enhancement', g: 0 }) : { t: 'The gang rode off with', g: gold });
+        E.say(L, won ? 'You stopped the robbery! ' + (gold ? holdup(L).payer + ' pays a ' + gold + ' gold bounty.' : 'Their haul is yours to pick from.') : 'The gang gets away with ' + -gold + ' of your gold.', 'gold');
       } else {
         stars = 1 + (o.done ? 1 : 0) + (fast ? 1 : 0);
         gold = bountyOf(L.kind, L.foe, stars);
@@ -1015,6 +1064,16 @@
         if (gold !== plain) pay.push({ t: 'Wanted for their tricks', g: gold - plain });
         E.say(L, L.foe.name + ' are brought in after ' + L.handNo + ' hand' + (L.handNo > 1 ? 's' : '') + (fast ? ' (par ' + par + ')' : ', over par ' + par) + '.', 'objective');
       }
+    }
+    if (won && L.foe && L.foe.driver) {
+      E.say(L, L.foe.name + ' is down, and his train runs off the rails into a ravine: two trains draw level, left and right, and you jump.', 'objective');
+      note(L, 'The engineer\u2019s train goes over into the ravine! Two trains draw level beside you: the left one looks quiet, the right one is crawling with gangs. Jump.');
+    }
+    if (won && L.foe && L.foe.tipoff && COUNTER[L.foe.tipoff] && !has(L, COUNTER[L.foe.tipoff])) {
+      const b = COUNTER[L.foe.tipoff];
+      L.buffs.push(b);
+      pay.push({ t: 'Their secret: ' + BUFFS[b].name, buff: b });
+      E.say(L, 'They were carrying ' + BOSS[L.foe.tipoff].name.replace(/^The /, 'the ') + '\u2019 secret: ' + BUFFS[b].name + '. ' + BUFFS[b].text, 'objective');
     }
     if (won && L.foe) {
       if (has(L, 'ledger')) { gold += 15; pay.push({ t: BUFFS.ledger.name, g: 15 }); E.say(L, 'Bounty Ledger: +15 gold.', 'gold'); }
@@ -1033,7 +1092,7 @@
   }
 
   /* ---------------- rewards ---------------- */
-  const freeBuffs = L => Object.keys(BUFFS).filter(b => !L.buffs.includes(b) && b !== PARTNERS[L.partner].ability);
+  const freeBuffs = L => Object.keys(BUFFS).filter(b => !L.buffs.includes(b) && b !== PARTNERS[L.partner].ability && !BUFFS[b].secret);
   function draw(L, ids, n) { return E.shuffle(L, ids.slice()).slice(0, n); }
   /* Any card your team won this level, except the Joker (the user's call, 2026-10-23: too strong a gift). */
   function claimable(L) { return [...new Set(L.captured || [])].filter(c => c !== 'JK' && !L.owned.includes(c)).sort(); }
@@ -1053,7 +1112,7 @@
       if (fb.length) steps.push({ type: 'buff', options: draw(L, fb, picks(L, 3)) });
     } else if (r.kind === 'bank' && r.won) steps.push({ type: 'enh', options: draw(L, enhPool(L), picks(L, BANK.enh)) });
     // after the robbery, back inside to the teller
-    L.reward = { steps, back: r.kind === 'bank' ? 'bank' : undefined };
+    L.reward = { steps, back: r.kind === 'bank' && BANK.teller[L.act] ? 'bank' : undefined };
     advanceReward(L, L.reward.back);
     return yes();
   }
@@ -1452,7 +1511,7 @@
     return o.n + ' / ' + o.of;
   }
   const api = { DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
-    cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, ROSTER, STANDARD, standardFoe, newStandard,
+    cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, EXPRESS, DRIVER, COUNTER, makeDriver, ROSTER, STANDARD, standardFoe, newStandard,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;
   else root.BtpRun = api;

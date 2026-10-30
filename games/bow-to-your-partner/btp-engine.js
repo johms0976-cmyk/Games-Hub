@@ -483,6 +483,7 @@
     if (c.s === 'MIS' || c.s === 'OMIS') {
       h.misere = true;
       h.open = c.s === 'OMIS';            // open misère: the hand goes face up after the first trick
+      if (c.s === 'MIS' && team(c.seat) === 1 && L.boss === 'hustlers' && hasBuff(L, 'bluff')) h.open = true;   // Called Bluff
       h.out = partnerOf(c.seat);
       say(L, SEATS[c.seat] + (c.seat === 0 ? ' win' : ' wins') + ' the auction with misère: ' + (c.seat === 0 ? 'you' : SEATS[c.seat]) + ' must lose every trick, playing alone. ' +
         (h.out === 0 ? 'You sit' : (h.out === 2 ? 'Nan' : SEATS[h.out]) + ' sits') + ' this hand out. No trumps; the Joker wins any trick it is in.' + (h.open ? ' Open mis\u00e8re: the hand goes face up after the first trick.' : ''), 'contract');

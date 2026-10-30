@@ -42,6 +42,8 @@
   const dirOf = yaw => [Math.sin(yaw * Math.PI / 180), Math.cos(yaw * Math.PI / 180)];
   function yaws(map, byFloor, col) {
     const ins = {}, outs = {}, yaw = {}, BOSS_C = 2;
+    // the Westbound Express (2026-10-30): straight trains, one track each; nothing leans
+    if (map.express) { for (const row of map.floors) for (const n of row) yaw[n.id] = 0; return yaw; }
     for (const row of map.floors) for (const n of row) {
       if (n.f === 0) (ins[n.id] = ins[n.id] || []).push(0);
       for (const id of n.next) {
@@ -121,6 +123,13 @@
         const back = half + CAR.platform * 0.5;
         s.marker = mk(x - dx * back, y - dy * back, 3);
         s.sprite = { key: yawKey(name, yw) + '_' + grade(n.f), at: [x, y] };
+      }
+      // the Westbound Express (2026-10-30): Train 1's own engine is the cab where the boss's engineer waits; the
+      // locomotive's back stands where a carriage's platform would, its marker on the tender like the boss's
+      if (n.driver) {
+        Object.assign(s, { name: 'loco', place: 'The engine cab', yaw: 0, dir: [0, 1], rear: [x, y - half], front: [x, y + half] });
+        s.marker = mk(x, y - half - 2, 3);
+        s.sprite = { key: 'loco_' + grade(n.f), at: [x, y - half] };
       }
       stops.push(s);
       at[n.id] = s;
