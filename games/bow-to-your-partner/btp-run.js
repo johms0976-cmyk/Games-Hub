@@ -17,7 +17,7 @@
  *   act(L, kind, arg)                  your move (see the switch at the foot)
  *   aiStep(L, stand)                   one AI seat moves; false when it is yours
  *   whoseMove(L)                       'you' | 'ai' | 'hold' | 'summary' | 'over' | 'screen' | 'end'
- *   coach(L)                           Nan's tip for this moment on a first run, or null
+ *   coach(L)                           your partner's tip for this moment on a first run, or null
  *
  * Run phases on L.phase: 'actstart', 'map', 'hand' (see L.h.phase), 'summary',
  * 'over' (a level's stars), 'reward', 'target' (put an enhancement on a card),
@@ -95,15 +95,54 @@
     gutshot:   { name: 'Gut Shot', text: 'You bleed 10 health every hand of the fight.' },
     armour:    { name: 'Thick Hide', text: 'Your defending tricks don\u2019t hurt them: only your contracts do.' },
     sleeve:    { name: 'Aces up Their Sleeves', text: 'West and East are each dealt an Ace.' },
-    gag:       { name: 'Gagged', text: 'Nan is gagged: she can\u2019t bid.' },
+    gag:       { name: 'Gagged', text: 'Your partner is gagged: she can\u2019t bid.' },
     marked:    { name: 'Marked Deck', text: 'None of your own cards are dealt to you.' },
     snakebite: { name: 'Snakebite', text: 'Every trick they take hits you for 5 more.' },
     bushwhack: { name: 'Bushwhack', text: 'When your team wins the bid, West leads the first trick.' }
   };
+  /* The standoff (the user's, 2026-11-01): before every fight the gang says something smart or silly, then "Now
+     Draw!": each fight of cards is a gunfight. A Showdown has its own lines; a gang's are drawn from its kind's.
+     taunt(L) is fixed by the run's seed and the fight, so a reload says the same thing. */
+  const TAUNTS = {
+    dance: ['This town ain\u2019t big enough for the four of us.', 'We don\u2019t take kindly to strangers. We take their money.',
+      'Deal \u2019em, and kiss your boots goodbye.', 'You look like somebody who folds.', 'Last fella in that chair still owes us a horse.',
+      'Read \u2019em and weep. Actually, just weep.', 'Sit down, stranger. The chair\u2019s still warm from the last one we cleaned out.',
+      'Ma told us never to gamble. So we cheat.', 'Hope you brought more than that hat.', 'I\u2019ve seen tumbleweeds hold better hands.',
+      'Draw, partner. Cards, that is. We\u2019re civilised.', 'We play fair. We just win fairer.', 'Bounty on us? Cute. There\u2019s a bounty on everybody.',
+      'You\u2019re the one with the poster? You got our good side wrong.', 'Pull up a chair. Leave your luck at the door.'],
+    elite: ['Just you and me, and two more at this table.', 'They call me quick. Nobody calls you anything.',
+      'I\u2019ve outdrawn better than you. Mostly at cards. Once at breakfast.', 'Sun\u2019s at my back, cards in my hand, and your luck\u2019s in your saddlebag.',
+      'One of us leaves this table on a stretcher. I already booked yours.', 'Fastest shuffle in the territory. Watch my hands. No, closer.',
+      'I\u2019ll count to three. Then I\u2019ll lose count and deal anyway.', 'My trigger finger itches. So does my card finger. Same finger.',
+      'High noon. Or high card. Whichever comes first.', 'I don\u2019t lose. I occasionally fail to win.'],
+    bank: ['Nobody move! Unless it\u2019s to deal.', 'This here\u2019s a robbery. Hands up. Then hands down: you\u2019ll need \u2019em for the cards.',
+      'Stand aside, hero. We\u2019ve a safe to empty and a hand to win.', 'One hand. Winner takes the loot. Loser takes the long walk home.'],
+    twins: ['Two of us, two red Jacks. Too bad for you.', 'Pa said share everything. So we share the Jacks.', 'You\u2019ve been looking for us? We\u2019ve been looking at your cards.'],
+    sharps: ['Revenge is a dish best served face down.', 'We\u2019ve seen every card you own. Twice.', 'The Twins owed us. Now you do.'],
+    hustlers: ['Our little brothers send their regards. From jail.', 'We lose on purpose. You\u2019ll lose by accident.', 'Bet you can\u2019t lose every trick. We can.'],
+    caller: ['Swing your partner, lose your shirt!', 'Bow to your partner, bow to your corner, then bow to me.', 'The band plays, I call, you dance. Simple.'],
+    wallflowers: ['We\u2019ve already measured you.', 'Nobody passes at our table. Except away.', 'Take your time. We\u2019re very patient. Professionally.'],
+    regulars: ['Evenin\u2019. Friendly game? First to five hundred.', 'Same table, same chairs, same old story. Deal.']
+  };
+  function taunt(L) {
+    const pool = L.mode === 'standard' ? TAUNTS[(L.std && L.std.id) || 'regulars'] || TAUNTS.regulars : L.kind === 'boss' ? TAUNTS[L.boss] || TAUNTS.elite : TAUNTS[L.kind] || TAUNTS.dance;
+    let x = ((L.rs >>> 0) ^ Math.imul(L.level || 1, 2654435761)) >>> 0;
+    x = Math.imul(x ^ (x >>> 15), 2246822519) >>> 0;
+    const who = L.mode === 'standard' ? L.std.name : L.kind === 'boss' ? BOSS[L.boss].name : L.kind === 'bank' ? 'The robbers' : L.foe ? L.foe.name : 'The gang';
+    return { who, text: pool[((x ^ (x >>> 13)) >>> 0) % pool.length] };
+  }
   const LAST_ACT = 3;                       // the County Fair ends the run
   const ROMAN = { 1: 'I', 2: 'II', 3: 'III' };
+  /* Who rides with you. Your horse first (the user's, 2026-11-01: "thematically it works better if the starting
+     partner was your horse"); Nan is the first partner unlocked. A partner differs only in a name, an ability and
+     the card they bring (with its enhancement); the card play is the same AI for everyone. */
   const PARTNERS = {
-    nan: { id: 'nan', name: 'Nan', title: 'the Steady Hand', start: 'AH', ability: 'nod',
+    horse: { id: 'horse', name: E.PARTNER_NAME.horse, title: 'your Horse', start: 'KH', mods: { KH: { enh: 'horseshoe' } }, ability: 'horse',
+           lines: { won: ['Neigh-ce one, partner.', 'That’s the way.', 'Steady as she goes.'],
+                    lost: ['Hold your horses. We’ll get the next.', 'Chin up, partner.', 'Whoa. Never mind.'],
+                    made: ['Well bid, partner!', 'Just like we planned it.'], set: ['Stopped them in their tracks!', 'Not today, thank you.'],
+                    failed: ['Shoot. We’ll win it back.'], theirs: ['They earned that one.'] } },
+    nan: { id: 'nan', name: E.PARTNER_NAME.nan, title: 'the Steady Hand', start: 'AH', ability: 'nod',
            lines: { won: ['Lovely, dear.', 'That’s the way.', 'Steady does it.'],
                     lost: ['Never mind, dear.', 'Chin up.', 'We’ll have the next one.'],
                     made: ['Well bid!', 'Just as we planned.'], set: ['We stopped them, dear!', 'Not today, thank you.'],
@@ -140,13 +179,13 @@
     lefthook: { name: 'Left Hook', text: 'Take a trick yourself with the left bower', of: 1, acts: [2] },
     holdline: { name: 'Hold the Fort', text: 'The opponents make no contract this fight', of: 0, acts: [2], kind: 'limit' },
     smoke:    { name: 'Smoke Out the Joker', text: 'Make an opponent play the Joker on a trick your team led', of: 1, acts: [2] },
-    makemis:  { name: 'Make a Mis\u00e8re', text: 'You or Nan make a mis\u00e8re', of: 1, acts: [2], elite: true },
+    makemis:  { name: 'Make a Mis\u00e8re', text: 'You or your partner make a mis\u00e8re', of: 1, acts: [2], elite: true },
     little4:  { name: 'Small Change', text: 'Win 2 tricks with a 4 or a 5', of: 2, acts: [3] },
     setbig:   { name: 'Set the Big One', text: 'Defeat an opponents\u2019 bid of BIG or more', of: 1, acts: [3] },
     royal:    { name: 'Royal Flush', text: 'Capture all four Kings and all four Queens', of: 8, acts: [3] },
     bowerhunt: { name: 'Bower Hunt', text: 'Win 2 tricks that hold a bower', of: 2, acts: [3], easy: true },
-    make8:    { name: 'Make 8', text: 'You or Nan make a contract of 8 or more', of: 1, acts: [3], elite: true },
-    openmis:  { name: 'Open Mis\u00e8re', text: 'You or Nan make an open mis\u00e8re', of: 1, acts: [3], elite: true },
+    make8:    { name: 'Make 8', text: 'You or your partner make a contract of 8 or more', of: 1, acts: [3], elite: true },
+    openmis:  { name: 'Open Mis\u00e8re', text: 'You or your partner make an open mis\u00e8re', of: 1, acts: [3], elite: true },
     // the Bank's only objective, never drawn anywhere else (see BANK)
     robbery:  { name: 'Stop the Robbery', text: 'Outscore the gang this hand', of: 1, acts: [1, 2], bank: true }
   };
@@ -157,14 +196,14 @@
               hint: 'In diamonds or hearts they hold both bowers. In no trumps their Jacks are just Jacks; the Joker beats them either way.' },
     sharps: { name: 'The Card Sharps', short: 'Sharps', act: 2, look: ['pKX', 'pKX'], hit: 2, rule: 'They can see your seeded cards, and hunt them.',
               revenge: 'The Twins owed them a fortune, and you brought the Twins in before they paid a cent.',
-              hint: 'Lead your seeded cards when they can\u2019t be beaten, or let Nan cover them.' },
+              hint: 'Lead your seeded cards when they can\u2019t be beaten, or let your partner cover them.' },
     hustlers: { name: 'The Hustlers', short: 'Hustlers', act: 2, look: ['pJY', 'pJY'], hp: 200, hit: 1.25, rule: 'They bid mis\u00e8re whenever they dare.',
               revenge: 'The Twins were their little brothers, and they mean to settle it with you.',
               hint: 'One trick sinks a mis\u00e8re: lead low and stay under their card. Or outbid them with a 6 to keep them out.' },
     caller: { name: 'The Caller', short: 'Caller', act: 3, look: ['sJK', 'sQD'], hit: 2, rule: 'Before each hand he calls a figure that changes the rules, aimed at the cards you were dealt from your own.',
               hint: 'Each call is chosen to hurt your seeded cards, and he tells you why. A run that only works one way gets punished.' },
     wallflowers: { name: 'The Undertakers', short: 'Undertakers', act: 3, look: ['pKU', 'pKU'], hit: 2, rule: 'They never bid, so your team must bid every hand, and at least 8.',
-              hint: 'Nobody can pass the hand out: if Nan passes, you must bid. Bid what you can make, not what you hope.' }
+              hint: 'Nobody can pass the hand out: if your partner passes, you must bid. Bid what you can make, not what you hope.' }
   };
   /* The Caller's calls (Act III's Hoedown). Before each hand he picks the one that hurts the cards
      dealt to you from your own the most, never the same call twice in a Hoedown, and says why.
@@ -176,10 +215,10 @@
     reverse: { name: 'Reverse', text: 'The lowest card of the suit led wins the first trick, and nobody can trump in.',
       hurt: L => { const hi = L.h.seeded.filter(c => c === 'JK' || ['A', 'K'].includes(E.rankOf(c))); return hi.length ? { score: 1 + 0.4 * hi.length, why: 'Your ' + lbl(hi[0]) + ' can\u2019t take the first trick: the lowest card wins it.' } : { score: 0.5, why: 'The first trick goes to the lowest card.' }; } },
     promenade: { name: 'Promenade', text: 'The contractor\u2019s partner leads the first trick.',
-      hurt: L => { const a = L.h.seeded.filter(c => c === 'JK' || E.rankOf(c) === 'A'); return { score: 0.8 + 0.3 * a.length, why: a.length ? 'If you win the bid, Nan leads, not you: no opening with your ' + lbl(a[0]) + '.' : 'Whoever wins the bid, their partner leads.' }; } },
+      hurt: L => { const a = L.h.seeded.filter(c => c === 'JK' || E.rankOf(c) === 'A'); return { score: 0.8 + 0.3 * a.length, why: a.length ? 'If you win the bid, your partner leads, not you: no opening with your ' + lbl(a[0]) + '.' : 'Whoever wins the bid, their partner leads.' }; } },
     grand: { name: 'Grand Right and Left', text: 'Everyone passes one card to the left: you to West, East to you.',
       hurt: () => ({ score: 1, why: 'You give West a card, and East chooses what you get.' }) },
-    swing: { name: 'Swing Your Partner', text: 'Swap one card with Nan.',
+    swing: { name: 'Swing Your Partner', text: 'Swap one card with your partner.',
       hurt: () => ({ score: 0.4, why: 'A kindly call. Take the breather.' }) },
     nokitty: { name: 'No Kitty', text: 'The contractor never picks up the kitty.',
       hurt: L => ({ score: 1, why: 'No kitty to mend a hand: bid on the ' + E.ACTS[L.act].hand + ' cards you hold.' }) },
@@ -226,13 +265,13 @@
     // that change how a hand is played (2026-10-30, the review's #5)
     spyglass: { name: 'Spyglass', text: 'While you bid, you see one card from West\u2019s hand and one from East\u2019s.' },
     freshdeck: { name: 'Fresh Deck', text: 'Once a fight, before you bid, call for a new deal.' },
-    firstdraw: { name: 'First Draw', text: 'When Nan wins the bid, you lead the first trick.' },
+    firstdraw: { name: 'First Draw', text: 'When your partner wins the bid, you lead the first trick.' },
     sleeve:   { name: 'Card up Your Sleeve', text: 'Once a hand, before you bid, swap one of your cards for the kitty\u2019s top card, unseen.' },
     // the Act II bosses' secrets, carried by the risky train's last gang (COUNTER); never drawn or sold
     tell:     { name: 'The Sharps\u2019 Signals', text: 'You know their signals: the Card Sharps can\u2019t see your seeded cards, or hunt them, and they start the Showdown a quarter down.', secret: 'sharps' },
     bluff:    { name: 'Called Bluff', text: 'The Hustlers\u2019 mis\u00e8re is always played open: their hand goes face up after the first trick, and they start the Showdown a quarter down.', secret: 'hustlers' },
     nod:      { name: 'Partner’s Nod', text: 'Your partner shows their strongest suit while you bid.' },
-    swing:    { name: 'Under the Table', text: 'After the kitty, slip Nan a card and she slips you one back, every hand.' },
+    swing:    { name: 'Under the Table', text: 'After the kitty, slip your partner a card and she slips you one back, every hand.' },
     peek:     { name: 'Peek', text: 'See the kitty before you bid.' },
     bowertie: { name: 'Quick Draw', text: 'Your bowers tie the Joker: whichever is played first wins.' },
     nearmiss: { name: 'Just a Flesh Wound', text: 'Miss your contract by one trick and lose nothing: no backfire.' },
@@ -264,7 +303,7 @@
     outcast: { name: 'Outcast', text: 'Has no suit: it can always be played, and never wins a trick. A safe throw, and a mis\u00e8re\u2019s best friend.', acts: [2, 3] },
     reverse: { name: 'Reverse', text: 'If you lead it, the lowest card of the suit led wins the trick, and nobody can trump in.', acts: [2, 3] },
     sanctuary: { name: 'Sanctuary', text: 'If you lead it, nobody can trump in: the highest card of the suit led wins.', acts: [2, 3] },
-    herald:  { name: 'Herald', text: 'When you lead it, Nan tells you how many of that suit she holds.', acts: [2, 3] },
+    herald:  { name: 'Herald', text: 'When you lead it, your partner tells you how many of that suit she holds.', acts: [2, 3] },
     twoface: { name: 'Two-faced', text: 'Counts as either suit of its colour: it may follow either, and it ruffs when its twin suit is trumps.', acts: [2, 3] },
     glass:   { name: 'Glass', text: 'Counts as the Ace of trumps (a tie: the first played wins). Leaves the deck the third time it wins a trick.', acts: [3] },
     triple:  { name: 'Triple Threat', text: 'A trick it wins counts as three toward your contract (and your defending tricks). Holding it lets you bid two tricks more than the hand.', acts: [3] },
@@ -422,7 +461,60 @@
     const hp = Math.round((FOE.base[2] + FOE.step[2] * 3) * FOE.elite * EXPRESS.driver / 10) * 10;
     return { name: DRIVER.name[boss] || 'The engineer', look: DRIVER.look.slice(), hp, traits: [E.pick(L, Object.keys(DEBUFFS))], hitMul: 1, bounty: 1, driver: boss };
   }
+  /* Act II rebuilt again (the user's, 2026-11-01: "the level is a 2D train going along on the track; the players
+     can move between the interior carriages and the carriage roofs; occasionally they can use a roof hatch to
+     change"). One train seen side on, the caboose at the back, the locomotive (the Showdown) at the front. Every
+     carriage f (floors 0-6) has two stops: inside it (column 1, lane 'in') and on its roof (column 3, lane 'roof').
+     You go car to car in your lane (through the vestibule doors, or jumping the gap along the roofs); a carriage
+     with a roof hatch (`hatch`) also lets you climb up or drop down as you go on to the next one. Three hatches a
+     train, never side by side, one of them in the last two carriages, so the last choice is always yours to make.
+       inside: the safer, quieter lane: the candy butcher's cart (the store), the parlour car's gossip, the express
+               car being robbed, the water stop, and the sleeper car's rest before the locomotive
+       roof:   the risky lane: a Duel and a card game fought on the roof, the water stop as the train passes the
+               tower, the gold strike, a stranger, and last the gang carrying the boss's secret (as the risky train had)
+     Both lanes start at a card table in the caboose's end of the train.
+     Old saves keep their old map (`express`, the three trains): the page still draws it. */
+  const SIDE = { floors: 7, hatches: [[0, 2, 4], [0, 2, 5], [0, 3, 5], [1, 3, 5]],
+                 inside: ['store', 'event', 'bank', 'event', 'water'], roof: ['elite', 'water', 'raffle', 'dance', 'event'] };
+  /* (Measured with tests/fights.js, 600-900 stand-in runs: two Duels and two card tables a lane let 28% of Act II
+     runs through and won 10%; this mix, the old safe train's few fights inside and the risky train's on the roof,
+     lets 46% through and wins 15%, against 48% and 18% on the three trains.) */
+  // a lane's middle five, reshuffled until its rule holds (the robbery and the strike mid-train, no Duels back to back)
+  function sideLane(L, kinds, ok) {
+    for (let t = 0; t < 60; t++) { const a = E.shuffle(L, kinds.slice()); if (ok(a)) return a; }
+    return kinds.slice();
+  }
   function genExpress(L) {
+    const boss = E.pick(L, BOSS_POOL[2]), F = SIDE.floors;
+    // who waits at the County Fair is settled now, so your partner can say why you're on this train
+    L.fairBoss = E.pick(L, BOSS_POOL[3]);
+    // the robbery on one of the Bank's floors and the strike mid-train, and never a way from one water stop
+    // straight on to another (along a lane, or through a hatch to the other lane's)
+    let hatch, inside, roof;
+    for (let t = 0; t < 40; t++) {
+      hatch = E.pick(L, SIDE.hatches);
+      inside = ['dance'].concat(sideLane(L, SIDE.inside, a => BANK.floors.includes(a.indexOf('bank') + 1) && a[0] !== 'event'), ['camp']);
+      roof = ['dance'].concat(sideLane(L, SIDE.roof, a => { const r = a.indexOf('raffle') + 1; return r >= 2 && r <= 4 && a[4] !== 'elite'; }), ['elite']);
+      const wi = inside.indexOf('water'), wr = roof.indexOf('water');
+      const touch = (a, b) => b === a + 1 && hatch.includes(a);
+      if (!touch(wi, wr) && !touch(wr, wi)) break;
+    }
+    const floors = [];
+    for (let f = 0; f < F; f++) {
+      const on = c => f === F - 1 ? ['boss'] : hatch.includes(f) ? [(f + 1) + ':1', (f + 1) + ':3'] : [(f + 1) + ':' + c];
+      floors.push([{ id: f + ':1', f, c: 1, lane: 'in', kind: inside[f], next: on(1), hatch: hatch.includes(f) },
+                   { id: f + ':3', f, c: 3, lane: 'roof', kind: roof[f], next: on(3), hatch: hatch.includes(f) }]);
+    }
+    const seen = [];
+    for (const row of floors) for (const n of row) if (n.kind === 'dance' || n.kind === 'elite') n.foe = makeFoe(L, n.kind, n.f, seen);
+    // the secret's carriers, on the last roof: one trick up their sleeve, not a Duel's two
+    const sf = floors[F - 1][1].foe;
+    Object.assign(sf, { tipoff: boss, traits: sf.traits.slice(0, 1), bounty: 1, hp: Math.round(sf.hp * EXPRESS.secretHp / 10) * 10 });
+    L.map = { floors, boss, side: true };
+    L.pos = null; L.path = []; L.route = [];
+  }
+  /* The three trains' map (2026-10-30), kept for runs saved on it: nothing generates it any more. */
+  function genThreeTrains(L) {
     const boss = E.pick(L, BOSS_POOL[2]), floors = [];
     const stop = (f, c, kind, next) => ({ id: f + ':' + c, f, c, kind, next: [next] });
     // the third carriage is the observation car's gold strike (the free buff the old map gave halfway up)
@@ -492,7 +584,7 @@
     // on one map while there are others to draw)
     const seen = [];
     for (const row of floors) for (const n of row) if (n.kind === 'dance' || n.kind === 'elite') n.foe = makeFoe(L, n.kind, n.f, seen);
-    L.map = { floors, boss: E.pick(L, BOSS_POOL[L.act]) };
+    L.map = { floors, boss: L.act === 3 && BOSS_POOL[3].includes(L.fairBoss) ? L.fairBoss : E.pick(L, BOSS_POOL[L.act]) };
     L.pos = null; L.path = []; L.route = [];
   }
   /* Dustwater's town rules (2026-10-27, the user's: a town this size has one hotel, and two hotels side by side
@@ -570,9 +662,10 @@
 
   function newRun(o) {
     o = o || {};
-    const P = PARTNERS.nan;
+    const P = PARTNERS[o.partner] || PARTNERS.horse;
     const L = { v: 3, rs: (o.seed >>> 0) || 1, act: o.act || 1, health: HEALTH.start, gold: 0, partner: P.id,
-                owned: [P.start], mods: {}, hexes: {}, buffs: [P.ability], releases: 0,
+                owned: [P.start], mods: JSON.parse(JSON.stringify(P.mods || {})), hexes: {}, buffs: [P.ability], releases: 0,
+                unlocked: (o.unlocked || []).slice(),
                 pos: null, path: [], route: [], pastPaths: [], actLevels: 0, levelsDone: 0, level: 0, log: [], history: [], dealer: 3,
                 tips: o.tips !== false, seen: {}, firstObjective: o.objective || null, note: '' };
     E.rnd(L);
@@ -581,23 +674,38 @@
     if (o.pickPartner) L.phase = 'partner';
     return L;
   }
-  /* Who can ride with you. Only Nan is built; the rest are the design doc's, shown locked on the pick. */
+  /* Who can ride with you. Your horse always; Nan once the Twins are beaten in any story (`unlock`: the page passes
+     the profile's beaten Showdowns in as L.unlocked); the rest are the design doc's, shown locked on the pick. */
   const ROSTER = [
-    { id: 'nan', name: 'Nan', title: 'the Steady Hand', text: 'Cautious bidder. Shows you her strongest suit while you bid. Brings her A♥.',
+    { id: 'horse', name: E.PARTNER_NAME.horse, title: 'your Horse', text: 'Steady bidder. Fast Horse: par is one hand longer in every fight. Brings the K♥, shod with a Lucky Horseshoe.',
+      intro: 'Don’t look so surprised, partner. Who else was going to sit across the table from you? Steady bids, no funny business. I’m a fast horse, so every fight gives us a hand’s grace on par, and I’ve brought the K♥ with a Lucky Horseshoe on it.' },
+    { id: 'nan', name: E.PARTNER_NAME.nan, title: 'the Steady Hand', unlock: 'twins', unlockText: 'Beat the Twins at the Saloon to meet her.', text: 'Cautious bidder. Shows you her strongest suit while you bid. Brings her A♥.',
       // what she says once you've chosen her (the user's, 2026-10-30: a partner speaks only after being picked)
       intro: 'Steady does it, dear. We take this town one table at a time and walk into that Saloon with health to spare. I\u2019ll nod at my best suit while you bid, and I\u2019ve brought my A\u2665 for the ride.' },
     { id: 'showboat', name: 'Showboat', title: 'the Big Talker', text: 'Bids bold. Swaps you a card under the table. Brings a Trump-sworn 9♥.', locked: true },
     { id: 'sharp', name: 'The Sharp', title: 'the Card Counter', text: 'Bids precise. Keeps count of the trumps out. Brings a Giant-killer 10♦.', locked: true },
     { id: 'quiet', name: 'The Quiet One', title: 'the Silent Partner', text: 'Never bids. Two more kitty cards when you win the bid. Brings the K♦.', locked: true }
   ];
+  const partnerOpen = (L, p) => !!p && !p.locked && !!PARTNERS[p.id] && (!p.unlock || (L.unlocked || []).includes(p.unlock));
   function choosePartner(L, id) {
     if (L.phase !== 'partner') return no('not choosing a partner');
     const p = ROSTER.find(x => x.id === id);
-    if (!p || p.locked || !PARTNERS[id]) return no('that partner isn’t riding yet');
+    if (!partnerOpen(L, p)) return no('that partner isn’t riding yet');
+    const P = PARTNERS[id];
     L.partner = id;
+    L.owned = [P.start];
+    L.mods = JSON.parse(JSON.stringify(P.mods || {}));
+    L.buffs = [P.ability];
+    // the card pick was dealt for the first partner: never offer the card the chosen one brings
+    if (L.offer && L.offer.includes(P.start)) {
+      const spare = E.deckOf(L).filter(c => c !== P.start && !L.offer.includes(c));
+      L.offer[L.offer.indexOf(P.start)] = spare[0];
+    }
     L.phase = 'actstart';
     return yes();
   }
+  /* A partner other than Nan says "partner" where she says "dear" (her tips and lines are written in her voice). */
+  const voice = (L, text) => !L || L.partner === 'nan' || !L.partner ? text : text.replace(/\bdear\b/g, 'partner');
 
   /* ---------------- Standard 500 (the user's, 2026-10-30) ---------------- */
   /* A plain game of 500 from the title: the whole 43-card pack (Act III's deck, bids and open misère), you and Nan
@@ -612,7 +720,7 @@
   function newStandard(o) {
     o = o || {};
     const boss = BOSS[o.boss] ? o.boss : null;
-    const L = { v: 3, mode: 'standard', rs: (o.seed >>> 0) || 1, act: 3, health: HEALTH.start, gold: 0, partner: 'nan',
+    const L = { v: 3, mode: 'standard', rs: (o.seed >>> 0) || 1, act: 3, health: HEALTH.start, gold: 0, partner: PARTNERS[o.partner] ? o.partner : 'horse',
                 owned: [], mods: {}, hexes: {}, buffs: [], releases: 0, log: [], history: [], record: [], dealer: 3,
                 tips: false, seen: {}, note: '', level: 1, levelsDone: 0, kind: 'standard', boss, curse: null,
                 dealRule: boss === 'twins' ? 'twins' : null, call: null, calls: [], callWhy: null, obj: null, foe: null,
@@ -634,13 +742,13 @@
     }
     react(L, ct === 0 ? (r.made || r.near ? 'made' : 'failed') : (r.made ? 'theirs' : 'set'));
     L.history.push({ mode: 'standard', hand: L.handNo, contract: L.h.contract, contractor: r.contractor, made: r.made, delta: got[0] - got[1], you: L.you, opp: L.opp });
-    E.say(L, 'Score: you and Nan ' + L.you + ', ' + L.std.name.replace(/^The /, 'the ') + ' ' + L.opp + '.', 'score');
+    E.say(L, 'Score: you and ' + E.pname(L) + ' ' + L.you + ', ' + L.std.name.replace(/^The /, 'the ') + ' ' + L.opp + '.', 'score');
     const winner = (ct === 0 && r.made && L.you >= STANDARD.win) || L.opp <= STANDARD.lose ? 0
       : (ct === 1 && r.made && L.opp >= STANDARD.win) || L.you <= STANDARD.lose ? 1 : null;
     if (winner !== null) {
       L.std.winner = winner;
       L.result = { kind: 'standard', won: winner === 0, you: L.you, opp: L.opp, hands: L.handNo };
-      E.say(L, winner === 0 ? 'You and Nan win the game!' : L.std.name + ' win the game.', 'end');
+      E.say(L, winner === 0 ? 'You and ' + E.pname(L) + ' win the game!' : L.std.name + ' win the game.', 'end');
     }
     L.phase = 'summary';
   }
@@ -1037,7 +1145,7 @@
       if (h.locked === card) h.locked = null;
       if (h.ticking === card) h.ticking = null;
       E.sort(L, 0); E.sort(L, 2);
-      E.say(L, (L.call === 'swing' ? CALLS.swing.name : BUFFS.swing.name) + ': you gave Nan your ' + E.label(card) + ' and she gave you her ' + E.label(back) + '.', 'rule');
+      E.say(L, (L.call === 'swing' ? CALLS.swing.name : BUFFS.swing.name) + ': you gave ' + E.pname(L) + ' your ' + E.label(card) + ' and she gave you her ' + E.label(back) + '.', 'rule');
     } else E.say(L, 'You kept your hand.', 'rule');
     h.swingDone = true;
     h.phase = h.swingNext;
@@ -1480,12 +1588,13 @@
      levels, as the design doc says. */
   function coach(L) {
     if (!L.tips) return null;
-    const tip = (id, text) => L.seen[id] ? null : { id, text };
+    const tip = (id, text) => L.seen[id] ? null : { id, text: voice(L, text) };
     const ph = L.phase;
     if (ph === 'actstart' && L.act === 3) return tip('actstart3', 'The County Fair, dear: the little cards join in and we play the whole deck. A failed 10 no trumps can finish us, so bid carefully.');
     if (ph === 'actstart' && L.act === 2) return tip('actstart2', 'All aboard, dear. Spades and clubs join us on the train, and two of your cards come to you each hand. A black Jack is a bower when black is trumps.');
     if (ph === 'actstart') return tip('actstart', 'The Joker wins every trick it’s in. A red Jack becomes a bower whenever red is trumps. A 9 or 10 is a gamble that enhancements can make special.');
     if (ph === 'map' && reachable(L).includes('boss') && L.act === 2) return tip('boss2', 'Act II ends with the Card Sharps or the Hustlers. The Sharps can see the cards dealt to you from your own; the Hustlers bid mis\u00e8re all night, so lead low and stay under them.');
+    if (ph === 'map' && L.act === 2 && L.map.side && !reachable(L).includes('boss')) { const t = tip('hatch', 'Inside the carriages it’s quieter, dear; up on the roofs is where they fight. See the ladders? A carriage with a roof hatch lets us climb up or drop down as we go on to the next one.'); if (t) return t; }
     if (ph === 'map') return reachable(L).includes('boss') ? (L.act === 1 ? tip('boss', 'That\u2019s the Saloon, dear, and the Twins are waiting in it. They always hold both red Jacks: bid no trumps and their Jacks are just Jacks.') : null) : tip('map', 'Welcome to Dustwater, dear. Every gang on this map has a price on its head: we work our way up the trail a stop at a time and bring them in. Gossip is a gamble, a duel is harder but pays a buff, and the gold strike halfway always gives one.');
     if (ph === 'map' && L.pos && L.act === 1) { const t = tip('posters', 'Every gang on the map has its wanted poster under it, dear: who they are, their health, what tricks they carry and what they\u2019re worth. A tougher gang pays more.'); if (t) return t; }
     if (ph === 'water') { const t = tip('water', 'The train\u2019s taking on water, dear. Fill your canteen, or lend the fireman a hand with the wood for a few coins.'); if (t) return t; }
@@ -1617,7 +1726,7 @@
     return o.n + ' / ' + o.of;
   }
   const api = { DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
-    cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, EXPRESS, DRIVER, COUNTER, makeDriver, ROSTER, STANDARD, standardFoe, newStandard,
+    TAUNTS, taunt, cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, EXPRESS, SIDE, genThreeTrains, DRIVER, COUNTER, makeDriver, ROSTER, partnerOpen, voice, STANDARD, standardFoe, newStandard,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;
   else root.BtpRun = api;

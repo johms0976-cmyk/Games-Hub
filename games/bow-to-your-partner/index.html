@@ -139,6 +139,88 @@ html.art .titlemenu .wood.drawn > span { position: absolute; width: 1px; height:
    behind it. Without the art: the sky, a plain mound and the words. */
 #grave { position: fixed; inset: 0; z-index: 70; overflow: hidden; background: linear-gradient(#2e1f4a 0%, #6a3a6a 32%, #c8604a 58%, #f0a050 74%, #f6c070 82%, #edab6a 82.1%); }
 #grave[hidden] { display: none; }
+/* Act II's departure (2026-11-01): the train still in frame, the station and the land sliding away */
+#actcard.depart { display: block; padding: 0; background: #e8c88e; overflow: hidden; }
+#actcard.depart .dsky { position: absolute; inset: 0 0 34% 0; background: linear-gradient(#6fa8d6, #a8d0e6 70%, #f0dcb0); }
+#actcard.depart .dl { position: absolute; left: 0; width: 100%; background-repeat: repeat-x; image-rendering: pixelated; }
+#actcard.depart .dground { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(#c8a06a, #b88a54); }
+#actcard.depart .dties { position: absolute; left: 0; width: 100%; background: repeating-linear-gradient(90deg, #5a3a28 0 6px, transparent 0 16px); border-top: 3px solid #3e3a3a; }
+#actcard.depart .dstation { position: absolute; left: 0; width: 100%; height: 120px; will-change: transform; }
+#actcard.depart .dtower { position: absolute; left: 62%; bottom: 0; image-rendering: pixelated; }
+#actcard.depart .dfront { height: 150px; z-index: 2; }
+#actcard.depart .dplat { position: absolute; left: -10px; width: 680px; top: 70px; height: 26px; background: repeating-linear-gradient(90deg, #a8824e 0 26px, #8a6a40 26px 28px); border: 3px solid #4a2626; border-left: 0; }
+#actcard.depart .dpost { position: absolute; left: 150px; top: -14px; width: 190px; height: 86px; background: linear-gradient(90deg, transparent 18px, #6a4a30 18px 28px, transparent 28px calc(100% - 28px), #6a4a30 calc(100% - 28px) calc(100% - 18px), transparent 0) 0 30px / 100% 56px no-repeat; }
+#actcard.depart .dsign { display: block; margin: 0 auto; width: max-content; background: #f3e3c0; color: #4a2626; border: 3px solid #4a2626; box-shadow: 0 3px 0 rgba(42,27,22,.35); padding: 3px 12px; font: 20px/1.2 'Pixelify Sans', Georgia, serif; letter-spacing: .08em; }
+#actcard.depart .dpost small { display: block; width: max-content; margin: 2px auto 0; background: #4a2626; color: #f3e3c0; padding: 1px 6px; font: 11px/1.2 Bitter, Georgia, serif; letter-spacing: .05em; }
+#actcard.depart .dbench { position: absolute; left: 400px; top: 48px; width: 70px; height: 22px; border-top: 7px solid #7a5232; border-left: 6px solid #5a3a28; border-right: 6px solid #5a3a28; box-sizing: border-box; }
+#actcard.depart .dcrate { position: absolute; left: 40px; top: 40px; width: 30px; height: 30px; background: #c8a06a; border: 3px solid #4a2626; box-sizing: border-box; }
+#actcard.depart .dcrate.c2 { left: 72px; top: 50px; width: 22px; height: 20px; }
+#actcard.depart .dsack { position: absolute; left: 520px; top: 46px; width: 28px; height: 24px; background: #d8c8a0; border: 3px solid #4a2626; border-radius: 40% 40% 8px 8px; box-sizing: border-box; }
+#actcard.depart .dtrain img { position: absolute; image-rendering: pixelated; animation: drock .7s steps(1) infinite; }
+#actcard.depart .dtrain img:nth-child(2n) { animation-delay: -.35s; }
+@keyframes drock { 50% { transform: translateY(-2px); } }
+#actcard.depart .dpuff { position: absolute; left: 105%; background-size: 100% 100%; image-rendering: pixelated; animation: dpuff 2s linear forwards; }
+@keyframes dpuff { from { transform: translate(0, 0) scale(.7); opacity: .95; } to { transform: translate(-120vw, -60px) scale(1.8); opacity: 0; } }
+#actcard.depart .dwords { position: absolute; left: 16px; right: 16px; top: 6%; display: flex; flex-direction: column; align-items: center; gap: 14px; opacity: 0; pointer-events: none; transition: opacity .4s; }
+#actcard.depart.said .dwords { opacity: 1; pointer-events: auto; }
+#actcard.depart .board { animation: none; }
+#actcard.depart.said .board { animation: boardin .55s cubic-bezier(.3, 1.5, .5, 1); }
+#actcard.depart .say, #actcard.depart .unlock { display: flex; gap: 10px; align-items: flex-start; max-width: 360px; background: #fffaf0; color: #3a2a20; border: 3px solid #2a1b16; border-radius: 12px; padding: 10px 12px; box-shadow: 0 3px 0 rgba(42,27,22,.35); }
+#actcard.depart .say .face, #actcard.depart .unlock .face { width: 54px; height: 64px; flex: none; }
+#actcard.depart .say p, #actcard.depart .unlock p { margin: 0; font-size: 15px; line-height: 1.35; }
+#actcard.depart .unlock { background: #f3e3c0; border-color: #7a3b2a; }
+@media (prefers-reduced-motion: reduce) { #actcard.depart .dtrain img { animation: none; } #actcard.depart .dwords { transition: none; } }
+/* Act II side on (2026-11-01): the backdrop streams, the train strip scrolls sideways over it */
+.mapbox.side { position: relative; aspect-ratio: auto; margin: 0 -12px; overflow: hidden; background: linear-gradient(#7fb6dc, #b8d8e8 60%, #d8c08a 60.5%); border-radius: 6px; }
+.mapbox.side .sideback { position: absolute; inset: 0; pointer-events: none; }
+.mapbox.side .xl { position: absolute; left: 0; width: 100%; background-repeat: repeat-x; image-rendering: pixelated; animation: xscroll var(--dur) linear infinite; }
+.mapbox.side .xground { position: absolute; left: 0; right: 0; bottom: 0; background: #c8a06a; }
+.mapbox.side .xties { position: absolute; left: 0; width: 100%; background: repeating-linear-gradient(90deg, #5a3a28 0 calc(var(--k) * 3px), transparent 0 calc(var(--k) * 8px)); --tw: calc(var(--k) * 8px); animation: xscroll .18s linear infinite; }
+.mapbox.side .xrail { position: absolute; left: 0; right: 0; height: calc(var(--k) * 1.5px); background: #3e3a3a; box-shadow: 0 calc(var(--k) * -1px) 0 #8a8a92 inset; }
+@keyframes xscroll { to { background-position-x: calc(-1 * var(--tw)); } }
+.mapbox.side .sidescroll { position: relative; overflow-x: auto; overflow-y: hidden; height: 100%; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+.mapbox.side .sidetrain { position: relative; }
+.mapbox.side .xs { position: absolute; image-rendering: pixelated; pointer-events: none; }
+.mapbox.side .xcar { position: absolute; border: 2px solid #2a1b16; border-top-width: 5px; border-radius: 2px; opacity: .9; }
+.mapbox.side .xcar.loco { background: #2f4a3e; } .mapbox.side .xcar.cab { background: #a8322a; }
+.mapbox.side .xladder { position: absolute; z-index: 2; background: repeating-linear-gradient(#c89a5a 0 3px, transparent 3px 9px), linear-gradient(90deg, #c89a5a 0 2px, transparent 2px calc(100% - 2px), #c89a5a 0); }
+.mapbox.side svg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none; overflow: visible; }
+.mapbox.side svg .edge { fill: none; stroke: #fff6d2; stroke-width: 1.4; stroke-dasharray: 3 3; opacity: .55; }
+.mapbox.side svg .edge.walked { stroke: #e3d6b4; stroke-dasharray: none; opacity: .9; }
+.mapbox.side svg .edge.can { stroke: #ffd65a; stroke-width: 2.2; stroke-dasharray: none; opacity: 1; filter: drop-shadow(0 0 1.5px #2a1b16); animation: railglow 1.1s ease-in-out infinite; }
+.mapbox.side .nd { z-index: 5; width: 34px; height: 34px; }
+.mapbox.side .nd.boss { width: 48px; height: 48px; }
+.sidehint { font-size: 14px; margin: 8px 0 0; }
+@media (prefers-reduced-motion: reduce) { .mapbox.side .xl, .mapbox.side .xties { animation: none; } }
+/* The standoff before every fight (2026-11-01): the gang's line in a bubble under its figures, NOW DRAW! under it,
+   the table dimmed below; the hand and the bid wait out of sight until you draw. */
+#standoff { position: fixed; inset: 0; z-index: 60; pointer-events: none; }
+#standoff[hidden] { display: none; }
+#standoff::before { content: ""; position: absolute; left: 0; right: 0; top: var(--top, 40%); bottom: 0; background: linear-gradient(rgba(30,18,14,0), rgba(30,18,14,.62) 22%); animation: soffin .4s both; }
+#standoff .stand { position: absolute; left: 16px; right: 16px; top: var(--top, 40%); display: flex; flex-direction: column; align-items: center; gap: 22px; }
+#standoff .say { position: relative; pointer-events: auto; width: min(340px, 100%); box-sizing: border-box; background: #fffaf0; color: #3a2a20; border: 3px solid #2a1b16; border-radius: 14px;
+  padding: 9px 14px 11px; box-shadow: 0 4px 0 rgba(30,18,14,.4); animation: tauntin .4s .15s cubic-bezier(.3,1.5,.6,1) both; transform-origin: var(--tail, 30%) 0; }
+#standoff .say::before, #standoff .say::after { content: ""; position: absolute; left: var(--tail, 30%); border: solid transparent; }
+#standoff .say::before { top: -19px; margin-left: -10px; border-width: 0 10px 16px; border-bottom-color: #2a1b16; }
+#standoff .say::after { top: -13px; margin-left: -7px; border-width: 0 7px 12px; border-bottom-color: #fffaf0; }
+#standoff .say b { display: block; font: 15px/1.2 'Pixelify Sans', Georgia, serif; color: #7a1d17; letter-spacing: .02em; }
+#standoff .say p { margin: 3px 0 0; font: 17px/1.35 Bitter, Georgia, serif; }
+#standoff .draw { pointer-events: auto; min-width: 210px; min-height: 64px; font: 30px/1 'Pixelify Sans', Georgia, serif; letter-spacing: .04em; animation: drawin .5s 1.1s cubic-bezier(.3,1.7,.6,1) both; }
+#standoff .draw img { display: none; image-rendering: pixelated; margin: 0 auto; }
+html.art #standoff .draw.drawn { background: none; border: 0; box-shadow: none; padding: 6px 10px; min-height: 0; }
+html.art #standoff .draw.drawn img { display: block; filter: drop-shadow(0 4px 0 rgba(30,18,14,.45)); }
+html.art #standoff .draw.drawn > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+#standoff .draw:focus-visible { outline: 3px solid #fff6d2; outline-offset: 4px; }
+#standoff.bang .stand { animation: soffout .18s both; }
+#standoff.bang::after { content: ""; position: absolute; inset: 0; background: #fff6d2; animation: muzzle .32s both; }
+@keyframes tauntin { from { opacity: 0; transform: scale(.6); } }
+@keyframes drawin { from { opacity: 0; transform: translateY(18px) rotate(-6deg) scale(.7); } }
+@keyframes muzzle { 0% { opacity: .9; } 100% { opacity: 0; } }
+@keyframes soffin { from { opacity: 0; } }
+@keyframes soffout { to { opacity: 0; } }
+body.standing #hand, body.standing #bidpanel, body.standing #coach, body.standing #status, body.standing #felt .coach, body.standing #felt .dyn .zone { opacity: 0; transform: translateY(24px); pointer-events: none; }
+#hand, #bidpanel { transition: opacity .35s, transform .35s cubic-bezier(.2,.9,.3,1.2); }
+@media (prefers-reduced-motion: reduce) { #standoff .say, #standoff .draw, #standoff::before { animation: none; } #standoff.bang::after { display: none; } #hand, #bidpanel { transition: none; } }
 #grave .gsun { position: absolute; left: 66%; top: 55%; width: 90px; height: 90px; margin: -45px; border-radius: 50%; background: radial-gradient(#fff3c8 0 40%, #ffd27a 41% 60%, rgba(255,190,100,0) 72%); }
 #grave .grig { position: absolute; left: 0; right: 0; bottom: 0; transform-origin: 50% 70%; transition: transform 7s cubic-bezier(.3, 0, .2, 1); }
 #grave.push .grig { transform: scale(var(--push, 1.8)); }
@@ -148,8 +230,6 @@ html.art .titlemenu .wood.drawn > span { position: absolute; width: 1px; height:
 #grave .gplate img { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
 #grave .gplain { position: absolute; left: 50%; bottom: 18%; width: 160px; height: 46px; margin-left: -80px; border-radius: 50% 50% 8px 8px; background: #6a4228; }
 html.art #grave .gplain { display: none; }
-#grave .rip { position: absolute; transform: translate(-50%, -50%); font: 800 calc(var(--gk) * 2.4px)/1 Georgia, serif; color: #2a1610; letter-spacing: .02em; opacity: 0; transition: opacity 1.2s 3s; white-space: nowrap; }
-#grave.push .rip { opacity: .85; }
 #grave .tumble { position: absolute; left: -60px; image-rendering: pixelated; background-size: 200% 100%; animation: tframes .5s steps(2) infinite, troll 6s 1.2s linear forwards; }
 @keyframes tframes { to { background-position-x: -200%; } }
 @keyframes troll { 0% { transform: translate(0, 0); } 25% { transform: translate(28vw, -10px); } 50% { transform: translate(56vw, 0); } 75% { transform: translate(84vw, -8px); } 100% { transform: translate(calc(100vw + 120px), 0); } }
@@ -204,7 +284,7 @@ html.art .hero .lyr, html.art .hero .train, html.art .hero .puff { display: bloc
 @media (prefers-reduced-motion: reduce) { .hero .lyr, .hero .train, .hero .puff { animation: none; } .hero .puff:not(:first-of-type) { display: none; } }
 
 /* The opening (storyboard frames 2-5, 2026-10-27): Start blows the whistle and the title's words drop away (2);
-   the hero fills the screen and its rig tilts down past the plains to the trail, where the stagecoach rolls in
+   the hero fills the screen and its rig tilts down past the plains to the trail, where the bounty hunter gallops in (a stagecoach until 2026-11-01; the class is still .stagecoach)
    (3); the camera pulls up at the town sign while the coach rolls on into town (the user's, 2026-10-29: it used
    to stop at the sign), and closes in on the sign as the coach passes it, so the coach drives out of the frame
    during the zoom (the user's, later 2026-10-29); the WELCOME plank falls away to
@@ -218,7 +298,7 @@ html.art .hero .lyr, html.art .hero .train, html.art .hero .puff { display: bloc
 .hero .below { position: absolute; left: 0; right: 0; display: none; }
 html.art .hero .below { display: block; }
 .hero .meadow { position: absolute; inset: 0; image-rendering: pixelated; animation: hscroll var(--dur) linear infinite; }
-.hero .stagecoach { position: absolute; image-rendering: pixelated; animation: wheels .83s steps(4) infinite; transform: translateX(-120vw);
+.hero .stagecoach { position: absolute; image-rendering: pixelated; animation: wheels .56s steps(4) infinite; transform: translateX(-120vw);
   transition: transform 2.5s cubic-bezier(.2, .7, .3, 1); }
 .hero .townsign { position: absolute; left: 100%; image-rendering: pixelated; }
 .hero .signcover { position: absolute; image-rendering: pixelated; }
@@ -514,6 +594,7 @@ html.art .wanted.hasart .w { grid-column: 2; }
 .face::before { content: ""; position: absolute; left: 4px; right: 4px; top: -3px; height: 14px; border-radius: 12px 12px 4px 4px; background: #d9d9d9; }
 .face::after { content: ""; position: absolute; left: 11px; top: 17px; width: 4px; height: 4px; border-radius: 50%; background: #3a2a20; box-shadow: 10px 0 0 #3a2a20; }
 .face.cheer { animation: bob .5s ease 2; }
+.face.svg { background: none; border: 0; border-radius: 0; } .face.svg::before, .face.svg::after { display: none; }
 @keyframes bob { 50% { transform: translateY(-5px); } }
 .bubble { background: #fff; color: var(--ink); border-radius: 10px; padding: 3px 9px; font-size: 13px; max-width: 170px; text-align: left; }
 /* The card table, look B (the user's pick, 2026-10-28): across the table at eye level. The stage (wall, the
@@ -607,7 +688,7 @@ html.art .btn.mini { border-width: 8px; border-image-width: 8px; padding: 0 4px;
 .nansvg { width: 100%; height: 100%; display: block; overflow: visible; }
 .nansvg .breathe { animation: breathe 3.2s ease-in-out infinite; transform-origin: 50% 100%; transform-box: fill-box; }
 @keyframes breathe { 50% { transform: translateY(1.2px) scaleY(.985); } }
-.nansvg .lids { animation: blink 4.6s infinite; transform-origin: 50% 50%; transform-box: fill-box; }
+.nansvg .lids { transform: scaleY(0); animation: blink 4.6s infinite; transform-origin: 50% 50%; transform-box: fill-box; }
 @keyframes blink { 0%, 94%, 100% { transform: scaleY(0); } 96% { transform: scaleY(1); } }
 .stage .nanfig.cheer { animation: gloat .45s 2; }
 /* the gang's nameplate: one health bar for the pair */
@@ -881,7 +962,7 @@ html.art .coach { border-radius: 0; }
     <label class="row">First objective
       <select id="objPick"><option value="">Random (the easy one)</option></select>
     </label>
-    <label class="row" style="margin-top:10px"><input type="checkbox" id="tipsPick" checked> Nan's tips (for your first run)</label>
+    <label class="row" style="margin-top:10px"><input type="checkbox" id="tipsPick" checked> Your partner's tips (for your first run)</label>
     <div class="btns">
       <button class="btn alt" data-act="rules">How 500 works</button>
       <a class="btn alt" href="../../index.html" style="text-decoration:none">Games hub</a>
@@ -904,6 +985,7 @@ html.art .coach { border-radius: 0; }
   <div class="gcard" role="status"></div>
   <button class="btn alt gskip" data-act="skipgrave">Skip</button>
 </div>
+<div id="standoff" hidden></div>
 <div id="dustwipe" aria-hidden="true"></div>
 <div id="actcard" aria-live="polite"></div>
 <button class="btn alt" id="skipOpening" data-act="skipopening">Skip</button>
@@ -932,18 +1014,19 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=21"></script>
-<script src="btp-ai.js?v=21"></script>
-<script src="btp-run.js?v=21"></script>
-<script src="btp-town.js?v=21"></script>
-<script src="art/dustwater/sprites.js?v=21"></script>
-<script src="btp-train.js?v=21"></script>
-<script src="art/train/sprites.js?v=21"></script>
-<script src="art/title/scene.js?v=21"></script>
-<script src="art/table/scene.js?v=21"></script>
-<script src="art/grave/scene.js?v=21"></script>
-<script src="art/paid/scene.js?v=21"></script>
-<script src="art/rooms/scene.js?v=21"></script>
+<script src="btp-engine.js?v=22"></script>
+<script src="btp-ai.js?v=22"></script>
+<script src="btp-run.js?v=22"></script>
+<script src="btp-town.js?v=22"></script>
+<script src="art/dustwater/sprites.js?v=22"></script>
+<script src="btp-train.js?v=22"></script>
+<script src="art/train/sprites.js?v=22"></script>
+<script src="art/title/scene.js?v=22"></script>
+<script src="art/table/scene.js?v=22"></script>
+<script src="art/grave/scene.js?v=22"></script>
+<script src="art/paid/scene.js?v=22"></script>
+<script src="art/rooms/scene.js?v=22"></script>
+<script src="art/express/scene.js?v=22"></script>
 <script>
 (function () {
   'use strict';
@@ -970,7 +1053,7 @@ html.art .coach { border-radius: 0; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 16, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 19, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -1132,7 +1215,7 @@ html.art .coach { border-radius: 0; }
   const bidPlain = b => b.s === 'MIS' ? 'Misère' : b.s === 'OMIS' ? 'Open misère' : b.t + (b.s === 'NT' ? 'NT' : E.SYM[b.s]);
   const denom = s => s === 'NT' ? 'no trumps' : E.NAME[s];
   function stars(n) { let s = ''; for (let i = 1; i <= 3; i++) s += i <= n ? '★' : '<span class="off">★</span>'; return s; }
-  function coachHTML(tip) { return tip ? '<div class="face"></div><p>' + esc(tip.text) + '</p><button data-tip="' + tip.id + '">Got it</button>' : ''; }
+  function coachHTML(tip) { return tip ? '<div class="face' + (P.L && partnerFace(P.L.partner) ? ' svg">' + partnerFace(P.L.partner) : '">') + '</div><p>' + esc(tip.text) + '</p><button data-tip="' + tip.id + '">Got it</button>' : ''; }
   function mineHTML() {
     const L = P.L;
     return '<div class="mine">' + L.owned.map(c => cardHTML(c, { owned: true, small: true })).join('') + '</div>' +
@@ -1150,6 +1233,7 @@ html.art .coach { border-radius: 0; }
     $('screen').hidden = table;
     if (table) renderTable(); else renderScreen();
     renderSheet();
+    renderStandoff();
   }
 
   /* ---------------- run screens ---------------- */
@@ -1185,7 +1269,7 @@ html.art .coach { border-radius: 0; }
           '<div class="cardrow deal">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div>' + ownedRow(L) + '</div>' :
           L.act === 2 ? '<div class="panel baize"><h2>Act II: the Westbound Express</h2><p>Spades and clubs join the deck and hands grow to 6 cards. Two of the cards you own are now dealt to you each hand. Pick a new card to own.</p>' +
           '<div class="cardrow deal">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div>' + ownedRow(L) + '</div>' :
-          '<div class="panel baize"><h2>Act I: Dustwater</h2><p>You ride into Dustwater a bounty hunter, with Nan riding shotgun. Every gang in town is wanted, and they settle everything over cards. Pick a card to own. You already own Nan’s A♥. Each hand, one card you own is dealt straight to you (your seed slot), so owning two means you won’t know which comes.</p>' +
+          '<div class="panel baize"><h2>Act I: Dustwater</h2><p>You ride into Dustwater a bounty hunter, ' + (L.partner === 'horse' ? 'on ' + PN() + ', your horse and your partner at the table' : 'with ' + PN() + ' riding shotgun') + '. Every gang in town is wanted, and they settle everything over cards. Pick a card to own. You already own ' + PN() + '’s ' + E.label(R.PARTNERS[L.partner].start) + '. Each hand, one card you own is dealt straight to you (your seed slot), so owning two means you won’t know which comes.</p>' +
           '<div class="cardrow deal">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div>' + ownedRow(L) + '</div>'));
         break;
       case 'map':
@@ -1245,7 +1329,7 @@ html.art .coach { border-radius: 0; }
       case 'bank': {
         const B = R.BANK, door = L.bank.stage === 'door';
         const HU = R.holdup(L);
-        body = noteHTML + (door ? '<div class="panel"><h2>' + esc(HU.place) + '</h2><p>' + (L.act === 2 ? 'A gang is blowing the express car\u2019s safe! The messenger is tied up, so it falls to you and Nan' : 'A gang is robbing the bank! The deputy is out of town, so it falls to you and Nan') + ': one hand of 500 against them.</p>' +
+        body = noteHTML + (door ? '<div class="panel"><h2>' + esc(HU.place) + '</h2><p>' + (L.act === 2 ? 'A gang is blowing the express car\u2019s safe! The messenger is tied up, so it falls to you and ' + PN() : 'A gang is robbing the bank! The deputy is out of town, so it falls to you and ' + PN()) + ': one hand of 500 against them.</p>' +
           '<div class="kv"><span>Stop them</span><span>Outscore the gang this hand</span><span>Win</span><span class="good">' + (R.bankBounty(L) ? '+' + R.bankBounty(L) + ' gold bounty, and pick 1 of ' + B.enh + ' enhancements' : 'pick 1 of ' + B.enh + ' enhancements from their haul') + '</span>' +
           '<span>Lose</span><span class="badc">they ride off with ' + L.bank.take + ' gold (' + R.bankShare(L) + ' of yours)</span></div>' +
           '<button class="choice" data-bank="fight"><b>Stop the robbery</b><span>One hand. Your health rides on it as usual.</span></button>' +
@@ -1307,7 +1391,7 @@ html.art .coach { border-radius: 0; }
         const bname = L.boss ? R.BOSS[L.boss].name : 'the rival pair';
         const paths = (L.pastPaths || []).concat([L.path]).map((p, i) => 'Act ' + R.ROMAN[i + 1] + ': ' + p.map(k => R.kindName(i + 1, k)).join(' → ')).join('<br>');
         const final = L.act >= R.LAST_ACT;
-        body = '<div class="panel"><h2>' + (final ? 'The County Fair is won' : 'Act ' + R.ROMAN[L.act] + ' complete') + '</h2><p class="big">' + (final ? 'You and Nan beat ' + bname.replace(/^The/, 'the') + ' and take the championship!' : boss && boss.won ? 'You beat ' + bname.replace(/^The/, 'the') + '!' : bname + ' won the Showdown, but you made it out of town alive.') + '</p>' +
+        body = '<div class="panel"><h2>' + (final ? 'The County Fair is won' : 'Act ' + R.ROMAN[L.act] + ' complete') + '</h2><p class="big">' + (final ? 'You and ' + PN() + ' beat ' + bname.replace(/^The/, 'the') + ' and take the championship!' : boss && boss.won ? 'You beat ' + bname.replace(/^The/, 'the') + '!' : bname + ' won the Showdown, but you made it out of town alive.') + '</p>' +
           '<div class="kv"><span>Health</span><span>' + num(L.health) + '</span><span>Gold</span><span>' + L.gold + '</span><span>Path</span><span>' + paths + '</span></div>' +
           (final ? '<p>That\u2019s the whole run: three acts, from Dustwater to the County Fair.</p>' : '') + '<h3>Your cards and buffs</h3>' + mineHTML() +
           '<div class="btns"><button class="btn" data-act="newrun">New run</button></div></div>';
@@ -1319,18 +1403,19 @@ html.art .coach { border-radius: 0; }
         break;
       case 'partner':
         body = mapHTML(L) + overMap(L, tip, '<div class="panel baize"><h2>Choose your partner</h2><p>Who rides with you into Dustwater? Your partner sits across the table, bids with you and brings a card of their own.</p>' +
-          '<div class="roster">' + R.ROSTER.map(p => '<button class="rider" data-partner="' + p.id + '"' + (p.locked ? ' disabled' : '') + '>' + (p.id === 'nan' ? '<span class="face">' + NAN_SVG + '</span>' : '<span class="face" aria-hidden="true"></span>') +
-            '<b>' + esc(p.name) + '</b><i>' + esc(p.title) + '</i><span>' + esc(p.text) + '</span>' + (p.locked ? '<span class="lock">Not riding yet</span>' : '') + '</button>').join('') + '</div></div>');
+          '<div class="roster">' + R.ROSTER.map(p => { const open = R.partnerOpen(L, p); return '<button class="rider' + (!open && p.unlock ? ' soon' : '') + '" data-partner="' + p.id + '"' + (open ? '' : ' disabled') + '>' + (partnerFace(p.id) ? '<span class="face svg">' + partnerFace(p.id) + '</span>' : '<span class="face" aria-hidden="true"></span>') +
+            '<b>' + esc(p.name) + '</b><i>' + esc(p.title) + '</i><span>' + esc(p.text) + '</span>' + (open ? '' : '<span class="lock">' + esc(p.unlockText || 'Not riding yet') + '</span>') + '</button>'; }).join('') + '</div></div>');
         break;
       case 'stdover': {
         const won = L.result && L.result.won, F = L.std;
-        body = '<div class="panel end"><h2>' + (won ? 'You and Nan win!' : esc(F.name) + ' win') + '</h2><p class="big ' + (won ? 'good' : 'badc') + '">' + num(L.you) + ' to ' + num(L.opp) + ', after ' + L.handNo + ' hand' + (L.handNo > 1 ? 's' : '') + '.</p>' +
+        body = '<div class="panel end"><h2>' + (won ? 'You and ' + PN() + ' win!' : esc(F.name) + ' win') + '</h2><p class="big ' + (won ? 'good' : 'badc') + '">' + num(L.you) + ' to ' + num(L.opp) + ', after ' + L.handNo + ' hand' + (L.handNo > 1 ? 's' : '') + '.</p>' +
           '<div class="btns"><button class="btn" data-act="stdagain">Play them again</button><button class="btn alt" data-act="stdtitle">Title screen</button></div></div>';
         break;
       }
     }
     const tipTop = tip && !(L.phase === 'partner' || L.phase === 'actstart');   // over the map the tip rides in the sheet
     $('screen').innerHTML = bar() + (tipTop ? '<div class="coach">' + coachHTML(tip) + '</div>' : '') + body;
+    if (L.map && L.map.side && document.querySelector('.mapbox.side')) sideScroll(false);
     // on the map, bring the next choice into view once per stop (the map is taller than a phone)
     const onMap = L.phase === 'map' || L.phase === 'partner' || L.phase === 'actstart';
     if (onMap && P.mapScrolled !== L.act + ':' + L.pos) {
@@ -1662,6 +1747,99 @@ html.art .coach { border-radius: 0; }
     }).join('');
   }
   /* Act III (and any act without its own): the plain map, seven floors and the Showdown, after Gwent's The Path. */
+  /* Act II, side on (the user's, 2026-11-01; R.genExpress, bakery/express.py): the whole train in a strip that
+     scrolls sideways, the caboose (where you board) on the left, the locomotive (the Showdown) on the right. A
+     carriage's inside stop sits low in it, its roof stop on top; the lanes run car to car (through the vestibule
+     doors, along the roofs) and a hatch's way climbs its ladder at the carriage's front end. The train stands still
+     in the strip while the land and the sleepers stream past behind it (.sideback, which never scrolls). Without
+     the art the carriages are plain coloured boxes and the map still works. Art pixels throughout, at SIDE_K. */
+  const SIDE_CAR = { dance: 'car_smoker', event: 'car_parlor', store: 'car_candy', bank: 'car_express', camp: 'car_sleeper', water: 'car_coach' };
+  const SIDE_ROOF = { elite: 'roof_duel', dance: 'roof_cards', raffle: 'roof_gold', water: 'roof_canteen', event: 'roof_stranger' };
+  const SIDE_TINT = { dance: '#7a2e2a', event: '#b08a50', store: '#b88a3a', bank: '#7a2a22', camp: '#2f4a3a', water: '#4f6a8a' };
+  function sideLayout(L) {
+    const S = window.EXPRESS_SCENE || {}, sh = Object.assign({ len: 150, floor: 10.7, roof: 56.4, top: 52.7, hatch: 62.5 }, S.shell || {});
+    const sp = Object.assign({ car_smoker: [164, 70, 82, 66], caboose: [124, 88, 68, 84], loco: [233, 70, 140, 64] }, S.s || {});
+    const H = 150, RAIL = 124, PITCH = 172, n = L.map.floors.length;
+    const cab = 64, car0 = cab + sp.caboose[0] - sp.caboose[2] + 8 + sp.car_smoker[2];
+    const cx = f => car0 + f * PITCH, last = cx(n - 1) + sp.car_smoker[0] - sp.car_smoker[2];
+    const loco = last + 10 + sp.loco[2];
+    const W = loco + sp.loco[0] - sp.loco[2] + 24;
+    const yIn = RAIL - sh.floor - 13, yRoof = RAIL - sh.roof - 8;
+    const at = n0 => n0.id === 'boss' ? [S.cab ? loco - sp.loco[2] + S.cab[0] : loco - 40, S.cab ? RAIL - sp.loco[3] + S.cab[1] - 6 : RAIL - 40]
+      : [cx(n0.f) - sh.len / 2 + 26, n0.lane === 'roof' ? yRoof : yIn];
+    return { S, sh, sp, H, RAIL, cx, cab, loco, W, yIn, yRoof, at, ladder: f => cx(f) + sh.hatch };
+  }
+  function sideBox(L, can, route, walked, fNow) {
+    const G = sideLayout(L), { S, sh, sp, H, RAIL, W } = G, art = document.documentElement.classList.contains('art') && !!window.EXPRESS_SCENE;
+    const k = SIDE_K(), u = v => (v * k).toFixed(1) + 'px';
+    const spr = (key, x, y, z, cls) => { const s = sp[key]; return s ? '<img class="xs' + (cls ? ' ' + cls : '') + '" src="' + artURL('express/' + key + '.webp') + '" alt="" style="left:' + u(x - s[2]) + ';top:' + u(y - s[3]) + ';width:' + u(s[0]) + ';height:' + u(s[1]) + ';z-index:' + z + '">' : ''; };
+    const all = [];
+    L.map.floors.forEach(row => row.forEach(n => all.push(n)));
+    let pics = '', boxes = '';
+    // the train: caboose, carriages (with what is on each roof, a hatch's ladder, the water tower beyond), locomotive
+    if (art) {
+      pics += spr('caboose', G.cab, RAIL, 2) + spr('loco', G.loco, RAIL, 2);
+      for (const row of L.map.floors) {
+        const [a, b] = row, x = G.cx(a.f);
+        pics += spr(SIDE_CAR[a.kind] || 'car_coach', x, RAIL, 2);
+        const rk = b.kind === 'elite' && b.foe && b.foe.tipoff ? 'roof_secret' : SIDE_ROOF[b.kind];
+        if (rk) pics += spr(rk, x, RAIL - sh.roof, 3);
+        if (a.hatch) pics += spr('hatch', x, RAIL, 3);
+        if (a.kind === 'water' || b.kind === 'water') pics += spr('tower', x + 6, RAIL, 1);
+      }
+    } else {
+      for (const row of L.map.floors) {
+        const [a, b] = row, x = G.cx(a.f);
+        boxes += '<div class="xcar" style="left:' + u(x - sh.len / 2) + ';top:' + u(RAIL - sh.roof) + ';width:' + u(sh.len) + ';height:' + u(sh.roof - 4) + ';background:' + (SIDE_TINT[a.kind] || '#4f6a8a') + '"></div>' +
+          (a.hatch ? '<div class="xladder" style="left:' + u(G.ladder(a.f) - 4) + ';top:' + u(RAIL - sh.roof) + ';width:' + u(8) + ';height:' + u(sh.roof - sh.floor) + '"></div>' : '');
+      }
+      boxes += '<div class="xcar loco" style="left:' + u(G.loco - 130) + ';top:' + u(RAIL - 56) + ';width:' + u(200) + ';height:' + u(52) + '"></div>' +
+        '<div class="xcar cab" style="left:' + u(G.cab - 50) + ';top:' + u(RAIL - 60) + ';width:' + u(100) + ';height:' + u(56) + '"></div>';
+    }
+    // the ways: along a lane; up or down a hatch's ladder; from the caboose; into the locomotive's cab
+    const pt = p => p[0].toFixed(1) + ' ' + p[1].toFixed(1);
+    const way = (from, to) => {
+      const a = from ? G.at(from) : [G.cab + 40, to.lane === 'roof' ? G.yRoof : G.yIn], b = G.at(to);
+      if (!from) return 'M' + (G.cab + 30) + ' ' + G.yIn + (to.lane === 'roof' ? 'L' + (G.cab + 44) + ' ' + G.yIn + 'L' + (G.cab + 44) + ' ' + G.yRoof : '') + 'L' + pt(b);
+      if (to.id === 'boss') return 'M' + pt(a) + 'L' + pt([b[0] - 30, a[1]]) + 'L' + pt(b);
+      if (from.lane === to.lane) return 'M' + pt(a) + 'L' + pt(b);
+      const lx = G.ladder(from.f);
+      return 'M' + pt(a) + 'L' + pt([lx, a[1]]) + 'L' + pt([lx, b[1]]) + 'L' + pt(b);
+    };
+    let edges = '';
+    const here = L.pos ? R.node(L, L.pos) : null;
+    const add = (from, to) => {
+      const key = (from ? from.id : '') + '>' + to.id, isCan = (from ? here && from.id === here.id : !here) && can.includes(to.id);
+      const isWalked = from ? walked.has(from.id + '>' + to.id) : route[0] === to.id;
+      edges += '<path class="edge' + (isCan ? ' can' : '') + (isWalked ? ' walked' : '') + (from && from.lane !== to.lane && to.id !== 'boss' ? ' up' : '') + '" d="' + way(from, to) + '"/>';
+    };
+    for (const n of L.map.floors[0]) add(null, n);
+    for (const n of all) for (const id of n.next) add(n, R.node(L, id));
+    const nodes = all.concat([R.node(L, 'boss')]).map(n => {
+      const [x, y] = G.at(n);
+      const place = n.kind === 'boss' ? null : (n.lane === 'roof' ? 'On the roof' : 'Inside') + ', carriage ' + (n.f + 1);
+      return stopButton(L, n, x, y, W, H, can, route, fNow, place);
+    }).join('');
+    const T = window.TITLE_SCENE, layers = art && T ? T.layers.filter(l => l.img !== 'herd' && l.img !== 'trestle') : [];
+    const back = layers.map(l => '<div class="xl" style="top:' + u(l.img === 'plains' ? RAIL - 18 : l.y * 0.9) + ';height:' + u(l.h) + ';background-image:url(' + artURL('title/' + l.img + '.webp') + ');background-size:' + u(l.w) + ' ' + u(l.h) + ';--tw:' + u(l.w) + ';--dur:' + (l.w / (l.speed * 2.2)).toFixed(2) + 's"></div>').join('');
+    return '<div class="mapbox side" style="height:' + u(H) + ';--k:' + k + '">' +
+      '<div class="sideback" aria-hidden="true">' + back + '<div class="xground" style="top:' + u(RAIL + 1) + '"></div><div class="xties" style="top:' + u(RAIL - 1) + ';height:' + u(5) + '"></div>' +
+      '<div class="xrail" style="top:' + u(RAIL - 2) + '"></div></div>' +
+      '<div class="sidescroll"><div class="sidetrain" style="width:' + u(W) + ';height:' + u(H) + '">' + pics + boxes +
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" aria-hidden="true">' + edges + '</svg>' + nodes + '</div></div></div>' +
+      '<p class="sidehint">Scroll along the train. Inside is quieter; the roof is where the fights are. A <b>roof hatch</b> (its ladder at a carriage\u2019s front end) lets you climb up or drop down as you go on.</p>';
+  }
+  const SIDE_K = () => innerWidth >= 900 && innerHeight >= 800 ? 3 : 2;
+  // bring your next choices into view in the strip (a carriage is wider than a phone: the one you are in shows its
+  // front end, with the hatch's ladder when it has one, on the left)
+  function sideScroll(smooth) {
+    const sc = document.querySelector('.mapbox.side .sidescroll');
+    if (!sc) return;
+    const can = [...sc.querySelectorAll('.nd.can')], here = sc.querySelector('.nd.here'), t = can[0] || here;
+    if (!t) return;
+    const x = t.offsetLeft - sc.clientWidth * (here && can.length ? 0.5 : 0.25);
+    try { sc.scrollTo({ left: Math.max(0, x), behavior: smooth && !reduceMotion() ? 'smooth' : 'auto' }); } catch (e) { sc.scrollLeft = Math.max(0, x); }
+  }
   function plainBox(L, can, route, walked, fNow) {
     const SH = R.MAPSHAPE, gx = 70, step = 78, W = 60 + (SH.cols - 1) * gx, H = 80 + SH.floors * step + 36;
     // a little jitter so the grid doesn't look ruled, the same every time for a node
@@ -1683,13 +1861,13 @@ html.art .coach { border-radius: 0; }
     return walked;
   }
   function mapHTML(L) {
-    const town = L.act === 1, train = L.act === 2 && !!window.BtpTrain, can = R.reachable(L), route = L.route || [], walked = walkedOf(L), fNow = R.floorOf(L);
+    const town = L.act === 1, side = !!(L.map && L.map.side), train = !side && L.act === 2 && !!window.BtpTrain, can = R.reachable(L), route = L.route || [], walked = walkedOf(L), fNow = R.floorOf(L);
     const kinds = [...new Set(can.map(id => R.node(L, id).kind))];
     const wanted = can.map(id => R.node(L, id)).filter(n => n.foe), others = kinds.filter(k => !wanted.some(n => n.kind === k));
     return '<div class="panel"><h2>Act ' + R.ROMAN[L.act] + ': ' + esc(E.ACTS[L.act].name) + '</h2>' + wantedHTML(L) +
-      '<div class="legend">' + ['dance', 'elite', 'event', 'store', 'camp', 'raffle'].concat(R.BANK.acts.includes(L.act) ? ['bank'] : [], R.WATER.acts.includes(L.act) ? ['water'] : []).map(k => '<span>' + (town || train ? '<i class="sw k-' + k + '"></i>' : '') + icon(k) + esc(R.kindName(L.act, k)) + '</span>').join('') +
+      '<div class="legend">' + ['dance', 'elite', 'event', 'store', 'camp', 'raffle'].concat(R.BANK.acts.includes(L.act) ? ['bank'] : [], R.WATER.acts.includes(L.act) ? ['water'] : []).map(k => '<span>' + (town || train || side ? '<i class="sw k-' + k + '"></i>' : '') + icon(k) + esc(R.kindName(L.act, k)) + '</span>').join('') +
       '<span><i class="pips"><i></i></i>A trick up their sleeve</span></div>' +
-      (town ? townBox(L, can, route, walked, fNow) : train ? trainBox(L, can, route, walked, fNow) : plainBox(L, can, route, walked, fNow)) +
+      (town ? townBox(L, can, route, walked, fNow) : side ? sideBox(L, can, route, walked, fNow) : train ? trainBox(L, can, route, walked, fNow) : plainBox(L, can, route, walked, fNow)) +
       (kinds.length ? '<p style="margin:8px 0 0"><b>Next</b>: tap a glowing stop' + (wanted.length ? ' or a poster' : '') + '.</p>' +
         (wanted.length ? '<div class="posters">' + wanted.map(n => posterHTML(L, n)).join('') + '</div>' : '') +
         (others.length ? '<ul class="nextup">' + others.map(k => '<li><b>' + esc(k === 'boss' ? 'The Showdown' : R.kindName(L.act, k)) + '</b>: ' + esc(nodeWhat(L, k)) + '</li>').join('') + '</ul>' : '') : '') + '</div>';
@@ -1703,9 +1881,9 @@ html.art .coach { border-radius: 0; }
       return '<div class="actline"><b>Act ' + R.ROMAN[a] + ' · ' + esc(E.ACTS[a].name) + '</b><span>' + (p.length ? p.map(k => R.kindName(a, k)).join(' → ') : 'not reached') + '</span>' +
         (hd ? '<span class="' + (hd.won ? 'good' : 'badc') + '">' + esc(R.BOSS[hd.boss].name) + (hd.won ? ': beaten' : ': lost') + '</span>' : '') + '</div>';
     }).join('');
-    const head = won ? '<h2>The County Fair is won!</h2><p class="big">You and Nan beat ' + esc(R.BOSS[L.boss].name.replace(/^The/, 'the')) + ' and take the championship.</p>'
+    const head = won ? '<h2>The County Fair is won!</h2><p class="big">You and ' + PN() + ' beat ' + esc(R.BOSS[L.boss].name.replace(/^The/, 'the')) + ' and take the championship.</p>'
       : '<h2>The trail ends here</h2><p class="big badc">' + (L.lostTo ? esc((R.BOSS[L.lostTo] ? R.BOSS[L.lostTo].name : L.lostTo)) + ' shot your health down' + (R.BOSS[L.lostTo] ? ' in the Showdown' : '') : 'Your health ran out') + ' in Act ' + R.ROMAN[L.act] + ', game ' + L.level + '.</p>';
-    const best = S.best ? '+' + S.best.delta + ' (' + (S.best.contractor === 0 ? 'your ' : S.best.contractor === 2 ? 'Nan’s ' : '') + esc(bidPlain(S.best.contract)) + (S.best.contractor % 2 ? ', set by you' : '') + ', Act ' + R.ROMAN[S.best.act || L.act] + ')' : 'none';
+    const best = S.best ? '+' + S.best.delta + ' (' + (S.best.contractor === 0 ? 'your ' : S.best.contractor === 2 ? PN() + '’s ' : '') + esc(bidPlain(S.best.contract)) + (S.best.contractor % 2 ? ', set by you' : '') + ', Act ' + R.ROMAN[S.best.act || L.act] + ')' : 'none';
     return '<div class="panel end">' + head + acts +
       '<div class="kv"><span>Stars</span><span>' + S.stars + ' of ' + S.maxStars + '</span>' +
       '<span>Bonuses</span><span>' + S.objectives + ' of ' + S.objectiveLevels + '</span>' +
@@ -1726,7 +1904,7 @@ html.art .coach { border-radius: 0; }
     if (L.mode === 'standard') {
       // the score instead of health and gold
       const sc = (lab, v) => '<span class="lab">' + lab + '</span><span class="val">' + num(v) + '</span><small>first to 500</small>';
-      if (P.hpShown !== 's' + L.you) { hp.innerHTML = sc('You & Nan', L.you); hp.className = 'stat hp'; P.hpShown = 's' + L.you; }
+      if (P.hpShown !== 's' + L.you) { hp.innerHTML = sc('You & ' + PN(), L.you); hp.className = 'stat hp'; P.hpShown = 's' + L.you; }
       if (P.goldShown !== 's' + L.opp) { gs.innerHTML = sc('Them', L.opp); P.goldShown = 's' + L.opp; }
       $('handpill').textContent = 'Standard 500 · hand ' + L.handNo;
     } else {
@@ -1741,12 +1919,12 @@ html.art .coach { border-radius: 0; }
       ct.hidden = false;
       ct.className = 'contract' + (mine ? '' : ' theirs');
       const misWord = h.open ? 'open misère' : 'misère';
-      const shown = h.open && h.trickNo >= 1 && h.contractor !== 0 ? ' · <b>' + (h.contractor === 2 ? 'Nan' : E.SEATS[h.contractor]) + '\u2019s hand:</b> ' + h.hands[h.contractor].map(E.label).join(' ') : '';
+      const shown = h.open && h.trickNo >= 1 && h.contractor !== 0 ? ' · <b>' + (h.contractor === 2 ? PN() : E.SEATS[h.contractor]) + '\u2019s hand:</b> ' + h.hands[h.contractor].map(E.label).join(' ') : '';
       ct.innerHTML = h.misere ? (mine
-        ? '<b>' + (h.contractor === 0 ? 'You' : 'Nan') + '</b> bid ' + misWord + ' · ' + (h.contractor === 0 ? 'you' : 'she') + ' must lose every trick, playing alone · made: +' + h.contract.v + ', failed: −' + h.contract.v + shown
+        ? '<b>' + (h.contractor === 0 ? 'You' : PN()) + '</b> bid ' + misWord + ' · ' + (h.contractor === 0 ? 'you' : 'she') + ' must lose every trick, playing alone · made: +' + h.contract.v + ', failed: −' + h.contract.v + shown
         : '<b>' + E.SEATS[h.contractor] + '</b> bid ' + misWord + ' · <span class="intent">Intent: −' + E.damageOf(h.contract.v, L) + ' health if they lose every trick</span> · make ' + E.SEATS[h.contractor] + ' win one trick to block' + shown)
         : mine
-        ? '<b>' + (h.contractor === 0 ? 'You' : 'Nan') + '</b> bid ' + bidHTML(h.contract) + ' · your team needs ' + need + ' tricks (' + got + ' so far) · made: +' + h.contract.v + ', failed: ' + (R.has(L, 'nearmiss') ? '−' + h.contract.v + ' (one short: 0)' : '−' + h.contract.v)
+        ? '<b>' + (h.contractor === 0 ? 'You' : PN()) + '</b> bid ' + bidHTML(h.contract) + ' · your team needs ' + need + ' tricks (' + got + ' so far) · made: +' + h.contract.v + ', failed: ' + (R.has(L, 'nearmiss') ? '−' + h.contract.v + ' (one short: 0)' : '−' + h.contract.v)
         : '<b>' + E.SEATS[h.contractor] + '</b> bid ' + bidHTML(h.contract) + ' · <span class="intent">Intent: −' + E.damageOf(h.contract.v, L) + ' health if they take ' + need + '</span> · they have ' + got + ' · stop them at ' + (need - 1) + ' to block';
     } else ct.hidden = true;
     renderFelt();
@@ -1782,12 +1960,12 @@ html.art .coach { border-radius: 0; }
       : O ? '<button class="notice" data-act="levelinfo"><small>Bonus</small><b>' + esc(O.name) + '</b><span>' + esc(R.objProgress(L)) + '</span><i class="st">' + stars(starsNow(L)) + '</i></button>'
       : L.mode === 'standard' ? '<div class="fbonus rule"><small>First to 500</small> ' + esc(L.std.rule) + '</div>'
       : L.boss ? '<button class="notice rule" data-act="levelinfo"><small>Showdown</small> ' + esc(R.BOSS[L.boss].rule) + '</button>' : '';
-    const c = h.contract, ct = c ? E.team(h.contractor) : null, who = s => s === 0 ? 'You' : s === 2 ? 'Nan' : E.SEATS[s];
+    const c = h.contract, ct = c ? E.team(h.contractor) : null, who = s => s === 0 ? 'You' : s === 2 ? PN() : E.SEATS[s];
     const ribbon = !c ? '' : '<div class="ribbon' + (ct ? ' theirs' : '') + '">' + who(h.contractor) + ' bid <b>' + bidHTML(c) + '</b> · ' + (h.misere
       ? (ct ? '<em>\u2212' + E.damageOf(c.v, L) + ' health</em> if they lose every trick' : 'lose every trick for ' + c.v)
       : ct ? '<em>\u2212' + E.damageOf(c.v, L) + ' health</em> if they take ' + c.t : 'worth ' + c.v + ' if you take ' + c.t) + '</div>';
     const notch = (n, of) => Array.from({ length: Math.max(of, n) }, (_, i) => '<i class="' + (i < n ? 'on' : '') + (i < of ? ' need' : '') + '"></i>').join('');
-    const tally = c && !h.misere && (h.phase === 'play' || h.phase === 'trick') ? '<div class="tallies"><span>You &amp; Nan ' + notch(h.tricks[0], ct === 0 ? c.t : 0) + '</span><span>Them ' + notch(h.tricks[1], ct === 1 ? c.t : 0) + '</span></div>' : '';
+    const tally = c && !h.misere && (h.phase === 'play' || h.phase === 'trick') ? '<div class="tallies"><span>You &amp; ' + PN() + ' ' + notch(h.tricks[0], ct === 0 ? c.t : 0) + '</span><span>Them ' + notch(h.tricks[1], ct === 1 ? c.t : 0) + '</span></div>' : '';
     el.innerHTML = tally;
     const plate = felt.querySelector('.stage .foe');
     if (plate) {
@@ -1930,7 +2108,7 @@ html.art .coach { border-radius: 0; }
   function bidWonHTML(L) {
     const h = L.h;
     if (!h.contract || h.trickNo > 0 || h.trick.some(Boolean) || !['kitty', 'play', 'swing'].includes(h.phase)) return '';
-    const who = h.contractor === 0 ? 'You win' : (h.contractor === 2 ? 'Nan wins' : E.SEATS[h.contractor] + ' wins');
+    const who = h.contractor === 0 ? 'You win' : (h.contractor === 2 ? PN() + ' wins' : E.SEATS[h.contractor] + ' wins');
     const need = h.misere ? 'must lose every trick' : 'needs ' + h.contract.t + ' of ' + E.ACTS[L.act].hand + ' tricks';
     return '<div class="bidwon">' + who + ' the bid: <b>' + bidHTML(h.contract) + '</b><small>' + (E.team(h.contractor) === 0 ? 'your team ' : 'they ') + need + ' · worth ' + h.contract.v + '</small></div>';
   }
@@ -1947,6 +2125,28 @@ html.art .coach { border-radius: 0; }
     '<g class="lids" stroke="none" fill="#e6c3a0"><rect x="20" y="28" width="7" height="5"/><rect x="33" y="28" width="7" height="5"/></g>' +
     '<circle cx="19.5" cy="37" r="2.4" fill="#f0a8a0" stroke="none" opacity=".8"/><circle cx="40.5" cy="37" r="2.4" fill="#f0a8a0" stroke="none" opacity=".8"/>' +
     '<path d="M26 39 Q30 42.5 34 39" fill="none" stroke-width="1.4"/></g></svg>';
+  /* Biscuit, your horse (2026-11-01): drawn like Nan, flat with a dark outline, front on across the table: a chestnut
+     with a white blaze, her ears through her hat, a red bandana. The same classes, so she breathes and blinks. */
+  const HORSE_SVG = '<svg class="nansvg horsesvg" viewBox="0 0 60 72" aria-hidden="true"><g class="breathe" stroke="#2a1b16" stroke-width="1.6" stroke-linejoin="round">' +
+    '<path d="M5 72 C7 56 15 50 30 50 C45 50 53 56 55 72 Z" fill="#a8683c"/>' +
+    '<path d="M15 28 C10 38 12 47 18 53 L23 46 Z" fill="#4a2a1a"/><path d="M45 28 C50 38 48 47 42 53 L37 46 Z" fill="#4a2a1a"/>' +
+    '<path d="M18 18 L11 2 L25 12 Z" fill="#a8683c"/><path d="M42 18 L49 2 L35 12 Z" fill="#a8683c"/>' +
+    '<path d="M17.5 14 L13.5 6 L21 11.5 Z" fill="#6a3a22" stroke="none"/><path d="M42.5 14 L46.5 6 L39 11.5 Z" fill="#6a3a22" stroke="none"/>' +
+    '<path d="M18 16 C18 12 42 12 42 16 C43 24 41 32 40 38 C39 46 36 50.5 30 50.5 C24 50.5 21 46 20 38 C19 32 17 24 18 16 Z" fill="#a8683c"/>' +
+    '<path d="M28 16 Q30 15 32 16 L31.6 37 Q30 39.5 28.4 37 Z" fill="#f6efe2" stroke="none"/>' +
+    '<ellipse cx="30" cy="44" rx="9.4" ry="6.3" fill="#c99a78"/>' +
+    '<ellipse cx="26.4" cy="44.6" rx="1.6" ry="1.1" fill="#5a2e1e" stroke="none"/><ellipse cx="33.6" cy="44.6" rx="1.6" ry="1.1" fill="#5a2e1e" stroke="none"/>' +
+    '<path d="M26 48 Q30 50 34 48" fill="none" stroke-width="1.3"/>' +
+    '<path d="M23.5 15 Q26.5 22 30 20 Q33.5 22 36.5 15 Z" fill="#4a2a1a"/>' +
+    '<ellipse cx="30" cy="14.5" rx="15.5" ry="3.3" fill="#6b4a32"/><path d="M21 14.5 C21 6.5 24 4 30 4 C36 4 39 6.5 39 14.5 Z" fill="#7a5638"/>' +
+    '<path d="M27 5.2 Q30 7.5 33 5.2" fill="none" stroke-width="1.2"/><path d="M21.6 12.2 H38.4" stroke-width="2.2"/>' +
+    '<ellipse cx="21.6" cy="25.5" rx="2.3" ry="2.8" fill="#2a1b16" stroke="none"/><ellipse cx="38.4" cy="25.5" rx="2.3" ry="2.8" fill="#2a1b16" stroke="none"/>' +
+    '<circle cx="22.3" cy="24.4" r=".85" fill="#fff" stroke="none"/><circle cx="39.1" cy="24.4" r=".85" fill="#fff" stroke="none"/>' +
+    '<g class="lids" stroke="none" fill="#a8683c"><rect x="18.9" y="22" width="5.4" height="7"/><rect x="35.7" y="22" width="5.4" height="7"/></g>' +
+    '<path d="M17 53 Q30 59 43 53 L30 66 Z" fill="#b8322a"/><path d="M24 56 L30 62 L36 56" fill="none" stroke="#7a1d17" stroke-width="1.1"/></g></svg>';
+  const partnerFace = id => id === 'horse' ? HORSE_SVG : id === 'nan' ? NAN_SVG : '';
+  // your partner's name for the page's words (a game with no partner set is Nan's, as before)
+  const PN = () => E.pname(P.L);
   /* The stage's numbers from art/table/scene.js (written by the bake), with the same defaults if it is missing. */
   const STAGE = Object.assign({ W: 200, H: 112, edge: 76, figs: [] }, window.TABLE_SCENE || {});
   const BANK_LOOK = ['pJT', 'gJpp2'], LIFT = 5, LIFT_COMPACT = 12;   // art rows of wall cropped off the top (--lift)
@@ -2016,7 +2216,7 @@ html.art .coach { border-radius: 0; }
   function buildStage(L, felt, k) {
     const look = lookOf(L), fig = (key, side) => '<div class="fig ' + side + '"><img src="' + artURL('table/fig_' + key + '.webp') + '" alt=""></div>';
     felt.innerHTML = '<div class="stage"><div class="wall" style="background-image:url(' + artURL('table/wall' + L.act + '.webp') + ')"></div>' +
-      fig(look[0], 'w') + fig(look[1], 'e') + '<div class="nanfig">' + NAN_SVG + '</div>' +
+      fig(look[0], 'w') + fig(look[1], 'e') + '<div class="nanfig">' + partnerFace(L.partner || 'nan') + '</div>' +
       '<div class="tbl" style="background-image:url(' + artURL('table/table.webp') + ')"></div><div class="plate"></div></div><div class="dyn"></div>';
     felt.classList.toggle('dressed', look.every(x => !STAGE.figs.length || STAGE.figs.includes(x)));
   }
@@ -2094,7 +2294,7 @@ html.art .coach { border-radius: 0; }
       zone += '<div class="tally">Tricks: you ' + h.tricks[0] + (h.bonus && h.bonus[0] ? ' (+' + h.bonus[0] + ')' : '') + ' · them ' + h.tricks[1] + '</div>';
     }
     zone += '</div>';
-    felt.querySelector('.dyn').innerHTML = seat(1, 'west', 'West') + seat(2, 'north', 'Nan') + seat(3, 'east', 'East') + zone + bidWonHTML(L) +
+    felt.querySelector('.dyn').innerHTML = seat(1, 'west', 'West') + seat(2, 'north', PN()) + seat(3, 'east', 'East') + zone + bidWonHTML(L) +
       (re ? '<div class="bubble nanbubble">' + esc(re.text) + '</div>' : '');
     felt.querySelectorAll('.feltcoach').forEach(x => x.remove());
     stageFx(L, felt);
@@ -2142,11 +2342,11 @@ html.art .coach { border-radius: 0; }
     }
     g += '</div>';
     // the auction so far, in order: who said what, the bid to beat in gold
-    const nm = s => s === 0 ? 'You' : s === 2 ? 'Nan' : E.SEATS[s];
+    const nm = s => s === 0 ? 'You' : s === 2 ? PN() : E.SEATS[s];
     const log = h.bids.filter(b => !b.keep).map(b => '<span class="bl' + (b.pass ? ' ps' : h.high && b.seat === h.high.seat && b.t === h.high.t && b.s === h.high.s ? ' hi' : '') + '">' + nm(b.seat) + ' ' + (b.pass ? 'pass' : (b.raise ? 'raise ' : '') + bidHTML(b)) + '</span>').join('');
     let extras = '';
-    if (R.has(L, 'nod')) { const n = AI.nod(L, 2); extras += '<span class="nod">Nan’s nod: ' + (n ? denom(n) : 'nothing strong') + '</span>'; }
-    if (L.boss === 'wallflowers') extras += '<span class="nod">' + (mine && E.mustBid(L, 0) ? 'Nan passed and the Undertakers never bid: you must bid' : 'Against the Undertakers your team bids ' + E.WALL.min + ' or more') + '</span>';
+    if (R.has(L, 'nod')) { const n = AI.nod(L, 2); extras += '<span class="nod">' + PN() + '’s nod: ' + (n ? denom(n) : 'nothing strong') + '</span>'; }
+    if (L.boss === 'wallflowers') extras += '<span class="nod">' + (mine && E.mustBid(L, 0) ? PN() + ' passed and the Undertakers never bid: you must bid' : 'Against the Undertakers your team bids ' + E.WALL.min + ' or more') + '</span>';
     if (R.sees(L, 'peek') || L.call === 'facekitty') extras += '<span class="nod">' + (L.call === 'facekitty' ? R.TABLE_RULES.facekitty.name : R.has(L, 'peek') ? 'Peek' : 'Marked deck') + ': the kitty holds ' + h.kitty.map(E.label).join(', ') + '</span>';
     if (h.spy) extras += '<span class="nod">' + esc(R.BUFFS.spyglass.name) + ': West holds the ' + E.label(h.spy[0]) + ', East the ' + E.label(h.spy[1]) + '</span>';
     const early = mine && !h.raise && !h.bids.some(b => b.seat === 0);
@@ -2158,10 +2358,10 @@ html.art .coach { border-radius: 0; }
     const standing = '<div class="standing' + (hi && hi.seat % 2 === 0 ? ' you' : '') + '">' + (hi
       ? '<span class="bchip s-' + suitKey(hi) + '">' + esc(bidPlain(hi)) + '</span><span class="who2"><b>' + (hi.seat === 0 ? 'You lead' : nm(hi.seat) + ' leads') + '</b> with ' + bidHTML(hi) + ' (' + hi.v + ')' +
         '<small>' + (raise ? 'Everyone else passed: raise it or keep it' : mine ? 'Beat it, or pass' : nm(h.turn) + ' is bidding\u2026') + '</small></span>'
-      : '<span class="bchip none">NO BID</span><span class="who2"><b>Nobody has bid</b><small>' + (mine ? 'Open the bidding: tricks you and Nan promise, out of ' + E.ACTS[L.act].hand : nm(h.turn) + ' is bidding\u2026') + '</small></span>') + '</div>';
+      : '<span class="bchip none">NO BID</span><span class="who2"><b>Nobody has bid</b><small>' + (mine ? 'Open the bidding: tricks you and ' + PN() + ' promise, out of ' + E.ACTS[L.act].hand : nm(h.turn) + ' is bidding\u2026') + '</small></span>') + '</div>';
     bp.innerHTML = standing + '<div>' + (raise ? '<b class="raisehead">Raise your own bid</b> (more tricks or a higher suit), or keep it.' : '<b>' + (mine ? 'Your bid' : nm(h.turn) + ' is bidding\u2026') + '</b>') + extras + '</div>' + g +
       '<div class="btns" style="margin-top:4px"><button class="btn alt" data-act="pass"' + (mine && !E.mustBid(L, 0) ? '' : ' disabled') + '>' + (raise ? 'Keep ' + bidHTML(h.high) : 'Pass') + '</button>' +
-      (A.misere ? '<button class="btn alt" data-bid="0MIS" title="Lose every trick, playing alone; Nan sits out. Ranks between 5NT and 6♠."' + (!can(0, 'MIS') ? ' disabled' : '') + '>Misère · ' + A.misere + '</button>' + (A.openMisere ? '<button class="btn alt" data-bid="0OMIS" title="Lose every trick alone, with your hand face up after the first trick. Ranks between 10♦ and 10♥."' + (!can(0, 'OMIS') ? ' disabled' : '') + '>Open · ' + A.openMisere + '</button>' : '<span class="bidlog" style="align-self:center;margin:0">lose every trick alone</span>') : '') + '</div>' +
+      (A.misere ? '<button class="btn alt" data-bid="0MIS" title="Lose every trick, playing alone; your partner sits out. Ranks between 5NT and 6♠."' + (!can(0, 'MIS') ? ' disabled' : '') + '>Misère · ' + A.misere + '</button>' + (A.openMisere ? '<button class="btn alt" data-bid="0OMIS" title="Lose every trick alone, with your hand face up after the first trick. Ranks between 10♦ and 10♥."' + (!can(0, 'OMIS') ? ' disabled' : '') + '>Open · ' + A.openMisere + '</button>' : '<span class="bidlog" style="align-self:center;margin:0">lose every trick alone</span>') : '') + '</div>' +
       (log ? '<div class="bidlog" aria-label="The bids so far">' + log + '</div>' : '');
   }
   function renderStatus() {
@@ -2169,14 +2369,14 @@ html.art .coach { border-radius: 0; }
     let t = '', btn = '';
     if (L.phase !== 'hand') t = '';
     else if (h.phase === 'bid') t = h.turn === 0 ? (h.raise ? 'The others passed: raise your bid, or keep it.' : 'Bid, or pass if your hand is weak.') : E.SEATS[h.turn] + ' is thinking…';
-    else if (h.phase === 'kitty') t = h.turn === 0 ? 'You picked up the kitty. Tap a card to put back.' : (h.turn === 2 ? 'Nan' : E.SEATS[h.turn]) + ' is taking the kitty…';
+    else if (h.phase === 'kitty') t = h.turn === 0 ? 'You picked up the kitty. Tap a card to put back.' : (h.turn === 2 ? PN() : E.SEATS[h.turn]) + ' is taking the kitty…';
     else if (h.phase === 'swing' && h.pass === 'grand') t = E.callWords(L, 'Grand Right and Left')[0] + ': tap a card to pass to West. East passes one to you.';
-    else if (h.phase === 'swing') { t = (L.call === 'swing' ? R.CALLS.swing.name : R.BUFFS.swing.name) + ': tap a card to give Nan.'; btn = '<button class="iconbtn" data-act="keephand">Keep my hand</button>'; }
+    else if (h.phase === 'swing') { t = (L.call === 'swing' ? R.CALLS.swing.name : R.BUFFS.swing.name) + ': tap a card to give ' + PN() + '.'; btn = '<button class="iconbtn" data-act="keephand">Keep my hand</button>'; }
     else if (h.phase === 'intent') t = E.SEATS[h.contractor] + ' is about to play ' + bidPlain(h.contract) + '.';
     else if (h.phase === 'trick') t = h.last.reason + ' (Tap the table to go on.)';
     else if (h.phase === 'play') {
-      if (h.out === 0) t = 'You sit out this hand: Nan is playing misère alone. ' + (h.turn === 2 ? 'Nan' : E.SEATS[h.turn]) + ' to play…';
-      else if (h.turn !== 0) t = (h.turn === 2 ? 'Nan' : E.SEATS[h.turn]) + ' is playing…';
+      if (h.out === 0) t = 'You sit out this hand: ' + PN() + ' is playing misère alone. ' + (h.turn === 2 ? PN() : E.SEATS[h.turn]) + ' to play…';
+      else if (h.turn !== 0) t = (h.turn === 2 ? PN() : E.SEATS[h.turn]) + ' is playing…';
       else {
         const led = E.ledSuit(L);
         if (!led) t = 'Your lead.';
@@ -2222,10 +2422,10 @@ html.art .coach { border-radius: 0; }
       key = 'sum' + L.level + '-' + L.handNo;
       const F = L.foe, over = R.fightOver(L);
       if (L.mode === 'standard') {
-        showSheet('<h2>Hand ' + L.handNo + '</h2><div class="kv"><span>You and Nan</span><span class="' + (r.pts[0] > 0 ? 'good' : r.pts[0] < 0 ? 'badc' : '') + '">' + (r.pts[0] > 0 ? '+' : '') + num(r.pts[0]) + ' · ' + num(L.you) + '</span>' +
+        showSheet('<h2>Hand ' + L.handNo + '</h2><div class="kv"><span>You and ' + PN() + '</span><span class="' + (r.pts[0] > 0 ? 'good' : r.pts[0] < 0 ? 'badc' : '') + '">' + (r.pts[0] > 0 ? '+' : '') + num(r.pts[0]) + ' · ' + num(L.you) + '</span>' +
           '<span>' + esc(L.std.name) + '</span><span class="' + (r.pts[1] > 0 ? 'badc' : '') + '">' + (r.pts[1] > 0 ? '+' : '') + num(r.pts[1]) + ' · ' + num(L.opp) + '</span></div>' +
           '<ul class="lines">' + r.lines.map(t => '<li>' + esc(t) + '</li>').join('') + '</ul>' +
-          (over ? '<p class="big ' + (L.std.winner === 0 ? 'good">You and Nan win the game!' : 'badc">' + esc(L.std.name) + ' win the game.') + '</p>' : '') +
+          (over ? '<p class="big ' + (L.std.winner === 0 ? 'good">You and ' + PN() + ' win the game!' : 'badc">' + esc(L.std.name) + ' win the game.') + '</p>' : '') +
           '<div class="btns"><button class="btn" data-act="next">' + (over ? 'Finish' : 'Next hand') + '</button></div>', key);
         return;
       }
@@ -2293,8 +2493,8 @@ html.art .coach { border-radius: 0; }
     '<li><b>Health:</b> you start with 500, and that is the most you can have. Every point West and East score hits you, at 50% in Act I, 35% in Act II and 22% in Act III (Showdown gangs hit harder). A contract of yours that fails <b>backfires</b>: it hits you for its value at the same share. Nothing heals you during a fight; at 0 the run is over, Showdown or not.</li>' +
     '<li><b>Legendary cards:</b> a card you own takes up to two enhancements; with two it is Legendary. An enhancement is never replaced.</li>' +
     '<li><b>The gangs</b> grow tougher up the trail, and many carry an ability or a debuff on you: Rusty Guns, Gut Shot, Bushwhack and more. Tap their name on the plate to read it.</li>' +
-    '<li><b>Your cards:</b> each hand, one card you own is dealt straight to you. Enhancements on your cards work for you and Nan only.</li>' +
-    '<li><b>Nan</b> never outbids you.</li></ul><div class="btns"><button class="btn" data-act="closesheet">Got it</button></div>';
+    '<li><b>Your cards:</b> each hand, one card you own is dealt straight to you. Enhancements on your cards work for you and your partner only.</li>' +
+    '<li><b>Your partner</b> never outbids you.</li></ul><div class="btns"><button class="btn" data-act="closesheet">Got it</button></div>';
   function menuHTML() {
     const L = P.L;
     const opt = (k, v, label) => '<button class="btn' + (P.prefs[k] === v ? '' : ' alt') + '" data-act="pref" data-k="' + k + '" data-v="' + v + '" aria-pressed="' + (P.prefs[k] === v) + '">' + label + '</button>';
@@ -2341,7 +2541,7 @@ html.art .coach { border-radius: 0; }
     else if (tr && c !== 'JK' && E.rankOf(c) === 'J' && E.suitOf(c) === E.TWIN[tr]) lines.push('This hand it is the <b>left bower</b>: it counts as a ' + E.NAME[tr].slice(0, -1) + '.');
     if (c === 'JK') lines.push('The Joker wins any trick it is in.');
     if (!tags.length) tags.push('<span class="plain">No buff or hex</span>');
-    if (owned) lines.push('<b>Yours:</b> it can be dealt to you in a seed slot. ' + (m.enh || m.up ? 'Its buff works only in your team\u2019s hands (yours and Nan\u2019s); if West or East holds it, it is a plain card.' : ''));
+    if (owned) lines.push('<b>Yours:</b> it can be dealt to you in a seed slot. ' + (m.enh || m.up ? 'Its buff works only in your team\u2019s hands (yours and your partner\u2019s); if West or East holds it, it is a plain card.' : ''));
     if (!lines.length) lines.push('A plain card.');
     return '<div class="cardinfo">' + cardHTML(c, { owned: true, big: true }) + '<h2 style="text-align:center;margin:0 0 6px">' + esc(E.label(c)) + '</h2>' +
       '<div class="tags" style="text-align:center">' + tags.join('') + '</div><ul>' + lines.map(x => '<li>' + x + '</li>').join('') + '</ul>' +
@@ -2371,7 +2571,7 @@ html.art .coach { border-radius: 0; }
     render();
     save();
     // paused while a sheet is open, while the page is hidden (visibilitychange resumes it) or if a move was refused twice
-    if (P.sheet || document.hidden || P.stuck || DEMO) return;
+    if (P.sheet || document.hidden || P.stuck || DEMO || standoffDue(L)) return;
     const w = R.whoseMove(L);
     // your only legal card plays itself (2026-10-30, the review's #2: shorter runs); a setting in the menu
     if (w === 'you' && L.h.phase === 'play' && oneCard() === 'auto') {
@@ -2487,6 +2687,8 @@ html.art .coach { border-radius: 0; }
       case 'backenh': move('unplace'); break;
       case 'foeinfo': openSheet('info', foeHelpHTML(L, d.k)); break;
       case 'skipgrave': endGrave(); break;
+      case 'draw': draw(); break;
+      case 'allaboard': endDepart(); break;
       case 'takejob': takeJob(); break;
       case 'freshdeal': P.sleeving = false; move('freshdeal'); break;
       case 'sleevemode': P.sleeving = !P.sleeving; render(); break;
@@ -2522,7 +2724,7 @@ html.art .coach { border-radius: 0; }
 
   function newRun() {
     const seed = (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
-    const L = R.newRun({ seed, objective: $('objPick').value || undefined, tips: $('tipsPick').checked, pickPartner: true });
+    const L = R.newRun({ seed, objective: $('objPick').value || undefined, tips: $('tipsPick').checked, pickPartner: true, unlocked: profile().beaten });
     playOpening(L, () => { P.L = L; show(); });
   }
   /* The main menu (the user's, 2026-10-30): Start, then New Story, Continue Current Story, Daily Challenge or
@@ -2546,7 +2748,7 @@ html.art .coach { border-radius: 0; }
     const face = look => '<span class="face"><img src="' + artURL('table/fig_' + look[0] + '.webp') + '" alt=""></span>';
     const opp = (id, F, open) => '<button class="rider" data-foe="' + id + '"' + (open ? '' : ' disabled') + '>' + face(F.look) + '<b>' + esc(F.name) + '</b><span>' + esc(F.rule) + '</span>' +
       (open ? '' : '<span class="lock">Beat them in a story to play them</span>') + '</button>';
-    return '<h2>Standard 500</h2><p>A plain game of 500 with the 43-card pack: you and Nan against the pair you choose. No health, gold or buffs: first to 500 wins, and 500 must be reached by making a bid.</p>' +
+    return '<h2>Standard 500</h2><p>A plain game of 500 with the 43-card pack: you and ' + PN() + ' against the pair you choose. No health, gold or buffs: first to 500 wins, and 500 must be reached by making a bid.</p>' +
       (g ? '<div class="btns"><button class="btn" data-act="resumestd">Resume: you ' + num(g.you) + ', ' + esc(g.std.name.replace(/^The /, 'the ')) + ' ' + num(g.opp) + '</button></div><h3>Or start a new game against</h3>' : '<h3>Choose your opponents</h3>') +
       '<div class="roster">' + opp('regulars', R.standardFoe(null), true) + Object.keys(R.BOSS).map(id => opp(id, R.standardFoe(id), beaten.includes(id))).join('') + '</div>' +
       '<div class="btns"><button class="btn alt" data-act="closesheet">Back</button></div>';
@@ -2587,7 +2789,7 @@ html.art .coach { border-radius: 0; }
     const I = S.intro, below = I ? '<div class="below" style="top:' + u(S.H) + ';height:' + u(BELOW) + '">' +
       '<div class="meadow" style="background:' + url(I.meadow.img) + ' 0 0 / ' + u(I.meadow.w) + ' ' + u(I.meadow.h) + ' repeat;--tw:' + u(I.meadow.w) + ';--dur:' + (I.meadow.w / STAGE_SPEED).toFixed(2) + 's"></div>' +
       lyr({ img: I.trail.img, w: I.trail.w, h: I.trail.h, y: TRAIL_Y, speed: STAGE_SPEED }) +
-      '<div class="stagecoach" style="left:calc(50% - ' + u(I.stage.w / 2) + ');top:' + u(TRAIL_Y + 18 - 24) + ';width:' + u(I.stage.w) + ';height:' + u(I.stage.h) +
+      '<div class="stagecoach" style="left:calc(50% - ' + u(I.stage.w / 2) + ');top:' + u(TRAIL_Y + 18 - (I.stage.ay || 24)) + ';width:' + u(I.stage.w) + ';height:' + u(I.stage.h) +
       ';background-image:' + url(I.stage.img) + ';background-size:' + u(I.stage.w * I.stage.frames) + ' ' + u(I.stage.h) + ';--fw:' + u(I.stage.w) + '"></div>' +
       '<div class="townsign" style="top:' + u(TRAIL_Y + 14) + ';width:' + u(I.sign.w * SIGN_K) + ';height:' + u(I.sign.h * SIGN_K) + ';background:' + url(I.sign.img) + ' 0 0 / 100% 100%">' +
       (I.sign.panel && I.signcover ? signCover(I.sign, url(I.signcover.img)) : '') + '</div></div>' : '';
@@ -2766,7 +2968,7 @@ html.art .coach { border-radius: 0; }
   }
   const JOB = {
     1: ['The reason you rode into Dustwater', 'That\u2019s them, dear. The Twins. Every other gang in this town is just the road to the Saloon.'],
-    2: ['They want revenge for the Twins', 'They\u2019re up in the locomotive, dear, and they\u2019ve sent their engineer to meet us. Car by car, that\u2019s where we\u2019re headed.'],
+    2: ['They want revenge for the Twins', 'They\u2019re up in the locomotive, dear. Car by car, through the carriages or over the roofs, that\u2019s where we\u2019re headed.'],
     3: ['The reason you came to the County Fair', 'The last of them, dear. Bring this one in and we can go home.']
   };
   function unrollJob(L) {
@@ -2779,7 +2981,7 @@ html.art .coach { border-radius: 0; }
     const why = L.act === 2 && R.BOSS[L.map.boss].revenge ? R.BOSS[L.map.boss].revenge : '';
     b.innerHTML = '<p class="why">' + esc(J[0]) + '</p><div class="scroll"><div class="wposter" role="img" aria-label="' + esc('Wanted: ' + R.BOSS[L.map.boss].name + ', reward 100 gold') + '">' +
       wantedFace(L.map.boss) + '</div><i class="rod" aria-hidden="true"></i></div>' + (why ? '<p class="why long">' + esc(why) + '</p>' : '') +
-      (chosen ? '<div class="nanline"><b>' + esc(R.PARTNERS[L.partner].name) + ':</b> ' + esc(J[1]) + '</div>' : '') +
+      (chosen ? '<div class="nanline"><b>' + esc(R.PARTNERS[L.partner].name) + ':</b> ' + esc(R.voice(L, J[1])) + '</div>' : '') +
       '<button class="btn" data-act="takejob">' + (chosen ? 'Let\u2019s ride' : 'Take the job') + '</button>';
     b.hidden = false;
   }
@@ -2788,7 +2990,7 @@ html.art .coach { border-radius: 0; }
     const p = R.ROSTER.find(x => x.id === L.partner), b = $('bounty');
     if (FAST || !p || !p.intro) return;
     b.className = '';
-    b.innerHTML = '<div class="say" role="status"><span class="face">' + (p.id === 'nan' ? NAN_SVG : '') + '</span><p><b>' + esc(p.name) + ':</b> ' + esc(p.intro) + '</p></div>' +
+    b.innerHTML = '<div class="say" role="status"><span class="face svg">' + partnerFace(p.id) + '</span><p><b>' + esc(p.name) + ':</b> ' + esc(p.intro) + '</p></div>' +
       '<button class="btn" data-act="takejob">Let\u2019s ride</button>';
     b.hidden = false;
   }
@@ -2926,6 +3128,8 @@ html.art .coach { border-radius: 0; }
     const key = L.rs + ':' + L.act;
     if (FAST || L.act < 2 || P.actCardFor === key) return;
     P.actCardFor = key;
+    if (L.act === 2 && L.map && L.map.side) { playDepart(L); return; }
+    $('actcard').className = '';
     const card = $('actcard'), S = window.TITLE_SCENE, art = document.documentElement.classList.contains('art');
     const A = { 2: ['ACT II', 'THE WESTBOUND EXPRESS', 'Someone wants revenge for the Twins', 'All aboard, dear! Word is the Twins had friends on this line, and they\u2019re not happy with us.'],
                 3: ['ACT III', 'THE COUNTY FAIR', 'You took their train all the way to the Fair', 'Full steam ahead, dear! Their train is ours now, and the last bounty is waiting at the end of the line.'] }[L.act];
@@ -2933,12 +3137,139 @@ html.art .coach { border-radius: 0; }
     card.style.backgroundSize = L.act === 2 ? 'auto 100%' : '';
     const T = S && S.train, tk = 3;
     card.innerHTML = '<div class="board"><small>' + A[0] + '</small><b>' + A[1] + '</b><span>' + A[2] + '</span></div>' +
-      (L.tips ? '<div class="nanline"><b>Nan:</b> ' + esc(A[3]) + '</div>' : '') +
+      (L.tips ? '<div class="nanline"><b>' + esc(PN()) + ':</b> ' + esc(R.voice(L, A[3])) + '</div>' : '') +
       (art && T && L.act === 2 ? '<div class="train2" style="width:' + T.w * tk + 'px;height:' + T.h * tk + 'px;background-image:url(' + artURL('title/' + T.img + '.webp') + ');background-size:' + T.w * T.frames * tk + 'px ' + T.h * tk + 'px;--fw:' + T.w * tk + 'px"></div>' : '');
     card.classList.add('on');
     const off = () => { card.classList.remove('on'); card.removeEventListener('pointerdown', off); };
     card.addEventListener('pointerdown', off);
     setTimeout(off, reduceMotion() ? 2200 : 4200);
+  }
+  /* The standoff (the user's, 2026-11-01): before a fight's first deal the gang says its piece (R.taunt) in a bubble
+     pointing at its figures and NOW DRAW! deals you in. The hand, the bid panel and the tip wait out of sight, and
+     step() waits too, so nobody bids first. Once a fight (P.drawnFor); never in ?fast or a ?demo. */
+  const standKey = L => L.rs + ':' + (L.mode || 'story') + ':' + L.level;
+  const standoffDue = L => !FAST && !DEMO && !!L && L.phase === 'hand' && L.handNo === 1 && !!L.h && L.h.phase === 'bid' && !L.h.bids.length && !L.redeals && P.drawnFor !== standKey(L);
+  function renderStandoff() {
+    const L = P.L, s = $('standoff'), due = standoffDue(L) && !$('game').hidden && !P.sheet;
+    document.body.classList.toggle('standing', due);
+    if (!due) { if (!s.hidden && !s.classList.contains('bang')) s.hidden = true; return; }
+    const key = standKey(L);
+    if (s.dataset.key !== key || s.hidden) {
+      const t = R.taunt(L);
+      s.dataset.key = key;
+      s.className = '';
+      s.innerHTML = '<div class="stand"><div class="say" role="status"><b>' + esc(t.who) + '</b><p>\u201c' + esc(t.text) + '\u201d</p></div>' +
+        '<button class="btn draw" data-act="draw" data-word="draw"><span>Now Draw!</span></button></div>';
+      s.hidden = false;
+    }
+    // under the gang's figures, the bubble's tail at the one on the left (West)
+    const fig = document.querySelector('#felt .stage .fig.w'), felt = $('felt').getBoundingClientRect();
+    const r = fig && fig.offsetParent && getComputedStyle(fig).display !== 'none' ? fig.getBoundingClientRect() : null;
+    const top = Math.max(60, Math.min(innerHeight - 220, r ? r.bottom - r.height * 0.12 : felt.top + Math.min(felt.height * 0.45, 160)));
+    s.style.setProperty('--top', Math.round(top) + 'px');
+    const box = s.querySelector('.say').getBoundingClientRect();
+    const tail = r ? Math.max(18, Math.min(box.width - 18, r.left + r.width * 0.6 - box.left)) : box.width * 0.5;
+    s.style.setProperty('--tail', Math.round(tail) + 'px');
+    const T = window.TITLE_SCENE && window.TITLE_SCENE.type && window.TITLE_SCENE.type.draw, btn = s.querySelector('.draw');
+    if (T && document.documentElement.classList.contains('art') && !btn.querySelector('img')) {
+      const k = Math.max(2, Math.min(4, Math.floor((innerWidth - 64) / T.w)));
+      btn.insertAdjacentHTML('afterbegin', '<img src="' + artURL('title/' + T.img + '.webp') + '" width="' + T.w * k + '" height="' + T.h * k + '" alt="">');
+      btn.classList.add('drawn');
+    }
+  }
+  function draw() {
+    const L = P.L, s = $('standoff');
+    if (!L || !standoffDue(L)) return;
+    P.drawnFor = standKey(L);
+    if (reduceMotion()) { s.hidden = true; step(); return; }
+    s.classList.add('bang');
+    document.body.classList.remove('standing');
+    setTimeout(() => { s.hidden = true; s.classList.remove('bang'); }, 340);
+    step();
+  }
+  /* Act II opens on the train leaving Dustwater (the user's, 2026-11-01). You're aboard: the caboose and the
+     carriages stand still in the frame while the station slides away behind them and the line runs out into the
+     desert, faster and faster, the smoke streaming back. Then the act's board, and your partner says why you're
+     on it: the County Fair, and who's waiting there (L.fairBoss), with this act's gang aboard in the way. A tap
+     jumps to the words; All aboard clears it. Once a run (P.actCardFor); never in ?fast. Nan's unlock shows here
+     the first time the Twins are beaten (profile.nanMet). */
+  const FAIR_WHO = { caller: 'the Caller is calling the barn dance there, and he\u2019s the bounty we came west for',
+                     wallflowers: 'the Undertakers are working the crowd there, and they\u2019re the bounty we came west for' };
+  function departLine(L) {
+    const gang = R.BOSS[L.map.boss] ? R.BOSS[L.map.boss].name.replace(/^The /, 'the ') : 'a gang';
+    return R.voice(L, 'We need to get to the County Fair, dear: ' + (FAIR_WHO[L.fairBoss] || 'the last bounty is waiting there') +
+      '. This is the only train that gets us there in time. Trouble is, ' + gang + ' are aboard, and they want us for what we did to the Twins. Car by car, all the way to the locomotive.');
+  }
+  const DEPART = { raf: 0, timers: [] };
+  function playDepart(L) {
+    const card = $('actcard'), X = window.EXPRESS_SCENE, T = window.TITLE_SCENE, art = document.documentElement.classList.contains('art') && X && T;
+    const k = innerWidth >= 900 ? 3 : 2, rail = Math.round(innerHeight * 0.58), u = v => Math.round(v) + 'px';
+    const img = (key, x) => { const s = X.s[key]; return '<img src="' + artURL('express/' + key + '.webp') + '" alt="" style="left:' + u(x - s[2] * k) + ';top:' + u(rail - s[3] * k) + ';width:' + u(s[0] * k) + ';height:' + u(s[1] * k) + '">'; };
+    let train = '';
+    if (art) {   // the caboose a third of the way in, the train running on off the right edge
+      let x = innerWidth * 0.3;
+      train += img('caboose', x);
+      x += (X.s.caboose[0] - X.s.caboose[2]) * k + 8 * k + X.s.car_coach[2] * k;
+      for (const key of ['car_coach', 'car_smoker', 'car_parlor']) { train += img(key, x); x += 172 * k; }
+    }
+    const lyr = (l, y) => '<div class="dl" data-par="' + (l.img === 'clouds' ? 0.03 : 0.12) + '" style="top:' + u(y) + ';height:' + u(l.h * k) + ';background-image:url(' + artURL('title/' + l.img + '.webp') + ');background-size:' + u(l.w * k) + ' ' + u(l.h * k) + '"></div>';
+    const clouds = art ? T.layers.find(l => l.img === 'clouds') : null, mesas = art ? T.layers.find(l => l.img === 'mesas') : null;
+    const pr = profile(), nan = pr.beaten.includes('twins') && !pr.nanMet && L.partner !== 'nan';
+    if (nan) { pr.nanMet = true; try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} }
+    const p = R.PARTNERS[L.partner] || R.PARTNERS.horse;
+    card.className = 'depart';
+    card.style.backgroundImage = '';
+    card.innerHTML = '<div class="dsky"></div>' + (clouds ? lyr(clouds, rail * 0.12) : '') + (mesas ? lyr(mesas, rail - mesas.h * k - 30 * k) : '') +
+      '<div class="dground" style="top:' + u(rail) + '"></div><div class="dties" style="top:' + u(rail - 1) + ';height:' + u(3 * k) + '"></div>' +
+      // beyond the train the water tower; this side of it the platform, the station's sign, a bench, the mail
+      '<div class="dstation dback" data-par="1" style="top:' + u(rail - 120) + '">' +
+      (art ? '<img class="dtower" src="' + artURL('express/tower.webp') + '" alt="" style="width:' + u(X.s.tower[0] * k) + ';height:' + u(X.s.tower[1] * k) + ';bottom:' + u(-(X.s.tower[1] - X.s.tower[3]) * k) + '">' : '') + '</div>' +
+      '<div class="dtrain">' + train + '</div><div class="dpuffs"></div>' +
+      '<div class="dstation dfront" data-par="1.35" style="top:' + u(rail + 14) + '"><div class="dplat"></div>' +
+      '<div class="dpost"><span class="dsign">DUSTWATER</span><small>POP. 312 · ELEV. 4,410</small></div><i class="dbench"></i><i class="dcrate"></i><i class="dcrate c2"></i><i class="dsack"></i></div>' +
+      '<div class="dwords"><div class="board"><small>ACT II</small><b>THE WESTBOUND EXPRESS</b><span>Next stop: the County Fair</span></div>' +
+      '<div class="say"><span class="face svg">' + partnerFace(p.id) + '</span><p><b>' + esc(p.name) + ':</b> ' + esc(departLine(L)) + '</p></div>' +
+      (nan ? '<div class="unlock"><span class="face svg">' + NAN_SVG + '</span><p><b>New partner: Nan</b>, the Steady Hand. She heard what you did to the Twins: she can ride with you from your next story.</p></div>' : '') +
+      '<button class="btn" data-act="allaboard">All aboard</button></div>';
+    card.classList.add('on');
+    DEPART.timers.forEach(clearTimeout);
+    cancelAnimationFrame(DEPART.raf);
+    const said = () => card.classList.add('said');
+    if (reduceMotion()) { said(); return; }
+    // the ride: a speed that ramps up over four seconds, driving the station, the ground, the sky and the smoke
+    const sts = [...card.querySelectorAll('.dstation')], ties = card.querySelector('.dties'), pars = [...card.querySelectorAll('.dl')], puffs = card.querySelector('.dpuffs');
+    const VMAX = innerWidth * 1.1, t0 = performance.now();
+    let d = 0, last = t0, nextPuff = 0;
+    const frame = now => {
+      const t = (now - t0) / 1000, dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      const ramp = Math.max(0, Math.min(1, (t - 1.8) / 4));
+      d += VMAX * ramp * ramp * (3 - 2 * ramp) * dt;
+      sts.forEach(s => { s.style.transform = 'translateX(' + (-d * +s.dataset.par).toFixed(1) + 'px)'; });
+      ties.style.backgroundPositionX = (-d).toFixed(1) + 'px';
+      pars.forEach(l => { l.style.backgroundPositionX = (-d * +l.dataset.par).toFixed(1) + 'px'; });
+      if (art && t > nextPuff && t < 30) {
+        nextPuff = t + 0.42 - 0.2 * ramp;
+        const pf = T.puffs[Math.floor(Math.random() * T.puffs.length)], e = document.createElement('i');
+        e.className = 'dpuff';
+        e.style.cssText = 'top:' + u(rail - 150 * k / 2 - Math.random() * 30) + ';width:' + u(pf.w * k) + ';height:' + u(pf.h * k) + ';background-image:url(' + artURL('title/' + pf.img + '.webp') + ');animation-duration:' + (2.6 - 1.4 * ramp).toFixed(2) + 's';
+        puffs.appendChild(e);
+        setTimeout(() => e.remove(), 2700);
+      }
+      if (card.classList.contains('on')) DEPART.raf = requestAnimationFrame(frame);
+    };
+    DEPART.raf = requestAnimationFrame(frame);
+    DEPART.timers = [setTimeout(said, 5400)];
+    const skip = ev => { if (ev.target.closest('[data-act="allaboard"]')) return; said(); };
+    card.onpointerdown = skip;
+  }
+  function endDepart() {
+    const card = $('actcard');
+    if (!card.classList.contains('depart')) return;
+    DEPART.timers.forEach(clearTimeout);
+    card.classList.remove('on', 'said');
+    card.onpointerdown = null;
+    setTimeout(() => { cancelAnimationFrame(DEPART.raf); if (!card.classList.contains('on')) { card.className = ''; card.innerHTML = ''; } }, 520);
   }
   /* Game over: the grave, then the run's ending (already drawn behind it). Once a run; never in ?fast. */
   const GRAVE = { timers: [] };
@@ -2957,8 +3288,7 @@ html.art .coach { border-radius: 0; }
     // the ground under the plate's horizon runs on to the screen's edges; the buttes sit on the horizon
     const horizon = S ? 26 : 30;
     g.querySelector('.gground').style.height = ((H - horizon) * k) + 'px';
-    plate.innerHTML = art ? '<img src="' + artURL('grave/plate.webp') + '" alt="">' +
-      '<span class="rip" style="left:' + (100 * S.board[0] / W).toFixed(2) + '%;top:' + (100 * (S.board[1] - 1) / H).toFixed(2) + '%">R.I.P.</span>' : '';
+    plate.innerHTML = art ? '<img src="' + artURL('grave/plate.webp') + '" alt="">' : '';
     if (art && S.mesas) { far.style.height = S.mesas.h * k + 'px'; far.style.bottom = ((H - horizon) * k - 2) + 'px'; far.style.backgroundImage = 'url(' + artURL('grave/' + S.mesas.img + '.webp') + ')'; far.style.backgroundSize = S.mesas.w * k + 'px ' + S.mesas.h * k + 'px'; }
     else far.style.backgroundImage = 'none';
     // push in on the fresh grave
@@ -2970,7 +3300,7 @@ html.art .coach { border-radius: 0; }
       t.style.backgroundImage = 'url(' + artURL('dustwater/tumble.webp') + ')'; g.appendChild(t); }
     const who = L.lostTo ? (R.BOSS[L.lostTo] ? R.BOSS[L.lostTo].name : L.lostTo) : 'a stray bullet';
     const where = L.kind === 'boss' && R.PLACE[L.act] ? R.PLACE[L.act].boss : E.ACTS[L.act].name;
-    g.querySelector('.gcard').innerHTML = '<small>HERE LIES</small><b>A Bounty Hunter</b><p>Shot down by ' + esc(who.replace(/^The /, 'the ')) + ' at ' + esc(where.replace(/^The /, 'the ')) + ', Act ' + R.ROMAN[L.act] + '.<br>Nan says a few kind words.</p>' +
+    g.querySelector('.gcard').innerHTML = '<small>HERE LIES</small><b>A Bounty Hunter</b><p>Shot down by ' + esc(who.replace(/^The /, 'the ')) + ' at ' + esc(where.replace(/^The /, 'the ')) + ', Act ' + R.ROMAN[L.act] + '.<br>' + (L.partner === 'horse' ? PN() + ' stands by, her hat held in her teeth.' : PN() + ' says a few kind words.') + '</p>' +
       '<button class="btn" data-act="skipgrave">See how the ride went</button>';
     g.classList.remove('push', 'said');
     g.hidden = false;

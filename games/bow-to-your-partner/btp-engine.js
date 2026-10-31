@@ -54,6 +54,10 @@
   const RANKV = { 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, J: 11, Q: 12, K: 13, A: 14 };
   const VNAME = { 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9', 10: '10', 11: 'Jack', 12: 'Queen', 13: 'King', 14: 'Ace' };
   const SEATS = ['You', 'West', 'North', 'East'];
+  /* Your partner's name in the log (2026-11-01: your horse rides with you first, Nan once unlocked). A table with
+     no partner set (the tests' hand-built ones) is Nan's, as it always was. */
+  const PARTNER_NAME = { nan: 'Nan', horse: 'Biscuit' };
+  const pname = L => PARTNER_NAME[L && L.partner] || 'Nan';
 
   /* The three acts. Hands stay a fixed size per act; the kitty takes the rest. */
   const ACTS = {
@@ -489,7 +493,7 @@
       if (c.s === 'MIS' && team(c.seat) === 1 && L.boss === 'hustlers' && hasBuff(L, 'bluff')) h.open = true;   // Called Bluff
       h.out = partnerOf(c.seat);
       say(L, SEATS[c.seat] + (c.seat === 0 ? ' win' : ' wins') + ' the auction with misère: ' + (c.seat === 0 ? 'you' : SEATS[c.seat]) + ' must lose every trick, playing alone. ' +
-        (h.out === 0 ? 'You sit' : (h.out === 2 ? 'Nan' : SEATS[h.out]) + ' sits') + ' this hand out. No trumps; the Joker wins any trick it is in.' + (h.open ? ' Open mis\u00e8re: the hand goes face up after the first trick.' : ''), 'contract');
+        (h.out === 0 ? 'You sit' : (h.out === 2 ? pname(L) : SEATS[h.out]) + ' sits') + ' this hand out. No trumps; the Joker wins any trick it is in.' + (h.open ? ' Open mis\u00e8re: the hand goes face up after the first trick.' : ''), 'contract');
     } else
     say(L, SEATS[c.seat] + (c.seat === 0 ? ' win' : ' wins') + ' the auction with ' + bidText(c) + '. ' +
       (h.trump ? NAME[h.trump][0].toUpperCase() + NAME[h.trump].slice(1) + ' are trumps; J' + SYM[h.trump] + ' is the right bower and J' + SYM[TWIN[h.trump]] + ' the left bower.' : 'No trumps: only the Joker is above the suits.'), 'contract');
@@ -528,15 +532,15 @@
     } else if (L.call === 'dealerleads' && !h.misere) {
       // a table rule (2026-10-30): the dealer leads, whoever won the bid
       h.leader = h.turn = L.dealer;
-      say(L, callWords(L, 'Dealer\u2019s Lead')[0] + ': ' + (L.dealer === 0 ? 'you lead' : L.dealer === 2 ? 'Nan leads' : SEATS[L.dealer] + ' leads') + ' the first trick, as the dealer.', 'rule');
+      say(L, callWords(L, 'Dealer\u2019s Lead')[0] + ': ' + (L.dealer === 0 ? 'you lead' : L.dealer === 2 ? pname(L) + ' leads' : SEATS[L.dealer] + ' leads') + ' the first trick, as the dealer.', 'rule');
     } else if (L.call === 'promenade' && !h.misere) {
       h.leader = h.turn = partnerOf(h.contractor);
-      say(L, callWords(L, 'Promenade')[0] + ': ' + (h.leader === 0 ? 'you lead' : (h.leader === 2 ? 'Nan leads' : SEATS[h.leader] + ' leads')) + ' the first trick for ' + (h.contractor === 0 ? 'you' : h.contractor === 2 ? 'Nan' : SEATS[h.contractor]) + '.', 'rule');
+      say(L, callWords(L, 'Promenade')[0] + ': ' + (h.leader === 0 ? 'you lead' : (h.leader === 2 ? pname(L) + ' leads' : SEATS[h.leader] + ' leads')) + ' the first trick for ' + (h.contractor === 0 ? 'you' : h.contractor === 2 ? pname(L) : SEATS[h.contractor]) + '.', 'rule');
     }
     else if (hasBuff(L, 'firstdraw') && team(h.contractor) === 0 && !h.misere && h.contractor !== 0) {
       // First Draw (a buff, 2026-10-30): when your team wins the bid, you lead the first trick
       h.leader = h.turn = 0;
-      say(L, 'First Draw: you lead the first trick for Nan.', 'rule');
+      say(L, 'First Draw: you lead the first trick for ' + pname(L) + '.', 'rule');
     }
     if (team(h.contractor) === 1) {
       const v = h.contract.v;
@@ -588,7 +592,7 @@
       const p = partnerOf(seat), suit = kSuit(k, h.trump);
       const n = h.hands[p].filter(x => kSuit(K(L, p, x), h.trump) === suit).length;
       h.herald = { seat, partner: p, suit, n, trick: h.trickNo + 1 };
-      say(L, 'Herald: ' + (p === 2 ? 'Nan holds ' : 'You hold ') + n + ' ' + (suit === '*' || suit === '#' ? 'cards of that suit' : NAME[suit]) + '.', 'rule');
+      say(L, 'Herald: ' + (p === 2 ? pname(L) + ' holds ' : 'You hold ') + n + ' ' + (suit === '*' || suit === '#' ? 'cards of that suit' : NAME[suit]) + '.', 'rule');
     }
     if (leading && h.trickNo === 0 && L.call === 'reverse' && !(en(k, 'sanctuary'))) say(L, callWords(L, 'Reverse').join(', ') + ': the lowest ' + (NAME[kSuit(k, h.trump)] || 'card').replace(/s$/, '') + ' wins this first trick, and nobody can trump in.', 'rule');
     else if (en(k, 'reverse') && leading) say(L, 'Reverse: the lowest ' + (NAME[kSuit(k, h.trump)] || 'card').replace(/s$/, '') + ' wins this trick, and nobody can trump in.', 'rule');
@@ -701,7 +705,7 @@
     const h = L.h, c = h.contract, ct = team(h.contractor);
     const made = h.tricks[ct] === 0, pts = [0, 0];
     pts[ct] = made ? c.v : -c.v;
-    const who = h.contractor === 0 ? 'You' : h.contractor === 2 ? 'Nan' : SEATS[h.contractor];
+    const who = h.contractor === 0 ? 'You' : h.contractor === 2 ? pname(L) : SEATS[h.contractor];
     const lines = [made ? who + ' lost every trick: misère made, ' + (ct === 0 ? '+' : 'they score ') + c.v + '.'
       : who + (h.contractor === 0 ? ' were' : ' was') + ' made to take a trick: misère failed, ' + (ct === 0 ? '\u2212' + c.v + ' for your team.' : 'they lose ' + c.v + ' and their attack misses.')];
     potatoLines(h, pts, lines);
@@ -720,7 +724,7 @@
   }
 
   const api = {
-    SUITS, SYM, NAME, TWIN, RED, RANKV, VNAME, SEATS, ACTS, ENH_WORD,
+    SUITS, SYM, NAME, TWIN, RED, RANKV, VNAME, SEATS, PARTNER_NAME, pname, ACTS, ENH_WORD,
     rnd, shuffle, pick, rankOf, suitOf, base, label, deckFor, deckOf, census, team, partnerOf, grown, maxUp, stepDown,
     K, plainK, kSuit, kRank, kTrumpRank, kIsTrump, kBeats, kLabel,
     effSuit, trumpRank, isTrump, canPlay, winnerOf, beats, explain,
