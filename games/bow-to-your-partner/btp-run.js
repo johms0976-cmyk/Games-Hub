@@ -122,13 +122,17 @@
     hustlers: ['Our little brothers send their regards. From jail.', 'We lose on purpose. You\u2019ll lose by accident.', 'Bet you can\u2019t lose every trick. We can.'],
     caller: ['Swing your partner, lose your shirt!', 'Bow to your partner, bow to your corner, then bow to me.', 'The band plays, I call, you dance. Simple.'],
     wallflowers: ['We\u2019ve already measured you.', 'Nobody passes at our table. Except away.', 'Take your time. We\u2019re very patient. Professionally.'],
+    pie: ['Judges like a flaky crust and a full plate. Mostly the full plate.', 'Grandma\u2019s recipe. Grandma\u2019s rolling pin, too, if you cheat.', 'Hearts, partner. Every slice is a heart.'],
+    turkey: ['Pull! No, wait, that\u2019s the clay pigeons.', 'Aces high, turkeys low.', 'Steady hands win the shoot. Mine are very steady. Look.'],
+    bell: ['Swing like you mean it, stranger!', 'Last fella rang it so hard the bell\u2019s still humming.', 'Big bid, big swing. Small bid, small ding.'],
+    race: ['And they\u2019re off! Well, after the deal.', 'My horse has never lost. My horse has never raced.', 'Keep \u2019em coming in a row, or eat our dust.'],
     regulars: ['Evenin\u2019. Friendly game? First to five hundred.', 'Same table, same chairs, same old story. Deal.']
   };
   function taunt(L) {
-    const pool = L.mode === 'standard' ? TAUNTS[(L.std && L.std.id) || 'regulars'] || TAUNTS.regulars : L.kind === 'boss' ? TAUNTS[L.boss] || TAUNTS.elite : TAUNTS[L.kind] || TAUNTS.dance;
+    const pool = L.mode === 'standard' ? TAUNTS[(L.std && L.std.id) || 'regulars'] || TAUNTS.regulars : L.kind === 'contest' && L.contest ? TAUNTS[L.contest.id] : L.kind === 'boss' ? TAUNTS[L.boss] || TAUNTS.elite : TAUNTS[L.kind] || TAUNTS.dance;
     let x = ((L.rs >>> 0) ^ Math.imul(L.level || 1, 2654435761)) >>> 0;
     x = Math.imul(x ^ (x >>> 15), 2246822519) >>> 0;
-    const who = L.mode === 'standard' ? L.std.name : L.kind === 'boss' ? BOSS[L.boss].name : L.kind === 'bank' ? 'The robbers' : L.foe ? L.foe.name : 'The gang';
+    const who = L.mode === 'standard' ? L.std.name : L.kind === 'contest' && L.contest ? 'Your fellow contestants' : L.kind === 'boss' ? BOSS[L.boss].name : L.kind === 'bank' ? 'The robbers' : L.foe ? L.foe.name : 'The gang';
     return { who, text: pool[((x ^ (x >>> 13)) >>> 0) % pool.length] };
   }
   const LAST_ACT = 3;                       // the County Fair ends the run
@@ -427,7 +431,45 @@
   const RAFFLE = { gold: 25, noBuff: 60, buff: true, pick: 2 };   // pick: buffs to choose from (0 = one drawn for you)
   /* What players read for each stop type (the western glossary): KIND_NAME is the rules name, used in the
      legend, the rules and the screens; PLACE is where each act puts that stop on its map. The ids stay. */
-  const KIND_NAME = { dance: 'Card table', event: 'Gossip', camp: 'Hotel', elite: 'Duel', boss: 'Showdown', store: 'General Store', raffle: 'Gold strike', bank: 'Bank', water: 'Water stop' };
+  /* Prize contests (Act III, the user's, 2026-11-01: the County Fair's signature stop, "a fun side bet rather than
+     another fight"). One hand against two fellow contestants, judged on one thing; it costs only the entry, never
+     health. A ribbon by the score: white gives the entry back and a little more, red a pick of enhancements, blue a
+     pick of buffs; no ribbon, the entry is gone. Two contests a Fair map, each where a gossip stop would have been
+     (else a Card table), on CONTEST.floors, never two on one floor. `tiers` is the score for white, red and blue
+     (tests/contests.js measures them). */
+  const CONTEST = { acts: [3], per: 2, floors: [1, 2, 4, 5], fee: 20, white: 10, hands: 1, list: {
+    pie:    { name: 'The Pie Contest', place: 'The big top', what: 'Every heart in a trick your team takes is a slice of pie.', unit: ['slice', 'slices'], tiers: [6, 9, 11], look: ['gQpj', 'gKpj'], host: 'The pie judges' },
+    turkey: { name: 'The Turkey Shoot', place: 'The shooting range', what: 'Every trick your team wins with an Ace or the Joker is a turkey down.', unit: ['turkey', 'turkeys'], tiers: [2, 3, 4], look: ['gJsg1', 'gKsg2'], host: 'The range master' },
+    bell:   { name: 'Ring the Bell', place: 'The strongman\u2019s bell', what: 'Your team’s score for the hand rings the bell: make a big contract and it rings high.', unit: ['point', 'points'], tiers: [40, 120, 250], look: ['gKsm', 'gKmg'], host: 'The strongman' },
+    race:   { name: 'The Horse Race', place: 'The race track', what: 'Take tricks in a row: your team\u2019s longest run is your horse\u2019s lead.', unit: ['length', 'lengths'], tiers: [4, 6, 10], look: ['gKht1', 'gJht2'], host: 'The starter' }
+  } };
+  const RIBBON = ['no ribbon', 'a white ribbon', 'a red ribbon', 'a blue ribbon'];
+  const ribbonOf = (id, score) => CONTEST.list[id].tiers.filter(t => score >= t).length;
+  function placeContests(L, floors) {
+    const ids = E.shuffle(L, Object.keys(CONTEST.list)), fl = E.shuffle(L, CONTEST.floors.slice());
+    let k = 0;
+    for (const f of fl) {
+      if (k >= CONTEST.per) break;
+      const row = floors[f] || [], pool = row.filter(n => n.kind === 'event').concat(row.filter(n => n.kind === 'dance'));
+      if (!pool.length) continue;
+      Object.assign(pool[0], { kind: 'contest', contest: ids[k++] });
+    }
+  }
+  /* At the contest: enter (the fee) or walk on by. */
+  function contest(L, what) {
+    if (L.phase !== 'contest' || !L.contest) return no('no contest here');
+    const C = CONTEST.list[L.contest.id];
+    if (what === 'leave') { note(L, 'You walk on by. ' + C.name + ' goes on without you.'); L.contest = null; nextStop(L); return yes(); }
+    if (what === 'enter') {
+      if (L.gold < CONTEST.fee) return no('the entry is ' + CONTEST.fee + ' gold');
+      L.gold -= CONTEST.fee;
+      Object.assign(L.contest, { stage: 'play', score: 0, run: 0 });
+      startLevel(L, 'contest');
+      return yes();
+    }
+    return no('enter, or walk on by');
+  }
+  const KIND_NAME = { dance: 'Card table', event: 'Gossip', camp: 'Hotel', elite: 'Duel', boss: 'Showdown', store: 'General Store', raffle: 'Gold strike', bank: 'Bank', water: 'Water stop', contest: 'Prize contest' };
   // where an act calls a stop something else (the train's Bank is a robbery on the express car)
   const KIND_BY_ACT = { 2: { bank: 'Train robbery' } };
   const kindName = (act, k) => (KIND_BY_ACT[act] || {})[k] || KIND_NAME[k];
@@ -585,6 +627,7 @@
       if (spots.length) E.pick(L, spots).kind = 'bank';
     }
     if (TOWN.acts.includes(L.act)) townRules(floors);
+    if (CONTEST.acts.includes(L.act)) placeContests(L, floors);
     // every gang is drawn with the map, so its wanted poster can be read before you choose a way (no gang twice
     // on one map while there are others to draw)
     const seen = [];
@@ -787,7 +830,7 @@
     const ours = hist.filter(x => x.contractor % 2 === 0), theirs = hist.filter(x => x.contractor % 2 === 1);
     const best = hist.reduce((b, x) => !b || x.delta > b.delta ? x : b, null);
     // the fight that ended a lost run is on the record (its Showdown shows as lost) but not among the fights finished
-    const done = rec.filter(r => !r.lost), dances = done.filter(r => r.kind !== 'boss');
+    const done = rec.filter(r => !r.lost), dances = done.filter(r => r.kind !== 'boss' && r.kind !== 'contest');
     return { levels: done.length, stars: done.reduce((n, r) => n + r.stars, 0), maxStars: 3 * done.length,
              objectives: dances.filter(r => r.won).length, objectiveLevels: dances.length,
              hoedowns: rec.filter(r => r.kind === 'boss').map(r => ({ act: r.act, boss: r.id, won: r.won })),
@@ -821,6 +864,8 @@
       L.phase = 'bank'; L.bank = { stage: 'door', take: bankTake(L) }; L.cashed = false;
     } else if (kind === 'water') {
       L.phase = 'water';
+    } else if (kind === 'contest') {
+      L.phase = 'contest'; L.contest = { id: mapNode(L, id).contest, stage: 'door' };
     } else startLevel(L, kind);
     return yes();
   }
@@ -895,6 +940,8 @@
     if (kind === 'boss') {
       L.boss = L.map && L.map.boss && BOSS_POOL[L.act].includes(L.map.boss) ? L.map.boss : E.pick(L, BOSS_POOL[L.act]);
       if (L.boss === 'twins') L.dealRule = 'twins';
+    } else if (kind === 'contest') {
+      L.obj = null;
     } else {
       const first = (L.actLevels || 0) === 0;
       const fit = ids.filter(k => kind === 'elite' || !OBJECTIVES[k].elite);
@@ -904,7 +951,7 @@
       L.obj = { id, n: 0, of: OBJECTIVES[id].of, fail: false, done: false };
       if (kind === 'bank') L.bank = Object.assign({ take: bankTake(L) }, L.bank, { stage: 'fight' });
     }
-    if (kind !== 'bank') {
+    if (kind !== 'bank' && kind !== 'contest') {
       const n = kind !== 'boss' && L.pos && L.map ? mapNode(L, L.pos) : null;
       const F = n && n.kind === kind && n.foe ? n.foe : makeFoe(L, kind);
       L.foe = Object.assign({}, F, { traits: F.traits.slice(), hp: kind === 'boss' ? F.hp : foeHp(L, F) });
@@ -919,14 +966,15 @@
     }
     L.freshUsed = false;
     L.you = 0; L.opp = 0; L.startHealth = L.health; L.startGold = L.gold;
-    L.handNo = 1; L.hands = kind === 'bank' ? BANK.hands : null;
+    L.handNo = 1; L.hands = kind === 'bank' ? BANK.hands : kind === 'contest' ? CONTEST.hands : null;
     L.captured = [];
     L.phase = 'hand';
     L.reaction = null;
     L.log = [];
     L.result = null;
     const F = L.foe, ab = F ? F.traits.map(t => abilityOf(t).name + ' (' + abilityOf(t).text + ')') : [];
-    if (kind === 'boss') E.say(L, 'Game ' + L.level + ' \u00b7 the Showdown: ' + BOSS[L.boss].name + ', ' + F.hp + ' health. ' + BOSS[L.boss].rule, 'level');
+    if (kind === 'contest') { const C = CONTEST.list[L.contest.id]; E.say(L, 'Game ' + L.level + ' \u00b7 ' + C.name + ': ' + C.what + ' Ribbons at ' + C.tiers.join(', ') + ' ' + C.unit[1] + '.', 'level'); }
+    else if (kind === 'boss') E.say(L, 'Game ' + L.level + ' \u00b7 the Showdown: ' + BOSS[L.boss].name + ', ' + F.hp + ' health. ' + BOSS[L.boss].rule, 'level');
     else if (kind === 'bank') E.say(L, 'Game ' + L.level + ' \u00b7 ' + holdup(L).place + ': ' + holdup(L).what + '. Outscore them this hand for ' + bankBounty(L) + ' gold and an enhancement; lose and they take ' + L.bank.take + ' gold.', 'level');
     else E.say(L, 'Game ' + L.level + ' \u00b7 ' + KIND_NAME[kind] + ', wanted: ' + F.name + ', ' + F.hp + ' health' + (ab.length ? ', ' + ab.join(', ') : '') + '. Bonus: ' + OBJECTIVES[L.obj.id].text + '.', 'level');
     dealHand(L);
@@ -1006,6 +1054,7 @@
   /* ---------------- tracking ---------------- */
   function track(L, trick) {
     const h = L.h, mine = E.team(trick.winner) === 0;
+    if (L.kind === 'contest' && L.contest) trackContest(L, trick, mine);
     const wk = E.K(L, trick.winner, trick.cards[trick.winner]), X = E.FX;
     h.fx = h.fx || { hit: 0, block: 0, burn: 0 };
     const shot = (n, text) => { h.fx.hit += n; E.say(L, text, 'rule'); };
@@ -1079,6 +1128,15 @@
     if (L.bossHex && L.bossHex.card === c) L.bossHex = null;
     if (E.deckOf(L).length > 4 * E.ACTS[L.act].hand) { L.removed = (L.removed || []).concat(c); E.say(L, E.label(c) + ' is Glass, and that was its third win: it shatters and leaves the deck.', 'rule'); }
     else E.say(L, E.label(c) + ' is Glass, and that was its third win: it shatters. It stays in the deck as a plain card, no longer yours.', 'rule');
+  }
+  // the contest's score as tricks come in: slices of pie, turkeys, the race's run (Ring the Bell is judged at the end)
+  function trackContest(L, trick, mine) {
+    const c = L.contest, C = CONTEST.list[c.id];
+    let add = 0;
+    if (c.id === 'pie' && mine) add = trick.cards.filter(x => x && x !== 'JK' && E.suitOf(x) === 'H').length;
+    if (c.id === 'turkey' && mine) { const w = trick.cards[trick.winner]; add = w === 'JK' || E.rankOf(w) === 'A' ? 1 : 0; }
+    if (c.id === 'race') { c.run = mine ? c.run + 1 : 0; add = Math.max(0, c.run - c.score); }
+    if (add) { c.score += add; E.say(L, C.name + ': ' + c.score + ' ' + C.unit[c.score === 1 ? 0 : 1] + '.', 'objective'); }
   }
   function trackHand(L) {
     const o = L.obj, r = L.h.result;
@@ -1168,6 +1226,8 @@
       E.say(L, 'Pocket Watch: the shot stops at your watch! You hang on with 1 health.', 'health');
     }
     L.health = Math.max(0, L.health - r.dmg);
+    // Ring the Bell: the hand's 500 score for your team, the bigger the contract made the higher it rings
+    if (L.kind === 'contest' && L.contest && L.contest.id === 'bell') L.contest.score = Math.max(0, r.pts[0]);
     // in a fight your shots only ever bring the gang down (r.hit is never below nothing); the Bank keeps the score
     L.you += L.foe ? r.hit : r.pts[0];
     L.opp += r.pts[1];
@@ -1185,7 +1245,7 @@
     }
     L.phase = 'summary';
   }
-  const fightOver = L => L.mode === 'standard' ? L.std.winner != null : L.kind === 'bank' ? L.handNo >= L.hands : L.you >= L.foe.hp;
+  const fightOver = L => L.mode === 'standard' ? L.std.winner != null : L.kind === 'bank' || L.kind === 'contest' ? L.handNo >= L.hands : L.you >= L.foe.hp;
   const parOf = L => ((PAR[L.kind] || {})[L.act] || 1) + (has(L, 'horse') && L.kind !== 'bank' ? 1 : 0);
   /* After the summary: the next hand, or the fight's stars. */
   function next(L) {
@@ -1222,6 +1282,14 @@
         if (L.hexes && L.hexes[L.bossHex.card] === L.bossHex.kind) delete L.hexes[L.bossHex.card];
         L.bossHex = null;
       }
+    } else if (L.kind === 'contest') {
+      const C = CONTEST.list[L.contest.id], tier = ribbonOf(L.contest.id, L.contest.score);
+      won = tier > 0; stars = Math.max(1, tier); Object.assign(L.contest, { stage: 'after', ribbon: tier });
+      L.ribbons = (L.ribbons || []).concat({ id: L.contest.id, tier, act: L.act });
+      if (tier === 1) { gold = CONTEST.fee + CONTEST.white; pay.push({ t: 'White ribbon: your entry back', g: CONTEST.fee }, { t: 'and the prize money', g: CONTEST.white }); }
+      else if (tier) pay.push({ t: (tier === 3 ? 'Blue' : 'Red') + ' ribbon: ' + (tier === 3 ? 'a pick of buffs' : 'a pick of enhancements'), g: 0 });
+      else pay.push({ t: 'No ribbon: the entry is the judges’', g: 0 });
+      E.say(L, C.name + ': ' + L.contest.score + ' ' + C.unit[L.contest.score === 1 ? 0 : 1] + ', ' + RIBBON[tier] + '.', 'objective');
     } else {
       if (OBJECTIVES[o.id] && OBJECTIVES[o.id].kind === 'limit' && !o.fail && !o.done) finishObjective(L);
       if (L.kind === 'bank') {
@@ -1263,7 +1331,7 @@
     L.result = { kind: L.kind, stars, gold, objective: o ? o.done : null, fast, hands: L.handNo, par, won, you: L.you, opp: L.opp,
                  health: L.health, change: L.health - L.startHealth, goldChange: L.gold - L.startGold, foe: L.foe, pay, boss: L.boss, act: L.act, loot };
     // one line per level for the run's ending
-    L.record = (L.record || []).concat({ act: L.act, level: L.level, kind: L.kind, id: L.kind === 'boss' ? L.boss : o.id, stars, won: L.kind === 'boss' ? true : o.done });
+    L.record = (L.record || []).concat({ act: L.act, level: L.level, kind: L.kind, id: L.kind === 'boss' ? L.boss : L.kind === 'contest' ? L.contest.id : o.id, stars, won: L.kind === 'boss' ? true : L.kind === 'contest' ? won : o.done });
     L.phase = 'over';
     E.say(L, 'Game ' + L.level + ' over: ' + stars + ' star' + (stars > 1 ? 's' : '') + ', ' + (gold < 0 ? '\u2212' + -gold : gold) + ' gold.', 'end');
     L.curse = null; L.dealRule = null; L.fight = null;
@@ -1289,6 +1357,11 @@
       const fb = freeBuffs(L);
       if (fb.length) steps.push({ type: 'buff', options: draw(L, fb, picks(L, 3)) });
     } else if (r.kind === 'bank' && r.won) steps.push({ type: 'enh', options: draw(L, enhPool(L), picks(L, BANK.enh)) });
+    else if (r.kind === 'contest' && r.stars >= 2 && r.won) {
+      const fb = freeBuffs(L);
+      if (r.stars === 3 && fb.length) steps.push({ type: 'buff', options: draw(L, fb, picks(L, 2)) });
+      else steps.push({ type: 'enh', options: draw(L, enhPool(L), picks(L, 2)) });
+    }
     // after the robbery, back inside to the teller
     L.reward = { steps, back: r.kind === 'bank' && BANK.teller[L.act] ? 'bank' : undefined };
     advanceReward(L, L.reward.back);
@@ -1661,6 +1734,7 @@
       case 'release': return release(L, arg);
       case 'cleanse': return cleanse(L, arg);
       case 'bank': return bank(L, arg);
+      case 'contest': return contest(L, arg);
       case 'water': return water(L, arg);
       case 'shunt': return shunt(L, arg);
       case 'place': return place(L, arg);
@@ -1738,7 +1812,7 @@
     return o.n + ' / ' + o.of;
   }
   const api = { DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
-    TAUNTS, taunt, cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, EXPRESS, SIDE, genThreeTrains, DRIVER, COUNTER, makeDriver, ROSTER, partnerOpen, voice, STANDARD, standardFoe, newStandard,
+    TAUNTS, taunt, cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, CONTEST, RIBBON, ribbonOf, EXPRESS, SIDE, genThreeTrains, DRIVER, COUNTER, makeDriver, ROSTER, partnerOpen, voice, STANDARD, standardFoe, newStandard,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;
   else root.BtpRun = api;

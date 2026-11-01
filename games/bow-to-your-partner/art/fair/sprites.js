@@ -1,0 +1,3 @@
+/* Written by bakery/fair_px.py: the County Fair props, size and ground point in art pixels ([w, h, ax, ay]).
+   The page reads it only to place pictures: never load-bearing. */
+window.FAIR_SPRITES = {"bales":[35,17,17,11],"barn":[61,45,30,34],"bigtop":[68,48,34,33],"booth_blue":[42,23,21,17],"booth_gold":[42,23,21,17],"booth_green":[42,23,21,17],"booth_red":[42,23,21,17],"c_bell":[36,38,18,32],"c_pie":[42,22,21,16],"c_race":[51,24,23,18],"c_turkey":[42,25,21,18],"carousel":[55,33,27,22],"cart":[37,24,18,17],"chuck":[44,21,18,13],"haunt":[51,43,25,33],"lamp":[40,26,13,21],"wheel":[69,50,34,43]};

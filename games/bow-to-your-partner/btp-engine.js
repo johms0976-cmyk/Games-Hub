@@ -542,7 +542,8 @@
       h.leader = h.turn = 0;
       say(L, 'First Draw: you lead the first trick for ' + pname(L) + '.', 'rule');
     }
-    if (team(h.contractor) === 1) {
+    // a prize contest at the Fair (2026-11-01) costs only its entry: their bid is no attack, so no intent hold
+    if (team(h.contractor) === 1 && L.kind !== 'contest') {
       const v = h.contract.v;
       h.intent = { seat: h.contractor, contract: h.contract, dmg: damageOf(v, L), dmgSweep: h.misere ? damageOf(v, L) : damageOf(sweepValue(L.act, h.contract.s), L) };
       if (h.misere) say(L, SEATS[h.contractor] + "'s intent: misère costs you " + h.intent.dmg + ' if they lose every trick. Make ' + SEATS[h.contractor] + ' win one trick to block it.', 'intent');
@@ -672,7 +673,7 @@
   const FX = { backfire: 1, hollow: 15, plate: 15, ricochet: 10, bullseye: 40, deadman: 25, keg: 30, kegBurn: 15, vest: 5, bandolier: 5, snakebite: 5, gutshot: 10, scope: 0.25 };
   function fight(L, pts, lines, o) {
     const h = L.h, fx = h.fx || { hit: 0, block: 0, burn: 0 };
-    if (L.mode === 'standard') return { hit: pts[0], dmg: 0, backfire: 0 };     // a plain game of 500: scores only
+    if (L.mode === 'standard' || L.kind === 'contest') return { hit: pts[0], dmg: 0, backfire: 0 };     // a plain game of 500, a prize contest: scores only
     let hit = pts[0];
     if (o.defend && hasBuff(L, 'bandolier')) { hit += FX.bandolier * o.defend; lines.push('Bandolier: your defending tricks hit ' + FX.bandolier * o.defend + ' harder.'); }
     if (o.defend && foeHas(L, 'armour')) { const d = 10 * o.defend + (hasBuff(L, 'bandolier') ? FX.bandolier * o.defend : 0); hit -= d; lines.push('Thick Hide: your defending tricks don\u2019t hurt them (' + d + ').'); }

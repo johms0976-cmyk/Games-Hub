@@ -143,6 +143,53 @@ html.art .titlemenu .wood.drawn > span { position: absolute; width: 1px; height:
    behind it. Without the art: the sky, a plain mound and the words. */
 #grave { position: fixed; inset: 0; z-index: 70; overflow: hidden; background: linear-gradient(#2e1f4a 0%, #6a3a6a 32%, #c8604a 58%, #f0a050 74%, #f6c070 82%, #edab6a 82.1%); }
 #grave[hidden] { display: none; }
+/* the Fair's prize contests (2026-11-01): the door is a one-screen stop, the attraction at dusk on top */
+#screen.one .oscene.fairs { background: linear-gradient(#2e2a48, #4a4858 62%, #6a5a48 62.5%, #56524a); }
+#screen.one .oscene.fairs img.prop { top: auto; }
+#screen.one .oscene.fairs .bunt { position: absolute; left: 0; top: 4px; width: 100%; height: 22px; }
+#screen.one > .oscene.fairs.withart { flex: 1 1 auto; }
+#screen.one .oscene.fairs .sign { background: #3a5aa0; border-color: #24365e; box-shadow: 0 0 0 3px #e8b83a; top: 26px; }
+#screen.one .oscene.fairs .say { bottom: auto; top: 74px; left: 50%; right: auto; transform: translateX(-50%); width: max-content; max-width: 86%; }
+#screen.one .oscene.fairs .prop.far { filter: brightness(.62) saturate(.8); }
+.ribbons { display: flex; gap: 6px; justify-content: space-between; }
+.ribbons .rib { flex: 1; display: flex; gap: 4px; align-items: center; min-width: 0; font: 600 12px/1.15 Bitter, Georgia, serif; color: #3a2a20; }
+.ribbons .rib svg { flex: none; width: 24px; height: 30px; }
+.ribbons .rib b { display: block; font-size: 13px; }
+.ribbons .rib.got svg { filter: drop-shadow(0 0 4px #ffe08a); }
+.ribbons .rib.off { opacity: .5; }
+.objective .ribbons { flex: 1 1 100%; }
+.objective .ribbons .rib { color: inherit; }
+.k-contest { --k: #b8487a; }
+.rosette { display: block; margin: 4px auto 0; width: 54px; height: 68px; animation: rospin .6s cubic-bezier(.3,1.6,.6,1); }
+@keyframes rospin { from { transform: scale(.2) rotate(-90deg); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .rosette { animation: none; } }
+/* Act III, the County Fair at dusk (2026-11-01): fairBox */
+.mapbox.fair { container-type: inline-size; --ap: calc(100cqw / 180); overflow: hidden; background: linear-gradient(#2e2a48, #3e3c56 18%, #4a4858 55%, #56524a); }
+.mapbox.fair svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.mapbox.fair .fground .fp { fill: none; stroke: #8a7a68; stroke-width: 5.5; stroke-linecap: round; }
+.mapbox.fair .fground .fp.walked { stroke: #c8b48a; }
+.mapbox.fair .fground .fp.can { stroke: #ffd65a; animation: railglow 1.1s ease-in-out infinite; }
+.mapbox.fair .spr { position: absolute; image-rendering: pixelated; pointer-events: none; display: none; }
+html.art .mapbox.fair .spr { display: block; }
+.mapbox.fair .fbunt { z-index: 3; }
+.mapbox.fair .fbunt .bstring { fill: none; stroke: #2a1b16; stroke-width: .5; }
+.mapbox.fair .fbunt .bulb { animation: twinkle 1.6s ease-in-out infinite; filter: drop-shadow(0 0 1.5px currentColor); }
+@keyframes twinkle { 50% { opacity: .45; } }
+.mapbox.fair .glow { position: absolute; border-radius: 50%; pointer-events: none; background: radial-gradient(circle, rgba(255,214,130,.4), rgba(255,214,130,0) 70%); }
+.mapbox.fair .fw { position: absolute; width: calc(40 * var(--ap)); height: calc(40 * var(--ap)); margin: calc(-20 * var(--ap)); border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, transparent 30%, var(--c) 31% 34%, transparent 35% 50%, var(--c) 51% 53%, transparent 54%); opacity: 0; animation: boom 3.2s ease-out infinite; }
+@keyframes boom { 0% { transform: scale(.2); opacity: 0; } 10% { opacity: 1; } 60% { transform: scale(1.2); opacity: .9; } 100% { transform: scale(1.4); opacity: 0; } }
+.mapbox.fair .nd { width: 26px; height: 26px; border: 3px solid var(--k); background: #fbf3e2; color: #3a2a20; z-index: 2000; }
+.mapbox.fair .nd::after { content: ""; position: absolute; inset: -8px; }
+.mapbox.fair .nd svg { width: 15px; height: 15px; }
+.mapbox.fair .nd.boss { width: 36px; height: 36px; color: var(--accent); }
+.mapbox.fair .nd.boss svg { width: 22px; height: 22px; }
+.mapbox.fair .nd.can { border-color: var(--k); box-shadow: 0 0 0 1px #3a2a20, 0 0 0 4px #fff6d2, 0 0 0 6px var(--gold); animation: mkpulse 1.4s ease-in-out infinite; }
+.mapbox.fair .nd.done { background: #e6d4b4; color: #8a6a48; }
+.mapbox.fair .nd.here { background: var(--accent); color: #fff; }
+.mapbox.fair .nd.dead { opacity: .45; }
+.mapbox.fair .nd .sign { display: none; }
+@media (prefers-reduced-motion: reduce) { .mapbox.fair .fw, .mapbox.fair .bulb, .mapbox.fair .fp.can { animation: none; } .mapbox.fair .fw { display: none; } }
 /* The gang's powers (the user's, 2026-11-01: "players always forget they do something; like in Slay the enemy
    casts a spell"): after NOW DRAW! each power is played like a card and lands on the nameplate as its chip; an
    intent over the gang says when it bites; when it fires, its chip pulses and the thing it touches shows it. */
@@ -1164,19 +1211,20 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=22"></script>
-<script src="btp-ai.js?v=22"></script>
-<script src="btp-run.js?v=22"></script>
-<script src="btp-town.js?v=22"></script>
-<script src="art/dustwater/sprites.js?v=22"></script>
-<script src="btp-train.js?v=22"></script>
-<script src="art/train/sprites.js?v=22"></script>
-<script src="art/title/scene.js?v=22"></script>
-<script src="art/table/scene.js?v=22"></script>
-<script src="art/grave/scene.js?v=22"></script>
-<script src="art/paid/scene.js?v=22"></script>
-<script src="art/rooms/scene.js?v=22"></script>
-<script src="art/express/scene.js?v=22"></script>
+<script src="btp-engine.js?v=23"></script>
+<script src="btp-ai.js?v=23"></script>
+<script src="btp-run.js?v=23"></script>
+<script src="btp-town.js?v=23"></script>
+<script src="art/dustwater/sprites.js?v=23"></script>
+<script src="btp-train.js?v=23"></script>
+<script src="art/train/sprites.js?v=23"></script>
+<script src="art/title/scene.js?v=23"></script>
+<script src="art/table/scene.js?v=23"></script>
+<script src="art/grave/scene.js?v=23"></script>
+<script src="art/paid/scene.js?v=23"></script>
+<script src="art/rooms/scene.js?v=23"></script>
+<script src="art/express/scene.js?v=23"></script>
+<script src="art/fair/sprites.js?v=23"></script>
 <script>
 (function () {
   'use strict';
@@ -1203,7 +1251,7 @@ html.art .coach { border-radius: 0; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 20, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 21, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -1466,6 +1514,9 @@ html.art .coach { border-radius: 0; }
       case 'camp':
         body = campHTML(L);
         break;
+      case 'contest':
+        body = contestHTML(L);
+        break;
       case 'bank': {
         const B = R.BANK, door = L.bank.stage === 'door';
         const HU = R.holdup(L);
@@ -1544,7 +1595,7 @@ html.art .coach { border-radius: 0; }
         break;
       }
     }
-    const one = L.phase === 'shop' || L.phase === 'camp';                         // one-screen stops carry the tip in their slip
+    const one = L.phase === 'shop' || L.phase === 'camp' || L.phase === 'contest';                        // one-screen stops carry the tip in their slip
     const tipTop = tip && !one && !(L.phase === 'partner' || L.phase === 'actstart');   // over the map the tip rides in the sheet
     $('screen').classList.toggle('one', one);
     $('screen').innerHTML = bar() + (tipTop ? '<div class="coach">' + coachHTML(tip) + '</div>' : '') + body;
@@ -1631,7 +1682,8 @@ html.art .coach { border-radius: 0; }
     raffle: '<path d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4z"/><path d="M15 7v10" stroke-dasharray="2 2"/>',
     bank: '<path d="M3 9l9-6 9 6z"/><path d="M5 9v9M9.5 9v9M14.5 9v9M19 9v9M3 21h18"/>',
     water: '<path d="M6 4h12v7H6z"/><path d="M7 11l-2 10M17 11l2 10M8 16h8M18 7h3v4"/>',
-    boss: '<path d="M12 2l3 7 7 .6-5.3 4.6 1.6 7.2L12 17.8 5.7 21.4l1.6-7.2L2 9.6 9 9z"/>'
+    boss: '<path d="M12 2l3 7 7 .6-5.3 4.6 1.6 7.2L12 17.8 5.7 21.4l1.6-7.2L2 9.6 9 9z"/>',
+    contest: '<circle cx="12" cy="9" r="5.5"/><path d="M9 13.5 7 22l5-3 5 3-2-8.5"/>'
   };
   const icon = k => '<svg viewBox="0 0 24 24" aria-hidden="true">' + ICON[k] + '</svg>';
   function nodeWhat(L, k) {
@@ -1639,6 +1691,7 @@ html.art .coach { border-radius: 0; }
       event: 'a choice with a trade-off', camp: 'rest, polish, cleanse' + (E.ACTS[L.act].forge ? ', forge or remove' : '') + ', or shop',
       elite: 'a tougher gang with an ability; pays a buff', store: 'cards, an enhancement, a buff, a tonic',
       raffle: R.RAFFLE.gold + ' gold and a free buff',
+      contest: 'a prize contest: ' + R.CONTEST.fee + ' gold to enter, a ribbon for the score, no health at stake',
       water: 'fill your canteen (+' + R.WATER.health + ' health), earn ' + R.WATER.gold + ' gold, or have a hex scrubbed off',
       bank: 'stop a robbery in one hand: win ' + (R.bankBounty(L) ? R.bankBounty(L) + ' gold and ' : '') + 'an enhancement, lose ' + R.bankShare(L) + ' of your gold', boss: R.BOSS[L.map.boss].name + ', ' + (R.BOSS[L.map.boss].hp || R.FOE.boss[L.act]) + ' health: beat them or the run is over' })[k];
   }
@@ -1974,6 +2027,76 @@ html.art .coach { border-radius: 0; }
     const x = t.offsetLeft - sc.clientWidth * (here && can.length ? 0.5 : 0.25);
     try { sc.scrollTo({ left: Math.max(0, x), behavior: smooth && !reduceMotion() ? 'smooth' : 'auto' }); } catch (e) { sc.scrollLeft = Math.max(0, x); }
   }
+  /* Act III: the County Fair's midway at dusk (the user's pick of three, 2026-11-01; bakery/fair.py + fair_px.py ->
+     art/fair). Every stop stands at its attraction (a card booth, the shooting gallery, the merry-go-round, merchants'
+     row, the prize booth, the chuck wagon), the Showdown at the barn dance or the haunted house; sawdust paths curve
+     between them; the fair's crowd (Dustwater's townsfolk) fills the empty lots; bunting and bulbs hang across the
+     midway, lamps glow, fireworks go up over the Showdown. Art pixels, 180 across, scaled to the box like Dustwater
+     (--ap). Without the art: the paths and markers on a dusk ground. */
+  const FAIR = { W: 180, top: 92, step: 84, foot: 50 };
+  const FAIR_PROP = { dance: ['booth_red', 'booth_green'], elite: ['booth_blue'], event: ['carousel', 'dust:gossip2'], store: ['cart'], camp: ['chuck', 'bales'], raffle: ['booth_gold'] };
+  const FAIR_PLACE = { dance: 'A card booth', elite: 'The shooting gallery', event: 'The merry-go-round', store: 'Merchants\u2019 row', camp: 'The chuck wagon', raffle: 'The prize booth' };
+  const FAIR_CROWD = ['gossip', 'gossip2', 'strike', 'strike2', 'cards1', 'cards2'];
+  const fhash = s => { let h = 7; for (const ch of String(s)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h; };
+  function fairBox(L, can, route, walked, fNow) {
+    const F = window.FAIR_SPRITES || {}, DS = (window.DUST_SPRITES || {}).s || {}, nF = L.map.floors.length;
+    const W = FAIR.W, H = FAIR.top + (nF - 1) * FAIR.step + FAIR.foot + 40;
+    const fy = f => H - FAIR.foot - f * FAIR.step, cx = (c, id) => 22 + c * 34 + ((fhash(id) % 7) - 3);
+    const xy = n => n.id === 'boss' ? [W / 2, 74] : [cx(n.c, n.id), fy(n.f)];
+    const u = v => 'calc(' + v + ' * var(--ap))';
+    const pics = [];
+    const spr = (key, x, y, dust) => {
+      const s = dust ? DS[key + '_d'] : F[key];
+      if (!s) return;
+      pics.push({ y, html: '<img class="spr" src="' + artURL(dust ? 'dustwater/' + key + '_d.webp' : 'fair/' + key + '.webp') + '" alt="" style="left:' + u(x - s[2]) + ';top:' + u(y - s[3]) + ';width:' + u(s[0]) + ';height:' + u(s[1]) + '">' });
+    };
+    const all = [];
+    L.map.floors.forEach(row => row.forEach(n => all.push(n)));
+    // each stop's attraction: a wide one (the merry-go-round) only with room either side, else its narrow one
+    for (const n of all) {
+      const opts = n.kind === 'contest' ? ['c_' + n.contest] : FAIR_PROP[n.kind] || ['booth_red'], crowded = L.map.floors[n.f].some(m => m !== n && Math.abs(m.c - n.c) < 2);
+      const roomy = n.kind === 'event' || n.kind === 'camp';     // the merry-go-round and the chuck wagon need elbow room
+      const key = opts.length > 1 && (!roomy || crowded) ? opts[roomy ? 1 : fhash(n.id) % opts.length] : opts[0];
+      const [x, y] = xy(n);
+      if (key.startsWith('dust:')) spr(key.slice(5), x, y - 12, true); else spr(key, x, y - 14);
+    }
+    // the Showdown's building, the big top beside it, the Ferris wheel over the prize booths
+    spr(L.map.boss === 'wallflowers' ? 'haunt' : 'barn', W / 2, 58);
+    spr('bigtop', fhash(L.rs) % 2 ? 26 : 154, 60);
+    const rf = L.map.floors.findIndex(r => r.length && r.every(n => n.kind === 'raffle'));
+    if (rf >= 0) spr('wheel', fhash(L.rs + 'w') % 2 ? 30 : 150, fy(rf) - 34);
+    // the crowd in the empty lots, lamps along the edges
+    L.map.floors.forEach((row, f) => {
+      for (let c = 0; c < 5; c++) if (!row.some(n => Math.abs(n.c - c) < 1) && fhash(f + ':' + c) % 3) spr(FAIR_CROWD[fhash(c + '-' + f + L.rs) % FAIR_CROWD.length], cx(c, f + 'x' + c), fy(f) - 4, true);
+      if (f % 2 === 0) { spr('lamp', 6, fy(f) + 10); spr('lamp', W - 6, fy(f) - 20); }
+    });
+    pics.sort((a, b) => a.y - b.y);
+    // the paths: sawdust, the ways you can take lit, the way you came walked
+    const here = L.pos ? R.node(L, L.pos) : null;
+    let paths = '';
+    for (const n of all) for (const id of n.next) {
+      const t = R.node(L, id), [x1, y1] = xy(n), [x2, y2] = xy(t), my = (y1 + y2) / 2;
+      const cls = (walked.has(n.id + '>' + id) ? ' walked' : '') + (here && here.id === n.id && can.includes(id) ? ' can' : '');
+      paths += '<path class="fp' + cls + '" d="M' + x1 + ' ' + y1 + ' C' + x1 + ' ' + my + ' ' + x2 + ' ' + my + ' ' + x2 + ' ' + y2 + '"/>';
+    }
+    // bunting and bulbs across the midway between every other floor, glows at the stops, fireworks over the Showdown
+    const pc = ['#c8382a', '#f0c23c', '#3a5aa0', '#f4ead6'], bc = ['#ff5a4a', '#ffd65a', '#5ac8ff', '#9aff6a'];
+    let bunts = '', lights = '';
+    for (let f = 0; f < nF - 1; f += 2) {
+      const y0 = fy(f) - FAIR.step / 2 - 6, y1 = y0 - 8;
+      bunts += '<path class="bstring" d="M4 ' + y0 + ' Q' + W / 2 + ' ' + (y0 + 14) + ' ' + (W - 4) + ' ' + y1 + '"/>';
+      for (let t = 0.03, k = 0; t < 1; t += 0.05, k++) {
+        const x = 4 + (W - 8) * t, y = (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * (y0 + 14) + t * t * y1;
+        bunts += k % 2 ? '<path d="M' + (x - 2.2) + ' ' + y + 'L' + (x + 2.2) + ' ' + y + 'L' + x + ' ' + (y + 5) + 'z" fill="' + pc[k % 4] + '" stroke="#2a1b16" stroke-width=".4"/>'
+          : '<circle class="bulb" cx="' + x + '" cy="' + (y + 1) + '" r="1.1" fill="' + bc[k % 4] + '" style="animation-delay:' + (t * 1.6).toFixed(2) + 's"/>';
+      }
+    }
+    for (const n of all) { const [x, y] = xy(n); lights += '<i class="glow" style="left:' + u(x - 22) + ';top:' + u(y - 34) + ';width:' + u(44) + ';height:' + u(44) + '"></i>'; }
+    [[46, 18, '#ff5a4a', 0], [134, 26, '#ffd65a', 1.1], [92, 8, '#5ac8ff', 2.0]].forEach(f => { lights += '<i class="fw" style="left:' + u(f[0]) + ';top:' + u(f[1]) + ';--c:' + f[2] + ';animation-delay:' + f[3] + 's"></i>'; });
+    const nodes = all.concat([R.node(L, 'boss')]).map(n => { const [x, y] = xy(n); return stopButton(L, n, x, y, W, H, can, route, fNow, n.kind === 'boss' ? null : n.kind === 'contest' ? R.CONTEST.list[n.contest].name : FAIR_PLACE[n.kind]); }).join('');
+    return '<div class="mapbox fair" style="aspect-ratio:' + W + ' / ' + H + '"><svg class="fground" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + paths + '</svg>' +
+      lights + pics.map(p => p.html).join('') + '<svg class="fbunt" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + bunts + '</svg>' + nodes + '</div>';
+  }
   function plainBox(L, can, route, walked, fNow) {
     const SH = R.MAPSHAPE, gx = 70, step = 78, W = 60 + (SH.cols - 1) * gx, H = 80 + SH.floors * step + 36;
     // a little jitter so the grid doesn't look ruled, the same every time for a node
@@ -1995,13 +2118,13 @@ html.art .coach { border-radius: 0; }
     return walked;
   }
   function mapHTML(L) {
-    const town = L.act === 1, side = !!(L.map && L.map.side), train = !side && L.act === 2 && !!window.BtpTrain, can = R.reachable(L), route = L.route || [], walked = walkedOf(L), fNow = R.floorOf(L);
+    const town = L.act === 1, fair = L.act === 3 && !!L.map, side = !!(L.map && L.map.side), train = !side && L.act === 2 && !!window.BtpTrain, can = R.reachable(L), route = L.route || [], walked = walkedOf(L), fNow = R.floorOf(L);
     const kinds = [...new Set(can.map(id => R.node(L, id).kind))];
     const wanted = can.map(id => R.node(L, id)).filter(n => n.foe), others = kinds.filter(k => !wanted.some(n => n.kind === k));
     return '<div class="panel"><h2>Act ' + R.ROMAN[L.act] + ': ' + esc(E.ACTS[L.act].name) + '</h2>' + wantedHTML(L) +
-      '<div class="legend">' + ['dance', 'elite', 'event', 'store', 'camp', 'raffle'].concat(R.BANK.acts.includes(L.act) ? ['bank'] : [], R.WATER.acts.includes(L.act) ? ['water'] : []).map(k => '<span>' + (town || train || side ? '<i class="sw k-' + k + '"></i>' : '') + icon(k) + esc(R.kindName(L.act, k)) + '</span>').join('') +
+      '<div class="legend">' + ['dance', 'elite', 'event', 'store', 'camp', 'raffle'].concat(R.BANK.acts.includes(L.act) ? ['bank'] : [], R.WATER.acts.includes(L.act) ? ['water'] : [], R.CONTEST.acts.includes(L.act) ? ['contest'] : []).map(k => '<span>' + (town || train || side || fair ? '<i class="sw k-' + k + '"></i>' : '') + icon(k) + esc(R.kindName(L.act, k)) + '</span>').join('') +
       '<span><i class="pips"><i></i></i>A trick up their sleeve</span></div>' +
-      (town ? townBox(L, can, route, walked, fNow) : side ? sideBox(L, can, route, walked, fNow) : train ? trainBox(L, can, route, walked, fNow) : plainBox(L, can, route, walked, fNow)) +
+      (town ? townBox(L, can, route, walked, fNow) : fair ? fairBox(L, can, route, walked, fNow) : side ? sideBox(L, can, route, walked, fNow) : train ? trainBox(L, can, route, walked, fNow) : plainBox(L, can, route, walked, fNow)) +
       (kinds.length ? '<p style="margin:8px 0 0"><b>Next</b>: tap a glowing stop' + (wanted.length ? ' or a poster' : '') + '.</p>' +
         (wanted.length ? '<div class="posters">' + wanted.map(n => posterHTML(L, n)).join('') + '</div>' : '') +
         (others.length ? '<ul class="nextup">' + others.map(k => '<li><b>' + esc(k === 'boss' ? 'The Showdown' : R.kindName(L.act, k)) + '</b>: ' + esc(nodeWhat(L, k)) + '</li>').join('') + '</ul>' : '') : '') + '</div>';
@@ -2044,7 +2167,7 @@ html.art .coach { border-radius: 0; }
     } else {
     if (P.hpShown !== L.health) { hp.innerHTML = hpInner(L, P.hpShown == null ? 0 : L.health - P.hpShown); hp.className = 'stat hp' + hpClass(L.health); P.hpShown = L.health; }
     if (P.goldShown !== L.gold) { gs.innerHTML = goldInner(L, P.goldShown == null ? 0 : L.gold - P.goldShown); P.goldShown = L.gold; }
-    $('handpill').textContent = (L.kind === 'boss' ? 'Showdown' : R.kindName(L.act, L.kind)) + ' · hand ' + L.handNo + (L.kind === 'bank' ? ' of 1' : ' · par ' + R.parOf(L));
+    $('handpill').textContent = L.kind === 'contest' && L.contest ? R.CONTEST.list[L.contest.id].name + ' · one hand' : (L.kind === 'boss' ? 'Showdown' : R.kindName(L.act, L.kind)) + ' · hand ' + L.handNo + (L.kind === 'bank' ? ' of 1' : ' · par ' + R.parOf(L));
     }
     renderObjective();
     const ct = $('contract');
@@ -2148,6 +2271,12 @@ html.art .coach { border-radius: 0; }
         (L.call && R.CALLS[L.call] ? '<div class="curse">The call: <b>' + esc(R.CALLS[L.call].name) + '</b> — ' + esc(R.CALLS[L.call].text) + '</div>' : '');
       return;
     }
+    if (L.kind === 'contest' && L.contest) {
+      const C = R.CONTEST.list[L.contest.id], sc = L.contest.score || 0;
+      ob.className = 'objective' + (R.ribbonOf(L.contest.id, sc) ? ' done' : '');
+      ob.innerHTML = '<div class="ot"><div class="on">' + esc(C.name) + ': ' + sc + ' ' + esc(C.unit[sc === 1 ? 0 : 1]) + '</div><div class="ox">' + esc(C.what) + '</div></div>' + ribbonsHTML(L.contest.id, sc);
+      return;
+    }
     if (!L.obj) {
       const B = R.BOSS[L.boss];
       ob.className = 'objective';
@@ -2209,6 +2338,9 @@ html.art .coach { border-radius: 0; }
     const par = R.parOf(L), F = L.foe;
     const abil = F && F.traits.length ? '<p><b>Their abilit' + (F.traits.length > 1 ? 'ies' : 'y') + ':</b> ' + F.traits.map(t => esc(R.abilityOf(t).name) + ' — ' + esc(R.abilityOf(t).text)).join('; ') + '</p>' : '';
     const how = '<p>Every point your team scores (a made contract, 10 a defending trick) hits them. Every point they score hits your health at ' + E.hitWord(L) + ', and a contract of yours that fails backfires: it hits you for its value at the same share. Nothing heals you until the fight is won.</p>';
+    if (L.kind === 'contest' && L.contest) { const C = R.CONTEST.list[L.contest.id];
+      return '<h2>' + esc(C.name) + '</h2><p>' + esc(C.what) + '</p><p>One hand. Nothing hits your health either way: the ' + R.CONTEST.fee + 'g entry was the stake. Score so far: ' + (L.contest.score || 0) + '.</p>' + ribbonsHTML(L.contest.id, L.contest.score) +
+        '<p>No ribbon, and the entry is the judges’.</p><div class="btns"><button class="btn" data-act="closesheet">Back</button></div>'; }
     if (!L.obj) { const B = R.BOSS[L.boss];
       return '<h2>The Showdown: ' + esc(B.name) + '</h2><p>' + esc(B.rule) + '</p><p>' + F.hp + ' health; ' + Math.max(0, F.hp - L.you) + ' left.</p>' + how +
       '<p><b>Win:</b> 100 gold and pick 1 of 3 buffs: ★★★ within ' + par + ' hands, ★★ after. <b>Lose your health:</b> the run is over.</p><div class="btns"><button class="btn" data-act="closesheet">Back</button></div>'; }
@@ -2287,6 +2419,7 @@ html.art .coach { border-radius: 0; }
   // a fight saved before the gangs had figures gets two from its name
   function lookOf(L) {
     if (L.mode === 'standard') return L.std.look;
+    if (L.kind === 'contest' && L.contest) return R.CONTEST.list[L.contest.id].look;
     if (!L.foe) return BANK_LOOK;
     // a gang's own pair; a run saved before the gangs had their own art (card figures) picks a pair by its name
     if (L.foe.look && (!STAGE.figs.length || L.foe.look.every(x => STAGE.figs.includes(x)))) return L.foe.look;
@@ -2302,6 +2435,9 @@ html.art .coach { border-radius: 0; }
     const F = L.foe;
     if (L.mode === 'standard') return '<div class="foe"><div class="fn"><b>' + esc(L.std.name) + '</b><span class="fhp">you ' + num(L.you) + ' · them ' + num(L.opp) + '</span></div>' +
       '<div class="foebar" aria-hidden="true"><i style="width:' + Math.max(0, Math.min(100, L.opp / 5)) + '%"></i><s style="width:' + Math.max(0, Math.min(100, L.opp / 5)) + '%"></s></div></div>';
+    if (L.kind === 'contest' && L.contest) { const C = R.CONTEST.list[L.contest.id], sc = L.contest.score || 0, top = C.tiers[2];
+      return '<div class="foe"><div class="fn"><b>' + esc(C.name) + '</b><span class="fhp">' + sc + ' ' + esc(C.unit[sc === 1 ? 0 : 1]) + '</span></div>' +
+        '<div class="foebar ribbar" role="meter" aria-label="Your score" aria-valuemin="0" aria-valuemax="' + top + '" aria-valuenow="' + sc + '"><i style="width:' + Math.min(100, Math.round(100 * sc / top)) + '%;background:' + RIB_COL[Math.max(1, R.ribbonOf(L.contest.id, sc))] + '"></i></div></div>'; }
     if (!F) return '<div class="foe"><div class="fn"><b>The bank robbers</b><span class="fhp">you ' + num(L.you) + ' · them ' + num(L.opp) + '</span></div><div class="ox">Outscore them this hand.</div></div>';
     // your cards' shots this hand (Hollow Point and the rest) are off the bar as soon as the trick is won
     const shots = L.phase === 'hand' && L.h && L.h.fx ? L.h.fx.hit : 0;
@@ -2392,6 +2528,53 @@ html.art .coach { border-radius: 0; }
     if (L.act !== 2 || !s) return sign.replace('oscene noart', 'oscene');
     return '<div class="oscene withart" style="height:' + s[1] * 2 + 'px"><img src="' + artURL('express/' + key + '.webp') + '" alt="" style="width:' + s[0] * 2 + 'px;height:' + s[1] * 2 + 'px">' +
       (say ? '<div class="say">' + esc(say) + '</div>' : '') + '</div>' + sign;
+  }
+  /* ---------------- the Fair's prize contests (2026-11-01) ---------------- */
+  /* A rosette for a ribbon tier (0 = none: a grey outline). */
+  const RIB_COL = ['#b8ab98', '#f4ead6', '#c8382a', '#3a5aa0'], RIB_NAME = ['No ribbon', 'White ribbon', 'Red ribbon', 'Blue ribbon'];
+  function rosette(t, cls) {
+    const c = RIB_COL[t], ink = t ? '#2a1b16' : '#8a7a68';
+    let petals = '';
+    for (let k = 0; k < 10; k++) { const a = k * Math.PI / 5; petals += '<circle cx="' + (12 + 6.4 * Math.cos(a)).toFixed(2) + '" cy="' + (11 + 6.4 * Math.sin(a)).toFixed(2) + '" r="3"/>'; }
+    return '<svg class="' + (cls || '') + '" viewBox="0 0 24 30" aria-hidden="true"><path d="M8.5 15 5 29l4-2.6 3 3 .8-12.6zM15.5 15 19 29l-4-2.6-3 3-.8-12.6z" fill="' + c + '" stroke="' + ink + '" stroke-width=".9"/>' +
+      '<g fill="' + c + '" stroke="' + ink + '" stroke-width=".9">' + petals + '</g><circle cx="12" cy="11" r="5.4" fill="' + c + '" stroke="' + ink + '" stroke-width=".9"/>' +
+      '<circle cx="12" cy="11" r="2.6" fill="' + (t ? '#e8b83a' : 'none') + '" stroke="' + ink + '" stroke-width=".7"/></svg>';
+  }
+  const contestPrize = t => t === 1 ? 'entry back +' + R.CONTEST.white + 'g' : t === 2 ? 'pick an enhancement' : 'pick a buff';
+  function ribbonsHTML(id, score) {
+    const C = R.CONTEST.list[id];
+    return '<div class="ribbons">' + C.tiers.map((need, i) => { const t = i + 1, got = score != null && score >= need;
+      return '<span class="rib' + (got ? ' got' : '') + '">' + rosette(t) + '<span><b>' + need + '+ ' + esc(C.unit[1]) + '</b>' + contestPrize(t) + '</span></span>'; }).join('') + '</div>';
+  }
+  // the attraction at dusk, as big as fits a whole number of times, fairgoers either side, lamps at the edges, the
+  // bunting overhead and the judge's word; the scene takes whatever height the slip leaves (one screen, no scrolling)
+  function contestScene(L, C, say) {
+    const F = window.FAIR_SPRITES || {}, DS = (window.DUST_SPRITES || {}).s || {}, s = F['c_' + L.contest.id];
+    const pc = ['#c8382a', '#f0c23c', '#3a5aa0', '#f4ead6'];
+    let flags = '';
+    for (let i = 0; i < 14; i++) { const x = i * 100 / 14 + 1.5; flags += '<path d="M' + x.toFixed(1) + ' ' + (2 + 3 * Math.sin(Math.PI * x / 100)).toFixed(2) + 'l3 0-1.5 5z" fill="' + pc[i % 4] + '"/>'; }
+    const bunt = '<svg class="bunt" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 2Q50 8 100 2" fill="none" stroke="#2a1b16" stroke-width=".4"/>' + flags + '</svg>';
+    const sign = '<div class="oscene fairs noart" style="height:' + (say ? 104 : 64) + 'px">' + bunt + '<span class="sign">' + esc(C.name) + '</span>' + (say ? '<div class="say">' + esc(say) + '</div>' : '') + '</div>';
+    if (!s) return sign.replace('fairs noart', 'fairs');
+    // wide enough for the attraction and a fairgoer either side, tall enough to leave the slip its room
+    const W = innerWidth || 375, k = Math.max(2, Math.min(6, Math.floor(Math.min(W, 560) / (s[0] + 40)), Math.floor((innerHeight || 812) * 0.45 / (s[1] + 24))));
+    const pic = (src, sp, dx, up, cls) => sp ? '<img class="prop' + (cls ? ' ' + cls : '') + '" src="' + artURL(src) + '" alt="" style="width:' + sp[0] * k + 'px;height:' + sp[1] * k + 'px;bottom:' + (5 + (up || 0) - sp[1] + sp[3]) * k + 'px;margin-left:' + ((sp[0] / 2 - sp[2] + dx) * k) + 'px">' : '';   // the ground point 5 art pixels up
+    const folk = ['gossip', 'gossip2'], f0 = folk[fhash(L.rs + L.contest.id) % 2], f1 = folk[(fhash(L.rs + L.contest.id) + 1) % 2], half = W / k / 2;
+    return '<div class="oscene fairs withart" style="min-height:' + (s[1] + 24) * k + 'px;background:linear-gradient(to top,#56524a,#6a5a48 ' + 9 * k + 'px,#4a4858 ' + 9 * k + 'px,#2e2a48)">' + bunt +
+      '<span class="sign">' + esc(C.name) + '</span>' +
+      pic('fair/wheel.webp', F.wheel, -half + 14, 34, 'far') + pic('fair/bigtop.webp', F.bigtop, half - 12, 30, 'far') +
+      pic('fair/lamp.webp', F.lamp, -half + 4) + pic('fair/lamp.webp', F.lamp, half - 4) +
+      pic('dustwater/' + f0 + '_d.webp', DS[f0 + '_d'], -(s[0] / 2 + 4)) + pic('fair/c_' + L.contest.id + '.webp', s, 0) + pic('dustwater/' + f1 + '_d.webp', DS[f1 + '_d'], s[0] / 2 + 4) +
+      (say ? '<div class="say">' + esc(say) + '</div>' : '') + '</div>' + sign;
+  }
+  const CONTEST_SAY = { pie: 'Step right up! Slices count, crumbs don\u2019t.', turkey: 'Aces only, partner. And keep that Joker pointed downrange.',
+    bell: 'Swing big, ring big! Ring it right to the top for a blue.', race: 'They\u2019re lining up! Win \u2019em in a row to stay out in front.' };
+  function contestHTML(L) {
+    const C = R.CONTEST.list[L.contest.id], fee = R.CONTEST.fee, tip = R.coach(L), broke = L.gold < fee;
+    const slip = tip ? '<div class="coachline"><span class="face svg">' + partnerFace(L.partner) + '</span><p>' + esc(tip.text) + '</p></div><div class="btns"><button class="btn alt" data-tip="' + tip.id + '">Got it</button></div>'
+      : '<h3>' + esc(C.place) + ' \u00b7 ' + fee + 'g to enter</h3><p>' + esc(C.what) + ' One hand with ' + PN() + ' against two fellow contestants. No health at stake: just the entry.</p>' + ribbonsHTML(L.contest.id) +
+        '<div class="btns"><button class="btn" data-contest="enter"' + (broke ? ' disabled' : '') + '>' + (broke ? 'The entry is ' + fee + 'g' : 'Enter (' + fee + 'g)') + '</button><button class="btn alt" data-contest="leave">Walk on by</button></div>';
+    return contestScene(L, C, CONTEST_SAY[L.contest.id]) + '<div class="oslip">' + slip + '</div>';
   }
   function storeHTML(L) {
     const key = 'shop:' + L.rs + ':' + (L.path || []).length + ':' + (L.restocks || 0);
@@ -2664,6 +2847,7 @@ html.art .coach { border-radius: 0; }
         const led = E.ledSuit(L);
         if (!led) t = 'Your lead.';
         else if (led === '*') t = 'The Joker was led: play anything.';
+        else if (led === '#') t = 'An Outcast was led: it has no suit, so play anything.';
         else {
           const legal = E.legalPlays(L, 0), follows = legal.some(c => E.kSuit(E.K(L, 0, c), h.trump) === led);
           t = follows ? 'Follow ' + E.NAME[led] + (h.trump === led ? ' (trumps)' : '') + '.' : 'You have no ' + E.NAME[led] + ': play anything' + (h.trump ? ', or trump in.' : '.');
@@ -2713,6 +2897,11 @@ html.art .coach { border-radius: 0; }
         return;
       }
       const goal = L.obj ? R.OBJECTIVES[L.obj.id].name + ': ' + (L.obj.done ? '<span class="good">done</span>' : L.obj.fail ? '<span class="badc">missed</span>' : R.objProgress(L)) : '';
+      if (L.kind === 'contest' && L.contest) { const C = R.CONTEST.list[L.contest.id], sc = L.contest.score, t = R.ribbonOf(L.contest.id, sc);
+        html = '<h2>' + esc(C.name) + '</h2><div class="kv"><span>Your score</span><span class="' + (t ? 'good' : 'badc') + '">' + sc + ' ' + esc(C.unit[sc === 1 ? 0 : 1]) + '</span><span>The hand</span><span>' + (r.pts[0] > 0 ? '+' : '') + num(r.pts[0]) + ' to ' + num(r.pts[1]) + '</span></div>' +
+          '<ul class="lines">' + r.lines.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>' + ribbonsHTML(L.contest.id, sc) +
+          '<div class="btns"><button class="btn" data-act="next">The judges’ verdict</button></div>';
+        showSheet(html, key); return; }
       html = '<h2>Hand ' + L.handNo + (F ? ' against ' + esc(F.name) : '') + '</h2>' +
         '<div class="kv"><span>You hit them</span><span class="' + ((F ? r.hit : r.pts[0]) > 0 ? 'good' : (F ? r.hit : r.pts[0]) < 0 ? 'badc' : '') + '">' + (F ? (r.hit ? String(r.hit) : 'nothing') : num(r.pts[0])) + (F ? ' · ' + Math.max(0, F.hp - L.you) + ' of ' + F.hp + ' left' : '') + '</span>' +
         '<span>They hit you</span><span class="' + (r.dmg ? 'badc' : 'good') + '">' + (r.dmg ? '−' + r.dmg : 'nothing') + ' · health ' + L.health + '</span></div>' +
@@ -2723,6 +2912,12 @@ html.art .coach { border-radius: 0; }
     } else if (L.phase === 'over') {
       const r = L.result;
       key = 'over' + L.level;
+      if (r.kind === 'contest' && L.contest) { const C = R.CONTEST.list[L.contest.id], t = L.contest.ribbon;
+        html = '<h2>' + esc(C.name) + ': ' + esc(RIB_NAME[t].toLowerCase()) + '</h2>' + rosette(t, 'rosette') +
+          '<div class="kv"><span>Your score</span><span>' + L.contest.score + ' ' + esc(C.unit[L.contest.score === 1 ? 0 : 1]) + ' (ribbons at ' + C.tiers.join(', ') + ')</span>' +
+          '<span>Health</span><span>' + L.health + ' (untouched)</span><span>Prize</span><span>' + (t ? (t === 1 ? 'Your entry back and ' + R.CONTEST.white + 'g.' : t === 2 ? 'Pick 1 of 2 enhancements.' : 'Pick 1 of 2 buffs.') : 'Nothing: the ' + R.CONTEST.fee + 'g entry is gone.') + '</span></div>' +
+          payoutHTML(r, L.gold) + '<div class="btns"><button class="btn" data-act="collect">' + (t ? 'Collect' : 'Back to the midway') + '</button></div>';
+        showSheet(html, key); countUp($('sheet').querySelector('.payout')); return; }
       const goal = r.kind === 'boss' ? '' : '<span>' + (r.kind === 'bank' ? 'Objective' : 'Bonus') + '</span><span>' + esc(R.OBJECTIVES[L.obj.id].text) + ': ' + (r.objective ? '<span class="good">done</span>' : '<span class="badc">missed</span>') + '</span>';
       const next = r.kind === 'dance' ? (r.stars === 3 ? 'Pick 1 of 3 enhancements, or keep a card you won.' : r.stars === 2 ? 'Pick 1 of 2 enhancements.' : 'No reward beyond the gold.')
         : r.kind === 'elite' ? (r.stars === 3 ? 'Pick 1 of 2 buffs.' : r.stars === 2 ? 'A buff.' : 'No buff.')
@@ -2917,8 +3112,8 @@ html.art .coach { border-radius: 0; }
     if (P.held && Date.now() - P.held < 1500) { P.held = 0; ev.preventDefault(); return; }
     // a card that can't be played or picked (your cards panel, a hand while it isn't your turn): a tap explains it
     const plain = ev.target.closest('.card[data-c]');
-    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe],[data-sleeve]')) { showCardInfo(plain.dataset.c); return; }
-    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe],[data-sleeve]');
+    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe],[data-sleeve]')) { showCardInfo(plain.dataset.c); return; }
+    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe],[data-sleeve]');
     if (!t || t.disabled) return;
     if (t.closest('#sheet') && Date.now() < P.guardUntil) return;
     const L = P.L, d = t.dataset;
@@ -2933,6 +3128,7 @@ html.art .coach { border-radius: 0; }
     if (d.option) { move('option', +d.option); return; }
     if (P.sleeping) return;
     if (d.bank) { move('bank', d.bank); return; }
+    if (d.contest) { move('contest', d.contest); return; }
     if (d.water) { move('water', d.water); return; }
     if (d.shunt) { move('shunt', d.shunt); return; }
     if (d.buy) { move('buy', d.buy === 'release' ? 'release' : +d.buy); return; }
