@@ -352,6 +352,44 @@ html.art .oslip { border: 12px solid transparent; border-image: url(art/ui/paper
 #actcard.depart .say p, #actcard.depart .unlock p { margin: 0; font-size: 15px; line-height: 1.35; }
 #actcard.depart .unlock { background: #f3e3c0; border-color: #7a3b2a; }
 @media (prefers-reduced-motion: reduce) { #actcard.depart .dtrain img { animation: none; } #actcard.depart .dwords { transition: none; } }
+/* Act III opens on the train pulling into the County Fair at dusk (2026-11-02): playArrive */
+#actcard.arrive { display: block; padding: 0; background: #56524a; overflow: hidden; }
+#actcard.arrive .asky { position: absolute; inset: 0; background: linear-gradient(#24203e, #3e3658 38%, #7a4e6a 72%, #d8885a); }
+#actcard.arrive .aground { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(#6a5a4c, #56483e 30%, #46403a); }
+#actcard.arrive .afar, #actcard.arrive .astation { position: absolute; left: 0; top: 0; width: 100%; height: 100%; will-change: transform; pointer-events: none; }
+#actcard.arrive img { position: absolute; image-rendering: pixelated; }
+#actcard.arrive .afar img { filter: brightness(.72) sepia(.22) saturate(1.05); }
+#actcard.arrive .afar .aglow { position: absolute; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,206,130,.75), rgba(255,170,90,.3) 55%, rgba(255,170,90,0)); }
+#actcard.arrive .aties { position: absolute; left: 0; width: 100%; background: repeating-linear-gradient(90deg, #3a2a20 0 6px, transparent 0 16px); border-top: 3px solid #2e2a2a; }
+#actcard.arrive .atrain img { filter: brightness(.8) sepia(.2) saturate(1.05); animation: drock .7s steps(1) infinite; }
+#actcard.arrive .atrain img:nth-child(2n) { animation-delay: -.35s; }
+#actcard.arrive.still .atrain img { animation: none; }
+#actcard.arrive .aplat { position: absolute; height: 26px; background: repeating-linear-gradient(90deg, #8a6a48 0 26px, #6a4e34 26px 28px); border: 3px solid #2a1b16; border-left: 0; }
+#actcard.arrive .apost { position: absolute; width: 200px; margin-left: -100px; text-align: center; }
+#actcard.arrive .apost.low::before { display: none; }
+#actcard.arrive .apost::before { content: ''; position: absolute; left: 22px; right: 22px; top: 30px; height: 60px; background: linear-gradient(90deg, #4a3020 0 10px, transparent 10px calc(100% - 10px), #4a3020 0); }
+#actcard.arrive .asign { position: relative; display: inline-block; background: #3a5aa0; color: #fbf3dc; border: 3px solid #24365e; box-shadow: 0 0 0 3px #e8b83a; padding: 4px 14px; font: 20px/1.2 'Pixelify Sans', Georgia, serif; letter-spacing: .08em; }
+#actcard.arrive .apost small { position: relative; display: block; width: max-content; margin: 5px auto 0; background: #7a1d17; color: #f3e3c0; padding: 1px 6px; font: 11px/1.2 Bitter, Georgia, serif; letter-spacing: .05em; }
+#actcard.arrive .abunt { position: absolute; height: 18px; }
+#actcard.arrive .apuff { position: absolute; background-size: 100% 100%; image-rendering: pixelated; animation: apuff var(--d, 2s) linear forwards; }
+@keyframes apuff { from { transform: translate(0, 0) scale(.7); opacity: .95; } to { transform: translate(var(--dx, -40vw), var(--dy, -60px)) scale(1.9); opacity: 0; } }
+#actcard.arrive .afw { position: absolute; width: 90px; height: 90px; margin: -45px; border-radius: 50%; pointer-events: none; opacity: 0;
+  background: radial-gradient(circle, transparent 30%, var(--c) 31% 34%, transparent 35% 50%, var(--c) 51% 53%, transparent 54%); }
+#actcard.arrive.still .afw { animation: boom 2.8s ease-out infinite; }
+#actcard.arrive .awords { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity .4s; }
+#actcard.arrive .atop { position: absolute; left: 16px; right: 16px; top: 2%; display: flex; justify-content: center; }
+#actcard.arrive .abot { position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+#actcard.arrive.said .awords { opacity: 1; }
+#actcard.arrive.said .atop > *, #actcard.arrive.said .abot > * { pointer-events: auto; }
+#actcard.arrive .board { padding: 10px 22px 12px; }
+#actcard.arrive .board b { font-size: 28px; }
+#actcard.arrive .aname { position: absolute; display: flex; align-items: center; justify-content: center; color: #b8322a; font-family: 'Pixelify Sans', Georgia, serif; letter-spacing: .06em; line-height: 1; white-space: nowrap; filter: brightness(.85) sepia(.15); }
+#actcard.arrive .board { animation: none; }
+#actcard.arrive.said .board { animation: boardin .55s cubic-bezier(.3, 1.5, .5, 1); }
+#actcard.arrive .say { display: flex; gap: 10px; align-items: flex-start; max-width: 360px; background: #fffaf0; color: #3a2a20; border: 3px solid #2a1b16; border-radius: 12px; padding: 10px 12px; box-shadow: 0 3px 0 rgba(42,27,22,.35); }
+#actcard.arrive .say .face { width: 54px; height: 64px; flex: none; }
+#actcard.arrive .say p { margin: 0; font-size: 15px; line-height: 1.35; }
+@media (prefers-reduced-motion: reduce) { #actcard.arrive .atrain img, #actcard.arrive.still .afw { animation: none; } #actcard.arrive .awords { transition: none; } }
 /* Act II side on (2026-11-01): the backdrop streams, the train strip scrolls sideways over it */
 .mapbox.side { position: relative; aspect-ratio: auto; margin: 0 -12px; overflow: hidden; background: linear-gradient(#7fb6dc, #b8d8e8 60%, #d8c08a 60.5%); border-radius: 6px; }
 .mapbox.side .sideback { position: absolute; inset: 0; pointer-events: none; }
@@ -1223,7 +1261,7 @@ html.art .coach { border-radius: 0; }
 <script src="art/grave/scene.js?v=23"></script>
 <script src="art/paid/scene.js?v=23"></script>
 <script src="art/rooms/scene.js?v=23"></script>
-<script src="art/express/scene.js?v=23"></script>
+<script src="art/express/scene.js?v=24"></script>
 <script src="art/fair/sprites.js?v=23"></script>
 <script>
 (function () {
@@ -1251,7 +1289,7 @@ html.art .coach { border-radius: 0; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 21, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 22, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -3167,7 +3205,7 @@ html.art .coach { border-radius: 0; }
       case 'foeinfo': openSheet('info', foeHelpHTML(L, d.k)); break;
       case 'skipgrave': endGrave(); break;
       case 'draw': draw(); break;
-      case 'allaboard': endDepart(); break;
+      case 'allaboard': case 'intofair': endDepart(); break;
       case 'takejob': takeJob(); break;
       case 'freshdeal': P.sleeving = false; move('freshdeal'); break;
       case 'sleevemode': P.sleeving = !P.sleeving; render(); break;
@@ -3622,6 +3660,7 @@ html.art .coach { border-radius: 0; }
     if (FAST || L.act < 2 || P.actCardFor === key) return;
     P.actCardFor = key;
     if (L.act === 2 && L.map && L.map.side) { playDepart(L); return; }
+    if (L.act === 3 && L.map) { playArrive(L); return; }
     $('actcard').className = '';
     const card = $('actcard'), S = window.TITLE_SCENE, art = document.documentElement.classList.contains('art');
     const A = { 2: ['ACT II', 'THE WESTBOUND EXPRESS', 'Someone wants revenge for the Twins', 'All aboard, dear! Word is the Twins had friends on this line, and they\u2019re not happy with us.'],
@@ -3752,9 +3791,112 @@ html.art .coach { border-radius: 0; }
     const skip = ev => { if (ev.target.closest('[data-act="allaboard"]')) return; said(); };
     card.onpointerdown = skip;
   }
+  /* Act III opens on the train pulling into the County Fair at dusk (the user's, 2026-11-02), the departure's other
+     end, in three depths (the user's: "the gates in the background, the station in the foreground, the train in the
+     mid ground"). You're aboard the locomotive you fought your way to: it stands in the frame while the line slows
+     under it. Behind it the Fair's huge gates (bakery/gates.py, the train's camera and scale) drift in at 0.45
+     parallax and stop in the middle, COUNTY FAIR lettered on their sign (scene.js `sign`), the midway glowing
+     through the doorway; in front the station's boardwalk slides up to meet it, lamps lit, folks waiting under the
+     bunting, its FAIR GROUNDS board naming tonight's Showdown. It stops with a burst of steam, the fireworks go up
+     over the towers, and your partner says who's waiting at the top of the midway (L.map.boss): the Act's board at
+     the top, your partner and Into the Fair at the bottom, the gates and the train between. A tap jumps to the
+     words; Into the Fair clears it. Once a run (P.actCardFor); never in ?fast. */
+  const ARRIVE_WHO = { caller: ['TONIGHT: THE BARN DANCE', 'Hear that fiddle? That\u2019s the Caller, calling the barn dance in the big red barn. He\u2019s the bounty we came west for.'],
+                       wallflowers: ['TONIGHT: THE HAUNTED HOUSE', 'See the haunted house at the top of the midway? The Undertakers are in there, measuring folks up. They\u2019re the bounty we came west for.'] };
+  function arriveLine(L) {
+    const w = ARRIVE_WHO[L.map && L.map.boss];
+    return R.voice(L, 'End of the line, dear! ' + (w ? w[1] : 'The last bounty is waiting at the top of the midway.') + ' The midway\u2019s between us: card booths, and prize contests for a ribbon.');
+  }
+  function playArrive(L) {
+    const card = $('actcard'), X = window.EXPRESS_SCENE, F = window.FAIR_SPRITES || {}, DS = (window.DUST_SPRITES || {}).s || {}, T = window.TITLE_SCENE;
+    const art = document.documentElement.classList.contains('art') && X && X.s.loco;
+    const W = innerWidth, k = W >= 900 ? 3 : 2, rail = Math.round(innerHeight * 0.74), u = v => Math.round(v) + 'px';
+    const pic = (src, s, x, ground, cls) => s ? '<img' + (cls ? ' class="' + cls + '"' : '') + ' src="' + artURL(src) + '" alt="" style="left:' + u(x - s[2] * k) + ';top:' + u(ground - s[3] * k) + ';width:' + u(s[0] * k) + ';height:' + u(s[1] * k) + '">' : '';
+    // the train: the locomotive's nose near the right edge, the tender and three carriages running off the left
+    let train = '';
+    const nose = Math.max(W * 0.62, Math.min(W * 0.94, W / 2 + 140 * k));
+    if (art) {
+      let x = nose - (X.s.loco[0] - X.s.loco[2]) * k;
+      train += pic('express/loco.webp', X.s.loco, x, rail);
+      let right = x - X.s.loco[2] * k - 4 * k;
+      for (const key of ['car_express', 'car_parlor', 'car_coach']) { const s = X.s[key]; train += pic('express/' + key + '.webp', s, right - (s[0] - s[2]) * k, rail); right -= 172 * k; }
+    }
+    // beyond the line, the Fair's skyline; it drifts in more slowly than the platform (it's further off)
+    // beyond the line, the Fair's gates (bakery/gates.py, the train's own camera and scale): they drift in more slowly
+    // than the platform (they're further off) and stop in the middle of the frame, lettered, lit from the midway
+    const D = W * 1.15, G = X && X.s.gates, gx = W / 2;
+    let sky = '';
+    if (art && G) {
+      const gl = gx - G[2] * k, gt = rail - G[3] * k, sg = X.sign;
+      sky += '<i class="aglow" style="left:' + u(gx - 80 * k) + ';top:' + u(rail - 80 * k) + ';width:' + u(160 * k) + ';height:' + u(70 * k) + '"></i>' +
+        pic('express/gates.webp', G, gx, rail) +
+        (sg ? '<span class="aname" style="left:' + u(gl + sg[0][0] * k) + ';top:' + u(gt + sg[0][1] * k) + ';width:' + u((sg[1][0] - sg[0][0]) * k) + ';height:' + u((sg[1][1] - sg[0][1]) * k) + ';font-size:' + u(12 * k) + '">COUNTY FAIR</span>' : '');
+    }
+    // this side of the train: the platform, the station's sign, lamps, folks waiting, bunting between the lamps
+    // a deep boardwalk: lamps and the sign along its back edge, folks and the fair's clutter at its front
+    const plat = rail + 14, top = plat + 4, front = plat + 30 * k, lampX = [W * 0.1, W * 0.5, W * 0.9];
+    const pc = ['#c8382a', '#f0c23c', '#3a5aa0', '#f4ead6'];
+    let flags = '';
+    for (let i = 0; i < 18; i++) { const x = i * 100 / 18 + 1.5; flags += '<path d="M' + x.toFixed(1) + ' ' + (2 + 4 * Math.sin(Math.PI * (x % 50) / 50)).toFixed(2) + 'l2.6 0-1.3 6z" fill="' + pc[i % 4] + '"/>'; }
+    const bunt = '<svg class="abunt" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true" style="left:' + u(lampX[0]) + ';top:' + u(top - 22 * k) + ';width:' + u(lampX[2] - lampX[0]) + '"><path d="M0 2Q25 8 50 2Q75 8 100 2" fill="none" stroke="#2a1b16" stroke-width=".4"/>' + flags + '</svg>';
+    const crowd = [['dustwater/gossip_d', DS.gossip_d, 0.2], ['fair/bales', F.bales, 0.47], ['dustwater/gossip2_d', DS.gossip2_d, 0.66], ['fair/cart', F.cart, 0.9]];
+    const station = '<div class="aplat" style="left:-10px;width:' + u(W + 40) + ';top:' + u(plat) + ';height:' + u(34 * k) + '"></div>' +
+      '<div class="apost low" style="left:' + u(W * 0.5) + ';top:' + u(plat + 34 * k + 16) + '"><span class="asign">FAIR GROUNDS</span><small>' + esc((ARRIVE_WHO[L.map && L.map.boss] || ['END OF THE LINE'])[0]) + '</small></div>' +
+      (art ? lampX.map(x => pic('fair/lamp.webp', F.lamp, x, top)).join('') : '') + bunt +
+      (art ? crowd.map(c => pic(c[0] + '.webp', c[1], W * c[2], front)).join('') : '');
+    const fws = [[0.14, 175, '#ff5a4a', 0], [0.86, 185, '#ffd65a', 0.9], [0.5, 200, '#5ac8ff', 1.7]].map(f => '<i class="afw" style="left:' + u(W * f[0]) + ';top:' + u(rail - f[1] * k) + ';--c:' + f[2] + ';animation-delay:' + f[3] + 's"></i>').join('');
+    const p = R.PARTNERS[L.partner] || R.PARTNERS.horse;
+    card.className = 'arrive';
+    card.style.backgroundImage = '';
+    card.innerHTML = '<div class="asky"></div>' + fws + '<div class="aground" style="top:' + u(rail - 20 * k) + '"></div>' + '<div class="afar" data-par="0.45">' + sky + '</div>' +
+      '<div class="aties" style="top:' + u(rail - 1) + ';height:' + u(3 * k) + '"></div>' +
+      '<div class="atrain">' + train + '</div><div class="apuffs"></div>' +
+      '<div class="astation" data-par="1">' + station + '</div>' +
+      '<div class="awords"><div class="atop"><div class="board"><small>ACT III</small><b>THE COUNTY FAIR</b><span>End of the line</span></div></div>' +
+      '<div class="abot"><div class="say"><span class="face svg">' + partnerFace(p.id) + '</span><p><b>' + esc(p.name) + ':</b> ' + esc(arriveLine(L)) + '</p></div>' +
+      '<button class="btn" data-act="intofair">Into the Fair</button></div></div>';
+    card.classList.add('on');
+    DEPART.timers.forEach(clearTimeout);
+    cancelAnimationFrame(DEPART.raf);
+    const said = () => card.classList.add('said');
+    const lyr = [...card.querySelectorAll('[data-par]')], ties = card.querySelector('.aties'), puffs = card.querySelector('.apuffs');
+    const place = s => { lyr.forEach(l => { l.style.transform = 'translateX(' + (s * +l.dataset.par).toFixed(1) + 'px)'; }); ties.style.backgroundPositionX = (s - D).toFixed(1) + 'px'; };
+    if (reduceMotion()) { place(0); card.classList.add('still'); said(); return; }
+    // the ride in: what's left of the line, shrinking as the brakes take hold, nothing left at RIDE seconds
+    const RIDE = 4.2, t0 = performance.now(), stack = X && X.stack && art ? [nose - (X.s.loco[0] - X.stack[0]) * k, rail - (X.s.loco[3] - X.stack[1]) * k] : null;
+    let nextPuff = 0, stopped = false;
+    const puff = (x, y, dx, dy, dur) => {
+      const pf = T && T.puffs ? T.puffs[Math.floor(Math.random() * T.puffs.length)] : null;
+      if (!pf) return;
+      const e = document.createElement('i');
+      e.className = 'apuff';
+      e.style.cssText = 'left:' + u(x) + ';top:' + u(y) + ';width:' + u(pf.w * k) + ';height:' + u(pf.h * k) + ';background-image:url(' + artURL('title/' + pf.img + '.webp') + ');--dx:' + u(dx) + ';--dy:' + u(dy) + ';--d:' + dur.toFixed(2) + 's';
+      puffs.appendChild(e);
+      setTimeout(() => e.remove(), dur * 1000 + 100);
+    };
+    place(D);
+    const frame = now => {
+      const t = (now - t0) / 1000, f = Math.min(1, t / RIDE), left = Math.pow(1 - f, 3), speed = 3 * Math.pow(1 - f, 2);
+      place(D * left);
+      if (stack && t > nextPuff && !stopped) { nextPuff = t + 0.35 + 0.5 * (1 - speed / 3); puff(stack[0] - 8 * k, stack[1] - 8 * k, -W * 0.35 * speed / 3 - 20, -50 - 30 * (1 - speed / 3), 2.2); }
+      if (f >= 1 && !stopped) {
+        stopped = true;
+        card.classList.add('still');
+        // the brakes let go of the steam either side of the wheels
+        if (stack) for (let i = 0; i < 4; i++) { const side = i % 2 ? 1 : -1; puff(nose - 150 * k + side * 20 * k, rail - 14 * k, side * (40 + 30 * i), -20 - 10 * i, 1.8); }
+        DEPART.timers.push(setTimeout(said, 900));
+      }
+      if (card.classList.contains('on') && !stopped) DEPART.raf = requestAnimationFrame(frame);
+    };
+    DEPART.raf = requestAnimationFrame(frame);
+    // a tap, or a slow page or hidden tab: the train is in, the words come anyway
+    const finish = () => { stopped = true; cancelAnimationFrame(DEPART.raf); place(0); card.classList.add('still'); said(); };
+    DEPART.timers = [setTimeout(finish, (RIDE + 2) * 1000)];
+    card.onpointerdown = ev => { if (ev.target.closest('[data-act="intofair"]')) return; finish(); };
+  }
   function endDepart() {
     const card = $('actcard');
-    if (!card.classList.contains('depart')) return;
+    if (!card.classList.contains('depart') && !card.classList.contains('arrive')) return;
     DEPART.timers.forEach(clearTimeout);
     card.classList.remove('on', 'said');
     card.onpointerdown = null;
