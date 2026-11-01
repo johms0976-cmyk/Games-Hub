@@ -139,6 +139,131 @@ html.art .titlemenu .wood.drawn > span { position: absolute; width: 1px; height:
    behind it. Without the art: the sky, a plain mound and the words. */
 #grave { position: fixed; inset: 0; z-index: 70; overflow: hidden; background: linear-gradient(#2e1f4a 0%, #6a3a6a 32%, #c8604a 58%, #f0a050 74%, #f6c070 82%, #edab6a 82.1%); }
 #grave[hidden] { display: none; }
+/* The gang's powers (the user's, 2026-11-01: "players always forget they do something; like in Slay the enemy
+   casts a spell"): after NOW DRAW! each power is played like a card and lands on the nameplate as its chip; an
+   intent over the gang says when it bites; when it fires, its chip pulses and the thing it touches shows it. */
+#ceremony { position: fixed; inset: 0; z-index: 62; background: rgba(15, 8, 5, .74); }
+#ceremony[hidden] { display: none; }
+#ceremony .cfig { position: absolute; image-rendering: pixelated; transform-origin: 50% 100%; animation: cstep .35s cubic-bezier(.3, 1.4, .6, 1) both; filter: brightness(1.25) drop-shadow(0 0 8px #ff9a5a); }
+@keyframes cstep { to { transform: translateY(-6px) scale(1.15); } }
+#ceremony .pcard { position: absolute; left: 50%; top: 18%; width: 210px; margin-left: -105px; background: #fbf3dc; color: #2a1b16; border: 4px solid #2a1b16; border-radius: 10px; padding: 12px 12px 14px;
+  text-align: center; box-shadow: 0 10px 0 rgba(0,0,0,.35); animation: dealin .55s cubic-bezier(.2, 1.3, .5, 1) both; }
+@keyframes dealin { from { transform: translate(var(--fx, 0), var(--fy, 0)) rotate(-30deg) scale(.15); opacity: 0; } }
+#ceremony .pcard.fly { animation: none; transition: transform .5s cubic-bezier(.6, 0, .3, 1), opacity .45s .3s; }
+#ceremony .kind { font: 700 11px/1 Bitter, serif; letter-spacing: .2em; }
+#ceremony .icon { width: 84px; height: 84px; margin: 8px auto 4px; border-radius: 50%; display: grid; place-items: center; border: 3px solid #2a1b16; }
+#ceremony .icon svg { width: 54px; height: 54px; }
+#ceremony h2 { margin: 4px 0 2px; font: 22px/1.1 'Pixelify Sans', Georgia, serif; }
+#ceremony .pcard p { margin: 0; font-size: 14px; line-height: 1.3; }
+#ceremony .when { margin-top: 8px; font: 600 12px/1.25 Bitter, serif; background: #2a1b16; color: #ffe9b0; border-radius: 4px; padding: 4px 6px; }
+#ceremony .stampk { position: absolute; right: -14px; top: 18px; transform: rotate(16deg); border: 3px solid currentColor; padding: 3px 6px; border-radius: 4px; font: 16px/1 'Pixelify Sans', Georgia, serif;
+  background: rgba(251,243,220,.92); opacity: 0; }
+#ceremony .stamped .stampk { opacity: 1; animation: cstamp .25s cubic-bezier(.3, 1.8, .6, 1); }
+@keyframes cstamp { from { transform: rotate(16deg) scale(2.4); opacity: 0; } }
+.pw-trick { color: #b8322a; } .pw-rule { color: #2e5a8a; } .pw-trait { color: #8a6a20; } .pw-boss { color: #6a2a8a; }
+.pwbg-trick { background: #f0a090; } .pwbg-rule { background: #a8c8e8; } .pwbg-trait { background: #e8d090; } .pwbg-boss { background: #d0b0e8; }
+#ceremony .pline { position: absolute; left: 12px; right: 12px; margin: 0 auto; max-width: 400px; display: flex; gap: 8px; align-items: flex-start; background: #fffaf0; color: #3a2a20; border: 3px solid #2a1b16;
+  border-radius: 10px; padding: 7px 9px; font-size: 15px; line-height: 1.3; opacity: 0; transform: translateY(10px); transition: opacity .3s, transform .3s; }
+#ceremony .pline.on { opacity: 1; transform: none; }
+#ceremony .pline .face { width: 40px; height: 48px; flex: none; }
+#ceremony .ctap { position: absolute; left: 0; right: 0; bottom: 18px; text-align: center; color: #e8d8b0; font: 13px/1 Bitter, serif; }
+.shakeit { animation: plateshake .35s; }
+/* intents: over the gang, when each power bites */
+.stage .intent { position: absolute; z-index: 3; display: flex; align-items: center; gap: 3px; max-width: calc(64 * var(--ax)); background: rgba(42,27,22,.9); color: #ffe9b0; border: 2px solid #ffd65a;
+  border-radius: 12px; padding: 2px 7px 2px 3px; font: 12px/1.1 'Pixelify Sans', Georgia, serif; pointer-events: none; animation: intentbob 1.8s ease-in-out infinite; }
+.stage .intent svg { width: 16px; height: 16px; flex: none; }
+.stage .intent.w { left: calc(50% - 76 * var(--ax)); top: calc((60 - var(--lift)) * var(--ax)); }
+.stage .intent.e { left: calc(50% + 14 * var(--ax)); top: calc((60 - var(--lift)) * var(--ax)); }
+.stage .intent.pulse { animation: chippulse .9s; }
+@keyframes intentbob { 50% { transform: translateY(-3px); } }
+/* a power firing: its chip pulses, and its name pops up from the gang */
+.foe .ftag.pulse, .notice.pulse { animation: chippulse .9s; }
+@keyframes chippulse { 25% { transform: scale(1.35); box-shadow: 0 0 0 3px #fff3b0, 0 0 14px 6px #ff7a3a; } }
+.pwpop { position: fixed; z-index: 64; pointer-events: none; transform: translate(-50%, 0); font: 15px/1 'Pixelify Sans', Georgia, serif; color: #fff3d0; border: 2px solid #2a1b16; border-radius: 4px;
+  padding: 4px 7px; white-space: nowrap; animation: pwpop 1.5s forwards; box-shadow: 0 2px 0 rgba(0,0,0,.35); }
+.pwpop.trick { background: #b8322a; } .pwpop.rule { background: #2e5a8a; } .pwpop.trait { background: #8a6a20; } .pwpop.boss { background: #6a2a8a; }
+@keyframes pwpop { 0% { transform: translate(-50%, 0) scale(.6); opacity: 0; } 12% { transform: translate(-50%, -6px) scale(1.1); opacity: 1; } 75% { opacity: 1; } 100% { transform: translate(-50%, -30px); opacity: 0; } }
+.pwcoin { position: fixed; z-index: 64; width: 18px; height: 18px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff3b0, #f0c23c 50%, #a8782a); border: 2px solid #2a1b16; pointer-events: none; }
+.pwring { position: absolute; z-index: 5; left: 50%; top: 40%; width: 80%; height: 46%; margin: 0; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; animation: pwring 1.6s ease-in-out; }
+@keyframes pwring { 0% { opacity: 0; transform: translate(-50%, -50%) rotate(40deg) scale(.8); } 25%, 75% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) rotate(-80deg); } }
+@media (prefers-reduced-motion: reduce) { #ceremony .pcard, #ceremony .cfig, .stage .intent, .pwpop, .pwring { animation: none !important; } }
+/* One screen, no scrolling (the user's, 2026-11-01: "like Slay the Spire"): the General Store and the hotel are a
+   scene on top, the choices in or under it, one slip for the chosen one and your saddlebag of cards. */
+#screen.one { min-height: 100dvh; display: flex; flex-direction: column; padding: 0 10px 10px; }
+#screen.one > * { flex: none; }
+#screen.one .screenbar { margin: 0 -10px; flex-wrap: nowrap; }
+#screen.one .screenbar .name { display: none; }
+#screen.one .room { margin: 0 -10px; border-left: 0; border-right: 0; border-radius: 0; }
+html.art #screen.one .oscene.noart, html:not(.art) #screen.one .oscene.withart { display: none; }
+#screen.one .oscene { position: relative; margin: 0 -10px; overflow: hidden; background: #3a2418; border-bottom: 3px solid #1e140f; }
+#screen.one .oscene img { position: absolute; left: 50%; top: 0; transform: translateX(-50%); image-rendering: pixelated; }
+#screen.one .oscene .sign { position: absolute; left: 50%; top: 14px; transform: translateX(-50%) rotate(-1.5deg); background: #7a3b2a; color: #fbf3e2; border: 3px solid #4a2626;
+  box-shadow: 0 0 0 3px #a8603a; padding: 6px 18px; font: 20px/1 'Pixelify Sans', Georgia, serif; white-space: nowrap; }
+.room .say, .oscene .say { transition: none; }
+.room .say.pop, .oscene .say.pop { animation: saypop .3s cubic-bezier(.3,1.6,.6,1); }
+@keyframes saypop { from { transform: scale(.85); opacity: .3; } }
+.oscene .say { position: absolute; z-index: 3; right: 10px; bottom: 10px; max-width: 64%; background: #fbf3dc; color: #2a1b16; font: 600 13px/1.25 Bitter, Georgia, serif; padding: 4px 8px; border: 2px solid #3a2018; border-radius: 8px; }
+.room.store .say { left: calc(50% + 22 * var(--ax)); right: 8px; top: calc(30 * var(--ax)); max-width: 230px; }
+/* the counter's top, coming toward you, with the goods on it */
+.counter { flex: 1 1 auto !important; display: flex; flex-direction: column; justify-content: center; margin: 0 -10px; padding: 12px 8px 8px; background:
+    repeating-linear-gradient(0deg, rgba(0,0,0,.08) 0 2px, transparent 2px 22px), linear-gradient(#8a5a34, #74482a); border-top: 6px solid #4a2a18; box-shadow: inset 0 10px 14px -8px rgba(0,0,0,.6); }
+.counter.wagon { background: repeating-linear-gradient(90deg, rgba(0,0,0,.1) 0 2px, transparent 2px 30px), linear-gradient(#a8784a, #8a5a34); }
+.goods { display: grid; grid-template-columns: repeat(var(--gc, 4), 1fr); gap: 8px 4px; }
+.ware { position: relative; height: 84px; border: 0; background: none; padding: 0; cursor: pointer; display: flex; align-items: flex-end; justify-content: center; color: inherit; }
+.ware .obj { position: relative; z-index: 1; display: block; filter: drop-shadow(0 4px 0 rgba(30,15,8,.55)); transition: transform .18s cubic-bezier(.3,1.6,.6,1); }
+.ware .obj .card { pointer-events: none; }
+.ware.sel .obj { transform: translateY(-9px) rotate(-3deg); filter: drop-shadow(0 12px 2px rgba(30,15,8,.45)) drop-shadow(0 0 6px #ffe08a); }
+.ware .tag { position: absolute; z-index: 2; right: 0; top: 0; background: #f3e3c0; color: #2a1b16; border: 2px solid #2a1b16; border-radius: 3px 8px 8px 3px; padding: 1px 5px 1px 9px;
+  font: 700 13px/1.2 Bitter, serif; transform: rotate(8deg); box-shadow: 0 2px 0 rgba(0,0,0,.35); }
+.ware .tag::before { content: ''; position: absolute; left: 3px; top: 50%; width: 4px; height: 4px; margin-top: -2px; border-radius: 50%; background: #74482a; }
+.ware.dear .tag { color: #9a5a40; text-decoration: line-through; }
+.ware.sold { cursor: default; }
+.ware.sold .obj { opacity: .25; }
+.ware.sold::after { content: 'SOLD'; position: absolute; z-index: 3; left: 50%; top: 46%; transform: translate(-50%, -50%) rotate(-14deg); font: 700 17px/1 'Pixelify Sans', serif;
+  color: #b8322a; border: 3px solid #b8322a; padding: 2px 6px; border-radius: 4px; background: rgba(251,243,220,.85); animation: soldstamp .25s cubic-bezier(.3,1.8,.6,1); }
+@keyframes soldstamp { from { transform: translate(-50%, -50%) rotate(-14deg) scale(2.2); opacity: 0; } }
+.ware .stand { position: absolute; z-index: 2; bottom: -2px; left: 50%; width: 56px; height: 9px; margin-left: -28px; background: #4a2a18; border: 2px solid #2a1b16; border-radius: 2px; }
+.ware svg { display: block; }
+/* the slip: what you picked and the one button */
+.oslip { margin: 6px 0 0; min-height: 108px; display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 8px 10px; background: #fbf3dc; border: 2px solid #3a2018; border-radius: 6px; }
+html.art .oslip { border: 12px solid transparent; border-image: url(art/ui/paper.png) 4 fill / 12px stretch; border-radius: 0; background: none; padding: 0 4px; image-rendering: pixelated; }
+.oslip h3 { margin: 0; font: 17px/1.15 'Pixelify Sans', Georgia, serif; color: #6a1d17; }
+.oslip p { margin: 0; font-size: 15px; line-height: 1.3; }
+.oslip .hint { color: #6a5040; font-style: italic; }
+.oslip .why { color: #9a3a20; font-size: 13px; }
+.oslip .btns { margin: 2px 0 0; }
+.oslip .btns .btn { flex: 1; }
+.oslip .coachline { display: flex; gap: 8px; align-items: flex-start; }
+.oslip .coachline .face { width: 36px; height: 44px; }
+/* your saddlebag: Polish, Cleanse, Forge, an enhancement and Turn Loose pick their card here, without a new screen */
+.bag { margin: 8px 0 0; padding: 6px 8px 8px; background: linear-gradient(#7a4a2a, #5a3420); border: 3px solid #2a1b16; border-radius: 10px 10px 16px 16px; }
+.bag h4 { margin: 0 0 5px; font: 13px/1 'Pixelify Sans', Georgia, serif; color: #f3e3c0; display: flex; justify-content: space-between; }
+.bag h4 small { font: 12px/1 Bitter, serif; color: #e8c890; }
+.bag .cards { display: flex; gap: 6px; justify-content: center; flex-wrap: nowrap; padding-top: 7px; margin-top: -7px; }
+.bag .cards.tight { gap: 0; } .bag .cards.tight .card + .card { margin-left: calc(-1 * var(--ov, 16px)); }
+.bag .card { flex: none; }
+.bag.picking .card.can { box-shadow: 0 0 0 3px #ffd65a; }
+.bag.picking .card:not(.can) { opacity: .45; }
+.bag .card.picked { transform: translateY(-7px); box-shadow: 0 0 0 3px #fff, 0 0 12px #ffd65a; }
+.ofoot { margin-top: 8px; display: flex; gap: 8px; }
+.ofoot .btn { flex: 1; }
+/* the hotel: the room is the menu */
+.room .hot { position: absolute; z-index: 4; width: 44px; height: 44px; margin: -22px 0 0 -22px; border: 0; background: none; cursor: pointer; padding: 0; color: inherit; }
+.room .hot::before { content: ''; position: absolute; inset: 8px; border-radius: 50%; border: 3px solid #ffd65a; box-shadow: 0 0 0 2px #2a1b16, 0 0 10px #ffd65a; animation: hotring 1.6s ease-in-out infinite; }
+.room .hot span { position: absolute; left: 50%; top: 100%; transform: translateX(-50%); white-space: nowrap; background: #2a1b16; color: #ffe9b0; font: 12px/1 'Pixelify Sans', serif; padding: 3px 5px; border-radius: 3px; }
+.room .hot.edge span { left: 4px; transform: none; }
+.room .hot.sel::before { background: rgba(255,214,90,.35); animation: none; transform: scale(1.15); }
+.room .hot:disabled { cursor: default; } .room .hot:disabled::before { border-color: #8a7a62; box-shadow: 0 0 0 2px #2a1b16; animation: none; } .room .hot:disabled span { color: #a89a80; }
+@keyframes hotring { 50% { transform: scale(1.18); opacity: .65; } }
+.keys { margin-top: 10px; display: grid; grid-template-columns: repeat(var(--kc, 4), 1fr); gap: 12px 6px; }
+.key { position: relative; cursor: pointer; padding: 16px 2px 7px; background: #c8a06a; color: #2a1b16; border-radius: 4px 4px 14px 14px; border: 3px solid #2a1b16;
+  font: 14px/1.1 'Pixelify Sans', Georgia, serif; box-shadow: 0 3px 0 rgba(0,0,0,.4); }
+.key::before { content: attr(data-no); position: absolute; left: 50%; top: 3px; transform: translateX(-50%); font: 700 10px/1 Bitter, serif; color: #6a4520; }
+.key::after { content: ''; position: absolute; left: 50%; top: -10px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; border: 3px solid #2a1b16; background: #2a1a12; }
+.key.sel { background: #f0c23c; transform: translateY(-3px); }
+.key:disabled { opacity: .5; cursor: default; }
+.key small { display: block; font: 600 11px/1.2 Bitter, serif; margin-top: 3px; }
+@media (prefers-reduced-motion: reduce) { .ware .obj, .room .hot::before { animation: none; transition: none; } }
 /* Act II's departure (2026-11-01): the train still in frame, the station and the land sliding away */
 #actcard.depart { display: block; padding: 0; background: #e8c88e; overflow: hidden; }
 #actcard.depart .dsky { position: absolute; inset: 0 0 34% 0; background: linear-gradient(#6fa8d6, #a8d0e6 70%, #f0dcb0); }
@@ -986,6 +1111,7 @@ html.art .coach { border-radius: 0; }
   <button class="btn alt gskip" data-act="skipgrave">Skip</button>
 </div>
 <div id="standoff" hidden></div>
+<div id="ceremony" hidden></div>
 <div id="dustwipe" aria-hidden="true"></div>
 <div id="actcard" aria-live="polite"></div>
 <button class="btn alt" id="skipOpening" data-act="skipopening">Skip</button>
@@ -1314,17 +1440,7 @@ html.art .coach { border-radius: 0; }
         break;
       }
       case 'camp':
-        body = noteHTML + roomHTML(L, 'hotel') + '<div class="panel"><h2>The Hotel</h2><p>Do one thing here.</p>' +
-          '<button class="choice" data-camp="shop"><b>General Store</b><span>Buy cards, an enhancement or a buff; release a card you own.</span></button>' +
-          '<button class="choice" data-camp="rest"><b>Rest</b><span>A night in a real bed: +' + R.restOf(L) + ' health.</span></button>' +
-          '<button class="choice" data-camp="polish"' + (R.polishable(L).length ? '' : ' disabled') + '><b>Polish</b><span>+1 rank on a card you own, up to Ace.</span></button>' +
-          '<button class="choice" data-camp="cleanse"' + (R.hexed(L).length ? '' : ' disabled') + '><b>See the Doc</b><span>' + (R.hexed(L).length ? 'Remove a hex (' + R.hexed(L).length + ' on the cards).' : (L.act < 2 ? 'Remove a hex. No hexes yet: they arrive in Act II.' : 'Remove a hex. No card is hexed.')) + '</span></button>' +
-          (E.ACTS[L.act].forge ? '<h3>The table deck</h3>' +
-            '<button class="choice" data-camp="forge"' + (R.forgeable(L).length ? '' : ' disabled') + '><b>Forge</b><span>' + (R.kittyOf(L) >= R.KITTY.max ? 'The kitty is full (' + R.KITTY.max + ' cards): nothing more can be forged.' : 'Copy a card you own. The copy is yours too, joins the deck, and ties the original: the first played wins.') + '</span></button>' +
-            '<button class="choice" data-camp="remove"' + (R.removable(L).length ? '' : ' disabled') + '><b>Run Out of Town</b><span>' + (R.kittyOf(L) <= R.KITTY.min ? 'The kitty is down to ' + R.KITTY.min + ' card: nothing more can come out.' : 'Take a card you don’t own out of the deck for the rest of the run. Everyone feels it.') + '</span></button>' +
-            '<p class="sub" style="margin:4px 0 0">The kitty takes the difference: it holds ' + R.kittyOf(L) + ' card' + (R.kittyOf(L) === 1 ? '' : 's') + ' now (' + R.KITTY.min + ' to ' + R.KITTY.max + ').</p>' : '') +
-          '<h3>Free extra</h3><button class="choice" data-camp="cashin"' + (R.canCash(L) ? '' : ' disabled') + '><b>Cash in</b><span>Turn ' + R.CASH.health + ' health into ' + R.CASH.gold + ' gold' + (L.cashed ? ' (done)' : R.canCash(L) ? '' : ' (you need more than ' + R.CASH.health + ' health)') + '.</span></button></div>' +
-          '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
+        body = campHTML(L);
         break;
       case 'bank': {
         const B = R.BANK, door = L.bank.stage === 'door';
@@ -1357,18 +1473,9 @@ html.art .coach { border-radius: 0; }
           '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
         break;
       }
-      case 'shop': {
-        const items = L.stock.map((it, i) => {
-          const name = it.name ? it.name : it.type === 'card' ? 'The ' + E.label(it.id) : it.type === 'enh' ? 'Enhancement: ' + R.ENH[it.id].name : it.type === 'tonic' ? 'Snake oil' : it.type === 'cleanse' ? 'See the Doc' : 'Buff: ' + R.BUFFS[it.id].name;
-          const text = it.text ? it.text : it.type === 'card' ? 'Own it: it can be dealt to you in your seed slot.' : it.type === 'enh' ? R.ENH[it.id].text : it.type === 'tonic' ? '+' + R.TONIC.health + ' health.' : it.type === 'cleanse' ? 'Remove a hex from any card.' : R.BUFFS[it.id].text;
-          return '<button class="choice" data-buy="' + i + '"' + (it.sold || L.gold < it.price ? ' disabled' : '') + '><span class="price">' + (it.sold ? 'sold' : it.price + 'g') + '</span><b>' + esc(name) + '</b><span>' + esc(text) + '</span></button>';
-        }).join('');
-        body = noteHTML + roomHTML(L, 'store') + '<div class="panel"><h2>The General Store</h2>' + items +
-          '<button class="choice" data-buy="release"' + (L.owned.length < 2 || L.gold < R.releasePrice(L) ? ' disabled' : '') + '><span class="price">' + R.releasePrice(L) + 'g</span><b>Turn a card loose</b><span>Stop owning a card, so your best ones come more often.</span></button>' +
-          '<div class="btns"><button class="btn" data-act="leave">Leave the store</button></div></div>' +
-          '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
+      case 'shop':
+        body = storeHTML(L);
         break;
-      }
       case 'polish':
         body = '<div class="panel"><h2>Polish</h2><p>+1 rank on which card? (A 10 becomes a Queen; nothing goes past the Ace.)</p><div class="cardrow">' + R.polishable(L).map(c => cardHTML(c, { data: 'polish', owned: true, big: true })).join('') + '</div></div>';
         break;
@@ -1413,7 +1520,9 @@ html.art .coach { border-radius: 0; }
         break;
       }
     }
-    const tipTop = tip && !(L.phase === 'partner' || L.phase === 'actstart');   // over the map the tip rides in the sheet
+    const one = L.phase === 'shop' || L.phase === 'camp';                         // one-screen stops carry the tip in their slip
+    const tipTop = tip && !one && !(L.phase === 'partner' || L.phase === 'actstart');   // over the map the tip rides in the sheet
+    $('screen').classList.toggle('one', one);
     $('screen').innerHTML = bar() + (tipTop ? '<div class="coach">' + coachHTML(tip) + '</div>' : '') + body;
     if (L.map && L.map.side && document.querySelector('.mapbox.side')) sideScroll(false);
     // on the map, bring the next choice into view once per stop (the map is taller than a phone)
@@ -2189,15 +2298,151 @@ html.art .coach { border-radius: 0; }
     thanks: ['Pleasure doin\u2019 business.', 'A fine choice, if I say so myself.', 'That\u2019ll serve you well out there.', 'Come again, partner!'],
     broke: ['Lookin\u2019s free, partner.', 'Come back when the bounty\u2019s paid.']
   };
-  function roomHTML(L, kind) {
+  /* ---------------- one-screen stops: the General Store and the hotel (2026-11-01) ---------------- */
+  /* The goods as things on the counter: a card in a stand, an enhancement's tin, a buff's sheriff's star, the
+     tonic, the Doc's bag, the marked deck, the posting, the crate out back, a lasso for turning a card loose. */
+  const SPR = {
+    tin: ['..kkkkkkkk..', '.kggggggggk.', '.kkkkkkkkkk.', '.krrrrrrrrk.', '.krwwwwwwrk.', '.krwyyyywrk.', '.krwyrrywrk.', '.krwyyyywrk.', '.krwwwwwwrk.', '.krrrrrrrrk.', '.kggggggggk.', '..kkkkkkkk..'],
+    star: ['.....kk.....', '....kyyk....', '....kyyk....', 'kkkkkyykkkkk', 'kyyyyyyyyyyk', '.kyyyggyyyk.', '..kyggggyk..', '..kyyggyyk..', '.kyyykkyyyk.', '.kyykk.kkyk.', 'kyyk.....kyk', 'kkk.......kk'],
+    bottle: ['....kkk....', '....kbk....', '....kbk....', '....kbk....', '...kkkkk...', '..kaaaaak..', '.kaaAaaaak.', '.kaApppaak.', '.kaApkpaak.', '.kaaApppak.', '.kaaaaaaak.', '.kaaaaaaak.', '..kkkkkkk..'],
+    doc: ['....kkkk....', '...k....k...', '..kkkkkkkk..', '.kbbbbbbbbk.', 'kbbbbwwbbbbk', 'kbbbbwwbbbbk', 'kbbwwwwwwbbk', 'kbbwwwwwwbbk', 'kbbbbwwbbbbk', 'kbbbbwwbbbbk', 'kbbbbbbbbbbk', '.kkkkkkkkkk.'],
+    deck: ['..kkkkkkkk.', '.kwwwwwwwwk', 'kkkkkkkkkwk', 'kwwwwwwwkwk', 'kwrwwwwwkwk', 'kwwwwwwwkwk', 'kwwwrwwwkwk', 'kwwwwwwwkwk', 'kwwwwwwrkk.', 'kwwwwwwwk..', 'kkkkkkkkk..'],
+    poster: ['kkkkkkkkkk', 'kppppppppk', 'kpbbbbbbpk', 'kppppppppk', 'kppTTTTppk', 'kpTbbbbTpk', 'kpTbppbTpk', 'kppTTTTppk', 'kppppppppk', 'kprrrrrrpk', 'kppppppppk', 'kkkkkkkkkk'],
+    crate: ['kkkkkkkkkkkk', 'kTTTTTTTTTTk', 'ktkkkkkkkktk', 'kTkTTTTTTkTk', 'ktkTtTTtTktk', 'kTkTTtTTTkTk', 'ktkTTTtTTktk', 'kTkTtTTTtkTk', 'ktkkkkkkkktk', 'kTTTTTTTTTTk', 'kkkkkkkkkkkk'],
+    rope: ['...kkkkkk...', '..kTTTTTTk..', '.kTkkkkkkTk.', 'kTk......kTk', 'kTk......kTk', 'kTk......kTk', '.kTkk..kkTk.', '..kTTkkTTk..', '....kTTk....', '....kTk.....', '...kTk......', '...kk.......']
+  };
+  const SPAL = { k: '#2a1b16', w: '#fbf6ea', r: '#b8322a', g: '#c8a040', y: '#f0c23c', b: '#5a3a28', a: '#c8782a', A: '#e8a050', t: '#8a5a34', T: '#b88a52', p: '#e8d8b0' };
+  function sprite(rows, k) {
+    const W = rows[0].length, H = rows.length;
+    let r = '';
+    rows.forEach((row, y) => { for (let x = 0; x < W; x++) if (row[x] !== '.') r += '<rect x="' + x + '" y="' + y + '" width="1.02" height="1.02" fill="' + SPAL[row[x]] + '"/>'; });
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W * k + '" height="' + H * k + '" shape-rendering="crispEdges" aria-hidden="true">' + r + '</svg>';
+  }
+  const GOOD_SPR = { enh: 'tin', buff: 'star', tonic: 'bottle', cleanse: 'doc', marked: 'deck', posting: 'poster', restock: 'crate', release: 'rope' };
+  const cardFace = c => cardHTML(c, { small: true, owned: true }).replace(/^<button/, '<span').replace(/<\/button>$/, '</span>');
+  // what each good is called, says and does (the store's items carry their own name and text when they have one)
+  function goodsOf(L) {
+    const g = L.stock.map((it, i) => Object.assign({ i }, it));
+    g.push({ i: 'release', type: 'release', price: R.releasePrice(L), name: 'Turn a card loose', text: 'Stop owning a card, so your best ones come more often.' });
+    return g.map(it => Object.assign(it, {
+      name: it.name || (it.type === 'card' ? 'The ' + E.label(it.id) : it.type === 'enh' ? 'Enhancement: ' + R.ENH[it.id].name : it.type === 'tonic' ? 'Snake oil' : it.type === 'cleanse' ? 'See the Doc' : 'Buff: ' + R.BUFFS[it.id].name),
+      text: it.text || (it.type === 'card' ? 'Own it: it can be dealt to you in your seed slot.' : it.type === 'enh' ? R.ENH[it.id].text : it.type === 'tonic' ? '+' + R.TONIC.health + ' health, now.' : it.type === 'cleanse' ? 'Remove a hex from any card.' : R.BUFFS[it.id].text),
+      needs: it.type === 'enh' ? 'enh' : it.type === 'cleanse' ? 'hexed' : it.type === 'release' ? 'owned' : null }));
+  }
+  const SAYS = {
+    card: g => 'The ' + E.label(g.id) + '. Hardly used, dealt fair, I promise.', enh: g => R.ENH[g.id].name + ', by the tin. Rub it on a card and watch it come up in the world.',
+    buff: g => R.BUFFS[g.id].name + '. Only one in the territory.', tonic: () => 'Doctor Bellweather\u2019s Tonic. Cures what ails you. Mostly.',
+    cleanse: () => 'The Doc left his bag. He\u2019ll lift a hex off any card.', marked: () => 'Fell off a riverboat. I never saw it, you never bought it.',
+    posting: () => 'The sheriff pins a bonus on the next lot you bring in. Bet on yourself.', restock: () => 'Out back? I might have a crate or two. Cost you, though.',
+    release: () => 'A card you\u2019re tired of? I\u2019ll take it off your hands, for a fee.'
+  };
+  // which of your cards (or, for the Doc, which hexed cards) a good can go on; the reason a card can't
+  function bagFor(L, need, id) {
+    if (need === 'hexed') return R.hexed(L).map(c => ({ c, ok: true }));
+    return L.owned.map(c => ({ c, ok: need === 'enh' ? !R.cantTake(L, c, id) : need === 'owned' ? L.owned.length > 1 : need === 'polish' ? R.polishable(L).includes(c) : need === 'forge' ? R.forgeable(L).includes(c) : false,
+      why: need === 'enh' ? R.cantTake(L, c, id) : '' }));
+  }
+  function bagHTML(L, need, id, picked, title) {
+    const cards = need === 'hexed' ? bagFor(L, need) : bagFor(L, need, id);
+    // more cards than the bag is wide: they overlap, like a hand
+    const n = cards.length, cw = innerWidth <= 420 ? 46 : 52, room = Math.min(innerWidth, 480) - 48, ov = n > 1 && n * cw + (n - 1) * 6 > room ? Math.ceil((n * cw - room) / (n - 1)) : 0;
+    return '<div class="bag' + (need ? ' picking' : '') + '"><h4>' + (title || 'Your saddlebag') + (need ? '<small>tap a card</small>' : '') + '</h4><div class="cards' + (ov > 0 ? ' tight" style="--ov:' + ov + 'px' : '') + '">' +
+      cards.map(x => cardHTML(x.c, { small: true, owned: true, data: need ? 'bag' : null, dis: need && !x.ok, cls: (x.ok && need ? 'can' : '') + (picked === x.c ? ' picked' : '') })).join('') + '</div></div>';
+  }
+  // the scene on top: Dustwater's rooms, the train's carriage, or the Fair's sign
+  // (the art arrives a moment after the first paint, so both are drawn and CSS shows one: html.art)
+  function sceneHTML(L, kind, say, extra) {
+    const X = window.EXPRESS_SCENE, sign = '<div class="oscene noart" style="height:' + (say ? 104 : 64) + 'px"><span class="sign">' + esc(R.kindName(L.act, kind === 'store' ? 'store' : 'camp')) + '</span>' + (say ? '<div class="say">' + esc(say) + '</div>' : '') + '</div>';
+    if (L.act === 1 && window.ROOMS_SCENE) return roomHTML(L, kind, say, extra) + sign;
+    const key = kind === 'store' ? 'car_candy' : 'car_sleeper', s = X && X.s[key];
+    if (L.act !== 2 || !s) return sign.replace('oscene noart', 'oscene');
+    return '<div class="oscene withart" style="height:' + s[1] * 2 + 'px"><img src="' + artURL('express/' + key + '.webp') + '" alt="" style="width:' + s[0] * 2 + 'px;height:' + s[1] * 2 + 'px">' +
+      (say ? '<div class="say">' + esc(say) + '</div>' : '') + '</div>' + sign;
+  }
+  function storeHTML(L) {
+    const key = 'shop:' + L.rs + ':' + (L.path || []).length + ':' + (L.restocks || 0);
+    if (!P.shopSel || P.shopSel.key !== key) P.shopSel = { key, i: null, card: null };
+    const S = P.shopSel, goods = goodsOf(L), g = S.i == null ? null : goods.find(x => String(x.i) === String(S.i));
+    const sold = (L.stock || []).filter(it => it.sold).length, cheapest = Math.min.apply(null, goods.filter(x => !x.sold).map(x => x.price).concat([Infinity]));
+    const say = g ? (g.price > L.gold ? 'Lookin\u2019s free, partner. ' : '') + SAYS[g.type](g)
+      : (sold ? KEEPER.thanks : L.gold < cheapest ? KEEPER.broke : KEEPER.hello)[((L.path || []).length + sold) % 3];
+    const can = g && !g.sold && L.gold >= g.price && (!g.needs || S.card) && !(g.type === 'release' && L.owned.length < 2);
+    const why = !g ? '' : g.sold ? 'Sold.' : L.gold < g.price ? 'Not enough gold (' + g.price + 'g)' : g.needs && !S.card ? 'Tap a card in your saddlebag' : g.type === 'release' && L.owned.length < 2 ? 'Keep at least one card' : '';
+    const lb = S.card ? E.label(S.card) : '';
+    const verb = !g ? '' : g.type === 'enh' ? 'Buy and put it on the ' + lb : g.type === 'cleanse' ? 'Have the Doc clean the ' + lb : g.type === 'release' ? 'Turn the ' + lb + ' loose' : 'Buy';
+    const tip = R.coach(L);
+    const slip = g ? '<h3>' + esc(g.name) + ' \u00b7 ' + g.price + 'g</h3><p>' + esc(g.text) + '</p>' + (S.why ? '<p class="why">' + esc(S.why) + '</p>' : '') +
+        '<div class="btns"><button class="btn" data-act="storebuy"' + (can ? '' : ' disabled') + '>' + esc(can ? verb + ' (' + g.price + 'g)' : why) + '</button></div>'
+      : tip ? '<div class="coachline"><span class="face svg">' + partnerFace(L.partner) + '</span><p>' + esc(tip.text) + '</p></div><div class="btns"><button class="btn alt" data-tip="' + tip.id + '">Got it</button></div>'
+      : '<h3>Browse the counter</h3><p class="hint">' + (L.note ? esc(L.note) + ' ' : '') + 'Tap anything on the counter to pick it up and hear about it. Nothing is spent until you buy.</p>';
+    const cols = goods.length > 8 ? 5 : 4;
+    return sceneHTML(L, 'store', say) +
+      '<div class="counter' + (L.act === 3 ? ' wagon' : '') + '"><div class="goods" style="--gc:' + cols + '">' + goods.map(x => {
+        const obj = x.type === 'card' ? cardFace(x.id) + '<i class="stand"></i>' : sprite(SPR[GOOD_SPR[x.type]], cols > 4 ? 3.5 : 4);
+        return '<button class="ware' + (S.i != null && String(S.i) === String(x.i) ? ' sel' : '') + (x.sold ? ' sold' : '') + (!x.sold && x.price > L.gold ? ' dear' : '') + '" data-good="' + x.i + '"' + (x.sold ? ' disabled' : '') +
+          ' aria-label="' + esc(x.name + ', ' + x.price + ' gold' + (x.sold ? ', sold' : '')) + '"><span class="obj">' + obj + '</span><span class="tag">' + x.price + 'g</span></button>';
+      }).join('') + '</div></div>' +
+      '<div class="oslip">' + slip + '</div>' + bagHTML(L, g && !g.sold ? g.needs : null, g && g.id, S.card, g && g.needs === 'hexed' ? 'Hexed cards' : null) +
+      '<div class="ofoot"><button class="btn alt" data-act="leave">Out the door \u2192</button></div>';
+  }
+  // the hotel's choices: what each is, where it is in Dustwater's room (art pixels), what it needs from your bag
+  function campOpts(L) {
+    const hx = R.hexed(L).length, o = [
+      { id: 'rest', no: 'BED', label: 'Rest', short: '+' + R.restOf(L) + ' health', at: [128, 60], name: 'Sleep it off', text: 'A night in a real bed: +' + R.restOf(L) + ' health.', act: 'Turn in for the night' },
+      { id: 'polish', no: 'LAMP', label: 'Polish', short: 'a card +1', at: [90, 50], name: 'Polish a card by lamplight', text: '+1 rank on a card you own, for the whole run (nothing goes past the Ace).', need: 'polish', off: !R.polishable(L).length && 'Nothing left to polish' },
+      { id: 'cleanse', no: 'BASIN', label: 'Doc', short: hx ? 'lift a hex' : 'no hexes', at: [20, 44], edge: true, name: 'See the Doc', text: hx ? 'The Doc lifts a hex off a card (' + hx + ' on the cards).' : L.act < 2 ? 'Hexes arrive in Act II.' : 'No card is hexed.', need: 'hexed', off: !hx && 'No card is hexed' },
+      { id: 'shop', no: 'WINDOW', label: 'Store', short: 'go shopping', at: [42, 26], name: R.kindName(L.act, 'store'), text: 'Buy cards, an enhancement or a buff; turn a card loose. Shopping is your one thing here.', act: 'Go to the store' }];
+    if (E.ACTS[L.act].forge) o.push(
+      { id: 'forge', no: 'ANVIL', label: 'Forge', short: 'copy a card', name: 'Forge', text: R.kittyOf(L) >= R.KITTY.max ? 'The kitty is full: nothing more can be forged.' : 'Copy a card you own. The copy is yours too, joins the deck, and ties the original.', need: 'forge', off: !R.forgeable(L).length && 'Nothing can be forged' },
+      { id: 'remove', no: 'DOOR', label: 'Run out', short: 'a deck card', name: 'Run Out of Town', text: 'Take a card you don\u2019t own out of the deck for the rest of the run. Everyone feels it.', act: 'Choose a card from the deck', off: !R.removable(L).length && 'Nothing more can come out' });
+    return o;
+  }
+  function campHTML(L) {
+    const key = 'camp:' + L.rs + ':' + (L.path || []).length;
+    if (!P.campSel || P.campSel.key !== key) P.campSel = { key, id: null, card: null };
+    const S = P.campSel, opts = campOpts(L), o = opts.find(x => x.id === S.id), tip = R.coach(L);
+    const hots = L.act === 1 ? opts.filter(x => x.at).map(x => '<button class="hot' + (x.edge ? ' edge' : '') + (S.id === x.id ? ' sel' : '') + '" data-hot="' + x.id + '"' + (x.off ? ' disabled' : '') +
+      ' style="left:calc(50% + ' + (x.at[0] - 100) + ' * var(--ax));top:calc(' + x.at[1] + ' * var(--ax))" aria-label="' + esc(x.name) + '"><span>' + esc(x.label) + '</span></button>').join('') : '';
+    const verb = !o ? '' : o.need && !S.card ? 'Tap a card in your saddlebag' : o.id === 'polish' ? 'Polish the ' + E.label(S.card) : o.id === 'cleanse' ? 'Clean the ' + E.label(S.card) : o.id === 'forge' ? 'Forge a second ' + E.label(S.card) : o.act;
+    const slip = o ? '<h3>' + esc(o.name) + '</h3><p>' + esc(o.text) + '</p><div class="btns"><button class="btn" data-act="campdo"' + ((o.need && !S.card) || o.off ? ' disabled' : '') + '>' + esc(o.off || verb) + '</button></div>'
+      : tip ? '<div class="coachline"><span class="face svg">' + partnerFace(L.partner) + '</span><p>' + esc(tip.text) + '</p></div><div class="btns"><button class="btn alt" data-tip="' + tip.id + '">Got it</button></div>'
+      : '<h3>Do one thing here</h3><p class="hint">' + (L.note ? esc(L.note) + ' ' : '') + (L.act === 1 ? 'Tap something in the room, or a key below.' : 'Pick a key below.') + '</p>';
+    return sceneHTML(L, 'hotel', L.act === 1 ? null : 'Do one thing tonight.', hots) +
+      '<div class="keys" style="--kc:' + Math.min(4, Math.ceil(opts.length / Math.ceil(opts.length / 4))) + '">' + opts.map(x => '<button class="key' + (S.id === x.id ? ' sel' : '') + '" data-hot="' + x.id + '" data-no="' + x.no + '"' + (x.off ? ' disabled' : '') + '>' + esc(x.label) + '<small>' + esc(x.short) + '</small></button>').join('') + '</div>' +
+      '<div class="oslip">' + slip + '</div>' + bagHTML(L, o && !o.off ? o.need : null, null, S.card, o && o.need === 'hexed' ? 'Hexed cards' : null) +
+      '<div class="ofoot"><button class="btn alt" data-act="cashin"' + (R.canCash(L) ? '' : ' disabled') + '>' + (L.cashed ? 'Cashed in' : 'Cash in: ' + R.CASH.health + ' health \u2192 ' + R.CASH.gold + 'g') + '</button></div>';
+  }
+  // the one button: some choices take two moves (buy, then put it on the card; go to the Doc, then pick the hex)
+  function storeBuy() {
+    const L = P.L, S = P.shopSel, g = goodsOf(L).find(x => String(x.i) === String(S.i));
+    if (!g) return;
+    P.shopSel = Object.assign({}, S, { i: null, card: null });
+    if (g.type === 'release') { move('buy', 'release'); if (P.L.phase === 'release') move('release', S.card); return; }
+    move('buy', g.i);
+    if (P.L.phase === 'target') move('enhance', S.card);
+    else if (P.L.phase === 'cleanse') move('cleanse', S.card);
+  }
+  function campDo() {
+    const S = P.campSel, o = campOpts(P.L).find(x => x.id === S.id);
+    if (!o || o.off) return;
+    if (o.id === 'rest' && !FAST && document.querySelector('html.art .room.hotel') && !reduceMotion()) {
+      P.sleeping = true; document.querySelector('.room.hotel').classList.add('asleep');
+      setTimeout(() => { P.sleeping = false; move('camp', 'rest'); }, 1600);
+      return;
+    }
+    move('camp', o.id);
+    if (o.need && S.card && P.L.phase === (o.id === 'cleanse' ? 'cleanse' : o.id)) move(o.id, S.card);
+  }
+  function sayPop() { const s = document.querySelector('#screen .say'); if (s) { s.classList.remove('pop'); void s.offsetWidth; s.classList.add('pop'); } }
+  function roomHTML(L, kind, say, extra) {
     const S = window.ROOMS_SCENE;
     if (!S || L.act !== 1 || L.mode === 'standard') return '';
-    const rk = Math.max(2, Math.min(3, Math.floor(Math.min(innerWidth, 760) / 170)));
+    const rk = 2;      // (one-screen stops, 2026-11-01: always 2x, so the hotspots and the counter fit a phone)
     const u = n => 'calc(' + n + ' * var(--ax))', at = (x, y) => 'left:calc(50% + ' + (x - S.W / 2) + ' * var(--ax));top:' + u(y);
     if (kind === 'store') {
       const sold = (L.stock || []).filter(it => it.sold).length, cheapest = Math.min.apply(null, (L.stock || []).filter(it => !it.sold).map(it => it.price).concat([Infinity]));
       const set = sold ? KEEPER.thanks : L.gold < cheapest ? KEEPER.broke : KEEPER.hello;
-      const line = set[((L.path || []).length + sold) % set.length];
+      const line = say || set[((L.path || []).length + sold) % set.length];
       const hop = P.keeperSold !== undefined && sold > P.keeperSold;
       P.keeperSold = sold;
       return '<div class="room store" style="--rk:' + rk + ';--kt:' + (S.rim[1] - 38) + '" aria-hidden="true">' +
@@ -2211,12 +2456,12 @@ html.art .coach { border-radius: 0; }
     return '<div class="room hotel' + (P.sleeping ? ' asleep' : '') + '" style="--rk:' + rk + '" aria-hidden="true">' +
       '<i style="background-image:url(' + artURL('rooms/hotel.webp') + ')"></i>' +
       '<span class="flame" style="' + at(S.lamp[0], S.lamp[1]) + '"></span>' +
-      '<span class="zzz" style="' + at(S.pillow[0] - 4, S.pillow[1] - 16) + '">z Z z</span></div>';
+      '<span class="zzz" style="' + at(S.pillow[0] - 4, S.pillow[1] - 16) + '">z Z z</span>' + (extra || '') + '</div>';
   }
   function buildStage(L, felt, k) {
     const look = lookOf(L), fig = (key, side) => '<div class="fig ' + side + '"><img src="' + artURL('table/fig_' + key + '.webp') + '" alt=""></div>';
     felt.innerHTML = '<div class="stage"><div class="wall" style="background-image:url(' + artURL('table/wall' + L.act + '.webp') + ')"></div>' +
-      fig(look[0], 'w') + fig(look[1], 'e') + '<div class="nanfig">' + partnerFace(L.partner || 'nan') + '</div>' +
+      fig(look[0], 'w') + fig(look[1], 'e') + intentsHTML(L) + '<div class="nanfig">' + partnerFace(L.partner || 'nan') + '</div>' +
       '<div class="tbl" style="background-image:url(' + artURL('table/table.webp') + ')"></div><div class="plate"></div></div><div class="dyn"></div>';
     felt.classList.toggle('dressed', look.every(x => !STAGE.figs.length || STAGE.figs.includes(x)));
   }
@@ -2298,6 +2543,7 @@ html.art .coach { border-radius: 0; }
       (re ? '<div class="bubble nanbubble">' + esc(re.text) + '</div>' : '');
     felt.querySelectorAll('.feltcoach').forEach(x => x.remove());
     stageFx(L, felt);
+    powerCues(L, felt);
   }
   function renderHand() {
     const L = P.L, h = L.h, hand = h.hands[0];
@@ -2571,7 +2817,7 @@ html.art .coach { border-radius: 0; }
     render();
     save();
     // paused while a sheet is open, while the page is hidden (visibilitychange resumes it) or if a move was refused twice
-    if (P.sheet || document.hidden || P.stuck || DEMO || standoffDue(L)) return;
+    if (P.sheet || document.hidden || P.stuck || DEMO || standoffDue(L) || P.ceremony) return;
     const w = R.whoseMove(L);
     // your only legal card plays itself (2026-10-30, the review's #2: shorter runs); a setting in the menu
     if (w === 'you' && L.h.phase === 'play' && oneCard() === 'auto') {
@@ -2634,8 +2880,8 @@ html.art .coach { border-radius: 0; }
     if (P.held && Date.now() - P.held < 1500) { P.held = 0; ev.preventDefault(); return; }
     // a card that can't be played or picked (your cards panel, a hand while it isn't your turn): a tap explains it
     const plain = ev.target.closest('.card[data-c]');
-    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-water],[data-shunt],[data-buy],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe],[data-sleeve]')) { showCardInfo(plain.dataset.c); return; }
-    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-water],[data-shunt],[data-buy],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe],[data-sleeve]');
+    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe],[data-sleeve]')) { showCardInfo(plain.dataset.c); return; }
+    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe],[data-sleeve]');
     if (!t || t.disabled) return;
     if (t.closest('#sheet') && Date.now() < P.guardUntil) return;
     const L = P.L, d = t.dataset;
@@ -2649,16 +2895,16 @@ html.art .coach { border-radius: 0; }
     if (d.enhance) { move('enhance', d.enhance); return; }
     if (d.option) { move('option', +d.option); return; }
     if (P.sleeping) return;
-    if (d.camp === 'rest' && !FAST && document.querySelector('html.art .room.hotel') && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      P.sleeping = true; document.querySelector('.room.hotel').classList.add('asleep');
-      setTimeout(() => { P.sleeping = false; move('camp', 'rest'); }, 1600);
-      return;
-    }
-    if (d.camp) { move('camp', d.camp); return; }
     if (d.bank) { move('bank', d.bank); return; }
     if (d.water) { move('water', d.water); return; }
     if (d.shunt) { move('shunt', d.shunt); return; }
     if (d.buy) { move('buy', d.buy === 'release' ? 'release' : +d.buy); return; }
+    if (d.good != null) { const S = P.shopSel; S.i = String(S.i) === d.good ? null : d.good; S.card = null; S.why = ''; render(); sayPop(); return; }
+    if (d.hot) { const S = P.campSel; S.id = S.id === d.hot ? null : d.hot; S.card = null; render(); return; }
+    if (d.bag) {
+      const S = L.phase === 'shop' ? P.shopSel : P.campSel;
+      S.card = S.card === d.bag ? null : d.bag; render(); return;
+    }
     if (d.polish) { move('polish', d.polish); return; }
     if (d.forge) { move('forge', d.forge); return; }
     if (d.remove) { move('remove', d.remove); return; }
@@ -2715,6 +2961,9 @@ html.art .coach { border-radius: 0; }
       case 'leaveenh': move('enhance', null); break;
       case 'reroll': move('reroll'); break;
       case 'leave': move('leave'); break;
+      case 'storebuy': storeBuy(); break;
+      case 'campdo': campDo(); break;
+      case 'cashin': move('camp', 'cashin'); break;
       case 'leavebank': move('bank', 'leave'); break;
       case 'noshunt': move('shunt', null); break;
       case 'newrun': clearSaved(); title(); break;
@@ -3181,11 +3430,13 @@ html.art .coach { border-radius: 0; }
     const L = P.L, s = $('standoff');
     if (!L || !standoffDue(L)) return;
     P.drawnFor = standKey(L);
-    if (reduceMotion()) { s.hidden = true; step(); return; }
+    if (reduceMotion()) { s.hidden = true; render(); playCeremony(L, step); return; }
     s.classList.add('bang');
     document.body.classList.remove('standing');
     setTimeout(() => { s.hidden = true; s.classList.remove('bang'); }, 340);
-    step();
+    render();
+    setTimeout(() => playCeremony(L, step), 380);
+    P.ceremony = powersOf(L).length > 0;
   }
   /* Act II opens on the train leaving Dustwater (the user's, 2026-11-01). You're aboard: the caboose and the
      carriages stand still in the frame while the station slides away behind them and the line runs out into the
@@ -3270,6 +3521,155 @@ html.art .coach { border-radius: 0; }
     card.classList.remove('on', 'said');
     card.onpointerdown = null;
     setTimeout(() => { cancelAnimationFrame(DEPART.raf); if (!card.classList.contains('on')) { card.className = ''; card.innerHTML = ''; } }, 520);
+  }
+  /* ---------------- the gang's powers (2026-11-01) ---------------- */
+  // small glyphs, one per family of power
+  const PW_ICON = {
+    coin: '<path d="M12 4a8 8 0 1 0 .01 0z" fill="#f0c23c" stroke="#2a1b16" stroke-width="2"/><path d="M12 7v10M9.5 9.5h4a1.5 1.5 0 0 1 0 3h-3a1.5 1.5 0 0 0 0 3h4" fill="none" stroke="#2a1b16" stroke-width="1.6"/>',
+    gun: '<path d="M3 9h13l2-2h3v5h-4l-1 2h-4l-1 5H6l1-5H3z" fill="#8a5a3a" stroke="#2a1b16" stroke-width="1.6" stroke-linejoin="round"/><circle cx="9" cy="10" r="1.2" fill="#d8783a"/><circle cx="14" cy="10.5" r="1" fill="#d8783a"/>',
+    drop: '<path d="M12 3c3 5 6 8 6 12a6 6 0 0 1-12 0c0-4 3-7 6-12z" fill="#b8322a" stroke="#2a1b16" stroke-width="1.8"/>',
+    eye: '<path d="M2 12c3-5 7-7 10-7s7 2 10 7c-3 5-7 7-10 7s-7-2-10-7z" fill="#fbf3dc" stroke="#2a1b16" stroke-width="1.8"/><circle cx="12" cy="12" r="3.4" fill="#2a1b16"/>',
+    turn: '<path d="M19 12a7 7 0 1 1-2.05-4.95" fill="none" stroke="#2a1b16" stroke-width="2.4"/><path d="M14.5 4.5l3.2 2.6-3.6 2" fill="none" stroke="#2a1b16" stroke-width="2.2" stroke-linejoin="round"/>',
+    card: '<rect x="5" y="3" width="11" height="15" rx="2" fill="#fbf3dc" stroke="#2a1b16" stroke-width="1.8"/><rect x="9" y="7" width="11" height="15" rx="2" fill="#fbf3dc" stroke="#2a1b16" stroke-width="1.8"/><path d="M14.5 11l2 3-2 3-2-3z" fill="#b8322a"/>',
+    chain: '<rect x="3" y="9" width="9" height="6" rx="3" fill="none" stroke="#2a1b16" stroke-width="2.2"/><rect x="12" y="9" width="9" height="6" rx="3" fill="none" stroke="#2a1b16" stroke-width="2.2"/>',
+    fuse: '<rect x="6" y="9" width="10" height="12" rx="2" fill="#b8322a" stroke="#2a1b16" stroke-width="1.8"/><path d="M11 9c0-3 3-4 5-6" fill="none" stroke="#2a1b16" stroke-width="1.8"/><circle cx="17" cy="3" r="2" fill="#f0c23c"/>',
+    hush: '<circle cx="12" cy="11" r="8" fill="#e6c3a0" stroke="#2a1b16" stroke-width="1.8"/><rect x="5" y="12" width="14" height="4" fill="#fbf3dc" stroke="#2a1b16" stroke-width="1.4"/>',
+    shield: '<path d="M12 3l7 3v6c0 5-3 8-7 9-4-1-7-4-7-9V6z" fill="#8a7a62" stroke="#2a1b16" stroke-width="1.8"/>',
+    boot: '<path d="M7 3h6v10l6 3v4H5V13z" fill="#6a4026" stroke="#2a1b16" stroke-width="1.8" stroke-linejoin="round"/>',
+    star: '<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z" fill="#d0b0e8" stroke="#2a1b16" stroke-width="1.6" stroke-linejoin="round"/>'
+  };
+  const pwSvg = k => '<svg viewBox="0 0 24 24" aria-hidden="true">' + (PW_ICON[k] || PW_ICON.star) + '</svg>';
+  // when each power bites, the glyph it wears, and the short word over the gang's heads (no intent for the always-on)
+  const PW = {
+    rusty: ['Every card you play', 'gun', 'Your cards \u22121'], sand: ['The first trick of every hand', 'eye', 'Trick 1: no buffs'], shakedown: ['Every trick they take', 'coin', 'Per trick \u22125g'],
+    gutshot: ['The end of every hand', 'drop', 'Each hand \u221210'], armour: ['Every trick you take defending', 'shield', 'Defence: no hit'], sleeve: ['Every deal', 'card', 'An Ace each'],
+    gag: ['Every auction', 'hush', 'Partner gagged'], marked: ['Every deal', 'card', 'None of yours'], snakebite: ['Every trick they take', 'drop', 'Per trick \u22125'],
+    bushwhack: ['When your team wins the bid', 'boot', 'West leads'], tough: ['All fight', 'shield', null], lucky: ['Every deal', 'card', 'Stacked deal'],
+    deadeye: ['Every hand that hurts you', 'eye', 'Hits \u00d71.5'], locked: ['Every deal', 'chain', 'A card chained'], ticking: ['By the second trick', 'fuse', 'Play it by trick 2'],
+    nokitty: ['Every hand', 'card', 'No kitty'],
+    facekitty: ['While you bid', 'card'], dealerleads: ['The first trick', 'boot'], promenade: ['The first trick', 'boot'], corner: ['Every trick', 'turn'], reverse: ['The first trick', 'turn'],
+    allemande: ['Whenever a bower is played', 'card'], grand: ['Before play, every hand', 'card']
+  };
+  const SAYPW = ['Mind this one, dear: ', 'Careful, dear: ', 'Watch them, dear: ', 'And this, dear: '];
+  // a fight's powers, in the order they're played: the gang's tricks, its table rule, a Showdown's own rule
+  function powersOf(L) {
+    if (L.mode === 'standard' || !L.foe) return [];
+    const out = L.foe.traits.map((t, i) => { const a = R.abilityOf(t), p = PW[t] || []; return { k: t, cls: R.TRAITS[t] ? 'trait' : 'trick', name: a.name, text: a.text, when: p[0], icon: p[1], intent: p[2], who: i % 2 ? 'e' : 'w' }; });
+    const rule = R.ruleOf(L);
+    if (rule) out.push({ k: 'rule', id: rule, cls: 'rule', name: R.TABLE_RULES[rule].name, text: R.TABLE_RULES[rule].text, when: (PW[rule] || [])[0], icon: (PW[rule] || [])[1], who: out.length % 2 ? 'e' : 'w' });
+    if (L.kind === 'boss' && L.boss) out.push({ k: 'boss', cls: 'boss', name: R.BOSS[L.boss].name, text: R.BOSS[L.boss].rule, when: 'All the Showdown', icon: 'star', who: 'w' });
+    return out;
+  }
+  const KIND_WORD = { trick: ['DIRTY TRICK', 'CHEAT!'], rule: ['TABLE RULE', 'HOUSE RULE'], trait: ['GANG TRAIT', 'WATCH OUT'], boss: ['SHOWDOWN', 'BOSS RULE'] };
+  // what sits over the gang's heads: one intent each side, for the powers that bite at a moment
+  function intentsHTML(L) {
+    const ps = powersOf(L).filter(p => p.intent), seen = {};
+    return ps.map(p => { const side = seen.w ? 'e' : 'w'; if (seen[side]) return ''; seen[side] = 1;
+      return '<div class="intent ' + side + '" data-pw="' + p.k + '">' + pwSvg(p.icon) + esc(p.intent) + '</div>'; }).join('');
+  }
+  /* The ceremony: after NOW DRAW!, each power in turn. The gang member steps forward, the card comes out of their
+     hand and is stamped, your partner says it plainly; a tap (or 3 s) and it flies to its place on the nameplate.
+     step() waits while it plays (P.ceremony), so nobody bids over it. Reduced motion: the same cards, no flight. */
+  const CERE = { timers: [] };
+  function playCeremony(L, done) {
+    const ps = powersOf(L), c = $('ceremony');
+    if (!ps.length || FAST) { done(); return; }
+    P.ceremony = true;
+    c.hidden = false;
+    let i = 0;
+    const finish = () => { CERE.timers.forEach(clearTimeout); c.hidden = true; c.innerHTML = ''; c.onclick = null; P.ceremony = false; done(); };
+    const next = () => {
+      CERE.timers.forEach(clearTimeout); CERE.timers = [];
+      if (i >= ps.length) { finish(); return; }
+      const p = ps[i++], W = KIND_WORD[p.cls], fig = document.querySelector('#felt .stage .fig.' + p.who + ' img'), fr = fig && fig.getBoundingClientRect();
+      c.innerHTML = (fr && fr.width ? '<img class="cfig" src="' + fig.src + '" alt="" style="left:' + fr.left + 'px;top:' + fr.top + 'px;width:' + fr.width + 'px;height:' + fr.height + 'px' + (p.who === 'w' ? ';scale:-1 1' : '') + '">' : '') +
+        '<div class="pcard"><div class="kind pw-' + p.cls + '">' + W[0] + '</div><div class="icon pwbg-' + p.cls + '">' + pwSvg(p.icon) + '</div><h2>' + esc(p.name) + '</h2><p>' + esc(p.text) + '</p>' +
+        (p.when ? '<div class="when">When: ' + esc(p.when) + '</div>' : '') + '<span class="stampk pw-' + p.cls + '">' + W[1] + '</span></div>' +
+        '<div class="pline"><span class="face svg">' + partnerFace(L.partner) + '</span><span><b>' + esc(PN()) + ':</b> ' + esc(R.voice(L, SAYPW[(i - 1) % SAYPW.length] + p.text.charAt(0).toLowerCase() + p.text.slice(1))) + '</span></div>' +
+        '<div class="ctap">' + (i < ps.length ? 'Tap for the next' : 'Tap to play') + ' (' + i + ' of ' + ps.length + ')</div>';
+      const card = c.querySelector('.pcard'), cr = card.getBoundingClientRect(), pl = c.querySelector('.pline');
+      if (fr && fr.width) { card.style.setProperty('--fx', (fr.left + fr.width / 2 - cr.left - cr.width / 2) + 'px'); card.style.setProperty('--fy', (fr.top + fr.height / 2 - cr.top - cr.height / 2) + 'px'); }
+      pl.style.top = (cr.bottom + 16) + 'px';
+      const rm = reduceMotion();
+      CERE.timers.push(setTimeout(() => { card.classList.add('stamped'); const f = $('felt'); f.classList.remove('shakeit'); void f.offsetWidth; f.classList.add('shakeit'); pl.classList.add('on'); }, rm ? 0 : 560));
+      let flying = false;
+      const fly = () => {
+        if (flying) return; flying = true;
+        const target = pwTarget(p);
+        if (!target || rm) { next(); return; }
+        const t = target.getBoundingClientRect(), c2 = card.getBoundingClientRect();
+        pl.classList.remove('on');
+        card.classList.add('fly');
+        card.style.transform = 'translate(' + (t.left + t.width / 2 - c2.left - c2.width / 2) + 'px,' + (t.top + t.height / 2 - c2.top - c2.height / 2) + 'px) scale(' + Math.max(0.08, t.width / c2.width) + ')';
+        card.style.opacity = 0;
+        CERE.timers.push(setTimeout(() => { pulseEl(target); next(); }, 500));
+      };
+      c.onclick = () => { if (card.classList.contains('stamped')) fly(); };
+      CERE.timers.push(setTimeout(fly, rm ? 4000 : 3600));
+    };
+    next();
+  }
+  // where a power lives on the table: its chip, the Showdown's rule, or the nameplate
+  const pwTarget = p => document.querySelector('#felt .foe .ftag[data-k="' + p.k + '"]') || (p.k === 'boss' && document.querySelector('#felt .notice.rule')) || document.querySelector('#felt .stage .foe');
+  function pulseEl(el) { if (!el) return; el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); }
+  function pwPop(p, el, text) {
+    if (FAST || !el) return;
+    const r = el.getBoundingClientRect(), d = document.createElement('div');
+    d.className = 'pwpop ' + p.cls; d.textContent = text || p.name;
+    d.style.left = (r.left + r.width / 2) + 'px'; d.style.top = (r.top - 4) + 'px';
+    document.body.appendChild(d); setTimeout(() => d.remove(), 1500);
+  }
+  function pwCoin(from, to) {
+    if (FAST || reduceMotion() || !from || !to || !document.body.animate) return;
+    const a = from.getBoundingClientRect(), b = to.getBoundingClientRect(), c = document.createElement('i'), dx = b.left + b.width / 2 - a.left - a.width / 2, dy = b.top + b.height / 2 - a.top - a.height / 2;
+    c.className = 'pwcoin'; c.style.left = (a.left + a.width / 2 - 9) + 'px'; c.style.top = (a.top + a.height / 2 - 9) + 'px'; document.body.appendChild(c);
+    c.animate([{ transform: 'translate(0,0)' }, { transform: 'translate(' + dx / 2 + 'px,' + (dy / 2 - 60) + 'px)', offset: 0.5 }, { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(.7)' }], { duration: 650, easing: 'ease-in-out' }).onfinish = () => c.remove();
+  }
+  /* A power firing, once per moment (P.cues): its chip and intent pulse, its name pops, and for a few the thing it
+     touches shows it (a coin off your gold, your card's rank, the table going round the other way). */
+  function powerCues(L, felt) {
+    if (FAST || L.phase === 'over' || P.ceremony || standoffDue(L)) return;
+    const ps = powersOf(L), h = L.h;
+    if (!ps.length || !h) return;
+    const has = k => ps.find(p => p.k === k || p.id === k);
+    P.cues = P.cues || {};
+    const once = key => { if (P.cues[key]) return false; P.cues[key] = 1; return true; };
+    const fire = (p, text, delay) => setTimeout(() => {
+      const chip = pwTarget(p), it = felt.querySelector('.stage .intent[data-pw="' + p.k + '"]');
+      pulseEl(chip); pulseEl(it); pwPop(p, it || chip, text);
+    }, delay || 0);
+    const base = L.level + '-' + L.handNo;
+    // at the deal: the powers that change what you're dealt or how you bid
+    if (L.phase === 'hand' && h.phase === 'bid' && once('deal' + base)) {
+      let d = 0;
+      ['sleeve', 'marked', 'lucky', 'locked', 'ticking', 'nokitty', 'facekitty'].forEach(k => { const p = has(k); if (p && (k !== 'lucky' || h.stacked)) { fire(p, null, 300 + d); d += 700; } });
+      if (h.stacked && !has('lucky')) { /* the floor's stacked deck has its own chip */ }
+    }
+    if (L.phase === 'hand' && h.phase === 'bid' && h.turn === 2 && has('gag') && once('gag' + base)) fire(has('gag'), PN() + ' is gagged');
+    if (L.phase === 'hand' && h.phase === 'swing' && has('grand') && once('grand' + base)) fire(has('grand'));
+    // your card on the table: Rusty Guns plays it a rank lower
+    if (L.phase === 'hand' && (h.phase === 'play' || h.phase === 'trick') && h.trick[0] && has('rusty') && once('rust' + base + '-' + h.trickNo)) {
+      const c = h.trick[0];
+      if (c !== 'JK' && E.rankOf(c) !== 'J') fire(has('rusty'), 'Rusty Guns: ' + E.label(c) + ' \u22121');
+    }
+    // a finished trick
+    if (L.phase === 'hand' && h.phase === 'trick' && h.last && once('trick' + base + '-' + h.trickNo)) {
+      const theirs = E.team(h.last.winner) === 1, first = h.trickNo === 1;
+      if (theirs && has('shakedown')) { fire(has('shakedown'), 'Shakedown \u22125g'); pwCoin($('goldstat'), felt.querySelector('.stage .fig.' + (h.last.winner === 1 ? 'w' : 'e'))); }
+      if (theirs && has('snakebite')) fire(has('snakebite'), 'Snakebite \u22125', 250);
+      if (!theirs && has('armour') && h.contract && E.team(h.contractor) === 1) fire(has('armour'), 'Thick Hide: no hit');
+      if (first) ['sand', 'bushwhack', 'dealerleads', 'promenade', 'reverse'].forEach((k, j) => { const p = has(k); if (p) fire(p, null, 200 + 500 * j); });
+      if (has('corner')) {
+        fire(has('corner'), first ? null : 'Widdershins', 0);
+        if (first && !reduceMotion()) { const r = document.createElement('div'); r.className = 'pwring'; r.innerHTML = '<svg viewBox="0 0 260 160" width="100%" height="100%"><ellipse cx="130" cy="80" rx="118" ry="64" fill="none" stroke="#ffe9b0" stroke-width="5" stroke-dasharray="22 14"/><path d="M248 80 l-12 -16 l-6 18 z M12 80 l12 16 l6 -18 z" fill="#ffe9b0"/></svg>'; felt.appendChild(r); setTimeout(() => r.remove(), 1700); }
+      }
+      if (has('allemande') && h.last.cards && h.last.cards.some(x => x && E.rankOf(x) === 'J')) fire(has('allemande'));
+    }
+    // the hand's end: what bled you
+    if (L.phase === 'summary' && h.result && once('sum' + base)) {
+      if (has('gutshot')) fire(has('gutshot'), 'Gut Shot \u221210');
+      if (has('deadeye') && h.result.dmg > 0) fire(has('deadeye'), 'Dead Eye \u00d71.5', 300);
+    }
   }
   /* Game over: the grave, then the run's ending (already drawn behind it). Once a run; never in ?fast. */
   const GRAVE = { timers: [] };
