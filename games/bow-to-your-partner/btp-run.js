@@ -511,8 +511,13 @@
     const sf = floors[F - 1][1].foe;
     Object.assign(sf, { tipoff: boss, traits: sf.traits.slice(0, 1), bounty: 1, hp: Math.round(sf.hp * EXPRESS.secretHp / 10) * 10 });
     L.map = { floors, boss, side: true };
+    L.map.loot = pickLoot(L);
     L.pos = null; L.path = []; L.route = [];
   }
+  /* The Showdown's loot (the user's, 2026-11-01: the wanted poster should say what you win, not just the 100 gold, and
+     the ledger should list it): one buff you don't have, drawn with the map, named on the poster and handed over on
+     payday. Already yours by then? The old pick of three instead. None at the Fair: winning it ends the run. */
+  const pickLoot = L => { const fb = L.act < LAST_ACT ? freeBuffs(L) : []; return fb.length ? E.pick(L, fb) : null; };
   /* The three trains' map (2026-10-30), kept for runs saved on it: nothing generates it any more. */
   function genThreeTrains(L) {
     const boss = E.pick(L, BOSS_POOL[2]), floors = [];
@@ -585,6 +590,7 @@
     const seen = [];
     for (const row of floors) for (const n of row) if (n.kind === 'dance' || n.kind === 'elite') n.foe = makeFoe(L, n.kind, n.f, seen);
     L.map = { floors, boss: L.act === 3 && BOSS_POOL[3].includes(L.fairBoss) ? L.fairBoss : E.pick(L, BOSS_POOL[L.act]) };
+    L.map.loot = pickLoot(L);
     L.pos = null; L.path = []; L.route = [];
   }
   /* Dustwater's town rules (2026-10-27, the user's: a town this size has one hotel, and two hotels side by side
@@ -1197,7 +1203,7 @@
      bounty: two stars, three within par. */
   function finishLevel(L) {
     const o = L.obj, par = parOf(L), fast = L.kind !== 'bank' && L.handNo <= par;
-    let stars = 1, gold = 0, won = true;
+    let stars = 1, gold = 0, won = true, loot = null;
     /* The payout, line by line (2026-10-30: the stars pop-up and the Showdown's desk count it out), adding up to
        `gold`: { t: what, g: gold } and { t, h: health } for the Canteen. */
     const pay = [];
@@ -1206,6 +1212,12 @@
       gold = 100;
       pay.push({ t: 'Bounty: ' + BOSS[L.boss].name.replace(/^The /, 'the '), g: gold });
       E.say(L, BOSS[L.boss].name + ' are brought to justice!', 'objective');
+      const lt = L.map && L.map.loot;
+      if (lt && BUFFS[lt] && !L.buffs.includes(lt)) {
+        grantBuff(L, lt); loot = lt;
+        pay.push({ t: 'Their loot: ' + BUFFS[lt].name, buff: lt });
+        E.say(L, 'Their loot is yours: ' + BUFFS[lt].name + '. ' + BUFFS[lt].text, 'objective');
+      }
       if (L.bossHex && L.bossHex.boss !== L.boss) {     // a hex from a lost Showdown (saved runs from before the redesign)
         if (L.hexes && L.hexes[L.bossHex.card] === L.bossHex.kind) delete L.hexes[L.bossHex.card];
         L.bossHex = null;
@@ -1249,7 +1261,7 @@
     L.levelsDone++;
     L.actLevels = (L.actLevels || 0) + 1;
     L.result = { kind: L.kind, stars, gold, objective: o ? o.done : null, fast, hands: L.handNo, par, won, you: L.you, opp: L.opp,
-                 health: L.health, change: L.health - L.startHealth, goldChange: L.gold - L.startGold, foe: L.foe, pay, boss: L.boss, act: L.act };
+                 health: L.health, change: L.health - L.startHealth, goldChange: L.gold - L.startGold, foe: L.foe, pay, boss: L.boss, act: L.act, loot };
     // one line per level for the run's ending
     L.record = (L.record || []).concat({ act: L.act, level: L.level, kind: L.kind, id: L.kind === 'boss' ? L.boss : o.id, stars, won: L.kind === 'boss' ? true : o.done });
     L.phase = 'over';
@@ -1273,7 +1285,7 @@
       const fb = freeBuffs(L);
       if (r.stars === 2 && fb.length) { const b = E.pick(L, fb); grantBuff(L, b); note(L, 'Duel prize: ' + BUFFS[b].name + '.'); }
       if (r.stars === 3 && fb.length) steps.push({ type: 'buff', options: draw(L, fb, picks(L, 2)) });
-    } else if (r.kind === 'boss' && r.won) {
+    } else if (r.kind === 'boss' && r.won && !r.loot) {
       const fb = freeBuffs(L);
       if (fb.length) steps.push({ type: 'buff', options: draw(L, fb, picks(L, 3)) });
     } else if (r.kind === 'bank' && r.won) steps.push({ type: 'enh', options: draw(L, enhPool(L), picks(L, BANK.enh)) });
