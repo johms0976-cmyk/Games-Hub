@@ -281,6 +281,9 @@ html.art .mapbox.fair .spr { display: block; }
 .jokersay { position: fixed; z-index: 70; width: 240px; background: #fff4d8; border-color: #b8322a; animation: jokersay 4.5s forwards; }
 @keyframes jokersay { 0% { opacity: 0; } 8% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
 .jokersay b { color: #b8322a; }
+/* your partner's line, when the table is folded too low to hold it: floated under the table instead */
+.jokersay.pfloat { border-color: #2a1b16; }
+.felt.compact .dyn .nanbubble { display: none; }
 .nod.dare b { color: #b8322a; }
 html.art .bidpanel .nod.dare { background: #fff4d8; }
 .darenote { position: absolute; z-index: 3; left: 6px; top: 4px; max-width: 46%; background: #fff4d8; color: #3a2a20; border: 2px solid #b8322a; border-radius: 10px; padding: 2px 7px; font: 11px/1.2 'Pixelify Sans', Georgia, serif; pointer-events: none; }
@@ -867,7 +870,9 @@ html.art .felt.dressed .stage .nanfig.px .pxfig { display: block; width: 100%; h
 .wanted span { display: block; font-size: 13px; color: #5a3b28; }
 
 /* ---------- table ---------- */
-#game { display: flex; flex-direction: column; min-height: 100vh; }
+#game { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
+/* the table takes whatever the screen has spare, so the hand and the bid grid sit at the bottom, under your thumb */
+#game > .felt { flex: 1 0 auto; }
 .top { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #fff; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
 .top .name { font-family: Georgia, serif; font-weight: 700; color: var(--accent); margin-right: auto; }
 .pill { border-radius: 999px; padding: 3px 10px; background: var(--bg); border: 1px solid var(--line); font-size: 14px; white-space: nowrap; }
@@ -1179,6 +1184,43 @@ html.art .backs i.gingham { background: var(--back) center / cover; }
 .bidgrid button.red { color: var(--red); }
 .bidgrid button:disabled { opacity: .3; cursor: default; }
 .bidlog { font-size: 14px; color: var(--muted); margin-top: 6px; }
+/* "What happened" in the top bar (2026-11-03): a small link at the end of its last row; the list drops down over the table */
+.top { position: relative; }
+.top .log, html.art .top .log { order: 6; margin-left: auto; font-size: 13px; background: none; border: 0; padding: 0; color: inherit; }
+html.art .top .log summary { color: #f3d9a8; }
+html.art .top .log[open] ol { background: #efe0bc; color: #2a1a0c; }
+.top .log summary { padding: 2px 0; white-space: nowrap; }
+.top .log[open] ol { position: absolute; z-index: 40; left: 8px; right: 8px; top: 100%; max-height: 55vh; margin: 0; padding: 8px 12px; background: #fffaf0; color: var(--ink);
+  border: 2px solid #2a1b16; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+/* one page on a phone (2026-11-03): the bid panel, the status line and the bid to beat sit tighter */
+@media (max-width: 600px) {
+  .status { padding: 4px 10px; min-height: 0; font-size: 15px; }
+  .bidpanel { padding: 4px 10px; }
+  .bidhead.bare { display: none; }
+  .bidhead { font-size: 13px; }
+  .bidgrid { gap: 2px; margin: 2px 0; }
+  .bidgrid .h { font-size: 11px; line-height: 1.1; }
+  html.art #bidpanel .bidgrid button { width: 44px; height: 44px; margin: 1px auto; }
+  html.art #bidpanel .bidgrid button .v { font-size: 10px; }
+  .standing { padding: 3px 6px; gap: 8px; margin-bottom: 2px; }
+  .standing .bchip { width: 36px; height: 36px; font-size: 12px; }
+  .standing .who2 { font-size: 14px; } .standing .who2 small { font-size: 12px; }
+  .bidpanel .btns { margin-top: 2px !important; }
+  .bidlog { margin-top: 3px; }
+  /* while you bid, the status line only repeats the bid-to-beat box: it goes, unless it's holding a button */
+  #game.bidding .status:not(:has(button)) { display: none; }
+}
+/* a short phone (an iPhone SE, or any phone with the browser's bars showing): smaller chips, a slimmer top and hand */
+@media (max-width: 600px) and (max-height: 760px) {
+  .top { padding: 4px 10px; gap: 4px 8px; }
+  .stat .val { font-size: 18px; }
+  html.art #bidpanel .bidgrid button { width: 38px; height: 38px; }
+  html.art #bidpanel .bidgrid button .v { font-size: 9px; }
+  .hand { padding: 6px 8px 4px; min-height: 0; }
+  .standing .bchip { width: 32px; height: 32px; }
+  /* a long hand spread out to play: two rows of the small cards, not of the big ones */
+  .hand.lots.spread .card { --rp: 1.5; --sp: 1; --pp: .8; --bp: 2; --ip: .8; width: 46px; height: 66px; }
+}
 .nod { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: #fff8e6; border: 1px solid var(--gold); font-size: 13px; }
 
 /* ---------- overlays ---------- */
@@ -1215,7 +1257,7 @@ details.log li.intent, details.log li.contract { font-weight: 600; }
   .hand.lots.spread { gap: 6px 4px; }
   .hand.lots.spread .card + .card { margin-left: 0; }
   .stat { padding: 3px 8px; } .stat .val { font-size: 20px; }
-  .lvlpill { width: 100%; order: 5; }
+  .lvlpill { order: 5; flex: 1 1 50%; }
 }
 
 /* ==================================================================================================================
@@ -1312,13 +1354,12 @@ html.art .coach { border-radius: 0; }
   <div class="hero" id="hero" aria-hidden="true"></div>
   <div class="titlemenu">
     <h1 class="wood logo" data-word="logo"><span>Draw, Partner!</span></h1>
-    <button class="wood go" data-act="start" data-word="start"><span>Start</span></button>
+    <button class="wood go more" data-act="start" data-word="start"><span>Start</span></button>
     <button class="wood more item" data-act="newstory" data-word="newstory"><span>New Story</span></button>
     <button class="wood more item" data-act="continue" id="continueBtn" data-word="continue"><span>Continue Current Story</span></button>
     <button class="wood more item" data-act="daily" data-word="daily"><span>Daily Challenge</span></button>
     <button class="wood more item" data-act="standard" data-word="standard"><span>Standard 500</span></button>
     <button class="wood more item back" data-act="mainback" data-word="back"><span>Back</span></button>
-    <button class="wood more opts" data-act="options" data-word="options" aria-expanded="false" aria-controls="titleOptions"><span>Options</span></button>
   </div>
   <div class="panel titleopts" id="titleOptions" hidden>
     <h2>Options</h2>
@@ -1328,7 +1369,6 @@ html.art .coach { border-radius: 0; }
     <label class="row" style="margin-top:10px"><input type="checkbox" id="tipsPick" checked> Your partner's tips (for your first run)</label>
     <div class="btns">
       <button class="btn alt" data-act="rules">How 500 works</button>
-      <a class="btn alt" href="../../index.html" style="text-decoration:none">Games hub</a>
       <button class="btn" data-act="options">Done</button>
     </div>
   </div>
@@ -1363,6 +1403,7 @@ html.art .coach { border-radius: 0; }
     <span class="lvlpill" id="handpill">Hand 1 of 3</span>
     <button class="iconbtn" data-act="rules">Rules</button>
     <button class="iconbtn" data-act="menu">Menu</button>
+    <details class="log" id="logbox"><summary>What happened</summary><ol id="log"></ol></details>
   </div>
   <div class="objective" id="objective"></div>
   <div class="contract" id="contract" hidden></div>
@@ -1371,7 +1412,6 @@ html.art .coach { border-radius: 0; }
   <div class="coach" id="coach" hidden></div>
   <div class="hand" id="hand"></div>
   <div class="bidpanel" id="bidpanel" hidden></div>
-  <details class="log" id="logbox"><summary>What happened</summary><ol id="log"></ol></details>
 </section>
 
 </div>
@@ -1379,20 +1419,20 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=31"></script>
-<script src="btp-ai.js?v=31"></script>
-<script src="btp-run.js?v=31"></script>
-<script src="btp-town.js?v=31"></script>
-<script src="art/dustwater/sprites.js?v=31"></script>
-<script src="btp-train.js?v=31"></script>
-<script src="art/train/sprites.js?v=31"></script>
-<script src="art/title/scene.js?v=31"></script>
-<script src="art/table/scene.js?v=31"></script>
-<script src="art/grave/scene.js?v=31"></script>
-<script src="art/paid/scene.js?v=31"></script>
-<script src="art/rooms/scene.js?v=31"></script>
-<script src="art/express/scene.js?v=31"></script>
-<script src="art/fair/sprites.js?v=31"></script>
+<script src="btp-engine.js?v=32"></script>
+<script src="btp-ai.js?v=32"></script>
+<script src="btp-run.js?v=32"></script>
+<script src="btp-town.js?v=32"></script>
+<script src="art/dustwater/sprites.js?v=32"></script>
+<script src="btp-train.js?v=32"></script>
+<script src="art/train/sprites.js?v=32"></script>
+<script src="art/title/scene.js?v=32"></script>
+<script src="art/table/scene.js?v=32"></script>
+<script src="art/grave/scene.js?v=32"></script>
+<script src="art/paid/scene.js?v=32"></script>
+<script src="art/rooms/scene.js?v=32"></script>
+<script src="art/express/scene.js?v=32"></script>
+<script src="art/fair/sprites.js?v=32"></script>
 <script>
 (function () {
   'use strict';
@@ -2470,16 +2510,48 @@ html.art .coach { border-radius: 0; }
     $('coach').hidden = !tip || inFelt;
     $('coach').innerHTML = inFelt ? '' : coachHTML(tip);
     $('felt').classList.toggle('tipping', !!inFelt);
-    // a tall bid grid (Act II's three rows) needs the room the empty trick area isn't using
-    $('felt').classList.toggle('compact', L.phase === 'hand' && h.phase === 'bid' && !inFelt && Object.keys(E.ACTS[E.actOf(L)].bids).length >= 3);
-    // Act III's bid grid is so tall that while bidding the table folds to a strip: the nameplate and the seats' bids
-    $('felt').classList.toggle('strip', $('felt').classList.contains('compact') && Object.keys(E.ACTS[E.actOf(L)].bids).length >= 5);
-    const fold = $('felt').className;
-    if (P.compactShown !== fold) { P.compactShown = fold; renderFelt(); }
-    if (inFelt) $('felt').insertAdjacentHTML('beforeend', '<div class="coach feltcoach">' + coachHTML(tip) + '</div>');
+    /* While you bid, the empty trick area folds away so the bid grid is on screen with the rest (2026-11-03, the
+       user's: "put it all on one page"): the whole saloon if it fits, then the stage cropped to the rim (compact),
+       then just the nameplate and the seats' bids (strip), as far as the screen needs and no further. Measured, so a
+       tall phone keeps the saloon in view and a short one folds; without a layout (tests) it goes by the act as it
+       used to: Act II's three rows compact, Act III's five a strip. */
+    const felt = $('felt'), bidding = L.phase === 'hand' && h.phase === 'bid' && !inFelt, rows = Object.keys(E.ACTS[E.actOf(L)].bids).length;
+    $('game').classList.toggle('bidding', L.phase === 'hand' && h.phase === 'bid');
+    const setFold = (n, snug) => {
+      felt.classList.toggle('compact', n >= 1); felt.classList.toggle('strip', n >= 2); felt.classList.toggle('snug', !!snug);
+      const f = felt.className;
+      if (P.compactShown !== f) { P.compactShown = f; renderFelt(); }
+      foldIntoSaloon(L);
+    };
+    const laid = !!felt.clientWidth;
+    // a fold, once needed, holds for the rest of the hand's phase (and the screen size), so the stage isn't rebuilt
+    // at every render: the gang's flinches and gloats play out
+    const fkey = [L.level, L.handNo, bidding, innerWidth, innerHeight].join('|'), held = P.foldKey === fkey ? P.foldHeld : null;
+    let fold = !bidding ? 0 : laid ? (held && held.fold) || 0 : rows >= 5 ? 2 : rows >= 3 ? 1 : 0;
+    if (inFelt) felt.insertAdjacentHTML('beforeend', '<div class="coach feltcoach">' + coachHTML(tip) + '</div>');
     $('log').innerHTML = L.log.slice().reverse().slice(0, 60).map(e => '<li class="' + e.kind + '">' + esc(e.text) + '</li>').join('');
-    foldIntoSaloon(L);
+    let snug = !bidding && !!(held && held.snug);
+    setFold(fold, snug);
+    if (bidding && laid) while (fold < 2 && tableSpill() > 0) setFold(++fold);
+    else if (laid && L.phase === 'hand' && !snug && tableSpill() > 0) setFold(0, snug = true);
+    if (laid) { P.foldKey = fkey; P.foldHeld = { fold, snug }; }
+    // folded to the rim with room to spare: spend it lowering the gang out from under their nameplate
+    if (laid && fold === 1) {
+      const spare = felt.offsetHeight - parseFloat(felt.style.height), plate = felt.querySelector('.stage .foe'), fig = felt.querySelector('.stage .fig');
+      if (spare > 0 && plate && fig) {
+        const d = Math.round(Math.min(spare, Math.max(0, plate.offsetTop + plate.offsetHeight + 4 - fig.offsetTop)));
+        felt.style.setProperty('--drop', d + 'px'); felt.style.height = (parseFloat(felt.style.height) + d) + 'px';
+      }
+    }
+    const said = felt.classList.contains('compact') && L.reaction && L.reaction.text, saidKey = said && L.level + ':' + L.handNo + ':' + said;
+    if (said && P.floated !== saidKey) { P.floated = saidKey; floatUnder(felt, '<b>' + esc(PN()) + ':</b> ' + esc(said)); }
     $('contract').classList.toggle('keep', !!h.open);      // an open misère's face-up hand stays in its strip
+  }
+  // how far the table runs past the bottom of the screen (the last thing on it, not the page's own minimum height)
+  function tableSpill() {
+    const g = $('game'), kids = [...g.children].filter(e => e.offsetHeight && e.id !== 'logbox');
+    if (!kids.length) return 0;
+    return kids[kids.length - 1].getBoundingClientRect().bottom - g.getBoundingClientRect().top - innerHeight;
   }
   /* The strips above the table fold into the saloon (2026-10-30, from the UI spike): the bonus (or the Showdown's
      rule and the Caller's call) is a line on the gang's nameplate (a notice on the wall covered the gang at phone
@@ -3185,7 +3257,8 @@ html.art .coach { border-radius: 0; }
     const re = L.reaction, felt = $('felt');
     // while bidding a tall grid (felt.compact) the stage shrinks to 2 and crops more wall, so the grid's Pass stays on screen
     const compact = felt.classList.contains('compact'), lift = compact ? LIFT_COMPACT : LIFT;
-    const k = compact ? Math.min(2, stageScale(felt.clientWidth || innerWidth)) : stageScale(felt.clientWidth || innerWidth);
+    // snug: while playing on a short screen, the saloon a size smaller, the trick's room kept (renderTable decides)
+    const k = compact || felt.classList.contains('snug') ? Math.min(2, stageScale(felt.clientWidth || innerWidth)) : stageScale(felt.clientWidth || innerWidth);
     const skey = [L.act, L.level, lookOf(L).join(), k].join('|');
     if (P.stageKey !== skey || !felt.querySelector('.stage')) { buildStage(L, felt, k); P.stageKey = skey; P.fxKey = null; }
     felt.style.setProperty('--k', k);
@@ -3263,9 +3336,14 @@ html.art .coach { border-radius: 0; }
     const valueOf = (t, s) => (A.bids[t] || A.extra[t])[s];
     // every button comes from the engine's own list, so the page can never offer a bid it would refuse
     const mine = h.turn === 0, legal = mine ? E.legalBids(L) : [], can = (t, s) => legal.some(b => b.t === t && b.s === s);
-    let g = '<div class="bidgrid' + (tricks.length >= 5 ? ' tall' : '') + '" style="grid-template-columns: 34px repeat(' + suits.length + ', 1fr)"><span></span>' +
+    // rows too low to bid go (2026-11-03, one page on a phone): on your turn, every row under your lowest legal bid;
+    // otherwise every row whose bids can't beat the one to beat. At least the top row stays.
+    const low = mine && legal.length ? Math.min(...legal.filter(b => tricks.includes(b.t)).map(b => b.t)) : null;
+    const dead = t => mine ? low != null && t < low : !!h.high && suits.every(s => valueOf(t, s) <= h.high.v);
+    const rowsShown = tricks.filter((t, i) => !dead(t) || i === tricks.length - 1);
+    let g = '<div class="bidgrid' + (rowsShown.length >= 5 ? ' tall' : '') + '" style="grid-template-columns: 34px repeat(' + suits.length + ', 1fr)"><span></span>' +
       suits.map(s => '<span class="h">' + (s === 'NT' ? 'No trumps' : E.NAME[s]) + '</span>').join('');
-    for (const t of tricks) {
+    for (const t of rowsShown) {
       g += '<span class="rl">' + t + '</span>';
       for (const s of suits) {
         const v = valueOf(t, s);
@@ -3293,7 +3371,7 @@ html.art .coach { border-radius: 0; }
       ? '<span class="bchip s-' + suitKey(hi) + '">' + esc(bidPlain(hi)) + '</span><span class="who2"><b>' + (hi.seat === 0 ? 'You lead' : nm(hi.seat) + ' leads') + '</b> with ' + bidHTML(hi) + ' (' + hi.v + ')' +
         '<small>' + (raise ? 'Everyone else passed: raise it or keep it' : mine ? 'Beat it, or pass' : nm(h.turn) + ' is bidding\u2026') + '</small></span>'
       : '<span class="bchip none">NO BID</span><span class="who2"><b>Nobody has bid</b><small>' + (mine ? 'Open the bidding: tricks you and ' + PN() + ' promise, out of ' + E.ACTS[E.actOf(L)].hand : nm(h.turn) + ' is bidding\u2026') + '</small></span>') + '</div>';
-    bp.innerHTML = standing + '<div>' + (raise ? '<b class="raisehead">Raise your own bid</b> (more tricks or a higher suit), or keep it.' : '<b>' + (mine ? 'Your bid' : nm(h.turn) + ' is bidding\u2026') + '</b>') + extras + '</div>' + g +
+    bp.innerHTML = standing + '<div class="bidhead' + (!raise && !extras ? ' bare' : '') + '">' + (raise ? '<b class="raisehead">Raise your own bid</b> (more tricks or a higher suit), or keep it.' : '<b>' + (mine ? 'Your bid' : nm(h.turn) + ' is bidding\u2026') + '</b>') + extras + '</div>' + g +
       '<div class="btns" style="margin-top:4px"><button class="btn alt" data-act="pass"' + (mine && !E.mustBid(L, 0) ? '' : ' disabled') + '>' + (raise ? 'Keep ' + bidHTML(h.high) : 'Pass') + '</button>' +
       (A.misere ? '<button class="btn alt" data-bid="0MIS" title="Lose every trick, playing alone; your partner sits out. Ranks between 5NT and 6♠."' + (!can(0, 'MIS') ? ' disabled' : '') + '>Misère · ' + A.misere + '</button>' + (A.openMisere ? '<button class="btn alt" data-bid="0OMIS" title="Lose every trick alone, with your hand face up after the first trick. Ranks between 10♦ and 10♥."' + (!can(0, 'OMIS') ? ' disabled' : '') + '>Open · ' + A.openMisere + '</button>' : '<span class="bidlog" style="align-self:center;margin:0">lose every trick alone</span>') : '') + '</div>' +
       (log ? '<div class="bidlog" aria-label="The bids so far">' + log + '</div>' : '');
@@ -3665,7 +3743,7 @@ html.art .coach { border-radius: 0; }
         break;
       }
       case 'skipopening': endOpening(); break;
-      case 'options': { const o = $('titleOptions'); o.hidden = !o.hidden; document.querySelector('.titlemenu .opts').setAttribute('aria-expanded', String(!o.hidden)); break; }
+      case 'options': { const o = $('titleOptions'); o.hidden = !o.hidden; break; }
       case 'continue': { const s = loadSaved(); if (s) dustInto(() => { P.L = s; show(); }); break; }
       case 'rules': openSheet('rules'); break;
       case 'menu': openSheet('menu'); break;
@@ -3842,17 +3920,18 @@ html.art .coach { border-radius: 0; }
   // the stage under the title scene, in art pixels: the trail runs across it TRAIL_Y down; the stage scrolls at
   // STAGE_SPEED art pixels a second (60% of the first cut's 52) and the sign is drawn SIGN_K times its art size
   const BELOW = 560, TRAIL_Y = 280, HERO = { s: 2, top: 0, trainTop: 0 }, STAGE_SPEED = 31, SIGN_K = 1.2;
-  /* The title's words: pictures once the art is on, placed in the sky by where the train is: the logo a fifth of
-     the way down to it, Start Game about two thirds, Continue under Start, Options on the grass at the bottom. */
+  /* The title's words: pictures once the art is on. The logo in the sky, a fifth of the way down to the train; Start
+     floating on the grass at the bottom, at the size Options had (2026-11-03, the user's: buttons at the bottom so the
+     phone works in one hand), and Start's menu stacked up from there, Back where Start was. */
   function layoutTitle() {
     const S = window.TITLE_SCENE, art = document.documentElement.classList.contains('art');
     const s = HERO.s, sky = S ? Math.max(120, HERO.trainTop - 12) : innerHeight * 0.6;
     const place = (sel, y) => { const el = document.querySelector(sel); if (el) el.style.top = Math.round(y) + 'px'; };
     place('.titlemenu .logo', sky * 0.22);
-    place('.titlemenu .go', sky * 0.6);
-    const items = [...document.querySelectorAll('.titlemenu .item')].filter(el => !el.hidden), gap = Math.min(58, (sky * 0.92 - sky * 0.4) / Math.max(1, items.length - 1));
-    items.forEach((el, i) => { el.style.top = Math.round(sky * 0.4 + gap * i) + 'px'; });
-    place('.titlemenu .opts', innerHeight - 34);
+    const foot = innerHeight - 40;
+    place('.titlemenu .go', foot);
+    const items = [...document.querySelectorAll('.titlemenu .item')].filter(el => !el.hidden).reverse(), gap = Math.min(54, (foot - sky * 0.42) / Math.max(1, items.length - 1));
+    items.forEach((el, i) => { el.style.top = Math.round(foot - gap * i) + 'px'; });
     document.querySelectorAll('.titlemenu .wood').forEach(el => {
       const t = S && S.type && S.type[el.dataset.word];
       if (!t || !art) return;
@@ -4534,6 +4613,19 @@ html.art .coach { border-radius: 0; }
   // where a power lives on the table: its chip, the Showdown's rule, or the nameplate
   const pwTarget = p => document.querySelector('#felt .foe .ftag[data-k="' + p.k + '"]') || (p.k === 'boss' && document.querySelector('#felt .notice.rule')) || document.querySelector('#felt .stage .foe');
   // (after the hand is drawn: the felt's cues run before it)
+  // a line said over a folded table: a bubble just under it, on the right, gone after a few seconds or a tap
+  function floatUnder(el, html) {
+    if (FAST) return;
+    setTimeout(() => {
+      const r = el.getBoundingClientRect(), d = document.createElement('div');
+      if (!r.height) return;
+      d.className = 'bubble jokersay pfloat'; d.innerHTML = html;
+      d.style.left = Math.max(8, innerWidth - 256) + 'px'; d.style.top = Math.round(r.bottom + 4) + 'px';
+      document.body.appendChild(d);
+      const gone = () => d.remove();
+      d.onclick = gone; setTimeout(gone, 4500);
+    }, 60);
+  }
   function jokerSays(text) {
     setTimeout(() => {
       const card = document.querySelector('#hand [data-c="JK"]') || document.querySelector('#hand');
