@@ -1184,6 +1184,36 @@ html.art .backs i.gingham { background: var(--back) center / cover; }
 .bidgrid button.red { color: var(--red); }
 .bidgrid button:disabled { opacity: .3; cursor: default; }
 .bidlog { font-size: 14px; color: var(--muted); margin-top: 6px; }
+/* the bid prompt and the bid pop-up (2026-11-03, the user's) */
+.bidprompt { display: flex; align-items: center; gap: 8px; }
+.bidprompt .standing { flex: 1 1 auto; min-width: 0; margin: 0; }
+.bidprompt .btns { flex: none; display: flex; flex-direction: column; gap: 6px; margin: 0; }
+.bidprompt .btns .btn { min-width: 84px; }
+.handy { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.bidveil { position: fixed; inset: 0; z-index: 60; background: rgba(20, 12, 8, .5); }
+.bidmodal { position: fixed; z-index: 61; left: 50%; transform: translateX(-50%); width: min(560px, calc(100vw - 12px)); top: var(--mtop, 80px);
+  max-height: calc(100vh - var(--mtop, 80px) - 6px); max-height: calc(100dvh - var(--mtop, 80px) - 6px); overflow: auto; box-sizing: border-box;
+  padding: 6px 10px 10px; background: #fff; color: var(--ink); border: 3px solid #2a1b16; border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, .5); animation: bmup .22s ease-out; }
+@keyframes bmup { from { opacity: 0; translate: 0 24px; } }
+html.art .bidmodal { background: #2a5a3c repeating-conic-gradient(rgba(0,0,0,.06) 0 25%, transparent 0 50%) 0 0 / 6px 6px; border: 6px solid #6e4424; border-radius: 4px; color: #fbeed0; }
+html.art .bidmodal b { color: #f3d070; }
+.bmhead { display: flex; align-items: center; justify-content: space-between; font-family: "Pixelify Sans", Bitter, monospace; font-size: 18px; margin-bottom: 4px; }
+.bmclose { border: 0; background: none; color: inherit; font-size: 22px; line-height: 1; padding: 4px 8px; min-width: 40px; min-height: 40px; cursor: pointer; }
+.mhand { display: flex; justify-content: center; padding: 6px 0 4px; }
+.bidmodal .bidhead.bare { display: none; }
+.mhand .card { pointer-events: none; flex: none; }
+.mhand.over .card + .card { margin-left: var(--ml, -30px); }
+/* hung under each seat's name tag, in the baize the trick will use (over their heads the nameplate hides them);
+   your partner's a row lower, so two long bids side by side never meet */
+.dyn .bidbox.under { top: calc(var(--edge) * var(--ax) + 10px); }
+.dyn .seat.north .bidbox.under { top: calc(var(--edge) * var(--ax) + 40px); }
+.dyn .bidbox .bidsay { position: absolute; top: 0; left: 0; transform: translateX(-50%); white-space: nowrap; padding: 2px 9px; border-radius: 10px; background: #fff; color: var(--ink);
+  border: 2px solid #2a1b16; font: 800 15px/1.2 Bitter, Georgia, serif; box-shadow: 0 2px 0 rgba(30,18,14,.4); }
+.dyn .bidbox .bidsay::after { content: ""; position: absolute; left: 50%; top: -7px; margin-left: -5px; border: 5px solid transparent; border-bottom-color: #2a1b16; border-top: 0; }
+.dyn .bidbox .bidsay.ps { opacity: .8; font-weight: 600; }
+.dyn .bidbox .bidsay.lead { background: #f3d070; padding-bottom: 9px; }
+.dyn .bidbox .bidsay.lead i { position: absolute; left: 50%; bottom: -7px; transform: translateX(-50%); padding: 0 4px; font: 800 9px/12px Bitter, Georgia, serif; font-style: normal; letter-spacing: .08em; background: #6b4a10; color: #fff3d0; }
+.dyn .bidbox .bidsay.think { opacity: .85; }
 /* "What happened" in the top bar (2026-11-03): a small link at the end of its last row; the list drops down over the table */
 .top { position: relative; }
 .top .log, html.art .top .log { order: 6; margin-left: auto; font-size: 13px; background: none; border: 0; padding: 0; color: inherit; }
@@ -1200,8 +1230,8 @@ html.art .top .log[open] ol { background: #efe0bc; color: #2a1a0c; }
   .bidhead { font-size: 13px; }
   .bidgrid { gap: 2px; margin: 2px 0; }
   .bidgrid .h { font-size: 11px; line-height: 1.1; }
-  html.art #bidpanel .bidgrid button { width: 44px; height: 44px; margin: 1px auto; }
-  html.art #bidpanel .bidgrid button .v { font-size: 10px; }
+  html.art #bidmodal .bidgrid button { width: 44px; height: 44px; margin: 1px auto; }
+  html.art #bidmodal .bidgrid button .v { font-size: 10px; }
   .standing { padding: 3px 6px; gap: 8px; margin-bottom: 2px; }
   .standing .bchip { width: 36px; height: 36px; font-size: 12px; }
   .standing .who2 { font-size: 14px; } .standing .who2 small { font-size: 12px; }
@@ -1214,8 +1244,8 @@ html.art .top .log[open] ol { background: #efe0bc; color: #2a1a0c; }
 @media (max-width: 600px) and (max-height: 760px) {
   .top { padding: 4px 10px; gap: 4px 8px; }
   .stat .val { font-size: 18px; }
-  html.art #bidpanel .bidgrid button { width: 38px; height: 38px; }
-  html.art #bidpanel .bidgrid button .v { font-size: 9px; }
+  html.art #bidmodal .bidgrid button { width: 40px; height: 40px; }
+  html.art #bidmodal .bidgrid button .v { font-size: 9px; }
   .hand { padding: 6px 8px 4px; min-height: 0; }
   .standing .bchip { width: 32px; height: 32px; }
   /* a long hand spread out to play: two rows of the small cards, not of the big ones */
@@ -1412,6 +1442,8 @@ html.art .coach { border-radius: 0; }
   <div class="coach" id="coach" hidden></div>
   <div class="hand" id="hand"></div>
   <div class="bidpanel" id="bidpanel" hidden></div>
+  <div class="bidveil" id="bidveil" data-act="bidclose" hidden></div>
+  <div class="bidmodal" id="bidmodal" role="dialog" aria-label="Your bid" hidden></div>
 </section>
 
 </div>
@@ -1419,20 +1451,20 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=32"></script>
-<script src="btp-ai.js?v=32"></script>
-<script src="btp-run.js?v=32"></script>
-<script src="btp-town.js?v=32"></script>
-<script src="art/dustwater/sprites.js?v=32"></script>
-<script src="btp-train.js?v=32"></script>
-<script src="art/train/sprites.js?v=32"></script>
-<script src="art/title/scene.js?v=32"></script>
-<script src="art/table/scene.js?v=32"></script>
-<script src="art/grave/scene.js?v=32"></script>
-<script src="art/paid/scene.js?v=32"></script>
-<script src="art/rooms/scene.js?v=32"></script>
-<script src="art/express/scene.js?v=32"></script>
-<script src="art/fair/sprites.js?v=32"></script>
+<script src="btp-engine.js?v=33"></script>
+<script src="btp-ai.js?v=33"></script>
+<script src="btp-run.js?v=33"></script>
+<script src="btp-town.js?v=33"></script>
+<script src="art/dustwater/sprites.js?v=33"></script>
+<script src="btp-train.js?v=33"></script>
+<script src="art/train/sprites.js?v=33"></script>
+<script src="art/title/scene.js?v=33"></script>
+<script src="art/table/scene.js?v=33"></script>
+<script src="art/grave/scene.js?v=33"></script>
+<script src="art/paid/scene.js?v=33"></script>
+<script src="art/rooms/scene.js?v=33"></script>
+<script src="art/express/scene.js?v=33"></script>
+<script src="art/fair/sprites.js?v=33"></script>
 <script>
 (function () {
   'use strict';
@@ -2549,7 +2581,7 @@ html.art .coach { border-radius: 0; }
   }
   // how far the table runs past the bottom of the screen (the last thing on it, not the page's own minimum height)
   function tableSpill() {
-    const g = $('game'), kids = [...g.children].filter(e => e.offsetHeight && e.id !== 'logbox');
+    const g = $('game'), kids = [...g.children].filter(e => e.offsetHeight && !['logbox', 'bidmodal', 'bidveil'].includes(e.id));
     if (!kids.length) return 0;
     return kids[kids.length - 1].getBoundingClientRect().bottom - g.getBoundingClientRect().top - innerHeight;
   }
@@ -3269,7 +3301,8 @@ html.art .coach { border-radius: 0; }
     // the rim, then room for the trick's cards under it; while bidding a tall grid, only down to the rim
     const drop = compact ? 0 : Math.max(0, 50 - (24 - lift) * k);
     felt.style.setProperty('--drop', drop + 'px');
-    felt.style.height = (felt.classList.contains('strip') ? 78 : drop + rim * k + (compact ? 4 : 98)) + 'px';
+    // folded while you bid, there's still room under the rim for the seats' bubbles (the trick's room otherwise)
+    felt.style.height = (felt.classList.contains('strip') ? 78 : drop + rim * k + (compact ? 70 : 98)) + 'px';
     const plate = felt.querySelector('.plate'), ph = foePlate(L);
     if (plate.dataset.html !== ph) {
       const old = plate.querySelector('.foebar i'), was = old ? old.style.width : null;
@@ -3280,11 +3313,14 @@ html.art .coach { border-radius: 0; }
     }
     felt.querySelectorAll('.stage .fig').forEach((f, i) => f.classList.toggle('turn', turn === (i ? 3 : 1)));
     const lips = seat => { const cs = h.hands[seat].filter(c => L.hexes && L.hexes[c] === 'loose'); return cs.length ? '<div class="lips">' + cs.map(c => cardHTML(c, { small: true, seat })).join('') + '</div>' : ''; };
-    const strip = felt.classList.contains('strip');
+    const strip = felt.classList.contains('strip'), says = L.phase === 'hand' && h.phase === 'bid' && !strip;
+    // while the bidding goes on (2026-11-03, the user's): what each seat last said, in a bubble over their head
+    const said = s => { const b = h.bids.filter(x => x.seat === s && !x.keep).pop(); if (!b) return turn === s ? '<div class="bidbox under"><span class="bidsay think">\u2026</span></div>' : '';
+      const lead = !b.pass && h.high && h.high.seat === s; return '<div class="bidbox under"><span class="bidsay' + (b.pass ? ' ps' : lead ? ' lead' : '') + '">' + (lead ? '<i>HIGH</i>' : '') + (b.pass ? 'Pass' : bidHTML(b)) + '</span></div>'; };
     const seat = (s, cls, name) => '<div class="seat ' + cls + (turn === s ? ' turn' : '') + '">' + (strip
       ? '<div class="plaque"><span class="who">' + name + '</span>' + seatTag(L, s) + '</div>'
-      // every seat's word sits on its plaque, while bidding and after (over the heads the gang's nameplate hid them)
-      : '<div class="plaque"><span class="who">' + name + '</span>' + seatTag(L, s) + backs(h.hands[s].length, true) + '</div>' + lips(s)) + '</div>';
+      // every seat's word sits on its plaque after the bidding (over the heads the gang's nameplate hid them)
+      : (says ? said(s) : '') + '<div class="plaque"><span class="who">' + name + '</span>' + (says ? '' : seatTag(L, s)) + backs(h.hands[s].length, true) + '</div>' + lips(s)) + '</div>';
     // a tap on the table clears a finished trick: only then is it a control
     let zone = '<div class="trickzone"' + (h.phase === 'trick' ? ' data-act="tapfelt"' : '') + '>';
     if (h.phase === 'play' || h.phase === 'trick' || h.phase === 'swing' || h.phase === 'intent') {
@@ -3326,8 +3362,8 @@ html.art .coach { border-radius: 0; }
     }).join('');
   }
   function renderBid() {
-    const L = P.L, h = L.h, bp = $('bidpanel');
-    if (!(L.phase === 'hand' && h.phase === 'bid')) { bp.hidden = true; return; }
+    const L = P.L, h = L.h, bp = $('bidpanel'), bm = $('bidmodal');
+    if (!(L.phase === 'hand' && h.phase === 'bid')) { bp.hidden = true; bm.hidden = true; $('bidveil').hidden = true; P.bidOpen = false; return; }
     bp.hidden = false;
     const A = E.ACTS[E.actOf(L)], base = Object.keys(A.bids).map(Number), suits = Object.keys(A.bids[base[0]]);
     // a Doubly Woubly in your hand opens a row above the hand size
@@ -3362,19 +3398,36 @@ html.art .coach { border-radius: 0; }
     if (L.dare && !L.dare.done && L.dare.hand === L.handNo) extras += '<span class="nod dare" title="' + esc('The Joker: \u201c' + L.dare.text + '\u201d') + '"><b>Joker\u2019s dare:</b> ' + esc(DARE_SHORT[L.dare.id] || '') + ', ' + L.dare.pay + 'g</span>';
     if (h.spy) extras += '<span class="nod">' + esc(R.BUFFS.spyglass.name) + ': West holds the ' + E.label(h.spy[0]) + ', East the ' + E.label(h.spy[1]) + '</span>';
     const early = mine && !h.raise && !h.bids.some(b => b.seat === 0);
-    if (early && R.has(L, 'freshdeck') && !L.freshUsed) extras += '<button class="btn alt mini" data-act="freshdeal">' + esc(R.BUFFS.freshdeck.name) + ': new deal</button>';
-    if (early && R.has(L, 'sleeve') && !h.sleeved && h.kitty.length) extras += '<button class="btn alt mini" data-act="sleevemode" aria-pressed="' + !!P.sleeving + '">' + (P.sleeving ? 'Tap a card to swap (or here to stop)' : esc(R.BUFFS.sleeve.name) + ': swap a card') + '</button>';
+    let handy = '';     // buffs that work on your hand stay on the prompt, beside the hand they change
+    if (early && R.has(L, 'freshdeck') && !L.freshUsed) handy += '<button class="btn alt mini" data-act="freshdeal">' + esc(R.BUFFS.freshdeck.name) + ': new deal</button>';
+    if (early && R.has(L, 'sleeve') && !h.sleeved && h.kitty.length) handy += '<button class="btn alt mini" data-act="sleevemode" aria-pressed="' + !!P.sleeving + '">' + (P.sleeving ? 'Tap a card to swap (or here to stop)' : esc(R.BUFFS.sleeve.name) + ': swap a card') + '</button>';
     const raise = mine && h.raise;
     // the bid to beat (2026-10-30, players lost track of who leads): a chip with it, who holds it, and whose turn it is
     const hi = h.high, suitKey = b => b.s === 'NT' ? 'T' : b.s === 'MIS' || b.s === 'OMIS' ? 'T' : b.s;
     const standing = '<div class="standing' + (hi && hi.seat % 2 === 0 ? ' you' : '') + '">' + (hi
-      ? '<span class="bchip s-' + suitKey(hi) + '">' + esc(bidPlain(hi)) + '</span><span class="who2"><b>' + (hi.seat === 0 ? 'You lead' : nm(hi.seat) + ' leads') + '</b> with ' + bidHTML(hi) + ' (' + hi.v + ')' +
+      ? '<span class="bchip s-' + suitKey(hi) + '">' + esc(hi.s === 'MIS' ? 'MIS' : hi.s === 'OMIS' ? 'OPEN' : bidPlain(hi)) + '</span><span class="who2"><b>' + (hi.seat === 0 ? 'You lead' : nm(hi.seat) + ' leads') + '</b> with ' + bidHTML(hi) + ' (' + hi.v + ')' +
         '<small>' + (raise ? 'Everyone else passed: raise it or keep it' : mine ? 'Beat it, or pass' : nm(h.turn) + ' is bidding\u2026') + '</small></span>'
       : '<span class="bchip none">NO BID</span><span class="who2"><b>Nobody has bid</b><small>' + (mine ? 'Open the bidding: tricks you and ' + PN() + ' promise, out of ' + E.ACTS[E.actOf(L)].hand : nm(h.turn) + ' is bidding\u2026') + '</small></span>') + '</div>';
-    bp.innerHTML = standing + '<div class="bidhead' + (!raise && !extras ? ' bare' : '') + '">' + (raise ? '<b class="raisehead">Raise your own bid</b> (more tricks or a higher suit), or keep it.' : '<b>' + (mine ? 'Your bid' : nm(h.turn) + ' is bidding\u2026') + '</b>') + extras + '</div>' + g +
+    /* The bid, one decision at a time (2026-11-03, the user's): the table stays in full view, the gang and your partner
+       each with a bubble of what they last said, and under the hand a prompt: the bid to beat, Pass and Bid. Bid opens
+       the grid in a pop-up over the table, with your hand in it (a long hand overlapped, each card's corner showing),
+       the bid to beat, every chip and Pass. */
+    if (!mine) P.bidOpen = false;
+    bp.innerHTML = '<div class="bidprompt">' + standing + (mine ? '<div class="btns"><button class="btn alt" data-act="pass"' + (!E.mustBid(L, 0) ? '' : ' disabled') + '>' +
+      (raise ? 'Keep ' + bidHTML(h.high) : 'Pass') + '</button><button class="btn" data-act="bidopen">' + (raise ? 'Raise' : 'Bid') + '</button></div>' : '') + '</div>' +
+      (handy ? '<div class="handy">' + handy + '</div>' : '');
+    // a long hand overlaps only as much as the pop-up's width needs, so every card's corner shows whole
+    const mh = h.hands[0], cw = innerWidth <= 420 ? 46 : 52, wide = Math.min(560, innerWidth - 12) - 32;
+    const over = mh.length > 1 && (mh.length * (cw + 4) > wide), ml = over ? Math.min(-6, Math.floor((wide - cw) / (mh.length - 1)) - cw) : 0;
+    bm.innerHTML = '<div class="bmhead"><b>' + (raise ? 'Raise your bid' : 'Your bid') + '</b><button class="bmclose" data-act="bidclose" aria-label="Back to the table">\u2715</button></div>' + standing +
+      '<div class="mhand' + (over ? ' over' : '') + '" style="--ml:' + ml + 'px" aria-label="Your hand">' + mh.map(c => cardHTML(c, { seat: 0, small: true })).join('') + '</div>' +
+      '<div class="bidhead' + (!raise && !extras ? ' bare' : '') + '">' + (raise ? '<b class="raisehead">Raise your own bid</b> (more tricks or a higher suit), or keep it.' : '<b>' + (mine ? 'Your bid' : nm(h.turn) + ' is bidding\u2026') + '</b>') + extras + '</div>' + g +
       '<div class="btns" style="margin-top:4px"><button class="btn alt" data-act="pass"' + (mine && !E.mustBid(L, 0) ? '' : ' disabled') + '>' + (raise ? 'Keep ' + bidHTML(h.high) : 'Pass') + '</button>' +
       (A.misere ? '<button class="btn alt" data-bid="0MIS" title="Lose every trick, playing alone; your partner sits out. Ranks between 5NT and 6♠."' + (!can(0, 'MIS') ? ' disabled' : '') + '>Misère · ' + A.misere + '</button>' + (A.openMisere ? '<button class="btn alt" data-bid="0OMIS" title="Lose every trick alone, with your hand face up after the first trick. Ranks between 10♦ and 10♥."' + (!can(0, 'OMIS') ? ' disabled' : '') + '>Open · ' + A.openMisere + '</button>' : '<span class="bidlog" style="align-self:center;margin:0">lose every trick alone</span>') : '') + '</div>' +
       (log ? '<div class="bidlog" aria-label="The bids so far">' + log + '</div>' : '');
+    const open = !!(P.bidOpen && mine);
+    bm.hidden = !open; $('bidveil').hidden = !open;
+    if (open) { const f = $('felt').getBoundingClientRect(); bm.style.setProperty('--mtop', Math.max(8, Math.round(f.top + 4)) + 'px'); }
   }
   function renderStatus() {
     const L = P.L, h = L.h, st = $('status');
@@ -3732,7 +3785,7 @@ html.art .coach { border-radius: 0; }
       case 'takejob': takeJob(); break;
       case 'freshdeal': P.sleeving = false; move('freshdeal'); break;
       case 'sleevemode': P.sleeving = !P.sleeving; render(); break;
-      case 'raisebid': P.raiseSeen = 'raise' + L.level + '-' + L.handNo + '-' + (L.redeals || 0); showSheet('', null); render(); break;
+      case 'raisebid': P.raiseSeen = 'raise' + L.level + '-' + L.handNo + '-' + (L.redeals || 0); P.bidOpen = true; showSheet('', null); render(); break;
       case 'paydone': { const ul = t.closest('.payout'); if (ul) ul.classList.add('done'); break; }
       case 'paidskip': endPaid(); move('collect'); break;
       case 'paidcollect': {
@@ -3752,7 +3805,9 @@ html.art .coach { border-radius: 0; }
       case 'levelinfo': openSheet('info', levelInfoHTML(L)); break;
       case 'closesheet': P.sheet = null; P.shown = null; $('veil').hidden = true; if (P.L && $('title').hidden) step(); break;
       case 'quit': P.sheet = null; clearTimeout(P.timer); $('veil').hidden = true; title(); break;
-      case 'pass': move('bid', null); break;
+      case 'pass': P.bidOpen = false; move('bid', null); break;
+      case 'bidopen': P.bidOpen = true; renderBid(); break;
+      case 'bidclose': P.bidOpen = false; renderBid(); break;
       case 'keephand': move('swing', null); break;
       case 'ackintent': move('ack'); break;
       case 'tapfelt': if (L && L.phase === 'hand' && L.h.phase === 'trick') move('ack'); break;
