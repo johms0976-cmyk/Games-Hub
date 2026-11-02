@@ -838,11 +838,26 @@ html.art .evscene { display: block; }
 .hero .stagecoach.pair { background-image: none !important; }
 .hero .stagecoach.pair i { position: absolute; inset: 0; background-repeat: no-repeat; background-size: calc(var(--fw) * 4) 100%; image-rendering: pixelated; animation: wheels .56s steps(4) infinite; }
 .hero .stagecoach.pair i.pr { left: -46%; right: 46%; top: -18%; bottom: 18%; animation-delay: -.21s; filter: brightness(.93); }
-/* where you rode in, on Dustwater's map: you and your partner at the hitching rail */
-.mapbox.dust .rodein { position: absolute; display: none; pointer-events: none; image-rendering: pixelated; }
-html.art .mapbox.dust .rodein { display: block; }
-.mapbox.dust .rodein i { position: absolute; inset: 0; background-repeat: no-repeat; background-size: 400% 100%; background-position: 0 0; image-rendering: pixelated; }
-.mapbox.dust .rodein i.pr { left: -60%; right: 60%; top: -22%; bottom: 22%; }
+/* you and your partner on the map (2026-11-03): at the hitching rail where you rode into Dustwater, then just above
+   whichever stop you're at, on every act's map; tapping a stop gallops you there (rideTo) */
+.mapbox .rodein { position: absolute; display: none; pointer-events: none; image-rendering: pixelated; z-index: 1999; }
+html.art .mapbox .rodein { display: block; }
+.mapbox .rodein.free { width: 34px; height: 29px; }
+.mapbox .rodein.left { transform: scaleX(-1); }
+.mapbox .rodein i { position: absolute; inset: 0; background-repeat: no-repeat; background-size: 400% 100%; background-position: 0 0; image-rendering: pixelated; }
+.mapbox .rodein i.pr { left: -60%; right: 60%; top: -22%; bottom: 22%; }
+.mapbox .rodein.riding i { animation: gallop .42s steps(4) infinite; } .mapbox .rodein.riding i.pr { animation-delay: -.16s; }
+@keyframes gallop { from { background-position-x: 0; } to { background-position-x: 133.333%; } }
+/* the partners in pixels (2026-11-03, the user: "the SVG looks ok, but it's a bit weird against the rest of the
+   pixels"): baked with the gang (bakery/gang.py, partners_px.py). With art on, a head-and-shoulders crop wherever a
+   partner talks, and their whole figure at the table between the gang; the drawings stay for art off. */
+.pxface { display: none; }
+html.art .face.svg .pxface { display: block; width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; image-rendering: pixelated; }
+html.art .face.svg .nansvg { display: none; }
+.stage .nanfig .pxfig { display: none; }
+html.art .felt.dressed .stage .nanfig.px { left: calc(50% - 20 * var(--ax)); top: calc((24 - var(--lift)) * var(--ax)); width: calc(40 * var(--ax)); height: calc(56 * var(--ax)); z-index: 0; }
+html.art .felt.dressed .stage .nanfig.px .nansvg { display: none; }
+html.art .felt.dressed .stage .nanfig.px .pxfig { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
 .k-mystery { --k: #6a5a8a; }
 /* the act's boss, on a wanted poster above the map */
 .wanted { margin: 6px auto 2px; max-width: 400px; padding: 8px 12px 9px; background: #f4e3bf; border: 2px solid #8a5a2c; border-radius: 3px;
@@ -1364,20 +1379,20 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=30"></script>
-<script src="btp-ai.js?v=30"></script>
-<script src="btp-run.js?v=30"></script>
-<script src="btp-town.js?v=30"></script>
-<script src="art/dustwater/sprites.js?v=30"></script>
-<script src="btp-train.js?v=30"></script>
-<script src="art/train/sprites.js?v=30"></script>
-<script src="art/title/scene.js?v=30"></script>
-<script src="art/table/scene.js?v=30"></script>
-<script src="art/grave/scene.js?v=30"></script>
-<script src="art/paid/scene.js?v=30"></script>
-<script src="art/rooms/scene.js?v=30"></script>
-<script src="art/express/scene.js?v=30"></script>
-<script src="art/fair/sprites.js?v=30"></script>
+<script src="btp-engine.js?v=31"></script>
+<script src="btp-ai.js?v=31"></script>
+<script src="btp-run.js?v=31"></script>
+<script src="btp-town.js?v=31"></script>
+<script src="art/dustwater/sprites.js?v=31"></script>
+<script src="btp-train.js?v=31"></script>
+<script src="art/train/sprites.js?v=31"></script>
+<script src="art/title/scene.js?v=31"></script>
+<script src="art/table/scene.js?v=31"></script>
+<script src="art/grave/scene.js?v=31"></script>
+<script src="art/paid/scene.js?v=31"></script>
+<script src="art/rooms/scene.js?v=31"></script>
+<script src="art/express/scene.js?v=31"></script>
+<script src="art/fair/sprites.js?v=31"></script>
 <script>
 (function () {
   'use strict';
@@ -1404,7 +1419,7 @@ html.art .coach { border-radius: 0; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 26, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 27, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -1778,6 +1793,7 @@ html.art .coach { border-radius: 0; }
     $('screen').classList.toggle('one', one);
     $('screen').innerHTML = bar() + (tipTop ? '<div class="coach">' + coachHTML(tip) + '</div>' : '') + body;
     if (L.map && L.map.side && document.querySelector('.mapbox.side')) sideScroll(false);
+    if (L.phase === 'map') placeRider(L);
     // on the map, bring the next choice into view once per stop (the map is taller than a phone)
     const onMap = L.phase === 'map' || L.phase === 'partner' || L.phase === 'actstart';
     if (onMap && P.mapScrolled !== L.act + ':' + L.pos) {
@@ -1930,6 +1946,58 @@ html.art .coach { border-radius: 0; }
     return '<div class="rodein" style="left:' + pct(x, T.W) + ';top:' + pct(y, T.H) + ';width:' + pct(w, T.W) + ';height:' + pct(h, T.H) + ';z-index:' + (2 + Math.round(at[1])) + '">' +
       (L.partner && L.partner !== 'horse' ? '<i class="pr" style="background-image:url(' + artURL('title/ride_' + L.partner + '.webp') + ')"></i>' : '') +
       '<i style="background-image:url(' + artURL('title/' + I.img + '.webp') + ')"></i></div>';
+  }
+  /* Your rider on the map (2026-11-03, the user's: "make it so the character on the map rides to the next node"): the
+     same pair as above, standing just over the stop you're at. Before your first stop: Dustwater's hitching rail, or
+     on the other acts just below the first stops. Tapping a stop gallops you there in a straight line, then it opens.
+     Art only and never load-bearing: with art off, ?fast or reduced motion, the stop opens at once. Positions are in
+     % of the map, so a resize doesn't strand the rider. */
+  function placeRider(L) {
+    const box = document.querySelector('.mapbox');
+    if (!box || NOART) return;
+    let el = box.querySelector('.rodein');
+    if (!el) {
+      const I = window.TITLE_SCENE && window.TITLE_SCENE.intro && window.TITLE_SCENE.intro.stage;
+      if (!I) return;
+      box.insertAdjacentHTML('beforeend', '<div class="rodein free">' + (L.partner && L.partner !== 'horse' ? '<i class="pr" style="background-image:url(' + artURL('title/ride_' + L.partner + '.webp') + ')"></i>' : '') +
+        '<i style="background-image:url(' + artURL('title/' + I.img + '.webp') + ')"></i></div>');
+      el = box.querySelector('.rodein');
+    }
+    el.classList.toggle('left', !!P.riderLeft);
+    const here = box.querySelector('.nd.here');
+    if (here) { const [x, y] = riderSpot(box, here, el); el.style.left = x + '%'; el.style.top = y + '%'; el.style.zIndex = 1999; return; }
+    if (!el.classList.contains('free')) return;      // Dustwater: rodeIn() stood it at the hitching rail
+    const can = [...box.querySelectorAll('.nd.can')], bw = box.clientWidth, bh = box.clientHeight;
+    if (!can.length || !bw || !bh) return;
+    const b = box.getBoundingClientRect(), rs = can.map(n => n.getBoundingClientRect());
+    const cx = rs.reduce((s, r) => s + r.left + r.width / 2, 0) / rs.length - b.left, low = Math.max(...rs.map(r => r.bottom)) - b.top;
+    el.style.left = (100 * (cx - el.offsetWidth / 2) / bw).toFixed(2) + '%';
+    el.style.top = (100 * Math.min(bh - el.offsetHeight, low + 6) / bh).toFixed(2) + '%';
+  }
+  // where the rider stands at a stop, in % of the map: hooves on the marker's top edge, the pair centred over it
+  function riderSpot(box, nd, el) {
+    const b = box.getBoundingClientRect(), r = nd.getBoundingClientRect(), w = el.offsetWidth, h = el.offsetHeight;
+    const pair = el.querySelector('.pr') ? 0.3 * w * (el.classList.contains('left') ? -1 : 1) : 0;
+    const x = r.left + r.width / 2 - b.left - w / 2 + pair, y = r.top - b.top - h + 3;
+    return [(100 * x / (box.clientWidth || 1)).toFixed(2), (100 * y / (box.clientHeight || 1)).toFixed(2)];
+  }
+  function rideTo(id, done) {
+    const box = document.querySelector('.mapbox'), el = box && box.querySelector('.rodein'), nd = box && box.querySelector('.nd[data-n="' + id + '"]');
+    if (FAST || P.riding || !el || !nd || !el.offsetWidth || !document.documentElement.classList.contains('art') || reduceMotion()) { done(); return; }
+    const x0 = parseFloat(el.style.left) || 100 * el.offsetLeft / box.clientWidth, y0 = parseFloat(el.style.top) || 100 * el.offsetTop / box.clientHeight;
+    const goLeft = nd.getBoundingClientRect().left + nd.offsetWidth / 2 < el.getBoundingClientRect().left + el.offsetWidth / 2 - 4;
+    P.riderLeft = goLeft;
+    el.classList.toggle('left', goLeft);
+    const [x1, y1] = riderSpot(box, nd, el).map(Number);
+    const px = Math.hypot((x1 - x0) * box.clientWidth, (y1 - y0) * box.clientHeight) / 100, ms = Math.round(Math.max(450, Math.min(1300, px * 3.4)));
+    P.riding = true;
+    el.classList.add('riding');
+    el.style.zIndex = 2001;
+    try { el.animate([{ left: x0 + '%', top: y0 + '%' }, { left: x1 + '%', top: y1 + '%' }], { duration: ms, easing: 'ease-in-out', fill: 'forwards' }); } catch (e) { /* no Web Animations: it just arrives */ }
+    // a long Main Street: keep the rider in view as they go
+    try { const r = nd.getBoundingClientRect(); if (r.top < 70 || r.bottom > innerHeight - 30) window.scrollBy({ top: r.top - innerHeight / 2, behavior: 'smooth' }); } catch (e) { /* no layout */ }
+    // a timer, not the animation's finish: a hidden tab never finishes it
+    setTimeout(() => { P.riding = false; done(); }, ms + 120);
   }
   function townBox(L, can, route, walked, fNow) {
     const T = window.BtpTown, lay = T.layout(L.map), DS = window.DUST_SPRITES || { s: {} };
@@ -2655,7 +2723,9 @@ html.art .coach { border-radius: 0; }
     '<path d="M5 26 Q30 30 55 26 L52 21 Q30 25 8 21 Z" fill="#1e1a18"/><path d="M17 23 C17 10 23 7 30 7 C37 7 43 10 43 23 Q30 26 17 23 Z" fill="#1e1a18"/></g></svg>';
   // the Sharp's count (2026-11-02): trumps (the Joker and the bowers too) neither in your hand nor played yet
   const trumpsOut = L => { const h = L.h; return AI.unseen(L, 0).filter(c => E.kIsTrump(E.plainK(c), h.trump)).length; };
-  const partnerFace = id => ({ horse: HORSE_SVG, nan: NAN_SVG, showboat: SHOWBOAT_SVG, sharp: SHARP_SVG, quiet: QUIET_SVG })[id] || '';
+  const PARTNER_FIG = { nan: 'gQnan', showboat: 'gJshow', sharp: 'gJsharp', quiet: 'gJquiet', horse: 'gKbis' };
+  const partnerFace = id => { const s = ({ horse: HORSE_SVG, nan: NAN_SVG, showboat: SHOWBOAT_SVG, sharp: SHARP_SVG, quiet: QUIET_SVG })[id] || '';
+    return s && s + (NOART ? '' : '<img class="pxface" alt="" src="' + artURL('table/pf_' + id + '.webp') + '">'); };
   // your partner's name for the page's words (a game with no partner set is Nan's, as before)
   const PN = () => E.pname(P.L);
   /* The stage's numbers from art/table/scene.js (written by the bake), with the same defaults if it is missing. */
@@ -3070,7 +3140,8 @@ html.art .coach { border-radius: 0; }
   function buildStage(L, felt, k) {
     const look = lookOf(L), fig = (key, side) => '<div class="fig ' + side + '"><img src="' + artURL('table/fig_' + key + '.webp') + '" alt=""></div>';
     felt.innerHTML = '<div class="stage"><div class="wall" style="background-image:url(' + artURL('table/' + wallKey(L) + '.webp') + ')"></div>' +
-      fig(look[0], 'w') + fig(look[1], 'e') + intentsHTML(L) + '<div class="nanfig">' + partnerFace(L.partner || 'nan') + '</div>' +
+      fig(look[0], 'w') + fig(look[1], 'e') + intentsHTML(L) + '<div class="nanfig' + (NOART ? '' : ' px') + '">' + partnerFace(L.partner || 'nan').replace(/<img class="pxface"[^>]*>/, '') +
+      (NOART ? '' : '<img class="pxfig" alt="" src="' + artURL('table/fig_' + PARTNER_FIG[L.partner || 'nan'] + '.webp') + '">') + '</div>' +
       '<div class="tbl" style="background-image:url(' + artURL('table/table.webp') + ')"></div><div class="plate"></div></div><div class="dyn"></div>';
     felt.classList.toggle('dressed', look.every(x => !STAGE.figs.length || STAGE.figs.includes(x)));
   }
@@ -3524,7 +3595,7 @@ html.art .coach { border-radius: 0; }
     if (d.card) { move(L.h.phase === 'kitty' ? 'discard' : L.h.phase === 'swing' ? 'swing' : 'play', d.card); return; }
     if (d.bid) { const m = d.bid.match(/^(\d+)(.+)$/); move('bid', { t: +m[1], s: m[2] }); return; }
     if (d.take) { move('take', d.take); return; }
-    if (d.go) { move('go', d.go); return; }
+    if (d.go) { if (!P.riding) rideTo(d.go, () => move('go', d.go)); return; }
     if (d.choose) { move('choose', d.choose); return; }
     if (d.claim) { move('choose', { claim: d.claim }); return; }
     if (d.enhance) { move('enhance', d.enhance); return; }
