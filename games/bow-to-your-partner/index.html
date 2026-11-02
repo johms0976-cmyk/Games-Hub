@@ -1251,6 +1251,16 @@ html.art .top .log[open] ol { background: #efe0bc; color: #2a1a0c; }
   /* a long hand spread out to play: two rows of the small cards, not of the big ones */
   .hand.lots.spread .card { --rp: 1.5; --sp: 1; --pp: .8; --bp: 2; --ip: .8; width: 46px; height: 66px; }
 }
+/* a very short phone (the browser's bars showing): while you bid, the prompt is one row and the hand the small cards,
+   so the gang and your partner keep their place at the table (2026-11-03) */
+@media (max-width: 600px) and (max-height: 640px) {
+  .bidprompt .btns { flex-direction: row; }
+  .bidprompt .btns .btn { min-width: 60px; }
+  .bidprompt .standing .who2 small { display: none; }
+  #game.bidding .hand { padding: 4px 8px 2px; }
+  #game.bidding .hand .card { --rp: 1.5; --sp: 1; --pp: .8; --bp: 2; --ip: .8; width: 46px; height: 66px; }
+  #game.bidding .hand.lots .card + .card { margin-left: -22px; }
+}
 .nod { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: #fff8e6; border: 1px solid var(--gold); font-size: 13px; }
 
 /* ---------- overlays ---------- */
@@ -1451,20 +1461,20 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=33"></script>
-<script src="btp-ai.js?v=33"></script>
-<script src="btp-run.js?v=33"></script>
-<script src="btp-town.js?v=33"></script>
-<script src="art/dustwater/sprites.js?v=33"></script>
-<script src="btp-train.js?v=33"></script>
-<script src="art/train/sprites.js?v=33"></script>
-<script src="art/title/scene.js?v=33"></script>
-<script src="art/table/scene.js?v=33"></script>
-<script src="art/grave/scene.js?v=33"></script>
-<script src="art/paid/scene.js?v=33"></script>
-<script src="art/rooms/scene.js?v=33"></script>
-<script src="art/express/scene.js?v=33"></script>
-<script src="art/fair/sprites.js?v=33"></script>
+<script src="btp-engine.js?v=34"></script>
+<script src="btp-ai.js?v=34"></script>
+<script src="btp-run.js?v=34"></script>
+<script src="btp-town.js?v=34"></script>
+<script src="art/dustwater/sprites.js?v=34"></script>
+<script src="btp-train.js?v=34"></script>
+<script src="art/train/sprites.js?v=34"></script>
+<script src="art/title/scene.js?v=34"></script>
+<script src="art/table/scene.js?v=34"></script>
+<script src="art/grave/scene.js?v=34"></script>
+<script src="art/paid/scene.js?v=34"></script>
+<script src="art/rooms/scene.js?v=34"></script>
+<script src="art/express/scene.js?v=34"></script>
+<script src="art/fair/sprites.js?v=34"></script>
 <script>
 (function () {
   'use strict';
@@ -2554,27 +2564,34 @@ html.art .coach { border-radius: 0; }
       const f = felt.className;
       if (P.compactShown !== f) { P.compactShown = f; renderFelt(); }
       foldIntoSaloon(L);
+      // however it's folded, the gang and your partner are lowered clear of the nameplate: they're who you play
+      // against (2026-11-03, the user: "the opponents and your partner need to be visible at the table when they're
+      // bidding"; a first run's tip on the felt had left their heads under it)
+      if (felt.clientWidth && !felt.classList.contains('strip')) {
+        const plate = felt.querySelector('.stage .foe'), fig = felt.querySelector('.stage .fig');
+        const need = plate && fig && fig.offsetHeight ? Math.round(plate.getBoundingClientRect().bottom + 4 - fig.getBoundingClientRect().top) : 0;
+        if (need > 0) {
+          felt.style.setProperty('--drop', ((parseFloat(felt.style.getPropertyValue('--drop')) || 0) + need) + 'px');
+          felt.style.height = (parseFloat(felt.style.height) + need) + 'px';
+          if (felt.dataset.baseDrop != null) felt.dataset.dropFor = felt.style.height;
+        }
+      }
     };
     const laid = !!felt.clientWidth;
     // a fold, once needed, holds for the rest of the hand's phase (and the screen size), so the stage isn't rebuilt
     // at every render: the gang's flinches and gloats play out
     const fkey = [L.level, L.handNo, bidding, innerWidth, innerHeight].join('|'), held = P.foldKey === fkey ? P.foldHeld : null;
-    let fold = !bidding ? 0 : laid ? (held && held.fold) || 0 : rows >= 5 ? 2 : rows >= 3 ? 1 : 0;
-    if (inFelt) felt.insertAdjacentHTML('beforeend', '<div class="coach feltcoach">' + coachHTML(tip) + '</div>');
+    let fold = !bidding ? 0 : laid ? (held && held.fold) || 0 : rows >= 3 ? 1 : 0;
     $('log').innerHTML = L.log.slice().reverse().slice(0, 60).map(e => '<li class="' + e.kind + '">' + esc(e.text) + '</li>').join('');
     let snug = !bidding && !!(held && held.snug);
     setFold(fold, snug);
-    if (bidding && laid) while (fold < 2 && tableSpill() > 0) setFold(++fold);
+    // never past the rim while bidding: the nameplate strip hides everyone you're bidding against
+    if (bidding && laid) { if (fold < 1 && tableSpill() > 0) setFold(fold = 1); }
     else if (laid && L.phase === 'hand' && !snug && tableSpill() > 0) setFold(0, snug = true);
     if (laid) { P.foldKey = fkey; P.foldHeld = { fold, snug }; }
-    // folded to the rim with room to spare: spend it lowering the gang out from under their nameplate
-    if (laid && fold === 1) {
-      const spare = felt.offsetHeight - parseFloat(felt.style.height), plate = felt.querySelector('.stage .foe'), fig = felt.querySelector('.stage .fig');
-      if (spare > 0 && plate && fig) {
-        const d = Math.round(Math.min(spare, Math.max(0, plate.offsetTop + plate.offsetHeight + 4 - fig.offsetTop)));
-        felt.style.setProperty('--drop', d + 'px'); felt.style.height = (parseFloat(felt.style.height) + d) + 'px';
-      }
-    }
+    // the tip goes on after the fold: a fold rebuilds the stage, and would wipe it
+    felt.querySelectorAll('.feltcoach').forEach(x => x.remove());
+    if (inFelt) felt.insertAdjacentHTML('beforeend', '<div class="coach feltcoach">' + coachHTML(tip) + '</div>');
     const said = felt.classList.contains('compact') && L.reaction && L.reaction.text, saidKey = said && L.level + ':' + L.handNo + ':' + said;
     if (said && P.floated !== saidKey) { P.floated = saidKey; floatUnder(felt, '<b>' + esc(PN()) + ':</b> ' + esc(said)); }
     $('contract').classList.toggle('keep', !!h.open);      // an open misère's face-up hand stays in its strip
