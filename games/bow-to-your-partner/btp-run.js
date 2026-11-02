@@ -146,6 +146,15 @@
                     lost: ['Hold your horses. We’ll get the next.', 'Chin up, partner.', 'Whoa. Never mind.'],
                     made: ['Well bid, partner!', 'Just like we planned it.'], set: ['Stopped them in their tracks!', 'Not today, thank you.'],
                     failed: ['Shoot. We’ll win it back.'], theirs: ['They earned that one.'] } },
+    showboat: { id: 'showboat', name: E.PARTNER_NAME.showboat, title: 'the Big Talker', start: '9H', mods: { '9H': { enh: 'sworn' } }, ability: 'swing', style: 'bold',
+           lines: { won: ['Ta-da!', 'And the crowd goes wild!', 'Did you see that?'], lost: ['A minor setback, partner.', 'The show goes on!', 'Hold the applause.'],
+                    made: ['Told you we could make it!', 'Big bid, big finish!'], set: ['Not on my stage!', 'Booed off!'], failed: ['Well. The critics were harsh.'], theirs: ['Amateurs got lucky.'] } },
+    sharp: { id: 'sharp', name: E.PARTNER_NAME.sharp, title: 'the Card Counter', start: '10D', mods: { '10D': { enh: 'giant' } }, ability: 'count', style: 'precise',
+           lines: { won: ['As calculated.', 'Expected.', 'One down.'], lost: ['Within tolerances.', 'Noted.', 'Variance, partner.'],
+                    made: ['Exactly as counted.', 'The numbers held.'], set: ['They miscounted.', 'Their sums were off.'], failed: ['I\u2019ll recount.'], theirs: ['Their math worked. This time.'] } },
+    quiet: { id: 'quiet', name: E.PARTNER_NAME.quiet, title: 'the Silent Partner', start: 'KD', ability: 'peek', style: 'silent',
+           lines: { won: ['(a nod)', '(a small smile)', '(taps the table)'], lost: ['(a shrug)', '(a long look)', '(silence)'],
+                    made: ['(a thumbs up)', '(a slow nod)'], set: ['(a grin)', '(a tip of the hat)'], failed: ['(a sigh)'], theirs: ['(a frown)'] } },
     nan: { id: 'nan', name: E.PARTNER_NAME.nan, title: 'the Steady Hand', start: 'AH', ability: 'nod',
            lines: { won: ['Lovely, dear.', 'That’s the way.', 'Steady does it.'],
                     lost: ['Never mind, dear.', 'Chin up.', 'We’ll have the next one.'],
@@ -225,7 +234,7 @@
     swing: { name: 'Swing Your Partner', text: 'Swap one card with your partner.',
       hurt: () => ({ score: 0.4, why: 'A kindly call. Take the breather.' }) },
     nokitty: { name: 'No Kitty', text: 'The contractor never picks up the kitty.',
-      hurt: L => ({ score: 1, why: 'No kitty to mend a hand: bid on the ' + E.ACTS[L.act].hand + ' cards you hold.' }) },
+      hurt: L => ({ score: 1, why: 'No kitty to mend a hand: bid on the ' + E.ACTS[E.actOf(L)].hand + ' cards you hold.' }) },
     corner: { name: 'Honour Your Corner', text: 'Play goes the other way round: East plays after you, West before.',
       hurt: () => ({ score: 1, why: 'Everyone\u2019s position at the table changes.' }) }
   };
@@ -274,6 +283,7 @@
     // the Act II bosses' secrets, carried by the risky train's last gang (COUNTER); never drawn or sold
     tell:     { name: 'The Sharps\u2019 Signals', text: 'You know their signals: the Card Sharps can\u2019t see your seeded cards, or hunt them, and they start the Showdown a quarter down.', secret: 'sharps' },
     bluff:    { name: 'Called Bluff', text: 'The Hustlers\u2019 mis\u00e8re is always played open: their hand goes face up after the first trick, and they start the Showdown a quarter down.', secret: 'hustlers' },
+    count:    { name: 'Trump Count', text: 'Your partner keeps count: you see how many trumps are still out.', partner: true },
     nod:      { name: 'Partner’s Nod', text: 'Your partner shows their strongest suit while you bid.' },
     swing:    { name: 'Under the Table', text: 'After the kitty, slip your partner a card and she slips you one back, every hand.' },
     peek:     { name: 'Peek', text: 'See the kitty before you bid.' },
@@ -421,9 +431,16 @@
      Dance, floor 4 the Raffle (a free buff), floor 7 a Punch Bowl; the rest are drawn at Gwent's odds, with no
      Dance-off or Punch Bowl on the first two floors, and no two stores, Punch Bowls or Dance-offs in a row. */
   const MAPSHAPE = { floors: 7, cols: 5, paths: 4, raffle: 3 };
+  /* Act III is two floors shorter (the user's, 2026-11-02: "cutting two floors pays for the chase"): its 10-card
+     hands make it the longest act. A floor's gang is as strong as the same height up a seven-floor map (eqFloor),
+     the gold strike sits at the same height, and the last floor is still the rest. */
+  const floorsFor = act => act === 3 ? 5 : MAPSHAPE.floors;
+  const raffleOf = FL => Math.round(MAPSHAPE.raffle * (FL - 1) / (MAPSHAPE.floors - 1));
+  const eqFloor = (f, FL) => f * (MAPSHAPE.floors - 1) / (FL - 1);
+  const mapFloors = L => L.map && L.map.floors ? L.map.floors.length : MAPSHAPE.floors;
   // the Westbound Express also stops for water (2026-10-29): floors 2, 3, 5 and 6, never two in a row
-  const ROOMS = (f, act) => [['dance', 45], ['event', 22], ['elite', f >= 2 ? 14 : 0], ['store', f >= 2 ? 12 : 3], ['camp', f >= 2 && f !== MAPSHAPE.floors - 2 ? 9 : 0],
-    ['water', WATER.acts.includes(act) && f >= 1 && f !== MAPSHAPE.raffle && f !== MAPSHAPE.floors - 1 ? WATER.weight : 0]];
+  const ROOMS = (f, act, FL = MAPSHAPE.floors) => [['dance', 45], ['event', 22], ['elite', f >= 2 ? 14 : 0], ['store', f >= 2 ? 12 : 3], ['camp', f >= 2 && f !== FL - 2 ? 9 : 0],
+    ['water', WATER.acts.includes(act) && f >= 1 && f !== raffleOf(FL) && f !== FL - 1 ? WATER.weight : 0]];
   /* The water stop: the train takes on water and you step down. Do one thing: fill your canteen, help the fireman
      load wood for a few coins (it was scouting for a clue until the clues went, 2026-10-30), or have him scrub a
      hex off a card. */
@@ -431,26 +448,98 @@
   const RAFFLE = { gold: 25, noBuff: 60, buff: true, pick: 2 };   // pick: buffs to choose from (0 = one drawn for you)
   /* What players read for each stop type (the western glossary): KIND_NAME is the rules name, used in the
      legend, the rules and the screens; PLACE is where each act puts that stop on its map. The ids stay. */
+  /* The Getaway (the user's, 2026-11-02: "an Act 3 twist that completely changes the game play: the boss escapes
+     into a mine cart, or a ghost train if the haunted house"). The Fair's Showdown is won, and they bolt: the Caller
+     in a mine cart into the old silver mine behind the barn, the Undertakers on the ghost train out of the haunted
+     house. You give chase on a handcar, CHASE.stretches stretches of track, each ONE quick hand by Act I's rules
+     (L.rules: 3 cards, hearts and diamonds), nothing at stake but the gap. Before each stretch, pick a way: the main
+     line (a won stretch closes a length, a lost one opens one) or the cut-off (two either way). Outscore them on the
+     stretch to gain (a tie is theirs). Gap at nothing: caught, for the strongbox (CHASE.bounty) and a partner who
+     rides with you from your next story (CHASE.ride[boss].unlock; a catch without losing a stretch also brings The
+     Sharp). Gap at CHASE.away, or the track runs out: they get away, and the run is still won. The chase can never
+     lose a run: it decides how big the win is. */
+  const CHASE = { stretches: 5, gap: 2, away: 4, rules: 1, bounty: 150, clean: 'sharp',
+    ride: { caller: { cart: 'the mine cart', into: 'into the old silver mine behind the barn', unlock: 'showboat' },
+            wallflowers: { cart: 'the ghost train', into: 'onto the ghost train out of the haunted house', unlock: 'quiet' } },
+    // the cut-off branches off after the first stretch (taken first, the whole chase was one coin flip)
+    forks: { main: { name: 'The main line', text: 'Take the stretch and you close a length; lose it and they gain one.', step: 1 },
+             cutoff: { name: 'The cut-off', text: 'Steep and fast: two lengths either way.', step: 2 } } };
+  const chaseRide = c => CHASE.ride[c && c.boss] || CHASE.ride.caller;
+  function startChase(L) {
+    const boss = BOSS_POOL[3].includes(L.boss) ? L.boss : L.map && L.map.boss;
+    L.chase = { boss, n: 0, gap: CHASE.gap, won: 0, lost: 0, stage: 'start', fork: null, last: null, result: null, unlock: [] };
+    L.phase = 'chase';
+    E.say(L, BOSS[boss].name + ' bolt ' + chaseRide(L.chase).into + '! After them!', 'level');
+  }
+  function chase(L, what) {
+    if (L.phase !== 'chase' || !L.chase) return no('no chase on');
+    const c = L.chase;
+    if (c.result) {
+      if (what !== 'finish') return no('the chase is over');
+      L.rules = null; L.phase = 'victory';
+      return yes();
+    }
+    if (!CHASE.forks[what]) return no('the main line or the cut-off');
+    if (what === 'cutoff' && c.n === 0) return no('the cut-off branches off after the first stretch');
+    c.fork = what; c.stage = 'ride';
+    startLevel(L, 'chase');
+    return yes();
+  }
+  // a stretch is run: the gap moves, and the chase goes on, or ends
+  function chaseStretch(L) {
+    const c = L.chase, F = CHASE.forks[c.fork] || CHASE.forks.main, won = L.you > L.opp;
+    c.n++;
+    c.gap += won ? -F.step : F.step;
+    if (won) c.won++; else c.lost++;
+    c.last = { won, you: L.you, them: L.opp, fork: c.fork, step: F.step };
+    L.record = (L.record || []).concat({ act: L.act, level: L.level, kind: 'chase', id: c.boss, stars: won ? 3 : 1, won });
+    E.say(L, (won ? 'You gain on them' : 'They pull away') + ' (' + L.you + ' to ' + L.opp + '): ' + (c.gap <= 0 ? 'right on their tail!' : c.gap + ' length' + (c.gap > 1 ? 's' : '') + ' between you.'), 'objective');
+    L.result = null;
+    if (c.gap <= 0) endChase(L, true);
+    else if (c.gap >= CHASE.away || c.n >= CHASE.stretches) endChase(L, false);
+    else c.stage = 'fork';
+    L.phase = 'chase';
+    L.curse = null; L.dealRule = null; L.fight = null; L.rules = null;
+  }
+  function endChase(L, caught) {
+    const c = L.chase, B = BOSS[c.boss].name;
+    c.result = caught ? 'caught' : 'escaped'; c.stage = 'end';
+    c.unlock = caught ? [chaseRide(c).unlock].concat(c.lost === 0 ? [CHASE.clean] : []) : [];
+    if (caught) {
+      L.gold += CHASE.bounty;
+      E.say(L, 'You catch ' + B.replace(/^The /, 'the ') + ' at the end of the line! Their strongbox is yours: +' + CHASE.bounty + ' gold.', 'gold');
+    } else E.say(L, B + ' get away ' + chaseRide(c).into.replace(/^(into|onto) /, 'down ') + ', strongbox and all.', 'objective');
+    L.record = (L.record || []).concat({ act: L.act, level: L.level, kind: 'getaway', id: c.boss, stars: 0, won: caught, clean: caught && c.lost === 0 });
+  }
   /* Prize contests (Act III, the user's, 2026-11-01: the County Fair's signature stop, "a fun side bet rather than
      another fight"). One hand against two fellow contestants, judged on one thing; it costs only the entry, never
      health. A ribbon by the score: white gives the entry back and a little more, red a pick of enhancements, blue a
      pick of buffs; no ribbon, the entry is gone. Two contests a Fair map, each where a gossip stop would have been
      (else a Card table), on CONTEST.floors, never two on one floor. `tiers` is the score for white, red and blue
      (tests/contests.js measures them). */
-  const CONTEST = { acts: [3], per: 2, floors: [1, 2, 4, 5], fee: 20, white: 10, hands: 1, list: {
-    pie:    { name: 'The Pie Contest', place: 'The big top', what: 'Every heart in a trick your team takes is a slice of pie.', unit: ['slice', 'slices'], tiers: [6, 9, 11], look: ['gQpj', 'gKpj'], host: 'The pie judges' },
-    turkey: { name: 'The Turkey Shoot', place: 'The shooting range', what: 'Every trick your team wins with an Ace or the Joker is a turkey down.', unit: ['turkey', 'turkeys'], tiers: [2, 3, 4], look: ['gJsg1', 'gKsg2'], host: 'The range master' },
-    bell:   { name: 'Ring the Bell', place: 'The strongman\u2019s bell', what: 'Your team’s score for the hand rings the bell: make a big contract and it rings high.', unit: ['point', 'points'], tiers: [40, 120, 250], look: ['gKsm', 'gKmg'], host: 'The strongman' },
-    race:   { name: 'The Horse Race', place: 'The race track', what: 'Take tricks in a row: your team\u2019s longest run is your horse\u2019s lead.', unit: ['length', 'lengths'], tiers: [4, 6, 10], look: ['gKht1', 'gJht2'], host: 'The starter' }
+  /* Quick contests (the user's, 2026-11-02: "if the chase's quick hands feel good, convert the contests to quick
+     hands"): CONTEST.quick plays a contest as quickHands hands by Act I's rules (3 cards, hearts and diamonds), the
+     Getaway's hands, instead of one 10-card hand; each contest keeps both sets of ribbon tiers (`full`, `quick`)
+     and setQuick picks one. Turn it off with setQuick(false) if the quick hands don't feel right. */
+  const CONTEST = { acts: [3], per: 2, floors: [1, 3], fee: 20, white: 10, hands: 1, quick: true, quickHands: 2, list: {
+    pie:    { name: 'The Pie Contest', place: 'The big top', what: 'Every heart in a trick your team takes is a slice of pie.', unit: ['slice', 'slices'], full: [6, 9, 11], quick: [5, 7, 9], look: ['gQpj', 'gKpj'], host: 'The pie judges' },
+    turkey: { name: 'The Turkey Shoot', place: 'The shooting range', what: 'Every trick your team wins with an Ace or the Joker is a turkey down.', unit: ['turkey', 'turkeys'], full: [2, 3, 4], quick: [1, 2, 3], look: ['gJsg1', 'gKsg2'], host: 'The range master' },
+    bell:   { name: 'Ring the Bell', place: 'The strongman\u2019s bell', what: 'Your team’s score for the hand rings the bell: make a big contract and it rings high.', unit: ['point', 'points'], full: [40, 120, 250], quick: [30, 80, 110], look: ['gKsm', 'gKmg'], host: 'The strongman' },
+    race:   { name: 'The Horse Race', place: 'The race track', what: 'Take tricks in a row: your team\u2019s longest run is your horse\u2019s lead.', unit: ['length', 'lengths'], full: [4, 6, 10], quick: [2, 3, 4], look: ['gKht1', 'gJht2'], host: 'The starter' }
   } };
   const RIBBON = ['no ribbon', 'a white ribbon', 'a red ribbon', 'a blue ribbon'];
+  function setQuick(on) {
+    CONTEST.quick = !!on;
+    for (const id in CONTEST.list) CONTEST.list[id].tiers = on ? CONTEST.list[id].quick : CONTEST.list[id].full;
+  }
+  setQuick(CONTEST.quick);
   const ribbonOf = (id, score) => CONTEST.list[id].tiers.filter(t => score >= t).length;
   function placeContests(L, floors) {
     const ids = E.shuffle(L, Object.keys(CONTEST.list)), fl = E.shuffle(L, CONTEST.floors.slice());
     let k = 0;
     for (const f of fl) {
       if (k >= CONTEST.per) break;
-      const row = floors[f] || [], pool = row.filter(n => n.kind === 'event').concat(row.filter(n => n.kind === 'dance'));
+      const row = floors[f] || [], pool = ['event', 'dance', 'elite', 'store'].flatMap(k => row.filter(n => n.kind === k));
       if (!pool.length) continue;
       Object.assign(pool[0], { kind: 'contest', contest: ids[k++] });
     }
@@ -583,7 +672,7 @@
   }
   function genMap(L) {
     if (L.act === 2) return genExpress(L);
-    const { floors: FL, cols: CO, paths: PA } = MAPSHAPE;
+    const { cols: CO, paths: PA } = MAPSHAPE, FL = floorsFor(L.act);
     const edges = {}, used = {};
     // a step from (f, a) to (f+1, b) crosses an existing edge from floor f if they swap sides
     const crosses = (f, a, b) => Object.keys(edges).some(k => {
@@ -615,7 +704,7 @@
       floors.push(row);
     }
     for (const row of floors) for (const n of row)
-      n.kind = n.f === 0 ? 'dance' : n.f === MAPSHAPE.raffle ? 'raffle' : n.f === FL - 1 ? 'camp' : weighted(L, ROOMS(n.f, L.act));
+      n.kind = n.f === 0 ? 'dance' : n.f === raffleOf(FL) ? 'raffle' : n.f === FL - 1 ? 'camp' : weighted(L, ROOMS(n.f, L.act, FL));
     const byId = {};
     floors.forEach(row => row.forEach(n => { byId[n.id] = n; }));
     for (const row of floors) for (const n of row) for (const id of n.next) {
@@ -631,7 +720,7 @@
     // every gang is drawn with the map, so its wanted poster can be read before you choose a way (no gang twice
     // on one map while there are others to draw)
     const seen = [];
-    for (const row of floors) for (const n of row) if (n.kind === 'dance' || n.kind === 'elite') n.foe = makeFoe(L, n.kind, n.f, seen);
+    for (const row of floors) for (const n of row) if (n.kind === 'dance' || n.kind === 'elite') n.foe = makeFoe(L, n.kind, eqFloor(n.f, FL), seen);
     L.map = { floors, boss: L.act === 3 && BOSS_POOL[3].includes(L.fairBoss) ? L.fairBoss : E.pick(L, BOSS_POOL[L.act]) };
     L.map.loot = pickLoot(L);
     L.pos = null; L.path = []; L.route = [];
@@ -662,7 +751,7 @@
     }
   }
   function mapNode(L, id) {
-    if (id === 'boss') return { id: 'boss', f: MAPSHAPE.floors, c: (MAPSHAPE.cols - 1) / 2, kind: 'boss', next: [] };
+    if (id === 'boss') return { id: 'boss', f: mapFloors(L), c: (MAPSHAPE.cols - 1) / 2, kind: 'boss', next: [] };
     for (const row of L.map.floors) for (const n of row) if (n.id === id) return n;
     return null;
   }
@@ -731,10 +820,18 @@
     { id: 'nan', name: E.PARTNER_NAME.nan, title: 'the Steady Hand', unlock: 'twins', unlockText: 'Beat the Twins at the Saloon to meet her.', text: 'Cautious bidder. Shows you her strongest suit while you bid. Brings her A♥.',
       // what she says once you've chosen her (the user's, 2026-10-30: a partner speaks only after being picked)
       intro: 'Steady does it, dear. We take this town one table at a time and walk into that Saloon with health to spare. I\u2019ll nod at my best suit while you bid, and I\u2019ve brought my A\u2665 for the ride.' },
-    { id: 'showboat', name: 'Showboat', title: 'the Big Talker', text: 'Bids bold. Swaps you a card under the table. Brings a Trump-sworn 9♥.', locked: true },
-    { id: 'sharp', name: 'The Sharp', title: 'the Card Counter', text: 'Bids precise. Keeps count of the trumps out. Brings a Giant-killer 10♦.', locked: true },
-    { id: 'quiet', name: 'The Quiet One', title: 'the Silent Partner', text: 'Never bids. Two more kitty cards when you win the bid. Brings the K♦.', locked: true }
+    // the Getaway's (2026-11-02): catch the Caller, the Undertakers, or either without losing a stretch
+    { id: 'showboat', name: 'Showboat', title: 'the Big Talker', unlock: 'getaway:caller', unlockText: 'Catch the Caller\u2019s mine cart at the end of the Getaway.',
+      text: 'Bids bold. Slips you a card under the table every hand. Brings a Trump-sworn 9♥.',
+      intro: 'Ladies and gentlemen, partner: the Showboat rides again! I bid big and I play bigger. Every hand I\u2019ll slip you a card under the table, and I\u2019ve brought a 9\u2665 sworn to the trumps.' },
+    { id: 'sharp', name: 'The Sharp', title: 'the Card Counter', unlock: 'getaway:clean', unlockText: 'Catch a Getaway without losing a single stretch.',
+      text: 'Bids precise. Keeps count of the trumps still out. Brings a Giant-killer 10♦.',
+      intro: 'I watched you catch that cart without dropping a stretch, partner. I count every trump that falls and I\u2019ll tell you how many are still out. I\u2019ve brought a 10\u2666 that kills Aces.' },
+    { id: 'quiet', name: 'The Quiet One', title: 'the Silent Partner', unlock: 'getaway:wallflowers', unlockText: 'Catch the Undertakers\u2019 ghost train at the end of the Getaway.',
+      text: 'Never bids. Lets you see the kitty before you bid. Brings the K♦.',
+      intro: '\u2026 (a nod, and the K\u2666 slid across the table. The Quiet One never bids, but lifts the corner of the kitty for you before you do.)' }
   ];
+  const partnerStyle = L => (PARTNERS[L.partner] || {}).style || null;
   const partnerOpen = (L, p) => !!p && !p.locked && !!PARTNERS[p.id] && (!p.unlock || (L.unlocked || []).includes(p.unlock));
   function choosePartner(L, id) {
     if (L.phase !== 'partner') return no('not choosing a partner');
@@ -745,6 +842,7 @@
     L.owned = [P.start];
     L.mods = JSON.parse(JSON.stringify(P.mods || {}));
     L.buffs = [P.ability];
+    L.partnerStyle = P.style || null;
     // the card pick was dealt for the first partner: never offer the card the chosen one brings
     if (L.offer && L.offer.includes(P.start)) {
       const spare = E.deckOf(L).filter(c => c !== P.start && !L.offer.includes(c));
@@ -814,12 +912,12 @@
   /* After an act's Showdown (always won: losing one means your health ran out): on to the next act, or the
      run is won. */
   function nextAct(L) {
-    if (L.act >= LAST_ACT) { L.phase = 'victory'; return; }
+    if (L.act >= LAST_ACT) { if (!L.chase && L.map && BOSS_POOL[3].includes(L.map.boss)) startChase(L); else L.phase = 'victory'; return; }
     L.pastPaths = (L.pastPaths || []).concat([L.path]);
     L.buffs = L.buffs.filter(b => !BUFFS[b].secret);       // a boss's secret is no use past its act
     L.act++;
     L.actLevels = 0;
-    note(L, 'Act ' + ROMAN[L.act - 1] + ' is done. On to ' + E.ACTS[L.act].name + '!');
+    note(L, 'Act ' + ROMAN[L.act - 1] + ' is done. On to ' + E.ACTS[E.actOf(L)].name + '!');
     if (L.act === 3) note(L, 'Act II is done. On to the County Fair: the 4s to 8s join the deck, hands are 10 cards, and three of your cards are dealt to you.');
     actStart(L);
   }
@@ -830,7 +928,7 @@
     const ours = hist.filter(x => x.contractor % 2 === 0), theirs = hist.filter(x => x.contractor % 2 === 1);
     const best = hist.reduce((b, x) => !b || x.delta > b.delta ? x : b, null);
     // the fight that ended a lost run is on the record (its Showdown shows as lost) but not among the fights finished
-    const done = rec.filter(r => !r.lost), dances = done.filter(r => r.kind !== 'boss' && r.kind !== 'contest');
+    const done = rec.filter(r => !r.lost && r.kind !== 'getaway' && r.kind !== 'chase'), dances = done.filter(r => !['boss', 'contest'].includes(r.kind));   // a Getaway's stretches are no fights
     return { levels: done.length, stars: done.reduce((n, r) => n + r.stars, 0), maxStars: 3 * done.length,
              objectives: dances.filter(r => r.won).length, objectiveLevels: dances.length,
              hoedowns: rec.filter(r => r.kind === 'boss').map(r => ({ act: r.act, boss: r.id, won: r.won })),
@@ -940,7 +1038,7 @@
     if (kind === 'boss') {
       L.boss = L.map && L.map.boss && BOSS_POOL[L.act].includes(L.map.boss) ? L.map.boss : E.pick(L, BOSS_POOL[L.act]);
       if (L.boss === 'twins') L.dealRule = 'twins';
-    } else if (kind === 'contest') {
+    } else if (kind === 'contest' || kind === 'chase') {
       L.obj = null;
     } else {
       const first = (L.actLevels || 0) === 0;
@@ -951,7 +1049,8 @@
       L.obj = { id, n: 0, of: OBJECTIVES[id].of, fail: false, done: false };
       if (kind === 'bank') L.bank = Object.assign({ take: bankTake(L) }, L.bank, { stage: 'fight' });
     }
-    if (kind !== 'bank' && kind !== 'contest') {
+    L.rules = kind === 'chase' ? CHASE.rules : kind === 'contest' && CONTEST.quick ? 1 : null;     // quick hands: Act I's rules (E.actOf)
+    if (kind !== 'bank' && kind !== 'contest' && kind !== 'chase') {
       const n = kind !== 'boss' && L.pos && L.map ? mapNode(L, L.pos) : null;
       const F = n && n.kind === kind && n.foe ? n.foe : makeFoe(L, kind);
       L.foe = Object.assign({}, F, { traits: F.traits.slice(), hp: kind === 'boss' ? F.hp : foeHp(L, F) });
@@ -966,14 +1065,15 @@
     }
     L.freshUsed = false;
     L.you = 0; L.opp = 0; L.startHealth = L.health; L.startGold = L.gold;
-    L.handNo = 1; L.hands = kind === 'bank' ? BANK.hands : kind === 'contest' ? CONTEST.hands : null;
+    L.handNo = 1; L.hands = kind === 'bank' ? BANK.hands : kind === 'contest' ? (CONTEST.quick ? CONTEST.quickHands : CONTEST.hands) : kind === 'chase' ? 1 : null;
     L.captured = [];
     L.phase = 'hand';
     L.reaction = null;
     L.log = [];
     L.result = null;
     const F = L.foe, ab = F ? F.traits.map(t => abilityOf(t).name + ' (' + abilityOf(t).text + ')') : [];
-    if (kind === 'contest') { const C = CONTEST.list[L.contest.id]; E.say(L, 'Game ' + L.level + ' \u00b7 ' + C.name + ': ' + C.what + ' Ribbons at ' + C.tiers.join(', ') + ' ' + C.unit[1] + '.', 'level'); }
+    if (kind === 'chase') { const c = L.chase; E.say(L, 'Stretch ' + (c.n + 1) + ' of ' + CHASE.stretches + ', ' + CHASE.forks[c.fork].name.toLowerCase() + ': ' + c.gap + ' length' + (c.gap > 1 ? 's' : '') + ' behind ' + chaseRide(c).cart + '. Outscore them on this hand to gain.', 'level'); }
+    else if (kind === 'contest') { const C = CONTEST.list[L.contest.id]; E.say(L, 'Game ' + L.level + ' \u00b7 ' + C.name + ': ' + C.what + ' Ribbons at ' + C.tiers.join(', ') + ' ' + C.unit[1] + '.', 'level'); }
     else if (kind === 'boss') E.say(L, 'Game ' + L.level + ' \u00b7 the Showdown: ' + BOSS[L.boss].name + ', ' + F.hp + ' health. ' + BOSS[L.boss].rule, 'level');
     else if (kind === 'bank') E.say(L, 'Game ' + L.level + ' \u00b7 ' + holdup(L).place + ': ' + holdup(L).what + '. Outscore them this hand for ' + bankBounty(L) + ' gold and an enhancement; lose and they take ' + L.bank.take + ' gold.', 'level');
     else E.say(L, 'Game ' + L.level + ' \u00b7 ' + KIND_NAME[kind] + ', wanted: ' + F.name + ', ' + F.hp + ' health' + (ab.length ? ', ' + ab.join(', ') : '') + '. Bonus: ' + OBJECTIVES[L.obj.id].text + '.', 'level');
@@ -986,7 +1086,7 @@
   const abilityOf = id => TRAITS[id] || CURSES[id] || DEBUFFS[id];
   function makeFoe(L, kind, f, seen) {
     const a = L.act;
-    if (f == null) f = Math.max(0, Math.min(MAPSHAPE.floors - 1, floorOf(L)));
+    if (f == null) f = eqFloor(Math.max(0, Math.min(mapFloors(L) - 1, floorOf(L))), mapFloors(L));
     if (kind === 'boss') return { name: BOSS[L.boss].name, look: BOSS[L.boss].look, hp: Math.round((BOSS[L.boss].hp || FOE.boss[a]) * (has(L, 'warrant') ? 0.9 : 1) * (has(L, COUNTER[L.boss]) ? 1 - EXPRESS.cut : 1) / 10) * 10, traits: [], hitMul: BOSS[L.boss].hit || FOE.bossHit, boss: L.boss };
     const traits = [], debuffs = Object.keys(DEBUFFS);
     if (kind === 'elite') {
@@ -1009,7 +1109,7 @@
     return h.hands[1].concat(h.hands[3]).reduce((n, c) => n + v(c), 0);
   }
   const stackChance = L => !L.foe ? 0 : L.foe.traits.includes('lucky') ? 1 :
-    STACK.max * (L.kind === 'boss' ? 1 : Math.max(0, floorOf(L)) / (MAPSHAPE.floors - 1));
+    STACK.max * (L.kind === 'boss' ? 1 : Math.max(0, floorOf(L)) / (mapFloors(L) - 1));
   function dealHand(L) {
     const rule = ruleOf(L);
     L.call = L.callFor = rule; L.callName = rule ? TABLE_RULES[rule].name : null; L.callBy = rule ? 'the table rule' : null;
@@ -1062,7 +1162,7 @@
       const lb = E.label(wk.c);
       if (E.en(wk, 'hollow')) shot(X.hollow, lb + ' is a Hollow Point: +' + X.hollow + ' to the gang.');
       if (E.en(wk, 'keg')) shot(X.keg, lb + ' is a Powder Keg: +' + X.keg + ' to the gang.');
-      if (E.en(wk, 'bullseye') && trick.no === E.ACTS[L.act].hand) shot(X.bullseye, 'Bullseye! ' + lb + ' took the last trick: +' + X.bullseye + ' to the gang.');
+      if (E.en(wk, 'bullseye') && trick.no === E.ACTS[E.actOf(L)].hand) shot(X.bullseye, 'Bullseye! ' + lb + ' took the last trick: +' + X.bullseye + ' to the gang.');
       if (E.en(wk, 'deadman') && trick.cards.some(c => c && c !== 'JK' && ['A', '8'].includes(E.rankOf(c)))) shot(X.deadman, lb + ' holds a Dead Man\u2019s Hand: +' + X.deadman + ' to the gang.');
       if (E.en(wk, 'plate')) { h.fx.block += X.plate; E.say(L, lb + ' is an Iron Plate: ' + X.plate + ' of this hand\u2019s damage will be blocked.', 'rule'); }
       if (E.en(wk, 'horseshoe')) h.shoe = true;
@@ -1102,7 +1202,7 @@
     if (id === 'lowly9' && mine && ['9', '10'].includes(E.rankOf(wc))) o.n++;
     if (id === 'harvest' && mine) trick.cards.forEach((c, s) => { if (c && E.suitOf(c) === 'H') { const k = E.K(L, s, c); o.n += E.en(k, 'magnet') ? 2 : 1; } });
     if (id === 'bagjack' && mine && trick.cards.some(c => c === 'JH' || c === 'JD')) o.n++;
-    if (id === 'lastword' && trick.winner === 0 && trick.no === E.ACTS[L.act].hand) o.n++;
+    if (id === 'lastword' && trick.winner === 0 && trick.no === E.ACTS[E.actOf(L)].hand) o.n++;
     if (id === 'blacks' && mine) trick.cards.forEach((c, s) => { if (c && (E.suitOf(c) === 'S' || E.suitOf(c) === 'C')) { const k = E.K(L, s, c); o.n += E.en(k, 'magnet') ? 2 : 1; } });
     if (id === 'showoff' && mine && L.owned.includes(wc)) o.n++;
     if (id === 'acehunter' && mine) o.n += trick.cards.filter((c, s) => c && s % 2 === 1 && E.rankOf(c) === 'A').length;
@@ -1126,7 +1226,7 @@
     delete L.mods[c];
     if (L.hexes) delete L.hexes[c];
     if (L.bossHex && L.bossHex.card === c) L.bossHex = null;
-    if (E.deckOf(L).length > 4 * E.ACTS[L.act].hand) { L.removed = (L.removed || []).concat(c); E.say(L, E.label(c) + ' is Glass, and that was its third win: it shatters and leaves the deck.', 'rule'); }
+    if (E.deckOf(L).length > 4 * E.ACTS[E.actOf(L)].hand) { L.removed = (L.removed || []).concat(c); E.say(L, E.label(c) + ' is Glass, and that was its third win: it shatters and leaves the deck.', 'rule'); }
     else E.say(L, E.label(c) + ' is Glass, and that was its third win: it shatters. It stays in the deck as a plain card, no longer yours.', 'rule');
   }
   // the contest's score as tricks come in: slices of pie, turkeys, the race's run (Ring the Bell is judged at the end)
@@ -1226,8 +1326,8 @@
       E.say(L, 'Pocket Watch: the shot stops at your watch! You hang on with 1 health.', 'health');
     }
     L.health = Math.max(0, L.health - r.dmg);
-    // Ring the Bell: the hand's 500 score for your team, the bigger the contract made the higher it rings
-    if (L.kind === 'contest' && L.contest && L.contest.id === 'bell') L.contest.score = Math.max(0, r.pts[0]);
+    // Ring the Bell: your team's 500 score, hand by hand (never below nothing), the bigger the contracts made the higher it rings
+    if (L.kind === 'contest' && L.contest && L.contest.id === 'bell') L.contest.score += Math.max(0, r.pts[0]);
     // in a fight your shots only ever bring the gang down (r.hit is never below nothing); the Bank keeps the score
     L.you += L.foe ? r.hit : r.pts[0];
     L.opp += r.pts[1];
@@ -1245,7 +1345,7 @@
     }
     L.phase = 'summary';
   }
-  const fightOver = L => L.mode === 'standard' ? L.std.winner != null : L.kind === 'bank' || L.kind === 'contest' ? L.handNo >= L.hands : L.you >= L.foe.hp;
+  const fightOver = L => L.mode === 'standard' ? L.std.winner != null : L.kind === 'bank' || L.kind === 'contest' || L.kind === 'chase' ? L.handNo >= L.hands : L.you >= L.foe.hp;
   const parOf = L => ((PAR[L.kind] || {})[L.act] || 1) + (has(L, 'horse') && L.kind !== 'bank' ? 1 : 0);
   /* After the summary: the next hand, or the fight's stars. */
   function next(L) {
@@ -1262,6 +1362,7 @@
   /* A won fight's stars: one for the win, one for the bounty, one for winning within par. A Showdown has no
      bounty: two stars, three within par. */
   function finishLevel(L) {
+    if (L.kind === 'chase') { chaseStretch(L); return; }
     const o = L.obj, par = parOf(L), fast = L.kind !== 'bank' && L.handNo <= par;
     let stars = 1, gold = 0, won = true, loot = null;
     /* The payout, line by line (2026-10-30: the stars pop-up and the Showdown's desk count it out), adding up to
@@ -1334,11 +1435,11 @@
     L.record = (L.record || []).concat({ act: L.act, level: L.level, kind: L.kind, id: L.kind === 'boss' ? L.boss : L.kind === 'contest' ? L.contest.id : o.id, stars, won: L.kind === 'boss' ? true : L.kind === 'contest' ? won : o.done });
     L.phase = 'over';
     E.say(L, 'Game ' + L.level + ' over: ' + stars + ' star' + (stars > 1 ? 's' : '') + ', ' + (gold < 0 ? '\u2212' + -gold : gold) + ' gold.', 'end');
-    L.curse = null; L.dealRule = null; L.fight = null;
+    L.curse = null; L.dealRule = null; L.fight = null; L.rules = null;   // a quick contest's rules end with it
   }
 
   /* ---------------- rewards ---------------- */
-  const freeBuffs = L => Object.keys(BUFFS).filter(b => !L.buffs.includes(b) && b !== PARTNERS[L.partner].ability && !BUFFS[b].secret);
+  const freeBuffs = L => Object.keys(BUFFS).filter(b => !L.buffs.includes(b) && b !== PARTNERS[L.partner].ability && !BUFFS[b].secret && !BUFFS[b].partner);
   function draw(L, ids, n) { return E.shuffle(L, ids.slice()).slice(0, n); }
   /* Any card your team won this level, except the Joker (the user's call, 2026-10-23: too strong a gift). */
   function claimable(L) { return [...new Set(L.captured || [])].filter(c => c !== 'JK' && !L.owned.includes(c)).sort(); }
@@ -1531,8 +1632,8 @@
   /* Table-deck changes (Act III; they affect everyone). The kitty takes the difference, kept between
      KITTY.min and KITTY.max cards, so Forge and Remove each have a limit. */
   const KITTY = { min: 1, max: 6 };
-  const kittyOf = L => E.deckOf(L).length - 4 * E.ACTS[L.act].hand;
-  const deckChanges = L => E.ACTS[L.act].forge;
+  const kittyOf = L => E.deckOf(L).length - 4 * E.ACTS[E.actOf(L)].hand;
+  const deckChanges = L => E.ACTS[E.actOf(L)].forge;
   const forgeable = L => deckChanges(L) && kittyOf(L) < KITTY.max ? L.owned.filter(c => c !== 'JK' && !(L.hexes && L.hexes[c] === 'twoleft')) : [];
   const removable = L => deckChanges(L) && kittyOf(L) > KITTY.min ? E.deckOf(L).filter(c => c !== 'JK' && !L.owned.includes(c)) : [];
   function forge(L, card) {
@@ -1735,6 +1836,7 @@
       case 'cleanse': return cleanse(L, arg);
       case 'bank': return bank(L, arg);
       case 'contest': return contest(L, arg);
+      case 'chase': return chase(L, arg);
       case 'water': return water(L, arg);
       case 'shunt': return shunt(L, arg);
       case 'place': return place(L, arg);
@@ -1761,7 +1863,7 @@
     if (seat === 0 && !stand) return false;
     // the stand-in keeps its bid when the others pass on it (outbidding yourself is a choice for you)
     if (h.phase === 'bid' && h.raise) return after(L, E.bid(L, seat, null));
-    if (h.phase === 'bid') return after(L, E.bid(L, seat, seat === 2 && E.foeHas(L, 'gag') && !E.mustBid(L, seat) ? null : AI.bid(L, seat)));
+    if (h.phase === 'bid') return after(L, E.bid(L, seat, seat === 2 && (E.foeHas(L, 'gag') || partnerStyle(L) === 'silent') && !E.mustBid(L, seat) ? null : AI.bid(L, seat)));
     if (h.phase === 'kitty') return after(L, E.discard(L, seat, AI.discard(L, seat)));
     if (h.phase === 'play') return after(L, E.play(L, seat, AI.play(L, seat)));
     return false;
@@ -1812,7 +1914,7 @@
     return o.n + ' / ' + o.of;
   }
   const api = { DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
-    TAUNTS, taunt, cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, CONTEST, RIBBON, ribbonOf, EXPRESS, SIDE, genThreeTrains, DRIVER, COUNTER, makeDriver, ROSTER, partnerOpen, voice, STANDARD, standardFoe, newStandard,
+    TAUNTS, taunt, cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, setQuick, floorsFor, CHASE, chaseRide, CONTEST, RIBBON, ribbonOf, EXPRESS, SIDE, genThreeTrains, DRIVER, COUNTER, makeDriver, ROSTER, partnerOpen, voice, STANDARD, standardFoe, newStandard,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;
   else root.BtpRun = api;

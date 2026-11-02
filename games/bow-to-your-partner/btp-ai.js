@@ -168,13 +168,14 @@
     let best = null;
     const mis = legal.find(b => b.s === 'MIS'), omis = legal.find(b => b.s === 'OMIS');
     // open misère is judged on the hand as dealt (no help from the kitty) and never with the Joker
-    if (omis && !h.hands[seat].includes('JK') && Object.values(misCardDanger(h.hands[seat], L.act)).reduce((x, y) => x + y, 0) <= OPEN_SAFE[team(seat)]) return { t: 0, s: 'OMIS' };
+    if (omis && !h.hands[seat].includes('JK') && Object.values(misCardDanger(h.hands[seat], E.actOf(L))).reduce((x, y) => x + y, 0) <= OPEN_SAFE[team(seat)]) return { t: 0, s: 'OMIS' };
     const hustling = L.boss === 'hustlers' && team(seat) === 1;
-    if (mis && misDanger(h.hands[seat], L.act) <= (hustling ? api.HUSTLE : (MIS_SAFE_ACT[L.act] || MIS_SAFE)[team(seat)])) return { t: 0, s: 'MIS' };
+    if (mis && misDanger(h.hands[seat], E.actOf(L)) <= (hustling ? api.HUSTLE : (MIS_SAFE_ACT[E.actOf(L)] || MIS_SAFE)[team(seat)])) return { t: 0, s: 'MIS' };
     for (const b of legal) {
       if (b.s === 'MIS' || b.s === 'OMIS') continue;
-      const e = estimate(h.hands[seat], b.s, L.act, L, seat);
-      if (e < b.t + MARGIN[team(seat)]) continue;
+      const e = estimate(h.hands[seat], b.s, E.actOf(L), L, seat);
+      // the Showboat (2026-11-02) bids on half a trick less than a hand is worth
+      if (e < b.t + MARGIN[team(seat)] - (seat === 2 && L.partnerStyle === 'bold' ? 0.5 : 0)) continue;
       const slack = e - b.t;
       if (!best || slack > best.slack + 0.25 || (Math.abs(slack - best.slack) <= 0.25 && b.v < best.b.v)) best = { b, slack };
     }
@@ -182,7 +183,7 @@
       // made to bid (the Wallflowers): the lowest level, in the denomination this hand is best in
       const low = legal.filter(b => b.s !== 'MIS' && b.s !== 'OMIS'), t0 = Math.min(...low.map(b => b.t));
       let pick = null;
-      for (const b of low.filter(b => b.t === t0)) { const e = estimate(h.hands[seat], b.s, L.act, L, seat); if (!pick || e > pick.e) pick = { b, e }; }
+      for (const b of low.filter(b => b.t === t0)) { const e = estimate(h.hands[seat], b.s, E.actOf(L), L, seat); if (!pick || e > pick.e) pick = { b, e }; }
       return { t: pick.b.t, s: pick.b.s };
     }
     return best ? { t: best.b.t, s: best.b.s } : null;
@@ -191,10 +192,10 @@
      nothing is worth a nod. */
   function nod(L, seat) {
     seat = seat === undefined ? 2 : seat;
-    const h = L.h, A = ACTS[L.act], denoms = Object.keys(A.bids[Object.keys(A.bids)[0]]);
+    const h = L.h, A = ACTS[E.actOf(L)], denoms = Object.keys(A.bids[Object.keys(A.bids)[0]]);
     let best = null;
     for (const s of denoms) {
-      const e = estimate(h.hands[seat], s, L.act, L, seat) - A.hand * SHARE[L.act];
+      const e = estimate(h.hands[seat], s, E.actOf(L), L, seat) - A.hand * SHARE[E.actOf(L)];
       if (!best || e > best.e) best = { s, e };
     }
     return best && best.e >= A.hand * 0.3 ? best.s : null;
@@ -203,7 +204,7 @@
   /* The contractor keeps its trumps and aces and throws the cheapest card. */
   function discard(L, seat) {
     const h = L.h;
-    if (h.misere && seat === h.contractor) return misWorst(h.hands[seat], L.act);
+    if (h.misere && seat === h.contractor) return misWorst(h.hands[seat], E.actOf(L));
     return cheapest(L, seat, h.hands[seat]);
   }
 

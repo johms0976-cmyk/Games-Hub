@@ -56,7 +56,7 @@
   const SEATS = ['You', 'West', 'North', 'East'];
   /* Your partner's name in the log (2026-11-01: your horse rides with you first, Nan once unlocked). A table with
      no partner set (the tests' hand-built ones) is Nan's, as it always was. */
-  const PARTNER_NAME = { nan: 'Nan', horse: 'Biscuit' };
+  const PARTNER_NAME = { nan: 'Nan', horse: 'Biscuit', showboat: 'Showboat', sharp: 'the Sharp', quiet: 'the Quiet One' };
   const pname = L => PARTNER_NAME[L && L.partner] || 'Nan';
 
   /* The three acts. Hands stay a fixed size per act; the kitty takes the rest. */
@@ -113,6 +113,9 @@
       if (RANKV[r] >= A.low[s]) d.push(r + s);
     return d;
   }
+  /* The rules a hand is dealt by: its act's, unless the run says otherwise (the Getaway's quick hands, 2026-11-02:
+     Act I's deck and hand size at the County Fair). Health, art and the map still follow L.act. */
+  const actOf = L => L.rules || L.act;
   const team = seat => seat % 2;
   const partnerOf = seat => (seat + 2) % 4;
 
@@ -146,7 +149,7 @@
       if (en(k, 'highnoon') && h.trickNo === 0) k.b += 2;
       if (en(k, 'desperado')) k.b += h.tricks[1 - team(seat)];
       if (en(k, 'knuckles') && h.contract && !h.trump) k.b += 2;
-      if (en(k, 'hole') && h.trickNo === ACTS[L.act].hand - 1) k.hole = true;
+      if (en(k, 'hole') && h.trickNo === ACTS[actOf(L)].hand - 1) k.hole = true;
     }
     if (own && seat === 0 && !steady && foeHas(L, 'rusty')) k.b -= 1;
     return k;
@@ -339,7 +342,7 @@
      Glass), plus Forged copies. The kitty takes whatever is over the four hands. */
   function deckOf(L) {
     const gone = L.removed || [];
-    return deckFor(L.act).filter(c => !gone.includes(c)).concat((L.forged || []).filter(c => !gone.includes(c) && deckFor(L.act).includes(base(c))));
+    return deckFor(actOf(L)).filter(c => !gone.includes(c)).concat((L.forged || []).filter(c => !gone.includes(c) && deckFor(actOf(L)).includes(base(c))));
   }
   /* Every card of the table deck is somewhere, exactly once: in a hand, the kitty, put back under it, on the
      table, or in a team's tricks (once a trick is scored its cards are in `taken` until it is cleared). */
@@ -357,7 +360,7 @@
     return { ok: !missing.length && !extra.length, missing, extra };
   }
   function deal(L) {
-    const A = ACTS[L.act];
+    const A = ACTS[actOf(L)];
     const deck = deckOf(L);
     const hands = [[], [], [], []];
     let pool = deck.slice();
@@ -414,14 +417,14 @@
     return L.h.hands[0].reduce((n, c) => { const k = K(L, 0, c); return n + (en(k, 'double') ? 1 : en(k, 'triple') ? 2 : 0); }, 0);
   }
   function extraBids(L, seat) {
-    const A = ACTS[L.act], room = extraTricks(L, seat), out = [];
+    const A = ACTS[actOf(L)], room = extraTricks(L, seat), out = [];
     for (const t of Object.keys(A.extra || {}).map(Number)) if (t - A.hand <= room) for (const s of Object.keys(A.extra[t])) out.push({ t, s, v: A.extra[t][s] });
     return out;
   }
   const rankOfBid = b => b.r || b.v;
   function legalBids(L) {
     const min = L.h.high ? rankOfBid(L.h.high) : 0;
-    return bidList(L.act).concat(extraBids(L, L.h.turn)).filter(b => rankOfBid(b) > min && !tooLow(L, L.h.turn, b)).sort((a, b) => rankOfBid(a) - rankOfBid(b));
+    return bidList(actOf(L)).concat(extraBids(L, L.h.turn)).filter(b => rankOfBid(b) > min && !tooLow(L, L.h.turn, b)).sort((a, b) => rankOfBid(a) - rankOfBid(b));
   }
   const no = why => ({ ok: false, why });
   /* The Wallflowers never bid, so your team must: the second of you to speak may not pass with no bid made. */
@@ -444,7 +447,7 @@
     }
     if (b) {
       const ex = extraBids(L, seat).find(x => x.t === b.t && x.s === b.s);
-      const v = b.s === 'MIS' ? ACTS[L.act].misere : b.s === 'OMIS' ? ACTS[L.act].openMisere : ex ? ex.v : ACTS[L.act].bids[b.t] && ACTS[L.act].bids[b.t][b.s];
+      const v = b.s === 'MIS' ? ACTS[actOf(L)].misere : b.s === 'OMIS' ? ACTS[actOf(L)].openMisere : ex ? ex.v : ACTS[actOf(L)].bids[b.t] && ACTS[actOf(L)].bids[b.t][b.s];
       if (!v) return no('no such bid');
       const r = b.s === "OMIS" ? 490 : v;
       if (h.high && r <= rankOfBid(h.high)) return no('a bid must beat ' + bidText(h.high));
@@ -518,7 +521,7 @@
     h.hands[seat].splice(i, 1);
     h.discards = (h.discards || []).concat(card);
     if (h.locked === card) h.locked = null;
-    if (h.hands[seat].length > ACTS[L.act].hand) return { ok: true };
+    if (h.hands[seat].length > ACTS[actOf(L)].hand) return { ok: true };
     say(L, SEATS[seat] + (seat === 0 ? ' put ' : ' puts ') + (seat === 0 ? label(card) : 'a card') + ' back under the kitty.');
     afterKitty(L);
     return { ok: true };
@@ -543,9 +546,9 @@
       say(L, 'First Draw: you lead the first trick for ' + pname(L) + '.', 'rule');
     }
     // a prize contest at the Fair (2026-11-01) costs only its entry: their bid is no attack, so no intent hold
-    if (team(h.contractor) === 1 && L.kind !== 'contest') {
+    if (team(h.contractor) === 1 && L.kind !== 'contest' && L.kind !== 'chase') {
       const v = h.contract.v;
-      h.intent = { seat: h.contractor, contract: h.contract, dmg: damageOf(v, L), dmgSweep: h.misere ? damageOf(v, L) : damageOf(sweepValue(L.act, h.contract.s), L) };
+      h.intent = { seat: h.contractor, contract: h.contract, dmg: damageOf(v, L), dmgSweep: h.misere ? damageOf(v, L) : damageOf(sweepValue(actOf(L), h.contract.s), L) };
       if (h.misere) say(L, SEATS[h.contractor] + "'s intent: misère costs you " + h.intent.dmg + ' if they lose every trick. Make ' + SEATS[h.contractor] + ' win one trick to block it.', 'intent');
       else say(L, SEATS[h.contractor] + "'s intent: " + bidText(h.contract) + ' costs you ' + h.intent.dmg + ' if they make it. Stop them taking ' + h.contract.t + ' tricks to block it.', 'intent');
       h.phase = 'intent';
@@ -556,7 +559,7 @@
     if (h.phase === 'intent') { h.phase = 'play'; return { ok: true }; }
     if (h.phase === 'trick') {
       h.trick = [null, null, null, null];
-      if (h.trickNo >= ACTS[L.act].hand || h.fail) { score(L); return { ok: true }; }
+      if (h.trickNo >= ACTS[actOf(L)].hand || h.fail) { score(L); return { ok: true }; }
       h.phase = 'play';
       h.leader = h.turn = h.last.winner;
       return { ok: true };
@@ -641,7 +644,7 @@
   /* Score the hand. Your team's points shoot the gang's health down (the run adds them up); theirs hit your
      health at the act's share (damageOf). A set takes its value off the side that bid. */
   function score(L) {
-    const h = L.h, act = L.act, c = h.contract, ct = team(h.contractor), dt = 1 - ct;
+    const h = L.h, act = actOf(L), c = h.contract, ct = team(h.contractor), dt = 1 - ct;
     if (h.misere) return scoreMisere(L);
     const got = counted(h, ct), gotD = counted(h, dt);
     const made = got >= c.t;
@@ -673,7 +676,7 @@
   const FX = { backfire: 1, hollow: 15, plate: 15, ricochet: 10, bullseye: 40, deadman: 25, keg: 30, kegBurn: 15, vest: 5, bandolier: 5, snakebite: 5, gutshot: 10, scope: 0.25 };
   function fight(L, pts, lines, o) {
     const h = L.h, fx = h.fx || { hit: 0, block: 0, burn: 0 };
-    if (L.mode === 'standard' || L.kind === 'contest') return { hit: pts[0], dmg: 0, backfire: 0 };     // a plain game of 500, a prize contest: scores only
+    if (L.mode === 'standard' || L.kind === 'contest' || L.kind === 'chase') return { hit: pts[0], dmg: 0, backfire: 0 };     // a plain game of 500, a prize contest: scores only
     let hit = pts[0];
     if (o.defend && hasBuff(L, 'bandolier')) { hit += FX.bandolier * o.defend; lines.push('Bandolier: your defending tricks hit ' + FX.bandolier * o.defend + ' harder.'); }
     if (o.defend && foeHas(L, 'armour')) { const d = 10 * o.defend + (hasBuff(L, 'bandolier') ? FX.bandolier * o.defend : 0); hit -= d; lines.push('Thick Hide: your defending tricks don\u2019t hurt them (' + d + ').'); }
@@ -726,7 +729,7 @@
 
   const api = {
     SUITS, SYM, NAME, TWIN, RED, RANKV, VNAME, SEATS, PARTNER_NAME, pname, ACTS, ENH_WORD,
-    rnd, shuffle, pick, rankOf, suitOf, base, label, deckFor, deckOf, census, team, partnerOf, grown, maxUp, stepDown,
+    rnd, shuffle, pick, actOf, rankOf, suitOf, base, label, deckFor, deckOf, census, team, partnerOf, grown, maxUp, stepDown,
     K, plainK, kSuit, kRank, kTrumpRank, kIsTrump, kBeats, kLabel,
     effSuit, trumpRank, isTrump, canPlay, winnerOf, beats, explain,
     bidValue, bidList, sweepValue, bidText, damageOf, HIT, hitShare, hitWord, rankOfBid, mustBid, WALL, extraTricks, extraBids, counted, resolveTwo,

@@ -143,6 +143,55 @@ html.art .titlemenu .wood.drawn > span { position: absolute; width: 1px; height:
    behind it. Without the art: the sky, a plain mound and the words. */
 #grave { position: fixed; inset: 0; z-index: 70; overflow: hidden; background: linear-gradient(#2e1f4a 0%, #6a3a6a 32%, #c8604a 58%, #f0a050 74%, #f6c070 82%, #edab6a 82.1%); }
 #grave[hidden] { display: none; }
+/* the Getaway (2026-11-02): the chase between stretches, one screen; the finale after it (#actcard.finale) */
+#screen.one > .cscene { flex: 1 1 auto; }
+.cscene { position: relative; margin: 0 -10px; overflow: hidden; border-bottom: 3px solid #1e140f; }
+.cscene.mine { background: repeating-linear-gradient(90deg, transparent 0 70px, #4a3020 70px 80px, transparent 80px 140px) 0 0 / 140px 72% no-repeat repeat-x,
+  linear-gradient(#4a3020 0 7%, transparent 7%), linear-gradient(#140e0a, #2e2018 55%, #3e2c20); }
+.cscene.mine::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 78% 58%, rgba(246,211,106,.28), transparent 32%); }
+.cscene.ghost { background: radial-gradient(ellipse at 30% 76%, rgba(170,150,210,.35), transparent 45%), radial-gradient(ellipse at 80% 70%, rgba(150,255,140,.18), transparent 35%),
+  linear-gradient(#0e0a18, #241a38 60%, #33264a); }
+.cscene.ghost::before { content: ''; position: absolute; left: 0; right: 0; bottom: 30%; height: 26px; background:
+  radial-gradient(ellipse at 10% 100%, #1a1424 0 40%, transparent 41%) 0 0 / 90px 26px repeat-x; opacity: .9; }
+/* what streams past: the mine's timber sets (posts and a cap beam), the ghost ride's tombstones and dead fence */
+.cscene .cframes { position: absolute; left: 0; width: 100%; top: 18%; }
+.cscene.mine .cframes { background: linear-gradient(#6a4a30, #5a3a24) 0 0 / 100% 14px no-repeat,
+  repeating-linear-gradient(90deg, transparent 0 110px, #6a4a30 110px 122px, #4a3020 122px 126px, transparent 126px 180px); border-top: 3px solid #2a1a10; }
+.cscene.ghost .cframes { top: auto; height: 44px; background: radial-gradient(ellipse 13px 18px at 30px 100%, #3e3456 96%, transparent 100%) 0 100% / 150px 44px repeat-x,
+  repeating-linear-gradient(90deg, transparent 0 60px, #2e2640 60px 64px, transparent 64px 75px) 0 100% / 100% 30px no-repeat; }
+.cscene.moving .cframes { animation: cframes 1.2s linear infinite; }
+@keyframes cframes { to { background-position-x: 0, -180px; } }
+.cscene.ghost.moving .cframes { animation-name: cghost; }
+@keyframes cghost { to { background-position-x: -150px, -75px; } }
+@media (prefers-reduced-motion: reduce) { .cscene.moving .cframes { animation: none; } }
+.cscene .crail { position: absolute; left: 0; width: 100%; height: 8px; background: repeating-linear-gradient(90deg, #2a1d16 0 8px, transparent 8px 22px); border-top: 3px solid #6a6060; }
+.cscene.moving .crail { animation: cties .25s linear infinite; }
+@keyframes cties { to { background-position-x: -22px; } }
+.cscene .cground { position: absolute; left: 0; right: 0; bottom: 0; background: #2a1e18; }
+.cscene.mine { background-position: 0 100%, 0 0, 0 0; background-size: 140px 78%, auto, auto; }
+.cscene.ghost .cground { background: #1e1828; }
+.cscene img.cv { position: absolute; image-rendering: pixelated; transition: left .9s cubic-bezier(.3, .9, .4, 1); }
+.cscene.moving img.cv { animation: drock .5s steps(1) infinite; }
+.cscene img.cv.you { animation-delay: -.25s; }
+.cscene .cgap { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: #fbf3dc; color: #2a1b16; border: 2px solid #2a1b16; border-radius: 999px; padding: 2px 12px; font: 600 14px/1.3 Bitter, Georgia, serif; white-space: nowrap; }
+.cscene .cmarks { position: absolute; left: 12px; right: 12px; top: 44px; display: flex; justify-content: center; gap: 6px; }
+.cscene .cmarks i { width: 18px; height: 6px; border-radius: 3px; background: rgba(255,255,255,.18); }
+.cscene .cmarks i.on { background: #f0c23c; }
+.cscene .cmarks i.won { background: #7ac86a; } .cscene .cmarks i.lost { background: #c8382a; }
+@media (prefers-reduced-motion: reduce) { .cscene.moving .crail, .cscene.moving img.cv { animation: none; } .cscene img.cv { transition: none; } }
+#actcard.finale .fposter { position: absolute; left: 50%; width: 112px; margin-left: -56px; z-index: 1; padding: 8px 8px 10px; background: #f3e3c0; border: 3px solid #4a2626; box-shadow: 0 6px 0 rgba(0,0,0,.35);
+  text-align: center; color: #4a2626; font: 700 18px/1 'Pixelify Sans', Georgia, serif; transform: rotate(-3deg); }
+#actcard.finale .fposter img { display: block; width: 100%; image-rendering: pixelated; margin: 6px 0 4px; }
+#actcard.finale .fposter b { display: block; font: 600 13px/1.2 Bitter, Georgia, serif; }
+#actcard.finale .fstamp { position: absolute; left: 50%; top: 48%; transform: translate(-50%, -50%) rotate(-16deg) scale(2.4); opacity: 0; border: 4px solid; border-radius: 6px; padding: 3px 10px;
+  font: 700 26px/1 'Pixelify Sans', Georgia, serif; white-space: nowrap; background: rgba(243,227,192,.75); }
+#actcard.finale .fstamp.caught { color: #b8322a; } #actcard.finale .fstamp.away { color: #5a5048; }
+#actcard.finale.said .fstamp { animation: fstamp .35s cubic-bezier(.3, 1.8, .6, 1) .5s forwards; }
+@keyframes fstamp { to { transform: translate(-50%, -50%) rotate(-16deg) scale(1); opacity: 1; } }
+#actcard.finale .unlock { display: flex; gap: 10px; align-items: center; max-width: 360px; background: #f3e3c0; color: #3a2a20; border: 3px solid #7a3b2a; border-radius: 12px; padding: 8px 12px; }
+#actcard.finale .unlock .face { width: 44px; height: 52px; flex: none; }
+#actcard.finale .unlock p { margin: 0; font-size: 14px; line-height: 1.3; }
+@media (prefers-reduced-motion: reduce) { #actcard.finale.said .fstamp { animation: none; opacity: 1; transform: translate(-50%, -50%) rotate(-16deg); } }
 /* the Fair's prize contests (2026-11-01): the door is a one-screen stop, the attraction at dusk on top */
 #screen.one .oscene.fairs { background: linear-gradient(#2e2a48, #4a4858 62%, #6a5a48 62.5%, #56524a); }
 #screen.one .oscene.fairs img.prop { top: auto; }
@@ -1249,20 +1298,20 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=23"></script>
-<script src="btp-ai.js?v=23"></script>
-<script src="btp-run.js?v=23"></script>
-<script src="btp-town.js?v=23"></script>
-<script src="art/dustwater/sprites.js?v=23"></script>
-<script src="btp-train.js?v=23"></script>
-<script src="art/train/sprites.js?v=23"></script>
-<script src="art/title/scene.js?v=23"></script>
-<script src="art/table/scene.js?v=23"></script>
-<script src="art/grave/scene.js?v=23"></script>
-<script src="art/paid/scene.js?v=23"></script>
-<script src="art/rooms/scene.js?v=23"></script>
-<script src="art/express/scene.js?v=24"></script>
-<script src="art/fair/sprites.js?v=23"></script>
+<script src="btp-engine.js?v=25"></script>
+<script src="btp-ai.js?v=25"></script>
+<script src="btp-run.js?v=25"></script>
+<script src="btp-town.js?v=25"></script>
+<script src="art/dustwater/sprites.js?v=25"></script>
+<script src="btp-train.js?v=25"></script>
+<script src="art/train/sprites.js?v=25"></script>
+<script src="art/title/scene.js?v=25"></script>
+<script src="art/table/scene.js?v=25"></script>
+<script src="art/grave/scene.js?v=25"></script>
+<script src="art/paid/scene.js?v=25"></script>
+<script src="art/rooms/scene.js?v=25"></script>
+<script src="art/express/scene.js?v=25"></script>
+<script src="art/fair/sprites.js?v=25"></script>
 <script>
 (function () {
   'use strict';
@@ -1289,7 +1338,7 @@ html.art .coach { border-radius: 0; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 22, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 23, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -1333,6 +1382,8 @@ html.art .coach { border-radius: 0; }
   function noteBeaten(L) {
     if (L.mode === 'standard') return;
     const won = (L.record || []).filter(r => r.kind === 'boss' && r.won).map(r => r.id), pr = profile();
+    // the Getaway's catches (2026-11-02): 'getaway:caller', 'getaway:wallflowers', and 'getaway:clean' for a catch without a lost stretch
+    (L.record || []).filter(r => r.kind === 'getaway' && r.won).forEach(r => { won.push('getaway:' + r.id); if (r.clean) won.push('getaway:clean'); });
     const add = won.filter(id => !pr.beaten.includes(id));
     if (add.length) { pr.beaten = pr.beaten.concat(add); try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} }
   }
@@ -1555,6 +1606,9 @@ html.art .coach { border-radius: 0; }
       case 'contest':
         body = contestHTML(L);
         break;
+      case 'chase':
+        body = chaseHTML(L);
+        break;
       case 'bank': {
         const B = R.BANK, door = L.bank.stage === 'door';
         const HU = R.holdup(L);
@@ -1606,7 +1660,7 @@ html.art .coach { border-radius: 0; }
         body = '<div class="panel"><h2>Turn a card loose</h2><p>Which card do you no longer want to own?</p><div class="cardrow">' + L.owned.map(c => cardHTML(c, { data: 'release', owned: true, big: true })).join('') + '</div></div>';
         break;
       case 'victory': {
-        if (L.act >= R.LAST_ACT) { body = endHTML(L, true); break; }
+        if (L.act >= R.LAST_ACT) { body = endHTML(L, true); playFinale(L); break; }
         const boss = L.history.length ? L.result : null;
         const bname = L.boss ? R.BOSS[L.boss].name : 'the rival pair';
         const paths = (L.pastPaths || []).concat([L.path]).map((p, i) => 'Act ' + R.ROMAN[i + 1] + ': ' + p.map(k => R.kindName(i + 1, k)).join(' → ')).join('<br>');
@@ -1633,7 +1687,7 @@ html.art .coach { border-radius: 0; }
         break;
       }
     }
-    const one = L.phase === 'shop' || L.phase === 'camp' || L.phase === 'contest';                        // one-screen stops carry the tip in their slip
+    const one = L.phase === 'shop' || L.phase === 'camp' || L.phase === 'contest' || L.phase === 'chase';                        // one-screen stops carry the tip in their slip
     const tipTop = tip && !one && !(L.phase === 'partner' || L.phase === 'actstart');   // over the map the tip rides in the sheet
     $('screen').classList.toggle('one', one);
     $('screen').innerHTML = bar() + (tipTop ? '<div class="coach">' + coachHTML(tip) + '</div>' : '') + body;
@@ -2176,7 +2230,9 @@ html.art .coach { border-radius: 0; }
       return '<div class="actline"><b>Act ' + R.ROMAN[a] + ' · ' + esc(E.ACTS[a].name) + '</b><span>' + (p.length ? p.map(k => R.kindName(a, k)).join(' → ') : 'not reached') + '</span>' +
         (hd ? '<span class="' + (hd.won ? 'good' : 'badc') + '">' + esc(R.BOSS[hd.boss].name) + (hd.won ? ': beaten' : ': lost') + '</span>' : '') + '</div>';
     }).join('');
-    const head = won ? '<h2>The County Fair is won!</h2><p class="big">You and ' + PN() + ' beat ' + esc(R.BOSS[L.boss].name.replace(/^The/, 'the')) + ' and take the championship.</p>'
+    const fb = (L.chase && L.chase.boss) || L.boss || (L.map && L.map.boss), gw = L.chase && L.chase.result;
+    const head = won ? '<h2>The County Fair is won!</h2><p class="big">You and ' + PN() + ' beat ' + esc(R.BOSS[fb].name.replace(/^The/, 'the')) +
+      (gw === 'caught' ? ', ran them down at the end of the line, and took their strongbox.' : gw === 'escaped' ? ' and take the championship, though they got away with the strongbox.' : ' and take the championship.') + '</p>'
       : '<h2>The trail ends here</h2><p class="big badc">' + (L.lostTo ? esc((R.BOSS[L.lostTo] ? R.BOSS[L.lostTo].name : L.lostTo)) + ' shot your health down' + (R.BOSS[L.lostTo] ? ' in the Showdown' : '') : 'Your health ran out') + ' in Act ' + R.ROMAN[L.act] + ', game ' + L.level + '.</p>';
     const best = S.best ? '+' + S.best.delta + ' (' + (S.best.contractor === 0 ? 'your ' : S.best.contractor === 2 ? PN() + '’s ' : '') + esc(bidPlain(S.best.contract)) + (S.best.contractor % 2 ? ', set by you' : '') + ', Act ' + R.ROMAN[S.best.act || L.act] + ')' : 'none';
     return '<div class="panel end">' + head + acts +
@@ -2205,7 +2261,7 @@ html.art .coach { border-radius: 0; }
     } else {
     if (P.hpShown !== L.health) { hp.innerHTML = hpInner(L, P.hpShown == null ? 0 : L.health - P.hpShown); hp.className = 'stat hp' + hpClass(L.health); P.hpShown = L.health; }
     if (P.goldShown !== L.gold) { gs.innerHTML = goldInner(L, P.goldShown == null ? 0 : L.gold - P.goldShown); P.goldShown = L.gold; }
-    $('handpill').textContent = L.kind === 'contest' && L.contest ? R.CONTEST.list[L.contest.id].name + ' · one hand' : (L.kind === 'boss' ? 'Showdown' : R.kindName(L.act, L.kind)) + ' · hand ' + L.handNo + (L.kind === 'bank' ? ' of 1' : ' · par ' + R.parOf(L));
+    $('handpill').textContent = L.kind === 'chase' && L.chase ? 'The Getaway · stretch ' + (L.chase.n + 1) + ' of ' + R.CHASE.stretches : L.kind === 'contest' && L.contest ? R.CONTEST.list[L.contest.id].name + (L.hands > 1 ? ' · hand ' + L.handNo + ' of ' + L.hands : ' · one hand') : (L.kind === 'boss' ? 'Showdown' : R.kindName(L.act, L.kind)) + ' · hand ' + L.handNo + (L.kind === 'bank' ? ' of 1' : ' · par ' + R.parOf(L));
     }
     renderObjective();
     const ct = $('contract');
@@ -2232,9 +2288,9 @@ html.art .coach { border-radius: 0; }
     $('coach').innerHTML = inFelt ? '' : coachHTML(tip);
     $('felt').classList.toggle('tipping', !!inFelt);
     // a tall bid grid (Act II's three rows) needs the room the empty trick area isn't using
-    $('felt').classList.toggle('compact', L.phase === 'hand' && h.phase === 'bid' && !inFelt && Object.keys(E.ACTS[L.act].bids).length >= 3);
+    $('felt').classList.toggle('compact', L.phase === 'hand' && h.phase === 'bid' && !inFelt && Object.keys(E.ACTS[E.actOf(L)].bids).length >= 3);
     // Act III's bid grid is so tall that while bidding the table folds to a strip: the nameplate and the seats' bids
-    $('felt').classList.toggle('strip', $('felt').classList.contains('compact') && Object.keys(E.ACTS[L.act].bids).length >= 5);
+    $('felt').classList.toggle('strip', $('felt').classList.contains('compact') && Object.keys(E.ACTS[E.actOf(L)].bids).length >= 5);
     const fold = $('felt').className;
     if (P.compactShown !== fold) { P.compactShown = fold; renderFelt(); }
     if (inFelt) $('felt').insertAdjacentHTML('beforeend', '<div class="coach feltcoach">' + coachHTML(tip) + '</div>');
@@ -2309,6 +2365,12 @@ html.art .coach { border-radius: 0; }
         (L.call && R.CALLS[L.call] ? '<div class="curse">The call: <b>' + esc(R.CALLS[L.call].name) + '</b> — ' + esc(R.CALLS[L.call].text) + '</div>' : '');
       return;
     }
+    if (L.kind === 'chase' && L.chase) {
+      const c = L.chase, f = R.CHASE.forks[c.fork] || R.CHASE.forks.main, st = f.step + ' length' + (f.step > 1 ? 's' : '');
+      ob.className = 'objective' + (L.you > L.opp ? ' done' : '');
+      ob.innerHTML = '<div class="ot"><div class="on">' + esc(f.name) + ': you ' + num(L.you) + ', them ' + num(L.opp) + '</div><div class="ox">Outscore them this hand and you gain ' + st + '; otherwise they gain ' + st + ' (a tie is theirs). Nothing hits your health.</div></div>';
+      return;
+    }
     if (L.kind === 'contest' && L.contest) {
       const C = R.CONTEST.list[L.contest.id], sc = L.contest.score || 0;
       ob.className = 'objective' + (R.ribbonOf(L.contest.id, sc) ? ' done' : '');
@@ -2376,8 +2438,11 @@ html.art .coach { border-radius: 0; }
     const par = R.parOf(L), F = L.foe;
     const abil = F && F.traits.length ? '<p><b>Their abilit' + (F.traits.length > 1 ? 'ies' : 'y') + ':</b> ' + F.traits.map(t => esc(R.abilityOf(t).name) + ' — ' + esc(R.abilityOf(t).text)).join('; ') + '</p>' : '';
     const how = '<p>Every point your team scores (a made contract, 10 a defending trick) hits them. Every point they score hits your health at ' + E.hitWord(L) + ', and a contract of yours that fails backfires: it hits you for its value at the same share. Nothing heals you until the fight is won.</p>';
+    if (L.kind === 'chase' && L.chase) { const c = L.chase, CH = R.CHASE;
+      return '<h2>The Getaway</h2><p>' + esc(R.BOSS[c.boss].name) + ' are ' + c.gap + ' length' + (c.gap === 1 ? '' : 's') + ' ahead. Each stretch is one quick hand by Act I\u2019s rules: outscore them on it to gain, and they gain if you don\u2019t (a tie is theirs). Nothing hits your health.</p>' +
+        '<p>Close the gap within ' + CH.stretches + ' stretches to catch them: their strongbox is ' + CH.bounty + ' gold. If they get ' + CH.away + ' lengths ahead, or the track runs out, they get away, and the Fair is still won.</p><div class="btns"><button class="btn" data-act="closesheet">Back</button></div>'; }
     if (L.kind === 'contest' && L.contest) { const C = R.CONTEST.list[L.contest.id];
-      return '<h2>' + esc(C.name) + '</h2><p>' + esc(C.what) + '</p><p>One hand. Nothing hits your health either way: the ' + R.CONTEST.fee + 'g entry was the stake. Score so far: ' + (L.contest.score || 0) + '.</p>' + ribbonsHTML(L.contest.id, L.contest.score) +
+      return '<h2>' + esc(C.name) + '</h2><p>' + esc(C.what) + '</p><p>' + (R.CONTEST.quick ? 'Two quick hands, by Act I\u2019s rules.' : 'One hand.') + ' Nothing hits your health either way: the ' + R.CONTEST.fee + 'g entry was the stake. Score so far: ' + (L.contest.score || 0) + '.</p>' + ribbonsHTML(L.contest.id, L.contest.score) +
         '<p>No ribbon, and the entry is the judges’.</p><div class="btns"><button class="btn" data-act="closesheet">Back</button></div>'; }
     if (!L.obj) { const B = R.BOSS[L.boss];
       return '<h2>The Showdown: ' + esc(B.name) + '</h2><p>' + esc(B.rule) + '</p><p>' + F.hp + ' health; ' + Math.max(0, F.hp - L.you) + ' left.</p>' + how +
@@ -2413,7 +2478,7 @@ html.art .coach { border-radius: 0; }
     const h = L.h;
     if (!h.contract || h.trickNo > 0 || h.trick.some(Boolean) || !['kitty', 'play', 'swing'].includes(h.phase)) return '';
     const who = h.contractor === 0 ? 'You win' : (h.contractor === 2 ? PN() + ' wins' : E.SEATS[h.contractor] + ' wins');
-    const need = h.misere ? 'must lose every trick' : 'needs ' + h.contract.t + ' of ' + E.ACTS[L.act].hand + ' tricks';
+    const need = h.misere ? 'must lose every trick' : 'needs ' + h.contract.t + ' of ' + E.ACTS[E.actOf(L)].hand + ' tricks';
     return '<div class="bidwon">' + who + ' the bid: <b>' + bidHTML(h.contract) + '</b><small>' + (E.team(h.contractor) === 0 ? 'your team ' : 'they ') + need + ' · worth ' + h.contract.v + '</small></div>';
   }
   // a long hand shows a few backs and the count, so the side seats stay narrow
@@ -2448,7 +2513,29 @@ html.art .coach { border-radius: 0; }
     '<circle cx="22.3" cy="24.4" r=".85" fill="#fff" stroke="none"/><circle cx="39.1" cy="24.4" r=".85" fill="#fff" stroke="none"/>' +
     '<g class="lids" stroke="none" fill="#a8683c"><rect x="18.9" y="22" width="5.4" height="7"/><rect x="35.7" y="22" width="5.4" height="7"/></g>' +
     '<path d="M17 53 Q30 59 43 53 L30 66 Z" fill="#b8322a"/><path d="M24 56 L30 62 L36 56" fill="none" stroke="#7a1d17" stroke-width="1.1"/></g></svg>';
-  const partnerFace = id => id === 'horse' ? HORSE_SVG : id === 'nan' ? NAN_SVG : '';
+  /* The Getaway's partners (2026-11-02), drawn like Nan: flat, a dark outline, front on, the same classes so they
+     breathe and blink. The Showboat: a white stetson, a red vest, a grin under a curled moustache. The Sharp: a
+     green eyeshade, round spectacles, a thin smile. The Quiet One: a black hat pulled low, a red bandana over the face. */
+  const FACE_HEAD = '<circle cx="30" cy="30" r="15" fill="#f1d3b3"/>';
+  const FACE_EYES = '<circle cx="24" cy="30" r="1.6" fill="#2a1b16" stroke="none"/><circle cx="36" cy="30" r="1.6" fill="#2a1b16" stroke="none"/>' +
+    '<g class="lids" stroke="none" fill="#e6c3a0"><rect x="21" y="27" width="6" height="4.5"/><rect x="33" y="27" width="6" height="4.5"/></g>';
+  const SHOWBOAT_SVG = '<svg class="nansvg" viewBox="0 0 60 72" aria-hidden="true"><g class="breathe" stroke="#2a1b16" stroke-width="1.6" stroke-linejoin="round">' +
+    '<path d="M6 72 C7 54 16 47 30 47 C44 47 53 54 54 72 Z" fill="#f4ead6"/><path d="M8 72 C9 56 16 50 24 49 L30 66 L36 49 C44 50 51 56 52 72 Z" fill="#b8322a"/>' +
+    '<circle cx="30" cy="58" r="1.4" fill="#f0c23c"/><circle cx="30" cy="64" r="1.4" fill="#f0c23c"/><path d="M26 47 L30 52 L34 47" fill="#2a1b16"/>' + FACE_HEAD + FACE_EYES +
+    '<path d="M22 36 Q26 33 30 36 Q34 33 38 36 Q36 38.5 34 37 M22 36 Q24 38.5 26 37" fill="#6a4026"/><path d="M25 39.5 Q30 44 35 39.5 Z" fill="#fff"/>' +
+    '<path d="M8 21 Q30 26 52 21 L50 18 Q30 22 10 18 Z" fill="#f4ead6"/><path d="M18 19 C18 8 24 5 30 5 C36 5 42 8 42 19 Q30 22 18 19 Z" fill="#f4ead6"/><path d="M18 17 Q30 20 42 17 L42 19.5 Q30 22.5 18 19.5 Z" fill="#f0c23c" stroke="none"/></g></svg>';
+  const SHARP_SVG = '<svg class="nansvg" viewBox="0 0 60 72" aria-hidden="true"><g class="breathe" stroke="#2a1b16" stroke-width="1.6" stroke-linejoin="round">' +
+    '<path d="M6 72 C7 54 16 47 30 47 C44 47 53 54 54 72 Z" fill="#3a6a4a"/><path d="M24 47 L30 58 L36 47 Z" fill="#fbf3e2"/><path d="M28.5 50 L30 54 L31.5 50 Z" fill="#7a1d17"/>' + FACE_HEAD +
+    '<path d="M15 26 C15 15 22 13 30 13 C38 13 45 15 45 26 C42 20 36 19 30 19 C24 19 18 20 15 26 Z" fill="#2a2420"/>' + FACE_EYES +
+    '<circle cx="24" cy="30" r="4.2" fill="#fff" fill-opacity=".25"/><circle cx="36" cy="30" r="4.2" fill="#fff" fill-opacity=".25"/><path d="M28.2 30 H31.8" fill="none"/>' +
+    '<path d="M26 39 Q30 40.5 34 38.5" fill="none" stroke-width="1.3"/><path d="M12 22 Q30 15 48 22 L44 26 Q30 20 16 26 Z" fill="#4a9a5a" fill-opacity=".85"/></g></svg>';
+  const QUIET_SVG = '<svg class="nansvg" viewBox="0 0 60 72" aria-hidden="true"><g class="breathe" stroke="#2a1b16" stroke-width="1.6" stroke-linejoin="round">' +
+    '<path d="M6 72 C7 54 16 47 30 47 C44 47 53 54 54 72 Z" fill="#3a3230"/><path d="M22 48 L30 70 L38 48" fill="none" stroke="#1e1a18"/>' + FACE_HEAD + FACE_EYES +
+    '<path d="M15 32 Q30 30 45 32 L44 41 Q30 50 16 41 Z" fill="#7a1d17"/><path d="M20 36 h3 M27 38 h3 M35 36 h3" stroke="#f3e3c0" stroke-width="1"/>' +
+    '<path d="M5 26 Q30 30 55 26 L52 21 Q30 25 8 21 Z" fill="#1e1a18"/><path d="M17 23 C17 10 23 7 30 7 C37 7 43 10 43 23 Q30 26 17 23 Z" fill="#1e1a18"/></g></svg>';
+  // the Sharp's count (2026-11-02): trumps (the Joker and the bowers too) neither in your hand nor played yet
+  const trumpsOut = L => { const h = L.h; return AI.unseen(L, 0).filter(c => E.kIsTrump(E.plainK(c), h.trump)).length; };
+  const partnerFace = id => ({ horse: HORSE_SVG, nan: NAN_SVG, showboat: SHOWBOAT_SVG, sharp: SHARP_SVG, quiet: QUIET_SVG })[id] || '';
   // your partner's name for the page's words (a game with no partner set is Nan's, as before)
   const PN = () => E.pname(P.L);
   /* The stage's numbers from art/table/scene.js (written by the bake), with the same defaults if it is missing. */
@@ -2458,6 +2545,7 @@ html.art .coach { border-radius: 0; }
   function lookOf(L) {
     if (L.mode === 'standard') return L.std.look;
     if (L.kind === 'contest' && L.contest) return R.CONTEST.list[L.contest.id].look;
+    if (L.kind === 'chase' && L.chase) return R.BOSS[L.chase.boss].look;
     if (!L.foe) return BANK_LOOK;
     // a gang's own pair; a run saved before the gangs had their own art (card figures) picks a pair by its name
     if (L.foe.look && (!STAGE.figs.length || L.foe.look.every(x => STAGE.figs.includes(x)))) return L.foe.look;
@@ -2473,6 +2561,9 @@ html.art .coach { border-radius: 0; }
     const F = L.foe;
     if (L.mode === 'standard') return '<div class="foe"><div class="fn"><b>' + esc(L.std.name) + '</b><span class="fhp">you ' + num(L.you) + ' · them ' + num(L.opp) + '</span></div>' +
       '<div class="foebar" aria-hidden="true"><i style="width:' + Math.max(0, Math.min(100, L.opp / 5)) + '%"></i><s style="width:' + Math.max(0, Math.min(100, L.opp / 5)) + '%"></s></div></div>';
+    if (L.kind === 'chase' && L.chase) { const c = L.chase, A = R.CHASE.away;
+      return '<div class="foe"><div class="fn"><b>' + esc(R.BOSS[c.boss].name) + '</b><span class="fhp">' + c.gap + ' length' + (c.gap === 1 ? '' : 's') + ' ahead</span></div>' +
+        '<div class="foebar" role="meter" aria-label="How far ahead they are" aria-valuemin="0" aria-valuemax="' + A + '" aria-valuenow="' + c.gap + '"><i style="width:' + Math.round(100 * c.gap / A) + '%"></i></div></div>'; }
     if (L.kind === 'contest' && L.contest) { const C = R.CONTEST.list[L.contest.id], sc = L.contest.score || 0, top = C.tiers[2];
       return '<div class="foe"><div class="fn"><b>' + esc(C.name) + '</b><span class="fhp">' + sc + ' ' + esc(C.unit[sc === 1 ? 0 : 1]) + '</span></div>' +
         '<div class="foebar ribbar" role="meter" aria-label="Your score" aria-valuemin="0" aria-valuemax="' + top + '" aria-valuenow="' + sc + '"><i style="width:' + Math.min(100, Math.round(100 * sc / top)) + '%;background:' + RIB_COL[Math.max(1, R.ribbonOf(L.contest.id, sc))] + '"></i></div></div>'; }
@@ -2610,9 +2701,88 @@ html.art .coach { border-radius: 0; }
   function contestHTML(L) {
     const C = R.CONTEST.list[L.contest.id], fee = R.CONTEST.fee, tip = R.coach(L), broke = L.gold < fee;
     const slip = tip ? '<div class="coachline"><span class="face svg">' + partnerFace(L.partner) + '</span><p>' + esc(tip.text) + '</p></div><div class="btns"><button class="btn alt" data-tip="' + tip.id + '">Got it</button></div>'
-      : '<h3>' + esc(C.place) + ' \u00b7 ' + fee + 'g to enter</h3><p>' + esc(C.what) + ' One hand with ' + PN() + ' against two fellow contestants. No health at stake: just the entry.</p>' + ribbonsHTML(L.contest.id) +
+      : '<h3>' + esc(C.place) + ' \u00b7 ' + fee + 'g to enter</h3><p>' + esc(C.what) + ' ' + (R.CONTEST.quick ? 'Two quick hands (3 cards, hearts and diamonds)' : 'One hand') + ' with ' + PN() + ' against two fellow contestants. No health at stake: just the entry.</p>' + ribbonsHTML(L.contest.id) +
         '<div class="btns"><button class="btn" data-contest="enter"' + (broke ? ' disabled' : '') + '>' + (broke ? 'The entry is ' + fee + 'g' : 'Enter (' + fee + 'g)') + '</button><button class="btn alt" data-contest="leave">Walk on by</button></div>';
     return contestScene(L, C, CONTEST_SAY[L.contest.id]) + '<div class="oslip">' + slip + '</div>';
+  }
+  /* ---------------- the Getaway (2026-11-02) ---------------- */
+  /* Between stretches: the chase on one screen. Their cart (the Caller's mine cart down the silver mine, the
+     Undertakers' ghost train) runs ahead at the right, you pump the handcar behind, the gap between you in
+     lengths (CHASE.away of them across 62% of the width), the stretches run so far as marks over the track. Then the
+     way: the main line, or (after the first stretch) the cut-off. */
+  function chaseScene(L) {
+    const c = L.chase, X = window.EXPRESS_SCENE, ghost = c.boss === 'wallflowers', CH = R.CHASE;
+    const W = Math.min(innerWidth || 375, 560), k = W >= 520 ? 3 : 2, cart = ghost ? 'cart_ghost' : 'cart_mine';
+    // the track runs along the scene's bottom (RB px up), whatever height the slip leaves it
+    const h = Math.max(190, Math.round(Math.min((innerHeight || 812) * 0.4, 320))), RB = 34;
+    // their cart near the right edge; your handcar's nose a length per `unit` behind its tail (the lengths are what's
+    // left of the width once both are drawn, so even a length shows clear track between them)
+    const gap = Math.max(0, Math.min(CH.away, c.gap)), s1 = X && X.s[cart], s2 = X && X.s.handcar;
+    const ahead = s1 ? W - (s1[0] - s1[2]) * k - 12 : W * 0.86, tail = s1 ? ahead - s1[2] * k : ahead - 60, nose = s2 ? (s2[0] - s2[2]) * k : 40, back = s2 ? s2[2] * k : 40;
+    const unit = Math.max(16, (tail - 10 - nose - back) / CH.away);
+    const youX = tail - nose - (c.result === 'caught' ? -6 : 4 + gap * unit);
+    const pic = (key, s, x, cls) => s ? '<img class="cv ' + cls + '" src="' + artURL('express/' + key + '.webp') + '" alt="" style="left:' + Math.round(x - s[2] * k) + 'px;bottom:' + (RB - (s[1] - s[3]) * k) + 'px;width:' + s[0] * k + 'px;height:' + s[1] * k + 'px">' : '';
+    const marks = Array.from({ length: CH.stretches }, (_, i) => { const r = (L.record || []).filter(x => x.kind === 'chase')[i];
+      return '<i class="' + (i < c.n ? (r && r.won ? 'won' : 'lost') : i === c.n && !c.result ? 'on' : '') + '"></i>'; }).join('');
+    const words = c.result === 'caught' ? 'Caught!' : c.result === 'escaped' ? 'They got away' : gap + ' length' + (gap === 1 ? '' : 's') + ' behind';
+    return '<div class="cscene ' + (ghost ? 'ghost' : 'mine') + (c.result ? '' : ' moving') + '" style="min-height:' + h + 'px" role="img" aria-label="' + esc(words) + '">' +
+      '<div class="cframes" style="bottom:' + RB + 'px"></div><div class="cground" style="height:' + (RB - 6) + 'px"></div><div class="crail" style="bottom:' + (RB - 8) + 'px"></div>' +
+      pic(cart, s1, c.result === 'escaped' ? W + 200 : ahead, 'them') + pic('handcar', s2, youX, 'you') +
+      '<span class="cgap">' + esc(words) + '</span><div class="cmarks" aria-hidden="true">' + marks + '</div></div>';
+  }
+  function chaseHTML(L) {
+    const c = L.chase, CH = R.CHASE, B = R.BOSS[c.boss], ride = R.chaseRide(c), tip = R.coach(L);
+    const bn = B.name.replace(/^The /, 'the ');
+    let slip;
+    if (c.result) {
+      const got = c.result === 'caught', np = (c.unlock || []).map(id => R.ROSTER.find(p => p.id === id)).filter(Boolean);
+      slip = '<h3>' + (got ? 'You catch ' + esc(bn) + '!' : esc(B.name) + ' get away') + '</h3><p>' + (got ? 'Right at the end of the line. Their strongbox is yours: <b class="good">+' + CH.bounty + ' gold</b>.' +
+          (np.length ? ' ' + np.map(p => '<b>' + esc(p.name) + '</b>').join(' and ') + (np.length > 1 ? ' saw it all, and want' : ' saw it all, and wants') + ' to ride with you next time.' : '')
+        : 'They vanish ' + esc(ride.into.replace(/^(into|onto) /, 'down ')) + ', strongbox and all. The Fair is still won.') + '</p>' +
+        '<div class="btns"><button class="btn" data-chase="finish">On to the finale</button></div>';
+    } else {
+      const last = c.last ? '<p class="' + (c.last.won ? 'good' : 'badc') + '">' + (c.last.won ? 'You took the stretch, ' + c.last.you + ' to ' + c.last.them + ': ' : 'They took the stretch, ' + c.last.them + ' to ' + c.last.you + ': ') +
+          (c.last.won ? 'you gain ' : 'they gain ') + c.last.step + ' length' + (c.last.step > 1 ? 's' : '') + '.</p>' : '';
+      const intro = c.n ? '' : '<p>' + esc(B.name) + ' bolt ' + esc(ride.into) + '! You jump on a handcar after them. ' + CH.stretches + ' stretches of track, each one quick hand (3 cards, Act I\u2019s rules). Outscore them on a stretch to gain on them; nothing hits your health. Catch them for their strongbox.</p>';
+      slip = '<h3>The Getaway \u00b7 stretch ' + (c.n + 1) + ' of ' + CH.stretches + '</h3>' + last + intro +
+        Object.entries(CH.forks).map(([id, f]) => { const off = id === 'cutoff' && !c.n;
+          return '<button class="choice" data-chase="' + id + '"' + (off ? ' disabled' : '') + '><b>' + esc(f.name) + '</b><span>' + esc(off ? 'Branches off after the first stretch.' : f.text) + '</span></button>'; }).join('');
+    }
+    return chaseScene(L) + '<div class="oslip">' + (tip && !c.result ? '<div class="coachline"><span class="face svg">' + partnerFace(L.partner) + '</span><p>' + esc(tip.text) + '</p></div>' : '') + slip + '</div>';
+  }
+  /* The finale (2026-11-02): over the Fair at night, the boss's poster stamped CAUGHT or GOT AWAY, fireworks over
+     the gates, your partner's farewell, and anyone the Getaway brought to ride with you next time. Once a run;
+     never in ?fast. "See your ride" clears it for the run's numbers (endHTML). */
+  const FAREWELL = { caught: 'We did it, dear: every bounty on the trail, and their strongbox too. Same time next year?',
+                     escaped: 'They got away with the strongbox, dear, but the Fair is ours and so is the bounty. There\u2019ll be other trails.' };
+  function playFinale(L) {
+    const key = L.rs + ':finale';
+    if (FAST || DEMO || P.actCardFor === key) return;
+    P.actCardFor = key;
+    const card = $('actcard'), X = window.EXPRESS_SCENE, G = X && X.s.gates, art = document.documentElement.classList.contains('art');
+    const W = innerWidth, k = W >= 900 ? 3 : 2, rail = Math.round(innerHeight * 0.74), u = v => Math.round(v) + 'px';
+    const c = L.chase || {}, boss = c.boss || (L.map && L.map.boss) || 'caller', got = c.result !== 'escaped';
+    const pr = profile(), shown = pr.shownPartners || [], np = (c.unlock || []).filter(id => !shown.includes(id)).map(id => R.ROSTER.find(p => p.id === id)).filter(Boolean);
+    if (np.length) { pr.shownPartners = shown.concat(np.map(p => p.id)); try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} }
+    const p = R.PARTNERS[L.partner] || R.PARTNERS.horse;
+    const gates = art && G ? '<img src="' + artURL('express/gates.webp') + '" alt="" style="left:' + u(W / 2 - G[2] * k) + ';top:' + u(rail - G[3] * k) + ';width:' + u(G[0] * k) + ';height:' + u(G[1] * k) + '">' +
+      (X.sign ? '<span class="aname" style="left:' + u(W / 2 - G[2] * k + X.sign[0][0] * k) + ';top:' + u(rail - G[3] * k + X.sign[0][1] * k) + ';width:' + u((X.sign[1][0] - X.sign[0][0]) * k) + ';height:' + u((X.sign[1][1] - X.sign[0][1]) * k) + ';font-size:' + u(12 * k) + '">COUNTY FAIR</span>' : '') : '';
+    const fws = [[0.12, 230, '#ff5a4a', 0], [0.88, 250, '#ffd65a', 0.7], [0.3, 300, '#5ac8ff', 1.3], [0.72, 290, '#9aff6a', 1.9], [0.5, 340, '#ff8ad8', 2.4]]
+      .map(f => '<i class="afw" style="left:' + u(W * f[0]) + ';top:' + u(rail - f[1] * k / 2) + ';--c:' + f[2] + ';animation-delay:' + f[3] + 's"></i>').join('');
+    const posterTop = Math.round(rail - (G ? G[3] * k : 280) - 150);
+    card.className = 'arrive finale still';
+    card.style.backgroundImage = '';
+    card.innerHTML = '<div class="asky"></div>' + fws + '<div class="aground" style="top:' + u(rail - 20 * k) + '"></div><div class="afar">' + gates + '</div>' +
+      '<div class="fposter" style="top:' + u(Math.max(166, posterTop)) + '">WANTED<img src="' + artURL('wanted/' + boss + '.webp') + '" alt=""><b>' + esc(R.BOSS[boss].name) + '</b>' +
+      '<span class="fstamp ' + (got ? 'caught">CAUGHT' : 'away">GOT AWAY') + '</span></div>' +
+      '<div class="awords"><div class="atop"><div class="board"><small>THE END OF THE TRAIL</small><b>THE FAIR IS WON</b><span>' + (got ? 'Every last bounty brought in' : 'The last of them got away') + '</span></div></div>' +
+      '<div class="abot"><div class="say"><span class="face svg">' + partnerFace(p.id) + '</span><p><b>' + esc(p.name) + ':</b> ' + esc(R.voice(L, FAREWELL[got ? 'caught' : 'escaped'])) + '</p></div>' +
+      np.map(q => '<div class="unlock"><span class="face svg">' + partnerFace(q.id) + '</span><p><b>New partner: ' + esc(q.name) + '</b>, ' + esc(q.title) + '. ' + esc(q.text) + ' Rides with you from your next story.</p></div>').join('') +
+      '<button class="btn" data-act="finaledone">See your ride</button></div></div>';
+    card.classList.add('on');
+    DEPART.timers.forEach(clearTimeout);
+    DEPART.timers = [setTimeout(() => card.classList.add('said'), reduceMotion() ? 0 : 600)];
+    card.onpointerdown = ev => { if (!ev.target.closest('[data-act="finaledone"]')) card.classList.add('said'); };
   }
   function storeHTML(L) {
     const key = 'shop:' + L.rs + ':' + (L.path || []).length + ':' + (L.restocks || 0);
@@ -2828,7 +2998,7 @@ html.art .coach { border-radius: 0; }
     const L = P.L, h = L.h, bp = $('bidpanel');
     if (!(L.phase === 'hand' && h.phase === 'bid')) { bp.hidden = true; return; }
     bp.hidden = false;
-    const A = E.ACTS[L.act], base = Object.keys(A.bids).map(Number), suits = Object.keys(A.bids[base[0]]);
+    const A = E.ACTS[E.actOf(L)], base = Object.keys(A.bids).map(Number), suits = Object.keys(A.bids[base[0]]);
     // a Doubly Woubly in your hand opens a row above the hand size
     const room = E.extraTricks(L, 0), extraRows = Object.keys(A.extra || {}).map(Number).filter(t => t - A.hand <= room);
     const tricks = base.concat(extraRows);
@@ -2862,7 +3032,7 @@ html.art .coach { border-radius: 0; }
     const standing = '<div class="standing' + (hi && hi.seat % 2 === 0 ? ' you' : '') + '">' + (hi
       ? '<span class="bchip s-' + suitKey(hi) + '">' + esc(bidPlain(hi)) + '</span><span class="who2"><b>' + (hi.seat === 0 ? 'You lead' : nm(hi.seat) + ' leads') + '</b> with ' + bidHTML(hi) + ' (' + hi.v + ')' +
         '<small>' + (raise ? 'Everyone else passed: raise it or keep it' : mine ? 'Beat it, or pass' : nm(h.turn) + ' is bidding\u2026') + '</small></span>'
-      : '<span class="bchip none">NO BID</span><span class="who2"><b>Nobody has bid</b><small>' + (mine ? 'Open the bidding: tricks you and ' + PN() + ' promise, out of ' + E.ACTS[L.act].hand : nm(h.turn) + ' is bidding\u2026') + '</small></span>') + '</div>';
+      : '<span class="bchip none">NO BID</span><span class="who2"><b>Nobody has bid</b><small>' + (mine ? 'Open the bidding: tricks you and ' + PN() + ' promise, out of ' + E.ACTS[E.actOf(L)].hand : nm(h.turn) + ' is bidding\u2026') + '</small></span>') + '</div>';
     bp.innerHTML = standing + '<div>' + (raise ? '<b class="raisehead">Raise your own bid</b> (more tricks or a higher suit), or keep it.' : '<b>' + (mine ? 'Your bid' : nm(h.turn) + ' is bidding\u2026') + '</b>') + extras + '</div>' + g +
       '<div class="btns" style="margin-top:4px"><button class="btn alt" data-act="pass"' + (mine && !E.mustBid(L, 0) ? '' : ' disabled') + '>' + (raise ? 'Keep ' + bidHTML(h.high) : 'Pass') + '</button>' +
       (A.misere ? '<button class="btn alt" data-bid="0MIS" title="Lose every trick, playing alone; your partner sits out. Ranks between 5NT and 6♠."' + (!can(0, 'MIS') ? ' disabled' : '') + '>Misère · ' + A.misere + '</button>' + (A.openMisere ? '<button class="btn alt" data-bid="0OMIS" title="Lose every trick alone, with your hand face up after the first trick. Ranks between 10♦ and 10♥."' + (!can(0, 'OMIS') ? ' disabled' : '') + '>Open · ' + A.openMisere + '</button>' : '<span class="bidlog" style="align-self:center;margin:0">lose every trick alone</span>') : '') + '</div>' +
@@ -2891,6 +3061,7 @@ html.art .coach { border-radius: 0; }
           t = follows ? 'Follow ' + E.NAME[led] + (h.trump === led ? ' (trumps)' : '') + '.' : 'You have no ' + E.NAME[led] + ': play anything' + (h.trump ? ', or trump in.' : '.');
         }
       }
+      if (R.has(L, 'count') && (h.trump || E.deckOf(L).includes('JK'))) t += ' ' + PN() + ' counts ' + trumpsOut(L) + ' trump' + (trumpsOut(L) === 1 ? '' : 's') + ' still out.';
     }
     if (P.stuck) { t = 'The computer could not move (' + P.stuck + '). Your run is saved: reload the page to carry on.'; btn = ''; }
     const u = P.undo[P.undo.length - 1];
@@ -2909,7 +3080,7 @@ html.art .coach { border-radius: 0; }
     if (L.phase === 'hand' && h.phase === 'bid' && h.raise && h.turn === 0 && P.raiseSeen !== rkey) {
       key = rkey;
       html = '<h2>You won the bid!</h2><p class="big">Everyone passed on your <b>' + bidHTML(h.high) + '</b>.</p>' +
-        '<p>Raise your own bid (more tricks or a higher suit), or keep it. Keeping it, you need <b>' + (h.high.t || 'no') + '</b> trick' + (h.high.t === 1 ? '' : 's') + (h.high.s === 'MIS' || h.high.s === 'OMIS' ? ' (lose every one)' : ' of ' + E.ACTS[L.act].hand) + ', worth ' + h.high.v + '.</p>' +
+        '<p>Raise your own bid (more tricks or a higher suit), or keep it. Keeping it, you need <b>' + (h.high.t || 'no') + '</b> trick' + (h.high.t === 1 ? '' : 's') + (h.high.s === 'MIS' || h.high.s === 'OMIS' ? ' (lose every one)' : ' of ' + E.ACTS[E.actOf(L)].hand) + ', worth ' + h.high.v + '.</p>' +
         '<div class="btns"><button class="btn" data-act="pass">Keep ' + bidHTML(h.high) + '</button><button class="btn alt" data-act="raisebid">Raise it</button></div>';
     } else if (L.phase === 'hand' && h.phase === 'intent') {
       key = 'intent' + L.level + '-' + L.handNo;
@@ -2918,8 +3089,8 @@ html.art .coach { border-radius: 0; }
         '<p>Make ' + E.SEATS[h.contractor] + ' win just one trick and the attack misses: they lose ' + h.contract.v + '. Lead low cards, and when they play, stay under their card.</p>' +
         '<div class="btns"><button class="btn" data-act="ackintent">Defend</button></div>';
       else html = '<h2>Their intent</h2><p class="big">' + E.SEATS[h.contractor] + ' bids ' + bidHTML(h.contract) + '</p>' +
-        '<p>If they take <b>' + h.contract.t + '</b> of the ' + E.ACTS[L.act].hand + ' tricks, you lose <b class="badc">' + h.intent.dmg + ' health</b> (' + E.hitWord(L) + ' of ' + h.contract.v + ')' +
-        (h.intent.dmgSweep > h.intent.dmg ? ', or ' + h.intent.dmgSweep + ' if they take all ' + E.ACTS[L.act].hand : '') + '.</p>' +
+        '<p>If they take <b>' + h.contract.t + '</b> of the ' + E.ACTS[E.actOf(L)].hand + ' tricks, you lose <b class="badc">' + h.intent.dmg + ' health</b> (' + E.hitWord(L) + ' of ' + h.contract.v + ')' +
+        (h.intent.dmgSweep > h.intent.dmg ? ', or ' + h.intent.dmgSweep + ' if they take all ' + E.ACTS[E.actOf(L)].hand : '') + '.</p>' +
         '<p>Hold them to ' + (h.contract.t - 1) + ' and the attack misses: they lose ' + h.contract.v + ', and your 10 a trick hits them. Their defending tricks still hit you.</p>' +
         '<div class="btns"><button class="btn" data-act="ackintent">Defend</button></div>';
     } else if (L.phase === 'summary') {
@@ -2935,10 +3106,15 @@ html.art .coach { border-radius: 0; }
         return;
       }
       const goal = L.obj ? R.OBJECTIVES[L.obj.id].name + ': ' + (L.obj.done ? '<span class="good">done</span>' : L.obj.fail ? '<span class="badc">missed</span>' : R.objProgress(L)) : '';
+      if (L.kind === 'chase' && L.chase) { const win = L.you > L.opp, f = R.CHASE.forks[L.chase.fork] || R.CHASE.forks.main;
+        html = '<h2>' + (win ? 'You gain on them!' : 'They pull away') + '</h2><div class="kv"><span>The stretch</span><span class="' + (win ? 'good' : 'badc') + '">you ' + num(L.you) + ', them ' + num(L.opp) + '</span>' +
+          '<span>The gap</span><span>' + (win ? '\u2212' : '+') + f.step + ' length' + (f.step > 1 ? 's' : '') + '</span></div><ul class="lines">' + r.lines.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>' +
+          '<div class="btns"><button class="btn" data-act="next">Back on the handcar</button></div>';
+        showSheet(html, key); return; }
       if (L.kind === 'contest' && L.contest) { const C = R.CONTEST.list[L.contest.id], sc = L.contest.score, t = R.ribbonOf(L.contest.id, sc);
         html = '<h2>' + esc(C.name) + '</h2><div class="kv"><span>Your score</span><span class="' + (t ? 'good' : 'badc') + '">' + sc + ' ' + esc(C.unit[sc === 1 ? 0 : 1]) + '</span><span>The hand</span><span>' + (r.pts[0] > 0 ? '+' : '') + num(r.pts[0]) + ' to ' + num(r.pts[1]) + '</span></div>' +
           '<ul class="lines">' + r.lines.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>' + ribbonsHTML(L.contest.id, sc) +
-          '<div class="btns"><button class="btn" data-act="next">The judges’ verdict</button></div>';
+          '<div class="btns"><button class="btn" data-act="next">' + (R.fightOver(L) ? 'The judges’ verdict' : 'Next hand') + '</button></div>';
         showSheet(html, key); return; }
       html = '<h2>Hand ' + L.handNo + (F ? ' against ' + esc(F.name) : '') + '</h2>' +
         '<div class="kv"><span>You hit them</span><span class="' + ((F ? r.hit : r.pts[0]) > 0 ? 'good' : (F ? r.hit : r.pts[0]) < 0 ? 'badc' : '') + '">' + (F ? (r.hit ? String(r.hit) : 'nothing') : num(r.pts[0])) + (F ? ' · ' + Math.max(0, F.hp - L.you) + ' of ' + F.hp + ' left' : '') + '</span>' +
@@ -3150,8 +3326,8 @@ html.art .coach { border-radius: 0; }
     if (P.held && Date.now() - P.held < 1500) { P.held = 0; ev.preventDefault(); return; }
     // a card that can't be played or picked (your cards panel, a hand while it isn't your turn): a tap explains it
     const plain = ev.target.closest('.card[data-c]');
-    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe],[data-sleeve]')) { showCardInfo(plain.dataset.c); return; }
-    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe],[data-sleeve]');
+    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-chase],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe],[data-sleeve]')) { showCardInfo(plain.dataset.c); return; }
+    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-chase],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe],[data-sleeve]');
     if (!t || t.disabled) return;
     if (t.closest('#sheet') && Date.now() < P.guardUntil) return;
     const L = P.L, d = t.dataset;
@@ -3167,6 +3343,7 @@ html.art .coach { border-radius: 0; }
     if (P.sleeping) return;
     if (d.bank) { move('bank', d.bank); return; }
     if (d.contest) { move('contest', d.contest); return; }
+    if (d.chase) { move('chase', d.chase); return; }
     if (d.water) { move('water', d.water); return; }
     if (d.shunt) { move('shunt', d.shunt); return; }
     if (d.buy) { move('buy', d.buy === 'release' ? 'release' : +d.buy); return; }
@@ -3205,7 +3382,7 @@ html.art .coach { border-radius: 0; }
       case 'foeinfo': openSheet('info', foeHelpHTML(L, d.k)); break;
       case 'skipgrave': endGrave(); break;
       case 'draw': draw(); break;
-      case 'allaboard': case 'intofair': endDepart(); break;
+      case 'allaboard': case 'intofair': case 'finaledone': endDepart(); break;
       case 'takejob': takeJob(); break;
       case 'freshdeal': P.sleeving = false; move('freshdeal'); break;
       case 'sleevemode': P.sleeving = !P.sleeving; render(); break;
@@ -3680,7 +3857,7 @@ html.art .coach { border-radius: 0; }
      pointing at its figures and NOW DRAW! deals you in. The hand, the bid panel and the tip wait out of sight, and
      step() waits too, so nobody bids first. Once a fight (P.drawnFor); never in ?fast or a ?demo. */
   const standKey = L => L.rs + ':' + (L.mode || 'story') + ':' + L.level;
-  const standoffDue = L => !FAST && !DEMO && !!L && L.phase === 'hand' && L.handNo === 1 && !!L.h && L.h.phase === 'bid' && !L.h.bids.length && !L.redeals && P.drawnFor !== standKey(L);
+  const standoffDue = L => !FAST && !DEMO && !!L && L.phase === 'hand' && L.kind !== 'chase' && L.handNo === 1 && !!L.h && L.h.phase === 'bid' && !L.h.bids.length && !L.redeals && P.drawnFor !== standKey(L);
   function renderStandoff() {
     const L = P.L, s = $('standoff'), due = standoffDue(L) && !$('game').hidden && !P.sheet;
     document.body.classList.toggle('standing', due);
@@ -3896,7 +4073,7 @@ html.art .coach { border-radius: 0; }
   }
   function endDepart() {
     const card = $('actcard');
-    if (!card.classList.contains('depart') && !card.classList.contains('arrive')) return;
+    if (!card.classList.contains('depart') && !card.classList.contains('arrive')) return;     // (the finale is an .arrive too)
     DEPART.timers.forEach(clearTimeout);
     card.classList.remove('on', 'said');
     card.onpointerdown = null;
