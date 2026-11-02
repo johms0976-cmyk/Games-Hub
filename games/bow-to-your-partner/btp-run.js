@@ -213,9 +213,10 @@
     hustlers: { name: 'The Hustlers', short: 'Hustlers', act: 2, look: ['pJY', 'pJY'], hp: 200, hit: 1.25, rule: 'They bid mis\u00e8re whenever they dare.',
               revenge: 'The Twins were their little brothers, and they mean to settle it with you.',
               hint: 'One trick sinks a mis\u00e8re: lead low and stay under their card. Or outbid them with a 6 to keep them out.' },
-    caller: { name: 'The Caller', short: 'Caller', act: 3, look: ['sJK', 'sQD'], hit: 2, rule: 'Before each hand he calls a figure that changes the rules, aimed at the cards you were dealt from your own.',
+    // Act III's two evened out (2026-11-02, fights.js 1500 x 2 seed sets: Caller 77% -> 69%, Undertakers 57-60% -> 66-69%)
+    caller: { name: 'The Caller', short: 'Caller', act: 3, look: ['sJK', 'sQD'], hp: 650, hit: 2, rule: 'Before each hand he calls a figure that changes the rules, aimed at the cards you were dealt from your own.',
               hint: 'Each call is chosen to hurt your seeded cards, and he tells you why. A run that only works one way gets punished.' },
-    wallflowers: { name: 'The Undertakers', short: 'Undertakers', act: 3, look: ['pKU', 'pKU'], hit: 2, rule: 'They never bid, so your team must bid every hand, and at least 8.',
+    wallflowers: { name: 'The Undertakers', short: 'Undertakers', act: 3, look: ['pKU', 'pKU'], hit: 1.6, rule: 'They never bid, so your team must bid every hand, and at least 8.',
               hint: 'Nobody can pass the hand out: if your partner passes, you must bid. Bid what you can make, not what you hope.' }
   };
   /* The Caller's calls (Act III's Hoedown). Before each hand he picks the one that hurts the cards
