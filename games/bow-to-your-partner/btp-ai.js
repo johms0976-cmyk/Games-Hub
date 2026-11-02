@@ -165,13 +165,13 @@
   function bid(L, seat) {
     const h = L.h;
     if (h.high && team(h.high.seat) === team(seat)) return null;
-    if (L.boss === 'wallflowers' && team(seat) === 1) return null;      // the Wallflowers never bid
+    if (E.bossRule(L) === 'wallflowers' && team(seat) === 1) return null;      // the Wallflowers never bid
     const legal = E.legalBids(L);
     let best = null;
     const mis = legal.find(b => b.s === 'MIS'), omis = legal.find(b => b.s === 'OMIS');
     // open misère is judged on the hand as dealt (no help from the kitty) and never with the Joker
     if (omis && !h.hands[seat].includes('JK') && Object.values(misCardDanger(h.hands[seat], E.actOf(L))).reduce((x, y) => x + y, 0) <= OPEN_SAFE[team(seat)]) return { t: 0, s: 'OMIS' };
-    const hustling = L.boss === 'hustlers' && team(seat) === 1;
+    const hustling = E.bossRule(L) === 'hustlers' && team(seat) === 1;
     const misLover = team(seat) === 1 && L.foe && L.foe.manner === 'misere';
     if (mis && misDanger(h.hands[seat], E.actOf(L)) <= (hustling ? api.HUSTLE : (MIS_SAFE_ACT[E.actOf(L)] || MIS_SAFE)[team(seat)] * (misLover ? 2.5 : 1))) return { t: 0, s: 'MIS' };
     for (const b of legal) {
@@ -220,7 +220,7 @@
      it's theirs. They only know your seeded cards, not the rest of your hand. */
   function sharpsHunt(L, seat, legal) {
     const h = L.h, trump = h.trump;
-    if (L.boss !== 'sharps' || team(seat) !== 1 || h.misere || (L.buffs || []).includes('tell')) return null;    // their signals are known
+    if (E.bossRule(L) !== 'sharps' || team(seat) !== 1 || h.misere || (L.buffs || []).includes('tell')) return null;    // their signals are known
     let best = null;
     for (const c0 of (h.seeded || []).filter(c => h.hands[0].includes(c))) {
       const k0 = K(L, 0, c0), s0 = kSuit(k0, trump);

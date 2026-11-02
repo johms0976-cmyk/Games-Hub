@@ -116,6 +116,8 @@
   /* The rules a hand is dealt by: its act's, unless the run says otherwise (the Getaway's quick hands, 2026-11-02:
      Act I's deck and hand size at the County Fair). Health, art and the map still follow L.act. */
   const actOf = L => L.rules || L.act;
+  /* Whose Showdown rule is in force this hand: the boss's own, or the one the Stranger borrowed (2026-11-02). */
+  const bossRule = L => (L && (L.borrow || L.boss)) || null;
   const team = seat => seat % 2;
   const partnerOf = seat => (seat + 2) % 4;
 
@@ -140,7 +142,9 @@
      sits in the trick, so winnerOf adds k.led and k.last. */
   function K(L, seat, c) {
     const own = !!L && seat !== null && seat !== undefined && team(seat) === 0;
-    let m = own && L.mods ? (L.mods[c] || null) : null;
+    // the ghosts of your last ride play your old cards with what was on them
+    const ghostly = !own && !!L && seat !== null && seat !== undefined && !!L.ghostFight && !!L.foe && !!L.foe.ghost;
+    let m = own && L.mods ? (L.mods[c] || null) : ghostly ? (L.ghostFight.mods[c] || null) : null;
     const steady = !!m && (m.enh === 'steady' || m.enh2 === 'steady'), h = L && L.h;
     // Sand in the Eyes: on the first trick of a hand your team's own cards play as printed
     if (m && !steady && foeHas(L, 'sand') && h && h.trickNo === 0) m = null;
@@ -365,9 +369,16 @@
     const hands = [[], [], [], []];
     let pool = deck.slice();
     if (L.dealRule === 'twins') {
-      const js = shuffle(L, ['JH', 'JD']);
+      // their last stand, Two of a Kind: one of them holds the Joker in place of a red Jack
+      const js = shuffle(L, L.stand === 'twins' && pool.includes('JK') ? ['JK', pick(L, ['JH', 'JD'])] : ['JH', 'JD']);
       hands[1].push(js[0]); hands[3].push(js[1]);
-      pool = pool.filter(c => c !== 'JH' && c !== 'JD');
+      pool = pool.filter(c => !js.includes(c));
+    }
+    // the ghosts of your last ride: West and East are dealt your old cards (the run's seeds, each)
+    if (L.ghostFight && L.foe && L.foe.ghost) {
+      const gc = shuffle(L, L.ghostFight.owned.filter(c => pool.includes(c) && !(L.owned || []).includes(c))).slice(0, 2 * A.seeds);
+      gc.forEach((c, i) => hands[i % 2 ? 3 : 1].push(c));
+      pool = pool.filter(c => !gc.includes(c));
     }
     if (foeHas(L, 'sleeve')) {
       // Ace up the Sleeve: West and East are each dealt an Ace (never one you own)
@@ -430,8 +441,8 @@
   /* The Wallflowers never bid, so your team must: the second of you to speak may not pass with no bid made. */
   // and with them at the table your team's contracts start at this many tricks (misère aside)
   const WALL = { min: 8 };   // the fight redesign (2026-10-27): at 7 the Undertakers were beaten 98% of the time, at 8 about 65%
-  const tooLow = (L, seat, b) => L.boss === 'wallflowers' && team(seat) === 0 && b.t > 0 && b.t < WALL.min;
-  const mustBid = (L, seat) => L.boss === 'wallflowers' && team(seat) === 0 && !!L.h && !L.h.high && L.h.passed[partnerOf(seat)];
+  const tooLow = (L, seat, b) => bossRule(L) === 'wallflowers' && team(seat) === 0 && b.t > 0 && b.t < WALL.min;
+  const mustBid = (L, seat) => bossRule(L) === 'wallflowers' && team(seat) === 0 && !!L.h && !L.h.high && L.h.passed[partnerOf(seat)];
   function bid(L, seat, b) {
     const h = L.h;
     if (h.phase !== 'bid' || h.turn !== seat) return no('not your turn to bid');
@@ -493,7 +504,7 @@
     if (c.s === 'MIS' || c.s === 'OMIS') {
       h.misere = true;
       h.open = c.s === 'OMIS';            // open misère: the hand goes face up after the first trick
-      if (c.s === 'MIS' && team(c.seat) === 1 && L.boss === 'hustlers' && hasBuff(L, 'bluff')) h.open = true;   // Called Bluff
+      if (c.s === 'MIS' && team(c.seat) === 1 && bossRule(L) === 'hustlers' && (hasBuff(L, 'bluff') || L.stand === 'hustlers')) h.open = true;   // Called Bluff, or their last stand
       h.out = partnerOf(c.seat);
       say(L, SEATS[c.seat] + (c.seat === 0 ? ' win' : ' wins') + ' the auction with misère: ' + (c.seat === 0 ? 'you' : SEATS[c.seat]) + ' must lose every trick, playing alone. ' +
         (h.out === 0 ? 'You sit' : (h.out === 2 ? pname(L) : SEATS[h.out]) + ' sits') + ' this hand out. No trumps; the Joker wins any trick it is in.' + (h.open ? ' Open mis\u00e8re: the hand goes face up after the first trick.' : ''), 'contract');
@@ -688,6 +699,7 @@
     if (hasBuff(L, 'holster') && L.handNo === 1 && L.foe && hit > 0) { lines.push('Quick Holster: the fight\u2019s first hand hits double (+' + hit + ').'); hit *= 2; }
     let dmg = damageOf(pts[1], L);
     if (dmg) lines.push('Their ' + pts[1] + ' points hit you: \u2212' + dmg + ' health (' + hitWord(L) + ').');
+    if (dmg && h.misere && team(h.contractor) === 1 && L.stand === 'hustlers') { const x = Math.round(dmg / 20) * 10; dmg += x; lines.push('All In: their mis\u00e8re hits half as hard again (\u2212' + x + ').'); }
     let backfire = 0;
     if (L.foe && o.ct === 0 && !o.made && !o.near) {
       backfire = damageOf(FX.backfire * h.contract.v, L);
@@ -729,7 +741,7 @@
 
   const api = {
     SUITS, SYM, NAME, TWIN, RED, RANKV, VNAME, SEATS, PARTNER_NAME, pname, ACTS, ENH_WORD,
-    rnd, shuffle, pick, actOf, rankOf, suitOf, base, label, deckFor, deckOf, census, team, partnerOf, grown, maxUp, stepDown,
+    rnd, shuffle, pick, actOf, bossRule, rankOf, suitOf, base, label, deckFor, deckOf, census, team, partnerOf, grown, maxUp, stepDown,
     K, plainK, kSuit, kRank, kTrumpRank, kIsTrump, kBeats, kLabel,
     effSuit, trumpRank, isTrump, canPlay, winnerOf, beats, explain,
     bidValue, bidList, sweepValue, bidText, damageOf, HIT, hitShare, hitWord, rankOfBid, mustBid, WALL, extraTricks, extraBids, counted, resolveTwo,

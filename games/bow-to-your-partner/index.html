@@ -272,6 +272,19 @@ html.art .mapbox.fair .spr { display: block; }
 @keyframes cstamp { from { transform: rotate(16deg) scale(2.4); opacity: 0; } }
 .pw-trick { color: #b8322a; } .pw-rule { color: #2e5a8a; } .pw-trait { color: #8a6a20; } .pw-boss { color: #6a2a8a; }
 .pwbg-trick { background: #f0a090; } .pwbg-rule { background: #a8c8e8; } .pwbg-trait { background: #e8d090; } .pwbg-boss { background: #d0b0e8; }
+/* Keeping you on your toes (2026-11-02): a Showdown's last stand, the Joker's dare, the ghosts of your last ride */
+.pw-stand { color: #8a1a1a; } .pwbg-stand { background: #f0a0a0; }
+.foe .ftag.stand { background: #8a1a1a; color: #fff; }
+.nod.dare { border-color: #b8322a; }
+.jokersay { position: fixed; z-index: 70; width: 240px; background: #fff4d8; border-color: #b8322a; animation: jokersay 4.5s forwards; }
+@keyframes jokersay { 0% { opacity: 0; } 8% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
+.jokersay b { color: #b8322a; }
+.nod.dare b { color: #b8322a; }
+html.art .bidpanel .nod.dare { background: #fff4d8; }
+.darenote { position: absolute; z-index: 3; left: 6px; top: 4px; max-width: 46%; background: #fff4d8; color: #3a2a20; border: 2px solid #b8322a; border-radius: 10px; padding: 2px 7px; font: 11px/1.2 'Pixelify Sans', Georgia, serif; pointer-events: none; }
+#felt.ghosted .stage .fig img, .poster.ghost .figs img { filter: grayscale(1) brightness(1.25) sepia(.3) hue-rotate(150deg); opacity: .78; }
+.nd.ghost:not(.done) { outline: 2px dashed #9ad0e0; outline-offset: 2px; }
+.panel.heat .cardrow { justify-content: center; }
 #ceremony .pline { position: absolute; left: 12px; right: 12px; margin: 0 auto; max-width: 400px; display: flex; gap: 8px; align-items: flex-start; background: #fffaf0; color: #3a2a20; border: 3px solid #2a1b16;
   border-radius: 10px; padding: 7px 9px; font-size: 15px; line-height: 1.3; opacity: 0; transform: translateY(10px); transition: opacity .3s, transform .3s; }
 #ceremony .pline.on { opacity: 1; transform: none; }
@@ -1308,20 +1321,20 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=27"></script>
-<script src="btp-ai.js?v=27"></script>
-<script src="btp-run.js?v=27"></script>
-<script src="btp-town.js?v=27"></script>
-<script src="art/dustwater/sprites.js?v=27"></script>
-<script src="btp-train.js?v=27"></script>
-<script src="art/train/sprites.js?v=27"></script>
-<script src="art/title/scene.js?v=27"></script>
-<script src="art/table/scene.js?v=27"></script>
-<script src="art/grave/scene.js?v=27"></script>
-<script src="art/paid/scene.js?v=27"></script>
-<script src="art/rooms/scene.js?v=27"></script>
-<script src="art/express/scene.js?v=27"></script>
-<script src="art/fair/sprites.js?v=27"></script>
+<script src="btp-engine.js?v=29"></script>
+<script src="btp-ai.js?v=29"></script>
+<script src="btp-run.js?v=29"></script>
+<script src="btp-town.js?v=29"></script>
+<script src="art/dustwater/sprites.js?v=29"></script>
+<script src="btp-train.js?v=29"></script>
+<script src="art/train/sprites.js?v=29"></script>
+<script src="art/title/scene.js?v=29"></script>
+<script src="art/table/scene.js?v=29"></script>
+<script src="art/grave/scene.js?v=29"></script>
+<script src="art/paid/scene.js?v=29"></script>
+<script src="art/rooms/scene.js?v=29"></script>
+<script src="art/express/scene.js?v=29"></script>
+<script src="art/fair/sprites.js?v=29"></script>
 <script>
 (function () {
   'use strict';
@@ -1348,7 +1361,7 @@ html.art .coach { border-radius: 0; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 24, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 25, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -1386,7 +1399,12 @@ html.art .coach { border-radius: 0; }
     if (L.rideNoted || L.mode === 'standard') return;
     L.rideNoted = true;
     const pr = profile(), total = Object.values(L.clock || {}).reduce((a, b) => a + b, 0);
-    pr.rides = (pr.rides || []).concat({ won: L.phase === 'victory', act: L.act, secs: total, hands: (L.history || []).length, clock: L.clock || {} }).slice(-30);
+    pr.rides = (pr.rides || []).concat({ won: L.phase === 'victory', act: L.act, secs: total, hands: (L.history || []).length, clock: L.clock || {}, lostTo: L.lostTo || null }).slice(-30);
+    // what the next story remembers (2026-11-02): the stranger's marked card, and a lost ride's cards for its ghost (never the Daily's)
+    if (!L.daily) {
+      if (L.marked) pr.marked = (pr.marked || 0) + 1;
+      if (L.phase === 'runover' && L.owned.length) pr.ghost = { owned: L.owned.slice(), mods: L.mods, partner: L.partner, act: L.act, lostTo: L.lostTo || null };
+    }
     try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {}
   }
   function noteBeaten(L) {
@@ -1613,7 +1631,7 @@ html.art .coach { border-radius: 0; }
       }
       case 'event': {
         const ev = R.EVENTS[L.event];
-        body = '<div class="panel"><h2>Gossip: ' + esc(ev.name) + '</h2><p>' + esc(ev.text) + '</p>' +
+        body = '<div class="panel"><h2>Gossip: ' + esc(ev.name) + '</h2><p>' + esc(R.eventText(L, L.event)) + '</p>' +
           ev.options.map((o, i) => '<button class="choice" data-option="' + i + '"' + ((o.fx.release && L.owned.length < 2) || (o.fx.gold < 0 && L.gold < -o.fx.gold) || (o.fx.health < 0 && L.health + o.fx.health <= 0) || (o.fx.shunt && !R.shuntable(L).length) ? ' disabled' : '') + '><b>' + esc(o.text) + '</b></button>').join('') + '</div>' +
           '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
         break;
@@ -1664,6 +1682,13 @@ html.art .coach { border-radius: 0; }
       case 'polish':
         body = '<div class="panel"><h2>Polish</h2><p>+1 rank on which card? (A 10 becomes a Queen; nothing goes past the Ace.)</p><div class="cardrow">' + R.polishable(L).map(c => cardHTML(c, { data: 'polish', owned: true, big: true })).join('') + '</div></div>';
         break;
+      case 'heat': {
+        const c = L.heat.card, pct = Math.round(100 * R.heatOdds(L));
+        body = '<div class="panel heat"><h2>Polish it again?</h2><p>' + esc(L.note) + '</p><div class="cardrow">' + cardHTML(c, { owned: true, big: true }) + '</div>' +
+          '<p>One more rank if it holds. The lamp\u2019s burning low: <b>' + pct + '% chance it cracks</b>, and a cracked card is no longer yours, with everything on it.</p>' +
+          '<div class="btns"><button class="btn" data-act="heatagain">Polish again (' + pct + '% it cracks)</button><button class="btn alt" data-act="heatstop">Leave it there</button></div></div>';
+        break;
+      }
       case 'forge':
         body = '<div class="panel"><h2>Forge</h2><p>Copy which of your cards? The copy is plain (no enhancement or polish) and ties the original.</p><div class="cardrow">' + R.forgeable(L).map(c => cardHTML(c, { data: 'forge', owned: true, big: true })).join('') + '</div></div>';
         break;
@@ -1797,7 +1822,8 @@ html.art .coach { border-radius: 0; }
     bank: '<path d="M3 9l9-6 9 6z"/><path d="M5 9v9M9.5 9v9M14.5 9v9M19 9v9M3 21h18"/>',
     water: '<path d="M6 4h12v7H6z"/><path d="M7 11l-2 10M17 11l2 10M8 16h8M18 7h3v4"/>',
     boss: '<path d="M12 2l3 7 7 .6-5.3 4.6 1.6 7.2L12 17.8 5.7 21.4l1.6-7.2L2 9.6 9 9z"/>',
-    contest: '<circle cx="12" cy="9" r="5.5"/><path d="M9 13.5 7 22l5-3 5 3-2-8.5"/>'
+    contest: '<circle cx="12" cy="9" r="5.5"/><path d="M9 13.5 7 22l5-3 5 3-2-8.5"/>',
+    mystery: '<path d="M8.5 8.5a3.5 3.5 0 1 1 5 3.2c-1 .5-1.5 1.2-1.5 2.3v1.2"/><path d="M12 18.4v1.4"/>'
   };
   const icon = k => '<svg viewBox="0 0 24 24" aria-hidden="true">' + ICON[k] + '</svg>';
   function nodeWhat(L, k) {
@@ -1805,6 +1831,7 @@ html.art .coach { border-radius: 0; }
       event: 'a choice with a trade-off', camp: 'rest, polish, cleanse' + (E.ACTS[L.act].forge ? ', forge or remove' : '') + ', or shop',
       elite: 'a tougher gang with an ability; pays a buff', store: 'cards, an enhancement, a buff, a tonic',
       raffle: R.RAFFLE.gold + ' gold and a free buff',
+      mystery: 'nobody can say till you get there: a gang, a duel or some gossip',
       contest: 'a prize contest: ' + R.CONTEST.fee + ' gold to enter, a ribbon for the score, no health at stake',
       water: 'fill your canteen (+' + R.WATER.health + ' health), earn ' + R.WATER.gold + ' gold, or have a hex scrubbed off',
       bank: 'stop a robbery in one hand: win ' + (R.bankBounty(L) ? R.bankBounty(L) + ' gold and ' : '') + 'an enhancement, lose ' + R.bankShare(L) + ' of your gold', boss: R.BOSS[L.map.boss].name + ', ' + (R.BOSS[L.map.boss].hp || R.FOE.boss[L.act]) + ' health: beat them or the run is over' })[k];
@@ -1822,9 +1849,11 @@ html.art .coach { border-radius: 0; }
     const F = n.foe, top = R.bountyOf(n.kind, F, 3), look = F.look || [];
     const figs = look.map(k => '<img src="' + artURL('table/fig_' + k + '.webp') + '" alt="">').join('');
     const ab = F.traits.map(t => { const a = R.abilityOf(t); return '<li><b>' + esc(a.name) + '</b> ' + esc(a.text) + '</li>'; }).join('');
-    return '<button class="poster k-' + n.kind + '" data-go="' + n.id + '"><span class="figs" aria-hidden="true">' + figs + '</span><span class="pbody">' +
+    return '<button class="poster k-' + n.kind + (F.ghost ? ' ghost' : '') + '" data-go="' + n.id + '"><span class="figs" aria-hidden="true">' + figs + '</span><span class="pbody">' +
       '<span class="w">WANTED</span><b>' + esc(F.name) + '</b><span class="pk">' + esc(R.kindName(L.act, n.kind)) + ' \u00b7 ' + R.foeHp(L, F) + ' health</span>' +
       (ab ? '<ul>' + ab + '</ul>' : '') + (F.manner && R.MANNERS[F.manner] ? '<span class="pk"><b>' + esc(R.MANNERS[F.manner].name) + ':</b> ' + esc(R.MANNERS[F.manner].text) + '</span>' : !ab && !F.rule ? '<span class="plainp">Nothing up their sleeve</span>' : '') +
+      (F.ghost ? '<span class="pk"><b>Your last ride\u2019s cards:</b> ' + esc(((L.ghost && L.ghost.owned) || []).map(E.label).join(', ')) + '. Beat them and the best of them is yours again.</span>' : '') +
+      (n.kind === 'elite' ? '<span class="pk"><b>Table rules:</b> a new one every deal.</span>' : '') +
       (F.tipoff ? '<span class="bty">Carrying ' + esc(R.BOSS[F.tipoff].name.replace(/^The /, 'the ')) + '\u2019 secret: ' + esc(R.BUFFS[R.COUNTER[F.tipoff]].name) + '</span>' : '') +
       (F.rule ? '<span class="pk"><b>Table rule:</b> ' + esc(R.TABLE_RULES[F.rule].name) + '. ' + esc(R.TABLE_RULES[F.rule].text) + '</span>' : '') +
       (F.driver ? '<span class="pk">Sent by ' + esc(R.BOSS[F.driver].name.replace(/^The /, 'the ')) + '</span>' : '') +
@@ -1837,10 +1866,10 @@ html.art .coach { border-radius: 0; }
     const kindName = n.kind === 'boss' ? 'Showdown: ' + R.BOSS[L.map.boss].name : R.kindName(L.act, n.kind);
     const place = placeName || (L.act === 1 && R.PLACE[L.act][n.kind]);
     const name = place && n.kind !== 'boss' ? place + ' (' + kindName + ')' : kindName;
-    return '<button class="nd ' + n.kind + ' k-' + n.kind + (isCan ? ' can' : '') + (done ? ' done' : '') + (dead ? ' dead' : '') + ((shunting ? picked : n.id === L.pos) ? ' here' : '') + '" data-n="' + n.id + '"' +
+    return '<button class="nd ' + n.kind + ' k-' + n.kind + (n.foe && n.foe.ghost && n.kind !== 'mystery' ? ' ghost' : '') + (isCan ? ' can' : '') + (done ? ' done' : '') + (dead ? ' dead' : '') + ((shunting ? picked : n.id === L.pos) ? ' here' : '') + '" data-n="' + n.id + '"' +
       ' style="left:' + (100 * x / W).toFixed(2) + '%;top:' + (100 * y / H).toFixed(2) + '%"' + (isCan ? (shunting ? ' data-shunt="' : ' data-go="') + n.id + '"' : ' disabled') +
       ' aria-label="' + esc(name) + '" title="' + esc(name) + '">' + (n.kind === 'boss' && L.act === 1 ? '<span class="sign">SALOON</span>' : n.kind === 'bank' && L.act === 1 ? '<span class="sign">BANK</span>' : '') + icon(n.kind) +
-      (n.foe && n.foe.traits.length > (n.kind === 'elite' ? 1 : 0) && !done ? '<i class="pips">' + '<i></i>'.repeat(n.foe.traits.length - (n.kind === 'elite' ? 1 : 0)) + '</i>' : '') + '</button>';
+      (n.foe && n.kind !== 'mystery' && n.foe.traits.length > (n.kind === 'elite' ? 1 : 0) && !done ? '<i class="pips">' + '<i></i>'.repeat(n.foe.traits.length - (n.kind === 'elite' ? 1 : 0)) + '</i>' : '') + '</button>';
   }
   /* Act I: Dustwater, a long Main Street that scrolls (btp-town.js lays it out; see .mapbox.dust). The baked
      plate and the sprites are art and never load-bearing: the road band, footpaths and markers are the map. */
@@ -2234,11 +2263,11 @@ html.art .coach { border-radius: 0; }
   function mapHTML(L) {
     const town = L.act === 1, fair = L.act === 3 && !!L.map, side = !!(L.map && L.map.side), train = !side && L.act === 2 && !!window.BtpTrain, can = R.reachable(L), route = L.route || [], walked = walkedOf(L), fNow = R.floorOf(L);
     const kinds = [...new Set(can.map(id => R.node(L, id).kind))];
-    const wanted = can.map(id => R.node(L, id)).filter(n => n.foe), others = kinds.filter(k => !wanted.some(n => n.kind === k));
+    const wanted = can.map(id => R.node(L, id)).filter(n => n.foe && n.kind !== 'mystery'), others = kinds.filter(k => !wanted.some(n => n.kind === k));
     const tag = L.daily ? '<span class="runtag">Daily \u00b7 ' + esc((R.WANTED.find(w => w.id === L.daily.twist) || {}).name || '') + (L.daily.practice ? ' (practice)' : '') + '</span>'
       : L.wantedLevel ? '<span class="runtag">Wanted level ' + L.wantedLevel + '</span>' : '';
     return '<div class="panel"><h2>Act ' + R.ROMAN[L.act] + ': ' + esc(E.ACTS[L.act].name) + tag + '</h2>' + wantedHTML(L) +
-      '<div class="legend">' + ['dance', 'elite', 'event', 'store', 'camp', 'raffle'].concat(R.BANK.acts.includes(L.act) ? ['bank'] : [], R.WATER.acts.includes(L.act) ? ['water'] : [], R.CONTEST.acts.includes(L.act) ? ['contest'] : []).map(k => '<span>' + (town || train || side || fair ? '<i class="sw k-' + k + '"></i>' : '') + icon(k) + esc(R.kindName(L.act, k)) + '</span>').join('') +
+      '<div class="legend">' + ['dance', 'elite', 'event', 'store', 'camp', 'raffle'].concat(R.BANK.acts.includes(L.act) ? ['bank'] : [], R.WATER.acts.includes(L.act) ? ['water'] : [], R.CONTEST.acts.includes(L.act) ? ['contest'] : [], L.map && L.map.floors.flat().some(n => n.kind === 'mystery') ? ['mystery'] : []).map(k => '<span>' + (town || train || side || fair ? '<i class="sw k-' + k + '"></i>' : '') + icon(k) + esc(R.kindName(L.act, k)) + '</span>').join('') +
       '<span><i class="pips"><i></i></i>A trick up their sleeve</span></div>' +
       (town ? townBox(L, can, route, walked, fNow) : fair ? fairBox(L, can, route, walked, fNow) : side ? sideBox(L, can, route, walked, fNow) : train ? trainBox(L, can, route, walked, fNow) : plainBox(L, can, route, walked, fNow)) +
       (kinds.length ? '<p style="margin:8px 0 0"><b>Next</b>: tap a glowing stop' + (wanted.length ? ' or a poster' : '') + '.</p>' +
@@ -2334,7 +2363,7 @@ html.art .coach { border-radius: 0; }
     let el = felt.querySelector('.fold');
     if (!el) { el = document.createElement('div'); el.className = 'fold'; felt.appendChild(el); }
     const O = L.obj && R.OBJECTIVES[L.obj.id];
-    const notice = L.call && L.boss === 'caller' ? '<div class="fbonus rule"><small>The call</small> <b>' + esc(R.CALLS[L.call].name) + '</b>: ' + esc(R.CALLS[L.call].text) + '</div>'
+    const notice = L.call && E.bossRule(L) === 'caller' ? '<div class="fbonus rule"><small>The call</small> <b>' + esc(R.CALLS[L.call].name) + '</b>: ' + esc(R.CALLS[L.call].text) + '</div>'
       : O ? '<button class="notice" data-act="levelinfo"><small>Bonus</small><b>' + esc(O.name) + '</b><span>' + esc(R.objProgress(L)) + '</span><i class="st">' + stars(starsNow(L)) + '</i></button>'
       : L.mode === 'standard' ? '<div class="fbonus rule"><small>First to 500</small> ' + esc(L.std.rule) + '</div>'
       : L.boss ? '<button class="notice rule" data-act="levelinfo"><small>Showdown</small> ' + esc(R.BOSS[L.boss].rule) + '</button>' : '';
@@ -2452,9 +2481,12 @@ html.art .coach { border-radius: 0; }
       '<p>In ' + esc(E.ACTS[L.act].name) + ' a gang normally hits at ' + base + '.' + (L.foe && L.foe.hitMul > 1 ? (L.kind === 'boss' ? ' Showdown gangs hit harder, so this one is ' + share + '.' : ' This gang has <b>Dead Eye</b>, so it hits half as hard again: ' + share + '.') : '') +
       ' A contract of yours that fails backfires at the same share. Stop them making their bid and their attack misses.</p>' + back;
     if (k === 'rule' && R.ruleOf(L)) { const T = R.TABLE_RULES[R.ruleOf(L)];
-      return '<h2>Table rule: ' + esc(T.name) + '</h2><p>' + esc(T.text) + '</p><p>' + (L.fight && L.fight.rule ? 'Every hand of this fight (it came with you from the road).' : 'Every Card-table gang plays by one house rule, every hand of the fight. It\u2019s on their wanted poster too.') + '</p>' + back; }
+      return '<h2>Table rule: ' + esc(T.name) + '</h2><p>' + esc(T.text) + '</p><p>' + (L.fight && L.fight.rule ? 'Every hand of this fight (it came with you from the road).' : L.kind === 'elite' ? 'A Duel deals a new rule every hand, never the same twice running. This one lasts this hand.' : 'Every Card-table gang plays by one house rule, every hand of the fight. It\u2019s on their wanted poster too.') + '</p>' + back; }
     if (k === 'manner' && L.foe && R.MANNERS[L.foe.manner]) { const M = R.MANNERS[L.foe.manner];
       return '<h2>' + esc(M.name) + '</h2><p>' + esc(M.text) + '</p><p>Every gang has a way of playing, named on its poster. It changes how they bid and lead, not how hard they hit.</p>' + back; }
+    if (k === 'stand' && L.stand && R.LAST_STAND[L.stand]) { const S = R.LAST_STAND[L.stand];
+      return '<h2>Last stand: ' + esc(S.name) + '</h2><p>' + esc(S.text) + '</p><p>Every Showdown makes a last stand once you\u2019ve shot away half its health. It starts at the next deal and lasts the rest of the fight.</p>' + back; }
+    if (k === 'borrow' && L.borrow && R.BOSS[L.borrow]) return '<h2>This hand: ' + esc(R.poss(R.BOSS[L.borrow].name.replace(/^The /, 'the '))) + ' rule</h2><p>' + esc(R.BOSS[L.borrow].rule) + '</p><p>The Stranger takes another Showdown\u2019s rule at every deal, never the same twice running.</p>' + back;
     if (k === 'stacked') return '<h2>Stacked deck</h2><p>The cards were dealt twice this hand and the gang got the better deal. It happens more often further up the map, and every hand against a <b>Lucky</b> gang.</p>' + back;
     const a = R.abilityOf(k);
     if (!a) return back;
@@ -2603,6 +2635,8 @@ html.art .coach { border-radius: 0; }
     // each ability and their hit is a button: tap for what it means
     const tags = F.traits.map(t => '<button class="ftag" data-act="foeinfo" data-k="' + t + '" aria-label="' + esc(R.abilityOf(t).name + ': what it means') + '">' + esc(R.abilityOf(t).name) + '</button>').join('') +
       (F.manner && R.MANNERS[F.manner] ? '<button class="ftag" data-act="foeinfo" data-k="manner" aria-label="' + esc(R.MANNERS[F.manner].name + ': what it means') + '">' + esc(R.MANNERS[F.manner].name) + '</button>' : '') +
+      (L.stand && R.LAST_STAND[L.stand] ? '<button class="ftag stand" data-act="foeinfo" data-k="stand" aria-label="' + esc('Last stand: ' + R.LAST_STAND[L.stand].name + ': what it means') + '">' + esc(R.LAST_STAND[L.stand].name) + '</button>' : '') +
+      (L.borrow && R.BOSS[L.borrow] ? '<button class="ftag rule" data-act="foeinfo" data-k="borrow" aria-label="' + esc(R.poss(R.BOSS[L.borrow].short) + ' rule this hand: what it means') + '">' + esc(R.poss(R.BOSS[L.borrow].short)) + ' rule</button>' : '') +
       (R.ruleOf(L) ? '<button class="ftag rule" data-act="foeinfo" data-k="rule" aria-label="' + esc('Table rule: ' + R.TABLE_RULES[R.ruleOf(L)].name + ': what it means') + '">' + esc(R.TABLE_RULES[R.ruleOf(L)].name) + '</button>' : '') +
       (L.h && L.h.stacked ? '<button class="ftag" data-act="foeinfo" data-k="stacked">Stacked deck</button>' : '') +
       '<button class="fhit" data-act="foeinfo" data-k="hit" aria-label="How hard they hit: what it means">hits ' + E.hitWord(L) + '</button>';
@@ -2969,6 +3003,7 @@ html.art .coach { border-radius: 0; }
     const skey = [L.act, L.level, lookOf(L).join(), k].join('|');
     if (P.stageKey !== skey || !felt.querySelector('.stage')) { buildStage(L, felt, k); P.stageKey = skey; P.fxKey = null; }
     felt.style.setProperty('--k', k);
+    felt.classList.toggle('ghosted', !!(L.foe && L.foe.ghost));
     const rim = STAGE.edge - lift;
     felt.style.setProperty('--edge', rim);
     felt.style.setProperty('--lift', lift);
@@ -3003,11 +3038,13 @@ html.art .coach { border-radius: 0; }
     // go anticlockwise and didn't know why)
     const widder = L.phase === 'hand' && h.dir === -1 && h.phase !== 'bid' ? '<div class="dirnote" aria-label="Widdershins: play goes the other way round">\u21ba Widdershins: play goes the other way round</div>' : '';
     felt.querySelector('.dyn').innerHTML = seat(1, 'west', 'West') + seat(2, 'north', PN()) + seat(3, 'east', 'East') + zone + bidWonHTML(L) + widder +
-      (re ? '<div class="bubble nanbubble">' + esc(re.text) + '</div>' : '');
+      (re ? '<div class="bubble nanbubble">' + esc(re.text) + '</div>' : '') +
+      (L.dare && !L.dare.done && L.dare.hand === L.handNo && L.phase === 'hand' && h.phase !== 'bid' ? '<div class="darenote">Joker\u2019s dare: ' + esc(DARE_SHORT[L.dare.id] || '') + '</div>' : '');
     felt.querySelectorAll('.feltcoach').forEach(x => x.remove());
     stageFx(L, felt);
     powerCues(L, felt);
   }
+  const DARE_SHORT = { take: 'win a trick with him', early: 'play him on the first trick', ace: 'take one of their Aces with him', last: 'win the last trick with him' };
   function renderHand() {
     const L = P.L, h = L.h, hand = h.hands[0];
     const live = L.phase === 'hand';
@@ -3022,7 +3059,7 @@ html.art .coach { border-radius: 0; }
     $('hand').innerHTML = hand.map(c => {
       const can = yourKitty || yourSwing || legal.includes(c);
       const locked = h.locked === c && !h.unlocked;
-      const flag = locked ? 'locked' : h.ticking === c ? 'by trick 2!' : (L.mods[c] && L.mods[c].enh) ? null : (h.seeded || []).includes(c) ? (L.boss === 'sharps' ? 'they see it' : 'yours') :
+      const flag = locked ? 'locked' : h.grave === c ? 'buried' : h.palmed && h.palmed.back === c ? 'slipped you' : h.ticking === c ? 'by trick 2!' : (L.mods[c] && L.mods[c].enh) ? null : (h.seeded || []).includes(c) ? (E.bossRule(L) === 'sharps' ? 'they see it' : 'yours') :
         (h.trump && E.rankOf(c) === 'J' && E.suitOf(c) === E.TWIN[h.trump] ? 'left bower' : (h.trump && c === 'J' + h.trump ? 'right bower' : ''));
       const active = yourPlay || yourKitty || yourSwing;
       if (P.sleeving && live && h.phase === 'bid') return cardHTML(c, { seat: 0, data: 'sleeve', cls: 'ok' });
@@ -3055,8 +3092,10 @@ html.art .coach { border-radius: 0; }
     const log = h.bids.filter(b => !b.keep).map(b => '<span class="bl' + (b.pass ? ' ps' : h.high && b.seat === h.high.seat && b.t === h.high.t && b.s === h.high.s ? ' hi' : '') + '">' + nm(b.seat) + ' ' + (b.pass ? 'pass' : (b.raise ? 'raise ' : '') + bidHTML(b)) + '</span>').join('');
     let extras = '';
     if (R.has(L, 'nod')) { const n = AI.nod(L, 2); extras += '<span class="nod">' + PN() + '’s nod: ' + (n ? denom(n) : 'nothing strong') + '</span>'; }
-    if (L.boss === 'wallflowers') extras += '<span class="nod">' + (mine && E.mustBid(L, 0) ? PN() + ' passed and the Undertakers never bid: you must bid' : 'Against the Undertakers your team bids ' + E.WALL.min + ' or more') + '</span>';
+    if (E.bossRule(L) === 'wallflowers') extras += '<span class="nod">' + (mine && E.mustBid(L, 0) ? PN() + ' passed and the Undertakers never bid: you must bid' : 'Against the Undertakers your team bids ' + E.WALL.min + ' or more') + '</span>';
     if (R.sees(L, 'peek') || L.call === 'facekitty') extras += '<span class="nod">' + (L.call === 'facekitty' ? R.TABLE_RULES.facekitty.name : R.has(L, 'peek') ? 'Peek' : 'Marked deck') + ': the kitty holds ' + h.kitty.map(E.label).join(', ') + '</span>';
+    // the rodeo clown's dare, said while you bid (2026-11-02): in the panel, so the gang stays in sight
+    if (L.dare && !L.dare.done && L.dare.hand === L.handNo) extras += '<span class="nod dare" title="' + esc('The Joker: \u201c' + L.dare.text + '\u201d') + '"><b>Joker\u2019s dare:</b> ' + esc(DARE_SHORT[L.dare.id] || '') + ', ' + L.dare.pay + 'g</span>';
     if (h.spy) extras += '<span class="nod">' + esc(R.BUFFS.spyglass.name) + ': West holds the ' + E.label(h.spy[0]) + ', East the ' + E.label(h.spy[1]) + '</span>';
     const early = mine && !h.raise && !h.bids.some(b => b.seat === 0);
     if (early && R.has(L, 'freshdeck') && !L.freshUsed) extras += '<button class="btn alt mini" data-act="freshdeal">' + esc(R.BUFFS.freshdeck.name) + ': new deal</button>';
@@ -3418,6 +3457,8 @@ html.art .coach { border-radius: 0; }
       case 'useenh': { const s = P.enhSel; if (!s || !s.card) break; if (L.phase === 'reward') move('place', { enh: s.enh, card: s.card }); else move('enhance', s.card); break; }
       case 'backenh': move('unplace'); break;
       case 'foeinfo': openSheet('info', foeHelpHTML(L, d.k)); break;
+      case 'heatagain': move('heat', 'again'); break;
+      case 'heatstop': move('heat', 'stop'); break;
       case 'skipgrave': endGrave(); break;
       case 'draw': draw(); break;
       case 'allaboard': case 'intofair': case 'finaledone': endDepart(); break;
@@ -3499,7 +3540,12 @@ html.art .coach { border-radius: 0; }
   function newRun() {
     const seed = (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0, pr = profile();
     // the Wanted level starts at the highest open (2026-11-02); the partner pick can lower it
-    const L = R.newRun({ seed, objective: $('objPick').value || undefined, tips: $('tipsPick').checked, pickPartner: true, unlocked: pr.beaten, maxWanted: pr.wanted || 0, wanted: pr.wanted || 0 });
+    const rides = pr.rides || [], last = rides[rides.length - 1] || {};
+    const memory = { runs: rides.length, lastWon: !!last.won, lastAct: last.act || 0, lostTo: last.lostTo || null, marked: pr.marked || 0 };
+    const L = R.newRun({ seed, objective: $('objPick').value || undefined, tips: $('tipsPick').checked, pickPartner: true, unlocked: pr.beaten, maxWanted: pr.wanted || 0, wanted: pr.wanted || 0,
+                         ghost: pr.ghost, memory, stranger: (pr.marked || 0) >= R.STRANGER.marks && !(pr.beaten || []).includes('stranger') });
+    // the ghost rides once: the story that meets it has taken it
+    if (pr.ghost) { delete pr.ghost; try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} }
     playOpening(L, () => { P.L = L; show(); });
   }
   /* The main menu (the user's, 2026-10-30): Start, then New Story, Continue Current Story, Daily Challenge or
@@ -4171,7 +4217,8 @@ html.art .coach { border-radius: 0; }
     hush: '<circle cx="12" cy="11" r="8" fill="#e6c3a0" stroke="#2a1b16" stroke-width="1.8"/><rect x="5" y="12" width="14" height="4" fill="#fbf3dc" stroke="#2a1b16" stroke-width="1.4"/>',
     shield: '<path d="M12 3l7 3v6c0 5-3 8-7 9-4-1-7-4-7-9V6z" fill="#8a7a62" stroke="#2a1b16" stroke-width="1.8"/>',
     boot: '<path d="M7 3h6v10l6 3v4H5V13z" fill="#6a4026" stroke="#2a1b16" stroke-width="1.8" stroke-linejoin="round"/>',
-    star: '<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z" fill="#d0b0e8" stroke="#2a1b16" stroke-width="1.6" stroke-linejoin="round"/>'
+    star: '<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z" fill="#d0b0e8" stroke="#2a1b16" stroke-width="1.6" stroke-linejoin="round"/>',
+    skull: '<path d="M12 3.5a7 7 0 0 0-7 7v2.6l1.8 1.8v3.3h2.6v-2h5.2v2h2.6v-3.3l1.8-1.8v-2.6a7 7 0 0 0-7-7z" fill="#f0e8d8" stroke="#2a1b16" stroke-width="1.6" stroke-linejoin="round"/><circle cx="9.3" cy="11.2" r="1.7" fill="#2a1b16"/><circle cx="14.7" cy="11.2" r="1.7" fill="#2a1b16"/>'
   };
   const pwSvg = k => '<svg viewBox="0 0 24 24" aria-hidden="true">' + (PW_ICON[k] || PW_ICON.star) + '</svg>';
   // when each power bites, the glyph it wears, and the short word over the gang's heads (no intent for the always-on)
@@ -4193,9 +4240,10 @@ html.art .coach { border-radius: 0; }
     const rule = R.ruleOf(L);
     if (rule) out.push({ k: 'rule', id: rule, cls: 'rule', name: R.TABLE_RULES[rule].name, text: R.TABLE_RULES[rule].text, when: (PW[rule] || [])[0], icon: (PW[rule] || [])[1], who: out.length % 2 ? 'e' : 'w' });
     if (L.kind === 'boss' && L.boss) out.push({ k: 'boss', cls: 'boss', name: R.BOSS[L.boss].name, text: R.BOSS[L.boss].rule, when: 'All the Showdown', icon: 'star', who: 'w' });
+    if (L.kind === 'boss' && L.stand && R.LAST_STAND[L.stand]) out.push({ k: 'stand', cls: 'stand', name: R.LAST_STAND[L.stand].name, text: R.LAST_STAND[L.stand].text, when: 'From this deal to the end of the fight', icon: 'skull', who: 'e' });
     return out;
   }
-  const KIND_WORD = { trick: ['DIRTY TRICK', 'CHEAT!'], rule: ['TABLE RULE', 'HOUSE RULE'], trait: ['GANG TRAIT', 'WATCH OUT'], boss: ['SHOWDOWN', 'BOSS RULE'] };
+  const KIND_WORD = { trick: ['DIRTY TRICK', 'CHEAT!'], rule: ['TABLE RULE', 'HOUSE RULE'], trait: ['GANG TRAIT', 'WATCH OUT'], boss: ['SHOWDOWN', 'BOSS RULE'], stand: ['LAST STAND', 'NOW IT\u2019S PERSONAL'] };
   // what sits over the gang's heads: one intent each side, for the powers that bite at a moment
   function intentsHTML(L) {
     const ps = powersOf(L).filter(p => p.intent), seen = {};
@@ -4206,8 +4254,8 @@ html.art .coach { border-radius: 0; }
      hand and is stamped, your partner says it plainly; a tap (or 3 s) and it flies to its place on the nameplate.
      step() waits while it plays (P.ceremony), so nobody bids over it. Reduced motion: the same cards, no flight. */
   const CERE = { timers: [] };
-  function playCeremony(L, done) {
-    const ps = powersOf(L), c = $('ceremony');
+  function playCeremony(L, done, list) {
+    const ps = list || powersOf(L), c = $('ceremony');
     if (!ps.length || FAST) { done(); return; }
     P.ceremony = true;
     c.hidden = false;
@@ -4246,6 +4294,20 @@ html.art .coach { border-radius: 0; }
   }
   // where a power lives on the table: its chip, the Showdown's rule, or the nameplate
   const pwTarget = p => document.querySelector('#felt .foe .ftag[data-k="' + p.k + '"]') || (p.k === 'boss' && document.querySelector('#felt .notice.rule')) || document.querySelector('#felt .stage .foe');
+  // (after the hand is drawn: the felt's cues run before it)
+  function jokerSays(text) {
+    setTimeout(() => {
+      const card = document.querySelector('#hand [data-c="JK"]') || document.querySelector('#hand');
+      if (!card) return;
+      const r = card.getBoundingClientRect(), d = document.createElement('div');
+      d.className = 'bubble jokersay'; d.innerHTML = '<b>The Joker:</b> \u201c' + esc(text) + '\u201d';
+      d.style.left = Math.max(8, Math.min(innerWidth - 248, r.left + r.width / 2 - 120)) + 'px';
+      document.body.appendChild(d);
+      d.style.top = Math.max(8, r.top - d.offsetHeight - 6) + 'px';
+      const gone = () => d.remove();
+      d.onclick = gone; setTimeout(gone, 4500);
+    }, 60);
+  }
   function pulseEl(el) { if (!el) return; el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); }
   function pwPop(p, el, text) {
     if (FAST || !el) return;
@@ -4281,6 +4343,13 @@ html.art .coach { border-radius: 0; }
       if (h.stacked && !has('lucky')) { /* the floor's stacked deck has its own chip */ }
     }
     if (L.phase === 'hand' && h.phase === 'bid' && h.turn === 2 && has('gag') && once('gag' + base)) fire(has('gag'), PN() + ' is gagged');
+    // the Joker speaks his dare from your hand, a few seconds, once (its short form stays in the bid panel)
+    if (L.phase === 'hand' && h.phase === 'bid' && L.dare && !L.dare.done && L.dare.hand === L.handNo && once('dare' + base + L.dare.id)) jokerSays(L.dare.text);
+    // a Showdown's last stand: its own card, once a fight, at the deal it starts (kept on the run, so a reload doesn't replay it)
+    if (L.phase === 'hand' && h.phase === 'bid' && L.stand && has('stand') && L.standShown !== L.level) { L.standShown = L.level; playCeremony(L, step, [has('stand')]); return; }
+    // a Duel's new rule every deal, and the Showdown the Stranger borrows from
+    if (L.phase === 'hand' && h.phase === 'bid' && L.handNo > 1 && L.kind === 'elite' && has('rule') && once('nrule' + base)) fire(has('rule'), 'New rule: ' + has('rule').name, 200);
+    if (L.phase === 'hand' && h.phase === 'bid' && L.borrow && has('boss') && once('borrow' + base)) fire(has('boss'), R.poss(R.BOSS[L.borrow].short) + ' rule', 200);
     if (L.phase === 'hand' && h.phase === 'swing' && has('grand') && once('grand' + base)) fire(has('grand'));
     // your card on the table: Rusty Guns plays it a rank lower
     if (L.phase === 'hand' && (h.phase === 'play' || h.phase === 'trick') && h.trick[0] && has('rusty') && once('rust' + base + '-' + h.trickNo)) {

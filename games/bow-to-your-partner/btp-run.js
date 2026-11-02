@@ -184,8 +184,10 @@
     race: ['And they\u2019re off! Well, after the deal.', 'My horse has never lost. My horse has never raced.', 'Keep \u2019em coming in a row, or eat our dust.'],
     regulars: ['Evenin\u2019. Friendly game? First to five hundred.', 'Same table, same chairs, same old story. Deal.']
   };
+  TAUNTS.ghost = ['Remember us? We remember you. We were you.', 'Boot Hill was cold. Your old cards kept us warm.', 'Same cards, partner. Different side of the table.', 'We died on this road once. Your turn.'];
+  TAUNTS.stranger = ['Five marked cards. You kept every one. I knew you would.', 'I\u2019ve sat across from all of them. Now I\u2019ll play like all of them.', 'Every Showdown you ever lost, I was watching.'];
   function taunt(L) {
-    const pool = L.mode === 'standard' ? TAUNTS[(L.std && L.std.id) || 'regulars'] || TAUNTS.regulars : L.kind === 'contest' && L.contest ? TAUNTS[L.contest.id] : L.kind === 'boss' ? TAUNTS[L.boss] || TAUNTS.elite : TAUNTS[L.kind] || TAUNTS.dance;
+    const pool = L.foe && L.foe.ghost ? TAUNTS.ghost : L.mode === 'standard' ? TAUNTS[(L.std && L.std.id) || 'regulars'] || TAUNTS.regulars : L.kind === 'contest' && L.contest ? TAUNTS[L.contest.id] : L.kind === 'boss' ? TAUNTS[L.boss] || TAUNTS.elite : TAUNTS[L.kind] || TAUNTS.dance;
     let x = ((L.rs >>> 0) ^ Math.imul(L.level || 1, 2654435761)) >>> 0;
     x = Math.imul(x ^ (x >>> 15), 2246822519) >>> 0;
     const who = L.mode === 'standard' ? L.std.name : L.kind === 'contest' && L.contest ? 'Your fellow contestants' : L.kind === 'boss' ? BOSS[L.boss].name : L.kind === 'bank' ? 'The robbers' : L.foe ? L.foe.name : 'The gang';
@@ -261,20 +263,87 @@
   /* The Showdowns. Since the fight redesign each boss is a gang with health (FOE.boss) whose old race rule is now
      its ability; beat its health or run out of your own. */
   const BOSS = {
-    twins:  { name: 'The Twins', short: 'Twins', act: 1, look: ['pJT', 'pJT'], hit: 1.25, rule: 'West and East are always dealt the two red Jacks, one each.',
+    // with their last stands (2026-11-02, fights.js 3 x 2000): Twins 79%, Sharps 70%, Hustlers 68%, Caller 70%, Undertakers ~68%
+    twins:  { name: 'The Twins', short: 'Twins', act: 1, look: ['pJT', 'pJT'], hp: 90, hit: 1, rule: 'West and East are always dealt the two red Jacks, one each.',
               hint: 'In diamonds or hearts they hold both bowers. In no trumps their Jacks are just Jacks; the Joker beats them either way.' },
-    sharps: { name: 'The Card Sharps', short: 'Sharps', act: 2, look: ['pKX', 'pKX'], hit: 2, rule: 'They can see your seeded cards, and hunt them.',
+    sharps: { name: 'The Card Sharps', short: 'Sharps', act: 2, look: ['pKX', 'pKX'], hp: 270, hit: 2, rule: 'They can see your seeded cards, and hunt them.',
               revenge: 'The Twins owed them a fortune, and you brought the Twins in before they paid a cent.',
               hint: 'Lead your seeded cards when they can\u2019t be beaten, or let your partner cover them.' },
-    hustlers: { name: 'The Hustlers', short: 'Hustlers', act: 2, look: ['pJY', 'pJY'], hp: 200, hit: 1.25, rule: 'They bid mis\u00e8re whenever they dare.',
+    hustlers: { name: 'The Hustlers', short: 'Hustlers', act: 2, look: ['pJY', 'pJY'], hp: 130, hit: 1.25, rule: 'They bid mis\u00e8re whenever they dare.',
               revenge: 'The Twins were their little brothers, and they mean to settle it with you.',
               hint: 'One trick sinks a mis\u00e8re: lead low and stay under their card. Or outbid them with a 6 to keep them out.' },
     // Act III's two evened out (2026-11-02, fights.js 1500 x 2 seed sets: Caller 77% -> 69%, Undertakers 57-60% -> 66-69%)
-    caller: { name: 'The Caller', short: 'Caller', act: 3, look: ['sJK', 'sQD'], hp: 650, hit: 2, rule: 'Before each hand he calls a figure that changes the rules, aimed at the cards you were dealt from your own.',
+    caller: { name: 'The Caller', short: 'Caller', act: 3, look: ['sJK', 'sQD'], hp: 600, hit: 2, rule: 'Before each hand he calls a figure that changes the rules, aimed at the cards you were dealt from your own.',
               hint: 'Each call is chosen to hurt your seeded cards, and he tells you why. A run that only works one way gets punished.' },
-    wallflowers: { name: 'The Undertakers', short: 'Undertakers', act: 3, look: ['pKU', 'pKU'], hit: 1.6, rule: 'They never bid, so your team must bid every hand, and at least 8.',
-              hint: 'Nobody can pass the hand out: if your partner passes, you must bid. Bid what you can make, not what you hope.' }
+    wallflowers: { name: 'The Undertakers', short: 'Undertakers', act: 3, look: ['pKU', 'pKU'], hp: 380, hit: 1.6, rule: 'They never bid, so your team must bid every hand, and at least 8.',
+              hint: 'Nobody can pass the hand out: if your partner passes, you must bid. Bid what you can make, not what you hope.' },
+    // never drawn: he takes the Fair's place when five marked cards call him (STRANGER)
+    stranger: { name: 'The Stranger', short: 'Stranger', act: 3, look: ['gKstr', 'gKstr'], hp: 600, hit: 1.8, secret: true,
+              rule: 'Each hand he plays by another Showdown\u2019s rule: the Twins\u2019 Jacks, the Sharps\u2019 hunt, the Hustlers\u2019 mis\u00e8re, the Caller\u2019s calls or the Undertakers\u2019 silence.',
+              hint: 'He tells you whose rule he\u2019s playing at every deal. Read it before you bid.' }
   };
+  /* Keeping you on your toes (2026-11-02, the fourth review's Inscryption ideas). Every surprise arrives at the deal,
+     never mid-hand, and is either a rule you can see or a risk you choose (REVIEW.md's tension: 500 is a counting game).
+
+     Last stands (#1): at half health every Showdown changes the table, announced at the next deal, once a fight.
+     L.stand is the boss whose last stand is on; the engine and dealHand read it. */
+  const LAST_STAND = { at: 0.5,
+    twins:  { name: 'Two of a Kind', text: 'One of them is dealt the Joker in place of a red Jack.' },
+    sharps: { name: 'Sleight of Hand', text: 'Each deal they palm your best seeded card and slip you one of theirs.' },
+    hustlers: { name: 'All In', text: 'Their mis\u00e8res are played open now, and one they make hits you half as hard again.' },
+    caller: { name: 'Do-si-do', text: 'Every hand, on top of his call, everyone passes one card to the left.' },
+    wallflowers: { name: 'Dig a Grave', text: 'Each deal one of your cards is buried: it can never win a trick that hand.' }
+  };
+  /* The Stranger (#7): five marked cards, one a run from the stranger in the string tie, and he waits at the County
+     Fair in the next story instead of its boss. Each hand he plays by another Showdown's rule (L.borrow, read through
+     E.bossRule), never the same twice running. */
+  const STRANGER = { marks: 5, rules: ['twins', 'sharps', 'hustlers', 'caller', 'wallflowers'] };
+  // the Twins' rule, the Caller's rule
+  const poss = s => s + (/s$/.test(s) ? '\u2019' : '\u2019s');
+  /* A new rule every deal at the Duels (#2): the Caller's trick, spread. Only rules a player can see at the deal
+     (Dealer's Lead and Gentleman's Lead change who leads the first trick, which nobody notices). */
+  const DUEL_RULES = { 1: ['facekitty', 'corner', 'nokitty'],
+                       2: ['facekitty', 'corner', 'nokitty', 'reverse', 'allemande', 'grand'] };
+  DUEL_RULES[3] = DUEL_RULES[2];
+  /* The rodeo clown talks (#6): dealt the Joker in a fight, he makes one dare a fight, before you bid. A quarter of
+     the time he's lying, and owns up when you've done it: his next dare pays double. */
+  const DARE_LIE = 0.25;
+  const jk = (t, s) => t.cards[s] === 'JK';
+  const DARES = {
+    take:  { pay: 15, say: p => 'Win a trick with me in it, partner, and there\u2019s ' + p + ' gold in it for you.', met: (L, t) => t.winner === 0 && jk(t, 0) },
+    early: { pay: 20, say: p => 'Play me on the first trick. Go on. ' + p + ' gold says you won\u2019t.', met: (L, t) => t.no === 1 && jk(t, 0) },
+    ace:   { pay: 30, say: p => 'Take one of their Aces with me and I\u2019ll pay you ' + p + ' gold.', met: (L, t) => t.winner === 0 && jk(t, 0) && t.cards.some((c, s) => c && s % 2 === 1 && c !== 'JK' && E.rankOf(c) === 'A') },
+    last:  { pay: 40, say: p => 'Save me for the last trick and win it with me: ' + p + ' gold.', met: (L, t) => t.no === E.ACTS[E.actOf(L)].hand && t.winner === 0 && jk(t, 0) }
+  };
+  function settleDare(L) {
+    const d = L.dare;
+    d.done = true; d.met = true;
+    if (d.lie) { L.jokerOwes = true; E.say(L, 'The Joker: \u201cHa! Rodeo clown, partner. I never had a cent.\u201d He owes you one: his next dare pays double.', 'joker'); return; }
+    L.jokerOwes = false; L.gold += d.pay;
+    E.say(L, 'The Joker pays up: +' + d.pay + ' gold.', 'gold');
+  }
+  /* A second polish at the hotel (#4): push your luck. Each polish past the first shows its odds; a cracked card is
+     lost to you, with everything on it (it stays in the deck as a plain card). */
+  const HEAT = { crack: [0.25, 0.45, 0.65] };
+  const heatOdds = L => L.heat ? HEAT.crack[Math.min(L.heat.n - 1, HEAT.crack.length - 1)] : 0;
+  /* A stop you can't read (#7 of the review's list, "?"): one a map, a Card table, a Duel or a Gossip until you get
+     there. Half the time, for a player who has ridden before, the stranger waits behind it. */
+  const MYSTERY = { kinds: ['dance', 'elite', 'event'], stranger: 0.5 };
+  /* The ghost of your last ride (#5): a run that died leaves its cards at Boot Hill (the page keeps them in the
+     profile), and the next story meets them as a Card table on the act where it died: the gang plays your old cards
+     with the enhancements that bend a trick (E.K reads L.ghostFight for West and East). Beat it and the best of them
+     is yours again. */
+  const GHOST = { hp: 1.2, bounty: 1.5, manner: { horse: 'bold', nan: 'cagey', showboat: 'bold', sharp: 'trumper', quiet: 'cagey' } };
+  const ghostFoe = (F, g) => Object.assign({}, F, { name: 'The Ghosts of Your Last Ride', ghost: true, partner: g.partner, hp: Math.round(F.hp * GHOST.hp / 10) * 10,
+    traits: [], bounty: GHOST.bounty, manner: GHOST.manner[g.partner] || 'bold' });
+  // the best of the old cards that isn't yours now: the most work done on it
+  function ghostCard(L) {
+    const g = L.ghost, work = c => { const m = g.mods[c] || {}; return (m.enh ? 2 : 0) + (m.enh2 ? 2 : 0) + (m.up || 0); };
+    const deck = E.deckOf(L);
+    const can = g.owned.filter(c => !L.owned.includes(c) && deck.includes(c));
+    return can.sort((a, b) => work(b) - work(a))[0] || null;
+  }
+
   /* The Caller's calls (Act III's Hoedown). Before each hand he picks the one that hurts the cards
      dealt to you from your own the most, never the same call twice in a Hoedown, and says why.
      hurt(L) gives a score and the reason. */
@@ -619,7 +688,7 @@
     }
     return no('enter, or walk on by');
   }
-  const KIND_NAME = { dance: 'Card table', event: 'Gossip', camp: 'Hotel', elite: 'Duel', boss: 'Showdown', store: 'General Store', raffle: 'Gold strike', bank: 'Bank', water: 'Water stop', contest: 'Prize contest' };
+  const KIND_NAME = { dance: 'Card table', event: 'Gossip', camp: 'Hotel', elite: 'Duel', boss: 'Showdown', store: 'General Store', raffle: 'Gold strike', bank: 'Bank', water: 'Water stop', contest: 'Prize contest', mystery: 'A stop you can\u2019t read' };
   // where an act calls a stop something else (the train's Bank is a robbery on the express car)
   const KIND_BY_ACT = { 2: { bank: 'Train robbery' } };
   const kindName = (act, k) => (KIND_BY_ACT[act] || {})[k] || KIND_NAME[k];
@@ -704,6 +773,7 @@
     Object.assign(sf, { tipoff: boss, traits: sf.traits.slice(0, 1), bounty: 1, hp: Math.round(sf.hp * EXPRESS.secretHp / 10) * 10 });
     L.map = { floors, boss, side: true };
     L.map.loot = pickLoot(L);
+    dressMap(L);
     L.pos = null; L.path = []; L.route = [];
   }
   /* The Showdown's loot (the user's, 2026-11-01: the wanted poster should say what you win, not just the 100 gold, and
@@ -783,8 +853,25 @@
     const seen = [];
     for (const row of floors) for (const n of row) if (n.kind === 'dance' || n.kind === 'elite') n.foe = makeFoe(L, n.kind, eqFloor(n.f, FL), seen);
     L.map = { floors, boss: L.act === 3 && BOSS_POOL[3].includes(L.fairBoss) ? L.fairBoss : E.pick(L, BOSS_POOL[L.act]) };
+    if (L.act === LAST_ACT && L.strangerDue) L.map.boss = 'stranger';
     L.map.loot = pickLoot(L);
+    dressMap(L);
     L.pos = null; L.path = []; L.route = [];
+  }
+  /* What every map gets once its stops are drawn: the ghost of your last ride on the act where it died, and one stop
+     you can't read (n.kind 'mystery', the real kind in n.hid until you arrive). */
+  function dressMap(L) {
+    const all = L.map.floors.flat(), F = L.map.floors.length, g = L.ghost;
+    const odd = n => n.foe && (n.foe.ghost || n.foe.tipoff || n.foe.driver);
+    if (g && !g.met && g.act === L.act) {
+      const spots = all.filter(n => n.kind === 'dance' && n.f >= 1 && n.f <= F - 2 && !odd(n));
+      if (spots.length) { const n = E.pick(L, spots); n.foe = ghostFoe(n.foe, g); }
+    }
+    const hide = all.filter(n => MYSTERY.kinds.includes(n.kind) && n.f >= 1 && n.f <= F - 2 && !odd(n) && !n.span);
+    if (!hide.length) return;
+    const n = E.pick(L, hide);
+    n.hid = n.kind; n.kind = 'mystery';
+    if (L.memory && L.memory.runs && !L.metStranger && E.rnd(L) < MYSTERY.stranger) { n.hid = 'event'; n.event = 'stranger'; delete n.foe; }
   }
   /* Dustwater's town rules (2026-10-27, the user's: a town this size has one hotel, and two hotels side by side
      are one hotel). The last floor's Hotels become the one Hotel every route reaches (every route rested there
@@ -868,6 +955,12 @@
                 pos: null, path: [], route: [], pastPaths: [], actLevels: 0, levelsDone: 0, level: 0, log: [], history: [], dealer: 3,
                 tips: o.tips !== false, seen: {}, firstObjective: o.objective || null, note: '' };
     if (o.daily) { L.daily = { date: o.daily, twist: dailyTwist(o.daily).id }; L.rs = dailySeed(o.daily); }
+    // what the page remembers between stories (never on the Daily: one ride, the same for everyone)
+    if (!o.daily) {
+      if (o.ghost && Array.isArray(o.ghost.owned) && o.ghost.owned.length) L.ghost = { owned: o.ghost.owned.slice(), mods: JSON.parse(JSON.stringify(o.ghost.mods || {})), partner: o.ghost.partner, act: o.ghost.act | 0 || 1, lostTo: o.ghost.lostTo || null, met: false };
+      if (o.memory && o.memory.runs) L.memory = Object.assign({}, o.memory);
+      if (o.stranger) L.strangerDue = true;
+    }
     L.maxWanted = Math.max(0, Math.min(WANTED.length, o.maxWanted | 0));
     L.wantedLevel = L.daily ? 0 : Math.min(L.maxWanted, o.wanted | 0);
     applyWanted(L, L.daily ? [L.daily.twist] : wantedFor(L.wantedLevel));
@@ -1008,13 +1101,16 @@
     const can = reachable(L);
     const id = can.includes(target) ? target : can.find(x => mapNode(L, x).kind === target);
     if (!id) return no('not a choice here');
-    const kind = mapNode(L, id).kind;
+    const nd = mapNode(L, id);
+    if (nd.kind === 'mystery') { nd.kind = nd.hid; delete nd.hid; nd.revealed = true; L.revealed = id; }
+    const kind = nd.kind;
     L.pos = id; L.route.push(id); L.path.push(kind);
     L.note = '';
     if (kind === 'event') {
       const fit = Object.keys(EVENTS).filter(id => EVENTS[id].acts.includes(L.act));
       const ids = fit.filter(id => !(L.eventsSeen || []).includes(id));
-      L.event = E.pick(L, ids.length ? ids : fit);
+      L.event = nd.event || E.pick(L, ids.length ? ids : fit);
+      if (L.event === 'stranger') L.metStranger = true;
       L.eventsSeen = (L.eventsSeen || []).concat(L.event);
       L.phase = 'event';
     } else if (kind === 'camp') {
@@ -1070,8 +1166,8 @@
     const a = mapNode(L, L.shunt.pick), b = mapNode(L, id);
     // what a carriage holds, mid-sentence: the gang's name for a fight, else the place ("the sleeper car")
     const low = t => t.charAt(0).toLowerCase() + t.slice(1);
-    const kindOf = n => n.foe ? (n.kind === 'elite' ? 'the duel with ' : 'the table with ') + low(n.foe.name) : low((PLACE[L.act] || {})[n.kind] || KIND_NAME[n.kind]);
-    for (const k of ['kind', 'foe']) { const t = a[k]; if (b[k] === undefined) delete a[k]; else a[k] = b[k]; if (t === undefined) delete b[k]; else b[k] = t; }
+    const kindOf = n => n.kind === 'mystery' ? 'a stop nobody can read' : n.foe ? (n.kind === 'elite' ? 'the duel with ' : 'the table with ') + low(n.foe.name) : low((PLACE[L.act] || {})[n.kind] || KIND_NAME[n.kind]);
+    for (const k of ['kind', 'foe', 'contest', 'hid', 'event']) { const t = a[k]; if (b[k] === undefined) delete a[k]; else a[k] = b[k]; if (t === undefined) delete b[k]; else b[k] = t; }
     L.shunted = (L.shunted || []).concat([[a.id, b.id]]);
     note(L, 'The switchman throws the lever: ' + kindOf(b) + ' and ' + kindOf(a) + ' swap tracks.');
     L.shunt = null;
@@ -1100,8 +1196,9 @@
     L.level++;
     L.kind = kind;
     L.curse = null; L.dealRule = null; L.boss = null; L.call = null; L.calls = []; L.callWhy = null; L.obj = null; L.foe = null;
+    L.stand = null; L.borrow = null; L.dare = null; L.ghostFight = null;
     if (kind === 'boss') {
-      L.boss = L.map && L.map.boss && BOSS_POOL[L.act].includes(L.map.boss) ? L.map.boss : E.pick(L, BOSS_POOL[L.act]);
+      L.boss = L.map && L.map.boss && (BOSS_POOL[L.act].includes(L.map.boss) || (L.map.boss === 'stranger' && L.act === LAST_ACT)) ? L.map.boss : E.pick(L, BOSS_POOL[L.act]);
       if (L.boss === 'twins') L.dealRule = 'twins';
     } else if (kind === 'contest' || kind === 'chase') {
       L.obj = null;
@@ -1121,6 +1218,7 @@
       L.foe = Object.assign({}, F, { traits: F.traits.slice(), hp: kind === 'boss' ? F.hp : foeHp(L, F) });
       // a Duel's ability that is one of the old curses also sets L.curse, which the engine reads
       for (const t of L.foe.traits) if (CURSES[t]) L.curse = t;
+      if (L.foe.ghost && L.ghost) L.ghostFight = { owned: L.ghost.owned, mods: L.ghost.mods };
     }
     L.fight = null;
     // (a Card table's or a Duel's: a Showdown is no "next gang", so what was bought waits for the next one)
@@ -1176,6 +1274,20 @@
   const stackChance = L => !L.foe ? 0 : L.foe.traits.includes('lucky') ? 1 :
     STACK.max * (L.kind === 'boss' ? 1 : Math.max(0, floorOf(L)) / (mapFloors(L) - 1));
   function dealHand(L) {
+    unbury(L);
+    // the Duels: a new rule every deal, never the one before (an event's rule for the fight still holds)
+    if (L.kind === 'elite' && L.foe && !(L.fight && L.fight.rule)) L.foe.rule = E.pick(L, (DUEL_RULES[L.act] || DUEL_RULES[2]).filter(r => r !== L.foe.rule));
+    // the Stranger: another Showdown's rule every hand
+    if (L.boss === 'stranger') {
+      L.borrow = E.pick(L, STRANGER.rules.filter(b => b !== L.borrow));
+      L.dealRule = L.borrow === 'twins' ? 'twins' : null;
+      E.say(L, 'The Stranger plays by ' + poss(BOSS[L.borrow].name.replace(/^The /, 'the ')) + ' rule this hand: ' + BOSS[L.borrow].rule, 'call');
+    }
+    // a Showdown at half health makes its last stand, from this deal on
+    if (L.kind === 'boss' && L.foe && !L.stand && L.handNo > 1 && LAST_STAND[L.boss] && L.you >= L.foe.hp * LAST_STAND.at) {
+      L.stand = L.boss;
+      E.say(L, BOSS[L.boss].name + (L.boss === 'caller' ? ' makes his' : ' make their') + ' last stand! ' + LAST_STAND[L.boss].name + ': ' + LAST_STAND[L.boss].text, 'stand');
+    }
     const rule = ruleOf(L);
     L.call = L.callFor = rule; L.callName = rule ? TABLE_RULES[rule].name : null; L.callBy = rule ? 'the table rule' : null;
     const n = L.log.length;
@@ -1189,14 +1301,22 @@
       L.h.stacked = true;
       E.say(L, 'A stacked deck: ' + L.foe.name + ' get the better of two deals.', 'rule');
     }
-    if (L.boss === 'caller') {
+    if (E.bossRule(L) === 'caller') {
       if (Object.keys(CALLS).every(id => L.calls.includes(id))) L.calls = [];     // a long Showdown: he starts the round again
       const c = chooseCall(L);
       L.call = c.id; L.calls.push(c.id); L.callWhy = c.why; L.callFor = c.id; L.callName = CALLS[c.id].name; L.callBy = 'calls the Caller';
       L.h.dir = c.id === 'corner' ? -1 : 1;
       E.say(L, 'The Caller calls ' + CALLS[c.id].name + '! ' + CALLS[c.id].text + ' ' + c.why, 'call');
     }
-    if (rule && L.handNo === 1) E.say(L, 'Table rule: ' + TABLE_RULES[rule].name + '. ' + TABLE_RULES[rule].text, 'rule');
+    if (rule && L.kind === 'elite' && !(L.fight && L.fight.rule)) E.say(L, 'This deal\u2019s rule: ' + TABLE_RULES[rule].name + '. ' + TABLE_RULES[rule].text, 'rule');
+    else if (rule && L.handNo === 1) E.say(L, 'Table rule: ' + TABLE_RULES[rule].name + '. ' + TABLE_RULES[rule].text, 'rule');
+    lastStandDeal(L);
+    // the rodeo clown's dare: dealt the Joker in a fight, once a fight
+    if (L.foe && !L.dare && L.h.hands[0].includes('JK')) {
+      const id = E.pick(L, Object.keys(DARES)), lie = E.rnd(L) < DARE_LIE, pay = DARES[id].pay * (L.jokerOwes ? 2 : 1);
+      L.dare = { id, lie, pay, hand: L.handNo, done: false, text: DARES[id].say(pay) };
+      E.say(L, 'The Joker: \u201c' + L.dare.text + '\u201d', 'joker');
+    }
     // the Spyglass: one card from each opponent's hand, seen while bidding
     if (sees(L, 'spyglass')) L.h.spy = [E.pick(L, L.h.hands[1]), E.pick(L, L.h.hands[3])];
     if (L.curse === 'ticking') {
@@ -1205,6 +1325,29 @@
     }
   }
 
+  /* What a last stand does to a fresh deal: the Sharps palm your best seeded card, the Undertakers bury one of yours
+     (a Misfire hex for the hand, dug up by unbury). The Twins' Joker is the engine's deal; the Hustlers' and the
+     Caller's live where their misère and the passing are played. */
+  function lastStandDeal(L) {
+    const h = L.h;
+    if (L.stand === 'sharps' && h.seeded.length) {
+      const v = c => c === 'JK' ? 20 : E.rankOf(c) === 'J' ? 15 : E.RANKV[E.rankOf(c)];
+      const best = h.seeded.slice().sort((a, b) => v(b) - v(a))[0], s = E.rnd(L) < 0.5 ? 1 : 3, back = E.pick(L, h.hands[s]);
+      h.hands[0][h.hands[0].indexOf(best)] = back; h.hands[s][h.hands[s].indexOf(back)] = best;
+      h.seeded = h.seeded.filter(c => c !== best); h.palmed = { card: best, seat: s, back };
+      E.sort(L, 0); E.sort(L, s);
+      E.say(L, 'Sleight of Hand: ' + E.SEATS[s] + ' palms your ' + E.label(best) + ' and slips you the ' + E.label(back) + '.', 'rule');
+    }
+    if (L.stand === 'wallflowers') {
+      const free = h.hands[0].filter(c => c !== 'JK' && E.rankOf(c) !== 'J' && !(L.hexes || {})[c]);
+      if (free.length) { const c = E.pick(L, free); placeHex(L, c, 'twoleft'); h.grave = c; E.say(L, 'Dig a Grave: your ' + E.label(c) + ' is buried this hand. It can\u2019t win a trick.', 'rule'); }
+    }
+  }
+  function unbury(L) {
+    const h = L.h;
+    if (h && h.grave && L.hexes && L.hexes[h.grave] === 'twoleft') delete L.hexes[h.grave];
+    if (h) h.grave = null;
+  }
   function whoseMove(L) {
     if (L.phase === 'victory' || L.phase === 'runover') return 'end';
     if (L.phase === 'over') return 'over';
@@ -1220,6 +1363,7 @@
   function track(L, trick) {
     const h = L.h, mine = E.team(trick.winner) === 0;
     if (L.kind === 'contest' && L.contest) trackContest(L, trick, mine);
+    if (L.dare && !L.dare.done && L.dare.hand === L.handNo && DARES[L.dare.id].met(L, trick)) settleDare(L);
     const wk = E.K(L, trick.winner, trick.cards[trick.winner]), X = E.FX;
     h.fx = h.fx || { hit: 0, block: 0, burn: 0 };
     const shot = (n, text) => { h.fx.hit += n; E.say(L, text, 'rule'); };
@@ -1259,7 +1403,7 @@
       if (h.hands[0].includes(h.ticking)) { L.health = Math.max(0, L.health - 20); L.tickLoss = (L.tickLoss || 0) + 20; E.say(L, 'Lit Fuse: your ' + E.label(h.ticking) + ' was not played by trick 2: −20 health.', 'rule'); }
       h.ticking = null;
     } else if (h.ticking && trick.cards[0] === h.ticking) h.ticking = null;
-    if (L.boss === 'sharps' && !mine && (h.seeded || []).includes(trick.cards[0])) E.say(L, 'The Card Sharps caught your ' + E.label(trick.cards[0]) + '.', 'rule');
+    if (E.bossRule(L) === 'sharps' && !mine && (h.seeded || []).includes(trick.cards[0])) E.say(L, 'The Card Sharps caught your ' + E.label(trick.cards[0]) + '.', 'rule');
     if (!L.obj) return;
     const o = L.obj, id = o.id;
     if (o.done || o.fail) return;
@@ -1341,7 +1485,7 @@
     const h = L.h;
     // Swing Your Partner (a buff or the Caller's call) and Grand Right and Left: after the kitty, before the intent and the first trick
     if ((h.phase === 'intent' || h.phase === 'play') && h.trickNo === 0 && !h.trick.some(Boolean) && !h.misere) {
-      const want = L.call === 'grand' && !h.grandDone ? 'grand' : (has(L, 'swing') || L.call === 'swing') && !h.swingDone ? 'swing' : null;
+      const want = (L.call === 'grand' || L.stand === 'caller') && !h.grandDone ? 'grand' : (has(L, 'swing') || L.call === 'swing') && !h.swingDone ? 'swing' : null;
       if (want) { h.swingNext = h.phase; h.phase = 'swing'; h.pass = want; }
     }
     if (h.phase === 'done') endHand(L);
@@ -1361,6 +1505,7 @@
       for (let p = 0; p < 4; p++) E.sort(L, p);
       E.say(L, E.callWords(L, 'Grand Right and Left')[0] + ': you passed your ' + E.label(card) + ' to West, and East passed you the ' + E.label(give[3]) + '.', 'rule');
       h.grandDone = true;
+      if ((has(L, 'swing') || L.call === 'swing') && !h.swingDone) { h.pass = 'swing'; return yes(); }    // Do-si-do on a Swing call
       h.phase = h.swingNext;
       h.pass = null;
       return yes();
@@ -1384,6 +1529,8 @@
   /* After each hand: your points shoot the gang, theirs hit you. The fight goes on until your total reaches
      their health (the Bank: its one hand), or your health runs out, which ends the run wherever you are. */
   function endHand(L) {
+    unbury(L);
+    if (L.dare && !L.dare.done && L.dare.hand === L.handNo) L.dare.done = true;     // a dare lasts its hand
     if (L.mode === 'standard') { endStandardHand(L); return; }
     const r = L.h.result;
     if (r.dmg >= L.health && L.health > 1 && has(L, 'watch') && L.watchAct !== L.act) {
@@ -1474,6 +1621,16 @@
         if (fast) pay.push({ t: 'Within par (' + par + ' hands)', g: P[stars] - P[1 + b], star: true });
         if (gold !== plain) pay.push({ t: 'Wanted for their tricks', g: gold - plain });
         if (L.fight && L.fight.double) { pay.push({ t: 'The sheriff\u2019s posting: paid double', g: gold }); gold *= 2; }
+        if (L.foe.ghost && L.ghost) {
+          const back = ghostCard(L);
+          L.ghost.met = true;
+          if (back) {
+            L.owned.push(back);
+            if (L.ghost.mods[back]) L.mods[back] = JSON.parse(JSON.stringify(L.ghost.mods[back]));
+            pay.push({ t: 'Back from Boot Hill: your old ' + E.label(back), g: 0, card: back });
+            E.say(L, 'The ghosts fade, and your old ' + E.kLabel({ c: back, m: L.mods[back] || null }) + ' is yours again.', 'objective');
+          }
+        }
         E.say(L, L.foe.name + ' are brought in after ' + L.handNo + ' hand' + (L.handNo > 1 ? 's' : '') + (fast ? ' (par ' + par + ')' : ', over par ' + par) + '.', 'objective');
       }
     }
@@ -1659,7 +1816,11 @@
     let msg = o.text.replace(/:.*/, '') + '.';
     if (fx.card === 'face') {
       const pool = E.deckOf(L).filter(c => ['J', 'Q', 'K'].includes(E.rankOf(c)) && !L.owned.includes(c));
-      if (pool.length) { const c = E.pick(L, pool); L.owned.push(c); msg = 'The stranger’s card is the ' + E.label(c) + '. It’s yours now.'; }
+      if (pool.length) {
+        const c = E.pick(L, pool); L.owned.push(c); msg = 'The stranger’s card is the ' + E.label(c) + '. It’s yours now.';
+        // one marked card a story: five, kept across stories by the page, and he waits at the Fair (STRANGER)
+        if (L.event === 'stranger' && !L.daily && !L.marked) { L.marked = c; msg += ' A corner of it is marked.'; }
+      }
     }
     if (fx.swap) {
       const mine = L.owned.filter(c => c !== 'JK'), out = E.pick(L, mine), pool = E.deckOf(L).filter(c => !L.owned.includes(c) && c !== 'JK');
@@ -1680,6 +1841,20 @@
     if (fx.release) { L.releaseBack = 'map-next'; L.phase = 'release'; return yes(); }
     nextStop(L);
     return yes();
+  }
+
+  /* The stranger remembers you (2026-11-02): with past rides in the profile (L.memory) he says where the last one
+     ended, and counts the marked cards. Every other event reads its own text. */
+  function eventText(L, id) {
+    const ev = EVENTS[id];
+    if (id !== 'stranger') return ev.text;
+    const m = L.memory, marked = (m && m.marked) || 0;
+    const count = !L.daily ? ' A corner of it is marked' + (marked ? ': keep it and that\u2019s ' + Math.min(STRANGER.marks, marked + 1) + ' of ' + STRANGER.marks + '.' : '.') : '';
+    if (!m || !m.runs) return ev.text + count;
+    const who = m.lostTo ? (BOSS[m.lostTo] ? BOSS[m.lostTo].name : m.lostTo).replace(/^The /, 'the ') : null;
+    const where = ['', ' in Dustwater', ' on the Westbound Express', ' at the County Fair'][m.lastAct | 0] || '';
+    const last = m.lastWon ? 'Last time you rode the whole way and brought them in.' : who ? 'Last time ' + who + ' put you in the ground' + where + '.' : 'Last time didn\u2019t end well.';
+    return 'The stranger in the string tie again. \u201cYou\u2019re back. ' + last + ' That makes ' + (m.runs + 1) + ' rides.\u201d He presses a card into your hand.' + count;
   }
 
   /* ---------------- the Punch Bowl and the General Store ---------------- */
@@ -1728,7 +1903,27 @@
     const m = L.mods[card] || (L.mods[card] = {});
     m.up = (m.up || 0) + 1;
     note(L, 'Polished: your ' + E.kLabel({ c: card, m }) + '.');
+    // push your luck: again, while it can go higher
+    if (polishable(L).includes(card)) { L.heat = { card, n: 1 }; L.phase = 'heat'; return yes(); }
     nextStop(L);
+    return yes();
+  }
+  function heat(L, what) {
+    if (L.phase !== 'heat' || !L.heat) return no('nothing on the polishing cloth');
+    const card = L.heat.card, m = L.mods[card] || (L.mods[card] = {});
+    if (what !== 'again') { L.heat = null; nextStop(L); return yes(); }
+    if (E.rnd(L) < heatOdds(L)) {
+      L.owned = L.owned.filter(c => c !== card); delete L.mods[card];
+      if (L.hexes) delete L.hexes[card];
+      if (L.bossHex && L.bossHex.card === card) L.bossHex = null;
+      L.heat = null; L.cracked = (L.cracked || 0) + 1;
+      note(L, 'You rub too hard and the ' + E.label(card) + ' cracks: it\u2019s no longer yours, and everything on it is gone. It stays in the deck as a plain card.');
+      nextStop(L);
+      return yes();
+    }
+    m.up = (m.up || 0) + 1; L.heat.n++;
+    note(L, 'Polished again: your ' + E.kLabel({ c: card, m }) + '.');
+    if (!polishable(L).includes(card)) { L.heat = null; nextStop(L); }
     return yes();
   }
   function stock(L) {
@@ -1898,6 +2093,7 @@
       case 'camp': return camp(L, arg);
       case 'polish': return polish(L, arg);
       case 'forge': return forge(L, arg);
+      case 'heat': return heat(L, arg);
       case 'remove': return removeCard(L, arg);
       case 'buy': return buy(L, arg);
       case 'leave': if (L.phase !== 'shop') return no('not in the store'); nextStop(L); return yes();
@@ -1983,7 +2179,7 @@
     if (O && O.kind === 'limit') return 'holding';
     return o.n + ' / ' + o.of;
   }
-  const api = { DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
+  const api = { poss, eventText, LAST_STAND, STRANGER, DUEL_RULES, DARES, DARE_LIE, HEAT, heatOdds, MYSTERY, GHOST, ghostFoe, DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
     TAUNTS, taunt, cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, MANNERS, WANTED, wantedFor, wants, dailySeed, dailyTwist, FAIR_GOODS, setQuick, floorsFor, CHASE, chaseRide, CONTEST, RIBBON, ribbonOf, EXPRESS, SIDE, genThreeTrains, DRIVER, COUNTER, makeDriver, ROSTER, partnerOpen, voice, STANDARD, standardFoe, newStandard,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;
