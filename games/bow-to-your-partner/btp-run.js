@@ -186,6 +186,68 @@
   };
   TAUNTS.ghost = ['Remember us? We remember you. We were you.', 'Boot Hill was cold. Your old cards kept us warm.', 'Same cards, partner. Different side of the table.', 'We died on this road once. Your turn.'];
   TAUNTS.stranger = ['Five marked cards. You kept every one. I knew you would.', 'I\u2019ve sat across from all of them. Now I\u2019ll play like all of them.', 'Every Showdown you ever lost, I was watching.'];
+  /* Insults and comebacks (the user's, 2026-11-03: "a Monkey Island type vibe"): at a Card table or a Duel the gang
+     opens with an insult and your partner fires one back. The Quiet One answers with a look; Biscuit sometimes just
+     neighs. One pair a fight, by the same hash as the taunt. */
+  const INSULTS = [
+    ['I\u2019ve seen better hands on a clock.', 'And I\u2019ve seen better faces on one. Deal.'],
+    ['I eat greenhorns like you for breakfast.', 'That explains the breath.'],
+    ['There\u2019s a rope out back with your name on it.', 'Spelled right this time? The last one said \u201cPardner.\u201d'],
+    ['I\u2019ve never lost a hand in this town.', 'You\u2019ve never played one fair in it, either.'],
+    ['Every card you hold is crying for help.', 'They recognise you. You marked half of them.'],
+    ['You couldn\u2019t win a trick if it was handed to you.', 'Lucky you\u2019ll be handing me so many.'],
+    ['I\u2019ll take your gold, your boots and your horse.', 'The horse has opinions about that.'],
+    ['The last fella in that chair ain\u2019t sat anywhere since.', 'Must be the chair. It can\u2019t be the company. Well. It can.'],
+    ['You bid like a scarecrow plays the fiddle.', 'At least a scarecrow knows when to keep still. Unlike your eyebrows.'],
+    ['My dog plays a better game of five hundred.', 'Then send the dog. We\u2019d like a challenge.'],
+    ['I\u2019ve got an Ace up my sleeve and a Colt under the table.', 'And a shirt that says you\u2019ve lost both before.'],
+    ['You\u2019re the worst card player west of the Mississippi.', 'Then you\u2019re in for a very confusing evening.']
+  ];
+  const COMEBACK_STYLE = { quiet: () => '(The Quiet One just looks at them. It lands harder than words.)' };
+  function insult(L) {
+    let x = ((L.rs >>> 0) ^ Math.imul((L.level || 1) + 7, 2246822519)) >>> 0;
+    x = Math.imul(x ^ (x >>> 13), 3266489917) >>> 0;
+    const [text, back] = INSULTS[x % INSULTS.length];
+    const style = COMEBACK_STYLE[L.partner];
+    return { text, back: style ? style() : L.partner === 'horse' && x % 5 === 0 ? 'Neigh. (Biscuit means something rude.)' : back };
+  }
+  /* Your partner's one-off quips (2026-11-03): the first time a run meets each of these, said over the table as the
+     fight starts. The horse on the train roof was the user's own example. */
+  const QUIPS = {
+    roof: { horse: 'Partner, I want it noted: I am a horse, on the roof of a moving train, playing cards. My mother wanted me to pull a plough.',
+            nan: 'Seventy-one years old and on the roof of a train, dear. The sewing circle will never believe me.',
+            showboat: 'Finally, a stage worthy of me! Windy, though. Hold my hat. No, really, hold it.',
+            sharp: 'The chance of a card blowing off up here is one in six. I\u2019ve weighted mine with a biscuit.',
+            quiet: '(The Quiet One looks at the plains rushing by, the drop to the tracks, then at you. Mostly at you.)' },
+    bank: { horse: 'A horse in a bank. If the manager asks, I\u2019m here about a loan. A hay loan.',
+            nan: 'Forty years I\u2019ve banked here, dear, and I\u2019ve never had to play cards for my savings.',
+            showboat: 'A robbery! At last, an audience that can\u2019t leave.',
+            sharp: 'Interest rates in this town are criminal. Today, literally.',
+            quiet: '(The Quiet One quietly moves the deposit slips out of the line of fire.)' },
+    duel: { horse: 'High noon. I\u2019ll stand behind you. Mostly because that\u2019s where the shade is.',
+            nan: 'A duel with cards, dear. So much more civilised than the other sort. Fewer funerals.',
+            showboat: 'Main Street, high noon, the whole town at the windows. I may weep.',
+            sharp: 'They always draw at noon. Nobody ever asks why not half past two.',
+            quiet: '(The Quiet One squints at the sun, then at them. They look away first.)' },
+    train: { horse: 'Do you know how hard it is to buy a train ticket with hooves? Make this one count.',
+             nan: 'The smoking car, dear. I\u2019ll hold my breath and you hold your trumps.',
+             showboat: 'A captive audience on a moving stage. I was born for the railroad.',
+             sharp: 'Forty miles an hour. Plenty of time to count every card twice.',
+             quiet: '(The Quiet One opens the window an inch. The smoke goes out. So does the gang\u2019s confidence.)' },
+    fair: { horse: 'If anybody tries to put me on that carousel, I\u2019m going home. On foot. Well. On hoof.',
+            nan: 'I came for the pie contest, dear, not for this. Though I suppose we can do both.',
+            showboat: 'Someone out there is selling my face on a souvenir plate, and I want a cut.',
+            sharp: 'The ring toss is rigged. I checked. Twice. Then I bought it.',
+            quiet: '(The Quiet One wins a stuffed bear at the ring toss without looking, and hands it to you.)' }
+  };
+  function quipFor(L) {
+    const n = L.pos && L.map && L.map.floors ? mapNode(L, L.pos) : null;
+    const when = L.kind === 'bank' ? 'bank' : L.act === 2 && n && n.lane === 'roof' && (L.kind === 'dance' || L.kind === 'elite') ? 'roof'
+      : L.act === 1 && L.kind === 'elite' ? 'duel' : L.act === 2 && (L.kind === 'dance' || L.kind === 'elite') ? 'train' : L.act === 3 && L.kind === 'dance' ? 'fair' : null;
+    if (!when || (L.quipped || []).includes(when) || !QUIPS[when][L.partner]) return null;
+    L.quipped = (L.quipped || []).concat(when);
+    return QUIPS[when][L.partner];
+  }
   function taunt(L) {
     const pool = L.foe && L.foe.ghost ? TAUNTS.ghost : L.mode === 'standard' ? TAUNTS[(L.std && L.std.id) || 'regulars'] || TAUNTS.regulars : L.kind === 'contest' && L.contest ? TAUNTS[L.contest.id] : L.kind === 'boss' ? TAUNTS[L.boss] || TAUNTS.elite : TAUNTS[L.kind] || TAUNTS.dance;
     let x = ((L.rs >>> 0) ^ Math.imul(L.level || 1, 2654435761)) >>> 0;
@@ -523,7 +585,7 @@
                 options: [{ text: 'Take his blessing: +60 health, and in your next fight the lowest card takes the first trick', fx: { health: 60, next: { rule: 'reverse' } } }, { text: 'Slip away', fx: {} }] },
     telegraph: { name: 'The Telegraph Clerk', text: 'The clerk has read the gangs\u2019 telegrams, and he\u2019ll sell what he knows.',
                 options: [{ text: 'Pay 30 gold: in your next fight, see one card from each opponent\u2019s hand while you bid', fx: { gold: -30, next: { spy: true } } }, { text: 'Not today', fx: {} }] },
-    posting:  { name: 'The Sheriff\u2019s Posting', text: 'The sheriff pins up a fresh notice: double the bounty on the next gang, but they\u2019re tougher than they look.',
+    posting:  { name: 'Deputised', text: 'The sheriff is short a deputy and long on paperwork. He offers you the badge: double the bounty on the next gang, but they\u2019re tougher than they look.',
                 options: [{ text: 'Take it: your next fight pays double, and its gang has a quarter more health', fx: { next: { double: true, tough: true } } }, { text: 'Leave it on the board', fx: {} }] },
     // the controlled shunt (2026-10-29, the user's idea): swap two carriages ahead on one stretch of line, to replan
     // off the train with the braided tracks (2026-10-30: nothing there is left to switch); the Fair still has him
@@ -1232,6 +1294,8 @@
     L.captured = [];
     L.phase = 'hand';
     L.reaction = null;
+    const q = L.mode === 'standard' ? null : quipFor(L);
+    if (q) L.reaction = { kind: 'quip', text: q };
     L.log = [];
     L.result = null;
     const F = L.foe, ab = F ? F.traits.map(t => abilityOf(t).name + ' (' + abilityOf(t).text + ')') : [];
@@ -1620,7 +1684,7 @@
         if (b) pay.push({ t: 'Bonus: ' + OBJECTIVES[o.id].name, g: P[1 + b] - P[1], star: true });
         if (fast) pay.push({ t: 'Within par (' + par + ' hands)', g: P[stars] - P[1 + b], star: true });
         if (gold !== plain) pay.push({ t: 'Wanted for their tricks', g: gold - plain });
-        if (L.fight && L.fight.double) { pay.push({ t: 'The sheriff\u2019s posting: paid double', g: gold }); gold *= 2; }
+        if (L.fight && L.fight.double) { pay.push({ t: 'Deputised: paid double', g: gold }); gold *= 2; }
         if (L.foe.ghost && L.ghost) {
           const back = ghostCard(L);
           L.ghost.met = true;
@@ -1938,7 +2002,7 @@
       // The boss's secret is NOT sold here: it is the risky train's reward, and the safe train always has a Hotel
       // (the second review found the store handing the safe side the risky side's prize).
       .concat([{ type: 'marked', id: 'marked', price: priced(L, SHOP.marked), name: 'A marked deck', text: 'See the kitty in every hand of your next fight.' },
-               { type: 'posting', id: 'posting', price: priced(L, SHOP.posting), name: 'The sheriff\u2019s posting', text: 'Your next fight pays double bounty: a bet on bringing them in with two stars or more.' }])
+               { type: 'posting', id: 'posting', price: priced(L, SHOP.posting), name: 'Deputise', text: 'A deputy\u2019s badge: your next fight pays double bounty. A bet on bringing them in with two stars or more.' }])
       .concat(L.act === 3 && !L.gunhand ? [{ type: 'gunhand', id: 'gunhand', price: priced(L, FAIR_GOODS.gunhand), name: 'Hire a gunhand', text: 'He rides with you to the Showdown: the boss starts a quarter down.' }] : [])
       .concat(L.act === 3 && !L.fastCar ? [{ type: 'handcar', id: 'handcar', price: priced(L, FAIR_GOODS.handcar), name: 'A faster handcar', text: 'If the boss bolts after the Showdown, your first lost stretch of the chase costs no ground.' }] : [])
       .concat([{ type: 'restock', id: 'restock', price: restockPrice(L), name: 'Ask what\u2019s out back', text: 'A new set of goods on the shelves. Costs more each time you ask.' }]);
@@ -1967,7 +2031,7 @@
     if (it.type === 'tonic') { const got = heal(L, TONIC.health); note(L, 'Drank the tonic: +' + got + ' health.'); }
     if (it.type === 'cleanse') { L.cleanseBack = 'shop'; L.phase = 'cleanse'; }
     if (it.type === 'marked') { L.nextFight = Object.assign(L.nextFight || {}, { peek: true }); note(L, 'A marked deck: your next fight, you\u2019ll see the kitty every hand.'); }
-    if (it.type === 'posting') { L.nextFight = Object.assign(L.nextFight || {}, { double: true }); note(L, 'The sheriff\u2019s posting: your next fight pays double.'); }
+    if (it.type === 'posting') { L.nextFight = Object.assign(L.nextFight || {}, { double: true }); note(L, 'Deputised: your next fight pays double.'); }
     if (it.type === 'restock') { L.restocks = (L.restocks || 0) + 1; stock(L); note(L, 'The storekeeper brings out new goods.'); }
     if (it.type === 'gunhand') { L.gunhand = true; note(L, 'A gunhand rides with you: the Showdown\u2019s boss will start a quarter down.'); }
     if (it.type === 'handcar') { L.fastCar = true; note(L, 'A faster handcar waits by the line, in case the boss bolts.'); }
@@ -2179,7 +2243,7 @@
     if (O && O.kind === 'limit') return 'holding';
     return o.n + ' / ' + o.of;
   }
-  const api = { poss, eventText, LAST_STAND, STRANGER, DUEL_RULES, DARES, DARE_LIE, HEAT, heatOdds, MYSTERY, GHOST, ghostFoe, DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
+  const api = { INSULTS, insult, QUIPS, quipFor, poss, eventText, LAST_STAND, STRANGER, DUEL_RULES, DARES, DARE_LIE, HEAT, heatOdds, MYSTERY, GHOST, ghostFoe, DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
     TAUNTS, taunt, cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, MANNERS, WANTED, wantedFor, wants, dailySeed, dailyTwist, FAIR_GOODS, setQuick, floorsFor, CHASE, chaseRide, CONTEST, RIBBON, ribbonOf, EXPRESS, SIDE, genThreeTrains, DRIVER, COUNTER, makeDriver, ROSTER, partnerOpen, voice, STANDARD, standardFoe, newStandard,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;

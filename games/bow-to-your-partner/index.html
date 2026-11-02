@@ -77,6 +77,8 @@ html.art .titlemenu .wood.drawn > span { position: absolute; width: 1px; height:
 #paid .pdesk { position: absolute; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity .7s; }
 #paid .pdesk img { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
 #paid.desk .pwall { opacity: 0; } #paid.desk .pdesk { opacity: 1; }
+#paid .pdesk.thud, #paid .pposter.thud { animation: deskthud .26s ease-out; }
+@keyframes deskthud { 35% { translate: 0 4px; } }
 /* the boss's wanted poster: the act's job when it starts (#bounty), crossed out on payday (#paid) */
 .wposter { position: relative; width: min(270px, 74vw); padding: 12px 14px 16px; text-align: center;
   background: #f1dfb6; color: #3a1a12; border: 2px solid #8a5a2c; box-shadow: 0 6px 0 rgba(20,10,6,.35), inset 0 0 30px rgba(140,90,40,.35); }
@@ -508,6 +510,14 @@ html.art .oslip { border: 12px solid transparent; border-image: url(art/ui/paper
 #standoff .say::after { bottom: -13px; margin-left: -7px; border-width: 12px 7px 0; border-top-color: #fffaf0; }
 #standoff .say b { display: block; font: 15px/1.2 'Pixelify Sans', Georgia, serif; color: #7a1d17; letter-spacing: .02em; }
 #standoff .say p { margin: 3px 0 0; font: 17px/1.35 Bitter, Georgia, serif; }
+/* your partner's comeback, under the stage, a beat after their insult (2026-11-03) */
+#standoff .backline { position: absolute; left: 16px; right: 16px; top: calc(var(--st, 30%) + 112px * var(--k) + 14px); display: flex; justify-content: center; z-index: 4; }
+#standoff .say.back { display: flex; gap: 8px; align-items: flex-start; animation-delay: 1.3s; transform-origin: 70% 0; background: #f6ecd2; }
+#standoff .say.back::before { bottom: auto; top: -19px; left: 70%; border-width: 0 10px 16px; border-top-color: transparent; border-bottom-color: #2a1b16; }
+#standoff .say.back::after { bottom: auto; top: -13px; left: 70%; border-width: 0 7px 12px; border-top-color: transparent; border-bottom-color: #f6ecd2; }
+#standoff .say.back .face { flex: none; width: 34px; height: 40px; }
+#standoff .say.back b { color: #2e5a8a; }
+#standoff .say.back p { font-size: 15px; }
 #standoff .dwrap { position: absolute; left: 0; right: 0; bottom: max(28px, 9%); display: flex; flex-direction: column; align-items: center; gap: 10px; }
 #standoff .draw { min-width: 240px; min-height: 84px; padding: 0 22px; font: 36px/1 'Pixelify Sans', Georgia, serif; letter-spacing: .05em; color: #fff3d0; cursor: pointer;
   animation: drawin .5s 1s cubic-bezier(.3,1.7,.6,1) both, drawglow 1.4s 1.6s ease-in-out infinite; }
@@ -802,6 +812,38 @@ html.art .wanted.hasart { display: grid; grid-template-columns: auto 1fr; gap: 0
 html.art .wanted .mug { display: block; grid-row: span 4; height: 80px; width: auto; image-rendering: pixelated; border: 2px solid #8a5a2c; }
 html.art .wanted.hasart .w { grid-column: 2; }
 .legend .sw { width: 10px; height: 10px; border-radius: 2px; background: var(--k); box-shadow: 0 0 0 1px #3a2a20; }
+/* the key's markers (2026-11-03): the map's own, small: the shape in the kind's coloured ring */
+.legend .lg { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; border: 2.5px solid var(--k); background: #fbf3e2; color: #3a2a20; box-shadow: 0 0 0 1px #3a2a20; flex: none; }
+.legend .lg svg { width: 12px; height: 12px; }
+/* a stop's little stage: its backdrop at 2x, cropped to the top 80 art pixels, its host standing in it */
+.evscene { position: relative; height: 160px; margin: 0 0 10px; overflow: hidden; border: 3px solid #2a1b16; border-radius: 10px; background: #2a1b16; display: none; }
+html.art .evscene { display: block; }
+.evscene .ew { position: absolute; inset: 0; background-size: 400px 224px; background-position: center top; image-rendering: pixelated; }
+.evscene .host { position: absolute; left: 50%; top: 48px; width: 80px; height: 112px; transform: translateX(-50%); image-rendering: pixelated; }
+.evscene .say { position: absolute; right: 8px; top: 8px; max-width: min(52%, 220px); background: #fffaf0; color: #3a2a20; border: 2px solid #2a1b16; border-radius: 10px; padding: 5px 8px; font: 13px/1.3 Bitter, Georgia, serif; box-shadow: 0 2px 0 rgba(30,18,14,.35); }
+/* the partner pick over the title's train (2026-11-03): before the ride, so the ride can show who you chose */
+#pick { position: fixed; inset: 0; z-index: 45; overflow-y: auto; padding: 12px 12px 24px; background: linear-gradient(rgba(24,14,10,.2), rgba(24,14,10,.55)); }
+#pick .panel { max-width: 560px; margin: 2vh auto 0; padding-bottom: 10px; box-shadow: 0 6px 24px rgba(0,0,0,.45); }
+#pick .panel > p { display: none; }
+#pick .panel h2 { margin: 0 0 8px; }
+/* the partners in a row you swipe along, so the panel stays in the sky and the train goes by under it */
+#pick .roster { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; grid-template-columns: none; }
+#pick .rider { flex: 0 0 156px; min-height: 0; padding: 6px 7px 8px; gap: 2px; scroll-snap-align: start; }
+#pick .rider span { font-size: 11px; line-height: 1.25; } #pick .rider b { font-size: 15px; } #pick .rider i { font-size: 11px; } #pick .rider .face { width: 36px; height: 42px; }
+#pick .wantedpick { margin-top: 4px; } #pick .wantedpick h3 { margin: 2px 0; } #pick .wantedpick .hint { font-size: 12px; margin: 4px 0 0; }
+#pick .wantedpick details { font-size: 12px; }
+#pick .pickback { margin-top: 8px; }
+#pick.pickbg { background: none; }
+/* your partner rides beside you in the opening: the coach's own frame, two riders stepping through the gallop */
+.hero .stagecoach.pair { background-image: none !important; }
+.hero .stagecoach.pair i { position: absolute; inset: 0; background-repeat: no-repeat; background-size: calc(var(--fw) * 4) 100%; image-rendering: pixelated; animation: wheels .56s steps(4) infinite; }
+.hero .stagecoach.pair i.pr { left: -46%; right: 46%; top: -18%; bottom: 18%; animation-delay: -.21s; filter: brightness(.93); }
+/* where you rode in, on Dustwater's map: you and your partner at the hitching rail */
+.mapbox.dust .rodein { position: absolute; display: none; pointer-events: none; image-rendering: pixelated; }
+html.art .mapbox.dust .rodein { display: block; }
+.mapbox.dust .rodein i { position: absolute; inset: 0; background-repeat: no-repeat; background-size: 400% 100%; background-position: 0 0; image-rendering: pixelated; }
+.mapbox.dust .rodein i.pr { left: -60%; right: 60%; top: -22%; bottom: 22%; }
+.k-mystery { --k: #6a5a8a; }
 /* the act's boss, on a wanted poster above the map */
 .wanted { margin: 6px auto 2px; max-width: 400px; padding: 8px 12px 9px; background: #f4e3bf; border: 2px solid #8a5a2c; border-radius: 3px;
   box-shadow: 3px 3px 0 rgba(90,59,40,.22); text-align: center; }
@@ -1278,6 +1320,7 @@ html.art .coach { border-radius: 0; }
 </section>
 
 <div id="bounty" hidden></div>
+<div id="pick" hidden></div>
 <div id="paid" hidden>
   <div class="pwall" aria-hidden="true"></div>
   <div class="pdesk" aria-hidden="true"></div>
@@ -1321,20 +1364,20 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=29"></script>
-<script src="btp-ai.js?v=29"></script>
-<script src="btp-run.js?v=29"></script>
-<script src="btp-town.js?v=29"></script>
-<script src="art/dustwater/sprites.js?v=29"></script>
-<script src="btp-train.js?v=29"></script>
-<script src="art/train/sprites.js?v=29"></script>
-<script src="art/title/scene.js?v=29"></script>
-<script src="art/table/scene.js?v=29"></script>
-<script src="art/grave/scene.js?v=29"></script>
-<script src="art/paid/scene.js?v=29"></script>
-<script src="art/rooms/scene.js?v=29"></script>
-<script src="art/express/scene.js?v=29"></script>
-<script src="art/fair/sprites.js?v=29"></script>
+<script src="btp-engine.js?v=30"></script>
+<script src="btp-ai.js?v=30"></script>
+<script src="btp-run.js?v=30"></script>
+<script src="btp-town.js?v=30"></script>
+<script src="art/dustwater/sprites.js?v=30"></script>
+<script src="btp-train.js?v=30"></script>
+<script src="art/train/sprites.js?v=30"></script>
+<script src="art/title/scene.js?v=30"></script>
+<script src="art/table/scene.js?v=30"></script>
+<script src="art/grave/scene.js?v=30"></script>
+<script src="art/paid/scene.js?v=30"></script>
+<script src="art/rooms/scene.js?v=30"></script>
+<script src="art/express/scene.js?v=30"></script>
+<script src="art/fair/sprites.js?v=30"></script>
 <script>
 (function () {
   'use strict';
@@ -1361,7 +1404,7 @@ html.art .coach { border-radius: 0; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 25, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 26, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -1550,6 +1593,8 @@ html.art .coach { border-radius: 0; }
   function render() {
     const L = P.L;
     if (!L) return;
+    // the title's partner pick is over once the story is past it, however it got there
+    if (P.picking && L.phase !== 'partner') { P.picking = false; $('pick').hidden = true; $('pick').innerHTML = ''; }
     const table = L.phase === 'hand' || L.phase === 'summary' || L.phase === 'over';
     $('title').hidden = true;
     $('game').hidden = !table;
@@ -1630,8 +1675,8 @@ html.art .coach { border-radius: 0; }
         break;
       }
       case 'event': {
-        const ev = R.EVENTS[L.event];
-        body = '<div class="panel"><h2>Gossip: ' + esc(ev.name) + '</h2><p>' + esc(R.eventText(L, L.event)) + '</p>' +
+        const ev = R.EVENTS[L.event], ES = EVSCENE[L.act] || EVSCENE[1];
+        body = stopScene(ES[0], EV_HOST[L.event] || ES[1]) + '<div class="panel"><h2>Gossip: ' + esc(ev.name) + '</h2><p>' + esc(R.eventText(L, L.event)) + '</p>' +
           ev.options.map((o, i) => '<button class="choice" data-option="' + i + '"' + ((o.fx.release && L.owned.length < 2) || (o.fx.gold < 0 && L.gold < -o.fx.gold) || (o.fx.health < 0 && L.health + o.fx.health <= 0) || (o.fx.shunt && !R.shuntable(L).length) ? ' disabled' : '') + '><b>' + esc(o.text) + '</b></button>').join('') + '</div>' +
           '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
         break;
@@ -1648,7 +1693,7 @@ html.art .coach { border-radius: 0; }
       case 'bank': {
         const B = R.BANK, door = L.bank.stage === 'door';
         const HU = R.holdup(L);
-        body = noteHTML + (door ? '<div class="panel"><h2>' + esc(HU.place) + '</h2><p>' + (L.act === 2 ? 'A gang is blowing the express car\u2019s safe! The messenger is tied up, so it falls to you and ' + PN() : 'A gang is robbing the bank! The deputy is out of town, so it falls to you and ' + PN()) + ': one hand of 500 against them.</p>' +
+        body = noteHTML + clerkScene(L) + (door ? '<div class="panel"><h2>' + esc(HU.place) + '</h2><p>' + (L.act === 2 ? 'A gang is blowing the express car\u2019s safe! The messenger is tied up, so it falls to you and ' + PN() : 'A gang is robbing the bank! The deputy is out of town, so it falls to you and ' + PN()) + ': one hand of 500 against them.</p>' +
           '<div class="kv"><span>Stop them</span><span>Outscore the gang this hand</span><span>Win</span><span class="good">' + (R.bankBounty(L) ? '+' + R.bankBounty(L) + ' gold bounty, and pick 1 of ' + B.enh + ' enhancements' : 'pick 1 of ' + B.enh + ' enhancements from their haul') + '</span>' +
           '<span>Lose</span><span class="badc">they ride off with ' + L.bank.take + ' gold (' + R.bankShare(L) + ' of yours)</span></div>' +
           '<button class="choice" data-bank="fight"><b>Stop the robbery</b><span>One hand. Your health rides on it as usual.</span></button>' +
@@ -1719,13 +1764,7 @@ html.art .coach { border-radius: 0; }
         playGrave(L);
         break;
       case 'partner':
-        body = mapHTML(L) + overMap(L, tip, '<div class="panel baize"><h2>Choose your partner</h2><p>Who rides with you into Dustwater? Your partner sits across the table, bids with you and brings a card of their own.</p>' +
-          '<div class="roster">' + R.ROSTER.map(p => { const open = R.partnerOpen(L, p); return '<button class="rider' + (!open && p.unlock ? ' soon' : '') + '" data-partner="' + p.id + '"' + (open ? '' : ' disabled') + '>' + (partnerFace(p.id) ? '<span class="face svg">' + partnerFace(p.id) + '</span>' : '<span class="face" aria-hidden="true"></span>') +
-            '<b>' + esc(p.name) + '</b><i>' + esc(p.title) + '</i><span>' + esc(p.text) + '</span>' + (open ? '' : '<span class="lock">' + esc(p.unlockText || 'Not riding yet') + '</span>') + '</button>'; }).join('') + '</div>' +
-          (L.maxWanted ? '<div class="wantedpick"><h3>Wanted level</h3><div class="wl">' + Array.from({ length: L.maxWanted + 1 }, (_, n) => '<button data-wanted="' + n + '"' + (n === (L.wantedLevel || 0) ? ' class="sel" aria-pressed="true"' : ' aria-pressed="false"') + '>' + n + '</button>').join('') + '</div>' +
-            ((L.wantedLevel || 0) ? '<p class="hint"><b>Level ' + L.wantedLevel + ' adds ' + esc(R.WANTED[L.wantedLevel - 1].name) + ':</b> ' + esc(R.WANTED[L.wantedLevel - 1].text) + '</p>' +
-              (L.wantedLevel > 1 ? '<details><summary>All ' + L.wantedLevel + ' twists</summary><ul>' + R.WANTED.slice(0, L.wantedLevel).map(w => '<li><b>' + esc(w.name) + ':</b> ' + esc(w.text) + '</li>').join('') + '</ul></details>' : '')
-              : '<p class="hint">Level 0: the trail as it comes. Win a story to open the next level.</p>') + '</div>' : '') + '</div>');
+        body = mapHTML(L) + overMap(L, tip, '<div class="panel baize">' + partnerPickHTML(L) + '</div>');
         break;
       case 'stdover': {
         const won = L.result && L.result.won, F = L.std;
@@ -1754,6 +1793,15 @@ html.art .coach { border-radius: 0; }
 
   /* The partner pick and the card pick, as a sheet over the act's map: shown once the act's job poster has been
      unrolled (or at once in ?fast), with Nan's tip, if any, inside it. */
+  function partnerPickHTML(L) {
+    return '<h2>Choose your partner</h2><p>Who rides with you into Dustwater? Your partner sits across the table, bids with you and brings a card of their own.</p>' +
+      '<div class="roster">' + R.ROSTER.map(p => { const open = R.partnerOpen(L, p); return '<button class="rider' + (!open && p.unlock ? ' soon' : '') + '" data-partner="' + p.id + '"' + (open ? '' : ' disabled') + '>' + (partnerFace(p.id) ? '<span class="face svg">' + partnerFace(p.id) + '</span>' : '<span class="face" aria-hidden="true"></span>') +
+        '<b>' + esc(p.name) + '</b><i>' + esc(p.title) + '</i><span>' + esc(p.text) + '</span>' + (open ? '' : '<span class="lock">' + esc(p.unlockText || 'Not riding yet') + '</span>') + '</button>'; }).join('') + '</div>' +
+      (L.maxWanted ? '<div class="wantedpick"><h3>Wanted level</h3><div class="wl">' + Array.from({ length: L.maxWanted + 1 }, (_, n) => '<button data-wanted="' + n + '"' + (n === (L.wantedLevel || 0) ? ' class="sel" aria-pressed="true"' : ' aria-pressed="false"') + '>' + n + '</button>').join('') + '</div>' +
+        ((L.wantedLevel || 0) ? '<p class="hint"><b>Level ' + L.wantedLevel + ' adds ' + esc(R.WANTED[L.wantedLevel - 1].name) + ':</b> ' + esc(R.WANTED[L.wantedLevel - 1].text) + '</p>' +
+          (L.wantedLevel > 1 ? '<details><summary>All ' + L.wantedLevel + ' twists</summary><ul>' + R.WANTED.slice(0, L.wantedLevel).map(w => '<li><b>' + esc(w.name) + ':</b> ' + esc(w.text) + '</li>').join('') + '</ul></details>' : '')
+          : '<p class="hint">Level 0: the trail as it comes. Win a story to open the next level.</p>') + '</div>' : '');
+  }
   function overMap(L, tip, html) {
     if (!FAST && (!(L.sawPoster || []).includes(L.act) || !$('bounty').hidden)) return '';
     return '<div class="mapdim"></div>' + html.replace('<div class="panel baize">', '<div class="panel baize mapmodal" role="dialog">' + (tip ? '<div class="coach">' + coachHTML(tip) + '</div>' : ''));
@@ -1873,6 +1921,16 @@ html.art .coach { border-radius: 0; }
   }
   /* Act I: Dustwater, a long Main Street that scrolls (btp-town.js lays it out; see .mapbox.dust). The baked
      plate and the sprites are art and never load-bearing: the road band, footpaths and markers are the map. */
+  // you, and your partner on their own horse, by the hitching rail where the stagecoach used to stand (2026-11-03):
+  // the opening's riders at half size (the town's figures are about that big)
+  function rodeIn(L, at, T, pct) {
+    const I = window.TITLE_SCENE && window.TITLE_SCENE.intro && window.TITLE_SCENE.intro.stage;
+    if (!I) return '';
+    const w = I.w / 2, h = I.h / 2, x = at[0] - w / 2 - 3, y = at[1] - h + 2;
+    return '<div class="rodein" style="left:' + pct(x, T.W) + ';top:' + pct(y, T.H) + ';width:' + pct(w, T.W) + ';height:' + pct(h, T.H) + ';z-index:' + (2 + Math.round(at[1])) + '">' +
+      (L.partner && L.partner !== 'horse' ? '<i class="pr" style="background-image:url(' + artURL('title/ride_' + L.partner + '.webp') + ')"></i>' : '') +
+      '<i style="background-image:url(' + artURL('title/' + I.img + '.webp') + ')"></i></div>';
+  }
   function townBox(L, can, route, walked, fNow) {
     const T = window.BtpTown, lay = T.layout(L.map), DS = window.DUST_SPRITES || { s: {} };
     const pct = (v, of) => (100 * v / of).toFixed(2) + '%';
@@ -1898,7 +1956,8 @@ html.art .coach { border-radius: 0; }
       '<div class="road" style="left:' + pct(T.OX - 7 / T.M, T.W) + ';width:' + pct(14 / T.M, T.W) + '"></div>' +
       (DS.plate ? '<img class="plate" alt="" src="' + artURL('dustwater/plate.webp') + '">' : '') +
       '<svg viewBox="0 0 ' + T.W + ' ' + T.H + '" preserveAspectRatio="none" aria-hidden="true">' + paths + '</svg>' + sprites + buttons +
-      '<div class="stage" style="left:' + pct(coach[0], T.W) + ';top:' + pct(coach[1] + 8, T.H) + '">The stagecoach</div></div>';
+      rodeIn(L, coach, T, pct) +
+      '<div class="stage" style="left:' + pct(coach[0], T.W) + ';top:' + pct(coach[1] + 8, T.H) + '">Where you rode in</div></div>';
   }
   /* Act II: the Westbound Express, the line up the map (btp-train.js; see .mapbox.train). The paths are rails: up
      each first track from the depot, under every carriage, and every way on from it. The plate and the carriages
@@ -2267,7 +2326,7 @@ html.art .coach { border-radius: 0; }
     const tag = L.daily ? '<span class="runtag">Daily \u00b7 ' + esc((R.WANTED.find(w => w.id === L.daily.twist) || {}).name || '') + (L.daily.practice ? ' (practice)' : '') + '</span>'
       : L.wantedLevel ? '<span class="runtag">Wanted level ' + L.wantedLevel + '</span>' : '';
     return '<div class="panel"><h2>Act ' + R.ROMAN[L.act] + ': ' + esc(E.ACTS[L.act].name) + tag + '</h2>' + wantedHTML(L) +
-      '<div class="legend">' + ['dance', 'elite', 'event', 'store', 'camp', 'raffle'].concat(R.BANK.acts.includes(L.act) ? ['bank'] : [], R.WATER.acts.includes(L.act) ? ['water'] : [], R.CONTEST.acts.includes(L.act) ? ['contest'] : [], L.map && L.map.floors.flat().some(n => n.kind === 'mystery') ? ['mystery'] : []).map(k => '<span>' + (town || train || side || fair ? '<i class="sw k-' + k + '"></i>' : '') + icon(k) + esc(R.kindName(L.act, k)) + '</span>').join('') +
+      '<div class="legend">' + ['dance', 'elite', 'event', 'store', 'camp', 'raffle'].concat(R.BANK.acts.includes(L.act) ? ['bank'] : [], R.WATER.acts.includes(L.act) ? ['water'] : [], R.CONTEST.acts.includes(L.act) ? ['contest'] : [], L.map && L.map.floors.flat().some(n => n.kind === 'mystery') ? ['mystery'] : []).map(k => '<span><i class="lg k-' + k + '">' + icon(k) + '</i>' + esc(R.kindName(L.act, k)) + '</span>').join('') +
       '<span><i class="pips"><i></i></i>A trick up their sleeve</span></div>' +
       (town ? townBox(L, can, route, walked, fNow) : fair ? fairBox(L, can, route, walked, fNow) : side ? sideBox(L, can, route, walked, fNow) : train ? trainBox(L, can, route, walked, fNow) : plainBox(L, can, route, walked, fNow)) +
       (kinds.length ? '<p style="margin:8px 0 0"><b>Next</b>: tap a glowing stop' + (wanted.length ? ' or a poster' : '') + '.</p>' +
@@ -2696,9 +2755,25 @@ html.art .coach { border-radius: 0; }
     card: g => 'The ' + E.label(g.id) + '. Hardly used, dealt fair, I promise.', enh: g => R.ENH[g.id].name + ', by the tin. Rub it on a card and watch it come up in the world.',
     buff: g => R.BUFFS[g.id].name + '. Only one in the territory.', tonic: () => 'Doctor Bellweather\u2019s Tonic. Cures what ails you. Mostly.',
     cleanse: () => 'The Doc left his bag. He\u2019ll lift a hex off any card.', marked: () => 'Fell off a riverboat. I never saw it, you never bought it.',
-    posting: () => 'The sheriff pins a bonus on the next lot you bring in. Bet on yourself.', restock: () => 'Out back? I might have a crate or two. Cost you, though.',
+    posting: () => 'A deputy\u2019s badge. Sheriff sells \u2019em to pay for his roof. Double bounty on the next lot you bring in.', restock: () => 'Out back? I might have a crate or two. Cost you, though.',
     release: () => 'A card you\u2019re tired of? I\u2019ll take it off your hands, for a fee.',
     gunhand: () => 'Fella out back hires his gun by the night. Points it where you point.', handcar: () => 'Greased the axles myself. If anybody bolts down the line, you\u2019ll be right behind.'
+  };
+  /* What the storekeeper says once you've bought it (the user's, 2026-11-03: a witty word when you buy the law). */
+  const BOUGHT = {
+    posting: ['Congratulations, Deputy. The badge is tin, the oath is binding, and the refund policy doesn\u2019t exist.',
+              'Funny thing, the law. Twenty-five gold and you\u2019re it. Fifty and I\u2019ll throw in the sheriff.',
+              'There. You\u2019re the law now. Please don\u2019t arrest me for selling it to you.'],
+    card: ['If it turns out to be a dud, it was a dud when you bought it.', 'Pleasure. No refunds, no regrets, no questions.'],
+    enh: ['Rub it in clockwise. Or anticlockwise. Honestly, nobody\u2019s ever read the tin.', 'Keep it away from naked flames. And clothed ones.'],
+    buff: ['One of a kind. I\u2019ve six more out back, but they\u2019re also one of a kind.', 'That\u2019s yours now. I was never here.'],
+    tonic: ['Drink it all at once. Then wait. Then don\u2019t ask me what was in it.', 'Doctor Bellweather swears by it. Mostly at it.'],
+    cleanse: ['The Doc says it won\u2019t hurt. The Doc also says he\u2019s a doctor.'],
+    marked: ['I didn\u2019t sell you that. You found it. On the floor. Of my shop.'],
+    restock: ['Fresh out the crate. Mind the scorpion, he\u2019s not for sale.'],
+    release: ['I\u2019ll give it a good home. In the stove.'],
+    gunhand: ['He charges extra to aim.'],
+    handcar: ['Brakes are extra. Kidding. There aren\u2019t any brakes.']
   };
   // which of your cards (or, for the Doc, which hexed cards) a good can go on; the reason a card can't
   function bagFor(L, need, id) {
@@ -2858,7 +2933,9 @@ html.art .coach { border-radius: 0; }
     if (!P.shopSel || P.shopSel.key !== key) P.shopSel = { key, i: null, card: null };
     const S = P.shopSel, goods = goodsOf(L), g = S.i == null ? null : goods.find(x => String(x.i) === String(S.i));
     const sold = (L.stock || []).filter(it => it.sold).length, cheapest = Math.min.apply(null, goods.filter(x => !x.sold).map(x => x.price).concat([Infinity]));
+    const said = P.bought && P.bought.key === key && P.bought.sold === sold && BOUGHT[P.bought.type];
     const say = g ? (g.price > L.gold ? 'Lookin\u2019s free, partner. ' : '') + SAYS[g.type](g)
+      : said ? said[sold % said.length]
       : (sold ? KEEPER.thanks : L.gold < cheapest ? KEEPER.broke : KEEPER.hello)[((L.path || []).length + sold) % 3];
     const can = g && !g.sold && L.gold >= g.price && (!g.needs || S.card) && !(g.type === 'release' && L.owned.length < 2);
     const why = !g ? '' : g.sold ? 'Sold.' : L.gold < g.price ? 'Not enough gold (' + g.price + 'g)' : g.needs && !S.card ? 'Tap a card in your saddlebag' : g.type === 'release' && L.owned.length < 2 ? 'Keep at least one card' : '';
@@ -2911,6 +2988,7 @@ html.art .coach { border-radius: 0; }
     const L = P.L, S = P.shopSel, g = goodsOf(L).find(x => String(x.i) === String(S.i));
     if (!g) return;
     P.shopSel = Object.assign({}, S, { i: null, card: null });
+    P.bought = { key: S.key, type: g.type, sold: (L.stock || []).filter(it => it.sold).length + (g.type === 'release' ? 0 : 1) };
     if (g.type === 'release') { move('buy', 'release'); if (P.L.phase === 'release') move('release', S.card); return; }
     move('buy', g.i);
     if (P.L.phase === 'target') move('enhance', S.card);
@@ -2952,9 +3030,46 @@ html.art .coach { border-radius: 0; }
       '<span class="flame" style="' + at(S.lamp[0], S.lamp[1]) + '"></span>' +
       '<span class="zzz" style="' + at(S.pillow[0] - 4, S.pillow[1] - 16) + '">z Z z</span>' + (extra || '') + '</div>';
   }
+  /* Where a fight is (the user's, 2026-11-03: "unique backgrounds for the different events and fights";
+     bakery/backdrops_px.py): the bank and the express car for a robbery, Main Street and the shooting gallery for a
+     Duel, the train's roof for a fight up top, the locomotive's cab and the grandstand for the later Showdowns.
+     Everything else keeps its act's wall (the saloon, the smoking car, the card tent). `r` is a finished fight's result. */
+  function wallKey(L, r) {
+    if (!L || L.mode === 'standard') return 'wall' + ((L && L.act) || 3);
+    const act = (r && r.act) || L.act, kind = (r && r.kind) || L.kind;
+    const n = L.pos && L.pos !== 'boss' && L.map && L.map.floors ? R.node(L, L.pos) : null, roof = act === 2 && n && n.lane === 'roof';
+    if (kind === 'bank') return act === 2 ? 'wall_express' : 'wall_bank';
+    if (kind === 'boss') return act === 2 ? 'wall_cab' : act === 3 ? 'wall_stand' : 'wall1';
+    if (kind === 'elite') return act === 1 ? 'wall_street' : act === 3 ? 'wall_gallery' : roof ? 'wall_roof' : 'wall2';
+    if (kind === 'dance' && roof) return 'wall_roof';
+    return 'wall' + act;
+  }
+  /* A stop's little stage (2026-11-03): a backdrop with somebody standing in it, and what they say. The events'
+     hosts by act (the stranger is his own), the bank's teller and the express agent. */
+  const EVSCENE = { 1: ['wall_barber', 'gKbb'], 2: ['wall_carriage', 'gKcc2'], 3: ['wall_fortune', 'gQft1'] };
+  // whose gossip it is: each event's own figure, standing in the act's gossip place
+  const EV_HOST = { fiddler: 'gKgb1', punch: 'gJcp1', stranger: 'gKstr', knitting: 'gQsal', apprentice: 'gJcc1', gossip: 'gKcc2', jig: 'gJbk1',
+                    cousin: 'gJdk', faro: 'gKdj', swapper: 'gJgb2', preacher: 'gKpa', telegraph: 'gJmc1', posting: 'gKhank', switchman: 'gKbk2', dare: 'gQtess' };
+  function stopScene(wall, host, say) {
+    return '<div class="evscene" aria-hidden="' + (say ? 'false' : 'true') + '"><i class="ew" style="background-image:url(' + artURL('table/' + wall + '.webp') + ')"></i>' +
+      '<img class="host" src="' + artURL('table/fig_' + host + '.webp') + '" alt="">' + (say ? '<div class="say">' + esc(say) + '</div>' : '') + '</div>';
+  }
+  // the teller (or the express agent) at the door, and after: grateful, or not (the user's example)
+  const CLERK = {
+    door: { 1: ['Help! They\u2019re robbing us! Well. More than the interest does.', 'Psst. They\u2019ve got the vault. Would you mind? We\u2019ll pay. Within reason. A small reason.'],
+            2: ['The safe! They\u2019re blowing the safe! I only polished it this morning.', 'The company\u2019s gold! The company\u2019s paperwork! Save the gold first.'] },
+    won: { 1: ['Splendid! On behalf of the Dustwater bank, your bounty. Sign here, here, here and, ah, here.', 'Remarkable. Truly. I\u2019ve opened an account in your name. It has a fee.'],
+           2: ['The express company thanks you. In writing. In triplicate. Eventually, with money.', 'Saved! The company will hear of this. They\u2019ll do nothing, but they\u2019ll hear of it.'] },
+    lost: { 1: ['You lost? To THEM? The bank\u2019s pigeon could have done better, and it can\u2019t hold cards.', 'That\u2019s coming out of your account. You haven\u2019t got one? Then it\u2019s coming out of you.'],
+            2: ['They\u2019re gone, the gold\u2019s gone, and frankly so is my faith in bounty hunters.', 'I\u2019ll put it in my report. Under \u201cunhelpful passengers\u201d.'] }
+  };
+  function clerkScene(L) {
+    const door = L.bank.stage === 'door', won = !door && L.result && L.result.won, set = CLERK[door ? 'door' : won ? 'won' : 'lost'][L.act === 2 ? 2 : 1];
+    return stopScene(L.act === 2 ? 'wall_express' : 'wall_bank', L.act === 2 ? 'gJmc2' : 'gJmc1', set[(L.level + (L.path || []).length) % set.length]);
+  }
   function buildStage(L, felt, k) {
     const look = lookOf(L), fig = (key, side) => '<div class="fig ' + side + '"><img src="' + artURL('table/fig_' + key + '.webp') + '" alt=""></div>';
-    felt.innerHTML = '<div class="stage"><div class="wall" style="background-image:url(' + artURL('table/wall' + L.act + '.webp') + ')"></div>' +
+    felt.innerHTML = '<div class="stage"><div class="wall" style="background-image:url(' + artURL('table/' + wallKey(L) + '.webp') + ')"></div>' +
       fig(look[0], 'w') + fig(look[1], 'e') + intentsHTML(L) + '<div class="nanfig">' + partnerFace(L.partner || 'nan') + '</div>' +
       '<div class="tbl" style="background-image:url(' + artURL('table/table.webp') + ')"></div><div class="plate"></div></div><div class="dyn"></div>';
     felt.classList.toggle('dressed', look.every(x => !STAGE.figs.length || STAGE.figs.includes(x)));
@@ -3418,6 +3533,7 @@ html.art .coach { border-radius: 0; }
     if (d.bank) { move('bank', d.bank); return; }
     if (d.contest) { move('contest', d.contest); return; }
     if (d.chase) { move('chase', d.chase); return; }
+    if (d.wanted != null && P.picking && P.L) { R.act(P.L, 'wanted', +d.wanted); showPick(); return; }
     if (d.wanted != null && P.L && P.L.phase === 'partner') { move('wanted', +d.wanted); return; }
     if (d.water) { move('water', d.water); return; }
     if (d.shunt) { move('shunt', d.shunt); return; }
@@ -3440,12 +3556,14 @@ html.art .coach { border-radius: 0; }
       render(); return;
     }
     if (d.sleeve) { P.sleeving = false; move('sleeve', d.sleeve); return; }
+    if (d.partner && P.picking) { pickPartner(d.partner); return; }
     if (d.partner) { move('partner', d.partner); if (P.L.phase === 'actstart') { partnerSays(P.L); render(); } return; }
     if (d.foe) { startStandard(d.foe); return; }
     switch (d.act) {
       case 'start': mainMenu(true); break;
       case 'mainback': mainMenu(false); break;
       case 'newstory': if (loadSaved() && storyLive(loadSaved())) openSheet('info', abandonHTML()); else newRun(); break;
+      case 'pickback': P.picking = false; P.L = null; $('pick').hidden = true; $('pick').innerHTML = ''; break;
       case 'abandon': clearSaved(); P.sheet = null; P.shown = null; $('veil').hidden = true; newRun(); break;
       case 'daily': openDaily(); break;
       case 'dailygo': startDaily(!!t.dataset.practice); break;
@@ -3467,7 +3585,14 @@ html.art .coach { border-radius: 0; }
       case 'sleevemode': P.sleeving = !P.sleeving; render(); break;
       case 'raisebid': P.raiseSeen = 'raise' + L.level + '-' + L.handNo + '-' + (L.redeals || 0); showSheet('', null); render(); break;
       case 'paydone': { const ul = t.closest('.payout'); if (ul) ul.classList.add('done'); break; }
-      case 'paidskip': case 'paidcollect': endPaid(); move('collect'); break;
+      case 'paidskip': endPaid(); move('collect'); break;
+      case 'paidcollect': {
+        const st = PAID.stamp, b = $('paid').querySelector('[data-act="paidcollect"]');
+        if (!st) { endPaid(); move('collect'); break; }
+        if (b) b.disabled = true;
+        st().then(() => { if (b) b.disabled = false; endPaid(); move('collect'); });
+        break;
+      }
       case 'skipopening': endOpening(); break;
       case 'options': { const o = $('titleOptions'); o.hidden = !o.hidden; document.querySelector('.titlemenu .opts').setAttribute('aria-expanded', String(!o.hidden)); break; }
       case 'continue': { const s = loadSaved(); if (s) dustInto(() => { P.L = s; show(); }); break; }
@@ -3546,7 +3671,22 @@ html.art .coach { border-radius: 0; }
                          ghost: pr.ghost, memory, stranger: (pr.marked || 0) >= R.STRANGER.marks && !(pr.beaten || []).includes('stranger') });
     // the ghost rides once: the story that meets it has taken it
     if (pr.ghost) { delete pr.ghost; try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} }
-    playOpening(L, () => { P.L = L; show(); });
+    // the partner pick comes up over the title's train (the user's, 2026-11-03); choosing starts the ride
+    P.L = L; P.picking = true;
+    showPick();
+  }
+  function showPick() {
+    const o = $('pick');
+    o.innerHTML = '<div class="panel baize">' + partnerPickHTML(P.L) + '<div class="btns pickback"><button class="btn alt" data-act="pickback">Back</button></div></div>';
+    o.hidden = false;
+  }
+  function pickPartner(id) {
+    const L = P.L, r = R.act(L, 'partner', id);
+    if (!r.ok) return;
+    P.picking = false;
+    $('pick').hidden = true; $('pick').innerHTML = '';
+    L.introDue = true;
+    playOpening(L, () => show());
   }
   /* The main menu (the user's, 2026-10-30): Start, then New Story, Continue Current Story, Daily Challenge or
      Standard 500, over the moving train. */
@@ -3664,7 +3804,7 @@ html.art .coach { border-radius: 0; }
   const OPEN = { timers: [], done: null, raf: 0, coachOff: 0 };
   function reduceMotion() { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
   // every animation in the hero runs at `rate`; with `coach`, the stagecoach's wheels and trot keep their own pace
-  function heroAnims(rate, coach) { try { document.getAnimations().forEach(a => { const t = a.effect && a.effect.target; if (t && t.closest && t.closest('#hero') && !(coach && t.classList.contains('stagecoach'))) a.updatePlaybackRate(rate); }); } catch (e) { /* no Web Animations */ } }
+  function heroAnims(rate, coach) { try { document.getAnimations().forEach(a => { const t = a.effect && a.effect.target; if (t && t.closest && t.closest('#hero') && !(coach && t.closest('.stagecoach'))) a.updatePlaybackRate(rate); }); } catch (e) { /* no Web Animations */ } }
   function at(ms, fn) { OPEN.timers.push(setTimeout(fn, ms)); }
   /* The act card is a board over the real map (the user's, 2026-11-01: the card's own picture of Dustwater, then the
      map's slightly different one, was jarring). The run starts here, under the dust, with the page already where
@@ -3708,8 +3848,22 @@ html.art .coach { border-radius: 0; }
     undust();
     setTimeout(() => $('actcard').classList.remove('on'), 60);
   }
+  // the opening's riders: you, and beside you your partner on a horse of their own (Biscuit is the horse you ride)
+  function ridePair(partner) {
+    const sc = document.querySelector('#hero .stagecoach');
+    if (!sc) return;
+    if (!sc.dataset.me) sc.dataset.me = sc.style.backgroundImage;
+    if (!partner || partner === 'horse') { sc.classList.remove('pair'); sc.innerHTML = ''; return; }
+    sc.classList.add('pair');
+    sc.innerHTML = '';
+    const pr = document.createElement('i'), me = document.createElement('i');
+    pr.className = 'pr'; pr.style.backgroundImage = 'url(' + artURL('title/ride_' + partner + '.webp') + ')';
+    me.className = 'me'; me.style.backgroundImage = sc.dataset.me;
+    sc.append(pr, me);
+  }
   function playOpening(L, done) {
     const art = document.documentElement.classList.contains('art'), S = window.TITLE_SCENE;
+    ridePair(L && L.partner);
     if (FAST || !art || !S || !S.intro) { done(); return; }
     OPEN.done = done;
     try { window.scrollTo(0, 0); } catch (e) { /* no layout */ }
@@ -3840,6 +3994,7 @@ html.art .coach { border-radius: 0; }
   }
   // the partner pick or the card pick waited for the poster (or the partner's say): bring it up now
   function afterJob() {
+    if (P.L && P.L.introDue && P.L.phase === 'actstart') { P.L.introDue = false; partnerSays(P.L); return; }
     if (P.L && (P.L.phase === 'partner' || P.L.phase === 'actstart')) render();
   }
   /* The Showdown's payday. Returns false when it can't play (?fast, no art), so the stars pop-up shows instead. */
@@ -3853,7 +4008,7 @@ html.art .coach { border-radius: 0; }
     const g = $('paid'), wall = g.querySelector('.pwall'), deskEl = g.querySelector('.pdesk'), poster = g.querySelector('.pposter'), glove = g.querySelector('.pglove');
     const boss = R.BOSS[r.boss || L.boss], k = Math.max(2, Math.min(4, Math.floor(innerWidth / 125)));
     g.className = '';
-    wall.style.backgroundImage = 'url(' + artURL('table/wall' + (r.act || L.act) + '.webp') + ')';
+    wall.style.backgroundImage = 'url(' + artURL('table/' + wallKey(L, r) + '.webp') + ')';
     wall.style.backgroundSize = 200 * k + 'px ' + 112 * k + 'px';
     poster.style.transform = 'translate(-50%, 0)';
     poster.innerHTML = wantedFace(r.boss || L.boss, r.loot) +
@@ -3890,18 +4045,25 @@ html.art .coach { border-radius: 0; }
         await anim(glove, pts.map(p => ({ transform: place(p, G.tip) })), { duration: 480, easing: 'linear' });
       }
       if (!alive()) return;
-      // then the stamp: the hand comes down on the middle of the poster and lifts away from a red star
-      const T = S.glove_stamp, mid = pt(50, 52), up = [mid[0] + 30, mid[1] - innerHeight * 0.6];
-      await anim(glove, [{ transform: getComputedStyle(glove).transform }, { transform: place([innerWidth + 60, mid[1] + 60], G.tip) }], { duration: 260, easing: 'ease-in' });
-      glove.src = artURL('paid/glove_stamp.webp'); glove.style.width = T.size[0] * gk + 'px';
-      await anim(glove, [{ transform: place(up, T.tip) }, { transform: place([mid[0], mid[1] - 26], T.tip) }], { duration: 420, easing: 'cubic-bezier(.5,0,1,.6)' });
-      await anim(glove, [{ transform: place([mid[0], mid[1] - 26], T.tip) }, { transform: place(mid, T.tip) }], { duration: 70, easing: 'ease-in' });
-      poster.querySelector('.pstamp').classList.add('on');
-      poster.classList.remove('hang'); void poster.offsetWidth; poster.classList.add('shake');
-      await wait(160);
-      await anim(glove, [{ transform: place(mid, T.tip) }, { transform: place(up, T.tip) }], { duration: 420, easing: 'ease-in' });
+      // the pencil hand goes; the stamp waits for Collect (PAID.stamp, below)
+      await anim(glove, [{ transform: getComputedStyle(glove).transform }, { transform: place([innerWidth + 60, innerHeight], G.tip) }], { duration: 260, easing: 'ease-in' });
       glove.style.display = 'none';
-      await wait(450);
+      // Collect: the hand comes down on the middle of the poster where it lies on the desk and lifts away from a red
+      // star, then the bounty is yours
+      PAID.stamp = async () => {
+        PAID.stamp = null;
+        const q = poster.getBoundingClientRect(), T = S.glove_stamp, mid = [q.left + q.width / 2, q.top + q.height * 0.55], up = [mid[0] + 30, mid[1] - innerHeight * 0.6];
+        glove.src = artURL('paid/glove_stamp.webp'); glove.style.width = T.size[0] * gk + 'px'; glove.style.display = 'block';
+        await anim(glove, [{ transform: place(up, T.tip) }, { transform: place([mid[0], mid[1] - 26], T.tip) }], { duration: 380, easing: 'cubic-bezier(.5,0,1,.6)' });
+        await anim(glove, [{ transform: place([mid[0], mid[1] - 26], T.tip) }, { transform: place(mid, T.tip) }], { duration: 70, easing: 'ease-in' });
+        poster.querySelector('.pstamp').classList.add('on');
+        [deskEl, poster].forEach(f => { f.classList.remove('thud'); void f.offsetWidth; f.classList.add('thud'); });
+        await wait(220);
+        await anim(glove, [{ transform: place(mid, T.tip) }, { transform: place(up, T.tip) }], { duration: 380, easing: 'ease-in' });
+        glove.style.display = 'none';
+        await wait(500);
+      };
+      await wait(300);
       if (!alive()) return;
       // onto the sheriff's desk: the poster settles on the blotter, and the bounty is written in the ledger
       g.classList.add('desk');
@@ -3946,6 +4108,7 @@ html.art .coach { border-radius: 0; }
   }
   function endPaid() {
     PAID.run++;
+    PAID.stamp = null;
     const g = $('paid');
     if (!g || g.hidden) return;
     g.hidden = true;
@@ -3989,16 +4152,21 @@ html.art .coach { border-radius: 0; }
     const key = standKey(L);
     if (s.dataset.key !== key || s.hidden) {
       const t = R.taunt(L), look = L.mode === 'standard' ? L.std.look : lookOf(L);
+      // a Card table or a Duel opens with an insult, and your partner answers it (2026-11-03)
+      const duel = L.mode !== 'standard' && (L.kind === 'dance' || L.kind === 'elite') ? R.insult(L) : null;
+      if (duel) t.text = duel.text;
       // as big as fits: the two of them span 124 of the stage's 200 art pixels, the stage is 112 tall
       const k = Math.max(2, Math.min(5, Math.floor(Math.min(innerWidth / 124, innerHeight * 0.46 / 112))));
       s.dataset.key = key;
       s.className = '';
       s.style.setProperty('--k', k);
-      s.style.setProperty('--st', Math.round(Math.max(150, (innerHeight - 112 * k) * 0.42)) + 'px');
-      s.innerHTML = '<div class="sstage"><i class="swall" style="background-image:url(' + artURL('table/wall' + L.act + '.webp') + ')"></i>' +
+      // with a comeback under the stage, the stage sits higher so the comeback clears NOW DRAW!
+      s.style.setProperty('--st', Math.round(duel ? Math.max(120, (innerHeight - 112 * k) * 0.3) : Math.max(150, (innerHeight - 112 * k) * 0.42)) + 'px');
+      s.innerHTML = '<div class="sstage"><i class="swall" style="background-image:url(' + artURL('table/' + wallKey(L) + '.webp') + ')"></i>' +
         (look ? look.map((f, i) => '<img class="sfig ' + (i ? 'e' : 'w') + '" src="' + artURL('table/fig_' + f + '.webp') + '" alt="">').join('') : '') +
         '<img class="stable" src="' + artURL('table/table.webp') + '" alt=""></div>' +
         '<div class="stand"><div class="say" role="status"><b>' + esc(t.who) + '</b><p>\u201c' + esc(t.text) + '\u201d</p></div></div>' +
+        (duel ? '<div class="backline"><div class="say back" role="status"><span class="face svg">' + partnerFace(L.partner) + '</span><p><b>' + esc(PN()) + '</b>' + (/^\(/.test(duel.back) ? esc(duel.back) : '\u201c' + esc(duel.back) + '\u201d') + '</p></div></div>' : '') +
         '<div class="dwrap"><button class="btn draw" data-act="draw">NOW DRAW!</button><small>Tap to draw your cards</small></div>';
       s.hidden = false;
       try { window.scrollTo(0, 0); } catch (e) { /* no layout */ }
