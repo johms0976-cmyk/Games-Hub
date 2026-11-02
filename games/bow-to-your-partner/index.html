@@ -143,6 +143,16 @@ html.art .titlemenu .wood.drawn > span { position: absolute; width: 1px; height:
    behind it. Without the art: the sky, a plain mound and the words. */
 #grave { position: fixed; inset: 0; z-index: 70; overflow: hidden; background: linear-gradient(#2e1f4a 0%, #6a3a6a 32%, #c8604a 58%, #f0a050 74%, #f6c070 82%, #edab6a 82.1%); }
 #grave[hidden] { display: none; }
+/* Wanted levels and the Daily Challenge (2026-11-02) */
+.wantedpick { margin-top: 12px; }
+.wantedpick h3 { margin: 0 0 6px; }
+.wantedpick .wl { display: flex; flex-wrap: wrap; gap: 6px; }
+.wantedpick .wl button { min-width: 40px; min-height: 40px; border: 2px solid #4a2626; border-radius: 6px; background: #f3e3c0; color: #4a2626; font: 700 16px/1 'Pixelify Sans', Georgia, serif; cursor: pointer; }
+.wantedpick .wl button.sel { background: #7a3b2a; color: #fbf3dc; box-shadow: 0 0 0 2px #e8b83a; }
+.wantedpick summary { cursor: pointer; font-size: 14px; margin-top: 4px; }
+.wantedpick ul { margin: 8px 0 0; padding-left: 18px; font-size: 14px; line-height: 1.3; }
+.runtag { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: #7a3b2a; color: #fbf3dc; font: 600 12px/1.5 Bitter, Georgia, serif; vertical-align: middle; }
+.daily .kv { margin-top: 8px; }
 /* the Getaway (2026-11-02): the chase between stretches, one screen; the finale after it (#actcard.finale) */
 #screen.one > .cscene { flex: 1 1 auto; }
 .cscene { position: relative; margin: 0 -10px; overflow: hidden; border-bottom: 3px solid #1e140f; }
@@ -1235,7 +1245,7 @@ html.art .coach { border-radius: 0; }
     <button class="wood go" data-act="start" data-word="start"><span>Start</span></button>
     <button class="wood more item" data-act="newstory" data-word="newstory"><span>New Story</span></button>
     <button class="wood more item" data-act="continue" id="continueBtn" data-word="continue"><span>Continue Current Story</span></button>
-    <button class="wood more item" data-act="daily" data-word="daily"><span>Daily Challenge</span><small>coming soon</small></button>
+    <button class="wood more item" data-act="daily" data-word="daily"><span>Daily Challenge</span></button>
     <button class="wood more item" data-act="standard" data-word="standard"><span>Standard 500</span></button>
     <button class="wood more item back" data-act="mainback" data-word="back"><span>Back</span></button>
     <button class="wood more opts" data-act="options" data-word="options" aria-expanded="false" aria-controls="titleOptions"><span>Options</span></button>
@@ -1298,20 +1308,20 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=26"></script>
-<script src="btp-ai.js?v=26"></script>
-<script src="btp-run.js?v=26"></script>
-<script src="btp-town.js?v=26"></script>
-<script src="art/dustwater/sprites.js?v=26"></script>
-<script src="btp-train.js?v=26"></script>
-<script src="art/train/sprites.js?v=26"></script>
-<script src="art/title/scene.js?v=26"></script>
-<script src="art/table/scene.js?v=26"></script>
-<script src="art/grave/scene.js?v=26"></script>
-<script src="art/paid/scene.js?v=26"></script>
-<script src="art/rooms/scene.js?v=26"></script>
-<script src="art/express/scene.js?v=26"></script>
-<script src="art/fair/sprites.js?v=26"></script>
+<script src="btp-engine.js?v=27"></script>
+<script src="btp-ai.js?v=27"></script>
+<script src="btp-run.js?v=27"></script>
+<script src="btp-town.js?v=27"></script>
+<script src="art/dustwater/sprites.js?v=27"></script>
+<script src="btp-train.js?v=27"></script>
+<script src="art/train/sprites.js?v=27"></script>
+<script src="art/title/scene.js?v=27"></script>
+<script src="art/table/scene.js?v=27"></script>
+<script src="art/grave/scene.js?v=27"></script>
+<script src="art/paid/scene.js?v=27"></script>
+<script src="art/rooms/scene.js?v=27"></script>
+<script src="art/express/scene.js?v=27"></script>
+<script src="art/fair/sprites.js?v=27"></script>
 <script>
 (function () {
   'use strict';
@@ -1338,7 +1348,7 @@ html.art .coach { border-radius: 0; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 23, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 24, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -1355,7 +1365,7 @@ html.art .coach { border-radius: 0; }
   /* A story saves under KEY, a game of Standard 500 under STD_KEY, so neither overwrites the other. The profile
      remembers which Showdown gangs you have beaten in any story: they become Standard 500 opponents. */
   const STD_KEY = 'btp-std-v1', PROFILE = 'btp-profile';
-  function save() { try { if (P.L) { localStorage.setItem(P.L.mode === 'standard' ? STD_KEY : KEY, JSON.stringify(P.L)); noteBeaten(P.L); } } catch (e) {} }
+  function save() { try { if (P.L) { localStorage.setItem(P.L.mode === 'standard' ? STD_KEY : P.L.daily ? DAILY_KEY : KEY, JSON.stringify(P.L)); noteBeaten(P.L); } } catch (e) {} }
   function loadStd() { try { const s = localStorage.getItem(STD_KEY); const L = s ? JSON.parse(s) : null; return L && L.mode === 'standard' && L.phase !== 'stdover' ? L : null; } catch (e) { return null; } }
   function clearStd() { try { localStorage.removeItem(STD_KEY); } catch (e) {} }
   function profile() { try { return JSON.parse(localStorage.getItem(PROFILE)) || { beaten: [] }; } catch (e) { return { beaten: [] }; } }
@@ -1384,6 +1394,14 @@ html.art .coach { border-radius: 0; }
     const won = (L.record || []).filter(r => r.kind === 'boss' && r.won).map(r => r.id), pr = profile();
     // the Getaway's catches (2026-11-02): 'getaway:caller', 'getaway:wallflowers', and 'getaway:clean' for a catch without a lost stretch
     (L.record || []).filter(r => r.kind === 'getaway' && r.won).forEach(r => { won.push('getaway:' + r.id); if (r.clean) won.push('getaway:clean'); });
+    // a story won at the County Fair opens the next Wanted level (never a Daily)
+    if (L.phase === 'victory' && L.act >= R.LAST_ACT && !L.daily) { const n = Math.min(R.WANTED.length, (L.wantedLevel || 0) + 1); if ((pr.wanted || 0) < n) { pr.wanted = n; try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} } }
+    // the day's first finished ride (practice rides aren't kept)
+    if (L.daily && !L.daily.practice && (L.phase === 'victory' || L.phase === 'runover') && !(pr.daily && pr.daily.date === L.daily.date)) {
+      const S = R.runSummary(L);
+      pr.daily = { date: L.daily.date, won: L.phase === 'victory', act: L.act, stars: S.stars, hands: S.hands, caught: !!(L.chase && L.chase.result === 'caught') };
+      try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {}
+    }
     const add = won.filter(id => !pr.beaten.includes(id));
     if (add.length) { pr.beaten = pr.beaten.concat(add); try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} }
   }
@@ -1678,7 +1696,11 @@ html.art .coach { border-radius: 0; }
       case 'partner':
         body = mapHTML(L) + overMap(L, tip, '<div class="panel baize"><h2>Choose your partner</h2><p>Who rides with you into Dustwater? Your partner sits across the table, bids with you and brings a card of their own.</p>' +
           '<div class="roster">' + R.ROSTER.map(p => { const open = R.partnerOpen(L, p); return '<button class="rider' + (!open && p.unlock ? ' soon' : '') + '" data-partner="' + p.id + '"' + (open ? '' : ' disabled') + '>' + (partnerFace(p.id) ? '<span class="face svg">' + partnerFace(p.id) + '</span>' : '<span class="face" aria-hidden="true"></span>') +
-            '<b>' + esc(p.name) + '</b><i>' + esc(p.title) + '</i><span>' + esc(p.text) + '</span>' + (open ? '' : '<span class="lock">' + esc(p.unlockText || 'Not riding yet') + '</span>') + '</button>'; }).join('') + '</div></div>');
+            '<b>' + esc(p.name) + '</b><i>' + esc(p.title) + '</i><span>' + esc(p.text) + '</span>' + (open ? '' : '<span class="lock">' + esc(p.unlockText || 'Not riding yet') + '</span>') + '</button>'; }).join('') + '</div>' +
+          (L.maxWanted ? '<div class="wantedpick"><h3>Wanted level</h3><div class="wl">' + Array.from({ length: L.maxWanted + 1 }, (_, n) => '<button data-wanted="' + n + '"' + (n === (L.wantedLevel || 0) ? ' class="sel" aria-pressed="true"' : ' aria-pressed="false"') + '>' + n + '</button>').join('') + '</div>' +
+            ((L.wantedLevel || 0) ? '<p class="hint"><b>Level ' + L.wantedLevel + ' adds ' + esc(R.WANTED[L.wantedLevel - 1].name) + ':</b> ' + esc(R.WANTED[L.wantedLevel - 1].text) + '</p>' +
+              (L.wantedLevel > 1 ? '<details><summary>All ' + L.wantedLevel + ' twists</summary><ul>' + R.WANTED.slice(0, L.wantedLevel).map(w => '<li><b>' + esc(w.name) + ':</b> ' + esc(w.text) + '</li>').join('') + '</ul></details>' : '')
+              : '<p class="hint">Level 0: the trail as it comes. Win a story to open the next level.</p>') + '</div>' : '') + '</div>');
         break;
       case 'stdover': {
         const won = L.result && L.result.won, F = L.std;
@@ -1802,7 +1824,7 @@ html.art .coach { border-radius: 0; }
     const ab = F.traits.map(t => { const a = R.abilityOf(t); return '<li><b>' + esc(a.name) + '</b> ' + esc(a.text) + '</li>'; }).join('');
     return '<button class="poster k-' + n.kind + '" data-go="' + n.id + '"><span class="figs" aria-hidden="true">' + figs + '</span><span class="pbody">' +
       '<span class="w">WANTED</span><b>' + esc(F.name) + '</b><span class="pk">' + esc(R.kindName(L.act, n.kind)) + ' \u00b7 ' + R.foeHp(L, F) + ' health</span>' +
-      (ab ? '<ul>' + ab + '</ul>' : F.rule ? '' : '<span class="plainp">Nothing up their sleeve</span>') +
+      (ab ? '<ul>' + ab + '</ul>' : '') + (F.manner && R.MANNERS[F.manner] ? '<span class="pk"><b>' + esc(R.MANNERS[F.manner].name) + ':</b> ' + esc(R.MANNERS[F.manner].text) + '</span>' : !ab && !F.rule ? '<span class="plainp">Nothing up their sleeve</span>' : '') +
       (F.tipoff ? '<span class="bty">Carrying ' + esc(R.BOSS[F.tipoff].name.replace(/^The /, 'the ')) + '\u2019 secret: ' + esc(R.BUFFS[R.COUNTER[F.tipoff]].name) + '</span>' : '') +
       (F.rule ? '<span class="pk"><b>Table rule:</b> ' + esc(R.TABLE_RULES[F.rule].name) + '. ' + esc(R.TABLE_RULES[F.rule].text) + '</span>' : '') +
       (F.driver ? '<span class="pk">Sent by ' + esc(R.BOSS[F.driver].name.replace(/^The /, 'the ')) + '</span>' : '') +
@@ -2213,7 +2235,9 @@ html.art .coach { border-radius: 0; }
     const town = L.act === 1, fair = L.act === 3 && !!L.map, side = !!(L.map && L.map.side), train = !side && L.act === 2 && !!window.BtpTrain, can = R.reachable(L), route = L.route || [], walked = walkedOf(L), fNow = R.floorOf(L);
     const kinds = [...new Set(can.map(id => R.node(L, id).kind))];
     const wanted = can.map(id => R.node(L, id)).filter(n => n.foe), others = kinds.filter(k => !wanted.some(n => n.kind === k));
-    return '<div class="panel"><h2>Act ' + R.ROMAN[L.act] + ': ' + esc(E.ACTS[L.act].name) + '</h2>' + wantedHTML(L) +
+    const tag = L.daily ? '<span class="runtag">Daily \u00b7 ' + esc((R.WANTED.find(w => w.id === L.daily.twist) || {}).name || '') + (L.daily.practice ? ' (practice)' : '') + '</span>'
+      : L.wantedLevel ? '<span class="runtag">Wanted level ' + L.wantedLevel + '</span>' : '';
+    return '<div class="panel"><h2>Act ' + R.ROMAN[L.act] + ': ' + esc(E.ACTS[L.act].name) + tag + '</h2>' + wantedHTML(L) +
       '<div class="legend">' + ['dance', 'elite', 'event', 'store', 'camp', 'raffle'].concat(R.BANK.acts.includes(L.act) ? ['bank'] : [], R.WATER.acts.includes(L.act) ? ['water'] : [], R.CONTEST.acts.includes(L.act) ? ['contest'] : []).map(k => '<span>' + (town || train || side || fair ? '<i class="sw k-' + k + '"></i>' : '') + icon(k) + esc(R.kindName(L.act, k)) + '</span>').join('') +
       '<span><i class="pips"><i></i></i>A trick up their sleeve</span></div>' +
       (town ? townBox(L, can, route, walked, fNow) : fair ? fairBox(L, can, route, walked, fNow) : side ? sideBox(L, can, route, walked, fNow) : train ? trainBox(L, can, route, walked, fNow) : plainBox(L, can, route, walked, fNow)) +
@@ -2242,7 +2266,10 @@ html.art .coach { border-radius: 0; }
       '<span>Theirs</span><span>' + S.set + ' set of ' + S.theirs + '</span>' +
       '<span>Best hand</span><span>' + best + '</span>' +
       '<span>Health</span><span>' + num(L.health) + '</span><span>Gold</span><span>' + L.gold + '</span>' +
-      '<span>In the saddle</span><span>' + rideTime(L) + ', ' + (L.history || []).length + ' hands</span></div>' +
+      '<span>In the saddle</span><span>' + rideTime(L) + ', ' + (L.history || []).length + ' hands</span>' +
+      (L.daily ? '<span>Daily Challenge</span><span>' + niceDate(L.daily.date) + ', ' + esc((R.WANTED.find(w => w.id === L.daily.twist) || {}).name || '') + (L.daily.practice ? ' (practice)' : '') + '</span>'
+        : L.wantedLevel ? '<span>Wanted level</span><span>' + L.wantedLevel + '</span>' : '') + '</div>' +
+      (L.daily && !L.daily.practice ? '<div class="btns"><button class="btn alt" data-act="dailycopy">Copy result</button></div>' : '') +
       '<h3>Your cards and buffs</h3>' + mineHTML() +
       '<div class="btns"><button class="btn" data-act="newrun">New run</button></div></div>';
   }
@@ -2426,6 +2453,8 @@ html.art .coach { border-radius: 0; }
       ' A contract of yours that fails backfires at the same share. Stop them making their bid and their attack misses.</p>' + back;
     if (k === 'rule' && R.ruleOf(L)) { const T = R.TABLE_RULES[R.ruleOf(L)];
       return '<h2>Table rule: ' + esc(T.name) + '</h2><p>' + esc(T.text) + '</p><p>' + (L.fight && L.fight.rule ? 'Every hand of this fight (it came with you from the road).' : 'Every Card-table gang plays by one house rule, every hand of the fight. It\u2019s on their wanted poster too.') + '</p>' + back; }
+    if (k === 'manner' && L.foe && R.MANNERS[L.foe.manner]) { const M = R.MANNERS[L.foe.manner];
+      return '<h2>' + esc(M.name) + '</h2><p>' + esc(M.text) + '</p><p>Every gang has a way of playing, named on its poster. It changes how they bid and lead, not how hard they hit.</p>' + back; }
     if (k === 'stacked') return '<h2>Stacked deck</h2><p>The cards were dealt twice this hand and the gang got the better deal. It happens more often further up the map, and every hand against a <b>Lucky</b> gang.</p>' + back;
     const a = R.abilityOf(k);
     if (!a) return back;
@@ -2573,6 +2602,7 @@ html.art .coach { border-radius: 0; }
     const left = Math.max(0, F.hp - L.you - shots), pct = Math.round(100 * left / F.hp);
     // each ability and their hit is a button: tap for what it means
     const tags = F.traits.map(t => '<button class="ftag" data-act="foeinfo" data-k="' + t + '" aria-label="' + esc(R.abilityOf(t).name + ': what it means') + '">' + esc(R.abilityOf(t).name) + '</button>').join('') +
+      (F.manner && R.MANNERS[F.manner] ? '<button class="ftag" data-act="foeinfo" data-k="manner" aria-label="' + esc(R.MANNERS[F.manner].name + ': what it means') + '">' + esc(R.MANNERS[F.manner].name) + '</button>' : '') +
       (R.ruleOf(L) ? '<button class="ftag rule" data-act="foeinfo" data-k="rule" aria-label="' + esc('Table rule: ' + R.TABLE_RULES[R.ruleOf(L)].name + ': what it means') + '">' + esc(R.TABLE_RULES[R.ruleOf(L)].name) + '</button>' : '') +
       (L.h && L.h.stacked ? '<button class="ftag" data-act="foeinfo" data-k="stacked">Stacked deck</button>' : '') +
       '<button class="fhit" data-act="foeinfo" data-k="hit" aria-label="How hard they hit: what it means">hits ' + E.hitWord(L) + '</button>';
@@ -2608,11 +2638,11 @@ html.art .coach { border-radius: 0; }
     rows.forEach((row, y) => { for (let x = 0; x < W; x++) if (row[x] !== '.') r += '<rect x="' + x + '" y="' + y + '" width="1.02" height="1.02" fill="' + SPAL[row[x]] + '"/>'; });
     return '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W * k + '" height="' + H * k + '" shape-rendering="crispEdges" aria-hidden="true">' + r + '</svg>';
   }
-  const GOOD_SPR = { enh: 'tin', buff: 'star', tonic: 'bottle', cleanse: 'doc', marked: 'deck', posting: 'poster', restock: 'crate', release: 'rope' };
+  const GOOD_SPR = { enh: 'tin', buff: 'star', tonic: 'bottle', cleanse: 'doc', marked: 'deck', posting: 'poster', restock: 'crate', release: 'rope', gunhand: 'poster', handcar: 'crate' };
   /* The goods' pictures (bakery/goods_px.py -> art/goods, 2026-11-01: "the items don't look like what they're meant
      to"): one per buff (the Canteen is a canteen), the enhancement's tin with that enhancement's own badge on its
      label, the deputy's badge for the sheriff's posting. The little sprites above stand in without the art. */
-  const GOOD_ART = { enh: 'tin', tonic: 'tonic', cleanse: 'doc', marked: 'marked', posting: 'badge', restock: 'crate', release: 'lasso' };
+  const GOOD_ART = { enh: 'tin', tonic: 'tonic', cleanse: 'doc', marked: 'marked', posting: 'badge', restock: 'crate', release: 'lasso', gunhand: 'gunhand', handcar: 'handcar' };
   const goodArt = x => x.type === 'buff' ? 'buff_' + x.id : GOOD_ART[x.type];
   function goodPic(x, k) {
     return '<span class="gart"><img src="' + artURL('goods/' + goodArt(x) + '.webp') + '" alt="">' + (x.type === 'enh' ? '<i class="tinbadge">' + px('e_' + x.id, '#2a1b16') + '</i>' : '') + '</span>' +
@@ -2633,7 +2663,8 @@ html.art .coach { border-radius: 0; }
     buff: g => R.BUFFS[g.id].name + '. Only one in the territory.', tonic: () => 'Doctor Bellweather\u2019s Tonic. Cures what ails you. Mostly.',
     cleanse: () => 'The Doc left his bag. He\u2019ll lift a hex off any card.', marked: () => 'Fell off a riverboat. I never saw it, you never bought it.',
     posting: () => 'The sheriff pins a bonus on the next lot you bring in. Bet on yourself.', restock: () => 'Out back? I might have a crate or two. Cost you, though.',
-    release: () => 'A card you\u2019re tired of? I\u2019ll take it off your hands, for a fee.'
+    release: () => 'A card you\u2019re tired of? I\u2019ll take it off your hands, for a fee.',
+    gunhand: () => 'Fella out back hires his gun by the night. Points it where you point.', handcar: () => 'Greased the axles myself. If anybody bolts down the line, you\u2019ll be right behind.'
   };
   // which of your cards (or, for the Doc, which hexed cards) a good can go on; the reason a card can't
   function bagFor(L, need, id) {
@@ -2742,7 +2773,7 @@ html.art .coach { border-radius: 0; }
         '<div class="btns"><button class="btn" data-chase="finish">On to the finale</button></div>';
     } else {
       const last = c.last ? '<p class="' + (c.last.won ? 'good' : 'badc') + '">' + (c.last.won ? 'You took the stretch, ' + c.last.you + ' to ' + c.last.them + ': ' : 'They took the stretch, ' + c.last.them + ' to ' + c.last.you + ': ') +
-          (c.last.won ? 'you gain ' : 'they gain ') + c.last.step + ' length' + (c.last.step > 1 ? 's' : '') + '.</p>' : '';
+          (c.last.spared ? 'but your faster handcar holds the gap.' : (c.last.won ? 'you gain ' : 'they gain ') + c.last.step + ' length' + (c.last.step > 1 ? 's' : '') + '.') + '</p>' : '';
       const intro = c.n ? '' : '<p>' + esc(B.name) + ' bolt ' + esc(ride.into) + '! You jump on a handcar after them. ' + CH.stretches + ' stretches of track, each one quick hand (3 cards, Act I\u2019s rules). Outscore them on a stretch to gain on them; nothing hits your health. Catch them for their strongbox.</p>';
       slip = '<h3>The Getaway \u00b7 stretch ' + (c.n + 1) + ' of ' + CH.stretches + '</h3>' + last + intro +
         Object.entries(CH.forks).map(([id, f]) => { const off = id === 'cutoff' && !c.n;
@@ -2764,6 +2795,9 @@ html.art .coach { border-radius: 0; }
     const c = L.chase || {}, boss = c.boss || (L.map && L.map.boss) || 'caller', got = c.result !== 'escaped';
     const pr = profile(), shown = pr.shownPartners || [], np = (c.unlock || []).filter(id => !shown.includes(id)).map(id => R.ROSTER.find(p => p.id === id)).filter(Boolean);
     if (np.length) { pr.shownPartners = shown.concat(np.map(p => p.id)); try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} }
+    // a story won opens the next Wanted level (2026-11-02), announced once
+    const nw = !L.daily && (L.wantedLevel || 0) < R.WANTED.length && (pr.wantedShown || 0) <= (L.wantedLevel || 0) ? (L.wantedLevel || 0) + 1 : 0;
+    if (nw) { pr.wantedShown = nw; try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} }
     const p = R.PARTNERS[L.partner] || R.PARTNERS.horse;
     const gates = art && G ? '<img src="' + artURL('express/gates.webp') + '" alt="" style="left:' + u(W / 2 - G[2] * k) + ';top:' + u(rail - G[3] * k) + ';width:' + u(G[0] * k) + ';height:' + u(G[1] * k) + '">' +
       (X.sign ? '<span class="aname" style="left:' + u(W / 2 - G[2] * k + X.sign[0][0] * k) + ';top:' + u(rail - G[3] * k + X.sign[0][1] * k) + ';width:' + u((X.sign[1][0] - X.sign[0][0]) * k) + ';height:' + u((X.sign[1][1] - X.sign[0][1]) * k) + ';font-size:' + u(12 * k) + '">COUNTY FAIR</span>' : '') : '';
@@ -2778,6 +2812,7 @@ html.art .coach { border-radius: 0; }
       '<div class="awords"><div class="atop"><div class="board"><small>THE END OF THE TRAIL</small><b>THE FAIR IS WON</b><span>' + (got ? 'Every last bounty brought in' : 'The last of them got away') + '</span></div></div>' +
       '<div class="abot"><div class="say"><span class="face svg">' + partnerFace(p.id) + '</span><p><b>' + esc(p.name) + ':</b> ' + esc(R.voice(L, FAREWELL[got ? 'caught' : 'escaped'])) + '</p></div>' +
       np.map(q => '<div class="unlock"><span class="face svg">' + partnerFace(q.id) + '</span><p><b>New partner: ' + esc(q.name) + '</b>, ' + esc(q.title) + '. ' + esc(q.text) + ' Rides with you from your next story.</p></div>').join('') +
+      (nw ? '<div class="unlock"><span class="face svg">' + pwSvg('star') + '</span><p><b>Wanted level ' + nw + ' is open:</b> ' + esc(R.WANTED[nw - 1].name) + '. ' + esc(R.WANTED[nw - 1].text) + ' Choose it with your partner next story.</p></div>' : '') +
       '<button class="btn" data-act="finaledone">See your ride</button></div></div>';
     card.classList.add('on');
     DEPART.timers.forEach(clearTimeout);
@@ -3326,8 +3361,8 @@ html.art .coach { border-radius: 0; }
     if (P.held && Date.now() - P.held < 1500) { P.held = 0; ev.preventDefault(); return; }
     // a card that can't be played or picked (your cards panel, a hand while it isn't your turn): a tap explains it
     const plain = ev.target.closest('.card[data-c]');
-    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-chase],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe],[data-sleeve]')) { showCardInfo(plain.dataset.c); return; }
-    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-chase],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe],[data-sleeve]');
+    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-chase],[data-wanted],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe],[data-sleeve]')) { showCardInfo(plain.dataset.c); return; }
+    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-chase],[data-wanted],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe],[data-sleeve]');
     if (!t || t.disabled) return;
     if (t.closest('#sheet') && Date.now() < P.guardUntil) return;
     const L = P.L, d = t.dataset;
@@ -3344,6 +3379,7 @@ html.art .coach { border-radius: 0; }
     if (d.bank) { move('bank', d.bank); return; }
     if (d.contest) { move('contest', d.contest); return; }
     if (d.chase) { move('chase', d.chase); return; }
+    if (d.wanted != null && P.L && P.L.phase === 'partner') { move('wanted', +d.wanted); return; }
     if (d.water) { move('water', d.water); return; }
     if (d.shunt) { move('shunt', d.shunt); return; }
     if (d.buy) { move('buy', d.buy === 'release' ? 'release' : +d.buy); return; }
@@ -3372,7 +3408,9 @@ html.art .coach { border-radius: 0; }
       case 'mainback': mainMenu(false); break;
       case 'newstory': if (loadSaved() && storyLive(loadSaved())) openSheet('info', abandonHTML()); else newRun(); break;
       case 'abandon': clearSaved(); P.sheet = null; P.shown = null; $('veil').hidden = true; newRun(); break;
-      case 'daily': openSheet('info', '<h2>Daily Challenge</h2><p>Coming soon: one ride a day, the same deal and the same gangs for everyone, and your stars to compare.</p><div class="btns"><button class="btn" data-act="closesheet">Back</button></div>'); break;
+      case 'daily': openDaily(); break;
+      case 'dailygo': startDaily(!!t.dataset.practice); break;
+      case 'dailycopy': copyDaily(); break;
       case 'standard': openSheet('info', standardHTML()); break;
       case 'resumestd': { const g = loadStd(); P.sheet = null; P.shown = null; $('veil').hidden = true; if (g) dustInto(() => { P.L = g; show(); }); break; }
       case 'stdagain': startStandard(P.L.std.id); break;
@@ -3419,9 +3457,49 @@ html.art .coach { border-radius: 0; }
     }
   });
 
+  /* ---------------- the Daily Challenge (2026-11-02) ---------------- */
+  /* One ride a day: today's date seeds the run, everyone rides your horse with the day's twist (one of the Wanted
+     levels' changes). The first finished ride of the day is kept in the profile; after that, rides are practice. The
+     ride has its own save, so a story in progress is never touched. */
+  const DAILY_KEY = 'btp-daily-v1';
+  const today = () => { const d = new Date(), z = n => (n < 10 ? '0' : '') + n; return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()); };
+  const niceDate = s => { const [y, m, d] = s.split('-').map(Number); return d + ' ' + ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][m - 1] + ' ' + y; };
+  function loadDaily() { try { const s = localStorage.getItem(DAILY_KEY); const L = s ? JSON.parse(s) : null; return L && L.daily ? L : null; } catch (e) { return null; } }
+  function dailyLine(r) {
+    return r.won ? 'Won the County Fair' + (r.caught ? ', and caught them in the Getaway' : '') : 'Shot down in Act ' + R.ROMAN[r.act];
+  }
+  function dailyHTML() {
+    const t = today(), tw = R.dailyTwist(t), pr = profile(), done = pr.daily && pr.daily.date === t ? pr.daily : null;
+    return '<div class="daily"><h2>Daily Challenge</h2><p>' + niceDate(t) + '. Everyone rides the same deal today, with your horse.</p>' +
+      '<p><b>Today\u2019s twist: ' + esc(tw.name) + '.</b> ' + esc(tw.text) + '</p>' +
+      (done ? '<div class="kv"><span>Your ride</span><span>' + esc(dailyLine(done)) + '</span><span>Stars</span><span>' + done.stars + '</span><span>Hands</span><span>' + done.hands + '</span></div>' +
+          '<p>Only your first ride of the day counts. Ride again for practice, or come back tomorrow.</p>' +
+          '<div class="btns"><button class="btn" data-act="dailygo" data-practice="1">Ride again (practice)</button><button class="btn alt" data-act="dailycopy">Copy result</button><button class="btn alt" data-act="closesheet">Close</button></div>'
+        : '<div class="btns"><button class="btn" data-act="dailygo">Ride</button><button class="btn alt" data-act="closesheet">Close</button></div>') + '</div>';
+  }
+  function openDaily() {
+    const s = loadDaily();
+    if (s && s.daily.date === today() && storyLive(s)) { P.L = s; show(); return; }
+    openSheet('info', dailyHTML());
+  }
+  function startDaily(practice) {
+    const L = R.newRun({ daily: today(), tips: $('tipsPick').checked, unlocked: profile().beaten });
+    if (practice) L.daily.practice = true;
+    P.sheet = null; P.shown = null; $('veil').hidden = true;
+    playOpening(L, () => { P.L = L; show(); });
+  }
+  function dailyText(r) { return 'Draw, Partner! Daily ' + r.date + ': ' + dailyLine(r) + ', ' + r.stars + '\u2605 in ' + r.hands + ' hands.'; }
+  function copyDaily() {
+    const pr = profile(), r = pr.daily;
+    if (!r) return;
+    let ok = false;
+    try { navigator.clipboard.writeText(dailyText(r)); ok = true; } catch (e) { /* no clipboard: show it to copy by hand */ }
+    openSheet('info', '<h2>' + (ok ? 'Copied' : 'Your result') + '</h2><p>' + esc(dailyText(r)) + '</p><div class="btns"><button class="btn" data-act="closesheet">OK</button></div>');
+  }
   function newRun() {
-    const seed = (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
-    const L = R.newRun({ seed, objective: $('objPick').value || undefined, tips: $('tipsPick').checked, pickPartner: true, unlocked: profile().beaten });
+    const seed = (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0, pr = profile();
+    // the Wanted level starts at the highest open (2026-11-02); the partner pick can lower it
+    const L = R.newRun({ seed, objective: $('objPick').value || undefined, tips: $('tipsPick').checked, pickPartner: true, unlocked: pr.beaten, maxWanted: pr.wanted || 0, wanted: pr.wanted || 0 });
     playOpening(L, () => { P.L = L; show(); });
   }
   /* The main menu (the user's, 2026-10-30): Start, then New Story, Continue Current Story, Daily Challenge or

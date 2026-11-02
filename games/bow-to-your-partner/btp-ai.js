@@ -103,6 +103,8 @@
     const trumps = legal.filter(isT), plain = legal.filter(c => !isT(c));
     const sure = legal.filter(c => safe(L, seat, c, out));
     const sureT = sure.filter(isT), sureP = sure.filter(c => !isT(c));
+    // a gang that leads trumps (2026-11-02) pulls yours when it's defending: its best trump first
+    if (trump && !ours && h.contractor !== null && trumps.length && team(seat) === 1 && L.foe && L.foe.manner === 'trumper') return dearest(L, seat, trumps);
     if (trump && ours && trumps.length) {
       if (seat === h.contractor) {
         // draw trumps with sure winners, cash a sure side card, else push a trump
@@ -170,12 +172,15 @@
     // open misère is judged on the hand as dealt (no help from the kitty) and never with the Joker
     if (omis && !h.hands[seat].includes('JK') && Object.values(misCardDanger(h.hands[seat], E.actOf(L))).reduce((x, y) => x + y, 0) <= OPEN_SAFE[team(seat)]) return { t: 0, s: 'OMIS' };
     const hustling = L.boss === 'hustlers' && team(seat) === 1;
-    if (mis && misDanger(h.hands[seat], E.actOf(L)) <= (hustling ? api.HUSTLE : (MIS_SAFE_ACT[E.actOf(L)] || MIS_SAFE)[team(seat)])) return { t: 0, s: 'MIS' };
+    const misLover = team(seat) === 1 && L.foe && L.foe.manner === 'misere';
+    if (mis && misDanger(h.hands[seat], E.actOf(L)) <= (hustling ? api.HUSTLE : (MIS_SAFE_ACT[E.actOf(L)] || MIS_SAFE)[team(seat)] * (misLover ? 2.5 : 1))) return { t: 0, s: 'MIS' };
     for (const b of legal) {
       if (b.s === 'MIS' || b.s === 'OMIS') continue;
       const e = estimate(h.hands[seat], b.s, E.actOf(L), L, seat);
       // the Showboat (2026-11-02) bids on half a trick less than a hand is worth
-      if (e < b.t + MARGIN[team(seat)] - (seat === 2 && L.partnerStyle === 'bold' ? 0.5 : 0)) continue;
+      // a gang's manner (2026-11-02): bold gangs bid half a trick short, cagey ones want half a trick to spare
+      const manner = team(seat) === 1 && L.foe ? L.foe.manner : null;
+      if (e < b.t + MARGIN[team(seat)] - (seat === 2 && L.partnerStyle === 'bold' ? 0.5 : 0) - (manner === 'bold' ? 0.6 : 0) + (manner === 'cagey' ? 0.5 : 0)) continue;
       const slack = e - b.t;
       if (!best || slack > best.slack + 0.25 || (Math.abs(slack - best.slack) <= 0.25 && b.v < best.b.v)) best = { b, slack };
     }

@@ -76,6 +76,62 @@
   GANGS[1].push(['The Saddle Thieves', 'gJdr2', 'gJcp1'], ['The Widow and Her Boy', 'gQsal', 'gJrh2'], ['The Blacksmith Brothers', 'gKbb', 'gKmb1']);
   GANGS[2].push(['The Pullman Porters', 'gJmc2', 'gJbk1'], ['Two Oil Speculators', 'gKcb2', 'gKgb1'], ['The Lady Gamblers', 'gQlou', 'gQmags']);
   GANGS[3].push(['The Pie-eating Champions', 'gKpj', 'gKpf1'], ['Two Lemonade Sellers', 'gQpj', 'gJsn2'], ['The Ferris Wheel Men', 'gJcbk', 'gKsg2']);
+  /* Gang manners (2026-11-02, the third review's "the gangs still play alike"): every Card-table gang and Duel pair
+     has a way of playing, named on its poster. Cycled through each act's list, so a map shows a mix. */
+  const MANNERS = {
+    bold:    { name: 'Bids bold', text: 'They bid on hands half a trick short of what they need: big contracts, and they get set more often.' },
+    cagey:   { name: 'Cagey', text: 'They bid only on a sure thing, and sit back to set yours.' },
+    misere:  { name: 'Loves a mis\u00e8re', text: 'They bid mis\u00e8re on any hand that looks like it could lose every trick.' },
+    trumper: { name: 'Leads trumps', text: 'Defending your contract, they lead trumps at you to strip yours.' }
+  };
+  const MANNER_ORDER = ['bold', 'cagey', 'misere', 'trumper'];
+  function mannerOf(a, kind, name) {
+    const list = (kind === 'elite' ? DUELISTS : GANGS)[a] || [], i = list.findIndex(g => g[0] === name);
+    return MANNER_ORDER[((i < 0 ? 0 : i) + a + (kind === 'elite' ? 1 : 0)) % MANNER_ORDER.length];
+  }
+  /* Wanted levels (2026-11-02, the review's "difficulty levels"): win a story and the next one can be a notch
+     harder. Each level adds the next of these, on top of the ones before (the profile keeps the highest unlocked,
+     the partner pick chooses). The Daily Challenge rides with one of them, the day's twist. */
+  const WANTED = [
+    { id: 'tough', name: 'Tougher gangs', text: 'Card-table gangs and Duels have a tenth more health.' },
+    { id: 'thin',  name: 'Thin walls', text: 'Hotels heal a quarter less.' },
+    { id: 'sharp', name: 'Sharper shooters', text: 'Every gang hits a tenth harder.' },
+    { id: 'purse', name: 'Short of breath', text: 'You start with 450 health.' },
+    { id: 'dead',  name: 'Dead or alive', text: 'Showdowns have 15% more health.' },
+    { id: 'dear',  name: 'Dear goods', text: 'Everything in the stores costs a fifth more.' },
+    { id: 'hard',  name: 'Hard men', text: 'Every Card-table gang has an ability.' },
+    { id: 'head',  name: 'A head start', text: 'If the boss bolts, they start the Getaway a length further off.' }
+  ];
+  const wants = (L, id) => !!(L && L.wanted && L.wanted.includes(id));
+  const wantedFor = n => WANTED.slice(0, Math.max(0, Math.min(WANTED.length, n | 0))).map(w => w.id);
+  const startHealth = L => HEALTH.start - (wants(L, 'purse') ? 50 : 0);
+  // the run's Wanted twists: what they set at the start (health, the engine's hit boost)
+  function applyWanted(L, ids) {
+    L.wanted = ids.slice();
+    L.health = startHealth(L);
+    L.hitBoost = wants(L, 'sharp') ? 1.1 : 1;
+  }
+  /* The partner pick chooses the level, up to what the profile has unlocked (L.maxWanted). The map was drawn
+     before, so it is drawn again with the level's gangs. */
+  function chooseWanted(L, n) {
+    if (L.phase !== 'partner' || L.daily) return no('the level is chosen with your partner');
+    n = n | 0;
+    if (n < 0 || n > (L.maxWanted || 0)) return no('that level isn\u2019t open yet');
+    L.wantedLevel = n;
+    applyWanted(L, wantedFor(n));
+    genMap(L);
+    return yes();
+  }
+  /* The Daily Challenge (2026-11-02): one ride a day, the same seed for everyone, your horse, and the day's twist. */
+  function dailySeed(date) {
+    let h = 2166136261;
+    for (const ch of 'draw-partner:' + date) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0;
+    return h || 1;
+  }
+  const dailyTwist = date => WANTED[dailySeed(date) % WANTED.length];
+  /* The Fair's big-ticket goods (2026-11-02, the review's "nothing to spend Act III gold on": a won run ended with
+     ~440): sold in Act III's stores (the last floor's hotel always has one), once a run each. */
+  const FAIR_GOODS = { gunhand: 220, handcar: 160 };
   const DUELISTS = {
     1: [['Quick-draw Quinn and Pa', 'gJqq', 'gKpa'], ['The Dutton Kid and Sal', 'gJdk', 'gQsal'], ['Two-gun Tess and Hank', 'gQtess', 'gKhank']],
     2: [['Diamond Jim and Lou', 'gKdj', 'gQlou'], ['The Railroad Baron\u2019s Boys', 'gJrb1', 'gJrb2'], ['Silent Sam and Mags', 'gJss', 'gQmags']],
@@ -468,7 +524,9 @@
   const chaseRide = c => CHASE.ride[c && c.boss] || CHASE.ride.caller;
   function startChase(L) {
     const boss = BOSS_POOL[3].includes(L.boss) ? L.boss : L.map && L.map.boss;
-    L.chase = { boss, n: 0, gap: CHASE.gap, won: 0, lost: 0, stage: 'start', fork: null, last: null, result: null, unlock: [] };
+    // a faster handcar (the Fair's goods) is a spare: the first lost stretch costs no ground (it's still lost)
+    const gap = CHASE.gap + (wants(L, 'head') ? 1 : 0);
+    L.chase = { boss, n: 0, gap, spare: L.fastCar ? 1 : 0, won: 0, lost: 0, stage: 'start', fork: null, last: null, result: null, unlock: [] };
     L.phase = 'chase';
     E.say(L, BOSS[boss].name + ' bolt ' + chaseRide(L.chase).into + '! After them!', 'level');
   }
@@ -490,9 +548,11 @@
   function chaseStretch(L) {
     const c = L.chase, F = CHASE.forks[c.fork] || CHASE.forks.main, won = L.you > L.opp;
     c.n++;
-    c.gap += won ? -F.step : F.step;
+    const spared = !won && c.spare > 0;
+    if (spared) c.spare--;
+    c.gap += won ? -F.step : spared ? 0 : F.step;
     if (won) c.won++; else c.lost++;
-    c.last = { won, you: L.you, them: L.opp, fork: c.fork, step: F.step };
+    c.last = { won, you: L.you, them: L.opp, fork: c.fork, step: spared ? 0 : F.step, spared };
     L.record = (L.record || []).concat({ act: L.act, level: L.level, kind: 'chase', id: c.boss, stars: won ? 3 : 1, won });
     E.say(L, (won ? 'You gain on them' : 'They pull away') + ' (' + L.you + ' to ' + L.opp + '): ' + (c.gap <= 0 ? 'right on their tail!' : c.gap + ' length' + (c.gap > 1 ? 's' : '') + ' between you.'), 'objective');
     L.result = null;
@@ -769,7 +829,7 @@
   const foeHp = (L, F) => Math.round(F.hp * (has(L, 'warrant') ? 0.9 : 1) / 10) * 10;
   const bountyOf = (kind, F, stars) => Math.round((PAY[kind] || [0, 0, 0, 0])[stars] * ((F && F.bounty) || 1) / 5) * 5;
   const REST = { 1: 150, 2: 150, 3: 250 }, CASH = { health: 200, gold: 100 };
-  const restOf = L => REST[L.act] + (has(L, 'pillow') ? 100 : 0);
+  const restOf = L => Math.round(REST[L.act] * (wants(L, 'thin') ? 0.75 : 1) / 5) * 5 + (has(L, 'pillow') ? 100 : 0);
   /* Act II's targets, tuned on accident rates: see the header of OBJECTIVES. */
   const ACT2 = { blacks: 21, showoff: 4 };
   OBJECTIVES.blacks.of = ACT2.blacks; OBJECTIVES.blacks.text = OBJECTIVES.blacks.text.replace('BLACKS', ACT2.blacks);
@@ -786,7 +846,7 @@
   const maxHealth = L => HEALTH.max + (has(L, 'iron') ? 100 : 0);
   function heal(L, n) { const before = L.health; L.health = Math.min(maxHealth(L), L.health + n); return L.health - before; }
   // the General Store's prices, less a fifth with Store Credit (to the nearest 5)
-  const priced = (L, n) => has(L, 'credit') ? Math.round(n * 0.8 / 5) * 5 : n;
+  const priced = (L, n) => Math.round(n * (has(L, 'credit') ? 0.8 : 1) * (wants(L, 'dear') ? 1.2 : 1) / 5) * 5;
   // one more option in every pick of enhancements or buffs, with the Treasure Map
   const picks = (L, n) => n + (has(L, 'map') ? 1 : 0);
   /* Cash in health for gold (the Hotel and the bank's teller), once a visit, never down to nothing. */
@@ -807,6 +867,10 @@
                 unlocked: (o.unlocked || []).slice(),
                 pos: null, path: [], route: [], pastPaths: [], actLevels: 0, levelsDone: 0, level: 0, log: [], history: [], dealer: 3,
                 tips: o.tips !== false, seen: {}, firstObjective: o.objective || null, note: '' };
+    if (o.daily) { L.daily = { date: o.daily, twist: dailyTwist(o.daily).id }; L.rs = dailySeed(o.daily); }
+    L.maxWanted = Math.max(0, Math.min(WANTED.length, o.maxWanted | 0));
+    L.wantedLevel = L.daily ? 0 : Math.min(L.maxWanted, o.wanted | 0);
+    applyWanted(L, L.daily ? [L.daily.twist] : wantedFor(L.wantedLevel));
     E.rnd(L);
     actStart(L);
     // a New Story from the title chooses a partner before Act I's card pick (the user's, 2026-10-30)
@@ -1088,21 +1152,21 @@
   function makeFoe(L, kind, f, seen) {
     const a = L.act;
     if (f == null) f = eqFloor(Math.max(0, Math.min(mapFloors(L) - 1, floorOf(L))), mapFloors(L));
-    if (kind === 'boss') return { name: BOSS[L.boss].name, look: BOSS[L.boss].look, hp: Math.round((BOSS[L.boss].hp || FOE.boss[a]) * (has(L, 'warrant') ? 0.9 : 1) * (has(L, COUNTER[L.boss]) ? 1 - EXPRESS.cut : 1) / 10) * 10, traits: [], hitMul: BOSS[L.boss].hit || FOE.bossHit, boss: L.boss };
+    if (kind === 'boss') return { name: BOSS[L.boss].name, look: BOSS[L.boss].look, hp: Math.round((BOSS[L.boss].hp || FOE.boss[a]) * (wants(L, 'dead') ? 1.15 : 1) * (a === 3 && L.gunhand ? 0.75 : 1) * (has(L, 'warrant') ? 0.9 : 1) * (has(L, COUNTER[L.boss]) ? 1 - EXPRESS.cut : 1) / 10) * 10, traits: [], hitMul: BOSS[L.boss].hit || FOE.bossHit, boss: L.boss };
     const traits = [], debuffs = Object.keys(DEBUFFS);
     if (kind === 'elite') {
       const ab = E.pick(L, DUEL_ABILITIES.concat(debuffs));
       traits.push(ab);
       if (a >= TRAIT.duel2) traits.push(E.pick(L, TRAIT.pool.concat(debuffs).filter(x => x !== ab)));
-    } else if (f >= TRAIT.floor && E.rnd(L) < TRAIT.p[a]) traits.push(E.pick(L, TRAIT.pool.concat(debuffs)));
+    } else if ((f >= TRAIT.floor && E.rnd(L) < TRAIT.p[a]) || wants(L, 'hard')) traits.push(E.pick(L, TRAIT.pool.concat(debuffs)));
     const rule = kind === 'dance' ? E.pick(L, RULE_POOL[a] || RULE_POOL[2]) : null;
-    let hp = (FOE.base[a] + FOE.step[a] * f) * (kind === 'elite' ? FOE.elite : 1) * (traits.includes('tough') ? 1.25 : 1);
+    let hp = (FOE.base[a] + FOE.step[a] * f) * (kind === 'elite' ? FOE.elite : 1) * (traits.includes('tough') ? 1.25 : 1) * (wants(L, 'tough') ? 1.1 : 1);
     hp = Math.round(hp / 10) * 10;
     const all = (kind === 'elite' ? DUELISTS : GANGS)[a], fresh = seen ? all.filter(g => !seen.includes(g[0])) : all;
     const g = E.pick(L, fresh.length ? fresh : all);
     if (seen) seen.push(g[0]);
     const extra = traits.length - (kind === 'elite' ? 1 : 0);
-    return Object.assign({ name: g[0], look: [g[1], g[2]], hp, traits, hitMul: traits.includes('deadeye') ? 1.5 : 1, bounty: 1 + BOUNTY.ability * extra }, rule ? { rule } : {});
+    return Object.assign({ name: g[0], look: [g[1], g[2]], hp, traits, hitMul: traits.includes('deadeye') ? 1.5 : 1, bounty: 1 + BOUNTY.ability * extra, manner: mannerOf(a, kind, g[0]) }, rule ? { rule } : {});
   }
   /* How good a deal is for West and East (the stacked deck keeps the better of two for them). */
   function gangStrength(h) {
@@ -1680,6 +1744,8 @@
       // (the second review found the store handing the safe side the risky side's prize).
       .concat([{ type: 'marked', id: 'marked', price: priced(L, SHOP.marked), name: 'A marked deck', text: 'See the kitty in every hand of your next fight.' },
                { type: 'posting', id: 'posting', price: priced(L, SHOP.posting), name: 'The sheriff\u2019s posting', text: 'Your next fight pays double bounty: a bet on bringing them in with two stars or more.' }])
+      .concat(L.act === 3 && !L.gunhand ? [{ type: 'gunhand', id: 'gunhand', price: priced(L, FAIR_GOODS.gunhand), name: 'Hire a gunhand', text: 'He rides with you to the Showdown: the boss starts a quarter down.' }] : [])
+      .concat(L.act === 3 && !L.fastCar ? [{ type: 'handcar', id: 'handcar', price: priced(L, FAIR_GOODS.handcar), name: 'A faster handcar', text: 'If the boss bolts after the Showdown, your first lost stretch of the chase costs no ground.' }] : [])
       .concat([{ type: 'restock', id: 'restock', price: restockPrice(L), name: 'Ask what\u2019s out back', text: 'A new set of goods on the shelves. Costs more each time you ask.' }]);
   }
   /* The posting is a bet (a Card table pays 10 / 25 / 40 by stars: two stars breaks even, three wins); a restock
@@ -1708,6 +1774,8 @@
     if (it.type === 'marked') { L.nextFight = Object.assign(L.nextFight || {}, { peek: true }); note(L, 'A marked deck: your next fight, you\u2019ll see the kitty every hand.'); }
     if (it.type === 'posting') { L.nextFight = Object.assign(L.nextFight || {}, { double: true }); note(L, 'The sheriff\u2019s posting: your next fight pays double.'); }
     if (it.type === 'restock') { L.restocks = (L.restocks || 0) + 1; stock(L); note(L, 'The storekeeper brings out new goods.'); }
+    if (it.type === 'gunhand') { L.gunhand = true; note(L, 'A gunhand rides with you: the Showdown\u2019s boss will start a quarter down.'); }
+    if (it.type === 'handcar') { L.fastCar = true; note(L, 'A faster handcar waits by the line, in case the boss bolts.'); }
     return yes();
   }
   function release(L, card) {
@@ -1838,6 +1906,7 @@
       case 'bank': return bank(L, arg);
       case 'contest': return contest(L, arg);
       case 'chase': return chase(L, arg);
+      case 'wanted': return chooseWanted(L, arg);
       case 'water': return water(L, arg);
       case 'shunt': return shunt(L, arg);
       case 'place': return place(L, arg);
@@ -1915,7 +1984,7 @@
     return o.n + ' / ' + o.of;
   }
   const api = { DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
-    TAUNTS, taunt, cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, setQuick, floorsFor, CHASE, chaseRide, CONTEST, RIBBON, ribbonOf, EXPRESS, SIDE, genThreeTrains, DRIVER, COUNTER, makeDriver, ROSTER, partnerOpen, voice, STANDARD, standardFoe, newStandard,
+    TAUNTS, taunt, cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, MANNERS, WANTED, wantedFor, wants, dailySeed, dailyTwist, FAIR_GOODS, setQuick, floorsFor, CHASE, chaseRide, CONTEST, RIBBON, ribbonOf, EXPRESS, SIDE, genThreeTrains, DRIVER, COUNTER, makeDriver, ROSTER, partnerOpen, voice, STANDARD, standardFoe, newStandard,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;
   else root.BtpRun = api;

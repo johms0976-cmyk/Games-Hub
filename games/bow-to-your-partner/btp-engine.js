@@ -329,7 +329,7 @@
      scores grow (Act I bids are 20-100, Act III's 40-520). A gang's Dead Eye (L.foe.hitMul) hits harder.
      Without a run (L), half. */
   const HIT = { 1: 0.5, 2: 0.35, 3: 0.22 };   // tuned over whole stand-in runs (btp-run.js, FOE); 0.3 / 0.2 / 0.15 until 2026-10-29
-  const hitShare = L => L ? HIT[L.act] * ((L.foe && L.foe.hitMul) || 1) : 1 / 2;
+  const hitShare = L => L ? HIT[L.act] * ((L.foe && L.foe.hitMul) || 1) * (L.hitBoost || 1) : 1 / 2;     // hitBoost: a Wanted level's
   const hitWord = L => Math.round(100 * hitShare(L)) + '%';
   const damageOf = (v, L) => Math.round(Math.max(0, v) * hitShare(L) / 5) * 5;
 
