@@ -872,6 +872,15 @@ html.art .evscene { display: block; }
 .psgo { width: 100%; margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 8px; }
 .psel .wantedpick { width: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 4px 8px; background: rgba(42,27,22,.7); color: #fbeed0; }
 .psel .wantedpick .wlh { font-size: 13px; } .psel .wantedpick .hint { flex-basis: 100%; margin: 0; font-size: 12px; }
+/* the Hot Hand (2026-11-03, a bare first cut): a flame on the nameplate, its count, and its stage once it has one */
+.hotchip { display: inline-flex; align-items: center; gap: 4px; background: #3a1d12 !important; color: #ffd98a !important; border-color: #a8461c !important; }
+.hotchip i { width: 9px; height: 13px; border-radius: 50% 50% 45% 45% / 65% 65% 35% 35%; background: radial-gradient(circle at 50% 75%, #fff2a8 0 25%, #ffb43a 45%, #d8461c 80%); }
+.hotchip.s0 { opacity: .75; } .hotchip.s0 i { filter: grayscale(.6); }
+.hotchip.s2 i { transform: scale(1.15); } .hotchip.s3 i { transform: scale(1.3); box-shadow: 0 0 6px #ffb43a; } .hotchip.s4 i { transform: scale(1.45); box-shadow: 0 0 10px #ff8a2a; }
+.hotchip.s3, .hotchip.s4 { animation: hotglow 1.6s ease-in-out infinite; }
+@keyframes hotglow { 50% { box-shadow: 0 0 10px rgba(255, 140, 40, .75); } }
+.hotchip.shake { animation: plateshake .45s; }
+table.ablog { width: 100%; border-collapse: collapse; font-size: 13px; margin: 6px 0; } table.ablog th, table.ablog td { padding: 3px 4px; border-bottom: 1px solid var(--line); text-align: center; }
 /* the bond, the unlock bars, the Wanted Wall (2026-11-03) */
 .bond { margin-top: 6px; font-size: 13px; }
 .bond .bstars { color: #f3d070; letter-spacing: 1px; } .bond .bstars s { text-decoration: none; opacity: .3; }
@@ -1564,21 +1573,21 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=35"></script>
-<script src="btp-ai.js?v=35"></script>
-<script src="btp-run.js?v=35"></script>
-<script src="btp-town.js?v=35"></script>
-<script src="art/dustwater/sprites.js?v=35"></script>
-<script src="btp-train.js?v=35"></script>
-<script src="art/train/sprites.js?v=35"></script>
-<script src="art/title/scene.js?v=35"></script>
-<script src="art/table/scene.js?v=35"></script>
-<script src="art/table/partners.js?v=35"></script>
-<script src="art/grave/scene.js?v=35"></script>
-<script src="art/paid/scene.js?v=35"></script>
-<script src="art/rooms/scene.js?v=35"></script>
-<script src="art/express/scene.js?v=35"></script>
-<script src="art/fair/sprites.js?v=35"></script>
+<script src="btp-engine.js?v=36"></script>
+<script src="btp-ai.js?v=36"></script>
+<script src="btp-run.js?v=36"></script>
+<script src="btp-town.js?v=36"></script>
+<script src="art/dustwater/sprites.js?v=36"></script>
+<script src="btp-train.js?v=36"></script>
+<script src="art/train/sprites.js?v=36"></script>
+<script src="art/title/scene.js?v=36"></script>
+<script src="art/table/scene.js?v=36"></script>
+<script src="art/table/partners.js?v=36"></script>
+<script src="art/grave/scene.js?v=36"></script>
+<script src="art/paid/scene.js?v=36"></script>
+<script src="art/rooms/scene.js?v=36"></script>
+<script src="art/express/scene.js?v=36"></script>
+<script src="art/fair/sprites.js?v=36"></script>
 <script>
 (function () {
   'use strict';
@@ -1614,6 +1623,16 @@ html.art .coach { border-radius: 0; }
   }
   const $ = id => document.getElementById(id);
   const P = { L: null, timer: null, guardUntil: 0, sheet: null, shown: null, undo: [], stuck: null, prefs: loadPrefs() };
+  /* The Hot Hand's A/B test (2026-11-03): each browser is put in a group the first time it's asked (profile.ab.hot,
+     on or off, half and half). The menu's switch (prefs.hot) overrides it. A new story takes whichever holds; the
+     Daily never has it (everyone plays the same Daily). */
+  function hotSetting() {
+    if (P.prefs.hot === 'on' || P.prefs.hot === 'off') return P.prefs.hot;
+    if (FAST) return 'off';      // the tests turn it on themselves
+    const pr = profile();
+    if (!pr.ab || !pr.ab.hot) { pr.ab = Object.assign({}, pr.ab, { hot: Math.random() < 0.5 ? 'on' : 'off', since: new Date().toISOString().slice(0, 10) }); try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} }
+    return pr.ab.hot;
+  }
   function setPref(k, v) { P.prefs[k] = v; try { localStorage.setItem(PREFS, JSON.stringify(P.prefs)); } catch (e) {} }
   const wait = k => FAST ? 0 : (PACE[P.prefs.pace] || PACE.brisk)[k];
   window.BtpPage = P;
@@ -1644,6 +1663,14 @@ html.art .coach { border-radius: 0; }
     L.rideNoted = true;
     const pr = profile(), total = Object.values(L.clock || {}).reduce((a, b) => a + b, 0);
     pr.rides = (pr.rides || []).concat({ won: L.phase === 'victory', act: L.act, secs: total, hands: (L.history || []).length, clock: L.clock || {}, lostTo: L.lostTo || null, partner: L.partner }).slice(-30);
+    // the Hot Hand's A/B log (2026-11-03): with it on or off, how boldly your team bid (a contract's value in the
+    // act's Hot Hand units), how many you made and failed, how far the story went; the last 200 stories
+    if (!L.daily) {
+      const ours = (L.history || []).filter(x => x.contract && E.team(x.contractor) === 0 && x.kind !== 'contest' && x.kind !== 'chase');
+      const bold = ours.length ? ours.reduce((a, x) => a + x.contract.v / (R.HOT.unit[x.act] || 30), 0) / ours.length : 0;
+      pr.abLog = (pr.abLog || []).concat({ at: Date.now(), hot: !!L.hotOn, chosen: P.prefs.hot === 'on' || P.prefs.hot === 'off', won: L.phase === 'victory', act: L.act,
+        ours: ours.length, made: ours.filter(x => x.made).length, bold: Math.round(bold * 100) / 100, hands: (L.history || []).length, best: L.hotBest | 0, partner: L.partner }).slice(-200);
+    }
     // the bond (2026-11-03): one more story finished together (never the Daily's)
     if (!L.daily && L.partner) { pr.bond = pr.bond || {}; pr.bond[L.partner] = (pr.bond[L.partner] || 0) + 1; L.bondNow = pr.bond[L.partner]; }
     // what the next story remembers (2026-11-02): the stranger's marked card, and a lost ride's cards for its ghost (never the Daily's)
@@ -2631,6 +2658,7 @@ html.art .coach { border-radius: 0; }
       '<span>Theirs</span><span>' + S.set + ' set of ' + S.theirs + '</span>' +
       '<span>Best hand</span><span>' + best + '</span>' +
       '<span>Health</span><span>' + num(L.health) + '</span><span>Gold</span><span>' + L.gold + '</span>' +
+      (L.hotOn ? '<span>Hot Hand</span><span>Best ' + (L.hotBest | 0) + (R.hotStage(L.hotBest) ? ' (' + R.HOT.names[R.hotStage(L.hotBest)] + ')' : '') + '</span>' : '') +
       '<span>In the saddle</span><span>' + rideTime(L) + ', ' + (L.history || []).length + ' hands</span>' +
       (L.daily ? '<span>Daily Challenge</span><span>' + niceDate(L.daily.date) + ', ' + esc((R.WANTED.find(w => w.id === L.daily.twist) || {}).name || '') + (L.daily.practice ? ' (practice)' : '') + '</span>'
         : L.wantedLevel ? '<span>Wanted level</span><span>' + L.wantedLevel + '</span>' : '') + '</div>' +
@@ -2850,7 +2878,20 @@ html.art .coach { border-radius: 0; }
   }
   /* Tap a gang's ability or its hit on the nameplate: what it means, in plain words (the user's, 2026-10-30:
      "what does the Dead Eye mean? And the percentage next to it?"). */
+  /* The Hot Hand on the nameplate (2026-11-03, a first cut to A/B test): a flame and the count, and once it reaches a
+     stage, its name and what it pays. Tap for what it means. */
+  function hotChip(L) {
+    if (!L.hotOn || !R.HOT.kinds.includes(L.kind)) return '';
+    const s = R.hotStage(L.hot), n = L.hot | 0;
+    return '<button class="ftag hotchip s' + s + '" data-act="foeinfo" data-k="hot" aria-label="Hot Hand ' + n + (s ? ', ' + R.HOT.names[s] : '') + ': what it means"><i aria-hidden="true"></i>' + n +
+      (s ? ' ' + R.HOT.names[s] + ' \u00d7' + R.HOT.mult[s] : '') + '</button>';
+  }
   function foeHelpHTML(L, k) {
+    if (k === 'hot') { const s = R.hotStage(L.hot), nx = R.HOT.at[s];
+      return '<h2>Hot Hand: ' + (L.hot | 0) + '</h2><p>Every contract your team makes stokes it, and the bigger the bid the more: a bold contract can add several at once. ' +
+        'If your own contract fails it goes out; when theirs makes it cools by ' + R.HOT.cool + '; setting theirs keeps it burning. It lasts the whole story.</p>' +
+        '<p>At ' + R.HOT.at.map((a, i) => a + ' it\u2019s a ' + R.HOT.names[i + 1] + ' (bounties \u00d7' + R.HOT.mult[i + 1] + ')').join(', ') + '.' +
+        (nx ? ' Next: ' + R.HOT.names[s + 1] + ' at ' + nx + '.' : ' You\u2019re at the top.') + '</p><p class="hint">Being tried out: turn it off in the Menu.</p><div class="btns"><button class="btn" data-act="closesheet">Got it</button></div>'; }
     const share = E.hitWord(L), base = Math.round(100 * E.HIT[L.act]) + '%', eg = L.act === 1 ? 80 : L.act === 2 ? 110 : 160;
     const back = '<div class="btns"><button class="btn" data-act="closesheet">Got it</button></div>';
     if (k === 'hit') return '<h2>They hit ' + share + '</h2><p>Every point this gang scores comes off your health at ' + share + '. If they make an ' + eg + '-point contract, you lose ' + E.damageOf(eg, L) + ' health; each trick they take defending (10 points) costs you ' + E.damageOf(10, L) + '.</p>' +
@@ -3026,7 +3067,7 @@ html.art .coach { border-radius: 0; }
       (L.borrow && R.BOSS[L.borrow] ? '<button class="ftag rule" data-act="foeinfo" data-k="borrow" aria-label="' + esc(R.poss(R.BOSS[L.borrow].short) + ' rule this hand: what it means') + '">' + esc(R.poss(R.BOSS[L.borrow].short)) + ' rule</button>' : '') +
       (R.ruleOf(L) ? '<button class="ftag rule" data-act="foeinfo" data-k="rule" aria-label="' + esc('Table rule: ' + R.TABLE_RULES[R.ruleOf(L)].name + ': what it means') + '">' + esc(R.TABLE_RULES[R.ruleOf(L)].name) + '</button>' : '') +
       (L.h && L.h.stacked ? '<button class="ftag" data-act="foeinfo" data-k="stacked">Stacked deck</button>' : '') +
-      '<button class="fhit" data-act="foeinfo" data-k="hit" aria-label="How hard they hit: what it means">hits ' + E.hitWord(L) + '</button>';
+      '<button class="fhit" data-act="foeinfo" data-k="hit" aria-label="How hard they hit: what it means">hits ' + E.hitWord(L) + '</button>' + hotChip(L);
     return '<div class="foe"><div class="fn"><b>' + esc(F.name) + '</b>' + tags + '<span class="fhp">' + left + ' / ' + F.hp + '</span></div>' +
       '<div class="foebar" role="meter" aria-label="Their health" aria-valuemin="0" aria-valuemax="' + F.hp + '" aria-valuenow="' + left + '"><i style="width:' + pct + '%"></i><s style="width:' + pct + '%"></s></div></div>';
   }
@@ -3468,6 +3509,11 @@ html.art .coach { border-radius: 0; }
       restartFx(nan, 'cheer');
       return;
     }
+    if (hand && L.hotOn && L.hotLast && L.hotLast.at === L.level + ':' + L.handNo && L.hotLast.to !== L.hotLast.from) {
+      const t = L.hotLast, up = t.to > t.from, chip = felt.querySelector('.hotchip');
+      if (chip) restartFx(chip, 'shake');
+      popAt(felt, up ? '+' + (t.to - t.from) + ' Hot Hand' : t.to ? 'Cooled' : 'Doused!', !up, '50%', '58%');
+    }
     if (hand) {
       const main = L.mode === 'standard' ? hand.pts[0] : (L.foe ? hand.hit - (P.shotKey === shotKey ? P.shotSeen : 0) : hand.pts[0]);
       if (hand.pts[0] > 0 || main > 0) { figs.forEach(f => restartFx(f, 'hit')); restartFx(nan, 'cheer'); if (main > 0) popAt(felt, (L.mode === 'standard' ? '+' : '−') + main, false, '50%', '46px'); }
@@ -3781,8 +3827,18 @@ html.art .coach { border-radius: 0; }
       '<h3>When only one card can be played</h3><div class="btns">' + optVal('onecard', oneCard(), 'auto', 'Play it for me') + optVal('onecard', oneCard(), 'tap', 'Let me tap it') + '</div>' + (L ? '<h3>Your cards and buffs</h3>' + mineHTML() +
       '<ul class="lines">' + L.owned.filter(c => L.mods[c] && L.mods[c].enh).map(c => '<li>' + esc(E.label(c)) + (R.legendary(L, c) ? ' (Legendary)' : '') + ': ' + E.enhsOf(L.mods[c]).map(x => esc(R.ENH[x].name + ': ' + R.ENH[x].text)).join(' ') + '</li>').join('') +
       L.buffs.map(b => '<li>' + esc(R.BUFFS[b].name) + ': ' + esc(R.BUFFS[b].text) + '</li>').join('') + '</ul>' : '') +
-      installHTML() +
+      hotMenuHTML() + installHTML() +
       '<div class="btns"><button class="btn" data-act="closesheet">Back</button><button class="btn alt" data-act="quit">Title screen</button></div>';
+  }
+  function hotMenuHTML() {
+    const cur = hotSetting(), log = profile().abLog || [];
+    const arm = on => { const r = log.filter(x => x.hot === on), n = r.length, ours = r.reduce((a, x) => a + x.ours, 0), made = r.reduce((a, x) => a + x.made, 0);
+      return '<tr><th>' + (on ? 'On' : 'Off') + '</th><td>' + n + '</td><td>' + (n ? Math.round(100 * r.filter(x => x.won).length / n) + '%' : '\u2013') + '</td><td>' + (n ? (r.reduce((a, x) => a + x.bold, 0) / n).toFixed(2) : '\u2013') +
+        '</td><td>' + (ours ? Math.round(100 * (ours - made) / ours) + '%' : '\u2013') + '</td><td>' + (on && n ? (r.reduce((a, x) => a + x.best, 0) / n).toFixed(1) : '\u2013') + '</td></tr>'; };
+    return '<h3>Hot Hand <small>(being tried out)</small></h3><p class="hint">A streak of contracts made: a flame on the gang\u2019s nameplate that grows with bold bids and raises your bounties. Takes effect from your next story.</p>' +
+      '<div class="btns">' + optVal('hot', cur, 'on', 'On') + optVal('hot', cur, 'off', 'Off') + '</div>' +
+      (log.length ? '<table class="ablog"><tr><th></th><th>Stories</th><th>Won</th><th>Boldness</th><th>Failed</th><th>Best streak</th></tr>' + arm(true) + arm(false) + '</table>' +
+        '<p class="hint">Boldness: your team\u2019s average contract, in Hot Hand points. Failed: your team\u2019s contracts that failed.</p>' : '');
   }
   /* Install to home screen (2026-11-03): played from the home screen the game is full screen, with no browser bars.
      Chrome offers its own prompt (kept from beforeinstallprompt); an iPhone has no prompt, so the menu says how. */
@@ -3799,6 +3855,8 @@ html.art .coach { border-radius: 0; }
     addEventListener('appinstalled', () => { P.installEvt = null; });
     if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && !FAST) navigator.serviceWorker.register('sw.js').catch(() => {});
   } catch (e) { /* no install support: the game plays the same */ }
+  // the Hot Hand's group, settled as the page opens (a story started later saves the profile it read first)
+  try { hotSetting(); } catch (e) { /* no storage: it's asked again next time */ }
   /* The reward reveal (2026-11-03, the user's: "rewards come face down and flip with a rarity glow; rare gilded
      versions"): a pick's offers come up as card backs and turn over one after another, each with a glow as it lands;
      the gilded one (R.gildStep) in gold with its bonus said. Once a pick: any later render of it is face up. */
@@ -4103,7 +4161,7 @@ html.art .coach { border-radius: 0; }
     const rides = pr.rides || [], last = rides[rides.length - 1] || {};
     const memory = { runs: rides.length, lastWon: !!last.won, lastAct: last.act || 0, lostTo: last.lostTo || null, marked: pr.marked || 0 };
     const L = R.newRun({ seed, objective: $('objPick').value || undefined, tips: $('tipsPick').checked, pickPartner: true, unlocked: pr.beaten, maxWanted: pr.wanted || 0, wanted: pr.wanted || 0, bonds: pr.bond || {},
-                         ghost: pr.ghost, memory, stranger: (pr.marked || 0) >= R.STRANGER.marks && !(pr.beaten || []).includes('stranger') });
+                         ghost: pr.ghost, memory, hot: hotSetting() === 'on', stranger: (pr.marked || 0) >= R.STRANGER.marks && !(pr.beaten || []).includes('stranger') });
     // the ghost rides once: the story that meets it has taken it
     if (pr.ghost) { delete pr.ghost; try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} }
     // the partner pick comes up over the title's train (the user's, 2026-11-03); choosing starts the ride

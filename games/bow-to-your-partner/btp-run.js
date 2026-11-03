@@ -975,6 +975,29 @@
   /* A wanted gang's health when you sit down with it (Signed Warrant takes a tenth off), and its bounty: an
      ability beyond what its kind always has adds BOUNTY.ability to what the stars pay. */
   const BOUNTY = { ability: 0.5 };
+  /* The Hot Hand (2026-11-03, the user's: "a streak of contracts made, with a flame on the nameplate and a growing
+     multiplier"; brainstormed, then built behind a switch to A/B test). It runs the whole story. Your team's made
+     contract stokes it by the contract's value (a bold bid more: HOT.unit by act, at least 1); your own failed
+     contract puts it out; their made contract cools it a point (HOT.cool); setting theirs keeps it. Its stage multiplies
+     a Card table's or a Duel's bounty. Only in a fight (a Card table, a Duel, a Showdown, the bank), only when the
+     page turns it on (L.hotOn), never in Standard 500. Tuned with tests/fights.js {"hot":1} (300-400 stand-in runs):
+     the first cut (units 30/60/100, a whole stage lost to their contract) reached Flame in 6% of stories and Blaze in
+     none; these reach Spark 95%, Flame 59%, Blaze 17%, Wildfire 5%, add about 8% to a run's bounties, and leave the
+     win rate where it was. The stand-in bids the same either way: whether players bid bolder is the A/B test's. */
+  const HOT = { unit: { 1: 15, 2: 30, 3: 55 }, at: [3, 7, 12, 18], cool: 1, mult: [1, 1.1, 1.2, 1.35, 1.5], names: ['', 'Spark', 'Flame', 'Blaze', 'Wildfire'],
+                kinds: ['dance', 'elite', 'boss', 'bank'] };
+  const hotStage = n => HOT.at.filter(x => (n | 0) >= x).length;
+  const hotMult = L => L && L.hotOn ? HOT.mult[hotStage(L.hot)] : 1;
+  function stoke(L, r) {
+    if (!L.hotOn || L.mode === 'standard' || !L.h || !L.h.contract || !HOT.kinds.includes(L.kind)) return;
+    const ours = E.team(r.contractor) === 0, was = L.hot | 0;
+    if (ours && r.made) L.hot = was + Math.max(1, Math.round(L.h.contract.v / (HOT.unit[E.actOf(L)] || 60)));
+    else if (ours) L.hot = 0;
+    else if (r.made) { const s = hotStage(was); L.hot = typeof HOT.cool === 'number' ? Math.max(0, was - HOT.cool) : s > 1 ? HOT.at[s - 2] : 0; }
+    L.hotBest = Math.max(L.hotBest | 0, L.hot | 0);
+    L.hotLast = { from: was, to: L.hot | 0, at: L.level + ':' + L.handNo };
+    if (hotStage(L.hot) !== hotStage(was)) E.say(L, L.hot > was ? 'Hot Hand: ' + HOT.names[hotStage(L.hot)] + '! Bounties pay \u00d7' + HOT.mult[hotStage(L.hot)] + '.' : L.hot ? 'Hot Hand cools to ' + (HOT.names[hotStage(L.hot)] || 'embers') + '.' : 'Hot Hand: doused.', 'gold');
+  }
   /* Beginner's luck (2026-11-03, the user's: "I want the first couple of rounds to be quite easy and quick, i.e. the
      chances of getting a joker are quite high for the player and their chances decrease as the game progresses").
      A story's first fights: the Joker comes to you more often (joker: your chance of holding it, by fights done; it
@@ -1050,6 +1073,7 @@
       // a player's first few stories (the page passes memory, with runs 0 on the very first)
       if (o.memory && (o.memory.runs | 0) < LUCK.rookieRuns) L.rookie = true;
     }
+    if (o.hot) { L.hotOn = true; L.hot = 0; }        // the Hot Hand, when the page turns it on (an A/B test, 2026-11-03)
     L.maxWanted = Math.max(0, Math.min(WANTED.length, o.maxWanted | 0));
     L.wantedLevel = L.daily ? 0 : Math.min(L.maxWanted, o.wanted | 0);
     applyWanted(L, L.daily ? [L.daily.twist] : wantedFor(L.wantedLevel));
@@ -1650,6 +1674,7 @@
     // in a fight your shots only ever bring the gang down (r.hit is never below nothing); the Bank keeps the score
     L.you += L.foe ? r.hit : r.pts[0];
     L.opp += r.pts[1];
+    stoke(L, r);
     trackHand(L);
     react(L, E.team(r.contractor) === 0 ? (r.made || r.near ? 'made' : 'failed') : (r.made ? 'theirs' : 'set'));
     L.history.push({ act: L.act, level: L.level, kind: L.kind, hand: L.handNo, contract: L.h.contract, contractor: r.contractor, made: r.made, delta: r.delta, hit: L.foe ? r.hit : r.pts[0], dmg: r.dmg, health: L.health });
@@ -1728,6 +1753,7 @@
         if (fast) pay.push({ t: 'Within par (' + par + ' hands)', g: P[stars] - P[1 + b], star: true });
         if (gold !== plain) pay.push({ t: 'Wanted for their tricks', g: gold - plain });
         if (L.fight && L.fight.double) { pay.push({ t: 'Deputised: paid double', g: gold }); gold *= 2; }
+        if (hotMult(L) > 1) { const add = Math.round(gold * (hotMult(L) - 1)); pay.push({ t: 'Hot Hand: ' + HOT.names[hotStage(L.hot)] + ' \u00d7' + hotMult(L), g: add, hot: true }); gold += add; }
         if (L.foe.ghost && L.ghost) {
           const back = ghostCard(L);
           L.ghost.met = true;
@@ -2304,7 +2330,7 @@
     if (O && O.kind === 'limit') return 'holding';
     return o.n + ' / ' + o.of;
   }
-  const api = { BOND, bondOf, GILD, gildStep, LUCK, lucky, jokerOdds, luckyJoker, INSULTS, insult, QUIPS, quipFor, poss, eventText, LAST_STAND, STRANGER, DUEL_RULES, DARES, DARE_LIE, HEAT, heatOdds, MYSTERY, GHOST, ghostFoe, DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
+  const api = { HOT, hotStage, hotMult, stoke, BOND, bondOf, GILD, gildStep, LUCK, lucky, jokerOdds, luckyJoker, INSULTS, insult, QUIPS, quipFor, poss, eventText, LAST_STAND, STRANGER, DUEL_RULES, DARES, DARE_LIE, HEAT, heatOdds, MYSTERY, GHOST, ghostFoe, DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
     TAUNTS, taunt, cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, MANNERS, WANTED, wantedFor, wants, dailySeed, dailyTwist, FAIR_GOODS, setQuick, floorsFor, CHASE, chaseRide, CONTEST, RIBBON, ribbonOf, EXPRESS, SIDE, genThreeTrains, DRIVER, COUNTER, makeDriver, ROSTER, partnerOpen, voice, STANDARD, standardFoe, newStandard,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;
