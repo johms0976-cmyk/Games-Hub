@@ -1,5 +1,9 @@
-/* Dustwater, Act I's map, laid out as a town (layout D, 2026-10-27): one long Main Street up the map, buildings
-   turned 45 degrees toward the street on both sides, people in the street. The page draws the stops from this
+/* Euchre-ka!, Act I's map (Dustwater until 2026-11-04), laid out as a town (layout D, 2026-10-27): one long Main
+   Street up the map, buildings turned 45 degrees toward the street on both sides, people in the street. A gold
+   town: they struck it rich up the hill behind the Saloon, and the Twins run the place for the big boss.
+   2026-11-04 (the user's: the map "still in that size and matches that art style" as the title): drawn at the title's
+   own scale (0.30 m an art pixel, as the title's train) and shown at its pixel size (3 screen px an art pixel), so
+   the street is 120 art pixels wide (36 m) to fit a phone: the lots pulled in, the buildings at TOWN_K. The page draws the stops from this
    and bakery/dustwater.py bakes the art from it (via `node bakery/layout.js`), so the two never drift apart.
 
    World: metres; x across the street (0 = its middle), y up the street (into the picture), z up. The camera
@@ -16,19 +20,19 @@
    stagecoach, dusk at the Saloon (GRADE). */
 (function (root) {
   const node = typeof module !== 'undefined' && module.exports;
-  const W = 180, H = 620, M = 0.30, EL = 30;
+  const W = 120, H = 680, M = 0.30, EL = 30, TOWN_K = 0.82;     // 680 rows: the mine hill and sky above the Saloon
   const S = Math.sin(EL * Math.PI / 180), C = Math.cos(EL * Math.PI / 180);
   const OX = W / 2, OY = H - 4 - 14 * S / M;            // the world origin's plate pixel (y = -14 sits 4 px up)
   const FLOOR0 = 14, STEP = 44, BOSS_Y = 318;           // a floor every 44 m of street; the Saloon's front
-  const FIG_X = [-19, -7.5, 0, 7.5, 19];                // where people stand, by column
-  const DOOR = { inner: 10.5, outer: 19 };              // lot doors, |x|; an outer lot is 5 m further up
+  const FIG_X = [-12.5, -5, 0, 5, 12.5];                // where people stand, by column
+  const DOOR = { inner: 7.2, outer: 12.6 };             // lot doors, |x|; an outer lot is 5 m further up
   const BUILDING_KINDS = ['camp', 'store', 'bank'];
-  const FILLERS = ['house1', 'house2', 'house3'];
+  const FILLERS = ['house1', 'tent', 'shack'];          // the miners' tents and plank shacks among the houses
   const CARDS = ['cards1', 'cards2', 'cards3', 'cards4'];
   const FIGURE = { elite: ['duel', 'duel2'], event: ['gossip', 'gossip2'], raffle: ['strike', 'strike2'] };
   // a building's front centre sits behind its door, toward its own side: the door is 2.2 m out along the
   // turned front's normal
-  const BACK = 2.2 * Math.SQRT1_2;
+  const BACK = 2.2 * Math.SQRT1_2 * TOWN_K;
 
   const px = (x, y, z) => [OX + x / M, OY - (y * S + (z || 0) * C) / M];
   // a stop's marker sits a few pixels in front of its ground point, so it is a base the townsfolk stand
@@ -45,7 +49,7 @@
      stagecoach. [sprite name, its place's name] */
   const VARIANTS = { camp: [['camp', 'The hotel'], ['camp2', 'The boarding house']],
                      store: [['store', 'The general store'], ['store2', 'The mercantile']],
-                     bank: [['bank', 'The Dustwater bank']] };
+                     bank: [['bank', 'The bank of Euchre-ka!']] };
 
   /* Everything the map shows: stops (marker, and the sprite that dresses it), the plain shops between them,
      the Saloon. Positions in world metres and plate pixels; sprites by key, '<name>_<side>_<grade>' for
@@ -124,8 +128,8 @@
     return { stops, fillers, boss };
   }
 
-  const api = { W, H, M, EL, OX, OY, FLOOR0, STEP, BOSS_Y, FIG_X, DOOR, BUILDING_KINDS, FILLERS, CARDS, FIGURE, VARIANTS, BACK, px, floorY, grade, hash, layout,
-                COACH: [-3.5, -5], FLOORS: 7 };
+  const api = { W, H, M, EL, TOWN_K, OX, OY, FLOOR0, STEP, BOSS_Y, FIG_X, DOOR, BUILDING_KINDS, FILLERS, CARDS, FIGURE, VARIANTS, BACK, px, floorY, grade, hash, layout,
+                COACH: [-3.5, 1.5], FLOORS: 7 };        // the hitching rail, inside the EUCHRE-KA! gate (y -9.5)
   if (node) module.exports = api;
   else root.BtpTown = api;
 })(typeof window !== 'undefined' ? window : this);

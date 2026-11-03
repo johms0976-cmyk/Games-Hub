@@ -596,7 +596,7 @@
   };
   Object.keys(EVENTS).forEach(k => { if (!EVENTS[k].acts) EVENTS[k].acts = [1, 2, 3]; else if (!EVENTS[k].acts.includes(3)) EVENTS[k].acts.push(3); });
   const PAY = { dance: [0, 10, 25, 40], elite: [0, 20, 40, 60] };
-  /* The Bank (2026-10-27): one building on Dustwater's map, on a middle floor. Walk in and a gang is robbing
+  /* The Bank (2026-10-27): one building on Euchre-ka!'s map (Dustwater's until 2026-11-04), on a middle floor. Walk in and a gang is robbing
      it: one hand of 500 against them, the stakes shown at the door, and you may still walk on by. Outscore
      them and the bank pays a bounty and lets you pick an enhancement; lose and they ride off with a share of
      your gold. Either way the teller will then cash in health for gold. Tuned in tests/bank.js. */
@@ -606,7 +606,7 @@
   /* The same stop on the train (2026-10-29): the gang is blowing the express car's safe, and the express company
      pays the bounty. Only the words and the bounty change with the act. */
   const HOLDUP = {
-    1: { place: 'The Dustwater bank', what: 'a gang is robbing the bank', payer: 'The bank', gone: 'the bank\u2019s gold', window: 'The teller\u2019s window', clerk: 'the teller', out: 'Back to the street' },
+    1: { place: 'The bank of Euchre-ka!', what: 'a gang is robbing the bank', payer: 'The bank', gone: 'the bank\u2019s gold', window: 'The teller\u2019s window', clerk: 'the teller', out: 'Back to the street' },
     2: { place: 'The express car', what: 'a gang is blowing the express car\u2019s safe', payer: 'The express company', gone: 'the express company\u2019s gold', window: 'The express agent', clerk: 'the express agent', out: 'Back to your seat' }
   };
   const holdup = L => HOLDUP[L.act] || HOLDUP[1];
@@ -755,7 +755,7 @@
   const KIND_BY_ACT = { 2: { bank: 'Train robbery' } };
   const kindName = (act, k) => (KIND_BY_ACT[act] || {})[k] || KIND_NAME[k];
   const PLACE = {
-    1: { dance: 'A card table', event: 'The barber shop', camp: 'The hotel', elite: 'High noon on Main Street', boss: 'The Saloon', store: 'The general store', raffle: 'The town square', bank: 'The Dustwater bank' },
+    1: { dance: 'A card table', event: 'The barber shop', camp: 'The hotel', elite: 'High noon on Main Street', boss: 'The Saloon', store: 'The general store', raffle: 'The town square', bank: 'The bank of Euchre-ka!' },
     2: { dance: 'The smoking car', event: 'A passenger\u2019s tale', camp: 'The sleeper car', elite: 'On the carriage roof', boss: 'The locomotive', store: 'The candy butcher\u2019s cart', raffle: 'The observation car', bank: 'The express car', water: 'The water tower' },
     3: { dance: 'The card tent', event: 'The fortune teller\u2019s tent', camp: 'The chuck wagon', elite: 'The shooting gallery', boss: 'The grandstand', store: 'Merchants\u2019 row', raffle: 'The prize raffle' }
   };
@@ -1146,7 +1146,7 @@
      straight. No health, gold, owned cards or buffs; first to 500. Defending tricks score 10 each but can't take a
      side past 490, so 500 is won by making a bid (the common rule); a side that falls to -500 loses. */
   const STANDARD = { win: 500, lose: -500, cap: 490 };
-  const REGULARS = { name: 'The Dustwater Regulars', look: GANGS[1][0].slice(1, 3) };
+  const REGULARS = { name: 'The Euchre-ka! Regulars', look: GANGS[1][0].slice(1, 3) };
   // a Showdown rule as it reads without owned cards (nothing is seeded in a plain game)
   const STD_RULE = { sharps: 'Card sharps: with nothing of yours to spot, they play it straight.', caller: 'Before each hand he calls a figure that changes the rules.' };
   const standardFoe = id => BOSS[id] ? { name: BOSS[id].name, look: BOSS[id].look, rule: STD_RULE[id] || BOSS[id].rule } : Object.assign({ rule: 'They play it straight.' }, REGULARS);
@@ -2004,7 +2004,7 @@
     const count = !L.daily ? ' A corner of it is marked' + (marked ? ': keep it and that\u2019s ' + Math.min(STRANGER.marks, marked + 1) + ' of ' + STRANGER.marks + '.' : '.') : '';
     if (!m || !m.runs) return ev.text + count;
     const who = m.lostTo ? (BOSS[m.lostTo] ? BOSS[m.lostTo].name : m.lostTo).replace(/^The /, 'the ') : null;
-    const where = ['', ' in Dustwater', ' on the Westbound Express', ' at the County Fair'][m.lastAct | 0] || '';
+    const where = ['', ' in Euchre-ka!', ' on the Westbound Express', ' at the County Fair'][m.lastAct | 0] || '';
     const last = m.lastWon ? 'Last time you rode the whole way and brought them in.' : who ? 'Last time ' + who + ' put you in the ground' + where + '.' : 'Last time didn\u2019t end well.';
     return 'The stranger in the string tie again. \u201cYou\u2019re back. ' + last + ' That makes ' + (m.runs + 1) + ' rides.\u201d He presses a card into your hand.' + count;
   }
@@ -2197,7 +2197,7 @@
     if (ph === 'actstart') return tip('actstart', 'The Joker wins every trick it’s in. A red Jack becomes a bower whenever red is trumps. A 9 or 10 is a gamble that enhancements can make special.');
     if (ph === 'map' && reachable(L).includes('boss') && L.act === 2) return tip('boss2', 'Act II ends with the Card Sharps or the Hustlers. The Sharps can see the cards dealt to you from your own; the Hustlers bid mis\u00e8re all night, so lead low and stay under them.');
     if (ph === 'map' && L.act === 2 && L.map.side && !reachable(L).includes('boss')) { const t = tip('hatch', 'Inside the carriages it’s quieter, dear; up on the roofs is where they fight. See the ladders? A carriage with a roof hatch lets us climb up or drop down as we go on to the next one.'); if (t) return t; }
-    if (ph === 'map') return reachable(L).includes('boss') ? (L.act === 1 ? tip('boss', 'That\u2019s the Saloon, dear, and the Twins are waiting in it. They always hold both red Jacks: bid no trumps and their Jacks are just Jacks.') : null) : tip('map', 'Welcome to Dustwater, dear. Every gang on this map has a price on its head: we work our way up the trail a stop at a time and bring them in. Gossip is a gamble, a duel is harder but pays a buff, and the gold strike halfway always gives one.');
+    if (ph === 'map') return reachable(L).includes('boss') ? (L.act === 1 ? tip('boss', 'That\u2019s the Saloon, dear, and the Twins are waiting in it. They always hold both red Jacks: bid no trumps and their Jacks are just Jacks.') : null) : tip('map', 'Welcome to Euchre-ka!, dear. Every gang on this map has a price on its head: we work our way up the trail a stop at a time and bring them in. Gossip is a gamble, a duel is harder but pays a buff, and the gold strike halfway always gives one.');
     if (ph === 'map' && L.pos && L.act === 1) { const t = tip('posters', 'Every gang on the map has its wanted poster under it, dear: who they are, their health, what tricks they carry and what they\u2019re worth. A tougher gang pays more.'); if (t) return t; }
     if (ph === 'water') { const t = tip('water', 'The train\u2019s taking on water, dear. Fill your canteen, or lend the fireman a hand with the wood for a few coins.'); if (t) return t; }
     if (ph === 'map' && hexed(L).length) { const t = tip('hex', 'A hex! Hexed cards are marked in red, and they hurt whoever holds them. The Doc at the Hotel can lift one.'); if (t) return t; }

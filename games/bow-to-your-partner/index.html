@@ -770,6 +770,9 @@ select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid
 .poster li b { font-family: inherit; font-size: 12px; line-height: 1.3; color: #8a2a1e; }
 .poster .bty { margin-top: 2px; font-size: 12px; font-weight: 700; color: #6b4a10; }
 .mapbox.dust { background: #e3c48e; border-radius: 12px; overflow: hidden; box-shadow: inset 0 0 0 1px #c9a46a; }
+/* Euchre-ka! at the title's pixel size (2026-11-04): an exact width (the town's art pixels x townScale), centred on
+   the screen whatever the panel's padding, square-cornered like the title's scene */
+.mapbox.dust.euchre { max-width: none; border-radius: 0; box-shadow: none; }
 .mapbox.dust .road { position: absolute; top: 0; bottom: 0; background: #d2a874; }
 .mapbox.dust .plate, .mapbox.dust .spr, .mapbox.dust .amb { position: absolute; display: none; image-rendering: pixelated; pointer-events: none; }
 .mapbox.dust .plate { left: 0; top: 0; width: 100%; height: 100%; }
@@ -1632,23 +1635,23 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=43"></script>
-<script src="btp-ai.js?v=43"></script>
-<script src="btp-run.js?v=43"></script>
-<script src="btp-town.js?v=43"></script>
-<script src="art/dustwater/sprites.js?v=43"></script>
-<script src="btp-train.js?v=43"></script>
-<script src="art/train/sprites.js?v=43"></script>
-<script src="art/title/scene.js?v=43"></script>
-<script src="art/title/cameo.js?v=43"></script>
-<script src="art/title/crossing.js?v=43"></script>
-<script src="art/table/scene.js?v=43"></script>
-<script src="art/table/partners.js?v=43"></script>
-<script src="art/grave/scene.js?v=43"></script>
-<script src="art/paid/scene.js?v=43"></script>
-<script src="art/rooms/scene.js?v=43"></script>
-<script src="art/express/scene.js?v=43"></script>
-<script src="art/fair/sprites.js?v=43"></script>
+<script src="btp-engine.js?v=44"></script>
+<script src="btp-ai.js?v=44"></script>
+<script src="btp-run.js?v=44"></script>
+<script src="btp-town.js?v=44"></script>
+<script src="art/dustwater/sprites.js?v=44"></script>
+<script src="btp-train.js?v=44"></script>
+<script src="art/train/sprites.js?v=44"></script>
+<script src="art/title/scene.js?v=44"></script>
+<script src="art/title/cameo.js?v=44"></script>
+<script src="art/title/crossing.js?v=44"></script>
+<script src="art/table/scene.js?v=44"></script>
+<script src="art/table/partners.js?v=44"></script>
+<script src="art/grave/scene.js?v=44"></script>
+<script src="art/paid/scene.js?v=44"></script>
+<script src="art/rooms/scene.js?v=44"></script>
+<script src="art/express/scene.js?v=44"></script>
+<script src="art/fair/sprites.js?v=44"></script>
 <script>
 (function () {
   'use strict';
@@ -1675,7 +1678,7 @@ html.art .coach { border-radius: 0; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 37, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 38, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -1948,7 +1951,7 @@ html.art .coach { border-radius: 0; }
           '<div class="cardrow deal">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div>' + ownedRow(L) + '</div>' :
           L.act === 2 ? '<div class="panel baize"><h2>Act II: the Westbound Express</h2><p>Spades and clubs join the deck and hands grow to 6 cards. Two of the cards you own are now dealt to you each hand. Pick a new card to own.</p>' +
           '<div class="cardrow deal">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div>' + ownedRow(L) + '</div>' :
-          '<div class="panel baize"><h2>Act I: Dustwater</h2><p>You ride into Dustwater a bounty hunter, ' + (L.partner === 'horse' ? 'on ' + PN() + ', your horse and your partner at the table' : 'with ' + PN() + ' riding shotgun') + '. Every gang in town is wanted, and they settle everything over cards. Pick a card to own. You already own ' + PN() + '’s ' + E.label(R.PARTNERS[L.partner].start) + '. Each hand, one card you own is dealt straight to you (your seed slot), so owning two means you won’t know which comes.</p>' +
+          '<div class="panel baize"><h2>Act I: Euchre-ka!</h2><p>You ride into Euchre-ka! a bounty hunter, ' + (L.partner === 'horse' ? 'on ' + PN() + ', your horse and your partner at the table' : 'with ' + PN() + ' riding shotgun') + '. It’s a gold town: they struck it rich up the hill, and the Twins run the place for the big boss. Every gang in town is wanted, and they settle everything over cards. Pick a card to own. You already own ' + PN() + '’s ' + E.label(R.PARTNERS[L.partner].start) + '. Each hand, one card you own is dealt straight to you (your seed slot), so owning two means you won’t know which comes.</p>' +
           '<div class="cardrow deal">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div>' + ownedRow(L) + '</div>'));
         break;
       case 'map':
@@ -2067,7 +2070,7 @@ html.art .coach { border-radius: 0; }
         const final = L.act >= R.LAST_ACT;
         body = '<div class="panel"><h2>' + (final ? 'The County Fair is won' : 'Act ' + R.ROMAN[L.act] + ' complete') + '</h2><p class="big">' + (final ? 'You and ' + PN() + ' beat ' + bname.replace(/^The/, 'the') + ' and take the championship!' : boss && boss.won ? 'You beat ' + bname.replace(/^The/, 'the') + '!' : bname + ' won the Showdown, but you made it out of town alive.') + '</p>' +
           '<div class="kv"><span>Health</span><span>' + num(L.health) + '</span><span>Gold</span><span>' + L.gold + '</span><span>Path</span><span>' + paths + '</span></div>' +
-          (final ? '<p>That\u2019s the whole run: three acts, from Dustwater to the County Fair.</p>' : '') + '<h3>Your cards and buffs</h3>' + mineHTML() +
+          (final ? '<p>That\u2019s the whole run: three acts, from Euchre-ka! to the County Fair.</p>' : '') + '<h3>Your cards and buffs</h3>' + mineHTML() +
           '<div class="btns"><button class="btn" data-act="newrun">New run</button></div></div>';
         break;
       }
@@ -2107,7 +2110,7 @@ html.art .coach { border-radius: 0; }
   /* The partner pick and the card pick, as a sheet over the act's map: shown once the act's job poster has been
      unrolled (or at once in ?fast), with Nan's tip, if any, inside it. */
   function partnerPickHTML(L) {
-    return '<h2>Choose your partner</h2><p>Who rides with you into Dustwater? Your partner sits across the table, bids with you and brings a card of their own.</p>' +
+    return '<h2>Choose your partner</h2><p>Who rides with you into Euchre-ka!? Your partner sits across the table, bids with you and brings a card of their own.</p>' +
       '<div class="roster">' + R.ROSTER.map(p => { const open = R.partnerOpen(L, p); return '<button class="rider' + (!open && p.unlock ? ' soon' : '') + '" data-partner="' + p.id + '"' + (open ? '' : ' disabled') + '>' + (partnerFace(p.id) ? '<span class="face svg">' + partnerFace(p.id) + '</span>' : '<span class="face" aria-hidden="true"></span>') +
         '<b>' + esc(p.name) + '</b><i>' + esc(p.title) + '</i><span>' + esc(p.text) + '</span>' + (open ? '' : '<span class="lock">' + esc(p.unlockText || 'Not riding yet') + '</span>') + '</button>'; }).join('') + '</div>' +
       (L.maxWanted ? '<div class="wantedpick"><h3>Wanted level</h3><div class="wl">' + Array.from({ length: L.maxWanted + 1 }, (_, n) => '<button data-wanted="' + n + '"' + (n === (L.wantedLevel || 0) ? ' class="sel" aria-pressed="true"' : ' aria-pressed="false"') + '>' + n + '</button>').join('') + '</div>' +
@@ -2232,17 +2235,21 @@ html.art .coach { border-radius: 0; }
       ' aria-label="' + esc(name) + '" title="' + esc(name) + '">' + (n.kind === 'boss' && L.act === 1 ? '<span class="sign">SALOON</span>' : n.kind === 'bank' && L.act === 1 ? '<span class="sign">BANK</span>' : '') + icon(n.kind) +
       (n.foe && n.kind !== 'mystery' && n.foe.traits.length > (n.kind === 'elite' ? 1 : 0) && !done ? '<i class="pips">' + '<i></i>'.repeat(n.foe.traits.length - (n.kind === 'elite' ? 1 : 0)) + '</i>' : '') + '</button>';
   }
-  /* Act I: Dustwater, a long Main Street that scrolls (btp-town.js lays it out; see .mapbox.dust). The baked
-     plate and the sprites are art and never load-bearing: the road band, footpaths and markers are the map. */
+  /* Act I: Euchre-ka! (Dustwater until 2026-11-04), a long Main Street that scrolls (btp-town.js lays it out; see
+     .mapbox.dust). The baked plate and the sprites are art and never load-bearing: the road band, footpaths and
+     markers are the map. Drawn at the title's pixel size (the user's, 2026-11-04: the map "still in that size and
+     matches that art style"): townScale screen pixels an art pixel, 3 on a phone, as the title. */
+  const townScale = () => Math.max(2, Math.min(4, Math.floor(Math.min(innerWidth, 760) / ((window.BtpTown && window.BtpTown.W) || 120))));
   // you, and your partner on their own horse, by the hitching rail where the stagecoach used to stand (2026-11-03):
-  // the opening's riders at half size (the town's figures are about that big)
+  // the opening's riders at half size (the town's figures are about that big), from frames halved to the town's own
+  // pixel size (bakery/town_riders_px.py: <name>_town.webp), so every pixel on the map is the same size
   function rodeIn(L, at, T, pct) {
     const I = window.TITLE_SCENE && window.TITLE_SCENE.intro && window.TITLE_SCENE.intro.stage;
     if (!I) return '';
     const w = I.w / 2, h = I.h / 2, x = at[0] - w / 2 - 3, y = at[1] - h + 2;
     return '<div class="rodein" style="left:' + pct(x, T.W) + ';top:' + pct(y, T.H) + ';width:' + pct(w, T.W) + ';height:' + pct(h, T.H) + ';z-index:' + (2 + Math.round(at[1])) + '">' +
-      (L.partner && L.partner !== 'horse' ? '<i class="pr" style="background-image:url(' + artURL('title/ride_' + L.partner + '.webp') + ')"></i>' : '') +
-      '<i style="background-image:url(' + artURL('title/' + I.img + '.webp') + ')"></i></div>';
+      (L.partner && L.partner !== 'horse' ? '<i class="pr" style="background-image:url(' + artURL('title/ride_' + L.partner + '_town.webp') + ')"></i>' : '') +
+      '<i style="background-image:url(' + artURL('title/' + I.img + '_town.webp') + ')"></i></div>';
   }
   /* Your rider on the map (2026-11-03, the user's: "make it so the character on the map rides to the next node"): the
      same pair as above, standing just over the stop you're at. Before your first stop: Dustwater's hitching rail, or
@@ -2317,8 +2324,9 @@ html.art .coach { border-radius: 0; }
     const sprites = lay.fillers.map(f => spr(f.key, f.at)).join('') + lay.stops.filter(s => s.sprite).map(s => spr(s.sprite.key, s.sprite.at)).join('') + ambientHTML(T, DS, 'dustwater');
     const buttons = lay.stops.map(s => stopButton(L, R.node(L, s.id), s.marker[0], s.marker[1], T.W, T.H, can, route, fNow, s.place)).join('') +
       stopButton(L, R.node(L, 'boss'), lay.boss.marker[0], lay.boss.marker[1], T.W, T.H, can, route, fNow);
-    return '<div class="mapbox dust' + (DS.plate ? ' hasplate' : '') + '" style="aspect-ratio:' + T.W + ' / ' + T.H + '">' +
-      '<div class="road" style="left:' + pct(T.OX - 7 / T.M, T.W) + ';width:' + pct(14 / T.M, T.W) + '"></div>' +
+    const mw = T.W * townScale();
+    return '<div class="mapbox dust euchre' + (DS.plate ? ' hasplate' : '') + '" style="aspect-ratio:' + T.W + ' / ' + T.H + ';width:' + mw + 'px;margin-left:calc(50% - ' + mw / 2 + 'px)">' +
+      '<div class="road" style="left:' + pct(T.OX - 5.2 / T.M, T.W) + ';width:' + pct(10.4 / T.M, T.W) + '"></div>' +
       (DS.plate ? '<img class="plate" alt="" src="' + artURL('dustwater/plate.webp') + '">' : '') +
       '<svg viewBox="0 0 ' + T.W + ' ' + T.H + '" preserveAspectRatio="none" aria-hidden="true">' + paths + '</svg>' + sprites + buttons +
       rodeIn(L, coach, T, pct) +
@@ -3492,7 +3500,7 @@ html.art .coach { border-radius: 0; }
   const CLERK = {
     door: { 1: ['Help! They\u2019re robbing us! Well. More than the interest does.', 'Psst. They\u2019ve got the vault. Would you mind? We\u2019ll pay. Within reason. A small reason.'],
             2: ['The safe! They\u2019re blowing the safe! I only polished it this morning.', 'The company\u2019s gold! The company\u2019s paperwork! Save the gold first.'] },
-    won: { 1: ['Splendid! On behalf of the Dustwater bank, your bounty. Sign here, here, here and, ah, here.', 'Remarkable. Truly. I\u2019ve opened an account in your name. It has a fee.'],
+    won: { 1: ['Splendid! On behalf of the bank of Euchre-ka!, your bounty. Sign here, here, here and, ah, here.', 'Remarkable. Truly. I\u2019ve opened an account in your name. It has a fee.'],
            2: ['The express company thanks you. In writing. In triplicate. Eventually, with money.', 'Saved! The company will hear of this. They\u2019ll do nothing, but they\u2019ll hear of it.'] },
     lost: { 1: ['You lost? To THEM? The bank\u2019s pigeon could have done better, and it can\u2019t hold cards.', 'That\u2019s coming out of your account. You haven\u2019t got one? Then it\u2019s coming out of you.'],
             2: ['They\u2019re gone, the gold\u2019s gone, and frankly so is my faith in bounty hunters.', 'I\u2019ll put it in my report. Under \u201cunhelpful passengers\u201d.'] }
@@ -4368,7 +4376,7 @@ html.art .coach { border-radius: 0; }
     return '<h2>Abandon your story?</h2><p>Are you sure you want to abandon your current game?' + (s ? ' You are in Act ' + R.ROMAN[s.act] + ', ' + esc(E.ACTS[s.act].name) + ', with ' + s.health + ' health and ' + s.gold + ' gold.' : '') + '</p>' +
       '<div class="btns"><button class="btn" data-act="abandon">Yes</button><button class="btn alt" data-act="closesheet">Cancel</button></div>';
   }
-  /* Standard 500: the Dustwater Regulars always; each Showdown gang once you have beaten it in a story. */
+  /* Standard 500: the Euchre-ka! Regulars always; each Showdown gang once you have beaten it in a story. */
   function standardHTML() {
     const beaten = profile().beaten, g = loadStd();
     const face = look => '<span class="face"><img src="' + artURL('table/fig_' + look[0] + '.webp') + '" alt=""></span>';
@@ -4710,7 +4718,7 @@ html.art .coach { border-radius: 0; }
     const card = $('actcard');
     card.className = 'over';
     card.style.backgroundImage = '';
-    card.innerHTML = '<div class="board"><small>ACT I</small><b>DUSTWATER</b><span>Every gang in the territory is holed up here</span></div>';
+    card.innerHTML = '<div class="board"><small>ACT I</small><b>EUCHRE-KA!</b><span>A gold town, struck rich. The Twins run it for the boss</span></div>';
     card.classList.add('on');
   }
   function dust(full) {
@@ -4759,7 +4767,8 @@ html.art .coach { border-radius: 0; }
     if (FAST || !art || !S || !S.intro) { done(); return; }
     OPEN.done = done;
     try { window.scrollTo(0, 0); } catch (e) { /* no layout */ }
-    if (reduceMotion()) { document.body.classList.add('opening'); actCard(L, L.tips); at(1600, endOpening); return; }
+    const town = L && L.mode !== 'standard' && L.act === 1;
+    if (reduceMotion()) { if (town) { done(); return; } document.body.classList.add('opening'); actCard(L, L.tips); at(1600, endOpening); return; }
     // 2: the whistle (the smoke comes thick and fast), the words drop away, the train picks up speed: smoothly, to
     // RUSH, and it holds that speed from here to the sign, the trail below included (the user's, 2026-10-29: the speed
     // used to snap back as the camera tilted down)
@@ -4784,9 +4793,32 @@ html.art .coach { border-radius: 0; }
     at(Z, signZoom);                             // and the coach drives off the edge while it does (the user's, 2026-10-29)
     at(Z + 1100, () => document.body.classList.add('signdrop'));
     at(Z + 3500, () => dust(true));
-    // 5: the act card comes up under the dust, and the dust clears off it
+    // 5: a story rides into town (the user's, 2026-11-04: "the opening scene plays and the rider rides into town ...
+    // the rider rides in and the game starts from there"): the dust clears on Euchre-ka!'s gate at the foot of the
+    // map, drawn at the opening's own pixel size, and you gallop in under it to the hitching rail. Standard 500 has
+    // no town: the act card, as before.
+    if (town) { at(Z + 4400, () => rideIntoTown(L)); return; }
     at(Z + 4400, () => { actCard(L, L.tips); undust(); });
     at(Z + 4400 + (L.tips ? 2600 : 1400), endOpening);
+  }
+  /* The ride into Euchre-ka!: the run starts under the dust (the map drawn, scrolled to its foot, the opening put
+     away), the dust clears, and the riders gallop up from below the gate to the hitching rail; then the Twins'
+     poster, the job (no pan down from the Saloon: you start where you rode in, and the town is there to scroll). */
+  const RIDE_IN = 1900;
+  function rideIntoTown(L) {
+    P.panned = L.act + ':' + L.levelsDone;           // this act's first look is the ride, not the pan
+    endOpening();                                     // (starts the run: OPEN.done draws the map)
+    const box = document.querySelector('.mapbox.euchre'), el = box && box.querySelector('.rodein');
+    const foot = () => { if (box) try { window.scrollTo(0, Math.max(0, box.getBoundingClientRect().bottom + scrollY - innerHeight + 6)); } catch (e) { /* no layout */ } };
+    foot();
+    setTimeout(foot, 40);                             // after the map's own first scroll
+    if (!el || FAST) { unrollJob(P.L); return; }
+    const top = parseFloat(el.style.top) || 0;
+    el.classList.add('riding');
+    el.style.zIndex = 2001;
+    try { el.animate([{ top: '100%' }, { top: top + '%' }], { duration: RIDE_IN, easing: 'cubic-bezier(.2,.6,.35,1)', fill: 'backwards' }); } catch (e) { /* no Web Animations: they're just there */ }
+    // a timer, not the animation's finish: a hidden tab never finishes it
+    setTimeout(() => { el.classList.remove('riding'); el.style.zIndex = ''; unrollJob(P.L); }, RIDE_IN + 150);
   }
   /* The sign is planted by the trail, so it moves at the stage's speed. The camera follows the coach until the
      last BRAKE ms before `stopAt`, then brakes to a stop with the sign beside it: the ground slows with it, but the
@@ -4845,7 +4877,7 @@ html.art .coach { border-radius: 0; }
       (lt ? '<span class="loot"><img src="' + artURL('goods/buff_' + loot + '.webp') + '" alt=""><span><small>& THEIR LOOT</small>' + esc(lt.name.toUpperCase()) + '</span></span>' : '');
   }
   const JOB = {
-    1: ['The reason you rode into Dustwater', 'That\u2019s them, dear. The Twins. Every other gang in this town is just the road to the Saloon.'],
+    1: ['The reason you rode into Euchre-ka!', 'That\u2019s them, dear. The Twins. They run this gold town for the big boss, and every other gang in it is just the road to the Saloon.'],
     2: ['They want revenge for the Twins', 'They\u2019re up in the locomotive, dear. Car by car, through the carriages or over the roofs, that\u2019s where we\u2019re headed.'],
     3: ['The reason you came to the County Fair', 'The last of them, dear. Bring this one in and we can go home.']
   };
@@ -5130,7 +5162,7 @@ html.art .coach { border-radius: 0; }
       (art ? '<img class="dtower" src="' + artURL('express/tower.webp') + '" alt="" style="width:' + u(X.s.tower[0] * k) + ';height:' + u(X.s.tower[1] * k) + ';bottom:' + u(-(X.s.tower[1] - X.s.tower[3]) * k) + '">' : '') + '</div>' +
       '<div class="dtrain">' + train + '</div><div class="dpuffs"></div>' +
       '<div class="dstation dfront" data-par="1.35" style="top:' + u(rail + 14) + '"><div class="dplat"></div>' +
-      '<div class="dpost"><span class="dsign">DUSTWATER</span><small>POP. 312 · ELEV. 4,410</small></div><i class="dbench"></i><i class="dcrate"></i><i class="dcrate c2"></i><i class="dsack"></i></div>' +
+      '<div class="dpost"><span class="dsign">EUCHRE-KA!</span><small>POP. 312 · STRUCK RICH 1879</small></div><i class="dbench"></i><i class="dcrate"></i><i class="dcrate c2"></i><i class="dsack"></i></div>' +
       '<div class="dwords"><div class="board"><small>ACT II</small><b>THE WESTBOUND EXPRESS</b><span>Next stop: the County Fair</span></div>' +
       '<div class="say"><span class="face svg">' + partnerFace(p.id) + '</span><p><b>' + esc(p.name) + ':</b> ' + esc(departLine(L)) + '</p></div>' +
       (nan ? '<div class="unlock"><span class="face svg">' + NAN_SVG + '</span><p><b>New partner: Nan</b>, the Steady Hand. She heard what you did to the Twins: she can ride with you from your next story.</p></div>' : '') +

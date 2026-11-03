@@ -61,7 +61,7 @@
 
   /* The three acts. Hands stay a fixed size per act; the kitty takes the rest. */
   const ACTS = {
-    1: { name: 'Dustwater', suits: ['D', 'H'], low: { D: 9, H: 9 }, hand: 3, seeds: 1,
+    1: { name: 'Euchre-ka!', suits: ['D', 'H'], low: { D: 9, H: 9 }, hand: 3, seeds: 1,
          bids: { 2: { D: 20, H: 30, NT: 40 }, 3: { D: 60, H: 80, NT: 100 } } },
     2: { name: 'the Westbound Express', suits: SUITS, low: { S: 9, C: 9, D: 9, H: 9 }, hand: 6, seeds: 2,
          bids: { 4: { S: 20, C: 30, D: 40, H: 50, NT: 60 }, 5: { S: 80, C: 90, D: 100, H: 110, NT: 120 },

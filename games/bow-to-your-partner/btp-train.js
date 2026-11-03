@@ -14,7 +14,13 @@
 (function (root) {
   const node = typeof module !== 'undefined' && module.exports;
   const T = node ? require('./btp-town.js') : root.BtpTown;
-  const { W, H, M, EL, OX, OY, px, floorY, grade, hash } = T;
+  const { floorY, grade, hash } = T;
+  // the train's own plate (it borrowed the town's until Euchre-ka! was re-laid narrower, 2026-11-04): Dustwater's old
+  // 180 x 620 at 0.30 m an art pixel, the camera the same, so the baked train art still fits it
+  const W = 180, H = 620, M = 0.30, EL = 30;
+  const S = Math.sin(EL * Math.PI / 180), C = Math.cos(EL * Math.PI / 180);
+  const OX = W / 2, OY = H - 4 - 14 * S / M;
+  const px = (x, y, z) => [OX + x / M, OY - (y * S + (z || 0) * C) / M];
   const TRACK = 10, TRACK_X = [-20, -10, 0, 10, 20];
   const CAR = { w: 7, len: 20, platform: 2.4 };              // body ±len/2 about the car's centre; the platform behind it
   const DEPOT_Y = -6, BOSS_Y = 306;                         // where every first track starts; the tender's back
