@@ -1823,9 +1823,10 @@
     advanceReward(L, L.reward.back);
     return yes();
   }
-  /* Gilded rewards (2026-11-03, the user's: "rewards come face down and flip with a rarity glow; rare gilded
-     versions"). Each pick may have one gilded offer (GILD.p): a gilded buff comes with a purse of gold, a gilded
-     enhancement also polishes the card it goes on a rank (or pays the purse when the card can rise no further). A
+  /* Silver-mounted rewards (2026-11-03, the user's: "rewards come face down and flip with a rarity glow; rare gilded
+     versions"; named Gilded until 2026-11-04, when the user found it confused with the Gilded enhancement, so the
+     code still says gild). Each pick may have one such offer (GILD.p): a silver-mounted buff comes with a purse of
+     gold, a silver-mounted enhancement also polishes the card it goes on a rank (or pays the purse when the card can rise no further). A
      story's first pick always has one, so a new player meets it. Decided when the pick comes up, and again on a
      reroll. */
   const GILD = { p: 0.12, gold: 30 };
@@ -1869,7 +1870,7 @@
     if (s.type === 'buff') {
       if (!s.options.includes(arg)) return no('not on offer');
       grantBuff(L, arg); note(L, 'New buff: ' + BUFFS[arg].name + '.');
-      if (s.gilded === arg) { L.gold += GILD.gold; note(L, 'New buff: ' + BUFFS[arg].name + ', gilded: +' + GILD.gold + ' gold.'); }
+      if (s.gilded === arg) { L.gold += GILD.gold; note(L, 'New buff: ' + BUFFS[arg].name + ', silver-mounted: +' + GILD.gold + ' gold.'); }
       L.reward.steps.shift(); advanceReward(L, L.reward.back); return yes();
     }
     if (s.type === 'enh') {
@@ -1938,8 +1939,8 @@
       note(L, E.label(card) + ' is now ' + ENH[L.target].name + '.');
     }
     if (L.targetStep && L.targetStep.gilded === L.target) {
-      if ((m.up || 0) < E.maxUp(card)) { m.up = (m.up || 0) + 1; note(L, L.note + ' Gilded: polished a rank too.'); }
-      else { L.gold += GILD.gold; note(L, L.note + ' Gilded: +' + GILD.gold + ' gold.'); }
+      if ((m.up || 0) < E.maxUp(card)) { m.up = (m.up || 0) + 1; note(L, L.note + ' Silver-mounted: polished up a rank too.'); }
+      else { L.gold += GILD.gold; note(L, L.note + ' Silver-mounted: +' + GILD.gold + ' gold.'); }
     }
     L.target = L.targetStep = L.targetBuy = null;
     advanceReward(L, L.targetBack);

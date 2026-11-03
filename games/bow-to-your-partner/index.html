@@ -505,7 +505,9 @@ html.art .oslip { border: 12px solid transparent; border-image: url(art/ui/paper
 #standoff { position: fixed; inset: 0; z-index: 60; overflow: hidden; background: linear-gradient(#24160f, #3a2418 40%, #24160f); touch-action: none; }
 #standoff[hidden] { display: none; }
 /* the card table's stage, the same composition (the act's wall, the two of them, the felt in front), k times */
-#standoff .sstage { position: absolute; left: 50%; top: var(--st, 30%); width: calc(200 * var(--k) * 1px); height: calc(112 * var(--k) * 1px); transform: translateX(-50%); }
+#standoff .sstage { position: absolute; left: 50%; top: calc(var(--st, 30%) - var(--cut, 0) * var(--k) * 1px); width: calc(200 * var(--k) * 1px); height: calc(112 * var(--k) * 1px); transform: translateX(-50%);
+  clip-path: inset(calc(var(--cut, 0) * var(--k) * 1px) 0 0 0); }
+/* --cut: art rows of wall cropped off the top on a short screen, so the gang keeps the table's size (2026-11-04) */
 #standoff .sstage > * { position: absolute; image-rendering: pixelated; }
 #standoff .swall { inset: 0; background-size: 100% 100%; filter: brightness(.7) sepia(.15); }
 #standoff .stable { inset: 0; width: 100%; height: 100%; z-index: 2; }
@@ -523,7 +525,7 @@ html.art .oslip { border: 12px solid transparent; border-image: url(art/ui/paper
 #standoff .say b { display: block; font: 15px/1.2 'Pixelify Sans', Georgia, serif; color: #7a1d17; letter-spacing: .02em; }
 #standoff .say p { margin: 3px 0 0; font: 17px/1.35 Bitter, Georgia, serif; }
 /* your partner's comeback, under the stage, a beat after their insult (2026-11-03) */
-#standoff .backline { position: absolute; left: 16px; right: 16px; top: calc(var(--st, 30%) + 112px * var(--k) + 14px); display: flex; justify-content: center; z-index: 4; }
+#standoff .backline { position: absolute; left: 16px; right: 16px; top: calc(var(--st, 30%) + (112px - var(--cut, 0) * 1px) * var(--k) + 14px); display: flex; justify-content: center; z-index: 4; }
 #standoff .say.back { display: flex; gap: 8px; align-items: flex-start; animation-delay: 1.3s; transform-origin: 70% 0; background: #f6ecd2; }
 #standoff .say.back::before { bottom: auto; top: -19px; left: 70%; border-width: 0 10px 16px; border-top-color: transparent; border-bottom-color: #2a1b16; }
 #standoff .say.back::after { bottom: auto; top: -13px; left: 70%; border-width: 0 7px 12px; border-top-color: transparent; border-bottom-color: #f6ecd2; }
@@ -537,6 +539,8 @@ html.art .oslip { border: 12px solid transparent; border-image: url(art/ui/paper
 @keyframes drawglow { 50% { filter: drop-shadow(0 0 10px #ffd65a) brightness(1.1); } }
 #standoff .dwrap small { color: #e8c890; font: 13px/1 Bitter, serif; opacity: 0; animation: soffin .4s 2s both; }
 #standoff .draw:focus-visible { outline: 3px solid #fff6d2; outline-offset: 4px; }
+/* a short screen: NOW DRAW! lower and without its hint, so the gang keeps the table's size (2026-11-04) */
+@media (max-height: 700px) { #standoff .dwrap { bottom: 22px; } #standoff .dwrap small { display: none; } }
 #standoff.bang > * { animation: soffout .18s both; }
 #standoff.bang::after { content: ""; position: absolute; inset: 0; background: #fff6d2; animation: muzzle .32s both; }
 body.standing { overflow: hidden; }
@@ -604,8 +608,18 @@ html.art .hero .lyr, html.art .hero .train, html.art .hero .puff { display: bloc
 .hero .lyr { left: 0; right: 0; background-repeat: repeat-x; animation: hscroll var(--dur) linear infinite; }
 @keyframes hscroll { from { background-position-x: 0; } to { background-position-x: calc(-1 * var(--tw)); } }
 .hero .train { animation: wheels .56s steps(4) infinite; z-index: 3; }
-/* the ravine crossing: in front of the hill and the herd, behind the train's wheels; off to the right until it runs */
-.hero .crossing { position: absolute; left: 0; top: 0; z-index: 2; background: 0 0 / 100% 100% no-repeat; image-rendering: pixelated; transform: translateX(100vw); pointer-events: none; }
+/* the ravine crossing: in front of the hill and the herd, behind the train's wheels; off to the right until it runs.
+   Its ravine is the element's own picture, what moves in it (a waterfall's water and mist) is in front of that, and
+   the bridge is in front of them (.xfront). The herd's own ground, without its buffalo, runs over the herd near it. */
+.hero .crossing, .hero .herdgap { position: absolute; left: 0; top: 0; z-index: 2; background: 0 0 / 100% 100% no-repeat; image-rendering: pixelated; transform: translateX(100vw); pointer-events: none; }
+.hero .herdgap { z-index: 1; background-repeat: repeat-x; }
+.hero .crossing > i { position: absolute; display: block; background: 0 0 / 100% 100% no-repeat; image-rendering: pixelated; }
+.hero .crossing > .xfront { inset: 0; }
+.hero .crossing > .xfall { background-repeat: repeat-y; animation: xfall .5s infinite; }
+.hero .crossing > .xmist { animation: xmist 1.7s ease-in-out infinite alternate, xmistup 2.4s steps(2) infinite; }
+@keyframes xfall { from { background-position-y: 0; } to { background-position-y: var(--fy); } }
+@keyframes xmist { from { opacity: .55; } to { opacity: 1; } }
+@keyframes xmistup { to { transform: translateY(calc(-2px * var(--s))); } }
 @keyframes wheels { from { background-position-x: 0; } to { background-position-x: calc(-4 * var(--fw)); } }
 .hero .puff { opacity: 0; animation: puff 2.8s ease-out infinite; transform-origin: 50% 50%; }
 @keyframes puff { 0% { opacity: 0; transform: translate(0, 0) scale(.5); } 8% { opacity: 1; }
@@ -1482,26 +1496,37 @@ html.art .choice.on { border-image: url(art/ui/brass.png) 4 fill / 12px stretch;
 .choice.rv .cb { position: absolute; inset: -12px; z-index: 3; background: #5a1a14 url(art/back.webp) center / auto 88% no-repeat; image-rendering: pixelated;
   border: 3px solid #2a1b16; border-radius: 8px; animation: rvback .6s var(--d, 0s) both; pointer-events: none; }
 .choice.rv::after { content: ""; position: absolute; inset: -12px; pointer-events: none; animation: rvglow 1.3s calc(var(--d, 0s) + .5s) both; }
-.choice.gilded.rv::after { animation-name: rvgold; animation-duration: 1.8s; }
+.choice.silver.rv::after { animation-name: rvsilver; animation-duration: 1.8s; }
 @keyframes rvflip { 0% { transform: perspective(700px) rotateY(180deg) scale(.95); } 65% { transform: perspective(700px) rotateY(-10deg) scale(1.03); } 100% { transform: none; } }
 @keyframes rvback { 0%, 42% { opacity: 1; } 43%, 100% { opacity: 0; } }
 @keyframes rvglow { 0% { box-shadow: 0 0 0 0 rgba(243, 208, 112, 0); } 30% { box-shadow: 0 0 18px 5px rgba(243, 208, 112, .7); } 100% { box-shadow: 0 0 0 0 rgba(243, 208, 112, 0); } }
-@keyframes rvgold { 0% { box-shadow: 0 0 0 0 rgba(255, 214, 90, 0); } 25% { box-shadow: 0 0 30px 10px rgba(255, 214, 90, .95); } 60% { box-shadow: 0 0 14px 4px rgba(255, 214, 90, .6); } 100% { box-shadow: 0 0 8px 2px rgba(255, 214, 90, .45); } }
-/* gilded: gold through and through, a shine running across it, a tag and its bonus */
-.choice.gilded { background: linear-gradient(135deg, #fff4c8, #f3d070 45%, #fff7da 55%, #e0b440); border-color: #a87a14; overflow: visible; }
-html.art .choice.gilded { border-image: url(art/ui/brass.png) 4 fill / 12px stretch; box-shadow: 0 0 10px 2px rgba(255, 214, 90, .55); }
-.choice.gilded::before { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+@keyframes rvsilver { 0% { box-shadow: 0 0 0 0 rgba(214, 230, 246, 0); } 25% { box-shadow: 0 0 30px 10px rgba(226, 238, 250, .95); } 60% { box-shadow: 0 0 14px 4px rgba(214, 230, 246, .6); } 100% { box-shadow: 0 0 8px 2px rgba(214, 230, 246, .45); } }
+/* silver-mounted (the rare offer; "gilded" until 2026-11-04, the user's: it read as the Gilded enhancement, and its
+   gold read as chosen): polished silver, a shine running across it, a tag and its bonus. Chosen is still brass. */
+.choice.silver { background: linear-gradient(135deg, #f6f8fa, #c6ced8 45%, #f2f5f8 55%, #a4aebb); border-color: #5c6674; overflow: visible; }
+html.art .choice.silver { border-image: url(art/ui/silver.png) 4 fill / 12px stretch; box-shadow: 0 0 10px 2px rgba(214, 230, 246, .6); }
+.choice.silver.on { border-color: #8a6412; box-shadow: inset 0 0 0 2px var(--gold), 0 0 10px 2px rgba(255, 214, 90, .6); }
+html.art .choice.silver.on { border-image: url(art/ui/brass.png) 4 fill / 12px stretch; box-shadow: 0 0 0 3px #f3d070, 0 0 12px 3px rgba(255, 214, 90, .7); }
+.choice.silver::before { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
   background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 240, .75) 48%, transparent 60%) -150% 0 / 60% 100% no-repeat; animation: gshine 2.6s 1.2s ease-in-out infinite; }
 @keyframes gshine { 0% { background-position: -150% 0; } 60%, 100% { background-position: 250% 0; } }
 .choice .gtag { position: absolute; top: -18px; right: 6px; z-index: 2; font: 800 10px/14px Bitter, Georgia, serif; font-style: normal; letter-spacing: .14em; padding: 1px 7px;
-  background: #6b4a10; color: #fff3d0; box-shadow: 2px 2px 0 rgba(42, 27, 22, .5); }
-.choice .gline { display: block; color: #6b4a10; font-weight: 700; font-size: 13px; }
-@media (prefers-reduced-motion: reduce) { .choice.rv, .choice.rv .cb, .choice.rv::after, .choice.gilded::before { animation: none; } .choice.rv .cb { display: none; } }
+  background: #46505e; color: #f2f6fa; box-shadow: 2px 2px 0 rgba(42, 27, 22, .5); }
+.choice .gline { display: block; color: #3e4856; font-weight: 700; font-size: 13px; }
+@media (prefers-reduced-motion: reduce) { .choice.rv, .choice.rv .cb, .choice.rv::after, .choice.silver::before { animation: none; } .choice.rv .cb { display: none; } }
 html.art .choice .price { background: #e8b840; color: #2a1a0c; border-radius: 0; box-shadow: 2px 2px 0 #5a3a10; padding: 0 6px; font-weight: 800; }
 html.art .stage .foe { border: 12px solid transparent; border-image: url(art/ui/sign.png) 4 fill / 12px stretch; border-radius: 0; background: none; padding: 0 2px; box-shadow: none; image-rendering: pixelated; }
 html.art .stage .foe .foebar { border-radius: 0; }
 html.art .felt.compact .stage .foe, html.art .felt.strip .stage .foe { border-width: 6px; border-image-width: 6px; }
 html.art .screenbar .name { flex-basis: 100%; }
+/* The bar stays at the top as the screen scrolls (2026-11-04, the user's: "on the map, the health, gold, rules and
+   menu bar should be a sticky header"), edge to edge, over the map's markers (z 2000) and under its pop-ups (2500+)
+   and the sheets (the screen is its own layer under them). With the art, the act's name scrolls away on its own row
+   and the stats and buttons stay: top is minus that row (8 padding + 22 line + 8 gap, less 4 to keep a margin). */
+.screenbar { position: sticky; top: 0; z-index: 2050; background: var(--bg); margin: 0 -16px; padding-left: 16px; padding-right: 16px; }
+html.art .screenbar { background: #3a2212; padding-left: 14px; padding-right: 14px; top: -34px; }
+html.art .screenbar .name { line-height: 22px; }
+#screen.one .screenbar { margin: 0 -10px; top: 0; }
 /* the health box says "of 500; the run ends at 0" only when it matters (danger), so the bar fits a phone */
 .stat.hp:not(.danger) small { display: none; }
 html.art .felt { box-shadow: inset 0 -6px 0 #3a2212; }
@@ -1598,22 +1623,23 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=40"></script>
-<script src="btp-ai.js?v=40"></script>
-<script src="btp-run.js?v=40"></script>
-<script src="btp-town.js?v=40"></script>
-<script src="art/dustwater/sprites.js?v=40"></script>
-<script src="btp-train.js?v=40"></script>
-<script src="art/train/sprites.js?v=40"></script>
-<script src="art/title/scene.js?v=40"></script>
-<script src="art/title/cameo.js?v=40"></script>
-<script src="art/table/scene.js?v=40"></script>
-<script src="art/table/partners.js?v=40"></script>
-<script src="art/grave/scene.js?v=40"></script>
-<script src="art/paid/scene.js?v=40"></script>
-<script src="art/rooms/scene.js?v=40"></script>
-<script src="art/express/scene.js?v=40"></script>
-<script src="art/fair/sprites.js?v=40"></script>
+<script src="btp-engine.js?v=41"></script>
+<script src="btp-ai.js?v=41"></script>
+<script src="btp-run.js?v=41"></script>
+<script src="btp-town.js?v=41"></script>
+<script src="art/dustwater/sprites.js?v=41"></script>
+<script src="btp-train.js?v=41"></script>
+<script src="art/train/sprites.js?v=41"></script>
+<script src="art/title/scene.js?v=41"></script>
+<script src="art/title/cameo.js?v=41"></script>
+<script src="art/title/crossing.js?v=41"></script>
+<script src="art/table/scene.js?v=41"></script>
+<script src="art/table/partners.js?v=41"></script>
+<script src="art/grave/scene.js?v=41"></script>
+<script src="art/paid/scene.js?v=41"></script>
+<script src="art/rooms/scene.js?v=41"></script>
+<script src="art/express/scene.js?v=41"></script>
+<script src="art/fair/sprites.js?v=41"></script>
 <script>
 (function () {
   'use strict';
@@ -1640,7 +1666,7 @@ html.art .coach { border-radius: 0; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 33, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 34, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -3055,7 +3081,7 @@ html.art .coach { border-radius: 0; }
   const PN = () => E.pname(P.L);
   /* The stage's numbers from art/table/scene.js (written by the bake), with the same defaults if it is missing. */
   const STAGE = Object.assign({ W: 200, H: 112, edge: 76, figs: [] }, window.TABLE_SCENE || {});
-  const BANK_LOOK = ['pJT', 'gJpp2'], LIFT = 5, LIFT_COMPACT = 12;   // art rows of wall cropped off the top (--lift)
+  const BANK_LOOK = ['pJT', 'gJpp2'], LIFT = 5, LIFT_COMPACT = 12, STANDOFF_CUT = 16;   // art rows of wall cropped off the top (--lift, --cut)
   // a fight saved before the gangs had figures gets two from its name
   function lookOf(L) {
     if (L.mode === 'standard') return L.std.look;
@@ -3072,6 +3098,10 @@ html.art .coach { border-radius: 0; }
   /* Art pixels to screen pixels: 3 on a phone, 2 when narrower, 4 on a wide page. The stage is tall enough for
      the trick under the rim even at 2. */
   function stageScale(w) { return Math.max(2, Math.min(4, Math.floor(w / 125))); }
+  // the table's scale, from the page's width (the felt spans the .app, 760 at most) rather than the felt's own, which
+  // a scrollbar (a page a little taller than the screen, or the standoff's) took under 375 on a 390 px phone: a
+  // size down between the standoff and the deal
+  function tableScale() { return stageScale(Math.min(innerWidth, 760)); }
   function foePlate(L) {
     const F = L.foe;
     if (L.mode === 'standard') return '<div class="foe"><div class="fn"><b>' + esc(L.std.name) + '</b><span class="fhp">you ' + num(L.you) + ' · them ' + num(L.opp) + '</span></div>' +
@@ -3551,10 +3581,12 @@ html.art .coach { border-radius: 0; }
   function renderFelt() {
     const L = P.L, h = L.h, turn = (L.phase === 'hand' && ['bid', 'play', 'kitty'].includes(h.phase)) ? h.turn : -1;
     const re = L.reaction, felt = $('felt');
-    // while bidding a tall grid (felt.compact) the stage shrinks to 2 and crops more wall, so the grid's Pass stays on screen
-    const compact = felt.classList.contains('compact'), lift = compact ? LIFT_COMPACT : LIFT;
-    // snug: while playing on a short screen, the saloon a size smaller, the trick's room kept (renderTable decides)
-    const k = compact || felt.classList.contains('snug') ? Math.min(2, stageScale(felt.clientWidth || innerWidth)) : stageScale(felt.clientWidth || innerWidth);
+    // the gang and your partner are one size from the standoff through the bidding to the play (2026-11-04, the
+    // user's: "can it all just be consistently the same bigger size?"): a fold crops wall, never shrinks them.
+    // While bidding (felt.compact) more wall goes and the trick's room with it; snug (playing on a short screen)
+    // crops the same wall but keeps the trick's room (renderTable decides)
+    const compact = felt.classList.contains('compact'), lift = compact || felt.classList.contains('snug') ? LIFT_COMPACT : LIFT;
+    const k = tableScale();
     const skey = [L.act, L.level, lookOf(L).join(), k].join('|');
     if (P.stageKey !== skey || !felt.querySelector('.stage')) { buildStage(L, felt, k); P.stageKey = skey; P.fxKey = null; }
     felt.style.setProperty('--k', k);
@@ -3885,15 +3917,16 @@ html.art .coach { border-radius: 0; }
   try { hotSetting(); } catch (e) { /* no storage: it's asked again next time */ }
   /* The reward reveal (2026-11-03, the user's: "rewards come face down and flip with a rarity glow; rare gilded
      versions"): a pick's offers come up as card backs and turn over one after another, each with a glow as it lands;
-     the gilded one (R.gildStep) in gold with its bonus said. Once a pick: any later render of it is face up. */
+     the rare one (R.gildStep; called Silver-mounted since 2026-11-04, so it isn't taken for the Gilded enhancement)
+     in silver with its bonus said. Once a pick: any later render of it is face up. */
   function revealOf(L, s) {
     const key = [L.level, L.levelsDone, s.type, s.options.join()].join('|'), fresh = P.rvShown !== key && !FAST && !reduceMotion();
     const gilt = x => s.gilded === x;
     return {
-      cls: x => (fresh ? ' rv' : '') + (gilt(x) ? ' gilded' : ''),
+      cls: x => (fresh ? ' rv' : '') + (gilt(x) ? ' silver' : ''),
       style: i => fresh ? ' style="--d:' + (0.15 + i * 0.32).toFixed(2) + 's"' : '',
-      face: x => (fresh ? '<i class="cb" aria-hidden="true"></i>' : '') + (gilt(x) ? '<em class="gtag">GILDED</em>' : ''),
-      line: x => gilt(x) ? '<span class="gline">' + (s.type === 'buff' ? 'Gilded: comes with ' + R.GILD.gold + ' gold.' : 'Gilded: also polishes its card a rank.') + '</span>' : '',
+      face: x => (fresh ? '<i class="cb" aria-hidden="true"></i>' : '') + (gilt(x) ? '<em class="gtag">SILVER-MOUNTED</em>' : ''),
+      line: x => gilt(x) ? '<span class="gline">' + (s.type === 'buff' ? 'Silver-mounted: comes with ' + R.GILD.gold + ' gold.' : 'Silver-mounted: also polishes its card up a rank.') + '</span>' : '',
       seen: () => { P.rvShown = key; }
     };
   }
@@ -4381,7 +4414,7 @@ html.art .coach { border-radius: 0; }
       '<div class="train" style="left:' + tl + ';top:' + u(T.y) + ';width:' + u(T.w) + ';height:' + u(T.h) + ';background-image:' + url(T.img) +
       ';background-size:' + u(T.w * T.frames) + ' ' + u(T.h) + ';--fw:' + u(T.w) + '"></div>' + puffs +
       S.layers.filter(l => l.front).map(lyr).join('') +
-      '<div class="crossing" aria-hidden="true" style="width:' + u(CROSS.w) + ';height:' + u(CROSS.h) + ';background-image:' + url('crossing') + '"></div>' +
+      '<div class="herdgap" aria-hidden="true"></div><div class="crossing" aria-hidden="true"></div>' +
       '<div class="cameos" aria-hidden="true"></div>' + below + '</div>';
   }
   /* The title's cameos (2026-11-03, the user's: "add the tumbleweed, the prairie dog, the vultures ... and the
@@ -4393,25 +4426,65 @@ html.art .coach { border-radius: 0; }
      while a game is on). */
   const CAMEO = { first: [5000, 9000], gap: [14000, 26000], kinds: [['tumble', 3], ['dog', 3], ['vultures', 2], ['joker', 2]] };
   /* The ravine crossing (2026-11-03, the user's: "the train going over a big ravine and over a large bridge"; their
-     pick, D, a great iron arch, of four mock-ups; bakery/ravine_px.py crossing()). Now and then the ground falls
-     away and the train crosses a red-rock ravine on the arch, then the grassland comes back: one strip, its banks cut
-     from the near hill, scrolling past at the hill's own speed (CROSS.speed art px a second), in front of the hill
-     and the herd and behind the train's wheels (z 2 and 3). The first a few seconds in, then every 25-40 s. The hill's
-     cameos (the tumbleweed, the prairie dog) wait while it's in view. Art only; never with reduced motion. */
-  const CROSS = { w: 220, h: 150, speed: 32, first: 4000, gap: [25000, 40000] };
-  let crossT = 0, crossEnd = 0;
+     pick, D, a great iron arch, of four mock-ups). Now and then the ground falls away and the train crosses a ravine,
+     then the grassland comes back. Three of them since 2026-11-04 (the user's: "one with a big waterfall, maybe one
+     that's a grand canyon like but no water"), taken in turn in a shuffled order: the river under the iron arch, the
+     falls under an iron truss on two piers (its water and mist move), the dry canyon under a steel viaduct
+     (bakery/ravine_px.py, art/title/crossing.js). Each is one strip scrolling past at the near hill's own speed, in
+     front of the hill and the herd and behind the train's wheels (z 2 and 3), its banks left clear for the hill.
+     It starts where its first column lies on the hill's first column (so each rim meets the hill at the hill's own
+     height), and while it's in view the herd's ground without its buffalo runs over the herd, moving with it (z 1):
+     the herd is nearer and faster than the hill, so its buffalo used to pour out from under the ravine's edge (the
+     user's, 2026-11-04: "like a conveyor belt"). That stretch starts where the ravine's near edge first meets the herd
+     and ends where its far edge last does, out to the nearest gap between buffalo, so none is ever cut. The first a
+     few seconds in, then every 25-40 s. The hill's cameos (the tumbleweed, the prairie dog) wait while it's in view.
+     Art only; never with reduced motion. */
+  const CROSS = { first: 4000, gap: [25000, 40000] };
+  let crossT = 0, crossEnd = 0, crossOrder = [];
   const crossing = () => Date.now() < crossEnd;
-  function crossSoon(ms) { clearTimeout(crossT); crossT = setTimeout(cross, ms); }
-  function cross() {
-    const el = document.querySelector('#hero .crossing'), s = HERO.s;
-    const ok = el && !reduceMotion() && document.documentElement.classList.contains('art') && !$('title').hidden && !document.hidden;
+  function crossSoon(ms) { clearTimeout(crossT); crossT = setTimeout(() => cross(), ms); }
+  // the next crossing: the one asked for, or the next of a shuffled round of all of them
+  function crossKind(which) {
+    const kinds = window.TITLE_CROSSING.kinds, asked = kinds.find(k => k.id === which);
+    if (asked) return asked;
+    if (!crossOrder.length) crossOrder = kinds.map(k => k.id).sort(() => Math.random() - 0.5);
+    const next = crossOrder.shift();
+    return kinds.find(k => k.id === next) || kinds[0];
+  }
+  function cross(which) {
+    const el = document.querySelector('#hero .crossing'), gap = document.querySelector('#hero .herdgap'), s = HERO.s, X = window.TITLE_CROSSING, S = window.TITLE_SCENE;
+    const ok = el && X && S && !reduceMotion() && document.documentElement.classList.contains('art') && !$('title').hidden && !document.hidden;
     if (!ok) { crossSoon(4000); return; }
-    const W = innerWidth, w = CROSS.w * s, ms = Math.round(1000 * (W + w) / (CROSS.speed * s));
-    el.style.animation = 'none'; void el.offsetWidth;
-    el.style.setProperty('--from', W + 'px'); el.style.setProperty('--to', -w + 'px');
-    el.style.animation = 'cmove ' + ms + 'ms linear forwards';
-    crossEnd = Date.now() + ms;
-    crossSoon(ms + between(...CROSS.gap));
+    const K = crossKind(which), u = v => (v * s) + 'px', url = n => 'url(' + artURL('title/' + n + '.webp') + ')';
+    el.style.width = u(K.w); el.style.height = u(K.h); el.style.backgroundImage = url(K.img);
+    el.innerHTML = K.layers.map(l => '<i class="x' + l.anim + '" style="left:' + u(l.x) + ';top:' + u(l.y) + ';width:' + u(l.w) + ';height:' + u(l.h) + ';background-image:' + url(l.img) +
+      (l.tile ? ';background-size:' + u(l.w) + ' ' + u(l.tile) + ';--fy:' + u(l.tile) + ';animation-timing-function:steps(' + l.tile + ')' : '') + '"></i>').join('') +
+      '<i class="xfront" style="background-image:' + url(K.front) + '"></i>';
+    // where the hill and the herd are in their scroll now (px, 0 down to minus a tile)
+    const layer = n => S.layers.find(l => l.img === n), at = n => [...document.querySelectorAll('#hero .lyr')].find(l => l.style.backgroundImage.includes('/' + n + '.webp'));
+    const pos = el2 => (el2 && parseFloat(getComputedStyle(el2).backgroundPositionX)) || 0;
+    const W = innerWidth, hill = layer('plains'), herd = layer('herd'), vC = hill.speed * s, vH = herd.speed * s;
+    const o = pos(at('plains')), tw = hill.w * s, x0 = o + Math.ceil((W - o) / tw) * tw;
+    const ms = Math.round(1000 * (x0 + K.w * s) / vC);
+    const run = (e, from, to, t) => { e.style.animation = 'none'; void e.offsetWidth; e.style.setProperty('--from', from + 'px'); e.style.setProperty('--to', to + 'px'); e.style.animation = 'cmove ' + t + 'ms linear forwards'; };
+    run(el, x0, -K.w * s, ms);
+    let gms = 0;
+    if (gap && X.herd) {
+      // the herd points (where they are now, px) that meet the ravine's near edge from when it comes on screen, and
+      // its far edge until it goes off: from the first to the last, widened out to a gap between buffalo
+      const rel = vH - vC, xl = x0 + K.bank * s, xr = x0 + (K.w - K.bank) * s, H = X.herd, oh = pos(at('herd'));
+      let a = xl + rel * Math.max(0, (xl - W) / vC) - 2 * s, b = xr + rel * (xr / vC) + 2 * s;
+      const col = p => ((Math.floor((p - oh) / s) % H.w) + H.w) % H.w, span = c => H.spans.find(([p, q]) => c >= p - 1 && c <= q + 1);
+      for (let sp, n = 0; n < 8 && (sp = span(col(a))); n++) a -= (col(a) - sp[0] + 2) * s;
+      for (let sp, n = 0; n < 8 && (sp = span(col(b))); n++) b += (sp[1] - col(b) + 2) * s;
+      gap.style.top = u(herd.y); gap.style.height = u(herd.h); gap.style.width = (b - a) + 'px';
+      gap.style.backgroundImage = url(H.img); gap.style.backgroundSize = u(H.w) + ' ' + u(herd.h);
+      gap.style.backgroundPositionX = ((((oh - a) % (H.w * s)) + H.w * s) % (H.w * s)) + 'px';
+      gms = Math.round(1000 * b / vH);
+      run(gap, a, a - b, gms);
+    }
+    crossEnd = Date.now() + Math.max(ms, gms);
+    crossSoon(Math.max(ms, gms) + between(...CROSS.gap));
     return ms;
   }
   let cameoT = 0;
@@ -4532,9 +4605,10 @@ html.art .coach { border-radius: 0; }
   P.cameo = cameo;
   { const c = (location.search.match(/[?&]cameo=(\w+)/) || [])[1];
     if (c && CAMEOS[c]) setTimeout(() => cameo(c), 300); else if (!FAST) cameoSoon(between(...CAMEO.first));
-    // ?crossing=1 sends the ravine past at once; tests call P.cross
+    // ?crossing=1 sends a ravine past at once (?crossing=river, falls or canyon, that one); tests call P.cross
     P.cross = cross;
-    if (/[?&]crossing=1\b/.test(location.search)) setTimeout(cross, 300); else if (!FAST) crossSoon(CROSS.first); }
+    const cr = (location.search.match(/[?&]crossing=(\w+)/) || [])[1];
+    if (cr) setTimeout(() => cross(cr), 300); else if (!FAST) crossSoon(CROSS.first); }
   // html.art arrives when the probe picture loads: draw the words then; a new screen size rebuilds the scene
   new MutationObserver(layoutTitle).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
   let resizeT = 0;
@@ -4897,13 +4971,19 @@ html.art .coach { border-radius: 0; }
       // a Card table or a Duel opens with an insult, and your partner answers it (2026-11-03)
       const duel = L.mode !== 'standard' && (L.kind === 'dance' || L.kind === 'elite') ? R.insult(L) : null;
       if (duel) t.text = duel.text;
-      // as big as fits: the two of them span 124 of the stage's 200 art pixels, the stage is 112 tall
-      const k = Math.max(2, Math.min(5, Math.floor(Math.min(innerWidth / 124, innerHeight * 0.46 / 112))));
+      // the table's own size (2026-11-04, the user's: the gang one size from here to the play), one smaller only on
+      // a screen too short to hold it with the lines and NOW DRAW! (measured below)
+      let k = tableScale();
       s.dataset.key = key;
       s.className = '';
-      s.style.setProperty('--k', k);
-      // with a comeback under the stage, the stage sits higher so the comeback clears NOW DRAW!
-      s.style.setProperty('--st', Math.round(duel ? Math.max(120, (innerHeight - 112 * k) * 0.3) : Math.max(150, (innerHeight - 112 * k) * 0.42)) + 'px');
+      let cut = 0;
+      const place = () => {
+        s.style.setProperty('--k', k); s.style.setProperty('--cut', cut);
+        // with a comeback under the stage, the stage sits higher so the comeback clears NOW DRAW!
+        const tall = (112 - cut) * k;
+        s.style.setProperty('--st', Math.round(duel ? Math.max(120, (innerHeight - tall) * 0.3) : Math.max(150, (innerHeight - tall) * 0.42)) + 'px');
+      };
+      place();
       s.innerHTML = '<div class="sstage"><i class="swall" style="background-image:url(' + artURL('table/' + wallKey(L) + '.webp') + ')"></i>' +
         (look ? look.map((f, i) => '<img class="sfig ' + (i ? 'e' : 'w') + '" src="' + artURL('table/fig_' + f + '.webp') + '" alt="">').join('') : '') +
         '<img class="stable" src="' + artURL('table/table.webp') + '" alt=""></div>' +
@@ -4911,6 +4991,13 @@ html.art .coach { border-radius: 0; }
         (duel ? '<div class="backline"><div class="say back" role="status"><span class="face svg">' + partnerFace(L.partner) + '</span><p><b>' + esc(PN()) + '</b>' + (/^\(/.test(duel.back) ? esc(duel.back) : '\u201c' + esc(duel.back) + '\u201d') + '</p></div></div>' : '') +
         '<div class="dwrap"><button class="btn draw" data-act="draw">NOW DRAW!</button><small>Tap to draw your cards</small></div>';
       s.hidden = false;
+      // too tall: the gang's line off the top, or the stage (or the comeback) running into NOW DRAW!
+      const clash = () => { const r = sel => { const e = s.querySelector(sel); return e ? e.getBoundingClientRect() : null; };
+        const say = r('.stand'), low = r('.backline') || r('.sstage'), go = r('.dwrap');
+        return !!(say && go && go.height && (say.top < 4 || low.bottom > go.top - 6)); };
+      // first crop wall off the top (down to the hat brims), then a size smaller
+      if (clash()) { cut = STANDOFF_CUT; place(); }
+      while (k > 2 && clash()) { k--; place(); }
       try { window.scrollTo(0, 0); } catch (e) { /* no layout */ }
     }
   }
