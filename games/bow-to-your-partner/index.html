@@ -39,6 +39,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 /* ---------- title and run screens ---------- */
 #screen { padding: 0 16px 32px; }
+/* The run screens and the table each stack in a layer of their own, under the sheets (.veil, z 10) and the full-screen
+   scenes: the map's buildings (up to z 600), its markers (2000) and the sticky bar (2050) once showed through the Menu
+   and made it unusable (the user's, 2026-11-04). Their own pop-ups (the map's 2500+) still stack over them. */
+#screen, #game { position: relative; z-index: 1; }
 /* the title scene (bakery/title.py, title_px.py; art/title/scene.js): the train holds still in the middle of its
    trestle while the trestle, the plains and the buffalo scroll left at their own speeds (nearer, faster), so it
    rolls along. Every layer is a strip that tiles sideways; one art pixel is --s css px. Without the art it is
@@ -1628,23 +1632,23 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=42"></script>
-<script src="btp-ai.js?v=42"></script>
-<script src="btp-run.js?v=42"></script>
-<script src="btp-town.js?v=42"></script>
-<script src="art/dustwater/sprites.js?v=42"></script>
-<script src="btp-train.js?v=42"></script>
-<script src="art/train/sprites.js?v=42"></script>
-<script src="art/title/scene.js?v=42"></script>
-<script src="art/title/cameo.js?v=42"></script>
-<script src="art/title/crossing.js?v=42"></script>
-<script src="art/table/scene.js?v=42"></script>
-<script src="art/table/partners.js?v=42"></script>
-<script src="art/grave/scene.js?v=42"></script>
-<script src="art/paid/scene.js?v=42"></script>
-<script src="art/rooms/scene.js?v=42"></script>
-<script src="art/express/scene.js?v=42"></script>
-<script src="art/fair/sprites.js?v=42"></script>
+<script src="btp-engine.js?v=43"></script>
+<script src="btp-ai.js?v=43"></script>
+<script src="btp-run.js?v=43"></script>
+<script src="btp-town.js?v=43"></script>
+<script src="art/dustwater/sprites.js?v=43"></script>
+<script src="btp-train.js?v=43"></script>
+<script src="art/train/sprites.js?v=43"></script>
+<script src="art/title/scene.js?v=43"></script>
+<script src="art/title/cameo.js?v=43"></script>
+<script src="art/title/crossing.js?v=43"></script>
+<script src="art/table/scene.js?v=43"></script>
+<script src="art/table/partners.js?v=43"></script>
+<script src="art/grave/scene.js?v=43"></script>
+<script src="art/paid/scene.js?v=43"></script>
+<script src="art/rooms/scene.js?v=43"></script>
+<script src="art/express/scene.js?v=43"></script>
+<script src="art/fair/sprites.js?v=43"></script>
 <script>
 (function () {
   'use strict';
@@ -4398,11 +4402,14 @@ html.art .coach { border-radius: 0; }
   function buildHero() {
     const S = window.TITLE_SCENE, hero = $('hero');
     if (!S || !hero) return;
+    // a new scene's herd runs at its own speed, and a ravine on its way (or easing the herd for one) starts over
+    HERD.k = 1; clearTimeout(HERD.timer);
+    if (crossing()) { crossEnd = 0; crossSoon(CROSS.first); }
     // three art pixels to a css pixel on a phone held upright, two when the screen is too narrow or too short
-    const s = HERO.s = innerWidth >= 360 && innerHeight >= 600 ? (innerWidth >= 1100 && innerHeight >= 900 ? 4 : 3) : 2;
+    const s =HERO.s = innerWidth >= 360 && innerHeight >= 600 ? (innerWidth >= 1100 && innerHeight >= 900 ? 4 : 3) : 2;
     const u = v => (v * s) + 'px', url = n => 'url(' + artURL('title/' + n + '.webp') + ')';
     hero.style.setProperty('--s', s);
-    const lyr = l => '<div class="lyr" style="top:' + u(l.y) + ';height:' + u(l.h) + ';background-image:' + url(l.img) + ';background-size:' + u(l.w) + ' ' + u(l.h) +
+    const lyr = l => '<div class="lyr' + (l.img === 'herd' ? ' lyr-herd' : '') + '" style="top:' + u(l.y) + ';height:' + u(l.h) + ';background-image:' + url(l.img) + ';background-size:' + u(l.w) + ' ' + u(l.h) +
       ';--tw:' + u(l.w) + ';--dur:' + (l.w / l.speed).toFixed(2) + 's"></div>';
     const T = S.train, tl = 'calc(50% - ' + u(T.w / 2) + ')';
     const puffs = Array.from({ length: 7 }, (_, i) => { const p = S.puffs[i % S.puffs.length];
@@ -4458,27 +4465,58 @@ html.art .coach { border-radius: 0; }
     const next = crossOrder.shift();
     return kinds.find(k => k.id === next) || kinds[0];
   }
+  /* The herd's speed while a ravine goes by (2026-11-04, the user's, again: "the hill with the buffalo isn't going at
+     the same speed, so it looks like it's a conveyor belt"). The herd's strip is nearer than the hill and scrolls
+     faster (52 art px a second to 32), so even with its buffalo hidden its grass slid into the ravine's edge. Now,
+     with the ravine still off screen, the herd eases down to the hill's speed (HERD.k, its playback rate's factor,
+     over HERD.ease ms), the ravine comes and goes with everything near it moving together, and once it's off screen
+     the herd eases back up. heroAnims (the opening's speed changes) keeps the factor. */
+  const HERD = { k: 1, ease: 1600, timer: 0 };
+  const herdAnim = () => { try { const l = document.querySelector('#hero .lyr-herd'); return l && document.getAnimations ? document.getAnimations().find(a => a.effect && a.effect.target === l) : null; } catch (e) { return null; } };
+  function herdTo(k, done) {
+    clearTimeout(HERD.timer);
+    const A = herdAnim(), k0 = HERD.k, t0 = Date.now();
+    if (!A || FAST || reduceMotion()) { HERD.k = k; if (A) A.playbackRate = HERO.rate * k; if (done) done(); return; }
+    const tick = () => {
+      const f = Math.min(1, (Date.now() - t0) / HERD.ease), e = f * f * (3 - 2 * f);
+      HERD.k = k0 + (k - k0) * e;
+      A.playbackRate = HERO.rate * HERD.k;          // (keeps its current time: no jump)
+      if (f < 1) HERD.timer = setTimeout(tick, 40); else if (done) done();
+    };
+    tick();
+  }
   function cross(which) {
-    const el = document.querySelector('#hero .crossing'), gap = document.querySelector('#hero .herdgap'), s = HERO.s, X = window.TITLE_CROSSING, S = window.TITLE_SCENE;
+    const el = document.querySelector('#hero .crossing'), s = HERO.s, X = window.TITLE_CROSSING, S = window.TITLE_SCENE;
     const ok = el && X && S && !reduceMotion() && document.documentElement.classList.contains('art') && !$('title').hidden && !document.hidden;
     if (!ok) { crossSoon(4000); return; }
-    const K = crossKind(which), u = v => (v * s) + 'px', url = n => 'url(' + artURL('title/' + n + '.webp') + ')';
+    const K = crossKind(which), hill = S.layers.find(l => l.img === 'plains'), herd = S.layers.find(l => l.img === 'herd');
+    const slow = hill.speed / herd.speed;
+    crossEnd = Date.now() + 60000;                   // the hill's cameos wait from now
+    if (Math.abs(HERD.k - slow) > 0.01 && herdAnim() && !FAST) { herdTo(slow, () => launchCross(K)); return 0; }
+    herdTo(slow);
+    return launchCross(K);
+  }
+  function launchCross(K) {
+    const el = document.querySelector('#hero .crossing'), gap = document.querySelector('#hero .herdgap'), s = HERO.s, X = window.TITLE_CROSSING, S = window.TITLE_SCENE;
+    if (!el || $('title').hidden) { herdTo(1); crossEnd = 0; crossSoon(4000); return 0; }
+    const u = v => (v * s) + 'px', url = n => 'url(' + artURL('title/' + n + '.webp') + ')';
     el.style.width = u(K.w); el.style.height = u(K.h); el.style.backgroundImage = url(K.img);
     el.innerHTML = K.layers.map(l => '<i class="x' + l.anim + '" style="left:' + u(l.x) + ';top:' + u(l.y) + ';width:' + u(l.w) + ';height:' + u(l.h) + ';background-image:' + url(l.img) +
       (l.tile ? ';background-size:' + u(l.w) + ' ' + u(l.tile) + ';--fy:' + u(l.tile) + ';animation-timing-function:steps(' + l.tile + ')' : '') + '"></i>').join('') +
       '<i class="xfront" style="background-image:' + url(K.front) + '"></i>';
-    // where the hill and the herd are in their scroll now (px, 0 down to minus a tile)
+    // where the hill and the herd are in their scroll now (px, 0 down to minus a tile), and how fast each goes
     const layer = n => S.layers.find(l => l.img === n), at = n => [...document.querySelectorAll('#hero .lyr')].find(l => l.style.backgroundImage.includes('/' + n + '.webp'));
     const pos = el2 => (el2 && parseFloat(getComputedStyle(el2).backgroundPositionX)) || 0;
-    const W = innerWidth, hill = layer('plains'), herd = layer('herd'), vC = hill.speed * s, vH = herd.speed * s;
+    const W = innerWidth, hill = layer('plains'), herd = layer('herd'), vC = hill.speed * s, vH = herd.speed * s * HERD.k;
     const o = pos(at('plains')), tw = hill.w * s, x0 = o + Math.ceil((W - o) / tw) * tw;
     const ms = Math.round(1000 * (x0 + K.w * s) / vC);
     const run = (e, from, to, t) => { e.style.animation = 'none'; void e.offsetWidth; e.style.setProperty('--from', from + 'px'); e.style.setProperty('--to', to + 'px'); e.style.animation = 'cmove ' + t + 'ms linear forwards'; };
     run(el, x0, -K.w * s, ms);
     let gms = 0;
     if (gap && X.herd) {
-      // the herd points (where they are now, px) that meet the ravine's near edge from when it comes on screen, and
-      // its far edge until it goes off: from the first to the last, widened out to a gap between buffalo
+      // the herd's buffalo near the ravine are covered by its own ground: the herd points (where they are now, px)
+      // that meet the ravine's near edge from when it comes on screen, and its far edge until it goes off (with the
+      // herd at the ravine's speed, just the two edges), widened out to a gap between buffalo
       const rel = vH - vC, xl = x0 + K.bank * s, xr = x0 + (K.w - K.bank) * s, H = X.herd, oh = pos(at('herd'));
       let a = xl + rel * Math.max(0, (xl - W) / vC) - 2 * s, b = xr + rel * (xr / vC) + 2 * s;
       const col = p => ((Math.floor((p - oh) / s) % H.w) + H.w) % H.w, span = c => H.spans.find(([p, q]) => c >= p - 1 && c <= q + 1);
@@ -4490,8 +4528,10 @@ html.art .coach { border-radius: 0; }
       gms = Math.round(1000 * b / vH);
       run(gap, a, a - b, gms);
     }
-    crossEnd = Date.now() + Math.max(ms, gms);
-    crossSoon(Math.max(ms, gms) + between(...CROSS.gap));
+    const end = Math.max(ms, gms);
+    crossEnd = Date.now() + end;
+    clearTimeout(HERD.timer); HERD.timer = setTimeout(() => herdTo(1), end);
+    crossSoon(end + between(...CROSS.gap));
     return ms;
   }
   let cameoT = 0;
@@ -4576,7 +4616,7 @@ html.art .coach { border-radius: 0; }
   }
   // the stage under the title scene, in art pixels: the trail runs across it TRAIL_Y down; the stage scrolls at
   // STAGE_SPEED art pixels a second (60% of the first cut's 52) and the sign is drawn SIGN_K times its art size
-  const BELOW = 560, TRAIL_Y = 280, HERO = { s: 2, top: 0, trainTop: 0 }, STAGE_SPEED = 31, SIGN_K = 1.2;
+  const BELOW = 560, TRAIL_Y = 280, HERO = { s: 2, top: 0, trainTop: 0, rate: 1 }, STAGE_SPEED = 31, SIGN_K = 1.2;
   /* The title's words: pictures once the art is on. The logo in the sky; Start floating on the grass at the bottom, at
      the size Options had (2026-11-03, the user's: buttons at the bottom so the phone works in one hand), and Start's
      menu stacked up from there, Back where Start was. */
@@ -4653,7 +4693,10 @@ html.art .coach { border-radius: 0; }
   const OPEN = { timers: [], done: null, raf: 0, coachOff: 0 };
   function reduceMotion() { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
   // every animation in the hero runs at `rate`; with `coach`, the stagecoach's wheels and trot keep their own pace
-  function heroAnims(rate, coach) { try { document.getAnimations().forEach(a => { const t = a.effect && a.effect.target; if (t && t.closest && t.closest('#hero') && !(coach && t.closest('.stagecoach'))) a.updatePlaybackRate(rate); }); } catch (e) { /* no Web Animations */ } }
+  function heroAnims(rate, coach) {
+    HERO.rate = rate;
+    try { document.getAnimations().forEach(a => { const t = a.effect && a.effect.target; if (t && t.closest && t.closest('#hero') && !(coach && t.closest('.stagecoach'))) a.updatePlaybackRate(rate * (t.classList.contains('lyr-herd') ? HERD.k : 1)); }); } catch (e) { /* no Web Animations */ }
+  }
   function at(ms, fn) { OPEN.timers.push(setTimeout(fn, ms)); }
   /* The act card is a board over the real map (the user's, 2026-11-01: the card's own picture of Dustwater, then the
      map's slightly different one, was jarring). The run starts here, under the dust, with the page already where
