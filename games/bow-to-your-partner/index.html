@@ -54,7 +54,7 @@ html.art .hero { background: linear-gradient(#7cbadb 0 22%, #8cc4e0 22% 44%, #a8
 .titlemenu .wood { position: absolute; left: 50%; transform: translate(-50%, -50%); margin: 0; padding: 0; border: 0; background: none; z-index: 5;
   cursor: pointer; font: 800 30px/1.1 Georgia, serif; letter-spacing: .06em; color: #fbf0d0; text-transform: uppercase;
   text-shadow: 0 0 0 #3a1a12, 2px 2px 0 #3a1a12, -1px -1px 0 #3a1a12, 1px -1px 0 #3a1a12, -1px 1px 0 #3a1a12, 3px 4px 0 rgba(42,22,18,.5); }
-.titlemenu .logo { cursor: default; font-size: 36px; color: #f3d070; white-space: nowrap; }
+.titlemenu .logo { cursor: default; font-size: 36px; color: #f3d070; white-space: nowrap; width: max-content; }
 .titlemenu .more { font-size: 20px; }
 .titlemenu .wood img { display: none; image-rendering: pixelated; }
 html.art .titlemenu .wood.drawn img { display: block; }
@@ -603,7 +603,9 @@ html.art .titlemenu .item.drawn small { position: static; width: auto; height: a
 html.art .hero .lyr, html.art .hero .train, html.art .hero .puff { display: block; }
 .hero .lyr { left: 0; right: 0; background-repeat: repeat-x; animation: hscroll var(--dur) linear infinite; }
 @keyframes hscroll { from { background-position-x: 0; } to { background-position-x: calc(-1 * var(--tw)); } }
-.hero .train { animation: wheels .56s steps(4) infinite; }
+.hero .train { animation: wheels .56s steps(4) infinite; z-index: 3; }
+/* the ravine crossing: in front of the hill and the herd, behind the train's wheels; off to the right until it runs */
+.hero .crossing { position: absolute; left: 0; top: 0; z-index: 2; background: 0 0 / 100% 100% no-repeat; image-rendering: pixelated; transform: translateX(100vw); pointer-events: none; }
 @keyframes wheels { from { background-position-x: 0; } to { background-position-x: calc(-4 * var(--fw)); } }
 .hero .puff { opacity: 0; animation: puff 2.8s ease-out infinite; transform-origin: 50% 50%; }
 @keyframes puff { 0% { opacity: 0; transform: translate(0, 0) scale(.5); } 8% { opacity: 1; }
@@ -881,6 +883,29 @@ html.art .evscene { display: block; }
 @keyframes hotglow { 50% { box-shadow: 0 0 10px rgba(255, 140, 40, .75); } }
 .hotchip.shake { animation: plateshake .45s; }
 table.ablog { width: 100%; border-collapse: collapse; font-size: 13px; margin: 6px 0; } table.ablog th, table.ablog td { padding: 3px 4px; border-bottom: 1px solid var(--line); text-align: center; }
+/* the title's cameos (2026-11-03): a mover crosses the scene; inside it a hop, inside that the frames */
+.hero .cameos { position: absolute; inset: 0; pointer-events: none; z-index: 4; }   /* under the title's words (z 5): Start stays readable */
+.cm { position: absolute; left: 0; animation: cmove linear forwards; }
+@keyframes cmove { from { transform: translateX(var(--from)); } to { transform: translateX(var(--to)); } }
+.cm span, .cm i { display: block; width: 100%; height: 100%; }
+.cm i { background-repeat: no-repeat; background-position: 0 0; image-rendering: pixelated; }
+.cm-tumble i { background-size: 400% 100%; animation: gallop .5s steps(4) infinite; }
+@keyframes chop { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-45%); } }
+.cm-dog i { background-size: 600% 100%; }
+/* the Joker: a window the size of his sprite, clipped at the cab's sill; he rises into it, waves (a sway from the hips,
+   in pixel steps), and sinks */
+.cm-joker { position: absolute; overflow: hidden; }
+.cm-joker span { display: block; width: 100%; height: 100%; animation: jpop linear forwards; }
+.cm-joker i { display: block; width: 100%; height: 100%; background: no-repeat 0 0 / 100% 100%; image-rendering: pixelated; transform-origin: 50% 100%; animation: jwave .5s steps(1) infinite; }
+@keyframes jpop { 0% { transform: translateY(100%); } 10%, 88% { transform: translateY(0); } 100% { transform: translateY(100%); } }
+@keyframes jwave { 0% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+.cm-vultures { position: absolute; inset: 0; animation: vfade linear forwards; }
+@keyframes vfade { 0% { opacity: 0; } 12%, 85% { opacity: 1; } 100% { opacity: 0; } }
+.cmv { position: absolute; width: 0; height: 0; animation: vcirc var(--vd) linear infinite; }
+.cmv i { position: absolute; left: var(--vr); top: 0; background-repeat: no-repeat; background-size: 300% 100%; image-rendering: pixelated; animation: vflap .55s steps(3) infinite alternate, vcounter var(--vd) linear infinite; }
+@keyframes vcirc { to { transform: rotate(360deg); } }
+@keyframes vcounter { to { transform: rotate(-360deg); } }
+@keyframes vflap { from { background-position-x: 0; } to { background-position-x: 150%; } }
 /* the bond, the unlock bars, the Wanted Wall (2026-11-03) */
 .bond { margin-top: 6px; font-size: 13px; }
 .bond .bstars { color: #f3d070; letter-spacing: 1px; } .bond .bstars s { text-decoration: none; opacity: .3; }
@@ -1573,21 +1598,22 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=36"></script>
-<script src="btp-ai.js?v=36"></script>
-<script src="btp-run.js?v=36"></script>
-<script src="btp-town.js?v=36"></script>
-<script src="art/dustwater/sprites.js?v=36"></script>
-<script src="btp-train.js?v=36"></script>
-<script src="art/train/sprites.js?v=36"></script>
-<script src="art/title/scene.js?v=36"></script>
-<script src="art/table/scene.js?v=36"></script>
-<script src="art/table/partners.js?v=36"></script>
-<script src="art/grave/scene.js?v=36"></script>
-<script src="art/paid/scene.js?v=36"></script>
-<script src="art/rooms/scene.js?v=36"></script>
-<script src="art/express/scene.js?v=36"></script>
-<script src="art/fair/sprites.js?v=36"></script>
+<script src="btp-engine.js?v=40"></script>
+<script src="btp-ai.js?v=40"></script>
+<script src="btp-run.js?v=40"></script>
+<script src="btp-town.js?v=40"></script>
+<script src="art/dustwater/sprites.js?v=40"></script>
+<script src="btp-train.js?v=40"></script>
+<script src="art/train/sprites.js?v=40"></script>
+<script src="art/title/scene.js?v=40"></script>
+<script src="art/title/cameo.js?v=40"></script>
+<script src="art/table/scene.js?v=40"></script>
+<script src="art/table/partners.js?v=40"></script>
+<script src="art/grave/scene.js?v=40"></script>
+<script src="art/paid/scene.js?v=40"></script>
+<script src="art/rooms/scene.js?v=40"></script>
+<script src="art/express/scene.js?v=40"></script>
+<script src="art/fair/sprites.js?v=40"></script>
 <script>
 (function () {
   'use strict';
@@ -1614,7 +1640,7 @@ html.art .coach { border-radius: 0; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 28, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 33, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -4354,8 +4380,113 @@ html.art .coach { border-radius: 0; }
     hero.innerHTML = '<div class="rig" style="top:' + HERO.top + 'px">' + S.layers.filter(l => !l.front).map(lyr).join('') +
       '<div class="train" style="left:' + tl + ';top:' + u(T.y) + ';width:' + u(T.w) + ';height:' + u(T.h) + ';background-image:' + url(T.img) +
       ';background-size:' + u(T.w * T.frames) + ' ' + u(T.h) + ';--fw:' + u(T.w) + '"></div>' + puffs +
-      S.layers.filter(l => l.front).map(lyr).join('') + below + '</div>';
+      S.layers.filter(l => l.front).map(lyr).join('') +
+      '<div class="crossing" aria-hidden="true" style="width:' + u(CROSS.w) + ';height:' + u(CROSS.h) + ';background-image:' + url('crossing') + '"></div>' +
+      '<div class="cameos" aria-hidden="true"></div>' + below + '</div>';
   }
+  /* The title's cameos (2026-11-03, the user's: "add the tumbleweed, the prairie dog, the vultures ... and the
+     Joker"; bakery/cameo_px.py). Now and then, one at a time: a tumbleweed bouncing left to right along the near
+     hill's top, just above the buffalo; a prairie dog popping out of its hole as the grass goes by; two vultures
+     circling over the mesas; the Joker popping up out of the engine's cab to wave. (Partners riding past were tried
+     and dropped at the user's word, and the Joker's card cartwheeling became the Joker himself.) All in the scene's
+     art pixels (y below is the scene's own row). Art only; never with reduced motion, never off the title (it waits
+     while a game is on). */
+  const CAMEO = { first: [5000, 9000], gap: [14000, 26000], kinds: [['tumble', 3], ['dog', 3], ['vultures', 2], ['joker', 2]] };
+  /* The ravine crossing (2026-11-03, the user's: "the train going over a big ravine and over a large bridge"; their
+     pick, D, a great iron arch, of four mock-ups; bakery/ravine_px.py crossing()). Now and then the ground falls
+     away and the train crosses a red-rock ravine on the arch, then the grassland comes back: one strip, its banks cut
+     from the near hill, scrolling past at the hill's own speed (CROSS.speed art px a second), in front of the hill
+     and the herd and behind the train's wheels (z 2 and 3). The first a few seconds in, then every 25-40 s. The hill's
+     cameos (the tumbleweed, the prairie dog) wait while it's in view. Art only; never with reduced motion. */
+  const CROSS = { w: 220, h: 150, speed: 32, first: 4000, gap: [25000, 40000] };
+  let crossT = 0, crossEnd = 0;
+  const crossing = () => Date.now() < crossEnd;
+  function crossSoon(ms) { clearTimeout(crossT); crossT = setTimeout(cross, ms); }
+  function cross() {
+    const el = document.querySelector('#hero .crossing'), s = HERO.s;
+    const ok = el && !reduceMotion() && document.documentElement.classList.contains('art') && !$('title').hidden && !document.hidden;
+    if (!ok) { crossSoon(4000); return; }
+    const W = innerWidth, w = CROSS.w * s, ms = Math.round(1000 * (W + w) / (CROSS.speed * s));
+    el.style.animation = 'none'; void el.offsetWidth;
+    el.style.setProperty('--from', W + 'px'); el.style.setProperty('--to', -w + 'px');
+    el.style.animation = 'cmove ' + ms + 'ms linear forwards';
+    crossEnd = Date.now() + ms;
+    crossSoon(ms + between(...CROSS.gap));
+    return ms;
+  }
+  let cameoT = 0;
+  const between = (a, b) => a + Math.random() * (b - a);
+  function cameoSoon(ms) { clearTimeout(cameoT); cameoT = setTimeout(cameo, ms); }
+  function cameo(only) {
+    const box = document.querySelector('#hero .cameos');
+    const ok = box && window.TITLE_SCENE && !reduceMotion() && document.documentElement.classList.contains('art') && !$('title').hidden && !document.body.classList.contains('opening') && !document.hidden;
+    if (!ok || box.children.length) { cameoSoon(4000); return; }
+    // over the ravine there's no hill: the tumbleweed and the prairie dog wait for the grass
+    const kinds = crossing() && !only ? CAMEO.kinds.filter(k => k[0] !== 'tumble' && k[0] !== 'dog') : CAMEO.kinds;
+    let kind = only;
+    if (!kind) { let r = Math.random() * kinds.reduce((a, k) => a + k[1], 0); kind = kinds.find(k => (r -= k[1]) < 0)[0]; }
+    const ms = CAMEOS[kind](box, HERO.s);
+    setTimeout(() => { if (box.isConnected) box.innerHTML = ''; }, ms + 200);
+    cameoSoon(ms + between(...CAMEO.gap));
+    return kind;
+  }
+  // one sprite crossing the screen: a mover, then a hop (if any), then the frames
+  function crosser(box, cls, img, x, y, w, h, from, to, ms, flip) {
+    box.insertAdjacentHTML('beforeend', '<div class="cm ' + cls + '" style="top:' + y + 'px;width:' + w + 'px;height:' + h + 'px;--from:' + from + 'px;--to:' + to + 'px;animation-duration:' + ms + 'ms">' +
+      '<span><i style="background-image:url(' + artURL('title/' + img + '.webp') + ')' + (flip ? ';scale:-1 1' : '') + '"></i></span></div>');
+    return box.lastElementChild;
+  }
+  const CAMEOS = {
+    // the wind takes it right to left along the near hill's top, up and over its crest and down again, with little
+    // hops (the user's: "right to left ... follow the gradient and curvature of that closest hill"). The hill
+    // scrolls under it, so each frame reads where the plains layer is and the hill's height there (title/cameo.js,
+    // bakery/cameo_px.py ridge()).
+    tumble(box, s) {
+      const w = 15 * s, W = innerWidth, ms = 6200, Rg = window.TITLE_CAMEO && window.TITLE_CAMEO.ridge;
+      const hill = [...document.querySelectorAll('#hero .lyr')].find(l => /plains/.test(l.style.backgroundImage));
+      const el = crosser(box, 'cm-tumble', 'cameo_tumble', 0, 0, w, w, 0, 0, ms, true);
+      el.style.animation = 'none';
+      const t0 = performance.now(), raf = window.requestAnimationFrame ? f => requestAnimationFrame(f) : f => setTimeout(() => f(performance.now()), 16);
+      const step = now => {
+        if (!el.isConnected) return;
+        const f = Math.min(1, (now - t0) / ms), x = W - (W + w) * f;
+        let top = 108;                                  // the near hill's top, if the ridge or the layer is missing
+        if (Rg && hill) {
+          const o = parseFloat(getComputedStyle(hill).backgroundPositionX) || 0, u = Math.floor(((x + w / 2 - o) / s) % Rg.w + Rg.w) % Rg.w;
+          top = Rg.y + Rg.top[u] - 15;
+        }
+        const hop = Math.abs(Math.sin((now - t0) / 1000 * Math.PI / 0.55)) * 3;
+        el.style.transform = 'translate(' + Math.round(x) + 'px,' + Math.round((top - hop) * s) + 'px)';
+        if (f < 1) raf(step);
+      };
+      raf(step);
+      return ms;
+    },
+    // a hole in the grass comes by with the ground; the dog pops up, looks both ways and ducks
+    dog(box, s) {
+      const w = 13 * s, h = 15 * s, W = innerWidth, ms = Math.round(1000 * (W + w + 10) / (32 * s)), el = crosser(box, 'cm-dog', 'cameo_dog', 0, 99 * s, w, h, W + 10, -w, ms);
+      const i = el.querySelector('i'), at = (f, t) => setTimeout(() => { i.style.backgroundPositionX = (f * 20) + '%'; }, t * ms);
+      [[1, .26], [2, .33], [3, .44], [4, .53], [2, .62], [5, .70], [0, .76]].forEach(([f, t]) => at(f, t));
+      return ms;
+    },
+    // two vultures circle over the mesas for a while, low enough to stay clear of the sign
+    vultures(box, s) {
+      const W = innerWidth, ms = 10000, cx = Math.round(W * between(0.3, 0.7));
+      box.insertAdjacentHTML('beforeend', '<div class="cm-vultures" style="animation-duration:' + ms + 'ms">' + [0, 1].map(k =>
+        '<div class="cmv" style="left:' + (cx + (k ? 30 : -20) * s / 3) + 'px;top:' + ((k ? 43 : 38) * s) + 'px;--vd:' + (k ? 7.5 : 6) + 's;animation-delay:-' + (k * 2.2) + 's">' +
+        '<i style="--vr:' + ((k ? 10 : 12) * s) + 'px;width:' + (17 * s) + 'px;height:' + (9 * s) + 'px;margin:-' + (4.5 * s) + 'px 0 0 -' + (8.5 * s) + 'px;background-image:url(' + artURL('title/cameo_vulture.webp') + ');animation-delay:0s,-' + (k * 2.2) + 's"></i></div>').join('') + '</div>');
+      return ms;
+    },
+    // the Joker (from his card) pops up out of the engine's cab, waves, and ducks back down: he rises from behind the
+    // cab window's bottom edge (the train's row 10, column 84 of its 119), so the cab hides his lower half
+    joker(box, s) {
+      const T = window.TITLE_SCENE.train, w = 18 * s, h = 18 * s, ms = 3800;
+      const x = Math.round(innerWidth / 2 - T.w * s / 2 + 84 * s - w / 2), sill = (T.y + 10) * s;
+      box.insertAdjacentHTML('beforeend', '<div class="cm-joker" style="left:' + x + 'px;top:' + (sill - h) + 'px;width:' + w + 'px;height:' + h + 'px;animation-duration:' + ms + 'ms">' +
+        '<span style="animation-duration:' + ms + 'ms"><i style="background-image:url(' + artURL('title/cameo_joker.webp') + ')"></i></span></div>');
+      return ms;
+    }
+  };
   /* The WELCOME plank over the sign's painted panel, placed in the sign's own pixels; it hangs on the nail two
      pixels in from its top left, so that is where it turns. */
   function signCover(sign, bg) {
@@ -4373,15 +4504,21 @@ html.art .coach { border-radius: 0; }
     const S = window.TITLE_SCENE, art = document.documentElement.classList.contains('art');
     const s = HERO.s, sky = S ? Math.max(120, HERO.trainTop - 12) : innerHeight * 0.6;
     const place = (sel, y) => { const el = document.querySelector(sel); if (el) el.style.top = Math.round(y) + 'px'; };
-    place('.titlemenu .logo', sky * 0.22);
+    // the logo: "DRAW," on a red ribbon wrapped round the top of a "PARTNER!" sign, in a face drawn in pixels (the
+    // user's pick, D, of four, 2026-11-03; bakery/logo_px.py), centred in the sky's second band, 22-44% down the
+    // screen. ?logo= still shows the others (cur_board, cur_banner, slab_board) or the old words (none).
+    const LOGO = (location.search.match(/[?&]logo=(\w+)/) || [])[1] || 'slab_combo', LOGOS = { cur_board: [120, 27], cur_banner: [126, 25], slab_board: [103, 48], slab_combo: [103, 53] };
+    const signed = art && LOGOS[LOGO];
+    place('.titlemenu .logo', signed ? innerHeight * 0.33 : sky * 0.22);
     const foot = innerHeight - 40;
     place('.titlemenu .go', foot);
     const items = [...document.querySelectorAll('.titlemenu .item')].filter(el => !el.hidden).reverse(), gap = Math.min(54, (foot - sky * 0.42) / Math.max(1, items.length - 1));
     items.forEach((el, i) => { el.style.top = Math.round(foot - gap * i) + 'px'; });
     document.querySelectorAll('.titlemenu .wood').forEach(el => {
-      const t = S && S.type && S.type[el.dataset.word];
+      const t = signed && el.dataset.word === 'logo' ? { img: 'logo_' + LOGO, w: LOGOS[LOGO][0], h: LOGOS[LOGO][1] } : S && S.type && S.type[el.dataset.word];
       if (!t || !art) return;
-      const k = el.classList.contains('more') ? Math.max(2, s - 1) : s;
+      // the title's own pixel size, one smaller when a sign wouldn't fit across the screen
+      const k = el.classList.contains('more') ? Math.max(2, s - 1) : signed && el.dataset.word === 'logo' && t.w * s > innerWidth - 16 ? Math.max(2, s - 1) : s;
       let img = el.querySelector('img');
       if (!img) { img = document.createElement('img'); img.alt = ''; el.insertBefore(img, el.querySelector('small')); }
       img.src = artURL('title/' + t.img + '.webp');
@@ -4391,6 +4528,13 @@ html.art .coach { border-radius: 0; }
   }
   buildHero();
   layoutTitle();
+  // ?cameo=tumble (dog, vultures, joker) shows one at once, for a look at it; tests call P.cameo
+  P.cameo = cameo;
+  { const c = (location.search.match(/[?&]cameo=(\w+)/) || [])[1];
+    if (c && CAMEOS[c]) setTimeout(() => cameo(c), 300); else if (!FAST) cameoSoon(between(...CAMEO.first));
+    // ?crossing=1 sends the ravine past at once; tests call P.cross
+    P.cross = cross;
+    if (/[?&]crossing=1\b/.test(location.search)) setTimeout(cross, 300); else if (!FAST) crossSoon(CROSS.first); }
   // html.art arrives when the probe picture loads: draw the words then; a new screen size rebuilds the scene
   new MutationObserver(layoutTitle).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
   let resizeT = 0;
