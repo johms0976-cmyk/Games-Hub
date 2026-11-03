@@ -55,6 +55,11 @@ html.art .hero { background: linear-gradient(#7cbadb 0 22%, #8cc4e0 22% 44%, #a8
   cursor: pointer; font: 800 30px/1.1 Georgia, serif; letter-spacing: .06em; color: #fbf0d0; text-transform: uppercase;
   text-shadow: 0 0 0 #3a1a12, 2px 2px 0 #3a1a12, -1px -1px 0 #3a1a12, 1px -1px 0 #3a1a12, -1px 1px 0 #3a1a12, 3px 4px 0 rgba(42,22,18,.5); }
 .titlemenu .logo { cursor: default; font-size: 36px; color: #f3d070; white-space: nowrap; width: max-content; }
+/* the card logos (2026-11-04): a tap flicks between them, the sign turning over like a card */
+.titlemenu .logo.cards { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.titlemenu .logo.flip { animation: logoflip .32s ease-in-out; }
+@keyframes logoflip { 50% { transform: translate(-50%, -50%) scaleX(0); } }
+@media (prefers-reduced-motion: reduce) { .titlemenu .logo.flip { animation: none; } }
 .titlemenu .more { font-size: 20px; }
 .titlemenu .wood img { display: none; image-rendering: pixelated; }
 html.art .titlemenu .wood.drawn img { display: block; }
@@ -1554,7 +1559,7 @@ html.art .coach { border-radius: 0; }
 <section id="title">
   <div class="hero" id="hero" aria-hidden="true"></div>
   <div class="titlemenu">
-    <h1 class="wood logo" data-word="logo"><span>Draw, Partner!</span></h1>
+    <h1 class="wood logo" data-word="logo" data-act="swaplogo"><span>Draw, Partner!</span></h1>
     <button class="wood go more" data-act="start" data-word="start"><span>Start</span></button>
     <button class="wood more item" data-act="newstory" data-word="newstory"><span>New Story</span></button>
     <button class="wood more item" data-act="continue" id="continueBtn" data-word="continue"><span>Continue Current Story</span></button>
@@ -1623,23 +1628,23 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=41"></script>
-<script src="btp-ai.js?v=41"></script>
-<script src="btp-run.js?v=41"></script>
-<script src="btp-town.js?v=41"></script>
-<script src="art/dustwater/sprites.js?v=41"></script>
-<script src="btp-train.js?v=41"></script>
-<script src="art/train/sprites.js?v=41"></script>
-<script src="art/title/scene.js?v=41"></script>
-<script src="art/title/cameo.js?v=41"></script>
-<script src="art/title/crossing.js?v=41"></script>
-<script src="art/table/scene.js?v=41"></script>
-<script src="art/table/partners.js?v=41"></script>
-<script src="art/grave/scene.js?v=41"></script>
-<script src="art/paid/scene.js?v=41"></script>
-<script src="art/rooms/scene.js?v=41"></script>
-<script src="art/express/scene.js?v=41"></script>
-<script src="art/fair/sprites.js?v=41"></script>
+<script src="btp-engine.js?v=42"></script>
+<script src="btp-ai.js?v=42"></script>
+<script src="btp-run.js?v=42"></script>
+<script src="btp-town.js?v=42"></script>
+<script src="art/dustwater/sprites.js?v=42"></script>
+<script src="btp-train.js?v=42"></script>
+<script src="art/train/sprites.js?v=42"></script>
+<script src="art/title/scene.js?v=42"></script>
+<script src="art/title/cameo.js?v=42"></script>
+<script src="art/title/crossing.js?v=42"></script>
+<script src="art/table/scene.js?v=42"></script>
+<script src="art/table/partners.js?v=42"></script>
+<script src="art/grave/scene.js?v=42"></script>
+<script src="art/paid/scene.js?v=42"></script>
+<script src="art/rooms/scene.js?v=42"></script>
+<script src="art/express/scene.js?v=42"></script>
+<script src="art/fair/sprites.js?v=42"></script>
 <script>
 (function () {
   'use strict';
@@ -1666,7 +1671,7 @@ html.art .coach { border-radius: 0; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 34, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 37, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -3885,6 +3890,7 @@ html.art .coach { border-radius: 0; }
       '<h3>When only one card can be played</h3><div class="btns">' + optVal('onecard', oneCard(), 'auto', 'Play it for me') + optVal('onecard', oneCard(), 'tap', 'Let me tap it') + '</div>' + (L ? '<h3>Your cards and buffs</h3>' + mineHTML() +
       '<ul class="lines">' + L.owned.filter(c => L.mods[c] && L.mods[c].enh).map(c => '<li>' + esc(E.label(c)) + (R.legendary(L, c) ? ' (Legendary)' : '') + ': ' + E.enhsOf(L.mods[c]).map(x => esc(R.ENH[x].name + ': ' + R.ENH[x].text)).join(' ') + '</li>').join('') +
       L.buffs.map(b => '<li>' + esc(R.BUFFS[b].name) + ': ' + esc(R.BUFFS[b].text) + '</li>').join('') + '</ul>' : '') +
+      '<h3>Title logo</h3><div class="btns">' + optVal('logo', logoKey(), 'hand', 'Joker and Ace') + optVal('logo', logoKey(), 'jacks', 'Four Jacks') + '</div>' +
       hotMenuHTML() + installHTML() +
       '<div class="btns"><button class="btn" data-act="closesheet">Back</button><button class="btn alt" data-act="quit">Title screen</button></div>';
   }
@@ -4106,6 +4112,7 @@ html.art .coach { border-radius: 0; }
     if (d.foe) { startStandard(d.foe); return; }
     switch (d.act) {
       case 'start': mainMenu(true); break;
+      case 'swaplogo': swapLogo(); break;
       case 'mainback': mainMenu(false); break;
       case 'newstory': if (loadSaved() && storyLive(loadSaved())) openSheet('info', abandonHTML()); else newRun(); break;
       case 'pickback': P.picking = false; P.L = null; $('pick').hidden = true; $('pick').innerHTML = ''; $('title').classList.remove('picking'); break;
@@ -4570,28 +4577,45 @@ html.art .coach { border-radius: 0; }
   // the stage under the title scene, in art pixels: the trail runs across it TRAIL_Y down; the stage scrolls at
   // STAGE_SPEED art pixels a second (60% of the first cut's 52) and the sign is drawn SIGN_K times its art size
   const BELOW = 560, TRAIL_Y = 280, HERO = { s: 2, top: 0, trainTop: 0 }, STAGE_SPEED = 31, SIGN_K = 1.2;
-  /* The title's words: pictures once the art is on. The logo in the sky, a fifth of the way down to the train; Start
-     floating on the grass at the bottom, at the size Options had (2026-11-03, the user's: buttons at the bottom so the
-     phone works in one hand), and Start's menu stacked up from there, Back where Start was. */
+  /* The title's words: pictures once the art is on. The logo in the sky; Start floating on the grass at the bottom, at
+     the size Options had (2026-11-03, the user's: buttons at the bottom so the phone works in one hand), and Start's
+     menu stacked up from there, Back where Start was. */
+  // the logo with its cards (2026-11-04, the user's picks of the mock-ups, bakery/logo_cards_px.py): the Joker and the
+  // Ace of Spades fanned up behind the sign (hand), or the four Jacks (jacks); the player flicks between them with a
+  // tap on the logo or in the Menu (prefs.logo). The old one (slab_combo, 2026-11-03) and the earlier mock-ups still
+  // show with ?logo=.
+  const LOGOS = { hand: [103, 107], jacks: [116, 102], slab_combo: [103, 53], slab_board: [103, 48], cur_board: [120, 27], cur_banner: [126, 25] };
+  const CARD_LOGOS = ['hand', 'jacks'];
+  const logoAsked = () => (location.search.match(/[?&]logo=(\w+)/) || [])[1];
+  const logoKey = () => logoAsked() || (CARD_LOGOS.includes(P.prefs.logo) ? P.prefs.logo : 'hand');
   function layoutTitle() {
     const S = window.TITLE_SCENE, art = document.documentElement.classList.contains('art');
     const s = HERO.s, sky = S ? Math.max(120, HERO.trainTop - 12) : innerHeight * 0.6;
     const place = (sel, y) => { const el = document.querySelector(sel); if (el) el.style.top = Math.round(y) + 'px'; };
-    // the logo: "DRAW," on a red ribbon wrapped round the top of a "PARTNER!" sign, in a face drawn in pixels (the
-    // user's pick, D, of four, 2026-11-03; bakery/logo_px.py), centred in the sky's second band, 22-44% down the
-    // screen. ?logo= still shows the others (cur_board, cur_banner, slab_board) or the old words (none).
-    const LOGO = (location.search.match(/[?&]logo=(\w+)/) || [])[1] || 'slab_combo', LOGOS = { cur_board: [120, 27], cur_banner: [126, 25], slab_board: [103, 48], slab_combo: [103, 53] };
-    const signed = art && LOGOS[LOGO];
-    place('.titlemenu .logo', signed ? innerHeight * 0.33 : sky * 0.22);
     const foot = innerHeight - 40;
     place('.titlemenu .go', foot);
     const items = [...document.querySelectorAll('.titlemenu .item')].filter(el => !el.hidden).reverse(), gap = Math.min(54, (foot - sky * 0.42) / Math.max(1, items.length - 1));
     items.forEach((el, i) => { el.style.top = Math.round(foot - gap * i) + 'px'; });
+    const LOGO = logoKey(), signed = art && LOGOS[LOGO], cards = signed && CARD_LOGOS.includes(LOGO);
+    const logoEl = document.querySelector('.titlemenu .logo');
+    if (logoEl) logoEl.classList.toggle('cards', !!cards && !logoAsked());
+    // the card logos use the sky above the clouds (the user's: "quite a bit of real estate at the top"): centred there,
+    // kept 8 px from the top and clear of the train and of Start's menu, a size smaller only if they can't fit
+    let lk = s;
+    if (cards) {
+      const [w, h] = LOGOS[LOGO], low = Math.min(HERO.trainTop - 6, foot - gap * Math.max(0, items.length - 1) - 30);
+      if (w * lk > innerWidth - 6 || h * lk > low - 8) lk = Math.max(2, lk - 1);
+      const half = h * lk / 2;
+      place('.titlemenu .logo', Math.max(8 + half, Math.min(low - half, HERO.top / 2 + 10 * s)));
+    } else {
+      place('.titlemenu .logo', signed ? innerHeight * 0.33 : sky * 0.22);
+      if (signed && LOGOS[LOGO][0] * s > innerWidth - 16) lk = Math.max(2, s - 1);
+    }
     document.querySelectorAll('.titlemenu .wood').forEach(el => {
       const t = signed && el.dataset.word === 'logo' ? { img: 'logo_' + LOGO, w: LOGOS[LOGO][0], h: LOGOS[LOGO][1] } : S && S.type && S.type[el.dataset.word];
       if (!t || !art) return;
-      // the title's own pixel size, one smaller when a sign wouldn't fit across the screen
-      const k = el.classList.contains('more') ? Math.max(2, s - 1) : signed && el.dataset.word === 'logo' && t.w * s > innerWidth - 16 ? Math.max(2, s - 1) : s;
+      // the title's own pixel size: the menu's words a size smaller, the logo as worked out above
+      const k = el.classList.contains('more') ? Math.max(2, s - 1) : el.dataset.word === 'logo' && signed ? lk : s;
       let img = el.querySelector('img');
       if (!img) { img = document.createElement('img'); img.alt = ''; el.insertBefore(img, el.querySelector('small')); }
       img.src = artURL('title/' + t.img + '.webp');
@@ -4599,6 +4623,17 @@ html.art .coach { border-radius: 0; }
       el.classList.add('drawn');
     });
   }
+  // a tap on the logo turns it over to the other one, and the choice is kept
+  function swapLogo() {
+    const el = document.querySelector('.titlemenu .logo');
+    if (!el || !el.classList.contains('cards')) return;
+    setPref('logo', logoKey() === 'hand' ? 'jacks' : 'hand');
+    if (reduceMotion() || FAST) { layoutTitle(); return; }
+    el.classList.remove('flip'); void el.offsetWidth; el.classList.add('flip');
+    setTimeout(layoutTitle, 160);                        // the swap at the turn's edge-on moment
+    setTimeout(() => el.classList.remove('flip'), 360);
+  }
+  P.swapLogo = swapLogo;
   buildHero();
   layoutTitle();
   // ?cameo=tumble (dog, vultures, joker) shows one at once, for a look at it; tests call P.cameo
