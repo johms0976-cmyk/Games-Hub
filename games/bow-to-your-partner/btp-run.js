@@ -975,7 +975,31 @@
   /* A wanted gang's health when you sit down with it (Signed Warrant takes a tenth off), and its bounty: an
      ability beyond what its kind always has adds BOUNTY.ability to what the stars pay. */
   const BOUNTY = { ability: 0.5 };
-  const foeHp = (L, F) => Math.round(F.hp * (has(L, 'warrant') ? 0.9 : 1) / 10) * 10;
+  /* Beginner's luck (2026-11-03, the user's: "I want the first couple of rounds to be quite easy and quick, i.e. the
+     chances of getting a joker are quite high for the player and their chances decrease as the game progresses").
+     A story's first fights: the Joker comes to you more often (joker: your chance of holding it, by fights done; it
+     is about 1 in 5 dealt fair), and the first two gangs are smaller (hp). A player's first stories (rookieRuns) get
+     a little more. Never on the Daily or in Standard 500 (the same deal for everyone is the point there), from
+     Wanted level 2, or in a Showdown, a contest or the Getaway. Measured with tests/fights.js {"early":1}. */
+  const LUCK = { joker: [0.5, 0.4, 0.3], rookie: [0.6, 0.5, 0.4, 0.3], rookieRuns: 3, hp: [0.6, 0.8], kinds: ['dance', 'elite', 'bank'] };
+  const lucky = L => L.mode !== 'standard' && !L.daily && (L.wantedLevel || 0) < 2;
+  const jokerOdds = L => lucky(L) && LUCK.kinds.includes(L.kind) ? (L.rookie ? LUCK.rookie : LUCK.joker)[L.levelsDone] || 0 : 0;
+  const foeHp = (L, F) => Math.round(F.hp * (has(L, 'warrant') ? 0.9 : 1) * (lucky(L) && !F.boss ? LUCK.hp[L.levelsDone] || 1 : 1) / 10) * 10;
+  // the Joker into your hand, from wherever it was dealt, for your plainest card (never a seeded one)
+  function luckyJoker(L) {
+    const h = L.h, mine = h.hands[0];
+    if (mine.includes('JK') || !h.deck.includes('JK')) return false;
+    const base = mine.length / h.deck.length, p = jokerOdds(L);
+    if (!(p > base) || E.rnd(L) >= (p - base) / (1 - base)) return false;
+    const give = mine.filter(c => c !== h.locked && !(h.seeded || []).includes(c)).sort((a, b) => E.RANKV[E.rankOf(a)] - E.RANKV[E.rankOf(b)])[0];
+    if (!give) return false;
+    const where = h.kitty.includes('JK') ? h.kitty : h.hands.find(x => x.includes('JK'));
+    where[where.indexOf('JK')] = give;
+    mine[mine.indexOf(give)] = 'JK';
+    E.sort(L, 0);
+    h.lucky = true;
+    return true;
+  }
   const bountyOf = (kind, F, stars) => Math.round((PAY[kind] || [0, 0, 0, 0])[stars] * ((F && F.bounty) || 1) / 5) * 5;
   const REST = { 1: 150, 2: 150, 3: 250 }, CASH = { health: 200, gold: 100 };
   const restOf = L => Math.round(REST[L.act] * (wants(L, 'thin') ? 0.75 : 1) / 5) * 5 + (has(L, 'pillow') ? 100 : 0);
@@ -1022,6 +1046,9 @@
       if (o.ghost && Array.isArray(o.ghost.owned) && o.ghost.owned.length) L.ghost = { owned: o.ghost.owned.slice(), mods: JSON.parse(JSON.stringify(o.ghost.mods || {})), partner: o.ghost.partner, act: o.ghost.act | 0 || 1, lostTo: o.ghost.lostTo || null, met: false };
       if (o.memory && o.memory.runs) L.memory = Object.assign({}, o.memory);
       if (o.stranger) L.strangerDue = true;
+      if (o.bonds && typeof o.bonds === 'object') L.bonds = Object.assign({}, o.bonds);
+      // a player's first few stories (the page passes memory, with runs 0 on the very first)
+      if (o.memory && (o.memory.runs | 0) < LUCK.rookieRuns) L.rookie = true;
     }
     L.maxWanted = Math.max(0, Math.min(WANTED.length, o.maxWanted | 0));
     L.wantedLevel = L.daily ? 0 : Math.min(L.maxWanted, o.wanted | 0);
@@ -1052,6 +1079,19 @@
       intro: '\u2026 (a nod, and the K\u2666 slid across the table. The Quiet One never bids, but lifts the corner of the kitty for you before you do.)' }
   ];
   const partnerStyle = L => (PARTNERS[L.partner] || {}).style || null;
+  /* Partner bond (2026-11-03, the user's list: "the reasons to come back"): the stories you've finished with a
+     partner. At each step (BOND.at, rides) something new: their own greeting (2), a sheriff's star on their portrait
+     (3), another greeting (4), and at 5 their second trick, a purse to start the story with (BOND.gold). The page
+     keeps the count (profile.bond) and passes it in as o.bonds; never on the Daily. */
+  const BOND = { at: [1, 3, 6, 10, 15], gold: 40,
+    lines: {
+      horse: ['Three rides, partner. You still hold your cards like they owe you money. I\u2019m fond of it.', 'Ten rides. I\u2019ve stopped counting the times a horse at a card table got funny looks. Mostly.'],
+      nan: ['There you are, dear. I\u2019ve knitted you a scarf for luck. It\u2019s mostly holes, like your bidding, but it\u2019s warm.', 'Ten rides together. My late husband never sat across from me this often, and he lived in the house.'],
+      showboat: ['The partnership the papers are calling \u201cthe greatest in the territory\u201d. The papers being me, mostly.', 'Ten rides, partner! I\u2019ve had a poster made of us. You\u2019re in the background. Small. But present.'],
+      sharp: ['Three rides. I\u2019ve counted your tells: four. I\u2019ll keep them between us. And the gang.', 'Ten rides. By my count we\u2019ve won more than we\u2019ve lost, and I\u2019m never wrong about counting.'],
+      quiet: ['(The Quiet One nods at you. Twice. That\u2019s practically a speech.)', '(The Quiet One hands you a bandana of your own. Then looks away, embarrassed.)']
+    } };
+  const bondOf = n => BOND.at.filter(x => (n | 0) >= x).length;
   const partnerOpen = (L, p) => !!p && !p.locked && !!PARTNERS[p.id] && (!p.unlock || (L.unlocked || []).includes(p.unlock));
   function choosePartner(L, id) {
     if (L.phase !== 'partner') return no('not choosing a partner');
@@ -1063,6 +1103,8 @@
     L.mods = JSON.parse(JSON.stringify(P.mods || {}));
     L.buffs = [P.ability];
     L.partnerStyle = P.style || null;
+    // their second trick, at the fifth step of your bond: a purse to start with
+    if (L.bonds && bondOf(L.bonds[id]) >= BOND.at.length && !L.bondGold) { L.bondGold = BOND.gold; L.gold += BOND.gold; }
     // the card pick was dealt for the first partner: never offer the card the chosen one brings
     if (L.offer && L.offer.includes(P.start)) {
       const spare = E.deckOf(L).filter(c => c !== P.start && !L.offer.includes(c));
@@ -1365,6 +1407,7 @@
       L.h.stacked = true;
       E.say(L, 'A stacked deck: ' + L.foe.name + ' get the better of two deals.', 'rule');
     }
+    if (!L.dealRule && !(L.foe && L.foe.ghost)) luckyJoker(L);
     if (E.bossRule(L) === 'caller') {
       if (Object.keys(CALLS).every(id => L.calls.includes(id))) L.calls = [];     // a long Showdown: he starts the round again
       const c = chooseCall(L);
@@ -1754,9 +1797,21 @@
     advanceReward(L, L.reward.back);
     return yes();
   }
+  /* Gilded rewards (2026-11-03, the user's: "rewards come face down and flip with a rarity glow; rare gilded
+     versions"). Each pick may have one gilded offer (GILD.p): a gilded buff comes with a purse of gold, a gilded
+     enhancement also polishes the card it goes on a rank (or pays the purse when the card can rise no further). A
+     story's first pick always has one, so a new player meets it. Decided when the pick comes up, and again on a
+     reroll. */
+  const GILD = { p: 0.12, gold: 30 };
+  function gildStep(L, s) {
+    if (!s || s.gilded !== undefined || !s.options || !s.options.length) return;
+    const first = !L.gildMet;
+    L.gildMet = true;
+    s.gilded = first || E.rnd(L) < GILD.p ? E.pick(L, s.options) : null;
+  }
   function advanceReward(L, back) {
     const steps = L.reward ? L.reward.steps : [];
-    if (steps.length) { L.phase = 'reward'; return; }
+    if (steps.length) { gildStep(L, steps[0]); L.phase = 'reward'; return; }
     L.reward = null;
     if (back) { L.phase = back; return; }
     nextStop(L);
@@ -1772,6 +1827,7 @@
     L.gold -= rerollPrice(L);
     const n = s.options.length, fresh = pool.filter(x => !s.options.includes(x));
     s.options = draw(L, fresh.length >= n ? fresh : pool, n);
+    s.gilded = undefined; gildStep(L, s);
     note(L, rerollPrice(L) ? 'Rerolled for ' + REROLL + ' gold.' : 'Rerolled with the Loaded Dice.');
     return yes();
   }
@@ -1787,6 +1843,7 @@
     if (s.type === 'buff') {
       if (!s.options.includes(arg)) return no('not on offer');
       grantBuff(L, arg); note(L, 'New buff: ' + BUFFS[arg].name + '.');
+      if (s.gilded === arg) { L.gold += GILD.gold; note(L, 'New buff: ' + BUFFS[arg].name + ', gilded: +' + GILD.gold + ' gold.'); }
       L.reward.steps.shift(); advanceReward(L, L.reward.back); return yes();
     }
     if (s.type === 'enh') {
@@ -1853,6 +1910,10 @@
     } else {
       m.enh = L.target;
       note(L, E.label(card) + ' is now ' + ENH[L.target].name + '.');
+    }
+    if (L.targetStep && L.targetStep.gilded === L.target) {
+      if ((m.up || 0) < E.maxUp(card)) { m.up = (m.up || 0) + 1; note(L, L.note + ' Gilded: polished a rank too.'); }
+      else { L.gold += GILD.gold; note(L, L.note + ' Gilded: +' + GILD.gold + ' gold.'); }
     }
     L.target = L.targetStep = L.targetBuy = null;
     advanceReward(L, L.targetBack);
@@ -2243,7 +2304,7 @@
     if (O && O.kind === 'limit') return 'holding';
     return o.n + ' / ' + o.of;
   }
-  const api = { INSULTS, insult, QUIPS, quipFor, poss, eventText, LAST_STAND, STRANGER, DUEL_RULES, DARES, DARE_LIE, HEAT, heatOdds, MYSTERY, GHOST, ghostFoe, DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
+  const api = { BOND, bondOf, GILD, gildStep, LUCK, lucky, jokerOdds, luckyJoker, INSULTS, insult, QUIPS, quipFor, poss, eventText, LAST_STAND, STRANGER, DUEL_RULES, DARES, DARE_LIE, HEAT, heatOdds, MYSTERY, GHOST, ghostFoe, DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
     TAUNTS, taunt, cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, MANNERS, WANTED, wantedFor, wants, dailySeed, dailyTwist, FAIR_GOODS, setQuick, floorsFor, CHASE, chaseRide, CONTEST, RIBBON, ribbonOf, EXPRESS, SIDE, genThreeTrains, DRIVER, COUNTER, makeDriver, ROSTER, partnerOpen, voice, STANDARD, standardFoe, newStandard,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;

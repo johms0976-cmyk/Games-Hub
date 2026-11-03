@@ -4,6 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Draw, Partner!</title>
+<!-- install to home screen (2026-11-03): full screen from the home screen, no browser bars -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2a1b16">
+<link rel="icon" type="image/png" sizes="192x192" href="art/icon/icon-192.png">
+<link rel="apple-touch-icon" href="art/icon/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Draw, Partner!">
 <style>
 :root {
   --bg: #f6efe2; --felt: #2f5d46; --felt-2: #275039; --ink: #2b211a; --muted: #6f6253;
@@ -837,6 +846,57 @@ html.art .evscene { display: block; }
 #pick .wantedpick details { font-size: 12px; }
 #pick .pickback { margin-top: 8px; }
 #pick.pickbg { background: none; }
+/* the partner pick (2026-11-03): one partner large over the train, a plaque, the roster as portraits, Ride */
+#title.picking .titlemenu { opacity: 0; pointer-events: none; }
+#pick.psmode { padding: 0; overflow: hidden; background: linear-gradient(rgba(24,14,10,0) 35%, rgba(24,14,10,.55) 70%, rgba(24,14,10,.8)); }
+.psel { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px;
+  padding: 10px 12px max(12px, env(safe-area-inset-bottom)); max-width: 520px; margin: 0 auto; }
+#pick .psel .pshead { margin: 0 0 auto; padding-top: 8px; color: #f3d070; font-size: 24px; text-shadow: 0 2px 0 #2a1b16, 0 0 10px rgba(0,0,0,.5); }
+.psstage { display: flex; align-items: flex-end; justify-content: center; gap: 10px; width: 100%; touch-action: pan-y; }
+.psfig { position: relative; width: 120px; height: 168px; filter: drop-shadow(0 4px 0 rgba(30,18,14,.45)); animation: psin .3s ease-out; }
+.psfig img { width: 100%; height: 100%; image-rendering: pixelated; display: block; }
+.psfig.locked img, .psport.locked img { filter: brightness(0) opacity(.8); }
+.psfig b, .psport b { position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); color: #f3d070; font: 800 44px/1 "Pixelify Sans", Bitter, monospace; text-shadow: 0 2px 0 #2a1b16; }
+.psport b { font-size: 20px; top: 45%; }
+@keyframes psin { from { opacity: 0; transform: translateY(10px) scale(.96); } }
+.psarrow { width: 44px; height: 44px; margin-bottom: 60px; border: 0; border-radius: 50%; background: rgba(42,27,22,.7); color: #f3d070; font-size: 30px; line-height: 1; }
+.psplaque { width: 100%; padding: 8px 12px 10px; background: #2e2216; color: #fbeed0; border: 3px solid #6e4424; box-shadow: inset 0 0 0 2px rgba(243,208,112,.35), 0 4px 14px rgba(0,0,0,.4); text-align: center; }
+.psplaque .psname { display: block; font: 700 22px/1.1 "Pixelify Sans", Bitter, monospace; color: #f3d070; }
+.psplaque i { display: block; font-size: 13px; color: #e8d8b0; margin-top: 2px; }
+.psplaque p { margin: 6px 0 0; font-size: 14px; line-height: 1.35; }
+.psplaque .lockline { color: #f3d070; }
+.psrow { display: flex; justify-content: center; gap: 8px; width: 100%; }
+.psport { position: relative; width: 54px; height: 64px; padding: 2px; border: 2px solid rgba(243,208,112,.35); border-radius: 8px; background: rgba(42,27,22,.75); }
+.psport img { width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; image-rendering: pixelated; display: block; }
+.psport.on { border-color: #f3d070; box-shadow: 0 0 0 2px #f3d070, 0 0 12px rgba(243,208,112,.6); background: rgba(110,68,36,.9); }
+.psgo { width: 100%; margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 8px; }
+.psel .wantedpick { width: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 4px 8px; background: rgba(42,27,22,.7); color: #fbeed0; }
+.psel .wantedpick .wlh { font-size: 13px; } .psel .wantedpick .hint { flex-basis: 100%; margin: 0; font-size: 12px; }
+/* the bond, the unlock bars, the Wanted Wall (2026-11-03) */
+.bond { margin-top: 6px; font-size: 13px; }
+.bond .bstars { color: #f3d070; letter-spacing: 1px; } .bond .bstars s { text-decoration: none; opacity: .3; }
+.bond small { display: block; font-size: 12px; opacity: .85; }
+.psport .bstar { position: absolute; top: -7px; right: -6px; color: #f3d070; font-size: 16px; font-style: normal; text-shadow: 0 1px 0 #2a1b16, 0 0 4px #2a1b16; }
+.ubar { margin-top: 6px; } .ubar .meter { display: block; width: 100%; height: 10px; background: rgba(0,0,0,.35); border: 1px solid rgba(243,208,112,.5); }
+.ubar .meter i { display: block; height: 100%; background: linear-gradient(#f3d070, #c8962e); }
+.ubar small { display: block; font-size: 12px; margin-top: 2px; opacity: .85; }
+.nextup { display: grid; gap: 8px; }
+.nu { display: flex; gap: 10px; align-items: flex-start; padding: 8px; background: rgba(42,27,22,.06); border: 1px solid var(--line); }
+.nu p { margin: 2px 0 0; font-size: 13px; }
+.nuf { position: relative; flex: none; width: 40px; height: 48px; display: grid; place-items: center; font-size: 26px; color: #c8962e; }
+.nuf img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.nuf.locked img { filter: brightness(0) opacity(.75); } .nuf.locked b { position: absolute; color: #f3d070; font-size: 18px; text-shadow: 0 1px 0 #2a1b16; }
+.wwall { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.wp { position: relative; padding: 4px 4px 6px; background: #ecdcb4; color: #3a2a20; border: 2px solid #2a1b16; text-align: center; box-shadow: 2px 2px 0 rgba(42,27,22,.35); overflow: hidden; }
+.wp .ww { display: block; font: 800 10px/1.2 Bitter, Georgia, serif; letter-spacing: .14em; color: #6a1d14; }
+.wp .wf { display: flex; justify-content: center; gap: 2px; margin: 2px 0; }
+.wp .wf img { width: 36px; height: 36px; object-fit: cover; object-position: 50% 0; image-rendering: pixelated; }
+.wp b { display: block; font-size: 11px; line-height: 1.2; }
+.wp.unseen .wf img { filter: brightness(0) opacity(.45); } .wp.unseen b { opacity: .6; }
+.wp.boss { border-color: #8a6412; background: #f3e2b4; }
+.wp .wstamp { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%) rotate(-14deg); padding: 1px 6px; border: 3px solid #b8322a; color: #b8322a; font: 900 18px/1 Bitter, Georgia, serif;
+  letter-spacing: .06em; font-style: normal; opacity: .85; background: rgba(236, 220, 180, .35); white-space: nowrap; }
+@media (max-height: 600px) { .psfig { width: 90px; height: 126px; } .psplaque p { font-size: 13px; } .pshead { font-size: 20px; } }
 /* your partner rides beside you in the opening: the coach's own frame, two riders stepping through the gallop */
 .hero .stagecoach.pair { background-image: none !important; }
 .hero .stagecoach.pair i { position: absolute; inset: 0; background-repeat: no-repeat; background-size: calc(var(--fw) * 4) 100%; image-rendering: pixelated; animation: wheels .56s steps(4) infinite; }
@@ -854,13 +914,20 @@ html.art .mapbox .rodein { display: block; }
 /* the partners in pixels (2026-11-03, the user: "the SVG looks ok, but it's a bit weird against the rest of the
    pixels"): baked with the gang (bakery/gang.py, partners_px.py). With art on, a head-and-shoulders crop wherever a
    partner talks, and their whole figure at the table between the gang; the drawings stay for art off. */
-.pxface { display: none; }
-html.art .face.svg .pxface { display: block; width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; image-rendering: pixelated; }
+.pxwrap.face { display: none; }
+html.art .face.svg .pxwrap.face { display: block; }
+.pxwrap { position: relative; height: 100%; aspect-ratio: 36 / 44; margin: 0 auto; --px: calc(100% / 44); animation: pxbob 3.4s steps(1, end) infinite; }
+.pxwrap.whole { width: 100%; aspect-ratio: 40 / 56; --px: calc(100% / 56); }
+.pxwrap img { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+.pxwrap .lid { position: absolute; opacity: 0; animation: pxblink 4.8s infinite; }
+@keyframes pxbob { 0% { transform: none; } 50% { transform: translateY(var(--px)); } }
+@keyframes pxblink { 0%, 93% { opacity: 0; } 94%, 97% { opacity: 1; } 98%, 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .pxwrap, .pxwrap .lid { animation: none; } }
 html.art .face.svg .nansvg { display: none; }
-.stage .nanfig .pxfig { display: none; }
+.stage .nanfig .pxwrap { display: none; }
 html.art .felt.dressed .stage .nanfig.px { left: calc(50% - 20 * var(--ax)); top: calc((24 - var(--lift)) * var(--ax)); width: calc(40 * var(--ax)); height: calc(56 * var(--ax)); z-index: 0; }
 html.art .felt.dressed .stage .nanfig.px .nansvg { display: none; }
-html.art .felt.dressed .stage .nanfig.px .pxfig { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+html.art .felt.dressed .stage .nanfig.px .pxwrap.whole { display: block; }
 .k-mystery { --k: #6a5a8a; }
 /* the act's boss, on a wanted poster above the map */
 .wanted { margin: 6px auto 2px; max-width: 400px; padding: 8px 12px 9px; background: #f4e3bf; border: 2px solid #8a5a2c; border-radius: 3px;
@@ -1071,6 +1138,20 @@ html.art .btn.mini { border-width: 8px; border-image-width: 8px; padding: 0 4px;
 .pop { position: absolute; z-index: 9; font-weight: 900; font-size: 26px; color: #fff; -webkit-text-stroke: 1px #2a1b16; text-shadow: 0 2px 0 #2a1b16; pointer-events: none;
   animation: pop 1.2s ease-out forwards; transform: translateX(-50%); }
 .pop.bad { color: #ffb3a6; }
+/* the deciding trick (2026-11-03): the card slams, the table thuds, the word, a burst of gold */
+.trickzone .slot .card.slam { animation: slam .6s cubic-bezier(.2, 1.5, .4, 1) both; position: relative; z-index: 4; }
+@keyframes slam { 0% { transform: translateY(-46px) scale(1.75) rotate(-9deg); filter: brightness(1.35); } 55% { transform: scale(.93) rotate(1deg); } 100% { transform: none; } }
+.felt.thud { animation: thud .38s .2s; }
+@keyframes thud { 25% { transform: translateY(5px); } 55% { transform: translateY(-2px); } 100% { transform: none; } }
+.pop.big { font: 800 38px/1 "Pixelify Sans", Bitter, monospace; color: #ffe08a; white-space: nowrap; -webkit-text-stroke: 2px #2a1b16; text-shadow: 0 3px 0 #2a1b16, 0 0 18px rgba(255, 214, 90, .7);
+  animation: bigpop 1.7s ease-out forwards; z-index: 10; }
+.pop.big.bad { color: #ffb3a6; text-shadow: 0 3px 0 #2a1b16; }
+@keyframes bigpop { 0% { opacity: 0; transform: translateX(-50%) scale(.35); } 14% { opacity: 1; transform: translateX(-50%) scale(1.18); } 28% { transform: translateX(-50%) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-22px); } }
+.coinb { position: absolute; z-index: 9; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; border: 2px solid #6b4a10; pointer-events: none;
+  background: radial-gradient(circle at 35% 35%, #fff3b0, #f0c040 45%, #b8862a); animation: coinb .95s ease-out both; }
+@keyframes coinb { 0% { transform: translate(0, 0) scale(.5); opacity: 0; } 10% { opacity: 1; } 60% { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 1; }
+  100% { transform: translate(calc(var(--dx) * 1.15), calc(var(--dy) + 70px)) scale(.9); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .trickzone .slot .card.slam, .felt.thud, .pop.big { animation-duration: .01s; } }
 @keyframes pop { 0% { opacity: 0; margin-top: 8px; } 15% { opacity: 1; } 100% { opacity: 0; margin-top: -36px; } }
 @media (prefers-reduced-motion: reduce) { .stage .fig, .stage .nanfig, .nansvg .breathe, .nansvg .lids, .pop { animation: none !important; } }
 /* the seats over the stage: a bid bubble over each head, a plaque on the rim (name, cards left, a Tell) */
@@ -1361,6 +1442,27 @@ html.art .panel.baize { border-radius: 0; }
 html.art .choice { border: 12px solid transparent; border-image: url(art/ui/paper.png) 4 fill / 12px stretch; border-radius: 0; background: none; padding: 0 4px; image-rendering: pixelated; }
 html.art .choice b { color: #6a1d14; }
 html.art .choice.on { border-image: url(art/ui/brass.png) 4 fill / 12px stretch; box-shadow: none; }
+/* the reward reveal: a card back over each offer turns away as the offer flips up, then a glow as it lands */
+.choice { position: relative; }
+.choice.rv { animation: rvflip .6s var(--d, 0s) both; }
+.choice.rv .cb { position: absolute; inset: -12px; z-index: 3; background: #5a1a14 url(art/back.webp) center / auto 88% no-repeat; image-rendering: pixelated;
+  border: 3px solid #2a1b16; border-radius: 8px; animation: rvback .6s var(--d, 0s) both; pointer-events: none; }
+.choice.rv::after { content: ""; position: absolute; inset: -12px; pointer-events: none; animation: rvglow 1.3s calc(var(--d, 0s) + .5s) both; }
+.choice.gilded.rv::after { animation-name: rvgold; animation-duration: 1.8s; }
+@keyframes rvflip { 0% { transform: perspective(700px) rotateY(180deg) scale(.95); } 65% { transform: perspective(700px) rotateY(-10deg) scale(1.03); } 100% { transform: none; } }
+@keyframes rvback { 0%, 42% { opacity: 1; } 43%, 100% { opacity: 0; } }
+@keyframes rvglow { 0% { box-shadow: 0 0 0 0 rgba(243, 208, 112, 0); } 30% { box-shadow: 0 0 18px 5px rgba(243, 208, 112, .7); } 100% { box-shadow: 0 0 0 0 rgba(243, 208, 112, 0); } }
+@keyframes rvgold { 0% { box-shadow: 0 0 0 0 rgba(255, 214, 90, 0); } 25% { box-shadow: 0 0 30px 10px rgba(255, 214, 90, .95); } 60% { box-shadow: 0 0 14px 4px rgba(255, 214, 90, .6); } 100% { box-shadow: 0 0 8px 2px rgba(255, 214, 90, .45); } }
+/* gilded: gold through and through, a shine running across it, a tag and its bonus */
+.choice.gilded { background: linear-gradient(135deg, #fff4c8, #f3d070 45%, #fff7da 55%, #e0b440); border-color: #a87a14; overflow: visible; }
+html.art .choice.gilded { border-image: url(art/ui/brass.png) 4 fill / 12px stretch; box-shadow: 0 0 10px 2px rgba(255, 214, 90, .55); }
+.choice.gilded::before { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 240, .75) 48%, transparent 60%) -150% 0 / 60% 100% no-repeat; animation: gshine 2.6s 1.2s ease-in-out infinite; }
+@keyframes gshine { 0% { background-position: -150% 0; } 60%, 100% { background-position: 250% 0; } }
+.choice .gtag { position: absolute; top: -18px; right: 6px; z-index: 2; font: 800 10px/14px Bitter, Georgia, serif; font-style: normal; letter-spacing: .14em; padding: 1px 7px;
+  background: #6b4a10; color: #fff3d0; box-shadow: 2px 2px 0 rgba(42, 27, 22, .5); }
+.choice .gline { display: block; color: #6b4a10; font-weight: 700; font-size: 13px; }
+@media (prefers-reduced-motion: reduce) { .choice.rv, .choice.rv .cb, .choice.rv::after, .choice.gilded::before { animation: none; } .choice.rv .cb { display: none; } }
 html.art .choice .price { background: #e8b840; color: #2a1a0c; border-radius: 0; box-shadow: 2px 2px 0 #5a3a10; padding: 0 6px; font-weight: 800; }
 html.art .stage .foe { border: 12px solid transparent; border-image: url(art/ui/sign.png) 4 fill / 12px stretch; border-radius: 0; background: none; padding: 0 2px; box-shadow: none; image-rendering: pixelated; }
 html.art .stage .foe .foebar { border-radius: 0; }
@@ -1399,6 +1501,7 @@ html.art .coach { border-radius: 0; }
     <button class="wood more item" data-act="continue" id="continueBtn" data-word="continue"><span>Continue Current Story</span></button>
     <button class="wood more item" data-act="daily" data-word="daily"><span>Daily Challenge</span></button>
     <button class="wood more item" data-act="standard" data-word="standard"><span>Standard 500</span></button>
+    <button class="wood more item" data-act="wall" data-word="wall"><span>Wanted Wall</span></button>
     <button class="wood more item back" data-act="mainback" data-word="back"><span>Back</span></button>
   </div>
   <div class="panel titleopts" id="titleOptions" hidden>
@@ -1461,20 +1564,21 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=34"></script>
-<script src="btp-ai.js?v=34"></script>
-<script src="btp-run.js?v=34"></script>
-<script src="btp-town.js?v=34"></script>
-<script src="art/dustwater/sprites.js?v=34"></script>
-<script src="btp-train.js?v=34"></script>
-<script src="art/train/sprites.js?v=34"></script>
-<script src="art/title/scene.js?v=34"></script>
-<script src="art/table/scene.js?v=34"></script>
-<script src="art/grave/scene.js?v=34"></script>
-<script src="art/paid/scene.js?v=34"></script>
-<script src="art/rooms/scene.js?v=34"></script>
-<script src="art/express/scene.js?v=34"></script>
-<script src="art/fair/sprites.js?v=34"></script>
+<script src="btp-engine.js?v=35"></script>
+<script src="btp-ai.js?v=35"></script>
+<script src="btp-run.js?v=35"></script>
+<script src="btp-town.js?v=35"></script>
+<script src="art/dustwater/sprites.js?v=35"></script>
+<script src="btp-train.js?v=35"></script>
+<script src="art/train/sprites.js?v=35"></script>
+<script src="art/title/scene.js?v=35"></script>
+<script src="art/table/scene.js?v=35"></script>
+<script src="art/table/partners.js?v=35"></script>
+<script src="art/grave/scene.js?v=35"></script>
+<script src="art/paid/scene.js?v=35"></script>
+<script src="art/rooms/scene.js?v=35"></script>
+<script src="art/express/scene.js?v=35"></script>
+<script src="art/fair/sprites.js?v=35"></script>
 <script>
 (function () {
   'use strict';
@@ -1501,7 +1605,7 @@ html.art .coach { border-radius: 0; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 27, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 28, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -1539,13 +1643,35 @@ html.art .coach { border-radius: 0; }
     if (L.rideNoted || L.mode === 'standard') return;
     L.rideNoted = true;
     const pr = profile(), total = Object.values(L.clock || {}).reduce((a, b) => a + b, 0);
-    pr.rides = (pr.rides || []).concat({ won: L.phase === 'victory', act: L.act, secs: total, hands: (L.history || []).length, clock: L.clock || {}, lostTo: L.lostTo || null }).slice(-30);
+    pr.rides = (pr.rides || []).concat({ won: L.phase === 'victory', act: L.act, secs: total, hands: (L.history || []).length, clock: L.clock || {}, lostTo: L.lostTo || null, partner: L.partner }).slice(-30);
+    // the bond (2026-11-03): one more story finished together (never the Daily's)
+    if (!L.daily && L.partner) { pr.bond = pr.bond || {}; pr.bond[L.partner] = (pr.bond[L.partner] || 0) + 1; L.bondNow = pr.bond[L.partner]; }
     // what the next story remembers (2026-11-02): the stranger's marked card, and a lost ride's cards for its ghost (never the Daily's)
     if (!L.daily) {
       if (L.marked) pr.marked = (pr.marked || 0) + 1;
       if (L.phase === 'runover' && L.owned.length) pr.ghost = { owned: L.owned.slice(), mods: L.mods, partner: L.partner, act: L.act, lostTo: L.lostTo || null };
     }
     try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {}
+  }
+  /* What a story leaves on the record as it goes (2026-11-03): every gang you've sat down with and every one you've
+     brought in, for the Wanted Wall; and how close you've come to each unlock (best: a Showdown's health shot down,
+     a Getaway's stretches), for the progress bars. Stories only, never Standard 500. */
+  function noteWall(L) {
+    if (!L || L.mode === 'standard') return;
+    const pr = profile(), w = pr.wall = pr.wall || { seen: {}, paid: {} }, best = pr.best = pr.best || {};
+    let dirty = false;
+    const up = (k, f) => { f = Math.round(Math.min(1, f) * 1000) / 1000; if (f > (best[k] || 0)) { best[k] = f; dirty = true; } };
+    if (L.phase === 'hand' && L.foe && L.foe.name && !w.seen[L.foe.name]) { w.seen[L.foe.name] = 1; dirty = true; }
+    if (L.phase === 'over' && L.result && L.result.won && L.result.foe && L.result.foe.name && !L.result.walled) {
+      L.result.walled = true; w.paid[L.result.foe.name] = (w.paid[L.result.foe.name] || 0) + 1; dirty = true;
+    }
+    if (L.kind === 'boss' && L.boss && L.foe && L.foe.hp && (L.phase === 'hand' || L.phase === 'over')) up(L.boss, (L.you || 0) / L.foe.hp);
+    if (L.chase && L.chase.boss) {
+      const f = ((L.chase.n || 0) + (L.chase.result === 'caught' ? 1 : 0)) / R.CHASE.stretches;
+      up('getaway:' + L.chase.boss, f);
+      if (!L.chase.lost) up('getaway:clean', f);
+    }
+    if (dirty) try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {}
   }
   function noteBeaten(L) {
     if (L.mode === 'standard') return;
@@ -1741,21 +1867,22 @@ html.art .coach { border-radius: 0; }
         body = noteHTML + mapHTML(L) + '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
         break;
       case 'reward': {
-        const s = L.reward.steps[0];
+        const s = L.reward.steps[0], rv = revealOf(L, s);
         if (s.type === 'buff') {
-          body = noteHTML + '<div class="panel"><h2>' + (L.reward.raffle ? 'Gold strike: pick a buff' : 'Pick a buff') + '</h2>' + s.options.map(b => '<button class="choice" data-choose="' + b + '"><b>' + esc(R.BUFFS[b].name) + '</b><span>' + esc(R.BUFFS[b].text) + '</span></button>').join('') +
+          body = noteHTML + '<div class="panel"><h2>' + (L.reward.raffle ? 'Gold strike: pick a buff' : 'Pick a buff') + '</h2>' + s.options.map((b, i) => '<button class="choice' + rv.cls(b) + '"' + rv.style(i) + ' data-choose="' + b + '">' + rv.face(b) + '<b>' + esc(R.BUFFS[b].name) + '</b><span>' + esc(R.BUFFS[b].text) + '</span>' + rv.line(b) + '</button>').join('') +
             '<div class="btns"><button class="btn alt" data-act="reroll"' + (L.gold < R.rerollPrice(L) || R.freeBuffs(L).length <= s.options.length ? ' disabled' : '') + '>' + rerollLabel(L) + '</button></div></div>';
         } else {
           // Balatro's way (the user's, 2026-10-30): pick the enhancement and the card, change either freely, then Use
           const sel = enhSel(L, s.options.join());
           body = noteHTML + '<div class="panel"><h2>Pick an enhancement</h2><p>Choose one, then the card it goes on. Nothing is spent until you press <b>Use</b>. A card takes two and becomes <b>Legendary</b>; none is ever replaced.</p>' +
-            s.options.map(e => '<button class="choice' + (sel.enh === e ? ' on' : '') + '" data-pickenh="' + e + '" aria-pressed="' + (sel.enh === e) + '"><b>' + esc(R.ENH[e].name) + '</b><span>' + esc(R.ENH[e].text) + '</span></button>').join('') +
+            s.options.map((e, i) => '<button class="choice' + (sel.enh === e ? ' on' : '') + rv.cls(e) + '"' + rv.style(i) + ' data-pickenh="' + e + '" aria-pressed="' + (sel.enh === e) + '">' + rv.face(e) + '<b>' + esc(R.ENH[e].name) + '</b><span>' + esc(R.ENH[e].text) + '</span>' + rv.line(e) + '</button>').join('') +
             pickCardsHTML(L, sel) +
             '<div class="btns"><button class="btn" data-act="useenh"' + (sel.enh && sel.card ? '' : ' disabled') + '>' + (sel.enh && sel.card ? 'Use: ' + esc(R.ENH[sel.enh].name) + ' on the ' + esc(E.label(sel.card)) : 'Use') + '</button></div>' +
             (s.claim && s.claim.length ? '<h3>Or keep a card your team won this game</h3><div class="cardrow">' + s.claim.map(c => cardHTML(c, { data: 'claim', small: true })).join('') + '</div>' : '') +
             '<div class="btns"><button class="btn alt" data-act="reroll"' + (L.gold < R.rerollPrice(L) ? ' disabled' : '') + '>' + rerollLabel(L) + '</button><button class="btn alt" data-act="skipreward">Skip</button></div></div>';
         }
         body += '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
+        rv.seen();
         break;
       }
       case 'target': {
@@ -2508,6 +2635,7 @@ html.art .coach { border-radius: 0; }
       (L.daily ? '<span>Daily Challenge</span><span>' + niceDate(L.daily.date) + ', ' + esc((R.WANTED.find(w => w.id === L.daily.twist) || {}).name || '') + (L.daily.practice ? ' (practice)' : '') + '</span>'
         : L.wantedLevel ? '<span>Wanted level</span><span>' + L.wantedLevel + '</span>' : '') + '</div>' +
       (L.daily && !L.daily.practice ? '<div class="btns"><button class="btn alt" data-act="dailycopy">Copy result</button></div>' : '') +
+      nextUpHTML(L) +
       '<h3>Your cards and buffs</h3>' + mineHTML() +
       '<div class="btns"><button class="btn" data-act="newrun">New run</button></div></div>';
   }
@@ -2845,8 +2973,17 @@ html.art .coach { border-radius: 0; }
   // the Sharp's count (2026-11-02): trumps (the Joker and the bowers too) neither in your hand nor played yet
   const trumpsOut = L => { const h = L.h; return AI.unseen(L, 0).filter(c => E.kIsTrump(E.plainK(c), h.trump)).length; };
   const PARTNER_FIG = { nan: 'gQnan', showboat: 'gJshow', sharp: 'gJsharp', quiet: 'gJquiet', horse: 'gKbis' };
+  /* The pixel partners breathe and blink (2026-11-03), as the drawings did: a one-pixel bob, and each eye's lid
+     (bakery/partners_px.py, art/table/partners.js) drawn over it for a moment now and then. `face`: the head and
+     shoulders crop (36 x 44, from x 2); otherwise the whole figure (40 x 56). */
+  function pxPartner(id, face) {
+    const key = PARTNER_FIG[id], W = face ? 36 : 40, H = face ? 44 : 56, ox = face ? 2 : 0, lids = (window.PARTNER_PX || {})[key] || [];
+    const pc = (v, of) => (100 * v / of).toFixed(3) + '%', lag = ((key || '').length * 0.7 % 3).toFixed(1);
+    return '<span class="pxwrap' + (face ? ' face' : ' whole') + '" style="animation-delay:-' + lag + 's"><img class="' + (face ? 'pxface' : 'pxfig') + '" alt="" src="' + artURL('table/' + (face ? 'pf_' + id : 'fig_' + key) + '.webp') + '">' +
+      lids.map(l => '<i class="lid" style="left:' + pc(l.x - ox, W) + ';top:' + pc(l.y, H) + ';width:' + pc(l.w, W) + ';height:' + pc(l.h, H) + ';background:' + l.c + ';animation-delay:' + lag + 's"></i>').join('') + '</span>';
+  }
   const partnerFace = id => { const s = ({ horse: HORSE_SVG, nan: NAN_SVG, showboat: SHOWBOAT_SVG, sharp: SHARP_SVG, quiet: QUIET_SVG })[id] || '';
-    return s && s + (NOART ? '' : '<img class="pxface" alt="" src="' + artURL('table/pf_' + id + '.webp') + '">'); };
+    return s && s + (NOART ? '' : pxPartner(id, true)); };
   // your partner's name for the page's words (a game with no partner set is Nan's, as before)
   const PN = () => E.pname(P.L);
   /* The stage's numbers from art/table/scene.js (written by the bake), with the same defaults if it is missing. */
@@ -3261,8 +3398,7 @@ html.art .coach { border-radius: 0; }
   function buildStage(L, felt, k) {
     const look = lookOf(L), fig = (key, side) => '<div class="fig ' + side + '"><img src="' + artURL('table/fig_' + key + '.webp') + '" alt=""></div>';
     felt.innerHTML = '<div class="stage"><div class="wall" style="background-image:url(' + artURL('table/' + wallKey(L) + '.webp') + ')"></div>' +
-      fig(look[0], 'w') + fig(look[1], 'e') + intentsHTML(L) + '<div class="nanfig' + (NOART ? '' : ' px') + '">' + partnerFace(L.partner || 'nan').replace(/<img class="pxface"[^>]*>/, '') +
-      (NOART ? '' : '<img class="pxfig" alt="" src="' + artURL('table/fig_' + PARTNER_FIG[L.partner || 'nan'] + '.webp') + '">') + '</div>' +
+      fig(look[0], 'w') + fig(look[1], 'e') + intentsHTML(L) + '<div class="nanfig' + (NOART ? '' : ' px') + '">' + (NOART ? partnerFace(L.partner || 'nan') : partnerFace(L.partner || 'nan').replace(/<span class="pxwrap face"[\s\S]*<\/span>$/, '') + pxPartner(L.partner || 'nan', false)) + '</div>' +
       '<div class="tbl" style="background-image:url(' + artURL('table/table.webp') + ')"></div><div class="plate"></div></div><div class="dyn"></div>';
     felt.classList.toggle('dressed', look.every(x => !STAGE.figs.length || STAGE.figs.includes(x)));
   }
@@ -3272,6 +3408,44 @@ html.art .coach { border-radius: 0; }
     const p = document.createElement('div');
     p.className = 'pop' + (bad ? ' bad' : ''); p.textContent = text; p.style.left = x; p.style.top = y;
     felt.appendChild(p); setTimeout(() => p.remove(), 1300);
+  }
+  /* The deciding trick (2026-11-03, the user's list: "the deciding-moment effects ... make the extra early wins feel
+     like wins"): the trick that settles the contract, made or set. null, or who it went for and the word for it. */
+  function decided(L) {
+    const h = L.h;
+    if (!h || h.phase !== 'trick' || !h.last || !h.contract) return null;
+    const ct = E.team(h.contractor), wt = E.team(h.last.winner), n = E.ACTS[E.actOf(L)].hand, c = h.contract;
+    let made = null;
+    if (h.misere) { if (wt === ct) made = h.tricks[ct] === 1 ? false : null; else if (h.trickNo >= n) made = true; }
+    else if (wt === ct && h.tricks[ct] === c.t) made = true;
+    else if (wt !== ct && h.tricks[1 - ct] === n - c.t + 1) made = false;
+    if (made === null) return null;
+    const ours = ct === 0, good = ours === made;
+    return { good, word: ours ? (made ? 'MADE IT!' : 'SET!') : (made ? 'THEY MADE IT' : 'THEY\u2019RE SET!') };
+  }
+  // the deciding trick lands: the winning card slams down, the table thuds, the word, the gang flinches or gloats,
+  // and gold bursts from the card when it went your way
+  function decideFx(L, felt, d, figs, nan) {
+    const win = felt.querySelector('.trickzone .slot.win .card');
+    P.slam = { key: 't' + L.level + '-' + L.handNo + '-' + L.h.trickNo, until: Date.now() + 700 };
+    if (win) restartFx(win, 'slam');
+    restartFx(felt, 'thud');
+    if (d.good) { figs.forEach(f => restartFx(f, 'hit')); restartFx(nan, 'cheer'); } else figs.forEach(f => restartFx(f, 'gloat'));
+    try { if (navigator.vibrate) navigator.vibrate(d.good ? [30, 50, 70] : 90); } catch (e) { /* no vibration */ }
+    if (FAST) return;
+    const p = document.createElement('div');
+    p.className = 'pop big' + (d.good ? '' : ' bad'); p.textContent = d.word; p.style.left = '50%'; p.style.top = 'calc(var(--edge) * var(--ax) + 34px)';
+    felt.appendChild(p); setTimeout(() => p.remove(), 1700);
+    if (!d.good || reduceMotion()) return;
+    const f = felt.getBoundingClientRect(), r = win ? win.getBoundingClientRect() : null;
+    const x = r ? r.left + r.width / 2 - f.left : f.width / 2, y = r ? r.top + r.height / 2 - f.top : f.height / 2;
+    for (let i = 0; i < 16; i++) {
+      const c = document.createElement('i'), a = -Math.PI / 2 + (i / 15 - 0.5) * 2.6, v = 60 + (i * 37) % 70;
+      c.className = 'coinb'; c.style.left = x + 'px'; c.style.top = y + 'px';
+      c.style.setProperty('--dx', Math.round(Math.cos(a) * v) + 'px'); c.style.setProperty('--dy', Math.round(Math.sin(a) * v) + 'px');
+      c.style.animationDelay = (0.12 + (i % 4) * 0.03) + 's';
+      felt.appendChild(c); setTimeout(() => c.remove(), 1400);
+    }
   }
   /* The gang's flinch and gloat, Nan's bob, the damage numbers: once for each finished trick and each hand. */
   function stageFx(L, felt) {
@@ -3298,7 +3472,8 @@ html.art .coach { border-radius: 0; }
       const main = L.mode === 'standard' ? hand.pts[0] : (L.foe ? hand.hit - (P.shotKey === shotKey ? P.shotSeen : 0) : hand.pts[0]);
       if (hand.pts[0] > 0 || main > 0) { figs.forEach(f => restartFx(f, 'hit')); restartFx(nan, 'cheer'); if (main > 0) popAt(felt, (L.mode === 'standard' ? '+' : '−') + main, false, '50%', '46px'); }
       if (hand.dmg > 0) { if (hand.pts[0] <= 0) figs.forEach(f => restartFx(f, 'gloat')); popAt(felt, '−' + hand.dmg + ' health', true, '50%', 'calc(var(--edge) * var(--ax) + 30px)'); }
-    } else if (good) { figs.forEach(f => restartFx(f, 'hit')); restartFx(nan, 'cheer'); }
+    } else if (decided(L)) decideFx(L, felt, decided(L), figs, nan);
+    else if (good) { figs.forEach(f => restartFx(f, 'hit')); restartFx(nan, 'cheer'); }
     else figs.forEach(f => restartFx(f, 'gloat'));
   }
   function renderFelt() {
@@ -3342,7 +3517,9 @@ html.art .coach { border-radius: 0; }
     let zone = '<div class="trickzone"' + (h.phase === 'trick' ? ' data-act="tapfelt"' : '') + '>';
     if (h.phase === 'play' || h.phase === 'trick' || h.phase === 'swing' || h.phase === 'intent') {
       const showWin = h.phase === 'trick' ? h.last.winner : -1;
-      for (let s = 0; s < 4; s++) if (h.trick[s]) zone += '<div class="slot s' + s + (s === showWin ? ' win' : '') + '">' + cardHTML(h.trick[s], { small: true, seat: s }) + '</div>';
+      // the deciding trick's card slams down (decideFx): kept through a redraw for its first moment
+      const slamNow = P.slam && P.slam.key === 't' + L.level + '-' + L.handNo + '-' + h.trickNo && Date.now() < P.slam.until;
+      for (let s = 0; s < 4; s++) if (h.trick[s]) zone += '<div class="slot s' + s + (s === showWin ? ' win' : '') + '">' + cardHTML(h.trick[s], { small: true, seat: s, cls: s === showWin && slamNow ? 'slam' : '' }) + '</div>';
       zone += '<div class="tally">Tricks: you ' + h.tricks[0] + (h.bonus && h.bonus[0] ? ' (+' + h.bonus[0] + ')' : '') + ' · them ' + h.tricks[1] + '</div>';
     }
     zone += '</div>';
@@ -3604,7 +3781,37 @@ html.art .coach { border-radius: 0; }
       '<h3>When only one card can be played</h3><div class="btns">' + optVal('onecard', oneCard(), 'auto', 'Play it for me') + optVal('onecard', oneCard(), 'tap', 'Let me tap it') + '</div>' + (L ? '<h3>Your cards and buffs</h3>' + mineHTML() +
       '<ul class="lines">' + L.owned.filter(c => L.mods[c] && L.mods[c].enh).map(c => '<li>' + esc(E.label(c)) + (R.legendary(L, c) ? ' (Legendary)' : '') + ': ' + E.enhsOf(L.mods[c]).map(x => esc(R.ENH[x].name + ': ' + R.ENH[x].text)).join(' ') + '</li>').join('') +
       L.buffs.map(b => '<li>' + esc(R.BUFFS[b].name) + ': ' + esc(R.BUFFS[b].text) + '</li>').join('') + '</ul>' : '') +
+      installHTML() +
       '<div class="btns"><button class="btn" data-act="closesheet">Back</button><button class="btn alt" data-act="quit">Title screen</button></div>';
+  }
+  /* Install to home screen (2026-11-03): played from the home screen the game is full screen, with no browser bars.
+     Chrome offers its own prompt (kept from beforeinstallprompt); an iPhone has no prompt, so the menu says how. */
+  const standalone = () => { try { return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) { return false; } };
+  const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent || '') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  function installHTML() {
+    if (standalone()) return '';
+    return '<h3>Play full screen</h3>' + (P.installEvt ? '<div class="btns"><button class="btn" data-act="install">Add to home screen</button></div><p class="hint">Opens like an app, with no browser bars.</p>'
+      : isIOS() ? '<p class="hint">Tap <b>Share</b> (the square with the arrow), then <b>Add to Home Screen</b>. It opens like an app, with no browser bars.</p>'
+      : '<p class="hint">In your browser\u2019s menu, choose <b>Install app</b> or <b>Add to Home screen</b>. It opens like an app, with no browser bars.</p>');
+  }
+  try {
+    addEventListener('beforeinstallprompt', e => { e.preventDefault(); P.installEvt = e; });
+    addEventListener('appinstalled', () => { P.installEvt = null; });
+    if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && !FAST) navigator.serviceWorker.register('sw.js').catch(() => {});
+  } catch (e) { /* no install support: the game plays the same */ }
+  /* The reward reveal (2026-11-03, the user's: "rewards come face down and flip with a rarity glow; rare gilded
+     versions"): a pick's offers come up as card backs and turn over one after another, each with a glow as it lands;
+     the gilded one (R.gildStep) in gold with its bonus said. Once a pick: any later render of it is face up. */
+  function revealOf(L, s) {
+    const key = [L.level, L.levelsDone, s.type, s.options.join()].join('|'), fresh = P.rvShown !== key && !FAST && !reduceMotion();
+    const gilt = x => s.gilded === x;
+    return {
+      cls: x => (fresh ? ' rv' : '') + (gilt(x) ? ' gilded' : ''),
+      style: i => fresh ? ' style="--d:' + (0.15 + i * 0.32).toFixed(2) + 's"' : '',
+      face: x => (fresh ? '<i class="cb" aria-hidden="true"></i>' : '') + (gilt(x) ? '<em class="gtag">GILDED</em>' : ''),
+      line: x => gilt(x) ? '<span class="gline">' + (s.type === 'buff' ? 'Gilded: comes with ' + R.GILD.gold + ' gold.' : 'Gilded: also polishes its card a rank.') + '</span>' : '',
+      seen: () => { P.rvShown = key; }
+    };
   }
   // a menu choice whose value has a default (the pref may be unset)
   function optVal(k, cur, v, label) { return '<button class="btn' + (cur === v ? '' : ' alt') + '" data-act="pref" data-k="' + k + '" data-v="' + v + '" aria-pressed="' + (cur === v) + '">' + label + '</button>'; }
@@ -3667,6 +3874,7 @@ html.art .coach { border-radius: 0; }
     if (!L) return;
     if (L.tips && L.levelsDone >= 3 && L.phase !== 'hand') markTipsDone();
     if (L.phase === 'victory' || L.phase === 'runover') { markTipsDone(); noteRide(L); }
+    noteWall(L);
     if (L.phase !== 'hand') P.undo = [];
     render();
     save();
@@ -3683,7 +3891,7 @@ html.art .coach { border-radius: 0; }
       }
     }
     if (w === 'ai') P.timer = setTimeout(() => { aiMove(L); step(); }, Math.max(P.undo.length ? wait('undo') : 0, wait(L.h.phase === 'play' ? 'play' : 'bid')));
-    else if (w === 'hold' && L.h.phase === 'trick' && P.prefs.tricks === 'auto') P.timer = setTimeout(() => { R.act(L, 'ack'); step(); }, readMs(L.h.last.reason));
+    else if (w === 'hold' && L.h.phase === 'trick' && P.prefs.tricks === 'auto') P.timer = setTimeout(() => { R.act(L, 'ack'); step(); }, readMs(L.h.last.reason) + (decided(L) && !FAST ? 1100 : 0));
   }
   /* Your moves in a hand can be taken back until the computer's next move: a snapshot of the whole run (it is
      plain JSON with the rng inside it), restored exactly. */
@@ -3734,8 +3942,8 @@ html.art .coach { border-radius: 0; }
     if (P.held && Date.now() - P.held < 1500) { P.held = 0; ev.preventDefault(); return; }
     // a card that can't be played or picked (your cards panel, a hand while it isn't your turn): a tap explains it
     const plain = ev.target.closest('.card[data-c]');
-    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-chase],[data-wanted],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe],[data-sleeve]')) { showCardInfo(plain.dataset.c); return; }
-    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-chase],[data-wanted],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-pickcard],[data-partner],[data-foe],[data-sleeve]');
+    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-chase],[data-wanted],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-psel],[data-pickcard],[data-partner],[data-foe],[data-sleeve]')) { showCardInfo(plain.dataset.c); return; }
+    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-chase],[data-wanted],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-psel],[data-pickcard],[data-partner],[data-foe],[data-sleeve]');
     if (!t || t.disabled) return;
     if (t.closest('#sheet') && Date.now() < P.guardUntil) return;
     const L = P.L, d = t.dataset;
@@ -3775,6 +3983,7 @@ html.art .coach { border-radius: 0; }
       render(); return;
     }
     if (d.sleeve) { P.sleeving = false; move('sleeve', d.sleeve); return; }
+    if (d.psel && P.picking) { P.pickSel = d.psel; showPick(); return; }
     if (d.partner && P.picking) { pickPartner(d.partner); return; }
     if (d.partner) { move('partner', d.partner); if (P.L.phase === 'actstart') { partnerSays(P.L); render(); } return; }
     if (d.foe) { startStandard(d.foe); return; }
@@ -3782,7 +3991,11 @@ html.art .coach { border-radius: 0; }
       case 'start': mainMenu(true); break;
       case 'mainback': mainMenu(false); break;
       case 'newstory': if (loadSaved() && storyLive(loadSaved())) openSheet('info', abandonHTML()); else newRun(); break;
-      case 'pickback': P.picking = false; P.L = null; $('pick').hidden = true; $('pick').innerHTML = ''; break;
+      case 'pickback': P.picking = false; P.L = null; $('pick').hidden = true; $('pick').innerHTML = ''; $('title').classList.remove('picking'); break;
+      case 'wall': openSheet('wall', wallHTML()); break;
+      case 'pickprev': pickStep(-1); break;
+      case 'picknext': pickStep(1); break;
+      case 'pickride': if (P.picking && P.pickSel) pickPartner(P.pickSel); break;
       case 'abandon': clearSaved(); P.sheet = null; P.shown = null; $('veil').hidden = true; newRun(); break;
       case 'daily': openDaily(); break;
       case 'dailygo': startDaily(!!t.dataset.practice); break;
@@ -3817,6 +4030,7 @@ html.art .coach { border-radius: 0; }
       case 'continue': { const s = loadSaved(); if (s) dustInto(() => { P.L = s; show(); }); break; }
       case 'rules': openSheet('rules'); break;
       case 'menu': openSheet('menu'); break;
+      case 'install': { const ev = P.installEvt; if (ev) { P.installEvt = null; try { ev.prompt(); ev.userChoice.then(() => { if (P.sheet === 'menu') openSheet('menu'); }).catch(() => {}); } catch (e) {} } break; }
       case 'pref': setPref(d.k, d.v); openSheet('menu'); break;
       case 'takeback': takeBack(); break;
       case 'levelinfo': openSheet('info', levelInfoHTML(L)); break;
@@ -3888,24 +4102,126 @@ html.art .coach { border-radius: 0; }
     // the Wanted level starts at the highest open (2026-11-02); the partner pick can lower it
     const rides = pr.rides || [], last = rides[rides.length - 1] || {};
     const memory = { runs: rides.length, lastWon: !!last.won, lastAct: last.act || 0, lostTo: last.lostTo || null, marked: pr.marked || 0 };
-    const L = R.newRun({ seed, objective: $('objPick').value || undefined, tips: $('tipsPick').checked, pickPartner: true, unlocked: pr.beaten, maxWanted: pr.wanted || 0, wanted: pr.wanted || 0,
+    const L = R.newRun({ seed, objective: $('objPick').value || undefined, tips: $('tipsPick').checked, pickPartner: true, unlocked: pr.beaten, maxWanted: pr.wanted || 0, wanted: pr.wanted || 0, bonds: pr.bond || {},
                          ghost: pr.ghost, memory, stranger: (pr.marked || 0) >= R.STRANGER.marks && !(pr.beaten || []).includes('stranger') });
     // the ghost rides once: the story that meets it has taken it
     if (pr.ghost) { delete pr.ghost; try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} }
     // the partner pick comes up over the title's train (the user's, 2026-11-03); choosing starts the ride
-    P.L = L; P.picking = true;
+    P.L = L; P.picking = true; P.pickSel = last.partner || null;
     showPick();
+  }
+  /* Choosing a partner (2026-11-03, the user's: "the character selection is a bit weird"): one partner large in
+     the middle, standing in front of the title's train, with their name, title and what they do on a plaque; the
+     whole roster as portraits along the bottom, under your thumb, with Ride under them. Swipe the partner, or tap a
+     portrait, to look at another. One you haven't met is a silhouette with no name, only how to meet them. */
+  function pickScreenHTML(L) {
+    const ids = R.ROSTER.map(p => p.id);
+    if (!ids.includes(P.pickSel)) P.pickSel = (R.ROSTER.find(p => R.partnerOpen(L, p)) || R.ROSTER[0]).id;
+    const p = R.ROSTER.find(x => x.id === P.pickSel), open = R.partnerOpen(L, p);
+    const fig = id => artURL('table/fig_' + PARTNER_FIG[id] + '.webp');
+    return '<div class="psel">' +
+      '<h2 class="pshead">Choose your partner</h2>' +
+      '<div class="psstage"><button class="psarrow l" data-act="pickprev" aria-label="The partner before">\u2039</button>' +
+        '<div class="psfig' + (open ? '' : ' locked') + '"><img src="' + fig(p.id) + '" alt="">' + (open ? '' : '<b aria-hidden="true">?</b>') + '</div>' +
+        '<button class="psarrow r" data-act="picknext" aria-label="The partner after">\u203a</button></div>' +
+      '<div class="psplaque" aria-live="polite">' + (open
+        ? '<b class="psname">' + esc(p.name) + '</b><i>' + esc(p.title) + '</i><p>' + esc(p.text) + '</p>' + bondLine(p.id)
+        : '<b class="psname">???</b><i>not riding yet</i><p class="lockline">' + esc(p.unlockText || 'Not riding yet.') + '</p>' + unlockBar(p.unlock)) + '</div>' +
+      wantedPickHTML(L) +
+      '<div class="psrow" role="listbox" aria-label="Partners">' + R.ROSTER.map(q => { const o = R.partnerOpen(L, q);
+        return '<button class="psport' + (q.id === p.id ? ' on' : '') + (o ? '' : ' locked') + '" data-psel="' + q.id + '" role="option" aria-selected="' + (q.id === p.id) + '" aria-label="' + esc(o ? q.name : 'A partner you haven\u2019t met') + '">' +
+          '<img src="' + artURL('table/pf_' + q.id + '.webp') + '" alt="">' + (o ? '' : '<b aria-hidden="true">?</b>') + (o && R.bondOf(bondN(q.id)) >= 3 ? '<i class="bstar" aria-hidden="true">\u2605</i>' : '') + '</button>'; }).join('') + '</div>' +
+      '<div class="btns psgo"><button class="btn alt" data-act="pickback">Back</button><button class="btn" data-act="pickride"' + (open ? '' : ' disabled') + '>' + (open ? 'Ride with ' + esc(p.name) : 'Not riding yet') + '</button></div>' +
+      '</div>';
+  }
+  /* The bond, the unlock bars and the Wanted Wall (2026-11-03, the user's list: "the reasons to come back"). */
+  const bondN = id => ((profile().bond || {})[id]) | 0;
+  const BOND_PERK = ['rides with you', 'their own greeting', 'a sheriff\u2019s star on their portrait', 'another greeting', 'their second trick: start each story with ' + R.BOND.gold + ' gold'];
+  function bondLine(id) {
+    const n = bondN(id), lv = R.bondOf(n), next = R.BOND.at[lv];
+    return '<div class="bond"><span class="bstars" aria-label="Bond ' + lv + ' of 5">' + '\u2605'.repeat(lv) + '<s>' + '\u2605'.repeat(5 - lv) + '</s></span> ' +
+      (n ? n + (n === 1 ? ' story' : ' stories') + ' together' : 'never ridden together') + (next ? '<small>Next at ' + next + ': ' + BOND_PERK[lv] + '</small>' : '<small>' + esc(BOND_PERK[4]) + '</small>') + '</div>';
+  }
+  // how close you've come to an unlock (profile.best), as a bar
+  function unlockBar(key, label) {
+    const f = key ? (profile().best || {})[key] || 0 : 0, pct = Math.round(100 * f);
+    return '<div class="ubar"><span class="meter"><i style="width:' + pct + '%"></i></span><small>' + (label || (f ? 'Your best: ' + pct + '% of the way' : 'Not tried yet')) + '</small></div>';
+  }
+  // the Wanted Wall's catalogue: every gang and duelling pair by act, then the act's Showdown; the secret one once met
+  function wallList() {
+    const out = [];
+    for (const a of [1, 2, 3]) {
+      (R.GANGS[a] || []).forEach(g => out.push({ act: a, kind: 'dance', name: g[0], look: [g[1], g[2]] }));
+      (R.DUELISTS[a] || []).forEach(g => out.push({ act: a, kind: 'elite', name: g[0], look: [g[1], g[2]] }));
+      Object.keys(R.BOSS).filter(k => R.BOSS[k].act === a && !R.BOSS[k].secret).forEach(k => out.push({ act: a, kind: 'boss', name: R.BOSS[k].name, look: R.BOSS[k].look }));
+    }
+    Object.keys(R.BOSS).filter(k => R.BOSS[k].secret).forEach(k => out.push({ act: R.BOSS[k].act, kind: 'boss', name: R.BOSS[k].name, look: R.BOSS[k].look, secret: true }));
+    return out;
+  }
+  function wallCount() {
+    const w = profile().wall || { seen: {}, paid: {} }, list = wallList().filter(g => !g.secret || w.seen[g.name]);
+    return { got: list.filter(g => w.paid[g.name]).length, of: list.length };
+  }
+  function wallHTML() {
+    const w = profile().wall || { seen: {}, paid: {} }, list = wallList().filter(g => !g.secret || w.seen[g.name]), c = wallCount();
+    const card = g => { const seen = w.seen[g.name] || w.paid[g.name], paid = w.paid[g.name] | 0;
+      return '<div class="wp' + (seen ? '' : ' unseen') + (paid ? ' paid' : '') + (g.kind === 'boss' ? ' boss' : '') + '"><span class="ww">' + (g.kind === 'boss' ? 'SHOWDOWN' : g.kind === 'elite' ? 'DUEL' : 'WANTED') + '</span>' +
+        '<span class="wf">' + g.look.map(k => '<img src="' + artURL('table/fig_' + k + '.webp') + '" alt="">').join('') + '</span><b>' + (seen ? esc(g.name) : '???') + '</b>' +
+        (paid ? '<i class="wstamp">PAID' + (paid > 1 ? ' \u00d7' + paid : '') + '</i>' : '') + '</div>'; };
+    return '<h2>Wanted Wall</h2><p>Every gang you bring in gets stamped PAID. <b>' + c.got + ' of ' + c.of + '</b> collected.</p>' +
+      '<div class="ubar"><span class="meter"><i style="width:' + Math.round(100 * c.got / Math.max(1, c.of)) + '%"></i></span></div>' +
+      [1, 2, 3].map(a => '<h3>Act ' + R.ROMAN[a] + ': ' + esc(E.ACTS[a].name) + '</h3><div class="wwall">' + list.filter(g => g.act === a).map(card).join('') + '</div>').join('') +
+      '<div class="btns"><button class="btn" data-act="closesheet">Back</button></div>';
+  }
+  // the end of a story: the bond, what's still locked and how close you came, the Wall
+  function nextUpHTML(L) {
+    if (L.mode === 'standard') return '';
+    const pr = profile(), beaten = pr.beaten || [], p = R.ROSTER.find(x => x.id === L.partner), rows = [];
+    if (p && !L.daily && L.bondNow) {
+      const lv = R.bondOf(L.bondNow), was = R.bondOf(L.bondNow - 1);
+      rows.push('<div class="nu"><span class="nuf"><img src="' + artURL('table/pf_' + p.id + '.webp') + '" alt=""></span><div><b>Your bond with ' + esc(p.name) + (lv > was ? ': up to ' + '\u2605'.repeat(lv) + '!' : '') + '</b>' + bondLine(p.id) + '</div></div>');
+    }
+    R.ROSTER.filter(q => q.unlock && !beaten.includes(q.unlock)).forEach(q => rows.push('<div class="nu"><span class="nuf locked"><img src="' + artURL('table/pf_' + q.id + '.webp') + '" alt=""><b>?</b></span><div><b>A partner you haven\u2019t met</b><p>' + esc(q.unlockText || '') + '</p>' + unlockBar(q.unlock) + '</div></div>'));
+    if ((pr.wanted || 0) < R.WANTED.length) {
+      const far = Math.max(0, ...(pr.rides || []).map(r => r.won ? 4 : r.act || 1)) - 1;
+      rows.push('<div class="nu"><span class="nuf star">\u2605</span><div><b>Wanted level ' + ((pr.wanted || 0) + 1) + '</b><p>Win a story at the County Fair to open it: a new twist on the trail.</p>' + unlockBar(null, far >= 3 ? 'Done: it\u2019s open' : 'Your furthest: Act ' + R.ROMAN[Math.min(3, far + 1)]).replace('width:0%', 'width:' + Math.round(100 * Math.min(1, far / 3)) + '%') + '</div></div>');
+    }
+    const c = wallCount();
+    rows.push('<div class="nu"><span class="nuf star">\u2605</span><div><b>Wanted Wall: ' + c.got + ' of ' + c.of + '</b>' + unlockBar(null, 'Gangs brought in').replace('width:0%', 'width:' + Math.round(100 * c.got / Math.max(1, c.of)) + '%') +
+      '<div class="btns"><button class="btn alt mini" data-act="wall">See the Wall</button></div></div></div>');
+    return '<h3>What\u2019s next</h3><div class="nextup">' + rows.join('') + '</div>';
+  }
+  // the Wanted level, in the pick: the same buttons the old pick had
+  function wantedPickHTML(L) {
+    if (!L.maxWanted) return '';
+    return '<div class="wantedpick"><span class="wlh">Wanted level</span><div class="wl">' + Array.from({ length: L.maxWanted + 1 }, (_, n) => '<button data-wanted="' + n + '"' + (n === (L.wantedLevel || 0) ? ' class="sel" aria-pressed="true"' : ' aria-pressed="false"') + '>' + n + '</button>').join('') + '</div>' +
+      ((L.wantedLevel || 0) ? '<p class="hint"><b>' + esc(R.WANTED[L.wantedLevel - 1].name) + ':</b> ' + esc(R.WANTED[L.wantedLevel - 1].text) + '</p>' : '') + '</div>';
   }
   function showPick() {
     const o = $('pick');
-    o.innerHTML = '<div class="panel baize">' + partnerPickHTML(P.L) + '<div class="btns pickback"><button class="btn alt" data-act="pickback">Back</button></div></div>';
+    if (!P.L) {
+      o.innerHTML = '<div class="panel baize">' + partnerPickHTML(P.L) + '<div class="btns pickback"><button class="btn alt" data-act="pickback">Back</button></div></div>';
+    } else o.innerHTML = pickScreenHTML(P.L);
+    o.classList.toggle('psmode', !!o.querySelector('.psel'));
     o.hidden = false;
+    $('title').classList.toggle('picking', o.classList.contains('psmode'));
   }
+  function pickStep(dir) {
+    const ids = R.ROSTER.map(p => p.id), i = ids.indexOf(P.pickSel);
+    P.pickSel = ids[(i + dir + ids.length) % ids.length];
+    showPick();
+  }
+  // a swipe across the pick looks at the next partner or the one before
+  (() => { let x0 = null, y0 = 0;
+    $('pick').addEventListener('touchstart', e => { const t = e.touches[0]; x0 = t ? t.clientX : null; y0 = t ? t.clientY : 0; }, { passive: true });
+    $('pick').addEventListener('touchend', e => { const t = e.changedTouches[0]; if (x0 == null || !t || !$('pick').classList.contains('psmode')) return;
+      const dx = t.clientX - x0, dy = t.clientY - y0; x0 = null; if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) pickStep(dx < 0 ? 1 : -1); }, { passive: true });
+  })();
   function pickPartner(id) {
     const L = P.L, r = R.act(L, 'partner', id);
     if (!r.ok) return;
     P.picking = false;
-    $('pick').hidden = true; $('pick').innerHTML = '';
+    $('pick').hidden = true; $('pick').innerHTML = ''; $('title').classList.remove('picking');
     L.introDue = true;
     playOpening(L, () => show());
   }
@@ -4198,7 +4514,9 @@ html.art .coach { border-radius: 0; }
     const p = R.ROSTER.find(x => x.id === L.partner), b = $('bounty');
     if (FAST || !p || !p.intro) return;
     b.className = '';
-    b.innerHTML = '<div class="say" role="status"><span class="face svg">' + partnerFace(p.id) + '</span><p><b>' + esc(p.name) + ':</b> ' + esc(p.intro) + '</p></div>' +
+    const lv = R.bondOf((L.bonds || {})[p.id]), lines = R.BOND.lines[p.id] || [];
+    const said = lv >= 4 && lines[1] ? lines[1] : lv >= 2 && lines[0] ? lines[0] : p.intro;
+    b.innerHTML = '<div class="say" role="status"><span class="face svg">' + partnerFace(p.id) + '</span><p><b>' + esc(p.name) + ':</b> ' + esc(said) + '</p></div>' +
       '<button class="btn" data-act="takejob">Let\u2019s ride</button>';
     b.hidden = false;
   }

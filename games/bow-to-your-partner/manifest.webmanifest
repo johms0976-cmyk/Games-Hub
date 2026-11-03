@@ -1,0 +1,16 @@
+{
+  "name": "Draw, Partner!",
+  "short_name": "Draw, Partner!",
+  "description": "A western roguelike of the card game 500.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#2a1b16",
+  "theme_color": "#2a1b16",
+  "icons": [
+    { "src": "art/icon/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "art/icon/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "art/icon/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

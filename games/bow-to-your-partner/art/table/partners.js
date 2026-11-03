@@ -1,0 +1,3 @@
+/* Written by bakery/partners_px.py: where each partner's eyelids go, in figure pixels (40 x 56; a face is the
+   crop from x 2), and their colour. The page draws them for a blink: never load-bearing. */
+window.PARTNER_PX = {"gQnan":[{"x":18,"y":18,"w":1,"h":2,"c":"#ffe7cc"},{"x":25,"y":19,"w":1,"h":2,"c":"#ffe7cc"}],"gJshow":[{"x":18,"y":18,"w":1,"h":2,"c":"#fddcbf"},{"x":25,"y":18,"w":1,"h":2,"c":"#fddcbf"}],"gJsharp":[{"x":18,"y":18,"w":1,"h":2,"c":"#f5ccab"},{"x":25,"y":18,"w":1,"h":2,"c":"#f5ccab"}],"gJquiet":[{"x":18,"y":19,"w":2,"h":1,"c":"#e0ae88"},{"x":24,"y":19,"w":2,"h":1,"c":"#e0ae88"}],"gKbis":[{"x":16,"y":14,"w":2,"h":2,"c":"#8f6c49"},{"x":27,"y":15,"w":2,"h":1,"c":"#b2784a"}]};
