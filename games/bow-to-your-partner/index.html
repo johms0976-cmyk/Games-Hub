@@ -114,9 +114,14 @@ html.art .titlemenu .wood.drawn > span { position: absolute; width: 1px; height:
 /* The job (the user's, 2026-10-30): once the map's opening pan has come down from the Showdown to where you start,
    the boss's poster unrolls from its rod, the one you will cross out on payday: the reason you rode in. On "Let's
    ride" it folds away onto the map's own wanted board. Once an act (L.sawPoster); never in ?fast. */
-#bounty { position: fixed; inset: 0; z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 16px;
+#bounty { position: fixed; inset: 0; z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: safe center; gap: 12px; padding: 16px; overflow-y: auto;
   background: rgba(24,14,8,.72); transition: background .5s; }
 #bounty[hidden] { display: none; }
+/* a short phone with the Sheriff's say as well (2026-11-04): the poster sized to the height, everything a notch tighter */
+@media (max-height: 760px) { #bounty { gap: 9px; padding: 12px 16px; } #bounty .wposter { width: min(270px, 74vw, 28vh); padding: 8px 10px 10px; }
+  #bounty .wposter .w { font-size: 30px; } #bounty .wposter .d { font-size: 10px; } #bounty .wposter .n { font-size: 17px; } #bounty .wposter .rw { font-size: 12px; margin-top: 3px; }
+  #bounty .wposter .loot { font-size: 12px; } #bounty .wposter .loot img { width: 30px; height: 30px; } #bounty .wposter img { margin: 5px 0; }
+  #bounty .nanline { font-size: 14px; padding: 8px 12px; max-width: 340px; } #bounty .why.long { font-size: 14px; } }
 #bounty .why { margin: 0; font: 800 13px/1.3 Georgia, serif; letter-spacing: .28em; color: #f3d070; text-align: center; text-transform: uppercase; }
 #bounty .scroll { position: relative; padding-top: 10px; }
 #bounty .why.long { max-width: 320px; font: italic 600 15px/1.35 Georgia, serif; letter-spacing: 0; text-transform: none; color: #f6e6c0; }
@@ -446,7 +451,7 @@ html.art .oslip { border: 12px solid transparent; border-image: url(art/ui/paper
 @keyframes drock { 50% { transform: translateY(-2px); } }
 #actcard.depart .dpuff { position: absolute; left: 105%; background-size: 100% 100%; image-rendering: pixelated; animation: dpuff 2s linear forwards; }
 @keyframes dpuff { from { transform: translate(0, 0) scale(.7); opacity: .95; } to { transform: translate(-120vw, -60px) scale(1.8); opacity: 0; } }
-#actcard.depart .dwords { position: absolute; left: 16px; right: 16px; top: 6%; display: flex; flex-direction: column; align-items: center; gap: 14px; opacity: 0; pointer-events: none; transition: opacity .4s; }
+#actcard.depart .dwords { position: absolute; z-index: 3; left: 16px; right: 16px; top: 6%; display: flex; flex-direction: column; align-items: center; gap: 14px; opacity: 0; pointer-events: none; transition: opacity .4s; }
 #actcard.depart.said .dwords { opacity: 1; pointer-events: auto; }
 #actcard.depart .board { animation: none; }
 #actcard.depart.said .board { animation: boardin .55s cubic-bezier(.3, 1.5, .5, 1); }
@@ -691,6 +696,37 @@ body.signzoom .hero { transform-origin: 0 0; transition: transform 1s cubic-bezi
 @keyframes boardin { from { transform: translateY(-80px) rotate(-8deg); opacity: 0; } }
 #actcard .nanline { background: #fffaf0; color: #3a2a20; border-radius: 10px; padding: 10px 14px; max-width: 320px; box-shadow: 0 2px 0 rgba(58,42,32,.3);
   font-size: 15px; animation: boardin .55s .35s both; }
+/* Sheriff Crane has his say (2026-11-04, the story): on parchment, his star where a partner's face would be */
+.crane { background: #f3e3c0 !important; border-color: #7a5a20 !important; }
+.crane svg path { fill: #e8b840; stroke: #6b4a10; }
+#bounty .nanline.crane { display: flex; gap: 8px; align-items: flex-start; animation-delay: 1.6s; }
+#bounty .nanline.crane > svg { width: 26px; height: 26px; flex: none; }
+#bounty .nanline.crane + .nanline { animation-delay: 2.1s; }
+#bounty .nanline.crane ~ .btn { animation-delay: 2.3s; }
+#paid .ledger .lnote { width: fit-content; margin: 6px 0 0 auto; padding: 1px 4px; background: #fbf5e4; font: italic 600 11px/1.25 Georgia, serif; color: #6b2a1a; text-align: right; }
+/* The twist (2026-11-04): the story won, the Sheriff's last poster is yours. His desk, your face, his star stamped
+   WANTED on it, what he says and what your partner says back. Full length once (profile.twists), at once after. */
+#actcard.twist { justify-content: flex-start; gap: 10px; padding: 18px 16px 20px; overflow-y: auto; background: radial-gradient(circle at 50% 28%, #4a2e1c, #1e120a 78%); }
+#actcard.twist .tdesk { position: absolute; left: 0; right: 0; bottom: 0; height: 44%; opacity: .5; pointer-events: none; }
+#actcard.twist .tdesk img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; image-rendering: pixelated; }
+#actcard.twist .tposter { flex: none; width: min(180px, 48vw, 25vh); padding: 8px 10px 12px; transform: rotate(-3deg); animation: tdrop .7s cubic-bezier(.3, 1.4, .5, 1) both; }
+#actcard.twist .tposter .w { font-size: 24px; letter-spacing: .04em; } #actcard.twist .tposter .d { font-size: 9px; } #actcard.twist .tposter img { margin: 5px 0; }
+#actcard.twist .tposter .n { font-size: 16px; } #actcard.twist .tposter .rw { font-size: 11px; margin-top: 3px; }
+@keyframes tdrop { from { transform: translateY(-40px) rotate(-9deg); opacity: 0; } }
+#actcard.twist .pstamp { position: absolute; left: 70%; top: 76%; width: 70%; aspect-ratio: 1; transform: translate(-50%, -50%) rotate(-14deg) scale(1.7); opacity: 0; pointer-events: none; filter: drop-shadow(0 0 1px rgba(90,10,6,.5)); }
+#actcard.twist.stamped .pstamp { opacity: .94; transform: translate(-50%, -50%) rotate(-14deg) scale(1); transition: transform .14s ease-in, opacity .1s; }
+#actcard.twist .twords { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; opacity: 0; pointer-events: none; transition: opacity .5s; }
+#actcard.twist.said .twords { opacity: 1; pointer-events: auto; }
+#actcard.twist .board { padding: 8px 20px 10px; } #actcard.twist .board b { font-size: 26px; }
+#actcard.twist .say { display: flex; gap: 10px; align-items: flex-start; max-width: 360px; background: #fffaf0; color: #3a2a20; border: 3px solid #2a1b16; border-radius: 12px; padding: 8px 12px; }
+#actcard.twist .say .face { width: 40px; height: 48px; flex: none; }
+#actcard.twist .say p { margin: 0; font-size: 15px; line-height: 1.35; }
+#actcard.twist .tbc { font: italic 600 14px/1.2 Georgia, serif; color: #e8c88a; letter-spacing: .12em; }
+#actcard.depart .say.crane .face { width: 40px; height: 40px; }
+#actcard.twist .tposter .rw { letter-spacing: .04em; }
+@media (max-height: 720px) { #actcard.twist { gap: 8px; padding-top: 12px; } #actcard.twist .twords { gap: 8px; } #actcard.twist .board span { display: none; }
+  #actcard.twist .tposter { width: min(180px, 48vw, 22vh); } #actcard.twist .say p { font-size: 14px; } }
+@media (prefers-reduced-motion: reduce) { #actcard.twist .tposter { animation: none; } #actcard.twist .twords { transition: none; } }
 #skipOpening { position: fixed; top: 10px; right: 10px; z-index: 80; display: none; }
 body.opening #skipOpening { display: block; }
 /* frame 6: the act-start pick is cards dealt onto green baize */
@@ -2925,6 +2961,16 @@ html.art .coach { border-radius: 0; }
       setTimeout(() => { render(); if (kind === 'depart') playDepart(L); }, 800);
       return;
     }
+    // the story's twist on its own (&partner=<id>; &again shows it as every win after the first does)
+    else if (kind === 'twist') {
+      L = R.newRun({ seed: 21, act: 3, tips: false, partner: (location.search.match(/[?&]partner=(\w+)/) || [])[1] || 'horse' });
+      if (L.offer) R.act(L, 'take', L.offer[0]);
+      L.phase = 'map'; L.sawPoster = [1, 2, 3];
+      P.L = L; show();
+      if (!/[?&]again\b/.test(location.search)) { const pr = profile(); pr.twists = 0; try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} }
+      setTimeout(() => playTwist(L), 800);
+      return;
+    }
     else L = until(L => L.phase === 'hand' && L.h.phase === 'trick' && L.h.contractor === 1 && L.h.trickNo === 1);
     P.L = L; show();
   }
@@ -3413,6 +3459,31 @@ html.art .coach { border-radius: 0; }
     DEPART.timers.forEach(clearTimeout);
     DEPART.timers = [setTimeout(() => card.classList.add('said'), reduceMotion() ? 0 : 600)];
     card.onpointerdown = ev => { if (!ev.target.closest('[data-act="finaledone"]')) card.classList.add('said'); };
+  }
+  /* The twist (the story, 2026-11-04): after the finale, one more poster comes down on Sheriff Crane's desk, and it's
+     yours. His star comes down on it reading WANTED, he says why, your partner answers, and "Ride!" goes on to the
+     run's numbers. The first time it takes its time (profile.twists); every story won after, it's all there at once.
+     Never in ?fast (the finale never plays there). */
+  function playTwist(L) {
+    const card = $('actcard'), pr = profile(), first = !(pr.twists > 0), p = R.PARTNERS[L.partner] || R.PARTNERS.horse;
+    pr.twists = (pr.twists || 0) + 1;
+    try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) { /* private mode */ }
+    DEPART.timers.forEach(clearTimeout);
+    const art = document.documentElement.classList.contains('art');
+    card.className = 'twist on';
+    card.style.backgroundImage = '';
+    card.innerHTML = (art && window.PAID_SCENE ? '<div class="tdesk"><img src="' + artURL('paid/desk.webp') + '" alt=""></div>' : '') +
+      '<div class="wposter tposter" role="img" aria-label="Wanted: you, reward 1,000 gold"><i class="nail"></i><span class="w">WANTED</span><span class="d">DEAD OR ALIVE</span>' +
+      '<img src="' + artURL('wanted/you.webp') + '" alt=""><span class="n">THE BOUNTY HUNTER</span><span class="rw">REWARD 1,000 GOLD</span>' + stampSVG('WANTED') + '</div>' +
+      '<div class="twords"><div class="board"><small>ONE MORE POSTER</small><b>WANTED: YOU</b><span>Every bounty on the trail, paid by one man</span></div>' +
+      '<div class="say crane"><span class="face svg">' + pwSvg('star') + '</span><p><b>' + CRANE.name + ':</b> ' + esc(CRANE.twist) + '</p></div>' +
+      '<div class="say"><span class="face svg">' + partnerFace(p.id) + '</span><p><b>' + esc(p.name) + ':</b> ' + esc(TWIST_BACK[p.id] || TWIST_BACK.nan) + '</p></div>' +
+      '<small class="tbc">To be continued…</small><button class="btn" data-act="twistdone">Ride!</button></div>';
+    try { card.scrollTop = 0; } catch (e) { /* no layout */ }
+    const stamp = () => card.classList.add('stamped'), said = () => { stamp(); card.classList.add('said'); };
+    if (!first || reduceMotion()) { said(); return; }
+    DEPART.timers = [setTimeout(stamp, 1300), setTimeout(said, 2300)];
+    card.onpointerdown = ev => { if (!ev.target.closest('[data-act="twistdone"]')) said(); };
   }
   function storeHTML(L) {
     const key = 'shop:' + L.rs + ':' + (L.path || []).length + ':' + (L.restocks || 0);
@@ -4191,7 +4262,8 @@ html.art .coach { border-radius: 0; }
       case 'heatstop': move('heat', 'stop'); break;
       case 'skipgrave': endGrave(); break;
       case 'draw': draw(); break;
-      case 'allaboard': case 'intofair': case 'finaledone': endDepart(); break;
+      case 'allaboard': case 'intofair': case 'twistdone': endDepart(); break;
+      case 'finaledone': if (P.L && P.L.mode !== 'standard' && $('actcard').classList.contains('finale')) playTwist(P.L); else endDepart(); break;
       case 'takejob': takeJob(); break;
       case 'freshdeal': P.sleeving = false; move('freshdeal'); break;
       case 'sleevemode': P.sleeving = !P.sleeving; render(); break;
@@ -4920,6 +4992,29 @@ html.art .coach { border-radius: 0; }
       '<span class="n">' + esc(B.name.toUpperCase()) + '</span><span class="rw">REWARD 100 GOLD</span>' +
       (lt ? '<span class="loot"><img src="' + artURL('goods/buff_' + loot + '.webp') + '" alt=""><span><small>& THEIR LOOT</small>' + esc(lt.name.toUpperCase()) + '</span></span>' : '');
   }
+  /* Sheriff Silas Crane (the story, 2026-11-04). He hires you for every bounty on the trail and pays you out of his
+     own pocket: the Twins held Euchre-ka!'s gold, the gang on the Westbound held the line, the Fair's outfit held the
+     county seat, and with all three gone the county is his. Act by act he hands you the job (unrollJob), his ledger
+     says who paid (playPaid), he waves the train off and beats it to the Fair by telegraph (playDepart, arriveLine),
+     and a story won ends on his last poster: yours (playTwist). His name lives here and nowhere else. */
+  const CRANE = {
+    name: 'Sheriff Crane',
+    job: { 1: 'The Twins have this town by the throat, friend. I’ve got the law but not the guns. Bring ’em in and the county pays.',
+           2: 'Their kin are on the Westbound, and they know your face now. Ride it to the Fair: I’ll wire ahead and have your money waiting.',
+           3: 'Told you I’d be waiting. Telegraph’s quicker than any train. This is the last outfit in the county, friend. After them there’s nobody left.' },
+    ledger: { 1: 'Paid from the private account of S. Crane.', 2: 'Paid: S. Crane. The Westbound line: to S. Crane.', 3: 'Paid: S. Crane. The Fair grounds: to S. Crane.' },
+    depart: 'I’ll wire the Fair you’re coming. Don’t keep ’em waiting.',
+    twist: 'Every outfit in this county is dead or behind bars, friend. All but one. Folks are going to want to know who did all that killing.'
+  };
+  // your partner, when the last poster turns out to be yours
+  const TWIST_BACK = {
+    horse: '(Biscuit lays her ears back and stamps once. She never did like that man.)',
+    nan: 'I knew it, dear. No honest sheriff ever had a roof that grand. Get on, and don’t look back.',
+    showboat: 'Hold on. We’re the bad guys now? Partner, I had a whole speech ready for the parade!',
+    sharp: 'His books never added up, partner. Every bounty out of one pocket, every deed into the same one.',
+    quiet: '(The Quiet One takes a tin star from an inside pocket, Crane’s old badge, and drops it in the dust.)'
+  };
+  const craneSays = text => '<div class="nanline crane">' + pwSvg('star') + '<span><b>' + CRANE.name + ':</b> ' + esc(text) + '</span></div>';
   const JOB = {
     1: ['The reason you rode into Euchre-ka!', 'That\u2019s them, dear. The Twins. They run this gold town for the big boss, and every other gang in it is just the road to the Saloon.'],
     2: ['They want revenge for the Twins', 'They\u2019re up in the locomotive, dear. Car by car, through the carriages or over the roofs, that\u2019s where we\u2019re headed.'],
@@ -4935,7 +5030,9 @@ html.art .coach { border-radius: 0; }
     const why = L.act === 2 && R.BOSS[L.map.boss].revenge ? R.BOSS[L.map.boss].revenge : '';
     b.innerHTML = '<p class="why">' + esc(J[0]) + '</p><div class="scroll"><div class="wposter" role="img" aria-label="' + esc('Wanted: ' + R.BOSS[L.map.boss].name + ', reward 100 gold') + '">' +
       wantedFace(L.map.boss, L.map.loot) + '</div><i class="rod" aria-hidden="true"></i></div>' + (why ? '<p class="why long">' + esc(why) + '</p>' : '') +
-      (chosen ? '<div class="nanline"><b>' + esc(R.PARTNERS[L.partner].name) + ':</b> ' + esc(R.voice(L, J[1])) + '</div>' : '') +
+      (CRANE.job[L.act] ? craneSays(CRANE.job[L.act]) : '') +
+      // Act II: your partner said all this on the departure platform a moment ago, so the Sheriff speaks alone
+      (chosen && !(L.act === 2 && why) ? '<div class="nanline"><b>' + esc(R.PARTNERS[L.partner].name) + ':</b> ' + esc(R.voice(L, J[1])) + '</div>' : '') +
       '<button class="btn" data-act="takejob">' + (chosen ? 'Let\u2019s ride' : 'Take the job') + '</button>';
     b.hidden = false;
   }
@@ -5049,7 +5146,7 @@ html.art .coach { border-radius: 0; }
       const led = document.createElement('div');
       led.className = 'ledger';
       led.style.left = l0[0] + 'px'; led.style.top = l0[1] + 'px'; led.style.width = (l1[0] - l0[0]) + 'px';
-      led.innerHTML = '<h3>BOUNTY PAID</h3>' + payoutHTML(r, L.gold);
+      led.innerHTML = '<h3>BOUNTY PAID</h3>' + payoutHTML(r, L.gold) + (L.mode !== 'standard' && CRANE.ledger[L.act] ? '<p class="lnote">' + esc(CRANE.ledger[L.act]) + '</p>' : '');
       g.appendChild(led);
       countUp(led.querySelector('.payout'));
       // a coin hops from the sheriff's stack to the ledger for every line that paid
@@ -5066,7 +5163,8 @@ html.art .coach { border-radius: 0; }
     return true;
   }
   // the red sheriff's star, inked: six points with balls at their tips, PAID knocked out of the middle, a grainy edge
-  function stampSVG() {
+  function stampSVG(word) {
+    word = word || 'PAID';
     let pts = '', balls = '';
     for (let i = 0; i < 12; i++) { const a = Math.PI / 6 * i - Math.PI / 2, rr = i % 2 ? 23 : 44; pts += (50 + rr * Math.cos(a)).toFixed(1) + ',' + (50 + rr * Math.sin(a)).toFixed(1) + ' ';
       if (!(i % 2)) balls += '<circle cx="' + (50 + 46 * Math.cos(a)).toFixed(1) + '" cy="' + (50 + 46 * Math.sin(a)).toFixed(1) + '" r="4.5"/>'; }
@@ -5074,7 +5172,7 @@ html.art .coach { border-radius: 0; }
       '<feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.6 2.3" result="m"/><feComposite in="SourceGraphic" in2="m" operator="in"/></filter>' +
       '</defs><g filter="url(#ink)"><g fill="#c0201a"><polygon points="' + pts + '"/>' + balls + '</g>' +
       '<polygon points="' + pts + '" fill="none" stroke="#f1dfb6" stroke-width="1.6" transform="translate(50 50) scale(.8) translate(-50 -50)"/>' +
-      '<text x="50" y="56.5" text-anchor="middle" font-family="Georgia, serif" font-weight="900" font-size="17" letter-spacing="1" fill="#f1dfb6">PAID</text></g></svg>';
+      '<text x="50" y="' + (word.length > 4 ? 55 : 56.5) + '" text-anchor="middle" font-family="Georgia, serif" font-weight="900" font-size="' + (word.length > 4 ? 11.5 : 17) + '" letter-spacing="' + (word.length > 4 ? 0.3 : 1) + '" fill="#f1dfb6">' + word + '</text></g></svg>';
   }
   function endPaid() {
     PAID.run++;
@@ -5230,6 +5328,7 @@ html.art .coach { border-radius: 0; }
       back + ground + '<div class="dties" style="top:' + u(rail - 1) + ';height:' + u(3 * k) + '"></div>' +
       '<div class="dtrain">' + train + '</div><div class="dpuffs"></div>' + front +
       '<div class="dwords"><div class="board"><small>ACT II</small><b>THE WESTBOUND EXPRESS</b><span>Next stop: the County Fair</span></div>' +
+      '<div class="say crane"><span class="face svg">' + pwSvg('star') + '</span><p><b>' + CRANE.name + '</b> (on the platform): ' + esc(CRANE.depart) + '</p></div>' +
       '<div class="say"><span class="face svg">' + partnerFace(p.id) + '</span><p><b>' + esc(p.name) + ':</b> ' + esc(departLine(L)) + '</p></div>' +
       (nan ? '<div class="unlock"><span class="face svg">' + NAN_SVG + '</span><p><b>New partner: Nan</b>, the Steady Hand. She heard what you did to the Twins: she can ride with you from your next story.</p></div>' : '') +
       '<button class="btn" data-act="allaboard">All aboard</button></div>';
@@ -5279,7 +5378,7 @@ html.art .coach { border-radius: 0; }
                        wallflowers: ['TONIGHT: THE HAUNTED HOUSE', 'See the haunted house at the top of the midway? The Undertakers are in there, measuring folks up. They\u2019re the bounty we came west for.'] };
   function arriveLine(L) {
     const w = ARRIVE_WHO[L.map && L.map.boss];
-    return R.voice(L, 'End of the line, dear! ' + (w ? w[1] : 'The last bounty is waiting at the top of the midway.') + ' The midway\u2019s between us: card booths, and prize contests for a ribbon.');
+    return R.voice(L, 'End of the line, dear! And Crane’s poster got here first: telegraph’s quick. ' + (w ? w[1] :'The last bounty is waiting at the top of the midway.') + ' The midway\u2019s between us: card booths, and prize contests for a ribbon.');
   }
   function playArrive(L) {
     const card = $('actcard'), X = window.EXPRESS_SCENE, F = window.FAIR_SPRITES || {}, DS = (window.DUST_SPRITES || {}).s || {}, T = window.TITLE_SCENE;
@@ -5370,7 +5469,7 @@ html.art .coach { border-radius: 0; }
   }
   function endDepart() {
     const card = $('actcard');
-    if (!card.classList.contains('depart') && !card.classList.contains('arrive')) return;     // (the finale is an .arrive too)
+    if (!card.classList.contains('depart') && !card.classList.contains('arrive') && !card.classList.contains('twist')) return;     // (the finale is an .arrive too)
     DEPART.timers.forEach(clearTimeout);
     card.classList.remove('on', 'said');
     card.onpointerdown = null;
