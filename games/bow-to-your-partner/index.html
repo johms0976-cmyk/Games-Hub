@@ -433,6 +433,14 @@ html.art .oslip { border: 12px solid transparent; border-image: url(art/ui/paper
 #actcard.depart .dcrate { position: absolute; left: 40px; top: 40px; width: 30px; height: 30px; background: #c8a06a; border: 3px solid #4a2626; box-sizing: border-box; }
 #actcard.depart .dcrate.c2 { left: 72px; top: 50px; width: 22px; height: 20px; }
 #actcard.depart .dsack { position: absolute; left: 520px; top: 46px; width: 28px; height: 24px; background: #d8c8a0; border: 3px solid #4a2626; border-radius: 40% 40% 8px 8px; box-sizing: border-box; }
+/* with the art (2026-11-04): the station house and its shelter beyond the train, the kiosk and the prospectors on
+   the near platform, the opening's ground under it all with what stands on it streaming by */
+#actcard.depart .dstation.big { top: 0; height: 100%; pointer-events: none; }
+#actcard.depart .dstation.big img { position: absolute; image-rendering: pixelated; }
+#actcard.depart .dground.tex, #actcard.depart .dl.tex { background-repeat: repeat; image-rendering: pixelated; }
+#actcard.depart .dbig { position: absolute; background: repeating-linear-gradient(90deg, #a8824e 0 calc(var(--k) * 13px), #8a6a40 0 calc(var(--k) * 14px)); border-top: calc(var(--k) * 2px) solid #c8a06a; border-bottom: calc(var(--k) * 2px) solid #4a2626; }
+#actcard.depart .dname { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #8a2e26; font-family: 'Pixelify Sans', Georgia, serif; letter-spacing: .06em; line-height: 1; white-space: nowrap; }
+#actcard.depart .dname small { font: inherit; font-size: 42%; color: #4a2626; margin-top: .25em; letter-spacing: .03em; }
 #actcard.depart .dtrain img { position: absolute; image-rendering: pixelated; animation: drock .7s steps(1) infinite; }
 #actcard.depart .dtrain img:nth-child(2n) { animation-delay: -.35s; }
 @keyframes drock { 50% { transform: translateY(-2px); } }
@@ -450,7 +458,7 @@ html.art .oslip { border: 12px solid transparent; border-image: url(art/ui/paper
 /* Act III opens on the train pulling into the County Fair at dusk (2026-11-02): playArrive */
 #actcard.arrive { display: block; padding: 0; background: #56524a; overflow: hidden; }
 #actcard.arrive .asky { position: absolute; inset: 0; background: linear-gradient(#24203e, #3e3658 38%, #7a4e6a 72%, #d8885a); }
-#actcard.arrive .aground { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(#6a5a4c, #56483e 30%, #46403a); }
+#actcard.arrive .aground { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(#4e5e3e, #3e4c34 30%, #343e2e); }
 #actcard.arrive .afar, #actcard.arrive .astation { position: absolute; left: 0; top: 0; width: 100%; height: 100%; will-change: transform; pointer-events: none; }
 #actcard.arrive img { position: absolute; image-rendering: pixelated; }
 #actcard.arrive .afar img { filter: brightness(.72) sepia(.22) saturate(1.05); }
@@ -490,7 +498,8 @@ html.art .oslip { border: 12px solid transparent; border-image: url(art/ui/paper
 .mapbox.side .sideback { position: absolute; inset: 0; pointer-events: none; }
 .mapbox.side .xl { position: absolute; left: 0; width: 100%; background-repeat: repeat-x; image-rendering: pixelated; animation: xscroll var(--dur) linear infinite; }
 .mapbox.side .xground { position: absolute; left: 0; right: 0; bottom: 0; background: #c8a06a; }
-.mapbox.side .xties { position: absolute; left: 0; width: 100%; background: repeating-linear-gradient(90deg, #5a3a28 0 calc(var(--k) * 3px), transparent 0 calc(var(--k) * 8px)); --tw: calc(var(--k) * 8px); animation: xscroll .18s linear infinite; }
+.mapbox.side .xground.tex { background-repeat: repeat; image-rendering: pixelated; animation: xscroll var(--dur) linear infinite; }
+.mapbox.side .xties { position: absolute; left: 0; width: 100%; background: repeating-linear-gradient(90deg, #5a3a28 0 calc(var(--k) * 3px), transparent 0 calc(var(--k) * 8px)); --tw: calc(var(--k) * 8px); animation: xscroll .07s linear infinite; }
 .mapbox.side .xrail { position: absolute; left: 0; right: 0; height: calc(var(--k) * 1.5px); background: #3e3a3a; box-shadow: 0 calc(var(--k) * -1px) 0 #8a8a92 inset; }
 @keyframes xscroll { to { background-position-x: calc(-1 * var(--tw)); } }
 .mapbox.side .sidescroll { position: relative; overflow-x: auto; overflow-y: hidden; height: 100%; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
@@ -970,6 +979,8 @@ html.art .mapbox .rodein { display: block; }
 .mapbox .rodein i { position: absolute; inset: 0; background-repeat: no-repeat; background-size: 400% 100%; background-position: 0 0; image-rendering: pixelated; }
 .mapbox .rodein i.pr { left: -60%; right: 60%; top: -22%; bottom: 22%; }
 .mapbox .rodein.riding i { animation: gallop .42s steps(4) infinite; } .mapbox .rodein.riding i.pr { animation-delay: -.16s; }
+.mapbox .rodein.walk i.pr { left: -42%; right: 42%; top: -9%; bottom: 9%; }
+.mapbox .rodein.walk.riding i { animation-duration: .62s; } .mapbox .rodein.walk.riding i.pr { animation-delay: -.3s; }
 @keyframes gallop { from { background-position-x: 0; } to { background-position-x: 133.333%; } }
 /* the partners in pixels (2026-11-03, the user: "the SVG looks ok, but it's a bit weird against the rest of the
    pixels"): baked with the gang (bakery/gang.py, partners_px.py). With art on, a head-and-shoulders crop wherever a
@@ -1635,23 +1646,24 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=44"></script>
-<script src="btp-ai.js?v=44"></script>
-<script src="btp-run.js?v=44"></script>
-<script src="btp-town.js?v=44"></script>
-<script src="art/dustwater/sprites.js?v=44"></script>
-<script src="btp-train.js?v=44"></script>
-<script src="art/train/sprites.js?v=44"></script>
-<script src="art/title/scene.js?v=44"></script>
-<script src="art/title/cameo.js?v=44"></script>
-<script src="art/title/crossing.js?v=44"></script>
-<script src="art/table/scene.js?v=44"></script>
-<script src="art/table/partners.js?v=44"></script>
-<script src="art/grave/scene.js?v=44"></script>
-<script src="art/paid/scene.js?v=44"></script>
-<script src="art/rooms/scene.js?v=44"></script>
-<script src="art/express/scene.js?v=44"></script>
-<script src="art/fair/sprites.js?v=44"></script>
+<script src="btp-engine.js?v=45"></script>
+<script src="btp-ai.js?v=45"></script>
+<script src="btp-run.js?v=45"></script>
+<script src="btp-town.js?v=45"></script>
+<script src="art/dustwater/sprites.js?v=45"></script>
+<script src="btp-train.js?v=45"></script>
+<script src="art/train/sprites.js?v=45"></script>
+<script src="art/title/scene.js?v=45"></script>
+<script src="art/title/cameo.js?v=45"></script>
+<script src="art/title/crossing.js?v=45"></script>
+<script src="art/table/scene.js?v=45"></script>
+<script src="art/table/partners.js?v=45"></script>
+<script src="art/grave/scene.js?v=45"></script>
+<script src="art/paid/scene.js?v=45"></script>
+<script src="art/rooms/scene.js?v=45"></script>
+<script src="art/express/scene.js?v=45"></script>
+<script src="art/country/country.js?v=45"></script>
+<script src="art/fair/sprites.js?v=45"></script>
 <script>
 (function () {
   'use strict';
@@ -1678,7 +1690,7 @@ html.art .coach { border-radius: 0; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 38, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 40, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -2259,12 +2271,16 @@ html.art .coach { border-radius: 0; }
   function placeRider(L) {
     const box = document.querySelector('.mapbox');
     if (!box || NOART) return;
+    // the trains and the Fair are walked (the user's, 2026-11-04): on foot from Act II, unless your partner is
+    // Biscuit, who carries you everywhere (bakery/title.py build_walker: walk_<who>.webp, the riders' frame)
+    const walk = L.act >= 2 && !!L.partner && L.partner !== 'horse';
     let el = box.querySelector('.rodein');
+    if (el && el.classList.contains('free') && el.classList.contains('walk') !== walk) { el.remove(); el = null; }
     if (!el) {
       const I = window.TITLE_SCENE && window.TITLE_SCENE.intro && window.TITLE_SCENE.intro.stage;
       if (!I) return;
-      box.insertAdjacentHTML('beforeend', '<div class="rodein free">' + (L.partner && L.partner !== 'horse' ? '<i class="pr" style="background-image:url(' + artURL('title/ride_' + L.partner + '.webp') + ')"></i>' : '') +
-        '<i style="background-image:url(' + artURL('title/' + I.img + '.webp') + ')"></i></div>');
+      box.insertAdjacentHTML('beforeend', '<div class="rodein free' + (walk ? ' walk' : '') + '">' + (L.partner && L.partner !== 'horse' ? '<i class="pr" style="background-image:url(' + artURL('title/' + (walk ? 'walk_' : 'ride_') + L.partner + '.webp') + ')"></i>' : '') +
+        '<i style="background-image:url(' + artURL('title/' + (walk ? 'walk_you' : I.img) + '.webp') + ')"></i></div>');
       el = box.querySelector('.rodein');
     }
     el.classList.toggle('left', !!P.riderLeft);
@@ -2293,7 +2309,7 @@ html.art .coach { border-radius: 0; }
     P.riderLeft = goLeft;
     el.classList.toggle('left', goLeft);
     const [x1, y1] = riderSpot(box, nd, el).map(Number);
-    const px = Math.hypot((x1 - x0) * box.clientWidth, (y1 - y0) * box.clientHeight) / 100, ms = Math.round(Math.max(450, Math.min(1300, px * 3.4)));
+    const px = Math.hypot((x1 - x0) * box.clientWidth, (y1 - y0) * box.clientHeight) / 100, ms = Math.round(Math.max(450, Math.min(1300, px * 3.4)) * (el.classList.contains('walk') ? 1.3 : 1));
     P.riding = true;
     el.classList.add('riding');
     el.style.zIndex = 2001;
@@ -2583,15 +2599,30 @@ html.art .coach { border-radius: 0; }
       return stopButton(L, n, x, y, W, H, can, route, fNow, place);
     }).join('');
     const T = window.TITLE_SCENE, layers = art && T ? T.layers.filter(l => l.img !== 'herd' && l.img !== 'trestle') : [];
-    const back = layers.map(l => '<div class="xl" style="top:' + u(l.img === 'plains' ? RAIL - 18 : l.y * 0.9) + ';height:' + u(l.h) + ';background-image:url(' + artURL('title/' + l.img + '.webp') + ');background-size:' + u(l.w) + ' ' + u(l.h) + ';--tw:' + u(l.w) + ';--dur:' + (l.w / (l.speed * 2.2)).toFixed(2) + 's"></div>').join('');
-    return '<div class="mapbox side" style="height:' + u(H) + ';--k:' + k + '">' +
-      '<div class="sideback" aria-hidden="true">' + back + '<div class="xground" style="top:' + u(RAIL + 1) + '"></div><div class="xties" style="top:' + u(RAIL - 1) + ';height:' + u(5) + '"></div>' +
+    // the country (art/country): desert to halfway, then greener stop by stop to the Fair's pastures
+    const C = art && window.COUNTRY ? window.COUNTRY.s : null, st = countryStage(L), NEAR = 52 * 2.2;
+    const src = img => C && (img === 'mesas' || img === 'plains') ? 'country/' + (img === 'mesas' ? 'far' : 'plains') + st : 'title/' + img;
+    const back = layers.map(l => '<div class="xl" style="top:' + u(l.img === 'plains' ? RAIL - 18 : l.y * 0.9) + ';height:' + u(l.h) + ';background-image:url(' + artURL(src(l.img) + '.webp') + ');background-size:' + u(l.w) + ' ' + u(l.h) + ';--tw:' + u(l.w) + ';--dur:' + (l.w / (l.speed * 2.2)).toFixed(2) + 's"></div>').join('');
+    const ground = C ? '<div class="xground tex" style="top:' + u(RAIL + 1) + ';background-image:url(' + artURL('country/ground' + st + '.webp') + ');background-size:' + u(C.ground[0]) + ' ' + u(C.ground[1]) + ';--tw:' + u(C.ground[0]) + ';--dur:' + (C.ground[0] / NEAR).toFixed(2) + 's"></div>' +
+      '<div class="xl" style="top:' + u(RAIL - 4) + ';height:' + u(C.field[1]) + ';background-image:url(' + artURL('country/field' + st + '.webp') + ');background-size:' + u(C.field[0]) + ' ' + u(C.field[1]) + ';--tw:' + u(C.field[0]) + ';--dur:' + (C.field[0] / NEAR).toFixed(2) + 's"></div>'
+      : '<div class="xground" style="top:' + u(RAIL + 1) + '"></div>';
+    return '<div class="mapbox side" data-country="' + st + '" style="height:' + u(H) + ';--k:' + k + '">' +
+      '<div class="sideback" aria-hidden="true">' + back + ground + '<div class="xties" style="top:' + u(RAIL - 1) + ';height:' + u(5) + '"></div>' +
       '<div class="xrail" style="top:' + u(RAIL - 2) + '"></div></div>' +
       '<div class="sidescroll"><div class="sidetrain" style="width:' + u(W) + ';height:' + u(H) + '">' + pics + boxes +
       '<svg viewBox="0 0 ' + W + ' ' + H + '" aria-hidden="true">' + edges + '</svg>' + nodes + '</div></div></div>' +
       '<p class="sidehint">Scroll along the train. Inside is quieter; the roof is where the fights are. A <b>roof hatch</b> (its ladder at a carriage\u2019s front end) lets you climb up or drop down as you go on.</p>';
   }
   const SIDE_K = () => innerWidth >= 900 && innerHeight >= 800 ? 3 : 2;
+  /* How green Act II's country is, 0 (Euchre-ka!'s desert) to 4 (the Fair's lush pastures) (the user's, 2026-11-04:
+     "once you reach halfway, the ground should transition slowly to greener pastures, so by the time you're at the
+     boss it's lush green pastures"): desert up to the middle carriage, then a stage greener every eighth of the
+     train, the last carriage (where you choose the locomotive) already lush. */
+  function countryStage(L) {
+    const n = L.map && L.map.floors ? L.map.floors.length : 1, here = L.pos && L.pos !== 'boss' ? R.node(L, L.pos) : null;
+    const p = L.pos === 'boss' ? 1 : here ? (here.f + 1) / n : 0;
+    return p <= 0.5 ? 0 : Math.min(4, Math.ceil((p - 0.5) * 8));
+  }
   // bring your next choices into view in the strip (a carriage is wider than a phone: the one you are in shows its
   // front end, with the hatch's ladder when it has one, on the left)
   function sideScroll(smooth) {
@@ -2881,6 +2912,19 @@ html.art .coach { border-radius: 0; }
     if (kind === 'bid') L = until(L => L.phase === 'hand' && L.h.phase === 'bid' && L.h.turn === 0 && L.h.bids.length >= 2, 2);
     else if (kind === 'sheet') L = until(L => L.phase === 'summary' && L.h.result && L.h.result.dmg > 0);
     else if (kind === 'store') { L = R.newRun({ seed: 21, tips: false }); R.act(L, 'take', L.offer[0]); L.gold = 140; L.health = 380; L.phase = 'camp'; R.act(L, 'camp', 'shop'); }
+    // Act II's departure, or its map at a carriage (&floor=N; &partner=<id>): the country greens past halfway
+    else if (kind === 'depart' || kind === 'side' || kind === 'fair') {
+      const q = k => (location.search.match(new RegExp('[?&]' + k + '=(\\w+)')) || [])[1];
+      L = R.newRun({ seed: 21, act: kind === 'fair' ? 3 : 2, tips: false, partner: q('partner') || 'horse' });
+      if (L.offer) R.act(L, 'take', L.offer[0]);
+      L.phase = 'map';
+      const f = +q('floor');
+      if (f && L.map.floors[f - 1]) L.pos = L.map.floors[f - 1][0].id;
+      P.L = L; show();
+      // the art switches on once its probe picture loads: draw again after it
+      setTimeout(() => { render(); if (kind === 'depart') playDepart(L); }, 800);
+      return;
+    }
     else L = until(L => L.phase === 'hand' && L.h.phase === 'trick' && L.h.contractor === 1 && L.h.trickNo === 1);
     P.L = L; show();
   }
@@ -5155,14 +5199,36 @@ html.art .coach { border-radius: 0; }
     const p = R.PARTNERS[L.partner] || R.PARTNERS.horse;
     card.className = 'depart';
     card.style.backgroundImage = '';
-    card.innerHTML = '<div class="dsky"></div>' + (clouds ? lyr(clouds, rail * 0.12) : '') + (mesas ? lyr(mesas, rail - mesas.h * k - 30 * k) : '') +
-      '<div class="dground" style="top:' + u(rail) + '"></div><div class="dties" style="top:' + u(rail - 1) + ';height:' + u(3 * k) + '"></div>' +
+    // the grand station (2026-11-04, the user's: "a kiosk and a shelter and some gold prospectors"; bakery/station.py)
+    // and the opening's ground under it all (art/country, stage 0: the desert Euchre-ka! sits in), what stands on it
+    // in two rows, the nearer one faster. Without that art, the plain platform and sign post of before.
+    const C = art && window.COUNTRY && X.s.depot ? window.COUNTRY.s : null, W = innerWidth;
+    const pic = (src, s, x, ground) => s ? '<img src="' + artURL(src) + '" alt="" style="left:' + u(x - s[2] * k) + ';top:' + u(ground - s[3] * k) + ';width:' + u(s[0] * k) + ';height:' + u(s[1] * k) + '">' : '';
+    const tex = (img, par, top, off, bottom) => { const s = C[img.replace(/\d+$/, '')];
+      return '<div class="dl tex" data-par="' + par + '" data-off="' + (off || 0) + '" style="top:' + u(top) + (bottom ? ';bottom:0' : ';height:' + u(s[1] * k)) + ';background-image:url(' + artURL('country/' + img + '.webp') + ');background-size:' + u(s[0] * k) + ' ' + u(s[1] * k) + '"></div>'; };
+    const name = (s, box, x, ground, text, size) => box ? '<span class="dname" style="left:' + u(x - s[2] * k + box[0][0] * k) + ';top:' + u(ground - s[3] * k + box[0][1] * k) + ';width:' + u((box[1][0] - box[0][0]) * k) + ';height:' + u((box[1][1] - box[0][1]) * k) + ';font-size:' + u(size * k) + '">' + text + '</span>' : '';
+    let back, front, ground;
+    if (C) {
+      const dx = W * 0.42, plat = rail + 8, deep = plat + 26 * k, near = plat + 5 * k;
+      back = '<div class="dstation big dback" data-par="1">' + pic('express/depot.webp', X.s.depot, dx, rail) +
+        name(X.s.depot, X.dsign, dx, rail, 'EUCHRE-KA!<small>POP. 312 · STRUCK RICH 1879</small>', 7.4) +
+        pic('express/tower.webp', X.s.tower, dx + 262 * k, rail) + '</div>';
+      ground = tex('ground0', 1, rail, 0, true) + tex('field0', 1, rail + 1) + tex('field0', 1.3, rail + 30 * k, 700);
+      front = '<div class="dstation big dfront" data-par="1.35" style="--k:' + k + '"><div class="dbig" style="left:-10px;width:' + u(W * 1.5) + ';top:' + u(plat) + ';height:' + u(28 * k) + '"></div>' +
+        pic('express/kiosk.webp', X.s.kiosk, W * 0.14, near) + name(X.s.kiosk, X.ksign, W * 0.14, near, 'TICKETS', 5.6) +
+        pic('express/bench.webp', X.s.bench, W * 0.64, near) +
+        pic('express/pros_mule.webp', X.s.pros_mule, W * 0.36, deep) + pic('express/pros_gold.webp', X.s.pros_gold, W * 0.9, deep) + '</div>';
+    } else {
       // beyond the train the water tower; this side of it the platform, the station's sign, a bench, the mail
-      '<div class="dstation dback" data-par="1" style="top:' + u(rail - 120) + '">' +
-      (art ? '<img class="dtower" src="' + artURL('express/tower.webp') + '" alt="" style="width:' + u(X.s.tower[0] * k) + ';height:' + u(X.s.tower[1] * k) + ';bottom:' + u(-(X.s.tower[1] - X.s.tower[3]) * k) + '">' : '') + '</div>' +
-      '<div class="dtrain">' + train + '</div><div class="dpuffs"></div>' +
-      '<div class="dstation dfront" data-par="1.35" style="top:' + u(rail + 14) + '"><div class="dplat"></div>' +
-      '<div class="dpost"><span class="dsign">EUCHRE-KA!</span><small>POP. 312 · STRUCK RICH 1879</small></div><i class="dbench"></i><i class="dcrate"></i><i class="dcrate c2"></i><i class="dsack"></i></div>' +
+      back = '<div class="dstation dback" data-par="1" style="top:' + u(rail - 120) + '">' +
+        (art ? '<img class="dtower" src="' + artURL('express/tower.webp') + '" alt="" style="width:' + u(X.s.tower[0] * k) + ';height:' + u(X.s.tower[1] * k) + ';bottom:' + u(-(X.s.tower[1] - X.s.tower[3]) * k) + '">' : '') + '</div>';
+      ground = '<div class="dground" style="top:' + u(rail) + '"></div>';
+      front = '<div class="dstation dfront" data-par="1.35" style="top:' + u(rail + 14) + '"><div class="dplat"></div>' +
+        '<div class="dpost"><span class="dsign">EUCHRE-KA!</span><small>POP. 312 · STRUCK RICH 1879</small></div><i class="dbench"></i><i class="dcrate"></i><i class="dcrate c2"></i><i class="dsack"></i></div>';
+    }
+    card.innerHTML = '<div class="dsky"></div>' + (clouds ? lyr(clouds, rail * 0.12) : '') + (mesas ? lyr(mesas, rail - mesas.h * k - 30 * k) : '') +
+      back + ground + '<div class="dties" style="top:' + u(rail - 1) + ';height:' + u(3 * k) + '"></div>' +
+      '<div class="dtrain">' + train + '</div><div class="dpuffs"></div>' + front +
       '<div class="dwords"><div class="board"><small>ACT II</small><b>THE WESTBOUND EXPRESS</b><span>Next stop: the County Fair</span></div>' +
       '<div class="say"><span class="face svg">' + partnerFace(p.id) + '</span><p><b>' + esc(p.name) + ':</b> ' + esc(departLine(L)) + '</p></div>' +
       (nan ? '<div class="unlock"><span class="face svg">' + NAN_SVG + '</span><p><b>New partner: Nan</b>, the Steady Hand. She heard what you did to the Twins: she can ride with you from your next story.</p></div>' : '') +
@@ -5183,7 +5249,7 @@ html.art .coach { border-radius: 0; }
       d += VMAX * ramp * ramp * (3 - 2 * ramp) * dt;
       sts.forEach(s => { s.style.transform = 'translateX(' + (-d * +s.dataset.par).toFixed(1) + 'px)'; });
       ties.style.backgroundPositionX = (-d).toFixed(1) + 'px';
-      pars.forEach(l => { l.style.backgroundPositionX = (-d * +l.dataset.par).toFixed(1) + 'px'; });
+      pars.forEach(l => { l.style.backgroundPositionX = (-d * +l.dataset.par + (+l.dataset.off || 0)).toFixed(1) + 'px'; });
       if (art && t > nextPuff && t < 30) {
         nextPuff = t + 0.42 - 0.2 * ramp;
         const pf = T.puffs[Math.floor(Math.random() * T.puffs.length)], e = document.createElement('i');
