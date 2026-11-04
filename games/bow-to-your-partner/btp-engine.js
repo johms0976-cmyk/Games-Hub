@@ -515,10 +515,12 @@
     for (let p = 0; p < 4; p++) sort(L, p);
     if (L.curse === 'nokitty' || L.call === 'nokitty') {
       say(L, L.call === 'nokitty' ? callWords(L, 'No Kitty').join(', ') + ': the kitty stays face down.' : 'No kitty this level: the kitty stays face down.', 'rule');
+      h.closed = true;          // the page tells the contractor there's nothing to pick up (2026-11-05)
       afterKitty(L);
       return;
     }
-    if (!h.kitty.length) { afterKitty(L); return; }
+    if (!h.kitty.length) { h.closed = true; afterKitty(L); return; }
+    h.picked = h.kitty.slice();  // which cards came from the kitty, so the page can mark them (2026-11-05)
     h.hands[c.seat].push(...h.kitty);
     h.kitty = [];
     h.phase = 'kitty';

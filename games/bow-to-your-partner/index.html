@@ -1450,6 +1450,32 @@ html.art .top .log[open] ol { background: #efe0bc; color: #2a1a0c; }
   #game.bidding .hand.lots .card + .card { margin-left: -22px; }
 }
 .nod { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: #fff8e6; border: 1px solid var(--gold); font-size: 13px; }
+/* An open kitty (or a peek at it) face up on the bid prompt, where it's in sight the whole auction (2026-11-05: it
+   used to be a line inside the Bid pop-up, so nobody ever saw it) */
+.kitpeek { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 6px; font-size: 13px; font-weight: 700; }
+.kitpeek .kc { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 26px; padding: 0 5px; border-radius: 5px;
+  background: #fffaf0; color: #1d1410; border: 2px solid #2a1b16; font: 800 15px/1 Bitter, Georgia, serif; box-shadow: 0 2px 0 rgba(30,18,14,.35); }
+.kitpeek .kc.red { color: var(--red); }
+/* The kitty wizard (2026-11-05, the user's): winning the kitty is steps, one pop-up each — put back, swap, then play */
+.kitmodal .kitsteps { display: flex; gap: 4px; flex-wrap: wrap; margin: 0 0 6px; font-size: 12px; }
+.kitmodal .kitsteps span { padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; opacity: .55; }
+.kitmodal .kitsteps span.now { opacity: 1; font-weight: 800; background: rgba(243, 208, 112, .25); }
+.kitmodal .kitsteps span.done { opacity: .8; text-decoration: line-through; }
+.kitmodal h3 { margin: 4px 0 2px; font-size: 15px; color: inherit; }
+html.art .kitmodal h3 { color: #f3d070; }
+.kitmodal p { margin: 4px 0; font-size: 15px; }
+.kitmodal .big { font-size: 20px; font-weight: 800; text-align: center; margin: 10px 0 4px; }
+.kitmodal .kitrow { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; padding: 4px 0; }
+.kitmodal .kitrow .card { pointer-events: none; }
+.kitmodal .kithand { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; padding: 10px 0 6px; }
+.kitmodal .kithand .card { flex: none; transition: transform .12s, box-shadow .12s; }
+/* a phone: seven small cards to a row, so Act III's thirteen are two rows */
+@media (max-width: 420px) { .kitmodal .kithand { gap: 10px 1px; } }
+.kitmodal .kithand .card.picked { transform: translateY(-8px); box-shadow: 0 0 0 3px #e0402a, 0 6px 10px rgba(0,0,0,.35); }
+.kitmodal .kithand .card.fromkit:not(.picked) { box-shadow: 0 0 0 3px #f3d070; }
+.kitmodal .kitcount { text-align: center; font-size: 13px; opacity: .85; }
+.kitmodal .btns { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.kitmodal .coach { border: 1px solid var(--gold); border-radius: 8px; margin: 6px 0; color: var(--ink); }
 
 /* ---------- overlays ---------- */
 .veil { position: fixed; inset: 0; background: rgba(30,20,10,.55); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
@@ -1675,6 +1701,8 @@ html.art .coach { border-radius: 0; }
   <div class="bidpanel" id="bidpanel" hidden></div>
   <div class="bidveil" id="bidveil" data-act="bidclose" hidden></div>
   <div class="bidmodal" id="bidmodal" role="dialog" aria-label="Your bid" hidden></div>
+  <div class="bidveil" id="kitveil" hidden></div>
+  <div class="bidmodal kitmodal" id="kitmodal" role="dialog" aria-label="The kitty" hidden></div>
 </section>
 
 </div>
@@ -1682,24 +1710,24 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=45"></script>
-<script src="btp-ai.js?v=45"></script>
-<script src="btp-run.js?v=45"></script>
-<script src="btp-town.js?v=45"></script>
-<script src="art/dustwater/sprites.js?v=45"></script>
-<script src="btp-train.js?v=45"></script>
-<script src="art/train/sprites.js?v=45"></script>
-<script src="art/title/scene.js?v=45"></script>
-<script src="art/title/cameo.js?v=45"></script>
-<script src="art/title/crossing.js?v=45"></script>
-<script src="art/table/scene.js?v=45"></script>
-<script src="art/table/partners.js?v=45"></script>
-<script src="art/grave/scene.js?v=45"></script>
-<script src="art/paid/scene.js?v=45"></script>
-<script src="art/rooms/scene.js?v=45"></script>
-<script src="art/express/scene.js?v=45"></script>
-<script src="art/country/country.js?v=45"></script>
-<script src="art/fair/sprites.js?v=45"></script>
+<script src="btp-engine.js?v=46"></script>
+<script src="btp-ai.js?v=46"></script>
+<script src="btp-run.js?v=46"></script>
+<script src="btp-town.js?v=46"></script>
+<script src="art/dustwater/sprites.js?v=46"></script>
+<script src="btp-train.js?v=46"></script>
+<script src="art/train/sprites.js?v=46"></script>
+<script src="art/title/scene.js?v=46"></script>
+<script src="art/title/cameo.js?v=46"></script>
+<script src="art/title/crossing.js?v=46"></script>
+<script src="art/table/scene.js?v=46"></script>
+<script src="art/table/partners.js?v=46"></script>
+<script src="art/grave/scene.js?v=46"></script>
+<script src="art/paid/scene.js?v=46"></script>
+<script src="art/rooms/scene.js?v=46"></script>
+<script src="art/express/scene.js?v=46"></script>
+<script src="art/country/country.js?v=46"></script>
+<script src="art/fair/sprites.js?v=46"></script>
 <script>
 (function () {
   'use strict';
@@ -2841,7 +2869,8 @@ html.art .coach { border-radius: 0; }
     renderStatus();
     // while bidding the trick area is empty, so Nan's tip sits there and the bid grid stays on screen
     const tip = L.phase === 'hand' ? R.coach(L) : null, inFelt = tip && h.phase === 'bid';
-    $('coach').hidden = !tip || inFelt;
+    renderKit(tip);
+    $('coach').hidden = !tip || inFelt || !!kitStep(L);
     $('coach').innerHTML = inFelt ? '' : coachHTML(tip);
     $('felt').classList.toggle('tipping', !!inFelt);
     /* While you bid, the empty trick area folds away so the bid grid is on screen with the rest (2026-11-03, the
@@ -2890,7 +2919,7 @@ html.art .coach { border-radius: 0; }
   }
   // how far the table runs past the bottom of the screen (the last thing on it, not the page's own minimum height)
   function tableSpill() {
-    const g = $('game'), kids = [...g.children].filter(e => e.offsetHeight && !['logbox', 'bidmodal', 'bidveil'].includes(e.id));
+    const g = $('game'), kids = [...g.children].filter(e => e.offsetHeight && !['logbox', 'bidmodal', 'bidveil', 'kitmodal', 'kitveil'].includes(e.id));
     if (!kids.length) return 0;
     return kids[kids.length - 1].getBoundingClientRect().bottom - g.getBoundingClientRect().top - innerHeight;
   }
@@ -2933,9 +2962,10 @@ html.art .coach { border-radius: 0; }
   /* The spike's frozen moments (?demo=): built with the run's own engine from fixed seeds. */
   function demo(kind) {
     const go = L => { R.act(L, 'take', L.offer[0]); R.act(L, 'go', R.reachable(L)[0]); return L; };
-    const until = (test, act) => {
+    const until = (test, act, prep) => {
       for (let s = 1; s < 400; s++) {
         const L = go(R.newRun({ seed: s * 17 + 3, act: act || 1, tips: false })); L.health = 5000;
+        if (prep) prep(L);
         for (let g = 0; g < 600 && !test(L); g++) {
           if (L.phase === 'summary') { if (test(L)) break; R.next(L); continue; }
           if (L.phase !== 'hand') break;
@@ -2946,6 +2976,11 @@ html.art .coach { border-radius: 0; }
     };
     let L;
     if (kind === 'bid') L = until(L => L.phase === 'hand' && L.h.phase === 'bid' && L.h.turn === 0 && L.h.bids.length >= 2, 2);
+    // the kitty wizard's steps (2026-11-05): ?demo=kitty|swing|closed|openkitty
+    else if (kind === 'kitty') L = until(L => L.phase === 'hand' && L.h.phase === 'kitty' && L.h.turn === 0, 3);
+    else if (kind === 'swing') L = until(L => L.phase === 'hand' && L.h.phase === 'swing', 2, L => L.buffs.push('swing'));
+    else if (kind === 'closed') L = until(L => L.phase === 'hand' && L.h.closed && L.h.contractor === 0 && L.h.trickNo === 0, 2, L => { L.curse = 'nokitty'; });
+    else if (kind === 'openkitty') L = until(L => L.phase === 'hand' && L.h.phase === 'bid' && L.h.turn === 0, 3, L => { L.call = 'facekitty'; });
     else if (kind === 'sheet') L = until(L => L.phase === 'summary' && L.h.result && L.h.result.dmg > 0);
     else if (kind === 'store') { L = R.newRun({ seed: 21, tips: false }); R.act(L, 'take', L.offer[0]); L.gold = 140; L.health = 380; L.phase = 'camp'; R.act(L, 'camp', 'shop'); }
     // Act II's departure, or its map at a carriage (&floor=N; &partner=<id>): the country greens past halfway
@@ -3116,7 +3151,7 @@ html.art .coach { border-radius: 0; }
     if (!h.contract || h.trickNo > 0 || h.trick.some(Boolean) || !['kitty', 'play', 'swing'].includes(h.phase)) return '';
     const who = h.contractor === 0 ? 'You win' : (h.contractor === 2 ? PN() + ' wins' : E.SEATS[h.contractor] + ' wins');
     const need = h.misere ? 'must lose every trick' : 'needs ' + h.contract.t + ' of ' + E.ACTS[E.actOf(L)].hand + ' tricks';
-    return '<div class="bidwon">' + who + ' the bid: <b>' + bidHTML(h.contract) + '</b><small>' + (E.team(h.contractor) === 0 ? 'your team ' : 'they ') + need + ' · worth ' + h.contract.v + '</small></div>';
+    return '<div class="bidwon">' + who + ' the bid: <b>' + bidHTML(h.contract) + '</b><small>' + (E.team(h.contractor) === 0 ? 'your team ' + need : 'they ' + need.replace(/^needs/, 'need')) + ' · worth ' + h.contract.v + '</small></div>';
   }
   // a long hand shows a few backs and the count, so the side seats stay narrow
   function backs(n, slim) { if (slim && n) return '<div class="backs"><i class="gingham"></i><b>' + n + '</b></div>'; let s = ''; for (let i = 0; i < Math.min(n, n > 6 ? 3 : n); i++) s += '<i class="gingham"></i>'; if (n > 6) s += '<b>' + n + '</b>'; return '<div class="backs">' + s + '</div>'; }
@@ -3843,9 +3878,13 @@ html.art .coach { border-radius: 0; }
        the grid in a pop-up over the table, with your hand in it (a long hand overlapped, each card's corner showing),
        the bid to beat, every chip and Pass. */
     if (!mine) P.bidOpen = false;
+    // an open kitty (or a peek at it) lies face up on the prompt the whole auction, whoever's turn it is
+    const seeKit = (R.sees(L, 'peek') || L.call === 'facekitty') && h.kitty.length;
+    const kitPeek = seeKit ? '<div class="kitpeek" aria-label="The kitty"><span>' + (L.call === 'facekitty' ? esc(R.TABLE_RULES.facekitty.name) : R.has(L, 'peek') ? 'Peek at the kitty' : 'Marked deck: the kitty') + ':</span>' +
+      h.kitty.map(c => '<span class="kc' + (c !== 'JK' && E.RED[E.suitOf(c)] ? ' red' : '') + '">' + esc(E.label(c)) + '</span>').join('') + '</div>' : '';
     bp.innerHTML = '<div class="bidprompt">' + standing + (mine ? '<div class="btns"><button class="btn alt" data-act="pass"' + (!E.mustBid(L, 0) ? '' : ' disabled') + '>' +
       (raise ? 'Keep ' + bidHTML(h.high) : 'Pass') + '</button><button class="btn" data-act="bidopen">' + (raise ? 'Raise' : 'Bid') + '</button></div>' : '') + '</div>' +
-      (handy ? '<div class="handy">' + handy + '</div>' : '');
+      kitPeek + (handy ? '<div class="handy">' + handy + '</div>' : '');
     // a long hand overlaps only as much as the pop-up's width needs, so every card's corner shows whole
     const mh = h.hands[0], cw = innerWidth <= 420 ? 46 : 52, wide = Math.min(560, innerWidth - 12) - 32;
     const over = mh.length > 1 && (mh.length * (cw + 4) > wide), ml = over ? Math.min(-6, Math.floor((wide - cw) / (mh.length - 1)) - cw) : 0;
@@ -3859,14 +3898,112 @@ html.art .coach { border-radius: 0; }
     bm.hidden = !open; $('bidveil').hidden = !open;
     if (open) { const f = $('felt').getBoundingClientRect(); bm.style.setProperty('--mtop', Math.max(8, Math.round(f.top + 4)) + 'px'); }
   }
+  /* The kitty wizard (2026-11-05, the user's: "when you win the kitty it's very confusing as to what's going on").
+     Winning the bid is a few steps, each its own pop-up, and nothing leaves your hand until you confirm it:
+       kitty   you picked it up: choose the cards to put back (the kitty's own marked), then Put back
+       closed  a Closed Kitty (table rule, No Kitty call, a duellist): there's nothing to pick up, say so and wait
+       swing   Swing Your Partner / Under the Table: choose a card to give your partner, or keep your hand
+       grand   Pass to the Left: choose the card for West (no keeping)
+     A tap on a card only picks it. The ✕ shows the table; a tap on your hand, or the status button, brings it back. */
+  const kitKey = L => [L.act, L.level, L.handNo, L.redeals || 0, L.kind].join('-');
+  function kitStep(L) {
+    if (!L || L.phase !== 'hand' || !L.h) return null;
+    const h = L.h;
+    if (h.phase === 'kitty') return h.turn === 0 ? 'kitty' : null;
+    if (h.closed && h.contractor === 0 && h.trickNo === 0 && !h.trick.some(Boolean) && P.kitNote !== kitKey(L) && ['play', 'swing', 'intent'].includes(h.phase)) return 'closed';
+    if (h.phase === 'swing') return h.pass === 'grand' ? 'grand' : 'swing';
+    return null;
+  }
+  const kitNeed = L => L.h.hands[0].length - E.ACTS[E.actOf(L)].hand;
+  const swapName = L => L.call === 'swing' ? R.CALLS.swing.name : R.BUFFS.swing.name;
+  // the steps this hand's kitty takes, for the strip along the top
+  function kitSteps(L, st) {
+    const h = L.h, out = [];
+    if (h.contractor === 0) out.push({ id: h.closed ? 'closed' : 'kitty', name: h.closed ? 'No kitty' : 'Put back' });
+    const grandAhead = !h.misere && (L.call === 'grand' || L.stand === 'caller'), swingAhead = !h.misere && (R.has(L, 'swing') || L.call === 'swing');
+    if (grandAhead) out.push({ id: 'grand', name: 'Pass left' });
+    if (swingAhead) out.push({ id: 'swing', name: 'Swap' });
+    out.push({ id: 'play', name: 'Play' });
+    const at = out.findIndex(s => s.id === st);
+    return '<div class="kitsteps" aria-label="Steps">' + out.map((s, i) => '<span class="' + (i === at ? 'now' : i < at ? 'done' : '') + '">' + (i + 1) + '. ' + s.name + '</span>').join('') + '</div>';
+  }
+  function kitPick(c) {
+    const L = P.L, st = kitStep(L);
+    if (!P.kit || !st) return;
+    const sel = P.kit.sel, i = sel.indexOf(c), max = st === 'kitty' ? kitNeed(L) : 1;
+    if (i >= 0) sel.splice(i, 1);
+    else { sel.push(c); while (sel.length > max) sel.shift(); }
+  }
+  function renderKit(tip) {
+    const L = P.L, km = $('kitmodal'), kv = $('kitveil'), st = kitStep(L);
+    if (!st) { km.hidden = kv.hidden = true; km.innerHTML = ''; P.kit = null; return; }
+    const h = L.h, key = kitKey(L) + st;
+    if (!P.kit || P.kit.key !== key) P.kit = { key, sel: [], shut: false };
+    const sel = P.kit.sel.filter(c => h.hands[0].includes(c));
+    P.kit.sel = sel;
+    const open = !P.kit.shut && !P.sheet;
+    km.hidden = kv.hidden = !open;
+    if (!open) return;
+    const won = h.contract ? '<b>' + (h.contractor === 0 ? 'You won the bid: ' : (h.contractor === 2 ? esc(PN()) : E.SEATS[h.contractor]) + ' won the bid: ') + bidHTML(h.contract) + '</b>' : '';
+    const head = t => '<div class="bmhead">' + t + '<button class="bmclose" data-act="kitshut" aria-label="See the table">✕</button></div>' + kitSteps(L, st);
+    const said = tip && (tip.id === 'kitty' || tip.id === 'swing') ? '<div class="coach">' + coachHTML(tip) + '</div>' : '';
+    const handRow = (fromKit) => '<div class="kithand" aria-label="Your hand">' + h.hands[0].map(c => {
+      const kit = fromKit && fromKit.includes(c), on = sel.includes(c);
+      return cardHTML(c, { seat: 0, small: true, data: 'kitsel', cls: (on ? 'picked' : '') + (kit ? ' fromkit' : ''), flag: on ? (st === 'kitty' ? 'put back' : st === 'grand' ? 'to West' : 'to ' + PN()) : kit ? 'from kitty' : undefined });
+    }).join('') + '</div>';
+    const names = sel.map(E.label).join(', ');
+    let html = '';
+    if (st === 'kitty') {
+      const need = kitNeed(L), picked = (h.picked || []).filter(c => h.hands[0].includes(c));
+      html = head(won) + said +
+        '<h3>You picked up the kitty</h3>' + (picked.length ? '<div class="kitrow">' + picked.map(c => cardHTML(c, { seat: 0, small: true })).join('') + '</div>' : '') +
+        '<p>Now put back <b>' + need + '</b> card' + (need === 1 ? '' : 's') + ', so you hold ' + E.ACTS[E.actOf(L)].hand + '. Tap the card' + (need === 1 ? '' : 's') + ' you don’t want' + (picked.length ? ' (the kitty’s are ringed in gold)' : '') + '.</p>' +
+        handRow(picked) +
+        '<div class="kitcount">' + sel.length + ' of ' + need + ' chosen' + (h.trump ? ' · trumps: ' + E.NAME[h.trump] : h.misere ? ' · misère: no trumps' : ' · no trumps') + '</div>' +
+        '<div class="btns"><button class="btn" data-act="kitok"' + (sel.length === need ? '' : ' disabled') + '>' + (sel.length === need ? 'Put back ' + esc(names) : 'Choose ' + (need - sel.length) + ' more') + '</button></div>';
+    } else if (st === 'closed') {
+      const why = R.ruleOf(L) === 'nokitty' ? R.TABLE_RULES.nokitty.name : L.call === 'nokitty' ? E.callWords(L, 'No Kitty')[0] : 'No Kitty';
+      html = head(won) + '<p class="big">No kitty to pick up</p>' +
+        '<p>' + esc(why) + ': the kitty stays face down this hand. You play the ' + E.ACTS[E.actOf(L)].hand + ' cards you hold.</p>' +
+        '<div class="btns"><button class="btn" data-act="kitnote">Got it</button></div>';
+    } else if (st === 'grand') {
+      html = head('<b>' + esc(E.callWords(L, 'Grand Right and Left')[0]) + '</b>') + said +
+        '<p>Everyone passes one card to the left: choose the card you pass to <b>West</b>. East passes one to you.</p>' + handRow(null) +
+        '<div class="btns"><button class="btn" data-act="kitswap"' + (sel.length ? '' : ' disabled') + '>' + (sel.length ? 'Pass the ' + esc(names) + ' to West' : 'Choose a card') + '</button></div>';
+    } else {
+      html = head('<b>' + esc(swapName(L)) + '</b>') + said +
+        '<p>Choose a card to slip <b>' + esc(PN()) + '</b>; ' + esc(PN()) + ' slips you one back. Or keep your hand as it is.</p>' + handRow(null) +
+        '<div class="btns"><button class="btn" data-act="kitswap"' + (sel.length ? '' : ' disabled') + '>' + (sel.length ? 'Swap the ' + esc(names) : 'Choose a card to swap') + '</button>' +
+        '<button class="btn alt" data-act="keephand">Keep my hand</button></div>';
+    }
+    km.innerHTML = html;
+    // over the table, like the bid pop-up, but raised as far as it needs to fit the screen whole
+    const f = $('felt').getBoundingClientRect();
+    km.style.setProperty('--mtop', Math.max(8, Math.min(Math.round(f.top + 4), innerHeight - km.scrollHeight - 14)) + 'px');
+  }
+  // the cards put back go as one move: one Take back undoes them all
+  function kitPutBack() {
+    const L0 = P.L, cards = P.kit ? P.kit.sel.slice() : [];
+    if (kitStep(L0) !== 'kitty' || cards.length !== kitNeed(L0)) return;
+    const snap = JSON.stringify(L0);
+    for (const c of cards) {
+      const res = R.act(P.L, 'discard', c);
+      if (!res.ok) { P.L = JSON.parse(snap); P.L.note = res.why; $('status').textContent = res.why; return; }
+    }
+    const ls = cards.map(E.label);
+    P.undo.push({ snap, name: 'putting back the ' + (ls.length > 1 ? ls.slice(0, -1).join(', ') + ' and ' + ls[ls.length - 1] : ls[0]) });
+    P.kit = null;
+    step();
+  }
   function renderStatus() {
     const L = P.L, h = L.h, st = $('status');
     let t = '', btn = '';
     if (L.phase !== 'hand') t = '';
     else if (h.phase === 'bid') t = h.turn === 0 ? (h.raise ? 'The others passed: raise your bid, or keep it.' : 'Bid, or pass if your hand is weak.') : E.SEATS[h.turn] + ' is thinking…';
-    else if (h.phase === 'kitty') t = h.turn === 0 ? 'You picked up the kitty. Tap a card to put back.' : (h.turn === 2 ? PN() : E.SEATS[h.turn]) + ' is taking the kitty…';
-    else if (h.phase === 'swing' && h.pass === 'grand') t = E.callWords(L, 'Grand Right and Left')[0] + ': tap a card to pass to West. East passes one to you.';
-    else if (h.phase === 'swing') { t = (L.call === 'swing' ? R.CALLS.swing.name : R.BUFFS.swing.name) + ': tap a card to give ' + PN() + '.'; btn = '<button class="iconbtn" data-act="keephand">Keep my hand</button>'; }
+    else if (kitStep(L) === 'closed') t = 'No kitty to pick up this hand.';
+    else if (h.phase === 'kitty') t = h.turn === 0 ? 'You picked up the kitty: put back ' + kitNeed(L) + ' card' + (kitNeed(L) === 1 ? '' : 's') + '.' : (h.turn === 2 ? PN() : E.SEATS[h.turn]) + ' is taking the kitty…';
+    else if (h.phase === 'swing' && h.pass === 'grand') t = E.callWords(L, 'Grand Right and Left')[0] + ': choose a card to pass to West. East passes one to you.';
+    else if (h.phase === 'swing') { t = swapName(L) + ': choose a card to give ' + PN() + ', or keep your hand.'; btn = '<button class="iconbtn" data-act="keephand">Keep my hand</button>'; }
     else if (h.phase === 'intent') t = E.SEATS[h.contractor] + ' is about to play ' + bidPlain(h.contract) + '.';
     else if (h.phase === 'trick') t = h.last.reason + ' (Tap the table to go on.)';
     else if (h.phase === 'play') {
@@ -3884,6 +4021,8 @@ html.art .coach { border-radius: 0; }
       }
       if (R.has(L, 'count') && (h.trump || E.deckOf(L).includes('JK'))) t += ' ' + PN() + ' counts ' + trumpsOut(L) + ' trump' + (trumpsOut(L) === 1 ? '' : 's') + ' still out.';
     }
+    // the wizard's ✕ shows the table: this brings it back
+    if (['kitty', 'swing', 'grand'].includes(kitStep(L)) && P.kit && P.kit.shut) btn = '<button class="iconbtn" data-act="kitopen">' + (h.phase === 'kitty' ? 'Choose cards' : 'Choose a card') + '</button>' + btn;
     if (P.stuck) { t = 'The computer could not move (' + P.stuck + '). Your run is saved: reload the page to carry on.'; btn = ''; }
     const u = P.undo[P.undo.length - 1];
     if (u && L.phase === 'hand') btn += '<button class="iconbtn" data-act="takeback">Take back ' + esc(u.name) + '</button>';
@@ -4129,7 +4268,7 @@ html.art .coach { border-radius: 0; }
     render();
     save();
     // paused while a sheet is open, while the page is hidden (visibilitychange resumes it) or if a move was refused twice
-    if (P.sheet || document.hidden || P.stuck || DEMO || standoffDue(L) || P.ceremony) return;
+    if (P.sheet || document.hidden || P.stuck || DEMO || standoffDue(L) || P.ceremony || kitStep(L) === 'closed') return;
     const w = R.whoseMove(L);
     // your only legal card plays itself (2026-10-30, the review's #2: shorter runs); a setting in the menu
     if (w === 'you' && L.h.phase === 'play' && oneCard() === 'auto') {
@@ -4192,12 +4331,15 @@ html.art .coach { border-radius: 0; }
     if (P.held && Date.now() - P.held < 1500) { P.held = 0; ev.preventDefault(); return; }
     // a card that can't be played or picked (your cards panel, a hand while it isn't your turn): a tap explains it
     const plain = ev.target.closest('.card[data-c]');
-    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-chase],[data-wanted],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-psel],[data-pickcard],[data-partner],[data-foe],[data-sleeve]')) { showCardInfo(plain.dataset.c); return; }
-    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-chase],[data-wanted],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-psel],[data-pickcard],[data-partner],[data-foe],[data-sleeve]');
+    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-chase],[data-wanted],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-psel],[data-pickcard],[data-partner],[data-foe],[data-sleeve],[data-kitsel]')) { showCardInfo(plain.dataset.c); return; }
+    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-chase],[data-wanted],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-psel],[data-pickcard],[data-partner],[data-foe],[data-sleeve],[data-kitsel]');
     if (!t || t.disabled) return;
     if (t.closest('#sheet') && Date.now() < P.guardUntil) return;
     const L = P.L, d = t.dataset;
     if (d.tip) { move('tip', d.tip); return; }
+    if (d.kitsel) { kitPick(d.kitsel); render(); return; }
+    // a tap on your hand while the kitty wizard is waiting picks the card in it (and opens it again), never moves
+    if (d.card && ['kitty', 'swing', 'grand'].includes(kitStep(L))) { if (P.kit) { kitPick(d.card); P.kit.shut = false; } render(); return; }
     if (d.card) { move(L.h.phase === 'kitty' ? 'discard' : L.h.phase === 'swing' ? 'swing' : 'play', d.card); return; }
     if (d.bid) { const m = d.bid.match(/^(\d+)(.+)$/); move('bid', { t: +m[1], s: m[2] }); return; }
     if (d.take) { move('take', d.take); return; }
@@ -4292,6 +4434,11 @@ html.art .coach { border-radius: 0; }
       case 'bidopen': P.bidOpen = true; renderBid(); break;
       case 'bidclose': P.bidOpen = false; renderBid(); break;
       case 'keephand': move('swing', null); break;
+      case 'kitok': kitPutBack(); break;
+      case 'kitswap': if (P.kit && P.kit.sel.length) move('swing', P.kit.sel[0]); break;
+      case 'kitnote': P.kitNote = kitKey(L); P.kit = null; step(); break;
+      case 'kitshut': if (P.kit) P.kit.shut = true; render(); break;
+      case 'kitopen': if (P.kit) P.kit.shut = false; render(); break;
       case 'ackintent': move('ack'); break;
       case 'tapfelt': if (L && L.phase === 'hand' && L.h.phase === 'trick') move('ack'); break;
       case 'next': move('next'); break;
