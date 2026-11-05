@@ -450,13 +450,15 @@
   /* The Wallflowers never bid, so your team must: the second of you to speak may not pass with no bid made. */
   // and with them at the table your team's contracts start at this many tricks (misère aside)
   const WALL = { min: 8 };   // the fight redesign (2026-10-27): at 7 the Undertakers were beaten 98% of the time, at 8 about 65%
-  const tooLow = (L, seat, b) => bossRule(L) === 'wallflowers' && team(seat) === 0 && b.t > 0 && b.t < WALL.min;
+  // in Standard 500 (2026-11-06, the user's call) the Undertakers still never bid, but the normal 6♠ minimum stands
+  const wallMin = L => L && L.mode === 'standard' ? 0 : WALL.min;
+  const tooLow = (L, seat, b) => bossRule(L) === 'wallflowers' && team(seat) === 0 && b.t > 0 && b.t < wallMin(L);
   const mustBid = (L, seat) => bossRule(L) === 'wallflowers' && team(seat) === 0 && !!L.h && !L.h.high && L.h.passed[partnerOf(seat)];
   function bid(L, seat, b) {
     const h = L.h;
     if (h.phase !== 'bid' || h.turn !== seat) return no('not your turn to bid');
     if (!b && mustBid(L, seat)) return no('the Undertakers never bid: your team must bid this hand');
-    if (b && tooLow(L, seat, b)) return no('against the Undertakers your team must bid at least ' + WALL.min);
+    if (b && tooLow(L, seat, b)) return no('against the Undertakers your team must bid at least ' + wallMin(L));
     // the raise window (below): a pass keeps your bid as it stands
     if (!b && h.raise) {
       h.raise = false;
@@ -778,7 +780,7 @@
     rnd, shuffle, pick, actOf, bossRule, rankOf, suitOf, base, label, deckFor, deckOf, census, team, partnerOf, grown, maxUp, stepDown,
     K, plainK, kSuit, kRank, kTrumpRank, kIsTrump, kBeats, kLabel,
     effSuit, trumpRank, isTrump, canPlay, winnerOf, beats, explain,
-    bidValue, bidList, sweepValue, bidText, damageOf, HIT, hitShare, hitWord, rankOfBid, mustBid, WALL, extraTricks, extraBids, counted, resolveTwo,
+    bidValue, bidList, sweepValue, bidText, damageOf, HIT, hitShare, hitWord, rankOfBid, mustBid, WALL, wallMin, extraTricks, extraBids, counted, resolveTwo,
     en, enhsOf, foeHas, hasBuff, FX, fight, callWords, POCKET, pocketsIn,
     say, deal, sort, legalBids, bid, discard, afterKitty, ack, ledSuit, legalPlays, play, score
   };

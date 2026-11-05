@@ -1250,7 +1250,10 @@
   const STANDARD = { win: 500, lose: -500, cap: 490 };
   const REGULARS = { name: 'The Euchre-ka! Regulars', look: GANGS[1][0].slice(1, 3) };
   // a Showdown rule as it reads without owned cards (nothing is seeded in a plain game)
-  const STD_RULE = { sharps: 'Card sharps: with nothing of yours to spot, they play it straight.', caller: 'Before each hand he calls a figure that changes the rules.' };
+  const STD_RULE = { sharps: 'Card sharps: with nothing of yours to spot, they play it straight.', caller: 'Before each hand he calls a figure that changes the rules.',
+                     wallflowers: 'They never bid, so your team must bid every hand.' };   // no 8-trick floor in Standard 500 (2026-11-06, E.wallMin)
+  /* A Showdown's rule as it stands in this game: Standard 500 has its own wording for some. */
+  const ruleText = (L, id) => (L && L.mode === 'standard' && STD_RULE[id]) || BOSS[id].rule;
   const standardFoe = id => BOSS[id] ? { name: BOSS[id].name, look: BOSS[id].look, rule: STD_RULE[id] || BOSS[id].rule } : Object.assign({ rule: 'They play it straight.' }, REGULARS);
   function newStandard(o) {
     o = o || {};
@@ -1514,7 +1517,7 @@
     if (L.boss === 'stranger') {
       L.borrow = E.pick(L, STRANGER.rules.filter(b => b !== L.borrow));
       L.dealRule = L.borrow === 'twins' ? 'twins' : null;
-      E.say(L, 'The Stranger plays by ' + poss(BOSS[L.borrow].name.replace(/^The /, 'the ')) + ' rule this hand: ' + BOSS[L.borrow].rule, 'call');
+      E.say(L, 'The Stranger plays by ' + poss(BOSS[L.borrow].name.replace(/^The /, 'the ')) + ' rule this hand: ' + ruleText(L, L.borrow), 'call');
     }
     // a Showdown at half health makes its last stand, from this deal on
     if (L.kind === 'boss' && L.foe && !L.stand && L.handNo > 1 && LAST_STAND[L.boss] && L.you >= L.foe.hp * LAST_STAND.at) {
@@ -2516,7 +2519,7 @@
     return o.n + ' / ' + o.of;
   }
   const api = { HOT, hotStage, hotMult, stoke, BOND, bondOf, GILD, gildStep, LUCK, lucky, jokerOdds, luckyJoker, INSULTS, insult, QUIPS, quipFor, dealt, SILENT_BACKS, POCKETS, ELIXIRS, ELIXIR, drawElixir, gainElixir, canDrink, poss, eventText, LAST_STAND, STRANGER, DUEL_RULES, DARES, DARE_LIE, HEAT, heatOdds, MYSTERY, GHOST, ghostFoe, DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
-    TAUNTS, taunt, cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, MANNERS, WANTED, wantedFor, wants, dailySeed, dailyTwist, FAIR_GOODS, setQuick, floorsFor, CHASE, chaseRide, CONTEST, RIBBON, ribbonOf, EXPRESS, SIDE, genThreeTrains, DRIVER, COUNTER, makeDriver, ROSTER, partnerOpen, voice, STANDARD, standardFoe, newStandard,
+    TAUNTS, taunt, cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, MANNERS, WANTED, wantedFor, wants, dailySeed, dailyTwist, FAIR_GOODS, setQuick, floorsFor, CHASE, chaseRide, CONTEST, RIBBON, ribbonOf, EXPRESS, SIDE, genThreeTrains, DRIVER, COUNTER, makeDriver, ROSTER, partnerOpen, voice, STANDARD, standardFoe, ruleText, newStandard,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;
   else root.BtpRun = api;

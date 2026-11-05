@@ -1738,24 +1738,24 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=53"></script>
-<script src="btp-ai.js?v=53"></script>
-<script src="btp-run.js?v=53"></script>
-<script src="btp-town.js?v=53"></script>
-<script src="art/dustwater/sprites.js?v=53"></script>
-<script src="btp-train.js?v=53"></script>
-<script src="art/train/sprites.js?v=53"></script>
-<script src="art/title/scene.js?v=53"></script>
-<script src="art/title/cameo.js?v=53"></script>
-<script src="art/title/crossing.js?v=53"></script>
-<script src="art/table/scene.js?v=53"></script>
-<script src="art/table/partners.js?v=53"></script>
-<script src="art/grave/scene.js?v=53"></script>
-<script src="art/paid/scene.js?v=53"></script>
-<script src="art/rooms/scene.js?v=53"></script>
-<script src="art/express/scene.js?v=53"></script>
-<script src="art/country/country.js?v=53"></script>
-<script src="art/fair/sprites.js?v=53"></script>
+<script src="btp-engine.js?v=54"></script>
+<script src="btp-ai.js?v=54"></script>
+<script src="btp-run.js?v=54"></script>
+<script src="btp-town.js?v=54"></script>
+<script src="art/dustwater/sprites.js?v=54"></script>
+<script src="btp-train.js?v=54"></script>
+<script src="art/train/sprites.js?v=54"></script>
+<script src="art/title/scene.js?v=54"></script>
+<script src="art/title/cameo.js?v=54"></script>
+<script src="art/title/crossing.js?v=54"></script>
+<script src="art/table/scene.js?v=54"></script>
+<script src="art/table/partners.js?v=54"></script>
+<script src="art/grave/scene.js?v=54"></script>
+<script src="art/paid/scene.js?v=54"></script>
+<script src="art/rooms/scene.js?v=54"></script>
+<script src="art/express/scene.js?v=54"></script>
+<script src="art/country/country.js?v=54"></script>
+<script src="art/fair/sprites.js?v=54"></script>
 <script>
 (function () {
   'use strict';
@@ -3143,7 +3143,7 @@ html.art .coach { border-radius: 0; }
       return '<h2>' + esc(M.name) + '</h2><p>' + esc(M.text) + '</p><p>Every gang has a way of playing, named on its poster. It changes how they bid and lead, not how hard they hit.</p>' + back; }
     if (k === 'stand' && L.stand && R.LAST_STAND[L.stand]) { const S = R.LAST_STAND[L.stand];
       return '<h2>Last stand: ' + esc(S.name) + '</h2><p>' + esc(S.text) + '</p><p>Every Showdown makes a last stand once you\u2019ve shot away half its health. It starts at the next deal and lasts the rest of the fight.</p>' + back; }
-    if (k === 'borrow' && L.borrow && R.BOSS[L.borrow]) return '<h2>This hand: ' + esc(R.poss(R.BOSS[L.borrow].name.replace(/^The /, 'the '))) + ' rule</h2><p>' + esc(R.BOSS[L.borrow].rule) + '</p><p>The Stranger takes another Showdown\u2019s rule at every deal, never the same twice running.</p>' + back;
+    if (k === 'borrow' && L.borrow && R.BOSS[L.borrow]) return '<h2>This hand: ' + esc(R.poss(R.BOSS[L.borrow].name.replace(/^The /, 'the '))) + ' rule</h2><p>' + esc(R.ruleText(L, L.borrow)) + '</p><p>The Stranger takes another Showdown\u2019s rule at every deal, never the same twice running.</p>' + back;
     if (k === 'stacked') return '<h2>Stacked deck</h2><p>The cards were dealt twice this hand and the gang got the better deal. It happens more often further up the map, and every hand against a <b>Lucky</b> gang.</p>' + back;
     const a = R.abilityOf(k);
     if (!a) return back;
@@ -3934,7 +3934,7 @@ html.art .coach { border-radius: 0; }
     const log = h.bids.filter(b => !b.keep).map(b => '<span class="bl' + (b.pass ? ' ps' : h.high && b.seat === h.high.seat && b.t === h.high.t && b.s === h.high.s ? ' hi' : '') + '">' + nm(b.seat) + ' ' + (b.pass ? 'pass' : (b.raise ? 'raise ' : '') + bidHTML(b)) + '</span>').join('');
     let extras = '';
     if (R.has(L, 'nod')) { const n = AI.nod(L, 2); extras += '<span class="nod">' + PN() + '’s nod: ' + (n ? denom(n) : 'nothing strong') + '</span>'; }
-    if (E.bossRule(L) === 'wallflowers') extras += '<span class="nod">' + (mine && E.mustBid(L, 0) ? PN() + ' passed and the Undertakers never bid: you must bid' : 'Against the Undertakers your team bids ' + E.WALL.min + ' or more') + '</span>';
+    if (E.bossRule(L) === 'wallflowers') extras += '<span class="nod">' + (mine && E.mustBid(L, 0) ? PN() + ' passed and the Undertakers never bid: you must bid' : E.wallMin(L) ? 'Against the Undertakers your team bids ' + E.wallMin(L) + ' or more' : 'The Undertakers never bid: your team must') + '</span>';
     if (R.sees(L, 'peek') || L.call === 'facekitty') extras += '<span class="nod">' + (L.call === 'facekitty' ? R.TABLE_RULES.facekitty.name : R.has(L, 'peek') ? 'Peek' : 'Marked deck') + ': the kitty holds ' + h.kitty.map(E.label).join(', ') + '</span>';
     // the rodeo clown's dare, said while you bid (2026-11-02): in the panel, so the gang stays in sight
     if (L.dare && !L.dare.done && L.dare.hand === L.handNo) extras += '<span class="nod dare" title="' + esc('The Joker: \u201c' + L.dare.text + '\u201d') + '"><b>Joker\u2019s dare:</b> ' + esc(DARE_SHORT[L.dare.id] || '') + ', ' + L.dare.pay + 'g</span>';
