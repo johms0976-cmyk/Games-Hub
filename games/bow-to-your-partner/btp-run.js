@@ -640,6 +640,11 @@
      hex { kind, on: 'owned' | 'table' }, curse ('twoleft': a new owned card).
      acts: where the event can come up (Act II adds the hex events). */
   const EVENTS = {
+    salesman: { name: 'Doctor Bellweather\u2019s Medicine Show', text: 'A painted wagon, a banjo, and a man in a stovepipe hat with a bottle for everything that ails a bounty hunter.',
+                options: [{ text: 'Buy a bottle: \u221240 gold, a random elixir', fx: { gold: -40, elixir: 1 } },
+                          { text: 'Buy two: \u221270 gold, two random elixirs', fx: { gold: -70, elixir: 2 } },
+                          { text: 'Try a free sample: a random elixir, but it\u2019s strong stuff, \u221230 health', fx: { health: -30, elixir: 1 } },
+                          { text: 'Keep your money', fx: {} }] },
     fiddler:  { name: 'The Piano Player\u2019s Wager', text: 'The saloon pianist bets you can\u2019t name his next tune. You can.',
                 options: [{ text: 'Take the purse: +30 gold', fx: { gold: 30 } }, { text: 'Take the encore: +50 health', fx: { health: 50 } }] },
     punch:    { name: 'Spilled Sarsaparilla', text: 'Someone knocks a whole jug of sarsaparilla over your boots.',
@@ -1596,7 +1601,7 @@
     const wk = E.K(L, trick.winner, trick.cards[trick.winner]), X = E.FX;
     h.fx = h.fx || { hit: 0, block: 0, burn: 0 };
     const shot = (n, text) => { h.fx.hit += n; E.say(L, text, 'rule'); };
-    if (mine && wk.m) {
+    if (mine && (wk.m || wk.tmp)) {
       const lb = E.label(wk.c);
       if (E.en(wk, 'hollow')) shot(X.hollow, lb + ' is a Hollow Point: +' + X.hollow + ' to the gang.');
       if (E.en(wk, 'keg')) shot(X.keg, lb + ' is a Powder Keg: +' + X.keg + ' to the gang.');
@@ -1890,6 +1895,11 @@
     }
     if (won && L.foe) {
       if (has(L, 'ledger')) { gold += 15; pay.push({ t: BUFFS.ledger.name, g: 15 }); E.say(L, 'Bounty Ledger: +15 gold.', 'gold'); }
+      if (ELIXIR.drop[L.kind] && E.rnd(L) < ELIXIR.drop[L.kind]) {
+        const id = drawElixir(L);
+        if (gainElixir(L, id)) { pay.push({ t: 'They dropped a bottle: ' + ELIXIRS[id].name, elixir: id }); E.say(L, 'They dropped a bottle: ' + ELIXIRS[id].name + '. ' + ELIXIRS[id].text, 'objective'); }
+        else pay.push({ t: 'They dropped a bottle, but your satchel is full', g: 0 });
+      }
       if (has(L, 'canteen')) { const got = heal(L, 25); if (got) { pay.push({ t: BUFFS.canteen.name, h: got }); E.say(L, 'Canteen: +' + got + ' health.', 'health'); } }
     }
     L.gold += gold;
@@ -2071,6 +2081,7 @@
     if (fx.health < 0 && L.health + fx.health <= 0) return no('that would finish you');
     if (fx.shunt && !shuntable(L).length) return no('no stretch ahead has two carriages to swap');
     if (fx.shunt) { L.shunt = { pick: null }; L.phase = 'shunt'; return yes(); }
+    if (fx.elixir && (L.elixirs || []).length >= ELIXIR.slots) return no('your satchel is full (three bottles): drink one first');
     if (fx.swap && !L.owned.some(c => c !== 'JK')) return no('you have no card to swap');
     if (fx.gold) L.gold += fx.gold;
     if (fx.next) L.nextFight = Object.assign(L.nextFight || {}, fx.next);
@@ -2098,6 +2109,12 @@
     if (fx.curse === 'twoleft') {
       const pool = E.deckOf(L).filter(c => c !== 'JK' && E.rankOf(c) !== 'J' && !L.owned.includes(c) && !(L.hexes || {})[c] && ['9', '10'].includes(E.rankOf(c)));
       if (pool.length) { const c = E.pick(L, pool); L.owned.push(c); placeHex(L, c, 'twoleft'); msg += ' You now own the ' + E.label(c) + ', a Misfire: it can never win a trick.'; }
+    }
+    if (fx.elixir) {
+      const got = [];
+      for (let n = 0; n < fx.elixir; n++) { const id = drawElixir(L); if (gainElixir(L, id)) got.push(ELIXIRS[id].name); }
+      msg = got.length ? 'Into your satchel: ' + got.join(' and ') + '. Drink it during a hand of a fight.' : 'Your satchel is full.';
+      if (got.length < fx.elixir && got.length) msg += ' (No room for the other bottle.)';
     }
     note(L, msg);
     if (fx.enh) { L.reward = { steps: [{ type: 'enh', options: draw(L, enhPool(L), picks(L, fx.enh)) }] }; advanceReward(L); return yes(); }
@@ -2211,6 +2228,55 @@
   /* The posting is a bet (a Card table pays 10 / 25 / 40 by stars: two stars breaks even, three wins); a restock
      costs 15 more each time in one visit, so the store can't be rerolled for free. */
   const SHOP = { marked: 45, posting: 25, restock: 15 };
+  /* Elixirs (the user's, 2026-11-05: "temporary enhancements and buffs ... turn a card into an Ace or a Joker ... double
+     damage"): bottles carried in a satchel (L.elixirs, three at most) and drunk during a hand of a fight, for that hand
+     only. Four go on a card in your hand (h.tmp, read by E.K as k.tmp), two on the whole hand (h.elx, read by E.fight).
+     From Doctor Bellweather's Medicine Show (EVENTS.salesman) and bottles a beaten gang drops (ELIXIR.drop). */
+  const ELIXIRS = {
+    ace:     { name: 'Ace in a Bottle', card: true, w: 3, text: 'Pick a card in your hand: this hand it plays as the Ace of its suit.' },
+    sworn:   { name: 'Turncoat Tonic', card: true, w: 3, text: 'Pick a card in your hand: this hand it counts as a trump. Drink it before you bid.' },
+    joker:   { name: 'Wild Card Whiskey', card: true, w: 1, text: 'Pick a card in your hand: this hand it is the top trump, level with the Joker (the first played wins); in no trumps, the Ace of its suit.' },
+    keg:     { name: 'Firewater', card: true, w: 3, text: 'Pick a card in your hand: this hand it is a Powder Keg, +30 to the gang for every trick it wins (15 burn if they take it).' },
+    double:  { name: 'Rotgut', w: 2, text: 'Everything your team hits the gang with this hand counts double.' },
+    bitters: { name: 'Doc\u2019s Bitters', w: 3, text: 'The gang hits you for half this hand.' }
+  };
+  const ELIXIR = { slots: 3, drop: { dance: 0.2, elite: 0.45 } };
+  function drawElixir(L) {
+    const ids = Object.keys(ELIXIRS), tot = ids.reduce((a, k) => a + ELIXIRS[k].w, 0);
+    let r = E.rnd(L) * tot;
+    for (const k of ids) { r -= ELIXIRS[k].w; if (r < 0) return k; }
+    return ids[0];
+  }
+  // a bottle into the satchel; false when it is full
+  function gainElixir(L, id) {
+    L.elixirs = L.elixirs || [];
+    if (L.elixirs.length >= ELIXIR.slots) return false;
+    L.elixirs.push(id);
+    return true;
+  }
+  const canDrink = L => L.phase === 'hand' && !!L.h && !!L.foe && L.mode !== 'standard' && L.kind !== 'contest' && L.kind !== 'chase' && L.h.phase !== 'done' && (L.elixirs || []).length > 0;
+  function drink(L, arg) {
+    arg = arg || {};
+    if (!canDrink(L)) return no('drink it during a hand of a fight');
+    const id = (L.elixirs || [])[arg.i], X = ELIXIRS[id], h = L.h;
+    if (!X) return no('no such bottle');
+    if (X.card) {
+      if (!h.hands[0].includes(arg.card)) return no('pick a card in your hand');
+      if (arg.card === 'JK') return no('the Joker needs no help');
+      h.tmp = h.tmp || {};
+      if (h.tmp[arg.card]) return no('that card has already had a drink this hand');
+      h.tmp[arg.card] = id;
+      E.say(L, X.name + ' on your ' + E.label(arg.card) + ': ' + X.text.replace(/^Pick a card in your hand: /, '').replace(/ Drink it before you bid\.$/, ''), 'rule');
+    } else {
+      h.elx = h.elx || {};
+      if (h.elx[id]) return no('you have already had one of those this hand');
+      h.elx[id] = true;
+      E.say(L, X.name + ': ' + X.text, 'rule');
+    }
+    L.elixirs.splice(arg.i, 1);
+    L.drunk = (L.drunk || 0) + 1;
+    return yes();
+  }
   /* Deeper pockets (2026-11-05): a Showdown beaten gives one, a store sells them (dearer each time); three at most,
      and the act caps how many work (E.POCKET.max: 2 / 4 / 6 of your cards in a hand of 3 / 6 / 10). */
   const POCKETS = { most: 3, price: 175, step: 75 };
@@ -2365,6 +2431,7 @@
       case 'heat': return heat(L, arg);
       case 'remove': return removeCard(L, arg);
       case 'buy': return buy(L, arg);
+      case 'drink': return drink(L, arg);
       case 'leave': if (L.phase !== 'shop') return no('not in the store'); nextStop(L); return yes();
       case 'release': return release(L, arg);
       case 'cleanse': return cleanse(L, arg);
@@ -2448,7 +2515,7 @@
     if (O && O.kind === 'limit') return 'holding';
     return o.n + ' / ' + o.of;
   }
-  const api = { HOT, hotStage, hotMult, stoke, BOND, bondOf, GILD, gildStep, LUCK, lucky, jokerOdds, luckyJoker, INSULTS, insult, QUIPS, quipFor, dealt, SILENT_BACKS, POCKETS, poss, eventText, LAST_STAND, STRANGER, DUEL_RULES, DARES, DARE_LIE, HEAT, heatOdds, MYSTERY, GHOST, ghostFoe, DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
+  const api = { HOT, hotStage, hotMult, stoke, BOND, bondOf, GILD, gildStep, LUCK, lucky, jokerOdds, luckyJoker, INSULTS, insult, QUIPS, quipFor, dealt, SILENT_BACKS, POCKETS, ELIXIRS, ELIXIR, drawElixir, gainElixir, canDrink, poss, eventText, LAST_STAND, STRANGER, DUEL_RULES, DARES, DARE_LIE, HEAT, heatOdds, MYSTERY, GHOST, ghostFoe, DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
     TAUNTS, taunt, cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, MANNERS, WANTED, wantedFor, wants, dailySeed, dailyTwist, FAIR_GOODS, setQuick, floorsFor, CHASE, chaseRide, CONTEST, RIBBON, ribbonOf, EXPRESS, SIDE, genThreeTrains, DRIVER, COUNTER, makeDriver, ROSTER, partnerOpen, voice, STANDARD, standardFoe, newStandard,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;

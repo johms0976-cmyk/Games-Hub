@@ -130,7 +130,8 @@
   }
   const maxUp = c => c === 'JK' ? 0 : (() => { let n = 0; while (grown(c, n) < 14) n++; return n; })();
   /* Does this card (as a seat holds it) carry enhancement `id`? A Legendary card carries two. */
-  const en = (k, id) => !!k.m && (k.m.enh === id || k.m.enh2 === id);
+  // k.tmp: an elixir you drank on this card for this hand (2026-11-05), read like an enhancement
+  const en = (k, id) => (!!k.m && (k.m.enh === id || k.m.enh2 === id)) || k.tmp === id;
   const enhsOf = m => m ? [m.enh, m.enh2].filter(Boolean) : [];
   const foeHas = (L, id) => !!(L && L.foe && L.foe.traits && L.foe.traits.includes(id));
   const hasBuff = (L, b) => !!(L && L.buffs && L.buffs.includes(b));
@@ -156,6 +157,10 @@
       if (en(k, 'hole') && h.trickNo === ACTS[actOf(L)].hand - 1) k.hole = true;
     }
     if (own && seat === 0 && !steady && foeHas(L, 'rusty')) k.b -= 1;
+    // an elixir on a card in your hand, this hand only: Ace in a Bottle plays it as the Ace of its suit; Wild Card
+    // Whiskey makes it the top trump (kSuit, kTrumpRank), and the Ace of its suit in no trumps
+    const tmp = own && seat === 0 && h && h.tmp ? h.tmp[c] || null : null;
+    if (tmp && c !== 'JK') { k.tmp = tmp; if (tmp === 'ace' || (tmp === 'joker' && !h.trump)) k.hole = true; }
     return k;
   }
   const plainK = c => ({ c, seat: null, m: null, tie: false, x: null });
@@ -164,7 +169,7 @@
     if (k.forced) return k.forced;
     if (c === 'JK') return trump || '*';
     if (en(k, 'outcast')) return '#';     // Outcast: no suit at all
-    if (trump && (en(k, 'sworn') || en(k, 'glass'))) return trump;
+    if (trump && (en(k, 'sworn') || en(k, 'glass') || k.tmp === 'joker')) return trump;
     if (trump && rankOf(c) === 'J' && suitOf(c) === TWIN[trump]) return trump;
     return suitOf(c);
   }
@@ -181,7 +186,7 @@
   }
   function kTrumpRank(k, trump) {
     const c = k.c;
-    if (c === 'JK') return 100;
+    if (c === 'JK' || k.tmp === 'joker') return 100;
     // the Caller's Allemande Left swaps the bowers: the left outranks the right
     if (rankOf(c) === 'J' && suitOf(c) === trump) return k.tie ? 100 : k.al ? 98 : 99;      // right bower
     if (rankOf(c) === 'J' && suitOf(c) === TWIN[trump]) return k.tie ? 100 : k.al ? 99 : 98; // left bower
@@ -724,6 +729,7 @@
     }
     if (fx.hit) { hit += fx.hit; lines.push('Your cards\u2019 shots this hand: +' + fx.hit + '.'); }
     if (hasBuff(L, 'holster') && L.handNo === 1 && L.foe && hit > 0) { lines.push('Quick Holster: the fight\u2019s first hand hits double (+' + hit + ').'); hit *= 2; }
+    if (h.elx && h.elx.double && hit > 0) { lines.push('Rotgut: everything you hit them with counts double (+' + hit + ').'); hit *= 2; }
     let dmg = damageOf(pts[1], L);
     if (dmg) lines.push('Their ' + pts[1] + ' points hit you: \u2212' + dmg + ' health (' + hitWord(L) + ').');
     if (dmg && h.misere && team(h.contractor) === 1 && L.stand === 'hustlers') { const x = Math.round(dmg / 20) * 10; dmg += x; lines.push('All In: their mis\u00e8re hits half as hard again (\u2212' + x + ').'); }
@@ -739,6 +745,7 @@
     if (dmg && hasBuff(L, 'vest')) { const v = Math.min(dmg, FX.vest); dmg -= v; lines.push('Leather Vest: \u2212' + v + ' of it turned aside.'); }
     if (dmg && fx.block) { const b = Math.min(dmg, fx.block); dmg -= b; lines.push('Iron Plate: ' + b + ' of it blocked.'); }
     if (fx.burn) { dmg += fx.burn; lines.push('Powder Keg burns: \u2212' + fx.burn + '.'); }
+    if (h.elx && h.elx.bitters && dmg > 0) { const b = Math.ceil(dmg / 2); dmg -= b; lines.push('Doc\u2019s Bitters: ' + b + ' of it shrugged off.'); }
     return { hit, dmg, backfire };
   }
 

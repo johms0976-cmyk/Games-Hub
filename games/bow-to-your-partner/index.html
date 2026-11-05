@@ -1350,6 +1350,12 @@ html.art .card .art { display: block; }
    frame: violet and gold, with a sheen that sweeps across it */
 .card .ebs { position: absolute; left: 2px; bottom: 2px; z-index: 3; display: flex; gap: 2px; }
 .card .ebs .eb { position: static; }
+.card.drunk { box-shadow: 0 0 0 2px #5ac8ff, 0 0 12px 2px rgba(90,200,255,.75); }
+#sheet .elx { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid rgba(58,42,32,.2); }
+#sheet .elx:first-of-type { border-top: 0; }
+#sheet .elx img { width: 40px; height: 40px; flex: none; image-rendering: pixelated; filter: hue-rotate(var(--hue, 0deg)); }
+#sheet .elx div { flex: 1; } #sheet .elx b { display: block; } #sheet .elx p { margin: 2px 0 0; font-size: 13px; line-height: 1.3; }
+#sheet .elx .btn { flex: none; min-width: 72px; }
 .mine + .slots { margin: 6px 0 2px; font-size: 13px; color: var(--muted, #6a5040); }
 .card .ebs .eb.cnt { position: relative; }
 .card .eb .ect { position: absolute; right: -7px; top: -8px; min-width: 11px; padding: 0 2px; box-sizing: border-box; border-radius: 6px; background: #2a1b16; color: #fff3cf; font: 700 9px/11px Bitter, Georgia, serif; text-align: center; }
@@ -1732,24 +1738,24 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=51"></script>
-<script src="btp-ai.js?v=51"></script>
-<script src="btp-run.js?v=51"></script>
-<script src="btp-town.js?v=51"></script>
-<script src="art/dustwater/sprites.js?v=51"></script>
-<script src="btp-train.js?v=51"></script>
-<script src="art/train/sprites.js?v=51"></script>
-<script src="art/title/scene.js?v=51"></script>
-<script src="art/title/cameo.js?v=51"></script>
-<script src="art/title/crossing.js?v=51"></script>
-<script src="art/table/scene.js?v=51"></script>
-<script src="art/table/partners.js?v=51"></script>
-<script src="art/grave/scene.js?v=51"></script>
-<script src="art/paid/scene.js?v=51"></script>
-<script src="art/rooms/scene.js?v=51"></script>
-<script src="art/express/scene.js?v=51"></script>
-<script src="art/country/country.js?v=51"></script>
-<script src="art/fair/sprites.js?v=51"></script>
+<script src="btp-engine.js?v=52"></script>
+<script src="btp-ai.js?v=52"></script>
+<script src="btp-run.js?v=52"></script>
+<script src="btp-town.js?v=52"></script>
+<script src="art/dustwater/sprites.js?v=52"></script>
+<script src="btp-train.js?v=52"></script>
+<script src="art/train/sprites.js?v=52"></script>
+<script src="art/title/scene.js?v=52"></script>
+<script src="art/title/cameo.js?v=52"></script>
+<script src="art/title/crossing.js?v=52"></script>
+<script src="art/table/scene.js?v=52"></script>
+<script src="art/table/partners.js?v=52"></script>
+<script src="art/grave/scene.js?v=52"></script>
+<script src="art/paid/scene.js?v=52"></script>
+<script src="art/rooms/scene.js?v=52"></script>
+<script src="art/express/scene.js?v=52"></script>
+<script src="art/country/country.js?v=52"></script>
+<script src="art/fair/sprites.js?v=52"></script>
 <script>
 (function () {
   'use strict';
@@ -1973,10 +1979,11 @@ html.art .coach { border-radius: 0; }
     const L = P.L, h = L && L.h, trump = h && L.phase === 'hand' ? h.trump : null;
     const k = (o.seat === 0 || o.seat === 2 || o.owned) && L ? { c, m: L.mods[c] || null, tie: false } : E.plainK(c);
     const ens = E.enhsOf(k.m), enh = ens[0], legend = ens.length > 1, hx = L && L.hexes ? L.hexes[c] : null;
+    const drunk = (o.seat === 0 || o.seat == null) && L && L.phase === 'hand' && h && h.tmp && h.tmp[c] && h.hands[0].includes(c) ? R.ELIXIRS[h.tmp[c]] : null;
     const cls = ['card', o.small ? 'small' : '', o.big ? 'big' : '', c !== 'JK' && E.RED[E.suitOf(c)] ? 'red' : '', c === 'JK' ? 'joker' : '',
-      trump && E.kIsTrump(k, trump) ? 'trump' : '', enh ? 'enh' : '', legend ? 'legendary' : '', hx ? 'hexed' : '', o.locked ? 'locked' : '', o.cls || ''].filter(Boolean).join(' ');
+      trump && E.kIsTrump(k, trump) ? 'trump' : '', enh ? 'enh' : '', legend ? 'legendary' : '', hx ? 'hexed' : '', drunk ? 'drunk' : '', o.locked ? 'locked' : '', o.cls || ''].filter(Boolean).join(' ');
     const attr = (o.data ? ' data-' + o.data + '="' + c + '"' : ' tabindex="-1"') + ' data-c="' + c + '"';
-    const flag = o.flag || (enh ? (legend ? 'Legendary: ' : '') + ens.map(x => R.ENH[x].name).join(' and ') : c.includes('~') ? 'Forged' : '');
+    const flag = o.flag || (drunk ? drunk.name : '') || (enh ? (legend ? 'Legendary: ' : '') + ens.map(x => R.ENH[x].name).join(' and ') : c.includes('~') ? 'Forged' : '');
     const enName = !o.flag && !!enh;
     const layers = (hx ? '<span class="hx">' + esc(R.HEXES[hx].short) + '</span><i class="hb">' + px('h_' + hx, '#fff3cf') + '</i>' : '') +
       (enh ? '<span class="ebs">' + ens.map(x => { const n = k.m && (x === 'notched' ? k.m.notch : x === 'grudge' ? k.m.grudge : 0); return '<i class="eb' + (n ? ' cnt' : '') + '">' + px('e_' + x, '#2a1b16') + (n ? '<b class="ect">' + n + '</b>' : '') + '</i>'; }).join('') + '</span>' : '') +
@@ -2004,6 +2011,7 @@ html.art .coach { border-radius: 0; }
     return '<div class="mine">' + L.owned.map(c => cardHTML(c, { owned: true, small: true })).join('') + '</div>' +
       '<p class="slots">' + base + ' of your cards dealt to you each hand' + (more ? ', plus ' + more + ' more if enhanced (deeper pocket' + (more > 1 ? 's' : '') + ')' : '') +
       (idle > 0 ? '. ' + idle + ' pocket' + (idle > 1 ? 's wait' : ' waits') + ' for a bigger hand in the next act' : '') + '.</p>' +
+      ((L.elixirs || []).length ? '<div class="chips">' + L.elixirs.map(id => '<span class="chip elxchip" title="' + esc(R.ELIXIRS[id].text) + '">' + esc(R.ELIXIRS[id].name) + '</span>').join('') + '<span class="chip">satchel ' + L.elixirs.length + ' of ' + R.ELIXIR.slots + '</span></div>' : '') +
       '<div class="chips">' + L.buffs.map(b => '<span class="chip" title="' + esc(R.BUFFS[b].text) + '">' + esc(R.BUFFS[b].name) + '</span>').join('') + '</div>' +
       (R.hexed(L).length ? '<div class="chips">' + R.hexed(L).map(c => '<span class="chip hexchip" title="' + esc(R.HEXES[L.hexes[c]].text) + '">' + esc(E.label(c) + ': ' + R.HEXES[L.hexes[c]].name + (L.owned.includes(c) ? ' (yours)' : '')) + '</span>').join('') + '</div>' : '');
   }
@@ -4093,6 +4101,8 @@ html.art .coach { border-radius: 0; }
     // the wizard's ✕ shows the table: this brings it back
     if (['kitty', 'swing', 'grand'].includes(kitStep(L)) && P.kit && P.kit.shut) btn = '<button class="iconbtn" data-act="kitopen">' + (h.phase === 'kitty' ? 'Choose cards' : 'Choose a card') + '</button>' + btn;
     if (P.stuck) { t = 'The computer could not move (' + P.stuck + '). Your run is saved: reload the page to carry on.'; btn = ''; }
+    if (P.drinking != null && R.canDrink(L) && L.elixirs[P.drinking]) { t = 'Tap a card in your hand for the ' + R.ELIXIRS[L.elixirs[P.drinking]].name + '.'; btn = '<button class="iconbtn" data-act="nodrink">Cancel</button>'; }
+    else if (R.canDrink(L) && !P.stuck) btn += '<button class="iconbtn satchel" data-act="satchel">Satchel (' + L.elixirs.length + ')</button>';
     const u = P.undo[P.undo.length - 1];
     if (u && L.phase === 'hand') btn += '<button class="iconbtn" data-act="takeback">Take back ' + esc(u.name) + '</button>';
     st.innerHTML = esc(t) + btn;
@@ -4181,8 +4191,8 @@ html.art .coach { border-radius: 0; }
   /* The fight's payout, line by line, adding up to the gold it paid; the total counts up as the lines come in. */
   function payoutHTML(r, now) {
     const pay = r.pay || [{ t: r.kind === 'bank' ? 'Gold' : 'Bounty paid', g: r.gold }];
-    return '<ul class="payout" data-act="paydone" aria-label="The payout">' + pay.map((x, i) => '<li style="--i:' + i + '" class="' + (x.h ? 'hp' : x.g < 0 ? 'minus' : '') + '"><span>' + (x.buff && R.BUFFS[x.buff] && !R.BUFFS[x.buff].secret ? '<img class="pitem" src="' + artURL('goods/buff_' + x.buff + '.webp') + '" alt="">' : x.pocket ? '<img class="pitem" src="' + artURL('goods/buff_holdout.webp') + '" alt="">' : '') + esc(x.t) + (x.star ? ' <span class="st">★</span>' : '') + '</span><b>' +
-      (x.h ? '+' + x.h + ' health' : x.buff ? 'yours' : x.pocket ? '+1 slot' : x.g === 0 ? '—' : (x.g < 0 ? '−' + -x.g : '+' + x.g) + 'g') + '</b></li>').join('') +
+    return '<ul class="payout" data-act="paydone" aria-label="The payout">' + pay.map((x, i) => '<li style="--i:' + i + '" class="' + (x.h ? 'hp' : x.g < 0 ? 'minus' : '') + '"><span>' + (x.buff && R.BUFFS[x.buff] && !R.BUFFS[x.buff].secret ? '<img class="pitem" src="' + artURL('goods/buff_' + x.buff + '.webp') + '" alt="">' : x.pocket ? '<img class="pitem" src="' + artURL('goods/buff_holdout.webp') + '" alt="">' : x.elixir ? '<img class="pitem" src="' + artURL('goods/tonic.webp') + '" alt="">' : '') + esc(x.t) + (x.star ? ' <span class="st">★</span>' : '') + '</span><b>' +
+      (x.h ? '+' + x.h + ' health' : x.buff ? 'yours' : x.pocket ? '+1 slot' : x.elixir ? 'yours' : x.g === 0 ? '—' : (x.g < 0 ? '−' + -x.g : '+' + x.g) + 'g') + '</b></li>').join('') +
       '<li class="tot" style="--i:' + pay.length + '"><span>' + (r.gold < 0 ? 'Lost' : 'Total') + ' <small>(you have ' + now + ')</small></span><b data-to="' + r.gold + '">' + (r.gold < 0 ? '−' : '+') + Math.abs(r.gold) + 'g</b></li></ul>';
   }
   // the total ticks up while the lines come in; a tap on the list (paydone) shows the end at once
@@ -4368,6 +4378,22 @@ html.art .coach { border-radius: 0; }
     if (undoable) P.undo.push({ snap, name });
     step();
   }
+  /* Elixirs (2026-11-05): the satchel's bottles, each with Drink; a bottle for a card waits for a tap on your hand */
+  const ELX_HUE = { ace: 0, sworn: 120, joker: 260, keg: -40, double: 60, bitters: 180 };
+  function openSatchel() {
+    const L = P.L;
+    if (!R.canDrink(L)) return;
+    showSheet('<h2>Your satchel</h2><p class="hint">Drink one now: it lasts this hand.</p>' + L.elixirs.map((id, i) => { const X = R.ELIXIRS[id];
+      return '<div class="elx" style="--hue:' + (ELX_HUE[id] || 0) + 'deg"><img src="' + artURL('goods/tonic.webp') + '" alt=""><div><b>' + esc(X.name) + '</b><p>' + esc(X.text) + '</p></div><button class="btn" data-drink="' + i + '">Drink</button></div>'; }).join('') +
+      '<div class="btns"><button class="btn alt" data-act="closesheet">Not now</button></div>', 'satchel');
+  }
+  function drinkTap(i) {
+    const L = P.L, id = L.elixirs[i];
+    if (!id) return;
+    showSheet('', null);
+    if (R.ELIXIRS[id].card) { P.drinking = i; render(); return; }
+    move('drink', { i });
+  }
   function takeBack() {
     const u = P.undo.pop();
     if (!u) return;
@@ -4398,6 +4424,13 @@ html.art .coach { border-radius: 0; }
   document.addEventListener('contextmenu', ev => { const card = ev.target.closest && ev.target.closest('.card[data-c]'); if (card && !card.closest('#sheet')) { ev.preventDefault(); showCardInfo(card.dataset.c); } });
   document.addEventListener('click', ev => {
     if (P.held && Date.now() - P.held < 1500) { P.held = 0; ev.preventDefault(); return; }
+    // the satchel's Drink, and the card a bottle goes on (before a tap on your hand could play it)
+    const dk = ev.target.closest('[data-drink]');
+    if (dk) { if (!(dk.closest('#sheet') && Date.now() < P.guardUntil)) drinkTap(+dk.dataset.drink); return; }
+    if (P.drinking != null) {
+      const hc = ev.target.closest('#hand .card[data-c]');
+      if (hc) { const i = P.drinking; P.drinking = null; move('drink', { i, card: hc.dataset.c }); return; }
+    }
     // a card that can't be played or picked (your cards panel, a hand while it isn't your turn): a tap explains it
     const plain = ev.target.closest('.card[data-c]');
     if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-chase],[data-wanted],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-psel],[data-pickcard],[data-partner],[data-foe],[data-sleeve],[data-kitsel]')) { showCardInfo(plain.dataset.c); return; }
@@ -4496,6 +4529,8 @@ html.art .coach { border-radius: 0; }
       case 'install': { const ev = P.installEvt; if (ev) { P.installEvt = null; try { ev.prompt(); ev.userChoice.then(() => { if (P.sheet === 'menu') openSheet('menu'); }).catch(() => {}); } catch (e) {} } break; }
       case 'pref': setPref(d.k, d.v); openSheet('menu'); break;
       case 'takeback': takeBack(); break;
+      case 'satchel': openSatchel(); break;
+      case 'nodrink': P.drinking = null; renderStatus(); break;
       case 'levelinfo': openSheet('info', levelInfoHTML(L)); break;
       case 'closesheet': P.sheet = null; P.shown = null; $('veil').hidden = true; if (P.L && $('title').hidden) step(); break;
       case 'quit': P.sheet = null; clearTimeout(P.timer); $('veil').hidden = true; title(); break;
