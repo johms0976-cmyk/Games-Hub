@@ -2,8 +2,12 @@
 /* Bow to Your Partner — the AI seats (West, North, East, and a stand-in for you
  * in tests).
  *
- * Every seat uses the same card play; a partner differs only in how it bids
- * (the design rule: a partner never plays worse). The play keeps a floor that
+ * Your side (North, and the stand-in for you) follows with the reading play
+ * (readPlay, 2026-11-06): it counts the suits each seat has shown out of and
+ * weighs every card by its chance of taking the trick less what it costs. The
+ * gangs keep the older floor play, so the fights' balance is unchanged. Partners
+ * differ only in how they bid (the design rule: a partner never plays worse).
+ * Both plays keep a floor that
  * the tests measure: it never takes a trick from a partner who is already
  * winning when it plays last, never ruffs with a trump that can't win when it
  * could throw a plain card, never wastes the Joker or right bower on a trick
@@ -67,10 +71,100 @@
 
   /* ---------------- card play ---------------- */
   function play(L, seat) {
-    const h = L.h, trump = h.trump, legal = E.legalPlays(L, seat);
+    const h = L.h, legal = E.legalPlays(L, seat);
     if (legal.length === 1) return legal[0];
     if (h.misere) return misPlay(L, seat, legal);
     if (h.leader === null || !h.trick[h.leader]) return lead(L, seat, legal);
+    if (api.READ[team(seat)] && !oddTrick(L)) return readPlay(L, seat, legal);
+    return floorPlay(L, seat, legal);
+  }
+
+  /* Your side's card play (2026-11-06). The floor below treats every unseen
+     trump as if the next opponent could ruff with it, so with an opponent still
+     to play it threw the Joker over its partner's winning Ace, or ducked with a
+     10 when its Ace was the top heart left. This reads the table instead: the
+     suits each seat has shown out of, and how likely the seats still to play
+     are to hold a card that beats the trick (from how many such cards are
+     unseen and how many cards each holds). Each card is weighed as its chance of
+     taking the trick for your side less what it costs to give up, so a low
+     trump that almost surely holds beats the Joker that surely does, and the
+     Ace that only a ruff can beat is played rather than kept.
+     The gangs keep the floor's play, so their strength (and the fights'
+     balance) is unchanged. */
+  const READ = { 0: true, 1: false };
+  const TUNE = {
+    price: 0.3,           // a card's cost (cost() / 100) in tricks: the Joker over a low trump needs ~0.45 of a trick more safety
+                          // (0.1 / 0.2 / 0.3 measured on the same frozen hands; 0.3 took the most tricks)
+    loyal: 0.15           // taking a trick your partner is winning must save at least this much more
+  };
+  function oddTrick(L) {
+    const h = L.h, k = K(L, h.leader, h.trick[h.leader]);
+    // Reverse / Sanctuary: only the suit led counts, so ruffs and rank-reading don't apply
+    return E.en(k, 'reverse') || E.en(k, 'sanctuary') || (L.call === 'reverse' && h.winners && h.winners.length === 0);
+  }
+  /* The suits each seat has shown out of this hand. */
+  function voidsOf(L) {
+    const h = L.h, v = [0, 1, 2, 3].map(() => new Set());
+    const scan = (cards, leader) => {
+      if (leader === null || leader === undefined || !cards[leader]) return;
+      const led = kSuit(K(L, leader, cards[leader]), h.trump);
+      for (let p = 0; p < 4; p++) {
+        if (p === leader || !cards[p]) continue;
+        const k = K(L, p, cards[p]), s = kSuit(k, h.trump);
+        if (s !== led && s !== '#' && kSuit(E.resolveTwo(k, led, h.trump), h.trump) !== led) v[p].add(led);
+      }
+    };
+    (h.played || []).forEach(t => scan(t.cards, t.leader));
+    scan(h.trick, h.leader);
+    return v;
+  }
+  /* The chance that m cards drawn from U hold none of k marked ones. */
+  function none(U, m, k) {
+    let p = 1;
+    for (let i = 0; i < m; i++) { if (U - i <= 0) break; p *= Math.max(0, U - k - i) / (U - i); }
+    return p;
+  }
+  /* The chance that one of `opps` (still to play) beats trick t. */
+  function beatChance(L, seat, t, opps, pool, v) {
+    const h = L.h, trump = h.trump, ld = h.leader;
+    const bs = winnerOf(t, ld, trump, L), best = K(L, bs, t[bs]);
+    const led = kSuit(K(L, ld, t[ld]), trump);
+    let hold = 1;
+    for (const p of opps) {
+      const m = h.hands[p].length, can = pool.filter(x => !v[p].has(x.s)), U = can.length;
+      const beats = x => kBeats(x.k, best, led, trump);
+      const kO = can.filter(x => x.s !== led && beats(x)).length;
+      let pb;
+      if (v[p].has(led)) pb = 1 - none(U, m, kO);
+      else {
+        const nLed = can.filter(x => x.s === led).length, kF = can.filter(x => x.s === led && beats(x)).length;
+        pb = (1 - none(U, m, kF)) + none(U, m, nLed) * (1 - none(U - nLed, m, kO));
+      }
+      hold *= 1 - Math.min(1, pb);
+    }
+    return 1 - hold;
+  }
+  function readPlay(L, seat, legal) {
+    const h = L.h, trump = h.trump;
+    const opps = after(h, seat).filter(p => team(p) !== team(seat));
+    const cur = winnerOf(h.trick, h.leader, trump, L), ours = team(cur) === team(seat);
+    const w = legal.filter(c => wins(L, seat, c)), under = legal.filter(c => !w.includes(c));
+    if (!opps.length) return ours ? cheapest(L, seat, under.length ? under : legal) : cheapest(L, seat, w.length ? w : legal);
+    const pool = unseen(L, seat).map(u => { const k = plainK(u); return { k, s: kSuit(k, trump) }; }), v = voidsOf(L);
+    const price = c => TUNE.price * cost(L, seat, c) / 100;
+    let pick = null;
+    const weigh = (c, u) => { if (!pick || u > pick.u + 1e-9) pick = { c, u }; };
+    if (under.length) {
+      const duck = cheapest(L, seat, under);
+      weigh(duck, (ours ? 1 - beatChance(L, seat, h.trick, opps, pool, v) : 0) - price(duck));
+    }
+    for (const c of w) weigh(c, 1 - beatChance(L, seat, withCard(h, seat, c), opps, pool, v) - price(c) - (ours && under.length ? TUNE.loyal : 0));
+    return pick.c;
+  }
+
+  /* The floor: every seat's play before 2026-11-06, still the gangs'. */
+  function floorPlay(L, seat, legal) {
+    const h = L.h, trump = h.trump;
     const out = unseen(L, seat);
     const last = after(h, seat).length === 0;
     const cur = winnerOf(h.trick, h.leader, trump, L);
@@ -100,24 +194,34 @@
     if (hunt) return hunt;
     const ours = h.contractor !== null && team(h.contractor) === team(seat);
     const isT = c => kIsTrump(K(L, seat, c), trump);
-    const trumps = legal.filter(isT), plain = legal.filter(c => !isT(c));
+    const reads = api.READ[team(seat)];
+    const trumps = legal.filter(isT);
+    let plain = legal.filter(c => !isT(c));
+    if (reads && trump) {
+      // your side (2026-11-06) keeps its plain leads out of suits an opponent has shown out of and can ruff
+      const v = voidsOf(L), ruffer = s => [0, 1, 2, 3].some(p => team(p) !== team(seat) && p !== h.out && h.hands[p].length && v[p].has(s) && !v[p].has(trump));
+      const clean = plain.filter(c => !ruffer(kSuit(K(L, seat, c), trump)));
+      if (clean.length) plain = clean;
+    }
     const sure = legal.filter(c => safe(L, seat, c, out));
+    // among sure winners your side leads the cheapest (the trick is the same, and the Joker stays home)
+    const top = cs => reads ? cheapest(L, seat, cs) : dearest(L, seat, cs);
     const sureT = sure.filter(isT), sureP = sure.filter(c => !isT(c));
     // a gang that leads trumps (2026-11-02) pulls yours when it's defending: its best trump first
     if (trump && !ours && h.contractor !== null && trumps.length && team(seat) === 1 && L.foe && L.foe.manner === 'trumper') return dearest(L, seat, trumps);
     if (trump && ours && trumps.length) {
       if (seat === h.contractor) {
         // draw trumps with sure winners, cash a sure side card, else push a trump
-        if (sureT.length) return dearest(L, seat, sureT);
-        if (sureP.length) return dearest(L, seat, sureP);
+        if (sureT.length) return top(sureT);
+        if (sureP.length) return top(sureP);
         if (trumps.length >= 2 || !plain.length) return dearest(L, seat, trumps);
         return cheapest(L, seat, plain);
       }
       // the contractor's partner leads back the suit they bid
-      if (sureT.length) return dearest(L, seat, sureT);
+      if (sureT.length) return top(sureT);
       return cheapest(L, seat, trumps);
     }
-    if (sureP.length) return dearest(L, seat, sureP);
+    if (sureP.length) return top(sureP);
     const aces = plain.filter(c => rankOf(c) === 'A');
     if (aces.length) return aces[0];
     if (plain.length) {
@@ -127,7 +231,7 @@
       const long = Object.values(by).sort((a, b) => b.length - a.length)[0];
       return cheapest(L, seat, long);
     }
-    return sure.length ? dearest(L, seat, sure) : cheapest(L, seat, legal);
+    return sure.length ? top(sure) : cheapest(L, seat, legal);
   }
 
   /* ---------------- bidding ---------------- */
@@ -324,7 +428,7 @@
     return t.length ? t[0] : legal[0];
   }
 
-  const api = { misCardDanger, MIS_SAFE_ACT, OPEN_SAFE, HUSTLE: 6, sharpsHunt, MARGIN, SHARE, MIS_SAFE, misDanger, misWorst, misPlay, cost, cheapest, dearest, unseen, after, safe, wins, play, lead, estimate, bid, nod, discard, gift, legacyPlay };
+  const api = { READ, TUNE, readPlay, floorPlay, voidsOf, beatChance, misCardDanger, MIS_SAFE_ACT, OPEN_SAFE, HUSTLE: 6, sharpsHunt, MARGIN, SHARE, MIS_SAFE, misDanger, misWorst, misPlay, cost, cheapest, dearest, unseen, after, safe, wins, play, lead, estimate, bid, nod, discard, gift, legacyPlay };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.BtpAI = api;
 })(typeof window !== 'undefined' ? window : this);
