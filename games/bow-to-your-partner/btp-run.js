@@ -186,6 +186,43 @@
   };
   TAUNTS.ghost = ['Remember us? We remember you. We were you.', 'Boot Hill was cold. Your old cards kept us warm.', 'Same cards, partner. Different side of the table.', 'We died on this road once. Your turn.'];
   TAUNTS.stranger = ['Five marked cards. You kept every one. I knew you would.', 'I\u2019ve sat across from all of them. Now I\u2019ll play like all of them.', 'Every Showdown you ever lost, I was watching.'];
+  /* More to say (2026-11-05, LINES.md: the new lines that scored 80/100 or over). "My grandmother bids better than
+     you, and she's been dead since spring" made the cut but is left out: the gangs are Grandma Hollis's grandchildren. */
+  TAUNTS.dance.push('Funny. You don\u2019t look like a bounty hunter. You look like a bounty.', 'Before we start: are you left-handed? Asking for the gravestone.',
+    'Sit. Stay. Lose. Good stranger.', 'Ma was a card sharp. Pa was a shark. We get it from both sides.', 'Easy now. Hands where we can see \u2019em. On the table. Face up, ideally.',
+    'I\u2019d say \u201cmay the best hand win\u201d, but I\u2019ve got the best hand. I checked. Before the deal.', 'Five hundred to win. Five dollars for the coffin. We take both.',
+    'The cards don\u2019t lie. That\u2019s why we don\u2019t let them talk.', 'Mind the spittoon. The last fella who beat us is in it.', 'We don\u2019t bluff. We just lie with confidence.',
+    'We cut the deck. Then we cut whoever complains.', 'You hunt bounties? We hunt bounty hunters. Pays better. Fewer posters.');
+  TAUNTS.elite.push('I\u2019ve only lost one hand in my life. I keep it in a jar.', 'They say I\u2019m the fastest dealer alive. The slowest one\u2019s out back, under a cactus.',
+    'One, two\u2026 I\u2019ll be honest, I went on two.', 'My hands are faster than lightning. My brain\u2019s catching up. Don\u2019t rush it.',
+    'One of us walks away from this table. I\u2019ve already ordered my supper.');
+  TAUNTS.bank.push('Everybody on the floor! Not you. You, at the table. We need a fourth.', 'Don\u2019t mind the dynamite. It only goes off if somebody leads trumps.',
+    'Fill the bags, boys! And somebody deal the bounty hunter in.');
+  TAUNTS.twins.push('We finish each other\u2019s\u2014 \u2014tricks.', 'One of us is the evil twin. Guess which. Wrong.');
+  TAUNTS.sharps.push('We counted the cards. Then we counted your gold. Both came up short.');
+  TAUNTS.hustlers.push('We\u2019re terrible at this. Ask anyone we\u2019ve robbed.');
+  TAUNTS.caller.push('Grab your partner, do-si-do, hand me your gold and out you go!', 'Nobody dances in my hall without paying the fiddler. I\u2019m the fiddler.');
+  TAUNTS.wallflowers.push('Stand still a moment. Five foot ten. \u2026Five foot eleven with the hat. Lovely.', 'Don\u2019t fret. We do a lovely funeral. Two for one on Tuesdays.');
+  TAUNTS.pie.push('Blue ribbon three years running. Nobody\u2019s tasted it. Nobody\u2019s dared.');
+  TAUNTS.turkey.push('Not the turkey! The clay! \u2026Ah. Well, that\u2019s supper.');
+  TAUNTS.ghost.push('Don\u2019t look so pale. That\u2019s our job now.', 'We\u2019re you, from the run you lost. Spoiler: you lose.');
+  TAUNTS.stranger.push('I\u2019ve been behind you since the first town. You never once looked back.');
+  /* A run's lines without repeats (2026-11-05, the user's "the witty lines are quite repetitive"): every pool is dealt
+     in an order shuffled by the run's seed and the pool's name, so no line comes round again until the whole pool has
+     been said; the n-th line of a pool is the same on a reload. */
+  function dealt(L, tag, pool, n) {
+    const len = pool.length;
+    if (!len) return null;
+    n = Math.max(0, n | 0);
+    let h = ((L.rs >>> 0) ^ Math.imul(Math.floor(n / len) + 1, 2654435761)) >>> 0;
+    for (let i = 0; i < tag.length; i++) h = Math.imul(h ^ tag.charCodeAt(i), 16777619) >>> 0;
+    const order = pool.map((_, i) => i);
+    for (let i = len - 1; i > 0; i--) {
+      h = Math.imul(h ^ (h >>> 15), 2246822519) >>> 0; h = (h ^ (h >>> 13)) >>> 0;
+      const j = h % (i + 1), t = order[i]; order[i] = order[j]; order[j] = t;
+    }
+    return pool[order[n % len]];
+  }
   /* Insults and comebacks (the user's, 2026-11-03: "a Monkey Island type vibe"): at a Card table or a Duel the gang
      opens with an insult and your partner fires one back. The Quiet One answers with a look; Biscuit sometimes just
      neighs. One pair a fight, by the same hash as the taunt. */
@@ -201,15 +238,32 @@
     ['You bid like a scarecrow plays the fiddle.', 'At least a scarecrow knows when to keep still. Unlike your eyebrows.'],
     ['My dog plays a better game of five hundred.', 'Then send the dog. We\u2019d like a challenge.'],
     ['I\u2019ve got an Ace up my sleeve and a Colt under the table.', 'And a shirt that says you\u2019ve lost both before.'],
-    ['You\u2019re the worst card player west of the Mississippi.', 'Then you\u2019re in for a very confusing evening.']
+    ['You\u2019re the worst card player west of the Mississippi.', 'Then you\u2019re in for a very confusing evening.'],
+    // 2026-11-05 (LINES.md)
+    ['I\u2019m worth a hundred gold, dead or alive.', 'Bit ambitious for alive.'],
+    ['I\u2019ve had horses smarter than you.', 'So have I. One of them\u2019s sitting at this table.'],
+    ['People pay good money to watch me play.', 'They pay better money to watch you lose. I\u2019ve seen the poster.'],
+    ['I could beat you with my eyes closed.', 'That explains how you dress.'],
+    ['I\u2019m the meanest hand west of the river.', 'And the dirtiest east of the soap.'],
+    ['I\u2019m going to clean you out.', 'First thing in this saloon you\u2019d have cleaned.'],
+    ['I could outdraw you with a broken arm.', 'That can be arranged. Deal.'],
+    ['Folks round here call me the Undertaker\u2019s Friend.', 'Well, the man must be lonely.'],
+    ['You\u2019ll be pushing up daisies by sundown.', 'Daisies? In this dirt? I\u2019ll be lucky to push up a cactus.'],
+    ['Your partner looks like a sack of feed in a hat.', 'Careful. The sack\u2019s holding the right bower.'],
+    ['Every card you play, I\u2019ve already seen.', 'Then you know what\u2019s coming. Must be awful.'],
+    ['When I\u2019m done, they\u2019ll call you Lucky.', 'When I\u2019m done, they\u2019ll call you \u201cthe other fella in the story\u201d.'],
+    ['I\u2019ve seen more spine in a jellyfish.', 'Out here? You\u2019ve never seen a jellyfish. You\u2019ve never seen the sea.']
   ];
-  const COMEBACK_STYLE = { quiet: () => '(The Quiet One just looks at them. It lands harder than words.)' };
+  // the partners who don't talk back: the Quiet One always, Biscuit one time in four
+  const SILENT_BACKS = {
+    quiet: ['(The Quiet One just looks at them. It lands harder than words.)', '(The Quiet One writes something on a napkin and slides it across. They read it and go pale.)'],
+    horse: ['Neigh. (Biscuit means something rude.)', '(Biscuit eats the corner of their best card.)', 'Neigh. (In horse, that\u2019s about their mother.)', '(Biscuit sneezes on their hand. All of it.)']
+  };
   function insult(L) {
     let x = ((L.rs >>> 0) ^ Math.imul((L.level || 1) + 7, 2246822519)) >>> 0;
     x = Math.imul(x ^ (x >>> 13), 3266489917) >>> 0;
-    const [text, back] = INSULTS[x % INSULTS.length];
-    const style = COMEBACK_STYLE[L.partner];
-    return { text, back: style ? style() : L.partner === 'horse' && x % 5 === 0 ? 'Neigh. (Biscuit means something rude.)' : back };
+    const [text, back] = dealt(L, 'insult', INSULTS, (L.level | 0) - 1), quiet = SILENT_BACKS[L.partner];
+    return { text, back: L.partner === 'quiet' ? quiet[x % quiet.length] : L.partner === 'horse' && x % 4 === 0 ? quiet[(x >>> 4) % quiet.length] : back };
   }
   /* Your partner's one-off quips (2026-11-03): the first time a run meets each of these, said over the table as the
      fight starts. The horse on the train roof was the user's own example. */
@@ -240,20 +294,39 @@
             sharp: 'The ring toss is rigged. I checked. Twice. Then I bought it.',
             quiet: '(The Quiet One wins a stuffed bear at the ring toss without looking, and hands it to you.)' }
   };
+  // 2026-11-05 (LINES.md): the Getaway, a stop you couldn't read, the hotel and the store; a partner without a line here stays quiet
+  Object.assign(QUIPS, {
+    getaway: { horse: 'Finally, something I\u2019m built for. Hold on to your hat. And your cards. And me.',
+               nan: 'I haven\u2019t chased a man this fast since 1831, dear. Married him, too.' },
+    mystery: { horse: 'A question mark. The last time I walked toward one of those, it was a barn fire.',
+               nan: 'A surprise, dear. At my age they\u2019re either a party or a funeral.',
+               showboat: 'Mystery! Intrigue! Possibly a trapdoor. I\u2019ll go first. No, you go first.' },
+    hotel: { horse: 'They let me in the hotel, partner. I\u2019ll be sleeping in the bath. Don\u2019t ask.',
+             nan: 'Clean sheets and a kettle. I could cry, dear. I won\u2019t, but I could.',
+             sharp: 'Eight hours\u2019 sleep raises a player\u2019s win rate eleven percent. I made that up, but sleep anyway.',
+             quiet: '(The Quiet One sleeps sitting up in a chair facing the door. Hat on. Boots on. Snoring politely.)' },
+    store: { nan: 'Don\u2019t pay the first price, dear. Or the second. I\u2019ll handle the third.',
+             sharp: 'Every price in here is marked up forty percent. I respect it.' }
+  });
+  function takeQuip(L, when) {
+    if (!when || !QUIPS[when] || !QUIPS[when][L.partner] || (L.quipped || []).includes(when)) return null;
+    L.quipped = (L.quipped || []).concat(when);
+    return QUIPS[when][L.partner];
+  }
+  // a store or a hotel: said on its slip (L.stopQuip) when you walk in
+  const stopQuip = (L, kind, id) => kind !== 'store' && kind !== 'camp' ? null : (L.revealed === id ? takeQuip(L, 'mystery') : null) || takeQuip(L, kind === 'store' ? 'store' : 'hotel');
   function quipFor(L) {
     const n = L.pos && L.map && L.map.floors ? mapNode(L, L.pos) : null;
     const when = L.kind === 'bank' ? 'bank' : L.act === 2 && n && n.lane === 'roof' && (L.kind === 'dance' || L.kind === 'elite') ? 'roof'
       : L.act === 1 && L.kind === 'elite' ? 'duel' : L.act === 2 && (L.kind === 'dance' || L.kind === 'elite') ? 'train' : L.act === 3 && L.kind === 'dance' ? 'fair' : null;
-    if (!when || (L.quipped || []).includes(when) || !QUIPS[when][L.partner]) return null;
-    L.quipped = (L.quipped || []).concat(when);
-    return QUIPS[when][L.partner];
+    return (L.kind !== 'chase' && L.revealed && L.revealed === L.pos ? takeQuip(L, 'mystery') : null) || takeQuip(L, L.kind === 'chase' ? 'getaway' : when);
   }
   function taunt(L) {
     const pool = L.foe && L.foe.ghost ? TAUNTS.ghost : L.mode === 'standard' ? TAUNTS[(L.std && L.std.id) || 'regulars'] || TAUNTS.regulars : L.kind === 'contest' && L.contest ? TAUNTS[L.contest.id] : L.kind === 'boss' ? TAUNTS[L.boss] || TAUNTS.elite : TAUNTS[L.kind] || TAUNTS.dance;
     let x = ((L.rs >>> 0) ^ Math.imul(L.level || 1, 2654435761)) >>> 0;
     x = Math.imul(x ^ (x >>> 15), 2246822519) >>> 0;
     const who = L.mode === 'standard' ? L.std.name : L.kind === 'contest' && L.contest ? 'Your fellow contestants' : L.kind === 'boss' ? BOSS[L.boss].name : L.kind === 'bank' ? 'The robbers' : L.foe ? L.foe.name : 'The gang';
-    return { who, text: pool[((x ^ (x >>> 13)) >>> 0) % pool.length] };
+    return { who, text: dealt(L, 't:' + pool[0], pool, (L.level | 0) - 1) };
   }
   const LAST_ACT = 3;                       // the County Fair ends the run
   const ROMAN = { 1: 'I', 2: 'II', 3: 'III' };
@@ -1102,6 +1175,23 @@
       text: 'Never bids. Lets you see the kitty before you bid. Brings the K♦.',
       intro: '\u2026 (a nod, and the K\u2666 slid across the table. The Quiet One never bids, but lifts the corner of the kitty for you before you do.)' }
   ];
+  // 2026-11-05 (LINES.md): more for every partner to say after a trick or a hand
+  const MORE_LINES = {
+    horse: { won: ['That\u2019s one for the feed bag.', '(a proud snort)'], lost: ['I\u2019m not mad. My ears are just like this.', 'Nobody saw that. Well, I did. I\u2019ve got eyes on the sides.', 'Horse feathers.'],
+             made: ['Stable genius, partner.', 'Told you I could count. One stamp per trick.'], set: ['They bit off more than they could chew. Trust me, I know chewing.'],
+             failed: ['I\u2019d blame the jockey, but you\u2019re the jockey.'] },
+    nan: { won: ['Just like knitting. Over, under, take it.', 'Lovely. Now don\u2019t get cocky.'], lost: ['I\u2019ll remember that one, dear. I remember everything.', 'Pish. Didn\u2019t want it anyway.'],
+           made: ['Bid what you can, make what you bid. Your mother would be proud.'], set: ['Serves them right for cheating, dear. They were, weren\u2019t they?'],
+           failed: ['We\u2019ll say no more about it. I\u2019ll say a bit more about it later.'], theirs: ['Hmph. Beginner\u2019s luck, and they\u2019re not even beginners.'] },
+    showboat: { won: ['That trick\u2019s going in my memoirs. Chapter nine.', 'And the crowd goes\u2014 well, I go wild.'],
+                lost: ['Deliberate. Builds tension.', 'An artistic choice, partner.', 'The hero always drops a round first. It\u2019s in all the dime novels.'],
+                made: ['Encore! Encore! Somebody say encore.'], set: ['Exit, pursued by us.'], failed: ['The reviews are in. Let\u2019s not read them.'] },
+    sharp: { lost: ['I had that at forty percent. Annoying, but forty percent.', 'Recalculating.'], made: ['Q.E.D., partner.', 'The arithmetic thanks you.'],
+             set: ['They bid on hope. Hope has terrible odds.'], failed: ['I\u2019ll be in my notebook.'], theirs: ['They got the one-in-five. It happens one time in five.'] },
+    quiet: { won: ['(tips their hat a quarter of an inch)'], lost: ['(stares at the trick until it apologises)'], made: ['(almost smiles. Almost.)'],
+             set: ['(blows on the end of a finger, like a gun barrel)'], failed: ['(pulls their hat down over their eyes)'], theirs: ['(writes something in a little book)'] }
+  };
+  Object.keys(MORE_LINES).forEach(id => Object.keys(MORE_LINES[id]).forEach(k => { PARTNERS[id].lines[k] = (PARTNERS[id].lines[k] || []).concat(MORE_LINES[id][k]); }));
   const partnerStyle = L => (PARTNERS[L.partner] || {}).style || null;
   /* Partner bond (2026-11-03, the user's list: "the reasons to come back"): the stories you've finished with a
      partner. At each step (BOND.at, rides) something new: their own greeting (2), a sheriff's star on their portrait
@@ -1234,6 +1324,7 @@
     const kind = nd.kind;
     L.pos = id; L.route.push(id); L.path.push(kind);
     L.note = '';
+    L.stopQuip = stopQuip(L, kind, id);
     if (kind === 'event') {
       const fit = Object.keys(EVENTS).filter(id => EVENTS[id].acts.includes(L.act));
       const ids = fit.filter(id => !(L.eventsSeen || []).includes(id));
@@ -1604,7 +1695,11 @@
   /* ---------------- moves inside a hand ---------------- */
   function react(L, kind) {
     const lines = PARTNERS[L.partner].lines[kind];
-    if (lines) L.reaction = { kind, text: lines[Math.floor(E.rnd(L) * lines.length)] };
+    if (!lines) return;
+    E.rnd(L);                     // still drawn, so a seed deals the same cards as before
+    const said = L.saidN || (L.saidN = {}), n = said[kind] | 0;
+    said[kind] = n + 1;
+    L.reaction = { kind, text: dealt(L, 'r:' + L.partner + ':' + kind, lines, n) };
   }
   function after(L, res) {
     if (!res.ok) return res;
@@ -2331,7 +2426,7 @@
     if (O && O.kind === 'limit') return 'holding';
     return o.n + ' / ' + o.of;
   }
-  const api = { HOT, hotStage, hotMult, stoke, BOND, bondOf, GILD, gildStep, LUCK, lucky, jokerOdds, luckyJoker, INSULTS, insult, QUIPS, quipFor, poss, eventText, LAST_STAND, STRANGER, DUEL_RULES, DARES, DARE_LIE, HEAT, heatOdds, MYSTERY, GHOST, ghostFoe, DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
+  const api = { HOT, hotStage, hotMult, stoke, BOND, bondOf, GILD, gildStep, LUCK, lucky, jokerOdds, luckyJoker, INSULTS, insult, QUIPS, quipFor, dealt, SILENT_BACKS, poss, eventText, LAST_STAND, STRANGER, DUEL_RULES, DARES, DARE_LIE, HEAT, heatOdds, MYSTERY, GHOST, ghostFoe, DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
     TAUNTS, taunt, cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, MANNERS, WANTED, wantedFor, wants, dailySeed, dailyTwist, FAIR_GOODS, setQuick, floorsFor, CHASE, chaseRide, CONTEST, RIBBON, ribbonOf, EXPRESS, SIDE, genThreeTrains, DRIVER, COUNTER, makeDriver, ROSTER, partnerOpen, voice, STANDARD, standardFoe, newStandard,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;

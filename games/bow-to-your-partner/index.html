@@ -1729,24 +1729,24 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=47"></script>
-<script src="btp-ai.js?v=47"></script>
-<script src="btp-run.js?v=47"></script>
-<script src="btp-town.js?v=47"></script>
-<script src="art/dustwater/sprites.js?v=47"></script>
-<script src="btp-train.js?v=47"></script>
-<script src="art/train/sprites.js?v=47"></script>
-<script src="art/title/scene.js?v=47"></script>
-<script src="art/title/cameo.js?v=47"></script>
-<script src="art/title/crossing.js?v=47"></script>
-<script src="art/table/scene.js?v=47"></script>
-<script src="art/table/partners.js?v=47"></script>
-<script src="art/grave/scene.js?v=47"></script>
-<script src="art/paid/scene.js?v=47"></script>
-<script src="art/rooms/scene.js?v=47"></script>
-<script src="art/express/scene.js?v=47"></script>
-<script src="art/country/country.js?v=47"></script>
-<script src="art/fair/sprites.js?v=47"></script>
+<script src="btp-engine.js?v=48"></script>
+<script src="btp-ai.js?v=48"></script>
+<script src="btp-run.js?v=48"></script>
+<script src="btp-town.js?v=48"></script>
+<script src="art/dustwater/sprites.js?v=48"></script>
+<script src="btp-train.js?v=48"></script>
+<script src="art/train/sprites.js?v=48"></script>
+<script src="art/title/scene.js?v=48"></script>
+<script src="art/title/cameo.js?v=48"></script>
+<script src="art/title/crossing.js?v=48"></script>
+<script src="art/table/scene.js?v=48"></script>
+<script src="art/table/partners.js?v=48"></script>
+<script src="art/grave/scene.js?v=48"></script>
+<script src="art/paid/scene.js?v=48"></script>
+<script src="art/rooms/scene.js?v=48"></script>
+<script src="art/express/scene.js?v=48"></script>
+<script src="art/country/country.js?v=48"></script>
+<script src="art/fair/sprites.js?v=48"></script>
 <script>
 (function () {
   'use strict';
@@ -3302,9 +3302,11 @@ html.art .coach { border-radius: 0; }
      panel, the storekeeper between his wall and his counter with a word for you. Act I only: Acts II and III call
      these stops the candy butcher's cart, the sleeper car, merchants' row and the chuck wagon, which this isn't. */
   const KEEPER = {
-    hello: ['Howdy! What\u2019ll it be, partner?', 'Fresh in on the stage this mornin\u2019.', 'Mind the pickle barrel.', 'No credit, no haggling. Mostly.'],
-    thanks: ['Pleasure doin\u2019 business.', 'A fine choice, if I say so myself.', 'That\u2019ll serve you well out there.', 'Come again, partner!'],
-    broke: ['Lookin\u2019s free, partner.', 'Come back when the bounty\u2019s paid.']
+    hello: ['Howdy! What\u2019ll it be, partner?', 'Fresh in on the stage this mornin\u2019.', 'Mind the pickle barrel.', 'No credit, no haggling. Mostly.',
+            'Ah, a customer! Or a robber. Either way, browse.', 'Everything\u2019s for sale except the cat.', 'If you can\u2019t find it, I\u2019ve got it. If you can, it costs more.'],
+    thanks: ['Pleasure doin\u2019 business.', 'A fine choice, if I say so myself.', 'That\u2019ll serve you well out there.', 'Come again, partner!',
+             'Sold! I\u2019d say \u201cuse it wisely\u201d, but I\u2019ve seen you bid.', 'Pleasure. Don\u2019t tell my wife what I charged you. She thinks I\u2019m honest.'],
+    broke: ['Lookin\u2019s free, partner.', 'Come back when the bounty\u2019s paid.', 'Window-shopping\u2019s free. The window\u2019s extra.']
   };
   /* ---------------- one-screen stops: the General Store and the hotel (2026-11-01) ---------------- */
   /* The goods as things on the counter: a card in a stand, an enhancement's tin, a buff's sheriff's star, the
@@ -3359,15 +3361,15 @@ html.art .coach { border-radius: 0; }
     posting: ['Congratulations, Deputy. The badge is tin, the oath is binding, and the refund policy doesn\u2019t exist.',
               'Funny thing, the law. Twenty-five gold and you\u2019re it. Fifty and I\u2019ll throw in the sheriff.',
               'There. You\u2019re the law now. Please don\u2019t arrest me for selling it to you.'],
-    card: ['If it turns out to be a dud, it was a dud when you bought it.', 'Pleasure. No refunds, no regrets, no questions.'],
+    card: ['If it turns out to be a dud, it was a dud when you bought it.', 'Pleasure. No refunds, no regrets, no questions.', 'That card\u2019s seen things. Don\u2019t ask it about Abilene.'],
     enh: ['Rub it in clockwise. Or anticlockwise. Honestly, nobody\u2019s ever read the tin.', 'Keep it away from naked flames. And clothed ones.'],
     buff: ['One of a kind. I\u2019ve six more out back, but they\u2019re also one of a kind.', 'That\u2019s yours now. I was never here.'],
-    tonic: ['Drink it all at once. Then wait. Then don\u2019t ask me what was in it.', 'Doctor Bellweather swears by it. Mostly at it.'],
+    tonic: ['Drink it all at once. Then wait. Then don\u2019t ask me what was in it.', 'Doctor Bellweather swears by it. Mostly at it.', 'Side effects include hiccups, confidence and sudden yodelling.'],
     cleanse: ['The Doc says it won\u2019t hurt. The Doc also says he\u2019s a doctor.'],
-    marked: ['I didn\u2019t sell you that. You found it. On the floor. Of my shop.'],
+    marked: ['I didn\u2019t sell you that. You found it. On the floor. Of my shop.', 'Those marks? Coffee stains. Very strategic coffee stains.'],
     restock: ['Fresh out the crate. Mind the scorpion, he\u2019s not for sale.'],
     release: ['I\u2019ll give it a good home. In the stove.'],
-    gunhand: ['He charges extra to aim.'],
+    gunhand: ['He charges extra to aim.', 'He\u2019s very loyal. To whoever paid last. That\u2019s you. For now.'],
     handcar: ['Brakes are extra. Kidding. There aren\u2019t any brakes.']
   };
   // which of your cards (or, for the Doc, which hexed cards) a good can go on; the reason a card can't
@@ -3581,7 +3583,7 @@ html.art .coach { border-radius: 0; }
     const said = P.bought && P.bought.key === key && P.bought.sold === sold && BOUGHT[P.bought.type];
     const say = g ? (g.price > L.gold ? 'Lookin\u2019s free, partner. ' : '') + SAYS[g.type](g)
       : said ? said[sold % said.length]
-      : (sold ? KEEPER.thanks : L.gold < cheapest ? KEEPER.broke : KEEPER.hello)[((L.path || []).length + sold) % 3];
+      : (k => k[((L.path || []).length + sold) % k.length])(sold ? KEEPER.thanks : L.gold < cheapest ? KEEPER.broke : KEEPER.hello);
     const can = g && !g.sold && L.gold >= g.price && (!g.needs || S.card) && !(g.type === 'release' && L.owned.length < 2);
     const why = !g ? '' : g.sold ? 'Sold.' : L.gold < g.price ? 'Not enough gold (' + g.price + 'g)' : g.needs && !S.card ? 'Tap a card in your saddlebag' : g.type === 'release' && L.owned.length < 2 ? 'Keep at least one card' : '';
     const lb = S.card ? E.label(S.card) : '';
@@ -3590,7 +3592,7 @@ html.art .coach { border-radius: 0; }
     const slip = g ? '<h3>' + esc(g.name) + ' \u00b7 ' + g.price + 'g</h3><p>' + esc(g.text) + '</p>' + (S.why ? '<p class="why">' + esc(S.why) + '</p>' : '') +
         '<div class="btns"><button class="btn" data-act="storebuy"' + (can ? '' : ' disabled') + '>' + esc(can ? verb + ' (' + g.price + 'g)' : why) + '</button></div>'
       : tip ? '<div class="coachline"><span class="face svg">' + partnerFace(L.partner) + '</span><p>' + esc(tip.text) + '</p></div><div class="btns"><button class="btn alt" data-tip="' + tip.id + '">Got it</button></div>'
-      : '<h3>Browse the counter</h3><p class="hint">' + (L.note ? esc(L.note) + ' ' : '') + 'Tap anything on the counter to pick it up and hear about it. Nothing is spent until you buy.</p>';
+      : (L.stopQuip ? stopSays(L) : '<h3>Browse the counter</h3>') + '<p class="hint">' + (L.note ? esc(L.note) + ' ' : '') + 'Tap anything on the counter to pick it up and hear about it. Nothing is spent until you buy.</p>';
     const cols = goods.length > 8 ? 5 : 4;
     return sceneHTML(L, 'store', say) +
       '<div class="counter' + (L.act === 3 ? ' wagon' : '') + '"><div class="goods" style="--gc:' + cols + '">' + goods.map(x => {
@@ -3613,6 +3615,8 @@ html.art .coach { border-radius: 0; }
       { id: 'remove', no: 'DOOR', label: 'Run out', short: 'a deck card', name: 'Run Out of Town', text: 'Take a card you don\u2019t own out of the deck for the rest of the run. Everyone feels it.', act: 'Choose a card from the deck', off: !R.removable(L).length && 'Nothing more can come out' });
     return o;
   }
+  // your partner's word on walking into a store or a hotel (L.stopQuip, once a story for each)
+  const stopSays = L => L.stopQuip ? '<div class="coachline quip"><span class="face svg">' + partnerFace(L.partner) + '</span><p><b>' + esc(R.PARTNERS[L.partner].name) + ':</b> ' + esc(L.stopQuip) + '</p></div>' : '';
   function campHTML(L) {
     const key = 'camp:' + L.rs + ':' + (L.path || []).length;
     if (!P.campSel || P.campSel.key !== key) P.campSel = { key, id: null, card: null };
@@ -3622,7 +3626,7 @@ html.art .coach { border-radius: 0; }
     const verb = !o ? '' : o.need && !S.card ? 'Tap a card in your saddlebag' : o.id === 'polish' ? 'Polish the ' + E.label(S.card) : o.id === 'cleanse' ? 'Clean the ' + E.label(S.card) : o.id === 'forge' ? 'Forge a second ' + E.label(S.card) : o.act;
     const slip = o ? '<h3>' + esc(o.name) + '</h3><p>' + esc(o.text) + '</p><div class="btns"><button class="btn" data-act="campdo"' + ((o.need && !S.card) || o.off ? ' disabled' : '') + '>' + esc(o.off || verb) + '</button></div>'
       : tip ? '<div class="coachline"><span class="face svg">' + partnerFace(L.partner) + '</span><p>' + esc(tip.text) + '</p></div><div class="btns"><button class="btn alt" data-tip="' + tip.id + '">Got it</button></div>'
-      : '<h3>Do one thing here</h3><p class="hint">' + (L.note ? esc(L.note) + ' ' : '') + (L.act === 1 ? 'Tap something in the room, or a key below.' : 'Pick a key below.') + '</p>';
+      : (L.stopQuip ? stopSays(L) : '<h3>Do one thing here</h3>') + '<p class="hint">' + (L.note ? esc(L.note) + ' ' : '') + (L.act === 1 ? 'Tap something in the room, or a key below.' : 'Pick a key below.') + '</p>';
     return sceneHTML(L, 'hotel', L.act === 1 ? null : 'Do one thing tonight.', hots) +
       '<div class="keys" style="--kc:' + Math.min(4, Math.ceil(opts.length / Math.ceil(opts.length / 4))) + '">' + opts.map(x => '<button class="key' + (S.id === x.id ? ' sel' : '') + '" data-hot="' + x.id + '" data-no="' + x.no + '"' + (x.off ? ' disabled' : '') + '>' + esc(x.label) + '<small>' + esc(x.short) + '</small></button>').join('') + '</div>' +
       '<div class="oslip">' + slip + '</div>' + bagHTML(L, o && !o.off ? o.need : null, null, S.card, o && o.need === 'hexed' ? 'Hexed cards' : null) +
