@@ -48,7 +48,7 @@
      hit), the Sharps 91%, the Caller 77-84%, the Undertakers 62-70% (bids from 8; from 7 they were beaten 98%).
      Fights last about 4.5 / 3.7 / 3 hands at Card tables, 5.5 / 4.8 / 4.2 in Duels, 8 / 10 / 8 at Showdowns. */
   const HEALTH = { start: 500, max: 500 };
-  const FOE = { base: { 1: 40, 2: 80, 3: 110 }, step: { 1: 5, 2: 8, 3: 10 }, elite: 1.5, boss: { 1: 100, 2: 300, 3: 500 }, bossHit: 2 };
+  const FOE = { base: { 1: 64, 2: 128, 3: 176 }, step: { 1: 8, 2: 13, 3: 16 }, elite: 1.5, boss: { 1: 100, 2: 300, 3: 500 }, bossHit: 2 };
   /* The Showdowns went up 15% with the trail of clues (2026-10-29) and back down when the clues were cut (the
      user's, 2026-10-30: "the clues didn't really seem to do anything"). */
   const PAR = { dance: { 1: 4, 2: 3, 3: 3 }, elite: { 1: 5, 2: 4, 3: 4 }, boss: { 1: 7, 2: 9, 3: 8 } };
@@ -149,7 +149,7 @@
     sand:      { name: 'Sand in Your Eyes', text: 'On each hand\u2019s first trick your own cards play as printed: no enhancements, no polish.' },
     shakedown: { name: 'Shakedown', text: 'Every trick they take costs you 5 gold.' },
     gutshot:   { name: 'Gut Shot', text: 'You bleed 10 health every hand of the fight.' },
-    armour:    { name: 'Thick Hide', text: 'Your defending tricks don\u2019t hurt them: only your contracts do.' },
+    armour:    { name: 'Thick Hide', text: 'Your defending tricks and your sets don\u2019t hurt them: only your contracts do.' },
     sleeve:    { name: 'Aces up Their Sleeves', text: 'West and East are each dealt an Ace.' },
     gag:       { name: 'Gagged', text: 'Your partner is gagged: she can\u2019t bid.' },
     marked:    { name: 'Marked Deck', text: 'None of your own cards are dealt to you.' },
@@ -398,22 +398,24 @@
   /* The Showdowns. Since the fight redesign each boss is a gang with health (FOE.boss) whose old race rule is now
      its ability; beat its health or run out of your own. */
   const BOSS = {
+    // 2026-11-05, the set pays (E.FX.setPay): gangs x1.6 and every Showdown retuned to its old win rate, 800 stand-in runs
+    // (run won 23% as before; Twins 84%, Hustlers 77%, Undertakers 65%, Caller 66%, Sharps 71%; the Stranger x1.5, unmeasured)
     // with their last stands (2026-11-02, fights.js 3 x 2000): Twins 79%, Sharps 70%, Hustlers 68%, Caller 70%, Undertakers ~68%
-    twins:  { name: 'The Twins', short: 'Twins', act: 1, look: ['pJT', 'pJT'], hp: 90, hit: 1, rule: 'West and East are always dealt the two red Jacks, one each.',
+    twins:  { name: 'The Twins', short: 'Twins', act: 1, look: ['pJT', 'pJT'], hp: 120, hit: 1, rule: 'West and East are always dealt the two red Jacks, one each.',
               hint: 'In diamonds or hearts they hold both bowers. In no trumps their Jacks are just Jacks; the Joker beats them either way.' },
-    sharps: { name: 'The Card Sharps', short: 'Sharps', act: 2, look: ['pKX', 'pKX'], hp: 270, hit: 2, rule: 'They can see your seeded cards, and hunt them.',
+    sharps: { name: 'The Card Sharps', short: 'Sharps', act: 2, look: ['pKX', 'pKX'], hp: 330, hit: 2, rule: 'They can see your seeded cards, and hunt them.',
               revenge: 'Cousins of the Twins, by the look of the noses. Every carriage up ahead seems to be family.',
               hint: 'Lead your seeded cards when they can\u2019t be beaten, or let your partner cover them.' },
-    hustlers: { name: 'The Hustlers', short: 'Hustlers', act: 2, look: ['pJY', 'pJY'], hp: 130, hit: 1.25, rule: 'They bid mis\u00e8re whenever they dare.',
+    hustlers: { name: 'The Hustlers', short: 'Hustlers', act: 2, look: ['pJY', 'pJY'], hp: 480, hit: 1.25, rule: 'They bid mis\u00e8re whenever they dare.',
               revenge: 'The Twins\u2019 big brothers. Every carriage up ahead seems to be family.',
               hint: 'One trick sinks a mis\u00e8re: lead low and stay under their card. Or outbid them with a 6 to keep them out.' },
     // Act III's two evened out (2026-11-02, fights.js 1500 x 2 seed sets: Caller 77% -> 69%, Undertakers 57-60% -> 66-69%)
-    caller: { name: 'The Caller', short: 'Caller', act: 3, look: ['sJK', 'sQD'], hp: 600, hit: 2, rule: 'Before each hand he calls a figure that changes the rules, aimed at the cards you were dealt from your own.',
+    caller: { name: 'The Caller', short: 'Caller', act: 3, look: ['sJK', 'sQD'], hp: 1200, hit: 2, rule: 'Before each hand he calls a figure that changes the rules, aimed at the cards you were dealt from your own.',
               hint: 'Each call is chosen to hurt your seeded cards, and he tells you why. A run that only works one way gets punished.' },
-    wallflowers: { name: 'The Undertakers', short: 'Undertakers', act: 3, look: ['pKU', 'pKU'], hp: 380, hit: 1.6, rule: 'They never bid, so your team must bid every hand, and at least 8.',
+    wallflowers: { name: 'The Undertakers', short: 'Undertakers', act: 3, look: ['pKU', 'pKU'], hp: 280, hit: 1.6, rule: 'They never bid, so your team must bid every hand, and at least 8.',
               hint: 'Nobody can pass the hand out: if your partner passes, you must bid. Bid what you can make, not what you hope.' },
     // never drawn: he takes the Fair's place when five marked cards call him (STRANGER)
-    stranger: { name: 'The Stranger', short: 'Stranger', act: 3, look: ['gKstr', 'gKstr'], hp: 600, hit: 1.8, secret: true,
+    stranger: { name: 'The Stranger', short: 'Stranger', act: 3, look: ['gKstr', 'gKstr'], hp: 900, hit: 1.8, secret: true,
               rule: 'Each hand he plays by another Showdown\u2019s rule: the Twins\u2019 Jacks, the Sharps\u2019 hunt, the Hustlers\u2019 mis\u00e8re, the Caller\u2019s calls or the Undertakers\u2019 silence.',
               hint: 'He tells you whose rule he\u2019s playing at every deal. Read it before you bid.' }
   };
@@ -2302,7 +2304,7 @@
     if (ph !== 'hand' || L.levelsDone >= 3) return null;
     const h = L.h;
     if (L.foe && L.handNo === 1 && h.phase === 'bid') { const t = tip('fight', 'They\u2019re wanted, dear, so let\u2019s bring them in. Our points shoot their health down, hand after hand; their points hit ours, and a bid of ours that fails backfires on us. Nothing heals us until it\u2019s over.'); if (t) return t; }
-    if (h.phase === 'bid' && h.turn === 0) return tip('bid', 'Count sure tricks: the Joker, a bower, the Ace of trumps. We need more than half the tricks. Weak hand? Pass — defending pays 10 a trick.');
+    if (h.phase === 'bid' && h.turn === 0) return tip('bid', 'Count sure tricks: the Joker, a bower, the Ace of trumps. We need more than half the tricks. Weak hand? Pass — defending pays 10 a trick, and setting them hits them for their whole contract.');
     if (h.phase === 'kitty' && h.turn === 0) return tip('kitty', 'You took the kitty card. Put back your weakest card that isn’t a trump.');
     if (h.phase === 'swing') return tip('swing', 'Under the table, dear: slip me a card you don’t want and I’ll slip you my best one.');
     if (h.phase === 'intent') return tip('intent', 'Their bid is their attack. Take enough tricks to stop them and it misses.');

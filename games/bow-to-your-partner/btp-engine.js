@@ -686,7 +686,7 @@
      hitting you for its value at that share as if they had made it (Just a Flesh Wound spares you; a Lucky
      Horseshoe that won a trick halves it); then the gang's debuffs, your armour and your cards' Iron Plates.
      Without a run (L) or a fight, hit and dmg are the plain scores. */
-  const FX = { backfire: 1, hollow: 15, plate: 15, ricochet: 10, bullseye: 40, deadman: 25, keg: 30, kegBurn: 15, vest: 5, bandolier: 5, snakebite: 5, gutshot: 10, scope: 0.25 };
+  const FX = { backfire: 1, setPay: 1, hollow: 15, plate: 15, ricochet: 10, bullseye: 40, deadman: 25, keg: 30, kegBurn: 15, vest: 5, bandolier: 5, snakebite: 5, gutshot: 10, scope: 0.25 };
   function fight(L, pts, lines, o) {
     const h = L.h, fx = h.fx || { hit: 0, block: 0, burn: 0 };
     if (L.mode === 'standard' || L.kind === 'contest' || L.kind === 'chase') return { hit: pts[0], dmg: 0, backfire: 0 };     // a plain game of 500, a prize contest: scores only
@@ -697,6 +697,13 @@
     // your cards' shots (Hollow Point and the rest) land on the trick that fires them, so a set can't take them
     // back: the gang's bar drops as the trick is won (2026-10-30)
     hit = Math.max(0, hit);
+    // the set pays (2026-11-05, ESCALATION.md: losing the bid left you nothing to fight with): hold their contract and
+    // its value comes back at them, at FX.setPay; a Thick Hide shrugs it off like a defending trick
+    if (L.foe && o.ct === 1 && !o.made && FX.setPay > 0 && o.value > 0) {
+      const x = Math.round(FX.setPay * o.value / 5) * 5;
+      if (foeHas(L, 'armour')) lines.push('Thick Hide: setting them doesn’t hurt them.');
+      else if (x) { hit += x; lines.push('You set them: their ' + o.value + ' comes back at them (+' + x + ').'); }
+    }
     if (fx.hit) { hit += fx.hit; lines.push('Your cards\u2019 shots this hand: +' + fx.hit + '.'); }
     if (hasBuff(L, 'holster') && L.handNo === 1 && L.foe && hit > 0) { lines.push('Quick Holster: the fight\u2019s first hand hits double (+' + hit + ').'); hit *= 2; }
     let dmg = damageOf(pts[1], L);

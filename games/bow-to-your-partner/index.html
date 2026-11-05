@@ -1729,24 +1729,24 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=48"></script>
-<script src="btp-ai.js?v=48"></script>
-<script src="btp-run.js?v=48"></script>
-<script src="btp-town.js?v=48"></script>
-<script src="art/dustwater/sprites.js?v=48"></script>
-<script src="btp-train.js?v=48"></script>
-<script src="art/train/sprites.js?v=48"></script>
-<script src="art/title/scene.js?v=48"></script>
-<script src="art/title/cameo.js?v=48"></script>
-<script src="art/title/crossing.js?v=48"></script>
-<script src="art/table/scene.js?v=48"></script>
-<script src="art/table/partners.js?v=48"></script>
-<script src="art/grave/scene.js?v=48"></script>
-<script src="art/paid/scene.js?v=48"></script>
-<script src="art/rooms/scene.js?v=48"></script>
-<script src="art/express/scene.js?v=48"></script>
-<script src="art/country/country.js?v=48"></script>
-<script src="art/fair/sprites.js?v=48"></script>
+<script src="btp-engine.js?v=49"></script>
+<script src="btp-ai.js?v=49"></script>
+<script src="btp-run.js?v=49"></script>
+<script src="btp-town.js?v=49"></script>
+<script src="art/dustwater/sprites.js?v=49"></script>
+<script src="btp-train.js?v=49"></script>
+<script src="art/train/sprites.js?v=49"></script>
+<script src="art/title/scene.js?v=49"></script>
+<script src="art/title/cameo.js?v=49"></script>
+<script src="art/title/crossing.js?v=49"></script>
+<script src="art/table/scene.js?v=49"></script>
+<script src="art/table/partners.js?v=49"></script>
+<script src="art/grave/scene.js?v=49"></script>
+<script src="art/paid/scene.js?v=49"></script>
+<script src="art/rooms/scene.js?v=49"></script>
+<script src="art/express/scene.js?v=49"></script>
+<script src="art/country/country.js?v=49"></script>
+<script src="art/fair/sprites.js?v=49"></script>
 <script>
 (function () {
   'use strict';
@@ -3137,7 +3137,7 @@ html.art .coach { border-radius: 0; }
   function levelInfoHTML(L) {
     const par = R.parOf(L), F = L.foe;
     const abil = F && F.traits.length ? '<p><b>Their abilit' + (F.traits.length > 1 ? 'ies' : 'y') + ':</b> ' + F.traits.map(t => esc(R.abilityOf(t).name) + ' — ' + esc(R.abilityOf(t).text)).join('; ') + '</p>' : '';
-    const how = '<p>Every point your team scores (a made contract, 10 a defending trick) hits them. Every point they score hits your health at ' + E.hitWord(L) + ', and a contract of yours that fails backfires: it hits you for its value at the same share. Nothing heals you until the fight is won.</p>';
+    const how = '<p>Every point your team scores (a made contract, 10 a defending trick) hits them, and so does a contract of theirs you set: its whole value. Every point they score hits your health at ' + E.hitWord(L) + ', and a contract of yours that fails backfires: it hits you for its value at the same share. Nothing heals you until the fight is won.</p>';
     if (L.kind === 'chase' && L.chase) { const c = L.chase, CH = R.CHASE;
       return '<h2>The Getaway</h2><p>' + esc(R.BOSS[c.boss].name) + ' are ' + c.gap + ' length' + (c.gap === 1 ? '' : 's') + ' ahead. Each stretch is one quick hand by Act I\u2019s rules: outscore them on it to gain, and they gain if you don\u2019t (a tie is theirs). Nothing hits your health.</p>' +
         '<p>Close the gap within ' + CH.stretches + ' stretches to catch them: their strongbox is ' + CH.bounty + ' gold. If they get ' + CH.away + ' lengths ahead, or the track runs out, they get away, and the Fair is still won.</p><div class="btns"><button class="btn" data-act="closesheet">Back</button></div>'; }
@@ -4108,7 +4108,7 @@ html.art .coach { border-radius: 0; }
       else html = '<h2>Their intent</h2><p class="big">' + E.SEATS[h.contractor] + ' bids ' + bidHTML(h.contract) + '</p>' +
         '<p>If they take <b>' + h.contract.t + '</b> of the ' + E.ACTS[E.actOf(L)].hand + ' tricks, you lose <b class="badc">' + h.intent.dmg + ' health</b> (' + E.hitWord(L) + ' of ' + h.contract.v + ')' +
         (h.intent.dmgSweep > h.intent.dmg ? ', or ' + h.intent.dmgSweep + ' if they take all ' + E.ACTS[E.actOf(L)].hand : '') + '.</p>' +
-        '<p>Hold them to ' + (h.contract.t - 1) + ' and the attack misses: they lose ' + h.contract.v + ', and your 10 a trick hits them. Their defending tricks still hit you.</p>' +
+        '<p>Hold them to ' + (h.contract.t - 1) + ' and the attack misses: they lose ' + h.contract.v + ', those ' + h.contract.v + ' hit them, and so does your 10 a trick. Their defending tricks still hit you.</p>' +
         '<div class="btns"><button class="btn" data-act="ackintent">Defend</button></div>';
     } else if (L.phase === 'summary') {
       const r = h.result;
@@ -4198,7 +4198,7 @@ html.art .coach { border-radius: 0; }
     '<li><b>Trumps:</b> the Joker is highest, then the <b>right bower</b> (the Jack of trumps), then the <b>left bower</b> (the other red Jack, which counts as a trump), then A, K, Q, 10, 9.</li>' +
     '<li><b>Play:</b> the winner of the auction takes the kitty, puts a card back and leads. Follow the suit led if you can; the highest trump wins, otherwise the highest card of the suit led. Equal cards: the first played wins.</li>' +
     '<li><b>Scoring:</b> make your bid and score it; fail and lose it. Defenders score 10 a trick. Take every trick and you score your suit’s top bid.</li>' +
-    '<li><b>You are a bounty hunter.</b> Every table is a wanted gang with health and a price on its head. Your team\u2019s points each hand (a made contract, 10 a defending trick) shoot it down. Hand follows hand until they are brought in, and the reward is yours.</li>' +
+    '<li><b>You are a bounty hunter.</b> Every table is a wanted gang with health and a price on its head. Your team\u2019s points each hand (a made contract, 10 a defending trick, and the whole value of any contract of theirs you set) shoot it down. Hand follows hand until they are brought in, and the reward is yours.</li>' +
     '<li><b>Health:</b> you start with 500, and that is the most you can have. Every point West and East score hits you, at 50% in Act I, 35% in Act II and 22% in Act III (Showdown gangs hit harder). A contract of yours that fails <b>backfires</b>: it hits you for its value at the same share. Nothing heals you during a fight; at 0 the run is over, Showdown or not.</li>' +
     '<li><b>Legendary cards:</b> a card you own takes up to two enhancements; with two it is Legendary. An enhancement is never replaced.</li>' +
     '<li><b>The gangs</b> grow tougher up the trail, and many carry an ability or a debuff on you: Rusty Guns, Gut Shot, Bushwhack and more. Tap their name on the plate to read it.</li>' +
