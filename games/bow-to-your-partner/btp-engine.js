@@ -686,7 +686,7 @@
      hitting you for its value at that share as if they had made it (Just a Flesh Wound spares you; a Lucky
      Horseshoe that won a trick halves it); then the gang's debuffs, your armour and your cards' Iron Plates.
      Without a run (L) or a fight, hit and dmg are the plain scores. */
-  const FX = { backfire: 1, setPay: 1, hollow: 15, plate: 15, ricochet: 10, bullseye: 40, deadman: 25, keg: 30, kegBurn: 15, vest: 5, bandolier: 5, snakebite: 5, gutshot: 10, scope: 0.25 };
+  const FX = { backfire: 1, setPay: 1, notch: 5, ambush: 25, grudge: 20, hollow: 15, plate: 15, ricochet: 10, bullseye: 40, deadman: 25, keg: 30, kegBurn: 15, vest: 5, bandolier: 5, snakebite: 5, gutshot: 10, scope: 0.25 };
   function fight(L, pts, lines, o) {
     const h = L.h, fx = h.fx || { hit: 0, block: 0, burn: 0 };
     if (L.mode === 'standard' || L.kind === 'contest' || L.kind === 'chase') return { hit: pts[0], dmg: 0, backfire: 0 };     // a plain game of 500, a prize contest: scores only
@@ -701,8 +701,19 @@
     // its value comes back at them, at FX.setPay; a Thick Hide shrugs it off like a defending trick
     if (L.foe && o.ct === 1 && !o.made && FX.setPay > 0 && o.value > 0) {
       const x = Math.round(FX.setPay * o.value / 5) * 5;
-      if (foeHas(L, 'armour')) lines.push('Thick Hide: setting them doesn’t hurt them.');
-      else if (x) { hit += x; lines.push('You set them: their ' + o.value + ' comes back at them (+' + x + ').'); }
+      if (foeHas(L, 'armour')) lines.push('Thick Hide: setting them doesn\u2019t hurt them.');
+      else if (x) {
+        hit += x; lines.push('You set them: their ' + o.value + ' comes back at them (+' + x + ').');
+        // a Spoiler that won a trick this hand: the set hits them again, once a Spoiler (2026-11-05)
+        if (h.spoil) { hit += x * h.spoil; lines.push('Spoiler' + (h.spoil > 1 ? 's' : '') + ': the set hits them again (+' + x * h.spoil + ').'); }
+        // a Grudge you held bears one more, all run, and each set pays FX.grudge a grudge
+        const held = (h.seeded || []).filter(c => L.mods && L.mods[c] && en({ m: L.mods[c] }, 'grudge'));
+        if (held.length) {
+          let g = 0;
+          held.forEach(c => { const m = L.mods[c]; m.grudge = (m.grudge || 0) + 1; g += FX.grudge * m.grudge; });
+          hit += g; lines.push('Grudge: ' + held.map(c => label(c) + ' bears ' + L.mods[c].grudge).join(', ') + ' (+' + g + ').');
+        }
+      }
     }
     if (fx.hit) { hit += fx.hit; lines.push('Your cards\u2019 shots this hand: +' + fx.hit + '.'); }
     if (hasBuff(L, 'holster') && L.handNo === 1 && L.foe && hit > 0) { lines.push('Quick Holster: the fight\u2019s first hand hits double (+' + hit + ').'); hit *= 2; }

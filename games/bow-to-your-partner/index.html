@@ -1350,6 +1350,8 @@ html.art .card .art { display: block; }
    frame: violet and gold, with a sheen that sweeps across it */
 .card .ebs { position: absolute; left: 2px; bottom: 2px; z-index: 3; display: flex; gap: 2px; }
 .card .ebs .eb { position: static; }
+.card .ebs .eb.cnt { position: relative; }
+.card .eb .ect { position: absolute; right: -7px; top: -8px; min-width: 11px; padding: 0 2px; box-sizing: border-box; border-radius: 6px; background: #2a1b16; color: #fff3cf; font: 700 9px/11px Bitter, Georgia, serif; text-align: center; }
 .card.legendary .ebs .eb { background: #e8c45a; box-shadow: 0 0 0 1px #4a2a6e; }
 .card.legendary { border-color: #4a2a6e; box-shadow: inset 0 0 0 2px #e8c45a, inset 0 0 0 4px #9a6ad0, 0 0 0 1px #c9a8f0, 0 2px 0 rgba(0,0,0,.22); }
 .card.legendary::after { content: ''; position: absolute; inset: 0; z-index: 2; border-radius: inherit; pointer-events: none;
@@ -1729,24 +1731,24 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=49"></script>
-<script src="btp-ai.js?v=49"></script>
-<script src="btp-run.js?v=49"></script>
-<script src="btp-town.js?v=49"></script>
-<script src="art/dustwater/sprites.js?v=49"></script>
-<script src="btp-train.js?v=49"></script>
-<script src="art/train/sprites.js?v=49"></script>
-<script src="art/title/scene.js?v=49"></script>
-<script src="art/title/cameo.js?v=49"></script>
-<script src="art/title/crossing.js?v=49"></script>
-<script src="art/table/scene.js?v=49"></script>
-<script src="art/table/partners.js?v=49"></script>
-<script src="art/grave/scene.js?v=49"></script>
-<script src="art/paid/scene.js?v=49"></script>
-<script src="art/rooms/scene.js?v=49"></script>
-<script src="art/express/scene.js?v=49"></script>
-<script src="art/country/country.js?v=49"></script>
-<script src="art/fair/sprites.js?v=49"></script>
+<script src="btp-engine.js?v=50"></script>
+<script src="btp-ai.js?v=50"></script>
+<script src="btp-run.js?v=50"></script>
+<script src="btp-town.js?v=50"></script>
+<script src="art/dustwater/sprites.js?v=50"></script>
+<script src="btp-train.js?v=50"></script>
+<script src="art/train/sprites.js?v=50"></script>
+<script src="art/title/scene.js?v=50"></script>
+<script src="art/title/cameo.js?v=50"></script>
+<script src="art/title/crossing.js?v=50"></script>
+<script src="art/table/scene.js?v=50"></script>
+<script src="art/table/partners.js?v=50"></script>
+<script src="art/grave/scene.js?v=50"></script>
+<script src="art/paid/scene.js?v=50"></script>
+<script src="art/rooms/scene.js?v=50"></script>
+<script src="art/express/scene.js?v=50"></script>
+<script src="art/country/country.js?v=50"></script>
+<script src="art/fair/sprites.js?v=50"></script>
 <script>
 (function () {
   'use strict';
@@ -1927,6 +1929,10 @@ html.art .coach { border-radius: 0; }
     e_keg: ['.....#.', '....#..', '.####..', '#.##.#.', '######.', '#.##.#.', '.####..'],
     e_deadman: ['.##.##.', '#..#..#', '#..#..#', '.##.##.', '#..#..#', '#..#..#', '.##.##.'],
     e_horseshoe: ['..###..', '.#...#.', '#.....#', '#.....#', '#.....#', '#.....#', '##...##'],
+    e_notched: ['#.#.#.#', '#.#.###', '#.#.#.#', '#.###.#', '#.#.#.#', '###.#.#', '#.#.#.#'],
+    e_ambush: ['..###..', '.#####.', '##.#.##', '#######', '.#####.', '..#.#..', '.##.##.'],
+    e_grudge: ['##.#.##', '#..#..#', '.......', '###.###', '.......', '#..#..#', '##.#.##'],
+    e_spoiler: ['.#####.', '##...##', '#.#.#.#', '#..#..#', '#.#.#.#', '##...##', '.#####.'],
     // hexes: on a red badge
     h_loose: ['.......', '..###..', '.#...#.', '#..#..#', '.#...#.', '..###..', '.......'],
     h_potato: ['...#...', '..##...', '..###..', '.##.#..', '.#..##.', '.#..#..', '..##...'],
@@ -1972,7 +1978,7 @@ html.art .coach { border-radius: 0; }
     const flag = o.flag || (enh ? (legend ? 'Legendary: ' : '') + ens.map(x => R.ENH[x].name).join(' and ') : c.includes('~') ? 'Forged' : '');
     const enName = !o.flag && !!enh;
     const layers = (hx ? '<span class="hx">' + esc(R.HEXES[hx].short) + '</span><i class="hb">' + px('h_' + hx, '#fff3cf') + '</i>' : '') +
-      (enh ? '<span class="ebs">' + ens.map(x => '<i class="eb">' + px('e_' + x, '#2a1b16') + '</i>').join('') + '</span>' : '') +
+      (enh ? '<span class="ebs">' + ens.map(x => { const n = k.m && (x === 'notched' ? k.m.notch : x === 'grudge' ? k.m.grudge : 0); return '<i class="eb' + (n ? ' cnt' : '') + '">' + px('e_' + x, '#2a1b16') + (n ? '<b class="ect">' + n + '</b>' : '') + '</i>'; }).join('') + '</span>' : '') +
       (ens.includes('glass') ? crackHTML((k.m && k.m.wins) || 0) : '') +
       (flag ? '<span class="flag' + (enName ? ' en' : '') + '">' + esc(flag) + '</span>' : '');
     if (c === 'JK') return '<button class="' + cls + '"' + attr + (o.dis ? ' disabled' : '') + ' aria-label="Joker">' + artHTML('JK') +

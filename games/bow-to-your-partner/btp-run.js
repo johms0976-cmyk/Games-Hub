@@ -600,13 +600,18 @@
     poster:   { name: 'Wanted Poster', text: 'A trick it wins counts twice toward the fight\u2019s bonus.', acts: [2, 3] },
     keg:      { name: 'Powder Keg', text: 'A trick it wins hits the gang for 30 more; a trick the gang takes from it burns you for 15.', acts: [3] },
     deadman:  { name: 'Dead Man\u2019s Hand', text: 'A trick it wins that holds an Ace or an 8 hits the gang for 25 more.', acts: [3] },
-    horseshoe: { name: 'Lucky Horseshoe', text: 'If it wins a trick in a hand your contract fails, the backfire is halved.', acts: [3] }
+    horseshoe: { name: 'Lucky Horseshoe', text: 'If it wins a trick in a hand your contract fails, the backfire is halved.', acts: [3] },
+    // four that grow over the run or pay off when they bid (2026-11-05, ESCALATION.md: the set pays, now build on it)
+    notched:  { name: 'Notched', text: 'Each trick it wins carves a notch that stays all run, then hits the gang for 5 a notch.', acts: [1, 2, 3] },
+    ambush:   { name: 'Ambush', text: 'When the gang holds the contract, a trick it wins hits them for 25.', acts: [1, 2, 3] },
+    grudge:   { name: 'Grudge', text: 'Each time you set them with it in your hand it bears one more grudge, all run; every set hits them 20 more a grudge.', acts: [1, 2, 3] },
+    spoiler:  { name: 'Spoiler', text: 'Win a trick with it in a hand you set them, and the set hits them twice.', acts: [2, 3] }
   };
   /* Legendary cards (the user's, 2026-10-29: "stack buffs into Legendary cards", and an enhancement on a card
      can't be overwritten). A card takes a second enhancement and becomes Legendary; a Legendary card is full.
      Pairs that cancel or repeat each other never share a card, and an Outcast (which never wins) only pairs with
      what works without winning. */
-  const LEGEND = { slots: 2, clash: [['reverse', 'sanctuary'], ['sworn', 'glass'], ['double', 'triple']], outcastOk: ['herald', 'ricochet', 'steady', 'magnet', 'twoface'] };
+  const LEGEND = { slots: 2, clash: [['reverse', 'sanctuary'], ['sworn', 'glass'], ['double', 'triple']], outcastOk: ['herald', 'ricochet', 'steady', 'magnet', 'twoface', 'grudge'] };
   function fits(L, card, id) {
     if (!L.owned.includes(card) || card === 'JK' || !ENH[id]) return false;
     const have = E.enhsOf(L.mods[card]);
@@ -1597,6 +1602,9 @@
       if (E.en(wk, 'keg')) shot(X.keg, lb + ' is a Powder Keg: +' + X.keg + ' to the gang.');
       if (E.en(wk, 'bullseye') && trick.no === E.ACTS[E.actOf(L)].hand) shot(X.bullseye, 'Bullseye! ' + lb + ' took the last trick: +' + X.bullseye + ' to the gang.');
       if (E.en(wk, 'deadman') && trick.cards.some(c => c && c !== 'JK' && ['A', '8'].includes(E.rankOf(c)))) shot(X.deadman, lb + ' holds a Dead Man\u2019s Hand: +' + X.deadman + ' to the gang.');
+      if (E.en(wk, 'notched')) { wk.m.notch = (wk.m.notch || 0) + 1; shot(X.notch * wk.m.notch, lb + ' carves notch ' + wk.m.notch + ': +' + X.notch * wk.m.notch + ' to the gang.'); }
+      if (E.en(wk, 'ambush') && h.contract && E.team(h.contractor) === 1) shot(X.ambush, lb + ' springs an Ambush on their contract: +' + X.ambush + ' to the gang.');
+      if (E.en(wk, 'spoiler') && h.contract && E.team(h.contractor) === 1) h.spoil = (h.spoil || 0) + 1;
       if (E.en(wk, 'plate')) { h.fx.block += X.plate; E.say(L, lb + ' is an Iron Plate: ' + X.plate + ' of this hand\u2019s damage will be blocked.', 'rule'); }
       if (E.en(wk, 'horseshoe')) h.shoe = true;
     }
