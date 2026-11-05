@@ -1828,6 +1828,12 @@
         pay.push({ t: 'Their loot: ' + BUFFS[lt].name, buff: lt });
         E.say(L, 'Their loot is yours: ' + BUFFS[lt].name + '. ' + BUFFS[lt].text, 'objective');
       }
+      // and a deeper pocket (2026-11-05): one more of your enhanced cards dealt to you every hand from here on
+      if (L.act < LAST_ACT && L.mode !== 'standard' && (L.pockets || 0) < POCKETS.most) {
+        L.pockets = (L.pockets || 0) + 1;
+        pay.push({ t: 'A deeper pocket: one more enhanced card dealt to you', pocket: true });
+        E.say(L, 'A deeper pocket: from now on one more of your enhanced cards is dealt to you each hand.', 'objective');
+      }
       if (L.bossHex && L.bossHex.boss !== L.boss) {     // a hex from a lost Showdown (saved runs from before the redesign)
         if (L.hexes && L.hexes[L.bossHex.card] === L.bossHex.kind) delete L.hexes[L.bossHex.card];
         L.bossHex = null;
@@ -2198,11 +2204,16 @@
                { type: 'posting', id: 'posting', price: priced(L, SHOP.posting), name: 'Deputise', text: 'A deputy\u2019s badge: your next fight pays double bounty. A bet on bringing them in with two stars or more.' }])
       .concat(L.act === 3 && !L.gunhand ? [{ type: 'gunhand', id: 'gunhand', price: priced(L, FAIR_GOODS.gunhand), name: 'Hire a gunhand', text: 'He rides with you to the Showdown: the boss starts a quarter down.' }] : [])
       .concat(L.act === 3 && !L.fastCar ? [{ type: 'handcar', id: 'handcar', price: priced(L, FAIR_GOODS.handcar), name: 'A faster handcar', text: 'If the boss bolts after the Showdown, your first lost stretch of the chase costs no ground.' }] : [])
+      .concat((L.pockets || 0) < POCKETS.most ? [{ type: 'pocket', id: 'pocket', price: priced(L, POCKETS.price + POCKETS.step * (L.pocketsBought || 0)), name: 'Deeper pockets',
+               text: 'One more of your enhanced cards is dealt to you every hand, for the rest of the story.' }] : [])
       .concat([{ type: 'restock', id: 'restock', price: restockPrice(L), name: 'Ask what\u2019s out back', text: 'A new set of goods on the shelves. Costs more each time you ask.' }]);
   }
   /* The posting is a bet (a Card table pays 10 / 25 / 40 by stars: two stars breaks even, three wins); a restock
      costs 15 more each time in one visit, so the store can't be rerolled for free. */
   const SHOP = { marked: 45, posting: 25, restock: 15 };
+  /* Deeper pockets (2026-11-05): a Showdown beaten gives one, a store sells them (dearer each time); three at most,
+     and the act caps how many work (E.POCKET.max: 2 / 4 / 6 of your cards in a hand of 3 / 6 / 10). */
+  const POCKETS = { most: 3, price: 175, step: 75 };
   const restockPrice = L => priced(L, SHOP.restock * (1 + (L.restocks || 0)));
   const releasePrice = L => priced(L, 50 + 25 * L.releases);
   function buy(L, i) {
@@ -2227,6 +2238,7 @@
     if (it.type === 'posting') { L.nextFight = Object.assign(L.nextFight || {}, { double: true }); note(L, 'Deputised: your next fight pays double.'); }
     if (it.type === 'restock') { L.restocks = (L.restocks || 0) + 1; stock(L); note(L, 'The storekeeper brings out new goods.'); }
     if (it.type === 'gunhand') { L.gunhand = true; note(L, 'A gunhand rides with you: the Showdown\u2019s boss will start a quarter down.'); }
+    if (it.type === 'pocket') { L.pockets = (L.pockets || 0) + 1; L.pocketsBought = (L.pocketsBought || 0) + 1; note(L, 'Deeper pockets: one more of your enhanced cards is dealt to you every hand' + (E.pocketsIn(L) < L.pockets ? ' (from the next act: this one\u2019s hand is full)' : '') + '.'); }
     if (it.type === 'handcar') { L.fastCar = true; note(L, 'A faster handcar waits by the line, in case the boss bolts.'); }
     return yes();
   }
@@ -2436,7 +2448,7 @@
     if (O && O.kind === 'limit') return 'holding';
     return o.n + ' / ' + o.of;
   }
-  const api = { HOT, hotStage, hotMult, stoke, BOND, bondOf, GILD, gildStep, LUCK, lucky, jokerOdds, luckyJoker, INSULTS, insult, QUIPS, quipFor, dealt, SILENT_BACKS, poss, eventText, LAST_STAND, STRANGER, DUEL_RULES, DARES, DARE_LIE, HEAT, heatOdds, MYSTERY, GHOST, ghostFoe, DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
+  const api = { HOT, hotStage, hotMult, stoke, BOND, bondOf, GILD, gildStep, LUCK, lucky, jokerOdds, luckyJoker, INSULTS, insult, QUIPS, quipFor, dealt, SILENT_BACKS, POCKETS, poss, eventText, LAST_STAND, STRANGER, DUEL_RULES, DARES, DARE_LIE, HEAT, heatOdds, MYSTERY, GHOST, ghostFoe, DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
     TAUNTS, taunt, cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, MANNERS, WANTED, wantedFor, wants, dailySeed, dailyTwist, FAIR_GOODS, setQuick, floorsFor, CHASE, chaseRide, CONTEST, RIBBON, ribbonOf, EXPRESS, SIDE, genThreeTrains, DRIVER, COUNTER, makeDriver, ROSTER, partnerOpen, voice, STANDARD, standardFoe, newStandard,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;

@@ -389,6 +389,10 @@
     const owned = (L.owned || []).filter(c => pool.includes(c));
     const seeds = foeHas(L, 'marked') ? 0 : A.seeds + (hasBuff(L, 'holdout') ? 1 : 0);
     const seeded = shuffle(L, owned.slice()).slice(0, seeds);
+    // deeper pockets (2026-11-05, ESCALATION.md: owned cards were only ever 30% of a hand): each pocket is one more
+    // slot, for an enhanced card only (plain owned cards in more slots measured worse than the deal), up to POCKET.max
+    const extra = foeHas(L, 'marked') ? 0 : Math.max(0, Math.min(L.pockets || 0, POCKET.max[actOf(L)] - seeds));
+    if (extra) seeded.push(...shuffle(L, owned.filter(c => !seeded.includes(c) && enhsOf(L.mods && L.mods[c]).length)).slice(0, extra));
     hands[0].push(...seeded);
     const rest = shuffle(L, pool.filter(c => !seeded.includes(c)));
     let k = 0;
@@ -686,6 +690,9 @@
      hitting you for its value at that share as if they had made it (Just a Flesh Wound spares you; a Lucky
      Horseshoe that won a trick halves it); then the gang's debuffs, your armour and your cards' Iron Plates.
      Without a run (L) or a fight, hit and dmg are the plain scores. */
+  /* Deeper pockets: the most of your own cards a hand can hold, by act, counting the act's own seed slots */
+  const POCKET = { max: { 1: 2, 2: 4, 3: 6 } };
+  const pocketsIn = L => { const A = ACTS[actOf(L)], base = A.seeds + (hasBuff(L, 'holdout') ? 1 : 0); return Math.max(0, Math.min(L.pockets || 0, POCKET.max[actOf(L)] - base)); };
   const FX = { backfire: 1, setPay: 1, notch: 5, ambush: 25, grudge: 20, hollow: 15, plate: 15, ricochet: 10, bullseye: 40, deadman: 25, keg: 30, kegBurn: 15, vest: 5, bandolier: 5, snakebite: 5, gutshot: 10, scope: 0.25 };
   function fight(L, pts, lines, o) {
     const h = L.h, fx = h.fx || { hit: 0, block: 0, burn: 0 };
@@ -765,7 +772,7 @@
     K, plainK, kSuit, kRank, kTrumpRank, kIsTrump, kBeats, kLabel,
     effSuit, trumpRank, isTrump, canPlay, winnerOf, beats, explain,
     bidValue, bidList, sweepValue, bidText, damageOf, HIT, hitShare, hitWord, rankOfBid, mustBid, WALL, extraTricks, extraBids, counted, resolveTwo,
-    en, enhsOf, foeHas, hasBuff, FX, fight, callWords,
+    en, enhsOf, foeHas, hasBuff, FX, fight, callWords, POCKET, pocketsIn,
     say, deal, sort, legalBids, bid, discard, afterKitty, ack, ledSuit, legalPlays, play, score
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

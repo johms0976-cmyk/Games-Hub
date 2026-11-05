@@ -1350,6 +1350,7 @@ html.art .card .art { display: block; }
    frame: violet and gold, with a sheen that sweeps across it */
 .card .ebs { position: absolute; left: 2px; bottom: 2px; z-index: 3; display: flex; gap: 2px; }
 .card .ebs .eb { position: static; }
+.mine + .slots { margin: 6px 0 2px; font-size: 13px; color: var(--muted, #6a5040); }
 .card .ebs .eb.cnt { position: relative; }
 .card .eb .ect { position: absolute; right: -7px; top: -8px; min-width: 11px; padding: 0 2px; box-sizing: border-box; border-radius: 6px; background: #2a1b16; color: #fff3cf; font: 700 9px/11px Bitter, Georgia, serif; text-align: center; }
 .card.legendary .ebs .eb { background: #e8c45a; box-shadow: 0 0 0 1px #4a2a6e; }
@@ -1731,24 +1732,24 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=50"></script>
-<script src="btp-ai.js?v=50"></script>
-<script src="btp-run.js?v=50"></script>
-<script src="btp-town.js?v=50"></script>
-<script src="art/dustwater/sprites.js?v=50"></script>
-<script src="btp-train.js?v=50"></script>
-<script src="art/train/sprites.js?v=50"></script>
-<script src="art/title/scene.js?v=50"></script>
-<script src="art/title/cameo.js?v=50"></script>
-<script src="art/title/crossing.js?v=50"></script>
-<script src="art/table/scene.js?v=50"></script>
-<script src="art/table/partners.js?v=50"></script>
-<script src="art/grave/scene.js?v=50"></script>
-<script src="art/paid/scene.js?v=50"></script>
-<script src="art/rooms/scene.js?v=50"></script>
-<script src="art/express/scene.js?v=50"></script>
-<script src="art/country/country.js?v=50"></script>
-<script src="art/fair/sprites.js?v=50"></script>
+<script src="btp-engine.js?v=51"></script>
+<script src="btp-ai.js?v=51"></script>
+<script src="btp-run.js?v=51"></script>
+<script src="btp-town.js?v=51"></script>
+<script src="art/dustwater/sprites.js?v=51"></script>
+<script src="btp-train.js?v=51"></script>
+<script src="art/train/sprites.js?v=51"></script>
+<script src="art/title/scene.js?v=51"></script>
+<script src="art/title/cameo.js?v=51"></script>
+<script src="art/title/crossing.js?v=51"></script>
+<script src="art/table/scene.js?v=51"></script>
+<script src="art/table/partners.js?v=51"></script>
+<script src="art/grave/scene.js?v=51"></script>
+<script src="art/paid/scene.js?v=51"></script>
+<script src="art/rooms/scene.js?v=51"></script>
+<script src="art/express/scene.js?v=51"></script>
+<script src="art/country/country.js?v=51"></script>
+<script src="art/fair/sprites.js?v=51"></script>
 <script>
 (function () {
   'use strict';
@@ -1999,7 +2000,10 @@ html.art .coach { border-radius: 0; }
   function coachHTML(tip) { return tip ? '<div class="face' + (P.L && partnerFace(P.L.partner) ? ' svg">' + partnerFace(P.L.partner) : '">') + '</div><p>' + esc(tip.text) + '</p><button data-tip="' + tip.id + '">Got it</button>' : ''; }
   function mineHTML() {
     const L = P.L;
+    const base = E.ACTS[E.actOf(L)].seeds + (E.hasBuff(L, 'holdout') ? 1 : 0), more = E.pocketsIn(L), idle = (L.pockets || 0) - more;
     return '<div class="mine">' + L.owned.map(c => cardHTML(c, { owned: true, small: true })).join('') + '</div>' +
+      '<p class="slots">' + base + ' of your cards dealt to you each hand' + (more ? ', plus ' + more + ' more if enhanced (deeper pocket' + (more > 1 ? 's' : '') + ')' : '') +
+      (idle > 0 ? '. ' + idle + ' pocket' + (idle > 1 ? 's wait' : ' waits') + ' for a bigger hand in the next act' : '') + '.</p>' +
       '<div class="chips">' + L.buffs.map(b => '<span class="chip" title="' + esc(R.BUFFS[b].text) + '">' + esc(R.BUFFS[b].name) + '</span>').join('') + '</div>' +
       (R.hexed(L).length ? '<div class="chips">' + R.hexed(L).map(c => '<span class="chip hexchip" title="' + esc(R.HEXES[L.hexes[c]].text) + '">' + esc(E.label(c) + ': ' + R.HEXES[L.hexes[c]].name + (L.owned.includes(c) ? ' (yours)' : '')) + '</span>').join('') + '</div>' : '');
   }
@@ -3334,11 +3338,11 @@ html.art .coach { border-radius: 0; }
     rows.forEach((row, y) => { for (let x = 0; x < W; x++) if (row[x] !== '.') r += '<rect x="' + x + '" y="' + y + '" width="1.02" height="1.02" fill="' + SPAL[row[x]] + '"/>'; });
     return '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W * k + '" height="' + H * k + '" shape-rendering="crispEdges" aria-hidden="true">' + r + '</svg>';
   }
-  const GOOD_SPR = { enh: 'tin', buff: 'star', tonic: 'bottle', cleanse: 'doc', marked: 'deck', posting: 'poster', restock: 'crate', release: 'rope', gunhand: 'poster', handcar: 'crate' };
+  const GOOD_SPR = { enh: 'tin', buff: 'star', tonic: 'bottle', cleanse: 'doc', marked: 'deck', posting: 'poster', restock: 'crate', release: 'rope', gunhand: 'poster', handcar: 'crate', pocket: 'deck' };
   /* The goods' pictures (bakery/goods_px.py -> art/goods, 2026-11-01: "the items don't look like what they're meant
      to"): one per buff (the Canteen is a canteen), the enhancement's tin with that enhancement's own badge on its
      label, the deputy's badge for the sheriff's posting. The little sprites above stand in without the art. */
-  const GOOD_ART = { enh: 'tin', tonic: 'tonic', cleanse: 'doc', marked: 'marked', posting: 'badge', restock: 'crate', release: 'lasso', gunhand: 'gunhand', handcar: 'handcar' };
+  const GOOD_ART = { enh: 'tin', tonic: 'tonic', cleanse: 'doc', marked: 'marked', posting: 'badge', restock: 'crate', release: 'lasso', gunhand: 'gunhand', handcar: 'handcar', pocket: 'buff_holdout' };
   const goodArt = x => x.type === 'buff' ? 'buff_' + x.id : GOOD_ART[x.type];
   function goodPic(x, k) {
     return '<span class="gart"><img src="' + artURL('goods/' + goodArt(x) + '.webp') + '" alt="">' + (x.type === 'enh' ? '<i class="tinbadge">' + px('e_' + x.id, '#2a1b16') + '</i>' : '') + '</span>' +
@@ -3360,7 +3364,8 @@ html.art .coach { border-radius: 0; }
     cleanse: () => 'The Doc left his bag. He\u2019ll lift a hex off any card.', marked: () => 'Fell off a riverboat. I never saw it, you never bought it.',
     posting: () => 'A deputy\u2019s badge. Sheriff sells \u2019em to pay for his roof. Double bounty on the next lot you bring in.', restock: () => 'Out back? I might have a crate or two. Cost you, though.',
     release: () => 'A card you\u2019re tired of? I\u2019ll take it off your hands, for a fee.',
-    gunhand: () => 'Fella out back hires his gun by the night. Points it where you point.', handcar: () => 'Greased the axles myself. If anybody bolts down the line, you\u2019ll be right behind.'
+    gunhand: () => 'Fella out back hires his gun by the night. Points it where you point.', handcar: () => 'Greased the axles myself. If anybody bolts down the line, you\u2019ll be right behind.',
+    pocket: () => 'Sewn deep by my wife. One more of your best cards, every hand. She asks no questions.'
   };
   /* What the storekeeper says once you've bought it (the user's, 2026-11-03: a witty word when you buy the law). */
   const BOUGHT = {
@@ -3376,7 +3381,8 @@ html.art .coach { border-radius: 0; }
     restock: ['Fresh out the crate. Mind the scorpion, he\u2019s not for sale.'],
     release: ['I\u2019ll give it a good home. In the stove.'],
     gunhand: ['He charges extra to aim.', 'He\u2019s very loyal. To whoever paid last. That\u2019s you. For now.'],
-    handcar: ['Brakes are extra. Kidding. There aren\u2019t any brakes.']
+    handcar: ['Brakes are extra. Kidding. There aren\u2019t any brakes.'],
+    pocket: ['Mind the lining. It holds more than it looks.', 'Deep enough for an Ace and a spare conscience.']
   };
   // which of your cards (or, for the Doc, which hexed cards) a good can go on; the reason a card can't
   function bagFor(L, need, id) {
@@ -4175,8 +4181,8 @@ html.art .coach { border-radius: 0; }
   /* The fight's payout, line by line, adding up to the gold it paid; the total counts up as the lines come in. */
   function payoutHTML(r, now) {
     const pay = r.pay || [{ t: r.kind === 'bank' ? 'Gold' : 'Bounty paid', g: r.gold }];
-    return '<ul class="payout" data-act="paydone" aria-label="The payout">' + pay.map((x, i) => '<li style="--i:' + i + '" class="' + (x.h ? 'hp' : x.g < 0 ? 'minus' : '') + '"><span>' + (x.buff && R.BUFFS[x.buff] && !R.BUFFS[x.buff].secret ? '<img class="pitem" src="' + artURL('goods/buff_' + x.buff + '.webp') + '" alt="">' : '') + esc(x.t) + (x.star ? ' <span class="st">★</span>' : '') + '</span><b>' +
-      (x.h ? '+' + x.h + ' health' : x.buff ? 'yours' : x.g === 0 ? '—' : (x.g < 0 ? '−' + -x.g : '+' + x.g) + 'g') + '</b></li>').join('') +
+    return '<ul class="payout" data-act="paydone" aria-label="The payout">' + pay.map((x, i) => '<li style="--i:' + i + '" class="' + (x.h ? 'hp' : x.g < 0 ? 'minus' : '') + '"><span>' + (x.buff && R.BUFFS[x.buff] && !R.BUFFS[x.buff].secret ? '<img class="pitem" src="' + artURL('goods/buff_' + x.buff + '.webp') + '" alt="">' : x.pocket ? '<img class="pitem" src="' + artURL('goods/buff_holdout.webp') + '" alt="">' : '') + esc(x.t) + (x.star ? ' <span class="st">★</span>' : '') + '</span><b>' +
+      (x.h ? '+' + x.h + ' health' : x.buff ? 'yours' : x.pocket ? '+1 slot' : x.g === 0 ? '—' : (x.g < 0 ? '−' + -x.g : '+' + x.g) + 'g') + '</b></li>').join('') +
       '<li class="tot" style="--i:' + pay.length + '"><span>' + (r.gold < 0 ? 'Lost' : 'Total') + ' <small>(you have ' + now + ')</small></span><b data-to="' + r.gold + '">' + (r.gold < 0 ? '−' : '+') + Math.abs(r.gold) + 'g</b></li></ul>';
   }
   // the total ticks up while the lines come in; a tap on the list (paydone) shows the end at once
