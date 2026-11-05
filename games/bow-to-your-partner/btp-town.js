@@ -1,6 +1,6 @@
 /* Euchre-ka!, Act I's map (Dustwater until 2026-11-04), laid out as a town (layout D, 2026-10-27): one long Main
    Street up the map, buildings turned 45 degrees toward the street on both sides, people in the street. A gold
-   town: they struck it rich up the hill behind the Saloon, and the Twins run the place for the big boss.
+   town: they struck it rich up the hill behind the Saloon, and somebody has put a bounty on the Twins.
    2026-11-04 (the user's: the map "still in that size and matches that art style" as the title): drawn at the title's
    own scale (0.30 m an art pixel, as the title's train) and shown at its pixel size (3 screen px an art pixel), so
    the street is 120 art pixels wide (36 m) to fit a phone: the lots pulled in, the buildings at TOWN_K. The page draws the stops from this

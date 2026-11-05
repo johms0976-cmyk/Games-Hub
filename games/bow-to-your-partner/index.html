@@ -696,37 +696,56 @@ body.signzoom .hero { transform-origin: 0 0; transition: transform 1s cubic-bezi
 @keyframes boardin { from { transform: translateY(-80px) rotate(-8deg); opacity: 0; } }
 #actcard .nanline { background: #fffaf0; color: #3a2a20; border-radius: 10px; padding: 10px 14px; max-width: 320px; box-shadow: 0 2px 0 rgba(58,42,32,.3);
   font-size: 15px; animation: boardin .55s .35s both; }
-/* Sheriff Crane has his say (2026-11-04, the story): on parchment, his star where a partner's face would be */
-.crane { background: #f3e3c0 !important; border-color: #7a5a20 !important; }
-.crane svg path { fill: #e8b840; stroke: #6b4a10; }
-#bounty .nanline.crane { display: flex; gap: 8px; align-items: flex-start; animation-delay: 1.6s; }
-#bounty .nanline.crane > svg { width: 26px; height: 26px; flex: none; }
-#bounty .nanline.crane + .nanline { animation-delay: 2.1s; }
-#bounty .nanline.crane ~ .btn { animation-delay: 2.3s; }
 #paid .ledger .lnote { width: fit-content; margin: 6px 0 0 auto; padding: 1px 4px; background: #fbf5e4; font: italic 600 11px/1.25 Georgia, serif; color: #6b2a1a; text-align: right; }
-/* The twist (2026-11-04): the story won, the Sheriff's last poster is yours. His desk, your face, his star stamped
-   WANTED on it, what he says and what your partner says back. Full length once (profile.twists), at once after. */
-#actcard.twist { justify-content: flex-start; gap: 10px; padding: 18px 16px 20px; overflow-y: auto; background: radial-gradient(circle at 50% 28%, #4a2e1c, #1e120a 78%); }
-#actcard.twist .tdesk { position: absolute; left: 0; right: 0; bottom: 0; height: 44%; opacity: .5; pointer-events: none; }
-#actcard.twist .tdesk img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; image-rendering: pixelated; }
-#actcard.twist .tposter { flex: none; width: min(180px, 48vw, 25vh); padding: 8px 10px 12px; transform: rotate(-3deg); animation: tdrop .7s cubic-bezier(.3, 1.4, .5, 1) both; }
-#actcard.twist .tposter .w { font-size: 24px; letter-spacing: .04em; } #actcard.twist .tposter .d { font-size: 9px; } #actcard.twist .tposter img { margin: 5px 0; }
-#actcard.twist .tposter .n { font-size: 16px; } #actcard.twist .tposter .rw { font-size: 11px; margin-top: 3px; }
+/* The Euchre-ka! Gazette (2026-11-05, the Family Reunion): after Act I's Showdown a cub reporter asks what you'll do
+   now; every answer is the County Fair and the paper prints it (playGazette). */
 @keyframes tdrop { from { transform: translateY(-40px) rotate(-9deg); opacity: 0; } }
-#actcard.twist .pstamp { position: absolute; left: 70%; top: 76%; width: 70%; aspect-ratio: 1; transform: translate(-50%, -50%) rotate(-14deg) scale(1.7); opacity: 0; pointer-events: none; filter: drop-shadow(0 0 1px rgba(90,10,6,.5)); }
-#actcard.twist.stamped .pstamp { opacity: .94; transform: translate(-50%, -50%) rotate(-14deg) scale(1); transition: transform .14s ease-in, opacity .1s; }
-#actcard.twist .twords { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; opacity: 0; pointer-events: none; transition: opacity .5s; }
-#actcard.twist.said .twords { opacity: 1; pointer-events: auto; }
-#actcard.twist .board { padding: 8px 20px 10px; } #actcard.twist .board b { font-size: 26px; }
-#actcard.twist .say { display: flex; gap: 10px; align-items: flex-start; max-width: 360px; background: #fffaf0; color: #3a2a20; border: 3px solid #2a1b16; border-radius: 12px; padding: 8px 12px; }
-#actcard.twist .say .face { width: 40px; height: 48px; flex: none; }
-#actcard.twist .say p { margin: 0; font-size: 15px; line-height: 1.35; }
-#actcard.twist .tbc { font: italic 600 14px/1.2 Georgia, serif; color: #e8c88a; letter-spacing: .12em; }
-#actcard.depart .say.crane .face { width: 40px; height: 40px; }
-#actcard.twist .tposter .rw { letter-spacing: .04em; }
-@media (max-height: 720px) { #actcard.twist { gap: 8px; padding-top: 12px; } #actcard.twist .twords { gap: 8px; } #actcard.twist .board span { display: none; }
-  #actcard.twist .tposter { width: min(180px, 48vw, 22vh); } #actcard.twist .say p { font-size: 14px; } }
-@media (prefers-reduced-motion: reduce) { #actcard.twist .tposter { animation: none; } #actcard.twist .twords { transition: none; } }
+#actcard.gazette, #actcard.reunion { justify-content: flex-start; gap: 12px; padding: 18px 16px 20px; overflow-y: auto; }
+#actcard.gazette { background: radial-gradient(circle at 50% 30%, #6a4a30, #2a1a10 80%); }
+#actcard.gazette .gpaper { flex: none; width: min(360px, 100%); box-sizing: border-box; padding: 10px 14px 8px; background: #f1e6cc; color: #2a1b16; border: 1px solid #b8a27a;
+  box-shadow: 0 6px 0 rgba(0,0,0,.35); transform: rotate(-1.5deg); font-family: Georgia, serif; animation: tdrop .6s cubic-bezier(.3, 1.4, .5, 1) both; }
+#actcard.gazette .gmast { text-align: center; font: 900 21px/1.1 Georgia, serif; border-bottom: 3px double #2a1b16; padding-bottom: 4px; }
+#actcard.gazette .gdate { display: flex; justify-content: space-between; font: 600 10px/1.2 Georgia, serif; letter-spacing: .1em; text-transform: uppercase; border-bottom: 1px solid #2a1b16; padding: 3px 0; margin-bottom: 8px; }
+#actcard.gazette .gstory { display: flex; gap: 10px; align-items: flex-start; }
+#actcard.gazette .gstory img { width: 64px; flex: none; image-rendering: pixelated; filter: grayscale(1) contrast(1.15) sepia(.3); border: 2px solid #2a1b16; }
+#actcard.gazette .ghead { display: block; font: 900 24px/1.05 Georgia, serif; text-transform: uppercase; }
+#actcard.gazette .gsub { margin: 4px 0 0; font-size: 13px; line-height: 1.3; }
+#actcard.gazette .gby { margin: 8px 0 0; text-align: right; font: italic 12px/1.2 Georgia, serif; color: #5a4030; }
+#actcard.gazette.printed .gpaper { animation: gprint .5s ease-out; }
+@keyframes gprint { from { transform: rotate(-1.5deg) scale(1.06); filter: brightness(1.4); } }
+#actcard.gazette .gwords { display: flex; flex-direction: column; align-items: center; gap: 10px; width: min(360px, 100%); }
+#actcard.gazette .gopts { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+#actcard.gazette .gopt { min-height: 44px; padding: 8px 12px; text-align: left; background: #f3e3c0; color: #3a2a20; border: 3px solid #4a2626; border-radius: 10px;
+  font: 600 15px/1.3 Bitter, Georgia, serif; box-shadow: 0 3px 0 rgba(42,27,22,.35); cursor: pointer; }
+#actcard.gazette .say, #actcard.reunion .say { display: flex; gap: 10px; align-items: flex-start; max-width: 360px; box-sizing: border-box; background: #fffaf0; color: #3a2a20; border: 3px solid #2a1b16;
+  border-radius: 12px; padding: 8px 12px; flex: none; }
+#actcard.gazette .say p, #actcard.reunion .say p { margin: 0; font-size: 15px; line-height: 1.35; }
+#actcard .say .face.fig { width: 44px; height: 48px; flex: none; overflow: hidden; border-radius: 8px; background: #e8d8b0; border: 2px solid #2a1b16; box-sizing: border-box; }
+#actcard .say .face.fig img { display: block; width: 100%; image-rendering: pixelated; }
+/* The Family Reunion (2026-11-05): the story won, Grandma Hollis explains, the family photo is one short, and you step
+   into it (playReunion). Beats b1-b4 one at a time the first time (profile.reunions), all at once after. */
+#actcard.reunion { background: radial-gradient(circle at 50% 22%, #4a3658, #1c1424 80%); }
+#actcard.reunion .board { padding: 8px 20px 10px; flex: none; } #actcard.reunion .board b { font-size: min(26px, 6.4vw); white-space: nowrap; }
+#actcard.reunion .rphoto { --fw: min(64px, 15vw); position: relative; flex: none; padding: 12px 10px 8px; background: linear-gradient(#3e3658, #7a4e6a); border: 3px solid #2a1b16;
+  border-radius: 4px; box-shadow: 0 6px 0 rgba(0,0,0,.35); overflow: hidden; }
+#actcard.reunion .rrow { display: flex; justify-content: center; }
+#actcard.reunion .rrow img { width: var(--fw); height: calc(var(--fw) * 1.4); margin: 0 calc(var(--fw) * -.17); image-rendering: pixelated; transition: width .6s, margin .6s, opacity .6s; }
+#actcard.reunion .rrow.back { margin-bottom: calc(var(--fw) * -.85); filter: brightness(.82); }
+#actcard.reunion .rrow.front { position: relative; }
+#actcard.reunion .rrow img.you { width: 0; margin: 0; opacity: 0; }
+#actcard.reunion.b2 .rrow img.you { width: var(--fw); margin: 0 calc(var(--fw) * -.17); opacity: 1; }
+#actcard.reunion .rcap { margin: 6px -10px -8px; padding: 4px 0; background: #f6efe0; text-align: center; font: italic 600 12px/1.2 Georgia, serif; color: #3a2a20; letter-spacing: .06em; display: none; }
+#actcard.reunion.b4 .rphoto { background: linear-gradient(#a8865a, #7a5a3a); border: 7px solid #f6efe0; outline: 3px solid #2a1b16; filter: sepia(.5) contrast(1.2) saturate(1.15); }
+#actcard.reunion.b4 .rcap { display: block; }
+#actcard.reunion .rflash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+#actcard.reunion.b4 .rflash { animation: rflash .8s ease-out; }
+@keyframes rflash { from { opacity: .95; } to { opacity: 0; } }
+#actcard.reunion .say { display: none; animation: boardin .45s both; }
+#actcard.reunion.b1 .r1, #actcard.reunion.b2 .r2, #actcard.reunion.b3 .r3 { display: flex; }
+#actcard.reunion .btn.r4 { display: none; flex: none; } #actcard.reunion.b4 .btn.r4 { display: inline-block; }
+@media (max-height: 720px) { #actcard.gazette, #actcard.reunion { gap: 8px; padding-top: 10px; } #actcard.reunion .board span { display: none; }
+  #actcard.gazette .say p, #actcard.reunion .say p { font-size: 14px; } }
+@media (prefers-reduced-motion: reduce) { #actcard.gazette .gpaper, #actcard.reunion .say { animation: none; } #actcard.reunion .rrow img { transition: none; } #actcard.reunion.b4 .rflash { animation: none; } }
 #skipOpening { position: fixed; top: 10px; right: 10px; z-index: 80; display: none; }
 body.opening #skipOpening { display: block; }
 /* frame 6: the act-start pick is cards dealt onto green baize */
@@ -1710,24 +1729,24 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=46"></script>
-<script src="btp-ai.js?v=46"></script>
-<script src="btp-run.js?v=46"></script>
-<script src="btp-town.js?v=46"></script>
-<script src="art/dustwater/sprites.js?v=46"></script>
-<script src="btp-train.js?v=46"></script>
-<script src="art/train/sprites.js?v=46"></script>
-<script src="art/title/scene.js?v=46"></script>
-<script src="art/title/cameo.js?v=46"></script>
-<script src="art/title/crossing.js?v=46"></script>
-<script src="art/table/scene.js?v=46"></script>
-<script src="art/table/partners.js?v=46"></script>
-<script src="art/grave/scene.js?v=46"></script>
-<script src="art/paid/scene.js?v=46"></script>
-<script src="art/rooms/scene.js?v=46"></script>
-<script src="art/express/scene.js?v=46"></script>
-<script src="art/country/country.js?v=46"></script>
-<script src="art/fair/sprites.js?v=46"></script>
+<script src="btp-engine.js?v=47"></script>
+<script src="btp-ai.js?v=47"></script>
+<script src="btp-run.js?v=47"></script>
+<script src="btp-town.js?v=47"></script>
+<script src="art/dustwater/sprites.js?v=47"></script>
+<script src="btp-train.js?v=47"></script>
+<script src="art/train/sprites.js?v=47"></script>
+<script src="art/title/scene.js?v=47"></script>
+<script src="art/title/cameo.js?v=47"></script>
+<script src="art/title/crossing.js?v=47"></script>
+<script src="art/table/scene.js?v=47"></script>
+<script src="art/table/partners.js?v=47"></script>
+<script src="art/grave/scene.js?v=47"></script>
+<script src="art/paid/scene.js?v=47"></script>
+<script src="art/rooms/scene.js?v=47"></script>
+<script src="art/express/scene.js?v=47"></script>
+<script src="art/country/country.js?v=47"></script>
+<script src="art/fair/sprites.js?v=47"></script>
 <script>
 (function () {
   'use strict';
@@ -2027,7 +2046,7 @@ html.art .coach { border-radius: 0; }
           '<div class="cardrow deal">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div>' + ownedRow(L) + '</div>' :
           L.act === 2 ? '<div class="panel baize"><h2>Act II: the Westbound Express</h2><p>Spades and clubs join the deck and hands grow to 6 cards. Two of the cards you own are now dealt to you each hand. Pick a new card to own.</p>' +
           '<div class="cardrow deal">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div>' + ownedRow(L) + '</div>' :
-          '<div class="panel baize"><h2>Act I: Euchre-ka!</h2><p>You ride into Euchre-ka! a bounty hunter, ' + (L.partner === 'horse' ? 'on ' + PN() + ', your horse and your partner at the table' : 'with ' + PN() + ' riding shotgun') + '. It’s a gold town: they struck it rich up the hill, and the Twins run the place for the big boss. Every gang in town is wanted, and they settle everything over cards. Pick a card to own. You already own ' + PN() + '’s ' + E.label(R.PARTNERS[L.partner].start) + '. Each hand, one card you own is dealt straight to you (your seed slot), so owning two means you won’t know which comes.</p>' +
+          '<div class="panel baize"><h2>Act I: Euchre-ka!</h2><p>You ride into Euchre-ka! a bounty hunter, ' + (L.partner === 'horse' ? 'on ' + PN() + ', your horse and your partner at the table' : 'with ' + PN() + ' riding shotgun') + '. It’s a gold town: they struck it rich up the hill, and somebody has put a bounty on the Twins. Every gang in town is wanted, and they settle everything over cards. Pick a card to own. You already own ' + PN() + '’s ' + E.label(R.PARTNERS[L.partner].start) + '. Each hand, one card you own is dealt straight to you (your seed slot), so owning two means you won’t know which comes.</p>' +
           '<div class="cardrow deal">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div>' + ownedRow(L) + '</div>'));
         break;
       case 'map':
@@ -2996,14 +3015,23 @@ html.art .coach { border-radius: 0; }
       setTimeout(() => { render(); if (kind === 'depart') playDepart(L); }, 800);
       return;
     }
-    // the story's twist on its own (&partner=<id>; &again shows it as every win after the first does)
-    else if (kind === 'twist') {
+    // the Gazette on its own (&partner=<id>): the reporter's question after Act I
+    else if (kind === 'gazette') {
+      L = R.newRun({ seed: 21, act: 2, tips: false, partner: (location.search.match(/[?&]partner=(\w+)/) || [])[1] || 'horse' });
+      if (L.offer) R.act(L, 'take', L.offer[0]);
+      L.phase = 'map'; L.sawPoster = [1, 2, 3];
+      P.L = L; P.actCardFor = L.rs + ':' + L.act; show();
+      setTimeout(() => playGazette(L), 800);
+      return;
+    }
+    // the story's end on its own (&partner=<id>; &again shows it as every win after the first does)
+    else if (kind === 'reunion' || kind === 'twist') {
       L = R.newRun({ seed: 21, act: 3, tips: false, partner: (location.search.match(/[?&]partner=(\w+)/) || [])[1] || 'horse' });
       if (L.offer) R.act(L, 'take', L.offer[0]);
       L.phase = 'map'; L.sawPoster = [1, 2, 3];
       P.L = L; show();
-      if (!/[?&]again\b/.test(location.search)) { const pr = profile(); pr.twists = 0; try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} }
-      setTimeout(() => playTwist(L), 800);
+      if (!/[?&]again\b/.test(location.search)) { const pr = profile(); pr.reunions = 0; try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} }
+      setTimeout(() => playReunion(L), 800);
       return;
     }
     else L = until(L => L.phase === 'hand' && L.h.phase === 'trick' && L.h.contractor === 1 && L.h.trickNo === 1);
@@ -3495,30 +3523,55 @@ html.art .coach { border-radius: 0; }
     DEPART.timers = [setTimeout(() => card.classList.add('said'), reduceMotion() ? 0 : 600)];
     card.onpointerdown = ev => { if (!ev.target.closest('[data-act="finaledone"]')) card.classList.add('said'); };
   }
-  /* The twist (the story, 2026-11-04): after the finale, one more poster comes down on Sheriff Crane's desk, and it's
-     yours. His star comes down on it reading WANTED, he says why, your partner answers, and "Ride!" goes on to the
-     run's numbers. The first time it takes its time (profile.twists); every story won after, it's all there at once.
-     Never in ?fast (the finale never plays there). */
-  function playTwist(L) {
-    const card = $('actcard'), pr = profile(), first = !(pr.twists > 0), p = R.PARTNERS[L.partner] || R.PARTNERS.horse;
-    pr.twists = (pr.twists || 0) + 1;
+  /* The Family Reunion (the story's end, 2026-11-05): after the finale's "See your ride", the Fair at sundown. Grandma
+     Hollis (the pie judge's figure) says why every bounty was paid from her purse, the family photo for the Largest
+     Family Present is one short, and you step into it: "I'm your grandmother." Your partner answers, the flash goes,
+     and Say cheese! goes on to the run's numbers. Beats b1-b4 one at a time the first time (profile.reunions; a tap
+     brings the next), all at once after. Never in ?fast (the finale never plays there). */
+  const REUNION = {
+    plan: 'Thank you, dear. Thirty years I\u2019ve tried to get this family in one place, and not one of them would come home for Christmas. So I put a bounty on every one, paid from my pie money. Then my grandson Hamish asked you where you were off to next, and I bought the tickets.',
+    twist: 'This year\u2019s first prize is a hog, for the Largest Family Present, and the judges say we\u2019re one short. Why do you think you\u2019re so good at cards, dear? I\u2019m your grandmother.'
+  };
+  // your partner, when Grandma says it
+  const REUNION_BACK = {
+    horse: '(Biscuit looks at you, then at Grandma, then at you again. Same nose. She snorts, and stands a little closer for the picture.)',
+    nan: 'Edna Hollis! Forty years you\u2019ve beaten my cherry pie at this Fair, and now this? \u2026Well. I always said there was something about your nose, dear.',
+    showboat: 'A long-lost grandchild! A prize hog! A family photo! Partner, this is the ending I\u2019ve been rehearsing my whole life. Get my good side.',
+    sharp: 'Every bounty from one purse, every gang the same nose. I had it at sixty percent, partner. I should have said something.',
+    quiet: '(The Quiet One takes off their hat for the first time on the whole trail, and stands at the end of the row for the picture.)'
+  };
+  // the photo: the Showdowns' outlaws in two rows, Grandma in the middle of the front, you beside her once she says it
+  const FAMILY = { back: ['sJK', 'pKU', 'pKX', 'pKX', 'pKU', 'sQD'], front: ['pJY', 'pJT', 'gQpj', 'you', 'partner', 'pJT', 'pJY'] };
+  const figFace = key => '<span class="face fig"><img src="' + artURL('table/fig_' + key + '.webp') + '" alt=""></span>';
+  function playReunion(L) {
+    const card = $('actcard'), pr = profile(), first = !(pr.reunions > 0), p = R.PARTNERS[L.partner] || R.PARTNERS.horse;
+    pr.reunions = (pr.reunions || 0) + 1;
     try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) { /* private mode */ }
     DEPART.timers.forEach(clearTimeout);
-    const art = document.documentElement.classList.contains('art');
-    card.className = 'twist on';
+    const fig = (key, cls) => '<img class="' + cls + '" src="' + artURL('table/fig_' + key + '.webp') + '" alt="">';
+    const row = keys => keys.map(k => k === 'partner' ? fig(PARTNER_FIG[p.id] || PARTNER_FIG.horse, 'pard') : fig(k, k === 'you' ? 'you' : k === 'gQpj' ? 'gma' : 'kin')).join('');
+    card.className = 'reunion on';
     card.style.backgroundImage = '';
-    card.innerHTML = (art && window.PAID_SCENE ? '<div class="tdesk"><img src="' + artURL('paid/desk.webp') + '" alt=""></div>' : '') +
-      '<div class="wposter tposter" role="img" aria-label="Wanted: you, reward 1,000 gold"><i class="nail"></i><span class="w">WANTED</span><span class="d">DEAD OR ALIVE</span>' +
-      '<img src="' + artURL('wanted/you.webp') + '" alt=""><span class="n">THE BOUNTY HUNTER</span><span class="rw">REWARD 1,000 GOLD</span>' + stampSVG('WANTED') + '</div>' +
-      '<div class="twords"><div class="board"><small>ONE MORE POSTER</small><b>WANTED: YOU</b><span>Every bounty on the trail, paid by one man</span></div>' +
-      '<div class="say crane"><span class="face svg">' + pwSvg('star') + '</span><p><b>' + CRANE.name + ':</b> ' + esc(CRANE.twist) + '</p></div>' +
-      '<div class="say"><span class="face svg">' + partnerFace(p.id) + '</span><p><b>' + esc(p.name) + ':</b> ' + esc(TWIST_BACK[p.id] || TWIST_BACK.nan) + '</p></div>' +
-      '<small class="tbc">To be continued…</small><button class="btn" data-act="twistdone">Ride!</button></div>';
+    card.innerHTML = '<div class="board"><small>SUNDOWN AT THE FAIR</small><b>THE HOLLIS FAMILY</b><span>Largest Family Present: judging now</span></div>' +
+      '<div class="rphoto" role="img" aria-label="The Hollis family photo, and you in the middle of it"><div class="rrow back">' + row(FAMILY.back) + '</div>' +
+      '<div class="rrow front">' + row(FAMILY.front) + '</div><p class="rcap">First prize \u00b7 Largest Family Present</p><i class="rflash"></i></div>' +
+      '<div class="say r1">' + figFace('gQpj') + '<p><b>Grandma Hollis:</b> ' + esc(REUNION.plan) + '</p></div>' +
+      '<div class="say r2">' + figFace('gQpj') + '<p><b>Grandma Hollis:</b> ' + esc(REUNION.twist) + '</p></div>' +
+      '<div class="say r3"><span class="face svg">' + partnerFace(p.id) + '</span><p><b>' + esc(p.name) + ':</b> ' + esc(REUNION_BACK[p.id] || REUNION_BACK.nan) + '</p></div>' +
+      '<button class="btn r4" data-act="reuniondone">Say cheese!</button>';
     try { card.scrollTop = 0; } catch (e) { /* no layout */ }
-    const stamp = () => card.classList.add('stamped'), said = () => { stamp(); card.classList.add('said'); };
-    if (!first || reduceMotion()) { said(); return; }
-    DEPART.timers = [setTimeout(stamp, 1300), setTimeout(said, 2300)];
-    card.onpointerdown = ev => { if (!ev.target.closest('[data-act="twistdone"]')) said(); };
+    let n = 0;
+    const WAIT = [900, 9000, 6500, 5000];
+    const next = () => {
+      DEPART.timers.forEach(clearTimeout);
+      if (n >= 4) return;
+      card.classList.add('b' + (++n));
+      try { if (n > 1) card.scrollTop = card.scrollHeight; } catch (e) { /* no layout */ }
+      if (n < 4) DEPART.timers = [setTimeout(next, WAIT[n])];
+    };
+    if (!first || reduceMotion()) { while (n < 4) card.classList.add('b' + (++n)); return; }
+    DEPART.timers = [setTimeout(next, WAIT[0])];
+    card.onpointerdown = ev => { if (!ev.target.closest('[data-act="reuniondone"]')) next(); };
   }
   function storeHTML(L) {
     const key = 'shop:' + L.rs + ':' + (L.path || []).length + ':' + (L.restocks || 0);
@@ -4404,8 +4457,8 @@ html.art .coach { border-radius: 0; }
       case 'heatstop': move('heat', 'stop'); break;
       case 'skipgrave': endGrave(); break;
       case 'draw': draw(); break;
-      case 'allaboard': case 'intofair': case 'twistdone': endDepart(); break;
-      case 'finaledone': if (P.L && P.L.mode !== 'standard' && $('actcard').classList.contains('finale')) playTwist(P.L); else endDepart(); break;
+      case 'allaboard': case 'intofair': case 'reuniondone': endDepart(); break;
+      case 'finaledone': if (P.L && P.L.mode !== 'standard' && $('actcard').classList.contains('finale')) playReunion(P.L); else endDepart(); break;
       case 'takejob': takeJob(); break;
       case 'freshdeal': P.sleeving = false; move('freshdeal'); break;
       case 'sleevemode': P.sleeving = !P.sleeving; render(); break;
@@ -4981,7 +5034,7 @@ html.art .coach { border-radius: 0; }
     const card = $('actcard');
     card.className = 'over';
     card.style.backgroundImage = '';
-    card.innerHTML = '<div class="board"><small>ACT I</small><b>EUCHRE-KA!</b><span>A gold town, struck rich. The Twins run it for the boss</span></div>';
+    card.innerHTML = '<div class="board"><small>ACT I</small><b>EUCHRE-KA!</b><span>A gold town, struck rich. Somebody wants the Twins brought in</span></div>';
     card.classList.add('on');
   }
   function dust(full) {
@@ -5139,33 +5192,21 @@ html.art .coach { border-radius: 0; }
       '<span class="n">' + esc(B.name.toUpperCase()) + '</span><span class="rw">REWARD 100 GOLD</span>' +
       (lt ? '<span class="loot"><img src="' + artURL('goods/buff_' + loot + '.webp') + '" alt=""><span><small>& THEIR LOOT</small>' + esc(lt.name.toUpperCase()) + '</span></span>' : '');
   }
-  /* Sheriff Silas Crane (the story, 2026-11-04). He hires you for every bounty on the trail and pays you out of his
-     own pocket: the Twins held Euchre-ka!'s gold, the gang on the Westbound held the line, the Fair's outfit held the
-     county seat, and with all three gone the county is his. Act by act he hands you the job (unrollJob), his ledger
-     says who paid (playPaid), he waves the train off and beats it to the Fair by telegraph (playDepart, arriveLine),
-     and a story won ends on his last poster: yours (playTwist). His name lives here and nowhere else. */
-  const CRANE = {
-    name: 'Sheriff Crane',
-    job: { 1: 'The Twins have this town by the throat, friend. I’ve got the law but not the guns. Bring ’em in and the county pays.',
-           2: 'Their kin are on the Westbound, and they know your face now. Ride it to the Fair: I’ll wire ahead and have your money waiting.',
-           3: 'Told you I’d be waiting. Telegraph’s quicker than any train. This is the last outfit in the county, friend. After them there’s nobody left.' },
-    ledger: { 1: 'Paid from the private account of S. Crane.', 2: 'Paid: S. Crane. The Westbound line: to S. Crane.', 3: 'Paid: S. Crane. The Fair grounds: to S. Crane.' },
-    depart: 'I’ll wire the Fair you’re coming. Don’t keep ’em waiting.',
-    twist: 'Every outfit in this county is dead or behind bars, friend. All but one. Folks are going to want to know who did all that killing.'
+  /* The Family Reunion (the story, 2026-11-05; Sheriff Crane's twist before it). You ride in for a bounty "posted by a
+     concerned citizen" and nobody says more. Every gang you bring in is a Hollis, and you only find out at the very end:
+     Grandma Hollis paid every bounty from her pie money to get her scattered grandchildren to the County Fair for its
+     Largest Family Present prize, and you're the grandchild who makes up the number. The story arrives in scraps that
+     read as jokes the first time and as clues after: the Showdowns' taunts (Grandma, cousins, "the whole family"), the
+     payday ledger (HOLLIS.ledger), the Gazette's byline (playGazette), a train that doesn't stop, the prize banner at the
+     Fair's gates (arriveLine), and Grandma's reveal (playReunion). Partners react; nobody explains. */
+  const HOLLIS = {
+    ledger: { 1: 'Paid in full by a concerned citizen.', 2: 'Paid by the same concerned citizen. The envelope smells of cinnamon.',
+              3: 'Paid by the concerned citizen, Mrs. E. Hollis, in pie-stall coin.' }
   };
-  // your partner, when the last poster turns out to be yours
-  const TWIST_BACK = {
-    horse: '(Biscuit lays her ears back and stamps once. She never did like that man.)',
-    nan: 'I knew it, dear. No honest sheriff ever had a roof that grand. Get on, and don’t look back.',
-    showboat: 'Hold on. We’re the bad guys now? Partner, I had a whole speech ready for the parade!',
-    sharp: 'His books never added up, partner. Every bounty out of one pocket, every deed into the same one.',
-    quiet: '(The Quiet One takes a tin star from an inside pocket, Crane’s old badge, and drops it in the dust.)'
-  };
-  const craneSays = text => '<div class="nanline crane">' + pwSvg('star') + '<span><b>' + CRANE.name + ':</b> ' + esc(text) + '</span></div>';
   const JOB = {
-    1: ['The reason you rode into Euchre-ka!', 'That\u2019s them, dear. The Twins. They run this gold town for the big boss, and every other gang in it is just the road to the Saloon.'],
-    2: ['They want revenge for the Twins', 'They\u2019re up in the locomotive, dear. Car by car, through the carriages or over the roofs, that\u2019s where we\u2019re headed.'],
-    3: ['The reason you came to the County Fair', 'The last of them, dear. Bring this one in and we can go home.']
+    1: ['A hundred gold, posted by a concerned citizen', 'That\u2019s them, dear. The Twins. A hundred gold on them, and nobody in town will say who\u2019s paying it.'],
+    2: ['This train doesn\u2019t stop till the Fair', 'They\u2019re up in the locomotive, dear. Car by car, through the carriages or over the roofs.'],
+    3: ['Waiting at the top of the midway', 'The last of them, dear. Bring this one in and we can finally enjoy the Fair.']
   };
   function unrollJob(L) {
     if (FAST || !L || !['map', 'partner', 'actstart'].includes(L.phase) || !L.map || (L.sawPoster || []).includes(L.act)) return;
@@ -5177,7 +5218,6 @@ html.art .coach { border-radius: 0; }
     const why = L.act === 2 && R.BOSS[L.map.boss].revenge ? R.BOSS[L.map.boss].revenge : '';
     b.innerHTML = '<p class="why">' + esc(J[0]) + '</p><div class="scroll"><div class="wposter" role="img" aria-label="' + esc('Wanted: ' + R.BOSS[L.map.boss].name + ', reward 100 gold') + '">' +
       wantedFace(L.map.boss, L.map.loot) + '</div><i class="rod" aria-hidden="true"></i></div>' + (why ? '<p class="why long">' + esc(why) + '</p>' : '') +
-      (CRANE.job[L.act] ? craneSays(CRANE.job[L.act]) : '') +
       // Act II: your partner said all this on the departure platform a moment ago, so the Sheriff speaks alone
       (chosen && !(L.act === 2 && why) ? '<div class="nanline"><b>' + esc(R.PARTNERS[L.partner].name) + ':</b> ' + esc(R.voice(L, J[1])) + '</div>' : '') +
       '<button class="btn" data-act="takejob">' + (chosen ? 'Let\u2019s ride' : 'Take the job') + '</button>';
@@ -5293,7 +5333,7 @@ html.art .coach { border-radius: 0; }
       const led = document.createElement('div');
       led.className = 'ledger';
       led.style.left = l0[0] + 'px'; led.style.top = l0[1] + 'px'; led.style.width = (l1[0] - l0[0]) + 'px';
-      led.innerHTML = '<h3>BOUNTY PAID</h3>' + payoutHTML(r, L.gold) + (L.mode !== 'standard' && CRANE.ledger[L.act] ? '<p class="lnote">' + esc(CRANE.ledger[L.act]) + '</p>' : '');
+      led.innerHTML = '<h3>BOUNTY PAID</h3>' + payoutHTML(r, L.gold) + (L.mode !== 'standard' && HOLLIS.ledger[L.act] ? '<p class="lnote">' + esc(HOLLIS.ledger[L.act]) + '</p>' : '');
       g.appendChild(led);
       countUp(led.querySelector('.payout'));
       // a coin hops from the sheriff's stack to the ledger for every line that paid
@@ -5338,12 +5378,12 @@ html.art .coach { border-radius: 0; }
     const key = L.rs + ':' + L.act;
     if (FAST || L.act < 2 || P.actCardFor === key) return;
     P.actCardFor = key;
-    if (L.act === 2 && L.map && L.map.side) { playDepart(L); return; }
+    if (L.act === 2 && L.map && L.map.side) { if (L.mode !== 'standard' && !L.saidFair) playGazette(L); else playDepart(L); return; }
     if (L.act === 3 && L.map) { playArrive(L); return; }
     $('actcard').className = '';
     const card = $('actcard'), S = window.TITLE_SCENE, art = document.documentElement.classList.contains('art');
-    const A = { 2: ['ACT II', 'THE WESTBOUND EXPRESS', 'Someone wants revenge for the Twins', 'All aboard, dear! Word is the Twins had friends on this line, and they\u2019re not happy with us.'],
-                3: ['ACT III', 'THE COUNTY FAIR', 'You took their train all the way to the Fair', 'Full steam ahead, dear! Their train is ours now, and the last bounty is waiting at the end of the line.'] }[L.act];
+    const A = { 2: ['ACT II', 'THE WESTBOUND EXPRESS', 'Next stop: the County Fair. No other stops.', 'All aboard, dear! You told the paper we\u2019re going to the Fair, so to the Fair we go.'],
+                3: ['ACT III', 'THE COUNTY FAIR', 'End of the line', 'Full steam ahead, dear! The Fair at last, and a poster waiting at the end of the line.'] }[L.act];
     card.style.backgroundImage = art ? (L.act === 2 ? 'url(' + artURL('train/band_desert.webp') + ')' : 'repeating-linear-gradient(90deg, #b8322a 0 36px, #f4e3bf 36px 72px)') : '';
     card.style.backgroundSize = L.act === 2 ? 'auto 100%' : '';
     const T = S && S.train, tk = 3;
@@ -5418,12 +5458,51 @@ html.art .coach { border-radius: 0; }
      on it: the County Fair, and who's waiting there (L.fairBoss), with this act's gang aboard in the way. A tap
      jumps to the words; All aboard clears it. Once a run (P.actCardFor); never in ?fast. Nan's unlock shows here
      the first time the Twins are beaten (profile.nanMet). */
-  const FAIR_WHO = { caller: 'the Caller is calling the barn dance there, and he\u2019s the bounty we came west for',
-                     wallflowers: 'the Undertakers are working the crowd there, and they\u2019re the bounty we came west for' };
   function departLine(L) {
     const gang = R.BOSS[L.map.boss] ? R.BOSS[L.map.boss].name.replace(/^The /, 'the ') : 'a gang';
-    return R.voice(L, 'We need to get to the County Fair, dear: ' + (FAIR_WHO[L.fairBoss] || 'the last bounty is waiting there') +
-      '. This is the only train that gets us there in time. Trouble is, ' + gang + ' are aboard, and they want us for what we did to the Twins. Car by car, all the way to the locomotive.');
+    return R.voice(L, 'You told the whole county we\u2019re going to the Fair, dear, so to the Fair we go. Funny thing: the ticket man says this train doesn\u2019t stop anywhere till it gets there. And ' +
+      gang + ' just got on at the front.');
+  }
+  /* The Euchre-ka! Gazette (2026-11-05, the Family Reunion): after Act I's Showdown, before the departure, a cub reporter
+     asks what you'll do now that you've won (the "I'm going to Disneyland!" moment). Every answer is the County Fair, the
+     paper prints HERO HEADS FOR FAIR whichever you pick, and the reporter has bought your tickets already. His byline,
+     H. Hollis, is the clue in plain sight. L.saidFair keeps the answer, so it plays once a story; never in ?fast. */
+  const GAZETTE = {
+    ask: 'You just brought in the Hollis Twins! What are you going to do now?',
+    answers: [
+      { id: 'fair', say: 'I\u2019m going to the County Fair!', print: '\u201cI\u2019m going to the County Fair!\u201d says hero. Fair says: about time.' },
+      { id: 'sleep', say: 'Sleep for a week. Somewhere with a Ferris wheel.', print: '\u201cSomewhere with a Ferris wheel,\u201d says hero. There is one Ferris wheel in the county. It is at the Fair.' },
+      { id: 'point', print: 'Hero says nothing, points at Fair poster. \u201cPoints at Fair,\u201d we report.' }
+    ],
+    tickets: 'Train leaves at noon. I took the liberty of buying your tickets. Front carriage is full, mind: family.'
+  };
+  const REPORTER = 'gJmc1';
+  function playGazette(L) {
+    const card = $('actcard'), p = R.PARTNERS[L.partner] || R.PARTNERS.horse;
+    const point = '(Say nothing. ' + p.name + (L.partner === 'horse' ? ' points at the Fair poster with her nose.)' : ' points at the Fair poster on the wall.)');
+    const said = text => '<div class="say">' + figFace(REPORTER) + '<p><b>H. Hollis, the Gazette:</b> ' + esc(text) + '</p></div>';
+    DEPART.timers.forEach(clearTimeout);
+    card.className = 'gazette on';
+    card.style.backgroundImage = '';
+    card.innerHTML = '<div class="gpaper"><div class="gmast">The Euchre-ka! Gazette</div><div class="gdate"><span>Extra!</span><span>One cent</span><span>Struck rich 1879</span></div>' +
+      '<div class="gstory"><img src="' + artURL('wanted/twins.webp') + '" alt=""><div><b class="ghead">Twins brought in</b><p class="gsub">Bounty hunter cleans up the Saloon. The Hollis family \u201cnot available for comment\u201d.</p></div></div>' +
+      '<p class="gby">by H. Hollis, cub reporter</p></div>' +
+      '<div class="gwords">' + said(GAZETTE.ask) + '<div class="gopts">' + GAZETTE.answers.map(a => '<button class="gopt" data-g="' + a.id + '">' + esc(a.say || point) + '</button>').join('') + '</div></div>';
+    try { card.scrollTop = 0; } catch (e) { /* no layout */ }
+    card.onpointerdown = null;
+    card.onclick = ev => {
+      const go = ev.target.closest('[data-gdone]');
+      if (go) { card.onclick = null; playDepart(L); return; }
+      const b = ev.target.closest('[data-g]'), a = b && GAZETTE.answers.find(x => x.id === b.dataset.g);
+      if (!a || L.saidFair) return;
+      L.saidFair = a.id;
+      save();
+      card.querySelector('.gstory img').src = artURL('wanted/you.webp');
+      card.querySelector('.ghead').textContent = 'Hero heads for Fair';
+      card.querySelector('.gsub').textContent = a.print;
+      card.querySelector('.gwords').innerHTML = said(GAZETTE.tickets) + '<button class="btn" data-gdone="1">To the station</button>';
+      card.classList.remove('printed'); void card.offsetWidth; card.classList.add('printed');
+    };
   }
   const DEPART = { raf: 0, timers: [] };
   function playDepart(L) {
@@ -5443,6 +5522,7 @@ html.art .coach { border-radius: 0; }
     if (nan) { pr.nanMet = true; try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} }
     const p = R.PARTNERS[L.partner] || R.PARTNERS.horse;
     card.className = 'depart';
+    card.onclick = null;
     card.style.backgroundImage = '';
     // the grand station (2026-11-04, the user's: "a kiosk and a shelter and some gold prospectors"; bakery/station.py)
     // and the opening's ground under it all (art/country, stage 0: the desert Euchre-ka! sits in), what stands on it
@@ -5474,8 +5554,7 @@ html.art .coach { border-radius: 0; }
     card.innerHTML = '<div class="dsky"></div>' + (clouds ? lyr(clouds, rail * 0.12) : '') + (mesas ? lyr(mesas, rail - mesas.h * k - 30 * k) : '') +
       back + ground + '<div class="dties" style="top:' + u(rail - 1) + ';height:' + u(3 * k) + '"></div>' +
       '<div class="dtrain">' + train + '</div><div class="dpuffs"></div>' + front +
-      '<div class="dwords"><div class="board"><small>ACT II</small><b>THE WESTBOUND EXPRESS</b><span>Next stop: the County Fair</span></div>' +
-      '<div class="say crane"><span class="face svg">' + pwSvg('star') + '</span><p><b>' + CRANE.name + '</b> (on the platform): ' + esc(CRANE.depart) + '</p></div>' +
+      '<div class="dwords"><div class="board"><small>ACT II</small><b>THE WESTBOUND EXPRESS</b><span>Next stop: the County Fair. No other stops.</span></div>' +
       '<div class="say"><span class="face svg">' + partnerFace(p.id) + '</span><p><b>' + esc(p.name) + ':</b> ' + esc(departLine(L)) + '</p></div>' +
       (nan ? '<div class="unlock"><span class="face svg">' + NAN_SVG + '</span><p><b>New partner: Nan</b>, the Steady Hand. She heard what you did to the Twins: she can ride with you from your next story.</p></div>' : '') +
       '<button class="btn" data-act="allaboard">All aboard</button></div>';
@@ -5521,11 +5600,12 @@ html.art .coach { border-radius: 0; }
      over the towers, and your partner says who's waiting at the top of the midway (L.map.boss): the Act's board at
      the top, your partner and Into the Fair at the bottom, the gates and the train between. A tap jumps to the
      words; Into the Fair clears it. Once a run (P.actCardFor); never in ?fast. */
-  const ARRIVE_WHO = { caller: ['TONIGHT: THE BARN DANCE', 'Hear that fiddle? That\u2019s the Caller, calling the barn dance in the big red barn. He\u2019s the bounty we came west for.'],
-                       wallflowers: ['TONIGHT: THE HAUNTED HOUSE', 'See the haunted house at the top of the midway? The Undertakers are in there, measuring folks up. They\u2019re the bounty we came west for.'] };
+  const ARRIVE_WHO = { caller: ['TONIGHT: THE BARN DANCE', 'Hear that fiddle? That\u2019s the Caller, calling the barn dance in the big red barn, and there\u2019s a poster on him already.'],
+                       wallflowers: ['TONIGHT: THE HAUNTED HOUSE', 'See the haunted house at the top of the midway? The Undertakers are in there, measuring folks up, and there\u2019s a poster on them already.'] };
   function arriveLine(L) {
     const w = ARRIVE_WHO[L.map && L.map.boss];
-    return R.voice(L, 'End of the line, dear! And Crane’s poster got here first: telegraph’s quick. ' + (w ? w[1] :'The last bounty is waiting at the top of the midway.') + ' The midway\u2019s between us: card booths, and prize contests for a ribbon.');
+    return R.voice(L, 'End of the line, dear! There\u2019s a banner over the gates: First Prize, Largest Family Present, judged at sundown. Who on earth enters that? ' +
+      (w ? w[1] : 'And there\u2019s a poster waiting at the top of the midway.') + ' The midway\u2019s between us: card booths, and prize contests for a ribbon.');
   }
   function playArrive(L) {
     const card = $('actcard'), X = window.EXPRESS_SCENE, F = window.FAIR_SPRITES || {}, DS = (window.DUST_SPRITES || {}).s || {}, T = window.TITLE_SCENE;
@@ -5616,7 +5696,7 @@ html.art .coach { border-radius: 0; }
   }
   function endDepart() {
     const card = $('actcard');
-    if (!card.classList.contains('depart') && !card.classList.contains('arrive') && !card.classList.contains('twist')) return;     // (the finale is an .arrive too)
+    if (!['depart', 'arrive', 'reunion', 'gazette'].some(c => card.classList.contains(c))) return;     // (the finale is an .arrive too)
     DEPART.timers.forEach(clearTimeout);
     card.classList.remove('on', 'said');
     card.onpointerdown = null;
