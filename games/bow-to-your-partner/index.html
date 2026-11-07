@@ -100,12 +100,14 @@ html.art .titlemenu .wood.drawn > span { position: absolute; width: 1px; height:
 /* the boss's wanted poster: the act's job when it starts (#bounty), crossed out on payday (#paid) */
 .wposter { position: relative; width: min(270px, 74vw); padding: 12px 14px 16px; text-align: center;
   background: #f1dfb6; color: #3a1a12; border: 2px solid #8a5a2c; box-shadow: 0 6px 0 rgba(20,10,6,.35), inset 0 0 30px rgba(140,90,40,.35); }
+.wposter .vote { display: block; margin: 4px auto 0; width: max-content; padding: 1px 6px; border: 2px solid #2e4a86; color: #2e4a86; font: 800 10px/1.3 Georgia, serif; letter-spacing: .1em; transform: rotate(-3deg); }
 .wposter .nail { position: absolute; left: 50%; top: 5px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; background: #5a5a60; box-shadow: inset -1px -1px 0 #2a2a30; }
 .wposter .w { display: block; margin-top: 6px; font: 900 44px/1 Georgia, serif; letter-spacing: .08em; }
 .wposter .d { display: block; font: 800 13px/1.4 Georgia, serif; letter-spacing: .3em; }
 .wposter img { display: block; width: 100%; margin: 8px 0; image-rendering: pixelated; border: 2px solid #8a5a2c; }
 .wposter .n { display: block; font: 800 22px/1.15 Georgia, serif; }
 .wposter .rw { display: block; margin-top: 6px; font: 800 15px/1.3 Georgia, serif; letter-spacing: .1em; }
+.wposter .rw.up { margin-top: 3px; font-size: 12px; letter-spacing: .08em; }
 .wposter .loot { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; font: 800 14px/1.15 Georgia, serif; letter-spacing: .06em; text-align: left; }
 .wposter .loot img { width: 40px; height: 40px; image-rendering: pixelated; flex: none; }
 .wposter .loot small { display: block; font-size: 10px; letter-spacing: .14em; opacity: .75; }
@@ -697,10 +699,10 @@ body.signzoom .hero { transform-origin: 0 0; transition: transform 1s cubic-bezi
 #actcard .nanline { background: #fffaf0; color: #3a2a20; border-radius: 10px; padding: 10px 14px; max-width: 320px; box-shadow: 0 2px 0 rgba(58,42,32,.3);
   font-size: 15px; animation: boardin .55s .35s both; }
 #paid .ledger .lnote { width: fit-content; margin: 6px 0 0 auto; padding: 1px 4px; background: #fbf5e4; font: italic 600 11px/1.25 Georgia, serif; color: #6b2a1a; text-align: right; }
-/* The Euchre-ka! Gazette (2026-11-05, the Family Reunion): after Act I's Showdown a cub reporter asks what you'll do
-   now; every answer is the County Fair and the paper prints it (playGazette). */
+/* The Euchre-ka! Gazette (2026-11-05; 2026-11-06 the new story): after Act I's Showdown the Sheriff sends you to Bower
+   City, then a cub reporter asks what you'll do with the reward and the paper prints it (playGazette). */
 @keyframes tdrop { from { transform: translateY(-40px) rotate(-9deg); opacity: 0; } }
-#actcard.gazette, #actcard.reunion { justify-content: flex-start; gap: 12px; padding: 18px 16px 20px; overflow-y: auto; }
+#actcard.gazette { justify-content: flex-start; gap: 12px; padding: 18px 16px 20px; overflow-y: auto; }
 #actcard.gazette { background: radial-gradient(circle at 50% 30%, #6a4a30, #2a1a10 80%); }
 #actcard.gazette .gpaper { flex: none; width: min(360px, 100%); box-sizing: border-box; padding: 10px 14px 8px; background: #f1e6cc; color: #2a1b16; border: 1px solid #b8a27a;
   box-shadow: 0 6px 0 rgba(0,0,0,.35); transform: rotate(-1.5deg); font-family: Georgia, serif; animation: tdrop .6s cubic-bezier(.3, 1.4, .5, 1) both; }
@@ -717,35 +719,52 @@ body.signzoom .hero { transform-origin: 0 0; transition: transform 1s cubic-bezi
 #actcard.gazette .gopts { display: flex; flex-direction: column; gap: 8px; width: 100%; }
 #actcard.gazette .gopt { min-height: 44px; padding: 8px 12px; text-align: left; background: #f3e3c0; color: #3a2a20; border: 3px solid #4a2626; border-radius: 10px;
   font: 600 15px/1.3 Bitter, Georgia, serif; box-shadow: 0 3px 0 rgba(42,27,22,.35); cursor: pointer; }
-#actcard.gazette .say, #actcard.reunion .say { display: flex; gap: 10px; align-items: flex-start; max-width: 360px; box-sizing: border-box; background: #fffaf0; color: #3a2a20; border: 3px solid #2a1b16;
+#actcard.gazette .say { display: flex; gap: 10px; align-items: flex-start; max-width: 360px; box-sizing: border-box; background: #fffaf0; color: #3a2a20; border: 3px solid #2a1b16;
   border-radius: 12px; padding: 8px 12px; flex: none; }
-#actcard.gazette .say p, #actcard.reunion .say p { margin: 0; font-size: 15px; line-height: 1.35; }
+#actcard.gazette .say p { margin: 0; font-size: 15px; line-height: 1.35; }
 #actcard .say .face.fig { width: 44px; height: 48px; flex: none; overflow: hidden; border-radius: 8px; background: #e8d8b0; border: 2px solid #2a1b16; box-sizing: border-box; }
 #actcard .say .face.fig img { display: block; width: 100%; image-rendering: pixelated; }
-/* The Family Reunion (2026-11-05): the story won, Grandma Hollis explains, the family photo is one short, and you step
-   into it (playReunion). Beats b1-b4 one at a time the first time (profile.reunions), all at once after. */
-#actcard.reunion { background: radial-gradient(circle at 50% 22%, #4a3658, #1c1424 80%); }
-#actcard.reunion .board { padding: 8px 20px 10px; flex: none; } #actcard.reunion .board b { font-size: min(26px, 6.4vw); white-space: nowrap; }
-#actcard.reunion .rphoto { --fw: min(64px, 15vw); position: relative; flex: none; padding: 12px 10px 8px; background: linear-gradient(#3e3658, #7a4e6a); border: 3px solid #2a1b16;
-  border-radius: 4px; box-shadow: 0 6px 0 rgba(0,0,0,.35); overflow: hidden; }
-#actcard.reunion .rrow { display: flex; justify-content: center; }
-#actcard.reunion .rrow img { width: var(--fw); height: calc(var(--fw) * 1.4); margin: 0 calc(var(--fw) * -.17); image-rendering: pixelated; transition: width .6s, margin .6s, opacity .6s; }
-#actcard.reunion .rrow.back { margin-bottom: calc(var(--fw) * -.85); filter: brightness(.82); }
-#actcard.reunion .rrow.front { position: relative; }
-#actcard.reunion .rrow img.you { width: 0; margin: 0; opacity: 0; }
-#actcard.reunion.b2 .rrow img.you { width: var(--fw); margin: 0 calc(var(--fw) * -.17); opacity: 1; }
-#actcard.reunion .rcap { margin: 6px -10px -8px; padding: 4px 0; background: #f6efe0; text-align: center; font: italic 600 12px/1.2 Georgia, serif; color: #3a2a20; letter-spacing: .06em; display: none; }
-#actcard.reunion.b4 .rphoto { background: linear-gradient(#a8865a, #7a5a3a); border: 7px solid #f6efe0; outline: 3px solid #2a1b16; filter: sepia(.5) contrast(1.2) saturate(1.15); }
-#actcard.reunion.b4 .rcap { display: block; }
-#actcard.reunion .rflash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
-#actcard.reunion.b4 .rflash { animation: rflash .8s ease-out; }
-@keyframes rflash { from { opacity: .95; } to { opacity: 0; } }
-#actcard.reunion .say { display: none; animation: boardin .45s both; }
-#actcard.reunion.b1 .r1, #actcard.reunion.b2 .r2, #actcard.reunion.b3 .r3 { display: flex; }
-#actcard.reunion .btn.r4 { display: none; flex: none; } #actcard.reunion.b4 .btn.r4 { display: inline-block; }
-@media (max-height: 720px) { #actcard.gazette, #actcard.reunion { gap: 8px; padding-top: 10px; } #actcard.reunion .board span { display: none; }
-  #actcard.gazette .say p, #actcard.reunion .say p { font-size: 14px; } }
-@media (prefers-reduced-motion: reduce) { #actcard.gazette .gpaper, #actcard.reunion .say { animation: none; } #actcard.reunion .rrow img { transition: none; } #actcard.reunion.b4 .rflash { animation: none; } }
+@media (max-height: 720px) { #actcard.gazette { gap: 8px; padding-top: 10px; } #actcard.gazette .say p { font-size: 14px; } }
+@media (prefers-reduced-motion: reduce) { #actcard.gazette .gpaper { animation: none; } }
+/* ESCAPE FROM EUCHRE-KA! (2026-11-08): the Marshal's gatehouse, and the jail photo at the end of Act I */
+.evscene.gate { height: 200px; }
+.evscene.gate .ew { background-size: auto 100%; background-position: center bottom; }
+.evscene.gate .host { top: auto; bottom: 4px; width: 72px; height: 100px; }
+.evscene.gate .host.l { left: calc(50% - 86px); transform: none; }
+.evscene.gate .host.r { left: calc(50% + 14px); transform: none; }
+.gatepanel .gtalk { display: flex; flex-direction: column; gap: 6px; margin: 0 0 10px; }
+.gatepanel .gsay { margin: 0; padding: 6px 10px; background: #fffaf0; color: #3a2a20; border: 2px solid #2a1b16; border-radius: 10px; font-size: 15px; line-height: 1.35;
+  opacity: 0; animation: gsay .35s ease-out forwards; animation-delay: calc(var(--i) * 1.1s + .3s); }
+.gatepanel .gsay.you { align-self: flex-end; background: #f3e3c0; }
+.gatepanel .gpick { opacity: 0; animation: gsay .35s ease-out forwards; animation-delay: calc(var(--i) * 1.1s + .5s); }
+.gatepanel.all .gsay, .gatepanel.all .gpick { animation: none; opacity: 1; }
+.gatepanel .gpick .ask { margin: 0 0 8px; }
+.gatepanel .choice .pet { display: block; margin-top: 3px; font-size: 13px; opacity: .85; }
+.gatepanel .inmate { display: inline-block; padding: 0 5px; border: 2px solid #c0201a; color: #c0201a; font: 800 12px/1.3 Georgia, serif; letter-spacing: .08em; transform: rotate(-4deg); }
+@keyframes gsay { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .gatepanel .gsay, .gatepanel .gpick { animation: none; opacity: 1; } }
+.jstage { position: relative; width: min(400px, 100%); aspect-ratio: 200 / 112; overflow: hidden; border: 3px solid #2a1b16; border-radius: 6px; background: #2a1b16 center / 100% 100% no-repeat; image-rendering: pixelated; flex: none; }
+.jstage img { position: absolute; width: 20%; height: 50%; top: 46%; image-rendering: pixelated; }
+.jstage .tw1 { left: 4%; } .jstage .tw2 { left: 24%; }
+.jstage .bars { position: absolute; left: 1%; width: 46%; top: 12%; bottom: 0; background: repeating-linear-gradient(90deg, transparent 0 7%, #2a2a34 7% 9.5%), linear-gradient(transparent 30%, #2a2a34 30% 33%, transparent 33%); }
+.jstage .sher { left: 50%; }
+.jstage .you { left: 74%; transition: left 2s ease-in; }
+.jstage.eased .you { left: 88%; }
+.jstage .jflash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+.jstage.flash .jflash { animation: jflash 1s ease-out; }
+.jstage .foomp { position: absolute; left: 50%; top: 10%; transform: translateX(-50%); font: 900 22px/1 Georgia, serif; color: #2a1b16; opacity: 0; text-shadow: 0 0 6px #fff; }
+.jstage.flash .foomp { animation: jfoomp 1.2s ease-out; }
+@keyframes jflash { 0% { opacity: 0; } 8% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes jfoomp { 0% { opacity: 0; transform: translate(-50%, 6px) scale(.8); } 20% { opacity: 1; transform: translate(-50%, 0) scale(1.1); } 100% { opacity: 0; transform: translate(-50%, -16px) scale(1); } }
+#actcard.jail .jcap { width: min(400px, 100%); margin: 0; color: #f1e6cc; font: italic 14px/1.35 Georgia, serif; text-align: center; }
+#actcard.jail .gphoto { width: 100%; margin: 4px 0 6px; filter: grayscale(1) contrast(1.1) sepia(.35); }
+#actcard.jail .gphoto .jstage { width: 100%; border-width: 2px; }
+#actcard.jail .gphoto .you { left: 93%; }
+#actcard.jail .gcap { margin: 0 0 6px; font: italic 12px/1.3 Georgia, serif; color: #5a4030; }
+#actcard.jail .gpaper[hidden], #actcard.jail .gwords[hidden], #actcard.jail .jlive[hidden] { display: none; }
+#actcard.jail:has(.jlive:not([hidden])) { justify-content: safe center; }
+#actcard.jail .jlive { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
+@media (prefers-reduced-motion: reduce) { .jstage .you { transition: none; } .jstage.flash .jflash, .jstage.flash .foomp { animation: none; } }
 #skipOpening { position: fixed; top: 10px; right: 10px; z-index: 80; display: none; }
 body.opening #skipOpening { display: block; }
 /* frame 6: the act-start pick is cards dealt onto green baize */
@@ -1738,24 +1757,24 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=54"></script>
-<script src="btp-ai.js?v=54"></script>
-<script src="btp-run.js?v=54"></script>
-<script src="btp-town.js?v=54"></script>
-<script src="art/dustwater/sprites.js?v=54"></script>
-<script src="btp-train.js?v=54"></script>
-<script src="art/train/sprites.js?v=54"></script>
-<script src="art/title/scene.js?v=54"></script>
-<script src="art/title/cameo.js?v=54"></script>
-<script src="art/title/crossing.js?v=54"></script>
-<script src="art/table/scene.js?v=54"></script>
-<script src="art/table/partners.js?v=54"></script>
-<script src="art/grave/scene.js?v=54"></script>
-<script src="art/paid/scene.js?v=54"></script>
-<script src="art/rooms/scene.js?v=54"></script>
-<script src="art/express/scene.js?v=54"></script>
-<script src="art/country/country.js?v=54"></script>
-<script src="art/fair/sprites.js?v=54"></script>
+<script src="btp-engine.js?v=56"></script>
+<script src="btp-ai.js?v=56"></script>
+<script src="btp-run.js?v=56"></script>
+<script src="btp-town.js?v=56"></script>
+<script src="art/dustwater/sprites.js?v=56"></script>
+<script src="btp-train.js?v=56"></script>
+<script src="art/train/sprites.js?v=56"></script>
+<script src="art/title/scene.js?v=56"></script>
+<script src="art/title/cameo.js?v=56"></script>
+<script src="art/title/crossing.js?v=56"></script>
+<script src="art/table/scene.js?v=56"></script>
+<script src="art/table/partners.js?v=56"></script>
+<script src="art/grave/scene.js?v=56"></script>
+<script src="art/paid/scene.js?v=56"></script>
+<script src="art/rooms/scene.js?v=56"></script>
+<script src="art/express/scene.js?v=56"></script>
+<script src="art/country/country.js?v=56"></script>
+<script src="art/fair/sprites.js?v=56"></script>
 <script>
 (function () {
   'use strict';
@@ -1782,7 +1801,7 @@ html.art .coach { border-radius: 0; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 40, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 41, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -2105,7 +2124,7 @@ html.art .coach { border-radius: 0; }
       case 'event': {
         const ev = R.EVENTS[L.event], ES = EVSCENE[L.act] || EVSCENE[1];
         body = stopScene(ES[0], EV_HOST[L.event] || ES[1]) + '<div class="panel"><h2>Gossip: ' + esc(ev.name) + '</h2><p>' + esc(R.eventText(L, L.event)) + '</p>' +
-          ev.options.map((o, i) => '<button class="choice" data-option="' + i + '"' + ((o.fx.release && L.owned.length < 2) || (o.fx.gold < 0 && L.gold < -o.fx.gold) || (o.fx.health < 0 && L.health + o.fx.health <= 0) || (o.fx.shunt && !R.shuntable(L).length) ? ' disabled' : '') + '><b>' + esc(o.text) + '</b></button>').join('') + '</div>' +
+          ev.options.map((o, i) => '<button class="choice" data-option="' + i + '"' + ((o.fx.release && L.owned.length < 2) || (o.fx.gold < 0 && L.gold < -o.fx.gold) || (o.fx.health < 0 && L.health + o.fx.health <= 0) || (o.fx.shunt && !R.shuntable(L).length) || (o.fx.elixir && (L.elixirs || []).length >= R.ELIXIR.slots) || (o.fx.swap && !L.owned.some(c => c !== 'JK')) ? ' disabled' : '') + '><b>' + esc(o.text) + '</b></button>').join('') + '</div>' +
           '<div class="panel"><h3 style="margin-top:0">Your cards and buffs</h3>' + mineHTML() + '</div>';
         break;
       }
@@ -2117,6 +2136,9 @@ html.art .coach { border-radius: 0; }
         break;
       case 'chase':
         body = chaseHTML(L);
+        break;
+      case 'gate':
+        body = gateHTML(L);
         break;
       case 'bank': {
         const B = R.BANK, door = L.bank.stage === 'door';
@@ -2205,6 +2227,9 @@ html.art .coach { border-radius: 0; }
     const tipTop = tip && !one && !(L.phase === 'partner' || L.phase === 'actstart');   // over the map the tip rides in the sheet
     $('screen').classList.toggle('one', one);
     $('screen').innerHTML = bar() + (tipTop ? '<div class="coach">' + coachHTML(tip) + '</div>' : '') + body;
+    if (L.phase === 'gate') gateShown(L);
+    // the gate passed: now the riders go through it, and the Twins' poster (ESCAPE FROM EUCHRE-KA!)
+    if (L.phase === 'actstart' && P.rideDue && L.act === 1) { P.rideDue = false; setTimeout(rideIn, 60); }
     if (L.map && L.map.side && document.querySelector('.mapbox.side')) sideScroll(false);
     if (L.phase === 'map') placeRider(L);
     // on the map, bring the next choice into view once per stop (the map is taller than a phone)
@@ -2883,7 +2908,7 @@ html.art .coach { border-radius: 0; }
     } else {
     if (P.hpShown !== L.health) { hp.innerHTML = hpInner(L, P.hpShown == null ? 0 : L.health - P.hpShown); hp.className = 'stat hp' + hpClass(L.health); P.hpShown = L.health; }
     if (P.goldShown !== L.gold) { gs.innerHTML = goldInner(L, P.goldShown == null ? 0 : L.gold - P.goldShown); P.goldShown = L.gold; }
-    $('handpill').textContent = L.kind === 'chase' && L.chase ? 'The Getaway · stretch ' + (L.chase.n + 1) + ' of ' + R.CHASE.stretches : L.kind === 'contest' && L.contest ? R.CONTEST.list[L.contest.id].name + (L.hands > 1 ? ' · hand ' + L.handNo + ' of ' + L.hands : ' · one hand') : (L.kind === 'boss' ? 'Showdown' : R.kindName(L.act, L.kind)) + ' · hand ' + L.handNo + (L.kind === 'bank' ? ' of 1' : ' · par ' + R.parOf(L));
+    $('handpill').textContent = L.kind === 'chase' && L.chase ? (L.chase.escape ? 'The Escape' : 'The Getaway') + ' · stretch ' + (L.chase.n + 1) + ' of ' + R.chaseLen(L.chase) : L.kind === 'contest' && L.contest ? R.CONTEST.list[L.contest.id].name + (L.hands > 1 ? ' · hand ' + L.handNo + ' of ' + L.hands : ' · one hand') : (L.kind === 'boss' ? 'Showdown' : R.kindName(L.act, L.kind)) + ' · hand ' + L.handNo + (L.kind === 'bank' ? ' of 1' : ' · par ' + R.parOf(L));
     }
     renderObjective();
     const ct = $('contract');
@@ -3042,16 +3067,6 @@ html.art .coach { border-radius: 0; }
       setTimeout(() => playGazette(L), 800);
       return;
     }
-    // the story's end on its own (&partner=<id>; &again shows it as every win after the first does)
-    else if (kind === 'reunion' || kind === 'twist') {
-      L = R.newRun({ seed: 21, act: 3, tips: false, partner: (location.search.match(/[?&]partner=(\w+)/) || [])[1] || 'horse' });
-      if (L.offer) R.act(L, 'take', L.offer[0]);
-      L.phase = 'map'; L.sawPoster = [1, 2, 3];
-      P.L = L; show();
-      if (!/[?&]again\b/.test(location.search)) { const pr = profile(); pr.reunions = 0; try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} }
-      setTimeout(() => playReunion(L), 800);
-      return;
-    }
     else L = until(L => L.phase === 'hand' && L.h.phase === 'trick' && L.h.contractor === 1 && L.h.trickNo === 1);
     P.L = L; show();
   }
@@ -3157,8 +3172,9 @@ html.art .coach { border-radius: 0; }
     const abil = F && F.traits.length ? '<p><b>Their abilit' + (F.traits.length > 1 ? 'ies' : 'y') + ':</b> ' + F.traits.map(t => esc(R.abilityOf(t).name) + ' — ' + esc(R.abilityOf(t).text)).join('; ') + '</p>' : '';
     const how = '<p>Every point your team scores (a made contract, 10 a defending trick) hits them, and so does a contract of theirs you set: its whole value. Every point they score hits your health at ' + E.hitWord(L) + ', and a contract of yours that fails backfires: it hits you for its value at the same share. Nothing heals you until the fight is won.</p>';
     if (L.kind === 'chase' && L.chase) { const c = L.chase, CH = R.CHASE;
-      return '<h2>The Getaway</h2><p>' + esc(R.BOSS[c.boss].name) + ' are ' + c.gap + ' length' + (c.gap === 1 ? '' : 's') + ' ahead. Each stretch is one quick hand by Act I\u2019s rules: outscore them on it to gain, and they gain if you don\u2019t (a tie is theirs). Nothing hits your health.</p>' +
-        '<p>Close the gap within ' + CH.stretches + ' stretches to catch them: their strongbox is ' + CH.bounty + ' gold. If they get ' + CH.away + ' lengths ahead, or the track runs out, they get away, and the Fair is still won.</p><div class="btns"><button class="btn" data-act="closesheet">Back</button></div>'; }
+      return '<h2>' + (c.escape ? 'The Escape' : 'The Getaway') + '</h2><p>' + esc(R.BOSS[c.boss].name) + ' are ' + c.gap + ' length' + (c.gap === 1 ? '' : 's') + ' ahead. Each stretch is one quick hand by Act I\u2019s rules: outscore them on it to gain, and they gain if you don\u2019t (a tie is theirs). Nothing hits your health.</p>' +
+        '<p>Close the gap within ' + R.chaseLen(c) + ' stretches to catch them: their strongbox is ' + (c.bounty || CH.bounty) + ' gold. If they get ' + R.chaseAway(c) + ' lengths ahead, or the track runs out, ' +
+        (c.escape ? 'they reach the gate, where Pettibone shuts it on them: caught anyway, but the strongbox goes to the county.' : 'they get away, and the Fair is still won.') + '</p><div class="btns"><button class="btn" data-act="closesheet">Back</button></div>'; }
     if (L.kind === 'contest' && L.contest) { const C = R.CONTEST.list[L.contest.id];
       return '<h2>' + esc(C.name) + '</h2><p>' + esc(C.what) + '</p><p>' + (R.CONTEST.quick ? 'Two quick hands, by Act I\u2019s rules.' : 'One hand.') + ' Nothing hits your health either way: the ' + R.CONTEST.fee + 'g entry was the stake. Score so far: ' + (L.contest.score || 0) + '.</p>' + ribbonsHTML(L.contest.id, L.contest.score) +
         '<p>No ribbon, and the entry is the judges’.</p><div class="btns"><button class="btn" data-act="closesheet">Back</button></div>'; }
@@ -3294,7 +3310,7 @@ html.art .coach { border-radius: 0; }
     const F = L.foe;
     if (L.mode === 'standard') return '<div class="foe"><div class="fn"><b>' + esc(L.std.name) + '</b><span class="fhp">you ' + num(L.you) + ' · them ' + num(L.opp) + '</span></div>' +
       '<div class="foebar" aria-hidden="true"><i style="width:' + Math.max(0, Math.min(100, L.opp / 5)) + '%"></i><s style="width:' + Math.max(0, Math.min(100, L.opp / 5)) + '%"></s></div></div>';
-    if (L.kind === 'chase' && L.chase) { const c = L.chase, A = R.CHASE.away;
+    if (L.kind === 'chase' && L.chase) { const c = L.chase, A = R.chaseAway(c);
       return '<div class="foe"><div class="fn"><b>' + esc(R.BOSS[c.boss].name) + '</b><span class="fhp">' + c.gap + ' length' + (c.gap === 1 ? '' : 's') + ' ahead</span></div>' +
         '<div class="foebar" role="meter" aria-label="How far ahead they are" aria-valuemin="0" aria-valuemax="' + A + '" aria-valuenow="' + c.gap + '"><i style="width:' + Math.round(100 * c.gap / A) + '%"></i></div></div>'; }
     if (L.kind === 'contest' && L.contest) { const C = R.CONTEST.list[L.contest.id], sc = L.contest.score || 0, top = C.tiers[2];
@@ -3463,13 +3479,60 @@ html.art .coach { border-radius: 0; }
     return contestScene(L, C, CONTEST_SAY[L.contest.id]) + '<div class="oslip">' + slip + '</div>';
   }
   /* ---------------- the Getaway (2026-11-02) ---------------- */
+  /* The Marshal's gatehouse (2026-11-08, STORY-PLAN.md [1.2]-[1.3]): a story's Act I starts outside Euchre-ka!'s
+     stockade. Sheriff Hardcastle and Deputy Pettibone talk you in (the lines come one by one; a tap shows them all),
+     then the pick of one thing confiscated at the gate (R.gate). Every option is something the game already has. */
+  const GATE_TALK = [
+    ['sher', 'Ah! A voter!'],
+    ['you', 'Bounty hunter.'],
+    ['sher', 'Even better, you travel. Tell folks. Sheriff Hardcastle, Bower County. The Twins have taken over my prison, and I\u2019d go in myself, but I\u2019ve a baby to kiss at four.'],
+    ['sher', '(He raises his right hand.) By the power vested in me by Bower County, I deputise you, Mr\u2026 Voter.'],
+    ['pet', 'That\u2019s the Marshal\u2019s badge, Sheriff.'],
+    ['sher', 'Then don\u2019t lose it.'],
+    ['pet', '(He stamps the back of your hand: INMATE.) Everyone who goes in gets one. It doesn\u2019t wash off. Getting out\u2019s impossible. Getting in\u2019s twenty-five cents.']
+  ];
+  const GATE_ASK = 'Take something. It\u2019s all evidence, but the trials aren\u2019t till after the election.';
+  const GATE_WHO = { sher: 'Sheriff Hardcastle', pet: 'Deputy Pettibone', you: 'You' };
+  // the Sheriff gets every one of them wrong; Pettibone reads out what it really does
+  const SHERIFF_SAYS = { spyglass: 'A confiscated spyglass. For looking at things.', freshdeck: 'A brand-new deck. Never been cheated with. Probably.',
+    firstdraw: 'A starting pistol. Bang, and you\u2019re first.', sleeve: 'A shirt with very big sleeves. For warm arms.', nod: 'A nodding dog. Agrees with everything. Good campaign manager.',
+    peek: 'A little hand mirror. For your hair.', bowertie: 'Somebody\u2019s bow tie. Very quick to put on.', nearmiss: 'A bandage. Barely used.',
+    vest: 'A leather vest. Bulletproof, the fella said. He\u2019s up on Boot Hill now, but he said it.', canteen: 'A canteen. Full of something. Don\u2019t ask me what.',
+    ledger: 'My accounts book. Don\u2019t read the back pages.', watch: 'A pocket watch. It stopped once and saved a man\u2019s life. Or he stopped. One of the two.',
+    holster: 'A holster. Holds things. Quickly.', scope: 'A telescope for a rifle. I use it to count the crowd at my speeches.', map: 'A treasure map. X marks the spot. The spot is Pettibone\u2019s desk.',
+    credit: 'A store voucher. My campaign\u2019s. I\u2019d appreciate it back after the election.', holdout: 'A cuff with a pocket in it. Card sharps love \u2019em.',
+    bandolier: 'A bandolier. Very slimming.', iron: 'A tonic. Says \u201cIron\u201d on it. I think it\u2019s for ironing.', pillow: 'A feather pillow. Confiscated off a fella sleeping on the job. Pettibone.',
+    warrant: 'A signed warrant. My signature\u2019s on it, so it\u2019s valuable.', dice: 'A pair of dice. They always roll a six. Very honest dice.', swing: 'A card with a string on it.', count: 'An abacus.' };
+  function gateHTML(L) {
+    const G = L.gate || {}, b = G.buff, X = R.ELIXIRS, all = FAST || P.gateSeen === L.rs + ':' + L.level;
+    const say = (w, t, i) => '<p class="gsay ' + w + '" style="--i:' + i + '"><b>' + GATE_WHO[w] + ':</b> ' + esc(t).replace('INMATE', '<span class="inmate">INMATE</span>') + '</p>';
+    const opt = (id, title, sher, pet, off) => '<button class="choice" data-gate="' + id + '"' + (off ? ' disabled' : '') + '><b>' + esc(title) + '</b><span>\u201c' + esc(sher) + '\u201d</span>' +
+      (pet ? '<span class="pet">Pettibone: ' + esc(pet) + '</span>' : '') + '</button>';
+    const els = (G.elixirs || []).map(id => X[id] ? X[id].name + ': ' + X[id].text.replace(/\.$/, '') : '').filter(Boolean);
+    return '<div class="evscene gate" aria-hidden="true"><i class="ew" style="background-image:url(' + artURL('table/wall_gate.webp') + ')"></i>' +
+      '<img class="host l" src="' + artURL('table/fig_gKsher.webp') + '" alt=""><img class="host r" src="' + artURL('table/fig_gJpet.webp') + '" alt=""></div>' +
+      '<div class="panel gatepanel' + (all ? ' all' : '') + '"><h2>The Marshal\u2019s gatehouse</h2><div class="gtalk">' + GATE_TALK.map(([w, t], i) => say(w, t, i)).join('') + '</div>' +
+      '<div class="gpick" style="--i:' + GATE_TALK.length + '"><p class="ask"><b>Sheriff Hardcastle:</b> ' + esc(GATE_ASK) + '</p>' +
+      opt('buff', b ? R.BUFFS[b].name : 'Nothing left on the shelf', b ? SHERIFF_SAYS[b] || 'Took it off a card sharp. Does something clever, I\u2019m told.' : '', b ? R.BUFFS[b].text : '', !b) +
+      opt('elixirs', 'Two bottles of evidence', 'Two bottles of evidence. Mostly full.', els.join('. ') + '.') +
+      opt('upgrade', 'His lucky card', 'My lucky card. It\u2019s never lost.', 'He\u2019s never played it. (Pick an enhancement and put it on one of your cards.)') +
+      '</div></div>';
+  }
+  // the talk plays once a visit; a tap on it shows the rest at once
+  function gateShown(L) {
+    const key = L.rs + ':' + L.level, panel = document.querySelector('.gatepanel');
+    if (!panel) return;
+    panel.onclick = ev => { if (!ev.target.closest('[data-gate]')) { panel.classList.add('all'); P.gateSeen = key; } };
+    if (P.gateSeen !== key) setTimeout(() => { if (P.L === L && L.phase === 'gate') P.gateSeen = key; }, (GATE_TALK.length + 1) * 1100);
+  }
+
   /* Between stretches: the chase on one screen. Their cart (the Caller's mine cart down the silver mine, the
      Undertakers' ghost train) runs ahead at the right, you pump the handcar behind, the gap between you in
      lengths (CHASE.away of them across 62% of the width), the stretches run so far as marks over the track. Then the
      way: the main line, or (after the first stretch) the cut-off. */
   function chaseScene(L) {
-    const c = L.chase, X = window.EXPRESS_SCENE, ghost = c.boss === 'wallflowers', CH = R.CHASE;
-    const W = Math.min(innerWidth || 375, 560), k = W >= 520 ? 3 : 2, cart = ghost ? 'cart_ghost' : 'cart_mine';
+    const c = L.chase, X = window.EXPRESS_SCENE, ghost = c.boss === 'wallflowers', CH = { away: R.chaseAway(c), stretches: R.chaseLen(c) };
+    const W = Math.min(innerWidth || 375, 560), k = W >= 520 ? 3 : 2, cart = ghost ? 'cart_ghost' : c.boss === 'twins' && X && X.s.cart_twins ? 'cart_twins' : 'cart_mine';
     // the track runs along the scene's bottom (RB px up), whatever height the slip leaves it
     const h = Math.max(190, Math.round(Math.min((innerHeight || 812) * 0.4, 320))), RB = 34;
     // their cart near the right edge; your handcar's nose a length per `unit` behind its tail (the lengths are what's
@@ -3479,7 +3542,7 @@ html.art .coach { border-radius: 0; }
     const unit = Math.max(16, (tail - 10 - nose - back) / CH.away);
     const youX = tail - nose - (c.result === 'caught' ? -6 : 4 + gap * unit);
     const pic = (key, s, x, cls) => s ? '<img class="cv ' + cls + '" src="' + artURL('express/' + key + '.webp') + '" alt="" style="left:' + Math.round(x - s[2] * k) + 'px;bottom:' + (RB - (s[1] - s[3]) * k) + 'px;width:' + s[0] * k + 'px;height:' + s[1] * k + 'px">' : '';
-    const marks = Array.from({ length: CH.stretches }, (_, i) => { const r = (L.record || []).filter(x => x.kind === 'chase')[i];
+    const marks = Array.from({ length: CH.stretches }, (_, i) => { const r = (L.record || []).filter(x => x.kind === 'chase' && x.act === L.act)[i];
       return '<i class="' + (i < c.n ? (r && r.won ? 'won' : 'lost') : i === c.n && !c.result ? 'on' : '') + '"></i>'; }).join('');
     const words = c.result === 'caught' ? 'Caught!' : c.result === 'escaped' ? 'They got away' : gap + ' length' + (gap === 1 ? '' : 's') + ' behind';
     return '<div class="cscene ' + (ghost ? 'ghost' : 'mine') + (c.result ? '' : ' moving') + '" style="min-height:' + h + 'px" role="img" aria-label="' + esc(words) + '">' +
@@ -3488,9 +3551,10 @@ html.art .coach { border-radius: 0; }
       '<span class="cgap">' + esc(words) + '</span><div class="cmarks" aria-hidden="true">' + marks + '</div></div>';
   }
   function chaseHTML(L) {
-    const c = L.chase, CH = R.CHASE, B = R.BOSS[c.boss], ride = R.chaseRide(c), tip = R.coach(L);
+    const c = L.chase, CH = { stretches: R.chaseLen(c), bounty: c.bounty || R.CHASE.bounty, forks: R.CHASE.forks }, B = R.BOSS[c.boss], ride = R.chaseRide(c), tip = R.coach(L);
     const bn = B.name.replace(/^The /, 'the ');
     let slip;
+    if (c.escape) return chaseScene(L) + '<div class="oslip">' + (tip && !c.result ? '<div class="coachline"><span class="face svg">' + partnerFace(L.partner) + '</span><p>' + esc(tip.text) + '</p></div>' : '') + escapeSlip(L) + '</div>';
     if (c.result) {
       const got = c.result === 'caught', np = (c.unlock || []).map(id => R.ROSTER.find(p => p.id === id)).filter(Boolean);
       slip = '<h3>' + (got ? 'You catch ' + esc(bn) + '!' : esc(B.name) + ' get away') + '</h3><p>' + (got ? 'Right at the end of the line. Their strongbox is yours: <b class="good">+' + CH.bounty + ' gold</b>.' +
@@ -3506,6 +3570,21 @@ html.art .coach { border-radius: 0; }
           return '<button class="choice" data-chase="' + id + '"' + (off ? ' disabled' : '') + '><b>' + esc(f.name) + '</b><span>' + esc(off ? 'Branches off after the first stretch.' : f.text) + '</span></button>'; }).join('');
     }
     return chaseScene(L) + '<div class="oslip">' + (tip && !c.result ? '<div class="coachline"><span class="face svg">' + partnerFace(L.partner) + '</span><p>' + esc(tip.text) + '</p></div>' : '') + slip + '</div>';
+  }
+  /* Act I's escape (2026-11-08): the Getaway's screen with Act I's words. The Twins bolt for the gate in an ore cart; a
+     catch is their strongbox, and if they reach the gate Pettibone shuts it on them anyway. */
+  function escapeSlip(L) {
+    const c = L.chase, n = R.chaseLen(c), bounty = c.bounty || R.CHASE.bounty;
+    if (c.result) return '<h3>' + (c.result === 'caught' ? 'You catch the Twins short of the gate!' : 'They reach the gate first\u2026') + '</h3><p>' +
+      (c.result === 'caught' ? 'Chandeliers and all. Their strongbox is yours: <b class="good">+' + bounty + ' gold</b>.' : '\u2026and Deputy Pettibone shuts it in their faces. Caught anyway; their strongbox goes to the county.') +
+      '</p><div class="btns"><button class="btn" data-chase="finish">Out through the gate</button></div>';
+    const last = c.last ? '<p class="' + (c.last.won ? 'good' : 'badc') + '">' + (c.last.won ? 'You took the stretch, ' + c.last.you + ' to ' + c.last.them + ': you gain ' : 'They took the stretch, ' + c.last.them + ' to ' + c.last.you + ': they gain ') +
+      c.last.step + ' length' + (c.last.step > 1 ? 's' : '') + '.</p>' : '';
+    const intro = c.n ? '' : '<p>The Twins bolt for the gate in an ore cart full of gold, two chandeliers bolted on the front! You jump on a handcar after them. ' + n +
+      ' stretches of track, each one quick hand (3 cards, Act I\u2019s rules). Outscore them on a stretch to gain on them; nothing hits your health. Catch them for their strongbox.</p>';
+    return '<h3>The Escape \u00b7 stretch ' + (c.n + 1) + ' of ' + n + '</h3>' + last + intro +
+      Object.entries(R.CHASE.forks).map(([id, f]) => { const off = id === 'cutoff' && !c.n;
+        return '<button class="choice" data-chase="' + id + '"' + (off ? ' disabled' : '') + '><b>' + esc(f.name) + '</b><span>' + esc(off ? 'Branches off after the first stretch.' : f.text) + '</span></button>'; }).join('');
   }
   /* The finale (2026-11-02): over the Fair at night, the boss's poster stamped CAUGHT or GOT AWAY, fireworks over
      the gates, your partner's farewell, and anyone the Getaway brought to ride with you next time. Once a run;
@@ -3545,56 +3624,8 @@ html.art .coach { border-radius: 0; }
     DEPART.timers = [setTimeout(() => card.classList.add('said'), reduceMotion() ? 0 : 600)];
     card.onpointerdown = ev => { if (!ev.target.closest('[data-act="finaledone"]')) card.classList.add('said'); };
   }
-  /* The Family Reunion (the story's end, 2026-11-05): after the finale's "See your ride", the Fair at sundown. Grandma
-     Hollis (the pie judge's figure) says why every bounty was paid from her purse, the family photo for the Largest
-     Family Present is one short, and you step into it: "I'm your grandmother." Your partner answers, the flash goes,
-     and Say cheese! goes on to the run's numbers. Beats b1-b4 one at a time the first time (profile.reunions; a tap
-     brings the next), all at once after. Never in ?fast (the finale never plays there). */
-  const REUNION = {
-    plan: 'Thank you, dear. Thirty years I\u2019ve tried to get this family in one place, and not one of them would come home for Christmas. So I put a bounty on every one, paid from my pie money. Then my grandson Hamish asked you where you were off to next, and I bought the tickets.',
-    twist: 'This year\u2019s first prize is a hog, for the Largest Family Present, and the judges say we\u2019re one short. Why do you think you\u2019re so good at cards, dear? I\u2019m your grandmother.'
-  };
-  // your partner, when Grandma says it
-  const REUNION_BACK = {
-    horse: '(Biscuit looks at you, then at Grandma, then at you again. Same nose. She snorts, and stands a little closer for the picture.)',
-    nan: 'Edna Hollis! Forty years you\u2019ve beaten my cherry pie at this Fair, and now this? \u2026Well. I always said there was something about your nose, dear.',
-    showboat: 'A long-lost grandchild! A prize hog! A family photo! Partner, this is the ending I\u2019ve been rehearsing my whole life. Get my good side.',
-    sharp: 'Every bounty from one purse, every gang the same nose. I had it at sixty percent, partner. I should have said something.',
-    quiet: '(The Quiet One takes off their hat for the first time on the whole trail, and stands at the end of the row for the picture.)'
-  };
-  // the photo: the Showdowns' outlaws in two rows, Grandma in the middle of the front, you beside her once she says it
-  const FAMILY = { back: ['sJK', 'pKU', 'pKX', 'pKX', 'pKU', 'sQD'], front: ['pJY', 'pJT', 'gQpj', 'you', 'partner', 'pJT', 'pJY'] };
+
   const figFace = key => '<span class="face fig"><img src="' + artURL('table/fig_' + key + '.webp') + '" alt=""></span>';
-  function playReunion(L) {
-    const card = $('actcard'), pr = profile(), first = !(pr.reunions > 0), p = R.PARTNERS[L.partner] || R.PARTNERS.horse;
-    pr.reunions = (pr.reunions || 0) + 1;
-    try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) { /* private mode */ }
-    DEPART.timers.forEach(clearTimeout);
-    const fig = (key, cls) => '<img class="' + cls + '" src="' + artURL('table/fig_' + key + '.webp') + '" alt="">';
-    const row = keys => keys.map(k => k === 'partner' ? fig(PARTNER_FIG[p.id] || PARTNER_FIG.horse, 'pard') : fig(k, k === 'you' ? 'you' : k === 'gQpj' ? 'gma' : 'kin')).join('');
-    card.className = 'reunion on';
-    card.style.backgroundImage = '';
-    card.innerHTML = '<div class="board"><small>SUNDOWN AT THE FAIR</small><b>THE HOLLIS FAMILY</b><span>Largest Family Present: judging now</span></div>' +
-      '<div class="rphoto" role="img" aria-label="The Hollis family photo, and you in the middle of it"><div class="rrow back">' + row(FAMILY.back) + '</div>' +
-      '<div class="rrow front">' + row(FAMILY.front) + '</div><p class="rcap">First prize \u00b7 Largest Family Present</p><i class="rflash"></i></div>' +
-      '<div class="say r1">' + figFace('gQpj') + '<p><b>Grandma Hollis:</b> ' + esc(REUNION.plan) + '</p></div>' +
-      '<div class="say r2">' + figFace('gQpj') + '<p><b>Grandma Hollis:</b> ' + esc(REUNION.twist) + '</p></div>' +
-      '<div class="say r3"><span class="face svg">' + partnerFace(p.id) + '</span><p><b>' + esc(p.name) + ':</b> ' + esc(REUNION_BACK[p.id] || REUNION_BACK.nan) + '</p></div>' +
-      '<button class="btn r4" data-act="reuniondone">Say cheese!</button>';
-    try { card.scrollTop = 0; } catch (e) { /* no layout */ }
-    let n = 0;
-    const WAIT = [900, 9000, 6500, 5000];
-    const next = () => {
-      DEPART.timers.forEach(clearTimeout);
-      if (n >= 4) return;
-      card.classList.add('b' + (++n));
-      try { if (n > 1) card.scrollTop = card.scrollHeight; } catch (e) { /* no layout */ }
-      if (n < 4) DEPART.timers = [setTimeout(next, WAIT[n])];
-    };
-    if (!first || reduceMotion()) { while (n < 4) card.classList.add('b' + (++n)); return; }
-    DEPART.timers = [setTimeout(next, WAIT[0])];
-    card.onpointerdown = ev => { if (!ev.target.closest('[data-act="reuniondone"]')) next(); };
-  }
   function storeHTML(L) {
     const key = 'shop:' + L.rs + ':' + (L.path || []).length + ':' + (L.restocks || 0);
     if (!P.shopSel || P.shopSel.key !== key) P.shopSel = { key, i: null, card: null };
@@ -4161,7 +4192,7 @@ html.art .coach { border-radius: 0; }
         '<ul class="lines">' + r.lines.map(t => '<li>' + esc(t) + '</li>').join('') + '</ul>' +
         (goal ? '<div class="kv"><span>' + (L.kind === 'bank' ? 'Objective' : 'Bonus') + '</span><span>' + goal + '</span></div>' : '') +
         (over && F ? '<p class="big good">' + esc(F.name) + (L.kind === 'boss' ? ' are brought to justice!' : ' are brought in!') + '</p>' : '') +
-        '<div class="btns"><button class="btn" data-act="next">' + (over ? 'See the stars' : 'Next hand') + '</button></div>';
+        '<div class="btns"><button class="btn" data-act="next">' + (over ? (L.euchre && L.act === 1 && L.kind === 'boss' && L.boss === 'twins' && !L.escaped ? 'They\u2019re running for the gate!' : 'See the stars') : 'Next hand') + '</button></div>';
     } else if (L.phase === 'over') {
       const r = L.result;
       key = 'over' + L.level;
@@ -4182,6 +4213,8 @@ html.art .coach { border-radius: 0; }
         '<span>Health</span><span>' + L.health + (r.change ? ' (−' + -r.change + ' this fight)' : ' (untouched)') + '</span>' +
         '<span>Reward</span><span>' + next + '</span></div>' + payoutHTML(r, L.gold) +
         '<div class="btns"><button class="btn" data-act="collect">Collect</button></div>';
+      // ESCAPE FROM EUCHRE-KA! (2026-11-08): first the Sheriff's photo with the Twins, the paper, your reply
+      if (r.kind === 'boss' && playJail(L)) { showSheet('', null); return; }
       // a Showdown pays out on the sheriff's desk instead (the pop-up stays for ?fast and without the art)
       if (r.kind === 'boss' && playPaid(L)) { showSheet('', null); return; }
     }
@@ -4433,8 +4466,8 @@ html.art .coach { border-radius: 0; }
     }
     // a card that can't be played or picked (your cards panel, a hand while it isn't your turn): a tap explains it
     const plain = ev.target.closest('.card[data-c]');
-    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-chase],[data-wanted],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-psel],[data-pickcard],[data-partner],[data-foe],[data-sleeve],[data-kitsel]')) { showCardInfo(plain.dataset.c); return; }
-    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-chase],[data-wanted],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-psel],[data-pickcard],[data-partner],[data-foe],[data-sleeve],[data-kitsel]');
+    if (plain && !plain.closest('#sheet') && !plain.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-chase],[data-gate],[data-wanted],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-psel],[data-pickcard],[data-partner],[data-foe],[data-sleeve],[data-kitsel]')) { showCardInfo(plain.dataset.c); return; }
+    const t = ev.target.closest('[data-act],[data-card],[data-bid],[data-take],[data-go],[data-choose],[data-claim],[data-enhance],[data-option],[data-camp],[data-bank],[data-contest],[data-chase],[data-gate],[data-wanted],[data-water],[data-shunt],[data-buy],[data-good],[data-hot],[data-bag],[data-polish],[data-forge],[data-remove],[data-release],[data-cleanse],[data-tip],[data-pickenh],[data-psel],[data-pickcard],[data-partner],[data-foe],[data-sleeve],[data-kitsel]');
     if (!t || t.disabled) return;
     if (t.closest('#sheet') && Date.now() < P.guardUntil) return;
     const L = P.L, d = t.dataset;
@@ -4454,6 +4487,7 @@ html.art .coach { border-radius: 0; }
     if (d.bank) { move('bank', d.bank); return; }
     if (d.contest) { move('contest', d.contest); return; }
     if (d.chase) { move('chase', d.chase); return; }
+    if (d.gate) { move('gate', d.gate); return; }
     if (d.wanted != null && P.picking && P.L) { R.act(P.L, 'wanted', +d.wanted); showPick(); return; }
     if (d.wanted != null && P.L && P.L.phase === 'partner') { move('wanted', +d.wanted); return; }
     if (d.water) { move('water', d.water); return; }
@@ -4506,8 +4540,8 @@ html.art .coach { border-radius: 0; }
       case 'heatstop': move('heat', 'stop'); break;
       case 'skipgrave': endGrave(); break;
       case 'draw': draw(); break;
-      case 'allaboard': case 'intofair': case 'reuniondone': endDepart(); break;
-      case 'finaledone': if (P.L && P.L.mode !== 'standard' && $('actcard').classList.contains('finale')) playReunion(P.L); else endDepart(); break;
+      case 'allaboard': case 'intofair': endDepart(); break;
+      case 'finaledone': endDepart(); break;
       case 'takejob': takeJob(); break;
       case 'freshdeal': P.sleeving = false; move('freshdeal'); break;
       case 'sleevemode': P.sleeving = !P.sleeving; render(); break;
@@ -4587,7 +4621,7 @@ html.art .coach { border-radius: 0; }
     openSheet('info', dailyHTML());
   }
   function startDaily(practice) {
-    const L = R.newRun({ daily: today(), tips: $('tipsPick').checked, unlocked: profile().beaten });
+    const L = R.newRun({ daily: today(), tips: $('tipsPick').checked, unlocked: profile().beaten, euchre: true });
     if (practice) L.daily.practice = true;
     P.sheet = null; P.shown = null; $('veil').hidden = true;
     playOpening(L, () => { P.L = L; show(); });
@@ -4605,7 +4639,7 @@ html.art .coach { border-radius: 0; }
     // the Wanted level starts at the highest open (2026-11-02); the partner pick can lower it
     const rides = pr.rides || [], last = rides[rides.length - 1] || {};
     const memory = { runs: rides.length, lastWon: !!last.won, lastAct: last.act || 0, lostTo: last.lostTo || null, marked: pr.marked || 0 };
-    const L = R.newRun({ seed, objective: $('objPick').value || undefined, tips: $('tipsPick').checked, pickPartner: true, unlocked: pr.beaten, maxWanted: pr.wanted || 0, wanted: pr.wanted || 0, bonds: pr.bond || {},
+    const L = R.newRun({ seed, euchre: true, objective: $('objPick').value || undefined, tips: $('tipsPick').checked, pickPartner: true, unlocked: pr.beaten, maxWanted: pr.wanted || 0, wanted: pr.wanted || 0, bonds: pr.bond || {},
                          ghost: pr.ghost, memory, hot: hotSetting() === 'on', stranger: (pr.marked || 0) >= R.STRANGER.marks && !(pr.beaten || []).includes('stranger') });
     // the ghost rides once: the story that meets it has taken it
     if (pr.ghost) { delete pr.ghost; try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} }
@@ -5175,6 +5209,14 @@ html.art .coach { border-radius: 0; }
   function rideIntoTown(L) {
     P.panned = L.act + ':' + L.levelsDone;           // this act's first look is the ride, not the pan
     endOpening();                                     // (starts the run: OPEN.done draws the map)
+    // ESCAPE FROM EUCHRE-KA! (2026-11-08): the dust clears on the gatehouse first; the ride through the gate and the
+    // Twins' poster come once you've been deputised (render, on the act's card pick)
+    if (P.L && (P.L.phase === 'gate' || (P.L.phase === 'reward' && P.L.gated))) { P.rideDue = true; return; }
+    rideIn();
+  }
+  function rideIn() {
+    const L = P.L;
+    if (!L) return;
     const box = document.querySelector('.mapbox.euchre'), el = box && box.querySelector('.rodein');
     const foot = () => { if (box) try { window.scrollTo(0, Math.max(0, box.getBoundingClientRect().bottom + scrollY - innerHeight + 6)); } catch (e) { /* no layout */ } };
     foot();
@@ -5237,26 +5279,21 @@ html.art .coach { border-radius: 0; }
   }
   /* The boss's wanted poster, as it hangs: the job at an act's start, crossed out on payday. */
   // (with the loot they carry, 2026-11-01: its picture and its name under the gold)
-  function wantedFace(id, loot) {
-    const B = R.BOSS[id], lt = loot && R.BUFFS[loot];
+  function wantedFace(id, loot, L) {
+    const B = R.BOSS[id], lt = loot && R.BUFFS[loot], half = R.halfPaid(L, id);
     return '<i class="nail"></i><span class="w">WANTED</span><span class="d">DEAD OR ALIVE</span><img src="' + artURL('wanted/' + id + '.webp') + '" alt="">' +
-      '<span class="n">' + esc(B.name.toUpperCase()) + '</span><span class="rw">REWARD 100 GOLD</span>' +
-      (lt ? '<span class="loot"><img src="' + artURL('goods/buff_' + loot + '.webp') + '" alt=""><span><small>& THEIR LOOT</small>' + esc(lt.name.toUpperCase()) + '</span></span>' : '');
+      '<span class="n">' + esc(B.name.toUpperCase()) + '</span><span class="rw">REWARD ' + (half ? R.thousands(R.HALF_PAID.promised) : 100) + ' GOLD</span>' +
+      (lt ? '<span class="loot"><img src="' + artURL('goods/buff_' + loot + '.webp') + '" alt=""><span><small>& THEIR LOOT</small>' + esc(lt.name.toUpperCase()) + '</span></span>' : '') +
+      (half ? '<span class="rw up">& A CARD UPGRADE</span>' : '') + (half && L && L.euchre ? '<span class="vote">VOTE HARDCASTLE</span>' : '');
   }
-  /* The Family Reunion (the story, 2026-11-05; Sheriff Crane's twist before it). You ride in for a bounty "posted by a
-     concerned citizen" and nobody says more. Every gang you bring in is a Hollis, and you only find out at the very end:
-     Grandma Hollis paid every bounty from her pie money to get her scattered grandchildren to the County Fair for its
-     Largest Family Present prize, and you're the grandchild who makes up the number. The story arrives in scraps that
-     read as jokes the first time and as clues after: the Showdowns' taunts (Grandma, cousins, "the whole family"), the
-     payday ledger (HOLLIS.ledger), the Gazette's byline (playGazette), a train that doesn't stop, the prize banner at the
-     Fair's gates (arriveLine), and Grandma's reveal (playReunion). Partners react; nobody explains. */
-  const HOLLIS = {
-    ledger: { 1: 'Paid in full by a concerned citizen.', 2: 'Paid by the same concerned citizen. The envelope smells of cinnamon.',
-              3: 'Paid by the concerned citizen, Mrs. E. Hollis, in pie-stall coin.' }
-  };
+  /* The story (2026-11-06, STORY-PLAN.md; it replaces the Family Reunion, which replaced Sheriff Crane). Act I's
+     poster promises 200 gold, payday pays 100 (R.HALF_PAID), and the Sheriff sends you to Bower City for the rest
+     with the Twins as your prisoners (playGazette's first step). Acts II and III are rebuilt in later steps (CON RAIL,
+     THE FUGI-TWINS); until then their words only bridge to Bower City. */
+  const LEDGER = { 1: 'Owed: ' + (R.HALF_PAID.promised - R.HALF_PAID.paid) + ' gold, payable on delivery at Bower City.' };
   const JOB = {
-    1: ['A hundred gold, posted by a concerned citizen', 'That\u2019s them, dear. The Twins. A hundred gold on them, and nobody in town will say who\u2019s paying it.'],
-    2: ['This train doesn\u2019t stop till the Fair', 'They\u2019re up in the locomotive, dear. Car by car, through the carriages or over the roofs.'],
+    1: ['A thousand gold, payable by Sheriff Hardcastle of Bower County', 'A thousand gold, dear. That\u2019s a new roof, a new horse, and change for a great deal of pie.'],
+    2: ['This train doesn\u2019t stop till the end of the line', 'They\u2019re up in the locomotive, dear. Car by car, through the carriages or over the roofs.'],
     3: ['Waiting at the top of the midway', 'The last of them, dear. Bring this one in and we can finally enjoy the Fair.']
   };
   function unrollJob(L) {
@@ -5268,7 +5305,7 @@ html.art .coach { border-radius: 0; }
     const chosen = L.phase !== 'partner';       // a new story: nobody rides with you yet, so nobody speaks
     const why = L.act === 2 && R.BOSS[L.map.boss].revenge ? R.BOSS[L.map.boss].revenge : '';
     b.innerHTML = '<p class="why">' + esc(J[0]) + '</p><div class="scroll"><div class="wposter" role="img" aria-label="' + esc('Wanted: ' + R.BOSS[L.map.boss].name + ', reward 100 gold') + '">' +
-      wantedFace(L.map.boss, L.map.loot) + '</div><i class="rod" aria-hidden="true"></i></div>' + (why ? '<p class="why long">' + esc(why) + '</p>' : '') +
+      wantedFace(L.map.boss, L.map.loot, L) + '</div><i class="rod" aria-hidden="true"></i></div>' + (why ? '<p class="why long">' + esc(why) + '</p>' : '') +
       // Act II: your partner said all this on the departure platform a moment ago, so the Sheriff speaks alone
       (chosen && !(L.act === 2 && why) ? '<div class="nanline"><b>' + esc(R.PARTNERS[L.partner].name) + ':</b> ' + esc(R.voice(L, J[1])) + '</div>' : '') +
       '<button class="btn" data-act="takejob">' + (chosen ? 'Let\u2019s ride' : 'Take the job') + '</button>';
@@ -5316,7 +5353,7 @@ html.art .coach { border-radius: 0; }
     wall.style.backgroundImage = 'url(' + artURL('table/' + wallKey(L, r) + '.webp') + ')';
     wall.style.backgroundSize = 200 * k + 'px ' + 112 * k + 'px';
     poster.style.transform = 'translate(-50%, 0)';
-    poster.innerHTML = wantedFace(r.boss || L.boss, r.loot) +
+    poster.innerHTML = wantedFace(r.boss || L.boss, r.loot, L) +
       '<svg class="px" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M10 12 Q48 46 90 90"/><path pathLength="1" d="M89 10 Q54 50 12 88"/></svg>' + stampSVG();
     poster.setAttribute('aria-label', 'Wanted: ' + boss.name);
     poster.classList.remove('hang', 'shake'); void poster.offsetWidth; poster.classList.add('hang');
@@ -5384,7 +5421,7 @@ html.art .coach { border-radius: 0; }
       const led = document.createElement('div');
       led.className = 'ledger';
       led.style.left = l0[0] + 'px'; led.style.top = l0[1] + 'px'; led.style.width = (l1[0] - l0[0]) + 'px';
-      led.innerHTML = '<h3>BOUNTY PAID</h3>' + payoutHTML(r, L.gold) + (L.mode !== 'standard' && HOLLIS.ledger[L.act] ? '<p class="lnote">' + esc(HOLLIS.ledger[L.act]) + '</p>' : '');
+      led.innerHTML = '<h3>BOUNTY PAID</h3>' + payoutHTML(r, L.gold) + (R.halfPaid(L, r.boss || L.boss) && LEDGER[L.act] ? '<p class="lnote">' + esc(LEDGER[L.act]) + '</p>' : '');
       g.appendChild(led);
       countUp(led.querySelector('.payout'));
       // a coin hops from the sheriff's stack to the ledger for every line that paid
@@ -5429,11 +5466,11 @@ html.art .coach { border-radius: 0; }
     const key = L.rs + ':' + L.act;
     if (FAST || L.act < 2 || P.actCardFor === key) return;
     P.actCardFor = key;
-    if (L.act === 2 && L.map && L.map.side) { if (L.mode !== 'standard' && !L.saidFair) playGazette(L); else playDepart(L); return; }
+    if (L.act === 2 && L.map && L.map.side) { if (L.mode !== 'standard' && !L.saidFair && !L.euchre) playGazette(L); else playDepart(L); return; }
     if (L.act === 3 && L.map) { playArrive(L); return; }
     $('actcard').className = '';
     const card = $('actcard'), S = window.TITLE_SCENE, art = document.documentElement.classList.contains('art');
-    const A = { 2: ['ACT II', 'THE WESTBOUND EXPRESS', 'Next stop: the County Fair. No other stops.', 'All aboard, dear! You told the paper we\u2019re going to the Fair, so to the Fair we go.'],
+    const A = { 2: ['ACT II', 'THE WESTBOUND EXPRESS', 'Next stop: Bower City. No other stops.', 'All aboard, dear! Bower City and the other nine hundred gold, with the Twins locked in the prison car.'],
                 3: ['ACT III', 'THE COUNTY FAIR', 'End of the line', 'Full steam ahead, dear! The Fair at last, and a poster waiting at the end of the line.'] }[L.act];
     card.style.backgroundImage = art ? (L.act === 2 ? 'url(' + artURL('train/band_desert.webp') + ')' : 'repeating-linear-gradient(90deg, #b8322a 0 36px, #f4e3bf 36px 72px)') : '';
     card.style.backgroundSize = L.act === 2 ? 'auto 100%' : '';
@@ -5511,49 +5548,141 @@ html.art .coach { border-radius: 0; }
      the first time the Twins are beaten (profile.nanMet). */
   function departLine(L) {
     const gang = R.BOSS[L.map.boss] ? R.BOSS[L.map.boss].name.replace(/^The /, 'the ') : 'a gang';
-    return R.voice(L, 'You told the whole county we\u2019re going to the Fair, dear, so to the Fair we go. Funny thing: the ticket man says this train doesn\u2019t stop anywhere till it gets there. And ' +
+    return R.voice(L, 'Bower City, dear, and the other nine hundred gold. The Twins are locked in the prison car, the ticket man says this train doesn’t stop till the end of the line, and ' +
       gang + ' just got on at the front.');
   }
-  /* The Euchre-ka! Gazette (2026-11-05, the Family Reunion): after Act I's Showdown, before the departure, a cub reporter
-     asks what you'll do now that you've won (the "I'm going to Disneyland!" moment). Every answer is the County Fair, the
-     paper prints HERO HEADS FOR FAIR whichever you pick, and the reporter has bought your tickets already. His byline,
-     H. Hollis, is the clue in plain sight. L.saidFair keeps the answer, so it plays once a story; never in ?fast. */
+  /* After Act I's Showdown, before the departure (2026-11-06, the new story; STORY-PLAN.md [1.4]-[1.5]): the Sheriff
+     says why you were paid half and hands you the Twins to take to Bower City, then the Gazette's cub reporter asks what
+     you'll do with your two hundred gold, and the paper prints HERO PAID IN FULL whichever you pick. L.saidFair (the
+     old name, kept for saves) keeps the answer, so it plays once a story; never in ?fast. */
+  const SHERIFF = { name: 'Sheriff Hardcastle',
+    errand: 'Town’s struck rich, friend, but the gold’s all in nuggets and the reward’s in county scrip. The county pays the other nine hundred at Bower City. Do me a favour while you’re going: take them with you.' };
   const GAZETTE = {
-    ask: 'You just brought in the Hollis Twins! What are you going to do now?',
+    reporter: 'Scoop Malone',
+    ask: 'A thousand gold! What’ll you do with it?',
     answers: [
-      { id: 'fair', say: 'I\u2019m going to the County Fair!', print: '\u201cI\u2019m going to the County Fair!\u201d says hero. Fair says: about time.' },
-      { id: 'sleep', say: 'Sleep for a week. Somewhere with a Ferris wheel.', print: '\u201cSomewhere with a Ferris wheel,\u201d says hero. There is one Ferris wheel in the county. It is at the Fair.' },
-      { id: 'point', print: 'Hero says nothing, points at Fair poster. \u201cPoints at Fair,\u201d we report.' }
+      { id: 'ranch', say: 'Buy a ranch.', print: '“A ranch,” says hero, counting a hundred gold ten times.' },
+      { id: 'horse', say: 'Buy a better horse.', print: '“A better horse,” says hero. Hero’s horse was not available for comment.' },
+      { id: 'tab', say: 'Pay off half my bar tab.', print: '“Half my bar tab,” says hero. The Saloon asks: which half?' }
     ],
-    tickets: 'Train leaves at noon. I took the liberty of buying your tickets. Front carriage is full, mind: family.'
+    after: 'Bower City, is it? I’ll be on that train myself. Nothing ever happens on trains.'
   };
   const REPORTER = 'gJmc1';
   function playGazette(L) {
-    const card = $('actcard'), p = R.PARTNERS[L.partner] || R.PARTNERS.horse;
-    const point = '(Say nothing. ' + p.name + (L.partner === 'horse' ? ' points at the Fair poster with her nose.)' : ' points at the Fair poster on the wall.)');
-    const said = text => '<div class="say">' + figFace(REPORTER) + '<p><b>H. Hollis, the Gazette:</b> ' + esc(text) + '</p></div>';
+    const card = $('actcard');
+    const said = text => '<div class="say">' + figFace(REPORTER) + '<p><b>' + esc(GAZETTE.reporter) + ', the Gazette:</b> ' + esc(text) + '</p></div>';
+    const sheriff = '<div class="say sheriff"><span class="face svg">' + pwSvg('star') + '</span><p><b>' + esc(SHERIFF.name) + ':</b> ' + esc(SHERIFF.errand) + '</p></div>';
+    const ask = said(GAZETTE.ask) + '<div class="gopts">' + GAZETTE.answers.map(a => '<button class="gopt" data-g="' + a.id + '">' + esc(a.say) + (a.id === 'horse' && L.partner === 'horse' ? ' <i>(Biscuit glares)</i>' : '') + '</button>').join('') + '</div>';
     DEPART.timers.forEach(clearTimeout);
     card.className = 'gazette on';
     card.style.backgroundImage = '';
     card.innerHTML = '<div class="gpaper"><div class="gmast">The Euchre-ka! Gazette</div><div class="gdate"><span>Extra!</span><span>One cent</span><span>Struck rich 1879</span></div>' +
-      '<div class="gstory"><img src="' + artURL('wanted/twins.webp') + '" alt=""><div><b class="ghead">Twins brought in</b><p class="gsub">Bounty hunter cleans up the Saloon. The Hollis family \u201cnot available for comment\u201d.</p></div></div>' +
-      '<p class="gby">by H. Hollis, cub reporter</p></div>' +
-      '<div class="gwords">' + said(GAZETTE.ask) + '<div class="gopts">' + GAZETTE.answers.map(a => '<button class="gopt" data-g="' + a.id + '">' + esc(a.say || point) + '</button>').join('') + '</div></div>';
+      '<div class="gstory"><img src="' + artURL('wanted/twins.webp') + '" alt=""><div><b class="ghead">Twins brought in</b><p class="gsub">Bounty hunter cleans up the Saloon. Sheriff “delighted”, “temporarily short”.</p></div></div>' +
+      '<p class="gby">by ' + esc(GAZETTE.reporter) + ', cub reporter</p></div>' +
+      '<div class="gwords">' + sheriff + '<button class="btn" data-gerrand="1">Take them with you</button></div>';
     try { card.scrollTop = 0; } catch (e) { /* no layout */ }
     card.onpointerdown = null;
     card.onclick = ev => {
       const go = ev.target.closest('[data-gdone]');
       if (go) { card.onclick = null; playDepart(L); return; }
+      if (ev.target.closest('[data-gerrand]')) { card.querySelector('.gwords').innerHTML = ask; return; }
       const b = ev.target.closest('[data-g]'), a = b && GAZETTE.answers.find(x => x.id === b.dataset.g);
       if (!a || L.saidFair) return;
       L.saidFair = a.id;
       save();
       card.querySelector('.gstory img').src = artURL('wanted/you.webp');
-      card.querySelector('.ghead').textContent = 'Hero heads for Fair';
+      card.querySelector('.ghead').textContent = 'Hero paid in full';
       card.querySelector('.gsub').textContent = a.print;
-      card.querySelector('.gwords').innerHTML = said(GAZETTE.tickets) + '<button class="btn" data-gdone="1">To the station</button>';
+      card.querySelector('.gwords').innerHTML = said(GAZETTE.after) + '<button class="btn" data-gdone="1">To the station</button>';
       card.classList.remove('printed'); void card.offsetWidth; card.classList.add('printed');
     };
+  }
+  /* The end of Act I (2026-11-08, STORY-PLAN.md [1.8]-[1.9]): in the gatehouse jail the Sheriff poses with the Twins
+     behind bars and elbows you out of the picture; Scoop Malone's flash goes off; the Gazette prints the photo (you
+     cropped out but for your hat brim) under EUREKA! SHERIFF STRIKES GOLD; the Sheriff thanks you, you reply (each
+     partner has a reply of their own, which sets up their vote at the end of Act III), and every reply ends on the
+     900 paid only on delivery at Bower City and Pettibone's sandwich box. Then the payday as ever. L.saidFair keeps
+     your reply (the old Gazette's field), so it plays once a story. Returns false when it can't play (?fast, no art,
+     a story begun before the gate). */
+  const JAIL = {
+    scoop: 'Scoop Malone, under the camera\u2019s black cloth: \u201cHold it\u2026 hold it\u2026\u201d',
+    thanks: 'Couldn\u2019t have done it without you. Well. Could have. Didn\u2019t, but could have.',
+    replies: [
+      { id: 'work', say: 'I did all the work.', back: 'Teamwork! That\u2019s exactly what I told the paper.' },
+      { id: 'paper', say: 'Can I get my name in the paper?', back: 'Spell it for me. I\u2019ll see it gets in the corrections.' },
+      { id: 'gold', say: 'Where\u2019s my thousand gold?', back: '' }
+    ],
+    // your partner's own reply, and the Sheriff's answer (and Pettibone's, for the Sharp)
+    partner: { horse: ['(Biscuit stamps a hoof.)', 'Is that a yes? I\u2019ll count that as a yes.'], nan: ['You\u2019ll have my vote, dear.', 'Finally, a voter!'],
+               showboat: ['Sheriff, you need a speechwriter.', 'Got one. Pettibone writes all my lists.'], sharp: ['How many votes did you get last time?', 'All of them.', 'Eleven, sir.'],
+               quiet: ['(The Quiet One stares at him.)', '\u2026I\u2019ll put you down as undecided.'] },
+    close: [['sher', 'Now, about the reward. County rules, friend: the treasurer in Bower City pays on delivery. No Twins, no nine hundred. Here\u2019s a hundred from the campaign fund to be going on with.'],
+            ['pet', 'That was for the brass band, sir.'],
+            ['sher', 'And seeing as I\u2019m headed to Bower City myself, on the campaign train, you can deliver them on the way. Train leaves at noon.'],
+            ['pet', 'I packed you a sandwich. (He hands you a box: the sandwich, and a stuffed bunny.) And would you take this to my niece in Bower City? It\u2019s her birthday.']]
+  };
+  const JAILK = { timers: [] };
+  function jailStage(cls) {
+    return '<div class="jstage' + (cls ? ' ' + cls : '') + '" style="background-image:url(' + artURL('table/wall_jail.webp') + ')">' +
+      '<img class="tw1" src="' + artURL('table/fig_gJtwp.webp') + '" alt=""><img class="tw2" src="' + artURL('table/fig_gJtwp.webp') + '" alt=""><i class="bars"></i>' +
+      '<img class="sher" src="' + artURL('table/fig_gKsher.webp') + '" alt=""><img class="you" src="' + artURL('table/fig_you.webp') + '" alt="">' +
+      '<i class="jflash"></i><b class="foomp">FOOMP!</b></div>';
+  }
+  function playJail(L) {
+    const r = L.result, card = $('actcard');
+    if (FAST || !L.euchre || L.saidFair || L.act !== 1 || !r || r.kind !== 'boss' || (r.boss || L.boss) !== 'twins' || !document.documentElement.classList.contains('art')) return false;
+    const key = L.rs + ':' + L.level;
+    if (P.jailFor === key) return card.classList.contains('jail');
+    P.jailFor = key;
+    JAILK.timers.forEach(clearTimeout); JAILK.timers = [];
+    const at = (ms, f) => JAILK.timers.push(setTimeout(f, ms));
+    const who = { sher: 'Sheriff Hardcastle', pet: 'Deputy Pettibone' };
+    const sayHTML = (w, t) => '<div class="say"><span class="face svg">' + pwSvg('star') + '</span><p><b>' + esc(who[w] || w) + ':</b> ' + esc(t) + '</p></div>';
+    const pr = JAIL.partner[L.partner], horse = L.partner === 'horse';
+    card.className = 'gazette jail on';
+    card.style.backgroundImage = '';
+    card.innerHTML = '<div class="jlive">' + jailStage('') + '<p class="jcap">' + esc(JAIL.scoop) + '</p></div>' +
+      '<div class="gpaper" hidden><div class="gmast">The Euchre-ka! Gazette</div><div class="gdate"><span>Extra!</span><span>One cent</span><span>Polling day soon</span></div>' +
+      '<div class="gphoto">' + jailStage('eased') + '</div><p class="gcap">Sheriff Hardcastle with the Twins. Also pictured: an unidentified hat' + (horse ? ', and a horse, who declined to comment' : '') + '.</p>' +
+      '<b class="ghead">Eureka! Sheriff strikes gold</b><p class="gsub">Hardcastle brings in the Twins single-handed</p><p class="gby">by Scoop Malone, cub reporter</p></div>' +
+      '<div class="gwords" hidden></div>';
+    try { card.scrollTop = 0; } catch (e) { /* no layout */ }
+    const live = card.querySelector('.jlive .jstage'), paper = card.querySelector('.gpaper'), words = card.querySelector('.gwords');
+    const ask = () => {
+      words.innerHTML = sayHTML('sher', JAIL.thanks) + '<div class="gopts">' + JAIL.replies.map(a => '<button class="gopt" data-jr="' + a.id + '">' + esc(a.say) + '</button>').join('') +
+        (pr ? '<button class="gopt" data-jr="partner"><b>' + esc(R.PARTNERS[L.partner].name) + ':</b> ' + esc(pr[0]) + '</button>' : '') + '</div>';
+    };
+    const toPaper = () => {
+      JAILK.timers.forEach(clearTimeout); JAILK.timers = [];
+      card.querySelector('.jlive').hidden = true;
+      paper.hidden = false; words.hidden = false;
+      card.classList.remove('printed'); void card.offsetWidth; card.classList.add('printed');
+      ask();
+    };
+    at(900, () => live.classList.add('eased'));
+    at(2600, () => { live.classList.add('flash'); try { if (navigator.vibrate) navigator.vibrate(40); } catch (e) { /* none */ } });
+    at(4000, toPaper);
+    card.onpointerdown = null;
+    card.onclick = ev => {
+      if (!paper.hidden && ev.target.closest('[data-jdone]')) { endJail(L); return; }
+      if (paper.hidden) { toPaper(); return; }
+      const b = ev.target.closest('[data-jr]');
+      if (!b || L.saidFair) return;
+      const id = b.dataset.jr, a = JAIL.replies.find(x => x.id === id);
+      const said = id === 'partner' ? '<p class="jcap"><b>' + esc(R.PARTNERS[L.partner].name) + ':</b> ' + esc(pr[0]) + '</p>' + sayHTML('sher', pr[1]) + (pr[2] ? sayHTML('pet', pr[2]) : '')
+        : '<p class="jcap"><b>You:</b> ' + esc(a.say) + '</p>' + (a.back ? sayHTML('sher', a.back) : '');
+      L.saidFair = 'jail:' + id;
+      save();
+      words.innerHTML = said + JAIL.close.map(([w, t]) => sayHTML(w, t)).join('') + '<button class="btn" data-jdone="1">Collect the hundred</button>';
+    };
+    return true;
+  }
+  function endJail(L) {
+    JAILK.timers.forEach(clearTimeout); JAILK.timers = [];
+    const card = $('actcard');
+    card.onclick = null;
+    card.className = ''; card.innerHTML = '';
+    render();
   }
   const DEPART = { raf: 0, timers: [] };
   function playDepart(L) {
@@ -5605,7 +5734,7 @@ html.art .coach { border-radius: 0; }
     card.innerHTML = '<div class="dsky"></div>' + (clouds ? lyr(clouds, rail * 0.12) : '') + (mesas ? lyr(mesas, rail - mesas.h * k - 30 * k) : '') +
       back + ground + '<div class="dties" style="top:' + u(rail - 1) + ';height:' + u(3 * k) + '"></div>' +
       '<div class="dtrain">' + train + '</div><div class="dpuffs"></div>' + front +
-      '<div class="dwords"><div class="board"><small>ACT II</small><b>THE WESTBOUND EXPRESS</b><span>Next stop: the County Fair. No other stops.</span></div>' +
+      '<div class="dwords"><div class="board"><small>ACT II</small><b>THE WESTBOUND EXPRESS</b><span>Next stop: Bower City. No other stops.</span></div>' +
       '<div class="say"><span class="face svg">' + partnerFace(p.id) + '</span><p><b>' + esc(p.name) + ':</b> ' + esc(departLine(L)) + '</p></div>' +
       (nan ? '<div class="unlock"><span class="face svg">' + NAN_SVG + '</span><p><b>New partner: Nan</b>, the Steady Hand. She heard what you did to the Twins: she can ride with you from your next story.</p></div>' : '') +
       '<button class="btn" data-act="allaboard">All aboard</button></div>';
@@ -5655,7 +5784,8 @@ html.art .coach { border-radius: 0; }
                        wallflowers: ['TONIGHT: THE HAUNTED HOUSE', 'See the haunted house at the top of the midway? The Undertakers are in there, measuring folks up, and there\u2019s a poster on them already.'] };
   function arriveLine(L) {
     const w = ARRIVE_WHO[L.map && L.map.boss];
-    return R.voice(L, 'End of the line, dear! There\u2019s a banner over the gates: First Prize, Largest Family Present, judged at sundown. Who on earth enters that? ' +
+    // (2026-11-06, a bridge until Act III is rebuilt as THE FUGI-TWINS: the train was bound for Bower City)
+    return R.voice(L, 'End of the line, dear! Well, the end of this line: Bower City\u2019s further on, and the County Fair\u2019s in the way. ' +
       (w ? w[1] : 'And there\u2019s a poster waiting at the top of the midway.') + ' The midway\u2019s between us: card booths, and prize contests for a ribbon.');
   }
   function playArrive(L) {
@@ -5747,7 +5877,7 @@ html.art .coach { border-radius: 0; }
   }
   function endDepart() {
     const card = $('actcard');
-    if (!['depart', 'arrive', 'reunion', 'gazette'].some(c => card.classList.contains(c))) return;     // (the finale is an .arrive too)
+    if (!['depart', 'arrive', 'gazette'].some(c => card.classList.contains(c))) return;     // (the finale is an .arrive too)
     DEPART.timers.forEach(clearTimeout);
     card.classList.remove('on', 'said');
     card.onpointerdown = null;

@@ -173,11 +173,11 @@
       'High noon. Or high card. Whichever comes first.', 'I don\u2019t lose. I occasionally fail to win.'],
     bank: ['Nobody move! Unless it\u2019s to deal.', 'This here\u2019s a robbery. Hands up. Then hands down: you\u2019ll need \u2019em for the cards.',
       'Stand aside, hero. We\u2019ve a safe to empty and a hand to win.', 'One hand. Winner takes the loot. Loser takes the long walk home.'],
-    twins: ['Two of us, two red Jacks. Too bad for you.', 'Pa said share everything. So we share the Jacks.', 'You\u2019ve been looking for us? We\u2019ve been looking at your cards.', 'Grandma\u2019s gonna hear about this.'],
+    twins: ['Two of us, two red Jacks. Too bad for you.', 'Pa said share everything. So we share the Jacks.', 'You\u2019ve been looking for us? We\u2019ve been looking at your cards.', 'Bring us in? Sure. Getting paid\u2019s the hard part.'],
     sharps: ['Revenge is a dish best served face down.', 'We\u2019ve seen every card you own. Twice.', 'The Twins owed us. Now you do.', 'Every gang in this county is somebody\u2019s cousin. Mostly ours.'],
-    hustlers: ['Our little brothers send their regards. From jail.', 'We lose on purpose. You\u2019ll lose by accident.', 'Bet you can\u2019t lose every trick. We can.', 'Grandma always said you\u2019d turn up. She didn\u2019t say you\u2019d be this slow.'],
-    caller: ['Swing your partner, lose your shirt!', 'Bow to your partner, bow to your corner, then bow to me.', 'The band plays, I call, you dance. Simple.', 'Bow to your partner, bow to your corner, and wave to your auntie.'],
-    wallflowers: ['We\u2019ve already measured you.', 'Nobody passes at our table. Except away.', 'Take your time. We\u2019re very patient. Professionally.', 'We\u2019ve measured the whole family. You\u2019re the only one left.'],
+    hustlers: ['Our little brothers send their regards. From jail.', 'We lose on purpose. You\u2019ll lose by accident.', 'Bet you can\u2019t lose every trick. We can.', 'Ever been on a train full of convicts? Stick around.'],
+    caller: ['Swing your partner, lose your shirt!', 'Bow to your partner, bow to your corner, then bow to me.', 'The band plays, I call, you dance. Simple.', 'Change partners! Change hands! Change your mind about coming here!'],
+    wallflowers: ['We\u2019ve already measured you.', 'Nobody passes at our table. Except away.', 'Take your time. We\u2019re very patient. Professionally.', 'We measure twice and bury once.'],
     pie: ['Judges like a flaky crust and a full plate. Mostly the full plate.', 'Grandma\u2019s recipe. Grandma\u2019s rolling pin, too, if you cheat.', 'Hearts, partner. Every slice is a heart.'],
     turkey: ['Pull! No, wait, that\u2019s the clay pigeons.', 'Aces high, turkeys low.', 'Steady hands win the shoot. Mine are very steady. Look.'],
     bell: ['Swing like you mean it, stranger!', 'Last fella rang it so hard the bell\u2019s still humming.', 'Big bid, big swing. Small bid, small ding.'],
@@ -186,9 +186,9 @@
   };
   TAUNTS.ghost = ['Remember us? We remember you. We were you.', 'Boot Hill was cold. Your old cards kept us warm.', 'Same cards, partner. Different side of the table.', 'We died on this road once. Your turn.'];
   TAUNTS.stranger = ['Five marked cards. You kept every one. I knew you would.', 'I\u2019ve sat across from all of them. Now I\u2019ll play like all of them.', 'Every Showdown you ever lost, I was watching.'];
-  /* More to say (2026-11-05, LINES.md: the new lines that scored 80/100 or over). "My grandmother bids better than
-     you, and she's been dead since spring" made the cut but is left out: the gangs are Grandma Hollis's grandchildren. */
-  TAUNTS.dance.push('Funny. You don\u2019t look like a bounty hunter. You look like a bounty.', 'Before we start: are you left-handed? Asking for the gravestone.',
+  /* More to say (2026-11-05, LINES.md: the new lines that scored 80/100 or over). The grandmother line, held back
+     while the gangs were Grandma Hollis's grandchildren, is back now that story is gone (2026-11-06). */
+  TAUNTS.dance.push('My grandmother bids better than you, and she’s been dead since spring.', 'Funny. You don\u2019t look like a bounty hunter. You look like a bounty.', 'Before we start: are you left-handed? Asking for the gravestone.',
     'Sit. Stay. Lose. Good stranger.', 'Ma was a card sharp. Pa was a shark. We get it from both sides.', 'Easy now. Hands where we can see \u2019em. On the table. Face up, ideally.',
     'I\u2019d say \u201cmay the best hand win\u201d, but I\u2019ve got the best hand. I checked. Before the deal.', 'Five hundred to win. Five dollars for the coffin. We take both.',
     'The cards don\u2019t lie. That\u2019s why we don\u2019t let them talk.', 'Mind the spittoon. The last fella who beat us is in it.', 'We don\u2019t bluff. We just lie with confidence.',
@@ -259,10 +259,14 @@
     quiet: ['(The Quiet One just looks at them. It lands harder than words.)', '(The Quiet One writes something on a napkin and slides it across. They read it and go pale.)'],
     horse: ['Neigh. (Biscuit means something rude.)', '(Biscuit eats the corner of their best card.)', 'Neigh. (In horse, that\u2019s about their mother.)', '(Biscuit sneezes on their hand. All of it.)']
   };
+  /* Inside Euchre-ka!'s walls (2026-11-08, the Escape nods): the first two fights of a story's Act I open on the running
+     gag, everybody inside having heard about you. */
+  const INMATE_INSULTS = [['I heard you were dead.', 'Heard wrong.'], ['I heard you were taller.', 'Heard wrong.']];
+  const inmateInsult = L => !!L.euchre && L.act === 1 && (L.kind === 'dance' || L.kind === 'elite') && (L.actLevels | 0) < INMATE_INSULTS.length ? INMATE_INSULTS[L.actLevels | 0] : null;
   function insult(L) {
     let x = ((L.rs >>> 0) ^ Math.imul((L.level || 1) + 7, 2246822519)) >>> 0;
     x = Math.imul(x ^ (x >>> 13), 3266489917) >>> 0;
-    const [text, back] = dealt(L, 'insult', INSULTS, (L.level | 0) - 1), quiet = SILENT_BACKS[L.partner];
+    const [text, back] = inmateInsult(L) || dealt(L, 'insult', INSULTS, (L.level | 0) - 1), quiet = SILENT_BACKS[L.partner];
     return { text, back: L.partner === 'quiet' ? quiet[x % quiet.length] : L.partner === 'horse' && x % 4 === 0 ? quiet[(x >>> 4) % quiet.length] : back };
   }
   /* Your partner's one-off quips (2026-11-03): the first time a run meets each of these, said over the table as the
@@ -326,8 +330,11 @@
     let x = ((L.rs >>> 0) ^ Math.imul(L.level || 1, 2654435761)) >>> 0;
     x = Math.imul(x ^ (x >>> 15), 2246822519) >>> 0;
     const who = L.mode === 'standard' ? L.std.name : L.kind === 'contest' && L.contest ? 'Your fellow contestants' : L.kind === 'boss' ? BOSS[L.boss].name : L.kind === 'bank' ? 'The robbers' : L.foe ? L.foe.name : 'The gang';
+    // the Twins hold court in Euchre-ka!'s Saloon (2026-11-08): their own introduction, every story
+    if (L.euchre && L.kind === 'boss' && L.boss === 'twins' && L.act === 1) return { who, text: TWINS_HAIL };
     return { who, text: dealt(L, 't:' + pool[0], pool, (L.level | 0) - 1) };
   }
+  const TWINS_HAIL = 'The Twins of Euchre-ka! A Number One\u2026 and A Number Two.';
   const LAST_ACT = 3;                       // the County Fair ends the run
   const ROMAN = { 1: 'I', 2: 'II', 3: 'III' };
   /* Who rides with you. Your horse first (the user's, 2026-11-01: "thematically it works better if the starting
@@ -536,6 +543,52 @@
      history); the Wallflowers' 7-trick floor (E.WALL.min) and the Hustlers' AI.HUSTLE come from then. */
   /* Which bosses can end each act, one drawn per run (the user's call, 2026-10-24: Act II draws from the Card Sharps and the Hustlers). */
   const BOSS_POOL = { 1: ['twins'], 2: ['sharps', 'hustlers'], 3: ['caller', 'wallflowers'] };   // Act III (the user's call, 2026-10-25)
+  /* The story (2026-11-06, STORY-PLAN.md; 1,000 gold since 2026-11-08): the Twins' poster promises 1,000 gold and a
+     card upgrade, the Sheriff pays 100 (the bounty every Showdown pays) and the county pays the other 900 on delivery
+     at Bower City. Story runs only (not Standard 500). The name HALF_PAID is older than the numbers. */
+  const HALF_PAID = { promised: 1000, paid: 100, enh: 2 };
+  const halfPaid = (L, id) => !!L && L.mode !== 'standard' && L.act === 1 && id === 'twins';
+  const thousands = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  /* ESCAPE FROM EUCHRE-KA! (2026-11-08, STORY-PLAN.md [1.2]-[1.7]): a story run (newRun's o.euchre, which the page's
+     New Story and Daily pass) starts Act I outside the prison town's stockade, at the Marshal's gatehouse, where
+     Sheriff Hardcastle deputises you and lets you take ONE thing confiscated at the gate (phase 'gate', before the
+     act's card pick): a buff, two elixirs, or a card upgrade (an enhancement pick). One of each is drawn per run.
+     After the Twins' Showdown they bolt for the gate in an ore cart and you chase them: the Fair's Getaway, shorter
+     (ESCAPE), and it can only add to the win: caught, their strongbox; not caught, Pettibone shuts the gate on them
+     anyway. Then the Showdown's payday as ever. */
+  const GATE = { elixirs: 2, enh: 2 };
+  const ESCAPE = { stretches: 3, gap: 2, away: 4, bounty: 75 };
+  const gateDue = L => !!L.euchre && L.mode !== 'standard' && L.act === 1 && !L.gated;
+  function openGate(L) {
+    const fb = freeBuffs(L);
+    L.gate = { buff: fb.length ? E.pick(L, fb) : null, elixirs: Array.from({ length: GATE.elixirs }, () => drawElixir(L)) };
+    L.phase = 'gate';
+  }
+  function gate(L, what) {
+    if (L.phase !== 'gate' || !L.gate) return no('not at the gate');
+    const G = L.gate;
+    if (what === 'buff' && G.buff) {
+      grantBuff(L, G.buff);
+      note(L, 'You take the confiscated ' + BUFFS[G.buff].name + '.');
+    } else if (what === 'elixirs') {
+      G.elixirs.forEach(id => gainElixir(L, id));
+      note(L, 'Two bottles of evidence: ' + G.elixirs.map(id => ELIXIRS[id].name).join(' and ') + '.');
+    } else if (what === 'upgrade') {
+      L.gated = what; L.gate = null;
+      L.reward = { steps: [{ type: 'enh', options: draw(L, enhPool(L), picks(L, GATE.enh)) }], back: 'actstart' };
+      advanceReward(L, 'actstart');
+      return yes();
+    } else return no('a buff, the elixirs or the upgrade');
+    L.gated = what; L.gate = null; L.phase = 'actstart';
+    return yes();
+  }
+  const escapeDue = L => !!L.euchre && L.mode !== 'standard' && L.act === 1 && L.kind === 'boss' && L.boss === 'twins' && !L.escaped;
+  function startEscape(L) {
+    L.chase = { boss: 'twins', escape: true, len: ESCAPE.stretches, away: ESCAPE.away, bounty: ESCAPE.bounty, hold: L.result,
+                n: 0, gap: ESCAPE.gap, spare: 0, won: 0, lost: 0, stage: 'start', fork: null, last: null, result: null, unlock: [] };
+    L.phase = 'chase';
+    E.say(L, 'The Twins bolt for the gate in an ore cart, chandeliers and all! After them!', 'level');
+  }
   /* Buffs (relics). A partner's own ability is never offered. */
   const BUFFS = {
     // that change how a hand is played (2026-10-30, the review's #5)
@@ -670,7 +723,7 @@
                 options: [{ text: 'Take his blessing: +60 health, and in your next fight the lowest card takes the first trick', fx: { health: 60, next: { rule: 'reverse' } } }, { text: 'Slip away', fx: {} }] },
     telegraph: { name: 'The Telegraph Clerk', text: 'The clerk has read the gangs\u2019 telegrams, and he\u2019ll sell what he knows.',
                 options: [{ text: 'Pay 30 gold: in your next fight, see one card from each opponent\u2019s hand while you bid', fx: { gold: -30, next: { spy: true } } }, { text: 'Not today', fx: {} }] },
-    posting:  { name: 'Deputised', text: 'The sheriff is short a deputy and long on paperwork. He offers you the badge: double the bounty on the next gang, but they\u2019re tougher than they look.',
+    posting:  { name: 'Double or Nothing', text: 'A gambler on the boardwalk bets you your next bounty: bring the next gang in and he pays it twice over. He doesn\u2019t mention they\u2019re tougher than they look.',
                 options: [{ text: 'Take it: your next fight pays double, and its gang has a quarter more health', fx: { next: { double: true, tough: true } } }, { text: 'Leave it on the board', fx: {} }] },
     // the controlled shunt (2026-10-29, the user's idea): swap two carriages ahead on one stretch of line, to replan
     // off the train with the braided tracks (2026-10-30: nothing there is left to switch); the Fair still has him
@@ -732,12 +785,16 @@
      Sharp). Gap at CHASE.away, or the track runs out: they get away, and the run is still won. The chase can never
      lose a run: it decides how big the win is. */
   const CHASE = { stretches: 5, gap: 2, away: 4, rules: 1, bounty: 150, clean: 'sharp',
-    ride: { caller: { cart: 'the mine cart', into: 'into the old silver mine behind the barn', unlock: 'showboat' },
+    ride: { twins: { cart: 'their ore cart', into: 'down the ore track for the gate', unlock: null },
+            caller: { cart: 'the mine cart', into: 'into the old silver mine behind the barn', unlock: 'showboat' },
             wallflowers: { cart: 'the ghost train', into: 'onto the ghost train out of the haunted house', unlock: 'quiet' } },
     // the cut-off branches off after the first stretch (taken first, the whole chase was one coin flip)
     forks: { main: { name: 'The main line', text: 'Take the stretch and you close a length; lose it and they gain one.', step: 1 },
              cutoff: { name: 'The cut-off', text: 'Steep and fast: two lengths either way.', step: 2 } } };
   const chaseRide = c => CHASE.ride[c && c.boss] || CHASE.ride.caller;
+  // a chase's own length and edge (Act I's escape is shorter); the Fair's Getaway uses CHASE's
+  const chaseLen = c => (c && c.len) || CHASE.stretches;
+  const chaseAway = c => (c && c.away) || CHASE.away;
   function startChase(L) {
     const boss = BOSS_POOL[3].includes(L.boss) ? L.boss : L.map && L.map.boss;
     // a faster handcar (the Fair's goods) is a spare: the first lost stretch costs no ground (it's still lost)
@@ -751,7 +808,17 @@
     const c = L.chase;
     if (c.result) {
       if (what !== 'finish') return no('the chase is over');
-      L.rules = null; L.phase = 'victory';
+      L.rules = null;
+      if (c.escape) {
+        // back to the Showdown's payday: its result, its boss, its fight
+        const r = c.hold;
+        L.escaped = { result: c.result, won: c.won, lost: c.lost };
+        L.chase = null;
+        L.result = r; L.kind = 'boss'; L.boss = (r && r.boss) || 'twins'; L.foe = r && r.foe; L.pos = 'boss';
+        L.phase = 'over';
+        return yes();
+      }
+      L.phase = 'victory';
       return yes();
     }
     if (!CHASE.forks[what]) return no('the main line or the cut-off');
@@ -773,7 +840,7 @@
     E.say(L, (won ? 'You gain on them' : 'They pull away') + ' (' + L.you + ' to ' + L.opp + '): ' + (c.gap <= 0 ? 'right on their tail!' : c.gap + ' length' + (c.gap > 1 ? 's' : '') + ' between you.'), 'objective');
     L.result = null;
     if (c.gap <= 0) endChase(L, true);
-    else if (c.gap >= CHASE.away || c.n >= CHASE.stretches) endChase(L, false);
+    else if (c.gap >= chaseAway(c) || c.n >= chaseLen(c)) endChase(L, false);
     else c.stage = 'fork';
     L.phase = 'chase';
     L.curse = null; L.dealRule = null; L.fight = null; L.rules = null;
@@ -781,12 +848,15 @@
   function endChase(L, caught) {
     const c = L.chase, B = BOSS[c.boss].name;
     c.result = caught ? 'caught' : 'escaped'; c.stage = 'end';
-    c.unlock = caught ? [chaseRide(c).unlock].concat(c.lost === 0 ? [CHASE.clean] : []) : [];
+    // Act I's escape unlocks nobody (a clean catch there must not bring the Sharp: that's the Fair's)
+    c.unlock = caught && !c.escape ? [chaseRide(c).unlock].concat(c.lost === 0 ? [CHASE.clean] : []).filter(Boolean) : [];
+    const bounty = c.bounty || CHASE.bounty;
     if (caught) {
-      L.gold += CHASE.bounty;
-      E.say(L, 'You catch ' + B.replace(/^The /, 'the ') + ' at the end of the line! Their strongbox is yours: +' + CHASE.bounty + ' gold.', 'gold');
-    } else E.say(L, B + ' get away ' + chaseRide(c).into.replace(/^(into|onto) /, 'down ') + ', strongbox and all.', 'objective');
-    L.record = (L.record || []).concat({ act: L.act, level: L.level, kind: 'getaway', id: c.boss, stars: 0, won: caught, clean: caught && c.lost === 0 });
+      L.gold += bounty;
+      E.say(L, 'You catch ' + B.replace(/^The /, 'the ') + (c.escape ? ' short of the gate' : ' at the end of the line') + '! Their strongbox is yours: +' + bounty + ' gold.', 'gold');
+    } else if (c.escape) E.say(L, B + ' reach the gate first, and Deputy Pettibone shuts it in their faces. Caught anyway; their strongbox goes to the county.', 'objective');
+    else E.say(L, B + ' get away ' + chaseRide(c).into.replace(/^(into|onto) /, 'down ') + ', strongbox and all.', 'objective');
+    L.record = (L.record || []).concat({ act: L.act, level: L.level, kind: c.escape ? 'escape' : 'getaway', id: c.boss, stars: 0, won: caught, clean: caught && c.lost === 0 });
   }
   /* Prize contests (Act III, the user's, 2026-11-01: the County Fair's signature stop, "a fun side bet rather than
      another fight"). One hand against two fellow contestants, judged on one thing; it costs only the entry, never
@@ -1164,8 +1234,10 @@
     applyWanted(L, L.daily ? [L.daily.twist] : wantedFor(L.wantedLevel));
     E.rnd(L);
     actStart(L);
+    if (o.euchre) L.euchre = true;
     // a New Story from the title chooses a partner before Act I's card pick (the user's, 2026-10-30)
     if (o.pickPartner) L.phase = 'partner';
+    else if (gateDue(L)) openGate(L);
     return L;
   }
   /* Who can ride with you. Your horse always; Nan once the Twins are beaten in any story (`unlock`: the page passes
@@ -1237,6 +1309,7 @@
       L.offer[L.offer.indexOf(P.start)] = spare[0];
     }
     L.phase = 'actstart';
+    if (gateDue(L)) openGate(L);
     return yes();
   }
   /* A partner other than Nan says "partner" where she says "dear" (her tips and lines are written in her voice). */
@@ -1319,7 +1392,7 @@
     const ours = hist.filter(x => x.contractor % 2 === 0), theirs = hist.filter(x => x.contractor % 2 === 1);
     const best = hist.reduce((b, x) => !b || x.delta > b.delta ? x : b, null);
     // the fight that ended a lost run is on the record (its Showdown shows as lost) but not among the fights finished
-    const done = rec.filter(r => !r.lost && r.kind !== 'getaway' && r.kind !== 'chase'), dances = done.filter(r => !['boss', 'contest'].includes(r.kind));   // a Getaway's stretches are no fights
+    const done = rec.filter(r => !r.lost && r.kind !== 'getaway' && r.kind !== 'escape' && r.kind !== 'chase'), dances = done.filter(r => !['boss', 'contest'].includes(r.kind));   // a Getaway's stretches are no fights
     return { levels: done.length, stars: done.reduce((n, r) => n + r.stars, 0), maxStars: 3 * done.length,
              objectives: dances.filter(r => r.won).length, objectiveLevels: dances.length,
              hoedowns: rec.filter(r => r.kind === 'boss').map(r => ({ act: r.act, boss: r.id, won: r.won })),
@@ -1471,7 +1544,7 @@
     L.log = [];
     L.result = null;
     const F = L.foe, ab = F ? F.traits.map(t => abilityOf(t).name + ' (' + abilityOf(t).text + ')') : [];
-    if (kind === 'chase') { const c = L.chase; E.say(L, 'Stretch ' + (c.n + 1) + ' of ' + CHASE.stretches + ', ' + CHASE.forks[c.fork].name.toLowerCase() + ': ' + c.gap + ' length' + (c.gap > 1 ? 's' : '') + ' behind ' + chaseRide(c).cart + '. Outscore them on this hand to gain.', 'level'); }
+    if (kind === 'chase') { const c = L.chase; E.say(L, 'Stretch ' + (c.n + 1) + ' of ' + chaseLen(c) + ', ' + CHASE.forks[c.fork].name.toLowerCase() + ': ' + c.gap + ' length' + (c.gap > 1 ? 's' : '') + ' behind ' + chaseRide(c).cart + '. Outscore them on this hand to gain.', 'level'); }
     else if (kind === 'contest') { const C = CONTEST.list[L.contest.id]; E.say(L, 'Game ' + L.level + ' \u00b7 ' + C.name + ': ' + C.what + ' Ribbons at ' + C.tiers.join(', ') + ' ' + C.unit[1] + '.', 'level'); }
     else if (kind === 'boss') E.say(L, 'Game ' + L.level + ' \u00b7 the Showdown: ' + BOSS[L.boss].name + ', ' + F.hp + ' health. ' + BOSS[L.boss].rule, 'level');
     else if (kind === 'bank') E.say(L, 'Game ' + L.level + ' \u00b7 ' + holdup(L).place + ': ' + holdup(L).what + '. Outscore them this hand for ' + bankBounty(L) + ' gold and an enhancement; lose and they take ' + L.bank.take + ' gold.', 'level');
@@ -1828,7 +1901,7 @@
     if (L.kind === 'boss') {
       stars = fast ? 3 : 2;
       gold = 100;
-      pay.push({ t: 'Bounty: ' + BOSS[L.boss].name.replace(/^The /, 'the '), g: gold });
+      pay.push({ t: 'Bounty: ' + BOSS[L.boss].name.replace(/^The /, 'the ') + (halfPaid(L, L.boss) ? ', ' + HALF_PAID.paid + ' of ' + thousands(HALF_PAID.promised) + ' (' + (HALF_PAID.promised - HALF_PAID.paid) + ' more on delivery at Bower City)' : ''), g: gold });
       E.say(L, BOSS[L.boss].name + ' are brought to justice!', 'objective');
       const lt = L.map && L.map.loot;
       if (lt && BUFFS[lt] && !L.buffs.includes(lt)) {
@@ -1871,7 +1944,7 @@
         if (b) pay.push({ t: 'Bonus: ' + OBJECTIVES[o.id].name, g: P[1 + b] - P[1], star: true });
         if (fast) pay.push({ t: 'Within par (' + par + ' hands)', g: P[stars] - P[1 + b], star: true });
         if (gold !== plain) pay.push({ t: 'Wanted for their tricks', g: gold - plain });
-        if (L.fight && L.fight.double) { pay.push({ t: 'Deputised: paid double', g: gold }); gold *= 2; }
+        if (L.fight && L.fight.double) { pay.push({ t: 'Paid double', g: gold }); gold *= 2; }
         if (hotMult(L) > 1) { const add = Math.round(gold * (hotMult(L) - 1)); pay.push({ t: 'Hot Hand: ' + HOT.names[hotStage(L.hot)] + ' \u00d7' + hotMult(L), g: add, hot: true }); gold += add; }
         if (L.foe.ghost && L.ghost) {
           const back = ghostCard(L);
@@ -1915,6 +1988,7 @@
     L.phase = 'over';
     E.say(L, 'Game ' + L.level + ' over: ' + stars + ' star' + (stars > 1 ? 's' : '') + ', ' + (gold < 0 ? '\u2212' + -gold : gold) + ' gold.', 'end');
     L.curse = null; L.dealRule = null; L.fight = null; L.rules = null;   // a quick contest's rules end with it
+    if (won && escapeDue(L)) startEscape(L);
   }
 
   /* ---------------- rewards ---------------- */
@@ -1933,9 +2007,11 @@
       const fb = freeBuffs(L);
       if (r.stars === 2 && fb.length) { const b = E.pick(L, fb); grantBuff(L, b); note(L, 'Duel prize: ' + BUFFS[b].name + '.'); }
       if (r.stars === 3 && fb.length) steps.push({ type: 'buff', options: draw(L, fb, picks(L, 2)) });
-    } else if (r.kind === 'boss' && r.won && !r.loot) {
+    } else if (r.kind === 'boss' && r.won) {
+      // the Twins' poster promises a card upgrade (2026-11-06, the story): an enhancement pick, story only
+      if (halfPaid(L, r.boss || L.boss)) steps.push({ type: 'enh', options: draw(L, enhPool(L), picks(L, HALF_PAID.enh)) });
       const fb = freeBuffs(L);
-      if (fb.length) steps.push({ type: 'buff', options: draw(L, fb, picks(L, 3)) });
+      if (!r.loot && fb.length) steps.push({ type: 'buff', options: draw(L, fb, picks(L, 3)) });
     } else if (r.kind === 'bank' && r.won) steps.push({ type: 'enh', options: draw(L, enhPool(L), picks(L, BANK.enh)) });
     else if (r.kind === 'contest' && r.stars >= 2 && r.won) {
       const fb = freeBuffs(L);
@@ -2221,7 +2297,7 @@
       // The boss's secret is NOT sold here: it is the risky train's reward, and the safe train always has a Hotel
       // (the second review found the store handing the safe side the risky side's prize).
       .concat([{ type: 'marked', id: 'marked', price: priced(L, SHOP.marked), name: 'A marked deck', text: 'See the kitty in every hand of your next fight.' },
-               { type: 'posting', id: 'posting', price: priced(L, SHOP.posting), name: 'Deputise', text: 'A deputy\u2019s badge: your next fight pays double bounty. A bet on bringing them in with two stars or more.' }])
+               { type: 'posting', id: 'posting', price: priced(L, SHOP.posting), name: 'Posse Warrant', text: 'A warrant with a posse\u2019s seal: your next fight pays double bounty. A bet on bringing them in with two stars or more.' }])
       .concat(L.act === 3 && !L.gunhand ? [{ type: 'gunhand', id: 'gunhand', price: priced(L, FAIR_GOODS.gunhand), name: 'Hire a gunhand', text: 'He rides with you to the Showdown: the boss starts a quarter down.' }] : [])
       .concat(L.act === 3 && !L.fastCar ? [{ type: 'handcar', id: 'handcar', price: priced(L, FAIR_GOODS.handcar), name: 'A faster handcar', text: 'If the boss bolts after the Showdown, your first lost stretch of the chase costs no ground.' }] : [])
       .concat((L.pockets || 0) < POCKETS.most ? [{ type: 'pocket', id: 'pocket', price: priced(L, POCKETS.price + POCKETS.step * (L.pocketsBought || 0)), name: 'Deeper pockets',
@@ -2304,7 +2380,7 @@
     if (it.type === 'tonic') { const got = heal(L, TONIC.health); note(L, 'Drank the tonic: +' + got + ' health.'); }
     if (it.type === 'cleanse') { L.cleanseBack = 'shop'; L.phase = 'cleanse'; }
     if (it.type === 'marked') { L.nextFight = Object.assign(L.nextFight || {}, { peek: true }); note(L, 'A marked deck: your next fight, you\u2019ll see the kitty every hand.'); }
-    if (it.type === 'posting') { L.nextFight = Object.assign(L.nextFight || {}, { double: true }); note(L, 'Deputised: your next fight pays double.'); }
+    if (it.type === 'posting') { L.nextFight = Object.assign(L.nextFight || {}, { double: true }); note(L, 'A posse warrant: your next fight pays double.'); }
     if (it.type === 'restock') { L.restocks = (L.restocks || 0) + 1; stock(L); note(L, 'The storekeeper brings out new goods.'); }
     if (it.type === 'gunhand') { L.gunhand = true; note(L, 'A gunhand rides with you: the Showdown\u2019s boss will start a quarter down.'); }
     if (it.type === 'pocket') { L.pockets = (L.pockets || 0) + 1; L.pocketsBought = (L.pocketsBought || 0) + 1; note(L, 'Deeper pockets: one more of your enhanced cards is dealt to you every hand' + (E.pocketsIn(L) < L.pockets ? ' (from the next act: this one\u2019s hand is full)' : '') + '.'); }
@@ -2441,6 +2517,7 @@
       case 'bank': return bank(L, arg);
       case 'contest': return contest(L, arg);
       case 'chase': return chase(L, arg);
+      case 'gate': return gate(L, arg);
       case 'wanted': return chooseWanted(L, arg);
       case 'water': return water(L, arg);
       case 'shunt': return shunt(L, arg);
@@ -2518,7 +2595,7 @@
     if (O && O.kind === 'limit') return 'holding';
     return o.n + ' / ' + o.of;
   }
-  const api = { HOT, hotStage, hotMult, stoke, BOND, bondOf, GILD, gildStep, LUCK, lucky, jokerOdds, luckyJoker, INSULTS, insult, QUIPS, quipFor, dealt, SILENT_BACKS, POCKETS, ELIXIRS, ELIXIR, drawElixir, gainElixir, canDrink, poss, eventText, LAST_STAND, STRANGER, DUEL_RULES, DARES, DARE_LIE, HEAT, heatOdds, MYSTERY, GHOST, ghostFoe, DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
+  const api = { INMATE_INSULTS, TWINS_HAIL, HALF_PAID, halfPaid, thousands, GATE, ESCAPE, gateDue, escapeDue, chaseLen, chaseAway, HOT, hotStage, hotMult, stoke, BOND, bondOf, GILD, gildStep, LUCK, lucky, jokerOdds, luckyJoker, INSULTS, insult, QUIPS, quipFor, dealt, SILENT_BACKS, POCKETS, ELIXIRS, ELIXIR, drawElixir, gainElixir, canDrink, poss, eventText, LAST_STAND, STRANGER, DUEL_RULES, DARES, DARE_LIE, HEAT, heatOdds, MYSTERY, GHOST, ghostFoe, DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
     TAUNTS, taunt, cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, MANNERS, WANTED, wantedFor, wants, dailySeed, dailyTwist, FAIR_GOODS, setQuick, floorsFor, CHASE, chaseRide, CONTEST, RIBBON, ribbonOf, EXPRESS, SIDE, genThreeTrains, DRIVER, COUNTER, makeDriver, ROSTER, partnerOpen, voice, STANDARD, standardFoe, ruleText, newStandard,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;
