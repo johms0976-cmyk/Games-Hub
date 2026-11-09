@@ -1782,6 +1782,9 @@ html.art .coach { border-radius: 0; }
 <script src="art/euchreka/sprites.js?v=58"></script>
 <script src="btp-scene.js?v=58"></script>
 <script src="scenes/gate.js?v=58"></script>
+<script src="btp-music.js?v=58"></script>
+<script src="music/theme.js?v=58"></script>
+<script src="music/westbound.js?v=58"></script>
 <script>
 (function () {
   'use strict';
@@ -1798,7 +1801,7 @@ html.art .coach { border-radius: 0; }
   /* Settings kept in this browser: the pace, and whether a finished trick waits for your tap (the default: you
      are the whole table, so nobody else is reading) or clears itself after its reading time. */
   function loadPrefs() {
-    const d = { pace: 'brisk', tricks: 'tap', scenes: 'full' };
+    const d = { pace: 'brisk', tricks: 'tap', scenes: 'full', music: 'on' };
     try { return Object.assign(d, JSON.parse(localStorage.getItem(PREFS) || '{}')); } catch (e) { return d; }
   }
   const FAST = /[?&]fast\b/.test(location.search);
@@ -4373,6 +4376,7 @@ html.art .coach { border-radius: 0; }
       '<h3>Pace</h3><div class="btns">' + Object.keys(PACE).map(k => opt('pace', k, PACE_NAME[k])).join('') + '</div>' +
       '<h3>Finished tricks</h3><div class="btns">' + opt('tricks', 'tap', 'Wait for a tap') + opt('tricks', 'auto', 'Clear by themselves') + '</div>' +
       '<h3>Story scenes</h3><div class="btns">' + opt('scenes', 'full', 'In full the first time') + opt('scenes', 'short', 'Always short') + opt('scenes', 'off', 'Off') + '</div>' +
+      (MUSIC ? '<h3>Music</h3><div class="btns">' + opt('music', 'on', 'On') + opt('music', 'off', 'Off') + '</div>' : '') +
       '<h3>When only one card can be played</h3><div class="btns">' + optVal('onecard', oneCard(), 'auto', 'Play it for me') + optVal('onecard', oneCard(), 'tap', 'Let me tap it') + '</div>' + (L ? '<h3>Your cards and buffs</h3>' + mineHTML() +
       '<ul class="lines">' + L.owned.filter(c => L.mods[c] && L.mods[c].enh).map(c => '<li>' + esc(E.label(c)) + (R.legendary(L, c) ? ' (Legendary)' : '') + ': ' + E.enhsOf(L.mods[c]).map(x => esc(R.ENH[x].name + ': ' + R.ENH[x].text)).join(' ') + '</li>').join('') +
       L.buffs.map(b => '<li>' + esc(R.BUFFS[b].name) + ': ' + esc(R.BUFFS[b].text) + '</li>').join('') + '</ul>' : '') +
@@ -4627,13 +4631,13 @@ html.art .coach { border-radius: 0; }
       case 'start': mainMenu(true); break;
       case 'swaplogo': swapLogo(); break;
       case 'mainback': mainMenu(false); break;
-      case 'newstory': if (loadSaved() && storyLive(loadSaved())) openSheet('info', abandonHTML()); else newRun(); break;
-      case 'pickback': P.picking = false; P.L = null; $('pick').hidden = true; $('pick').innerHTML = ''; $('title').classList.remove('picking'); break;
+      case 'newstory': if (loadSaved() && storyLive(loadSaved())) openSheet('info', abandonHTML()); else { titleMusic(false); newRun(); } break;
+      case 'pickback': P.picking = false; P.L = null; $('pick').hidden = true; $('pick').innerHTML = ''; $('title').classList.remove('picking'); titleMusic(true); break;
       case 'wall': openSheet('wall', wallHTML()); break;
       case 'pickprev': pickStep(-1); break;
       case 'picknext': pickStep(1); break;
       case 'pickride': if (P.picking && P.pickSel) pickPartner(P.pickSel); break;
-      case 'abandon': clearSaved(); P.sheet = null; P.shown = null; $('veil').hidden = true; newRun(); break;
+      case 'abandon': clearSaved(); P.sheet = null; P.shown = null; $('veil').hidden = true; titleMusic(false); newRun(); break;
       case 'daily': openDaily(); break;
       case 'dailygo': startDaily(!!t.dataset.practice); break;
       case 'dailycopy': copyDaily(); break;
@@ -4665,7 +4669,7 @@ html.art .coach { border-radius: 0; }
       }
       case 'skipopening': endOpening(); break;
       case 'options': { const o = $('titleOptions'); o.hidden = !o.hidden; break; }
-      case 'continue': { const s = loadSaved(); if (s) dustInto(() => { P.L = s; show(); }); break; }
+      case 'continue': { const s = loadSaved(); if (s) { titleMusic(false); dustInto(() => { P.L = s; show(); }); } break; }
       case 'rules': openSheet('rules'); break;
       case 'menu': openSheet('menu'); break;
       case 'install': { const ev = P.installEvt; if (ev) { P.installEvt = null; try { ev.prompt(); ev.userChoice.then(() => { if (P.sheet === 'menu') openSheet('menu'); }).catch(() => {}); } catch (e) {} } break; }
@@ -4870,6 +4874,25 @@ html.art .coach { border-radius: 0; }
     L.introDue = true;
     playOpening(L, () => show());
   }
+  /* Title music (the user's, 2026-11-10): Westbound (music/westbound.js) plays on the title until a story starts:
+     New Story (after Yes to abandon a live one), Continue, or anything else that leaves the title (show()). The
+     partner pick and the opening are silent. Browsers start sound only from a tap, so it is queued and the first
+     tap on the title starts it from the top. Menu > Music turns it off; it pauses while the page is hidden. */
+  const MUSIC = !!(window.DPMusic && DPMusic.ok) && !FAST && !DEMO;
+  let musicWanted = false, tapped = false;
+  function titleMusic(on) {
+    musicWanted = on;
+    if (!MUSIC) return;
+    if (on && P.prefs.music !== 'off') { if (!tapped) return;   // the first tap starts it (no AudioContext before one)
+      if (DPMusic.playing !== 'westbound') DPMusic.play('westbound', { mode: '16bit' }); }
+    else if (DPMusic.playing) DPMusic.stop(1.2);
+  }
+  if (MUSIC) {
+    // iOS unlocks audio on touchend/click, not on touchstart/pointerdown, so listen to all of them (wake is idempotent)
+    const wake = () => { tapped = true; if (musicWanted) { titleMusic(true); DPMusic.resume(); } };
+    for (const ev of ['pointerdown', 'touchend', 'click', 'keydown']) addEventListener(ev, wake, true);
+    document.addEventListener('visibilitychange', () => DPMusic.pause(document.hidden));
+  }
   /* The main menu (the user's, 2026-10-30): Start, then New Story, Continue Current Story, Daily Challenge or
      Standard 500, over the moving train. */
   const storyLive = s => !!s && s.phase !== 'runover' && s.phase !== 'victory';
@@ -4902,7 +4925,7 @@ html.art .coach { border-radius: 0; }
     P.sheet = null; P.shown = null; $('veil').hidden = true;
     dustInto(() => { P.L = L; show(); });
   }
-  function show() { $('title').hidden = true; P.sheet = null; P.shown = null; P.undo = []; P.stuck = null; step(); }
+  function show() { titleMusic(false); $('title').hidden = true; P.sheet = null; P.shown = null; P.undo = []; P.stuck = null; step(); }
   function title() {
     clearTimeout(P.timer);
     $('game').hidden = true; $('screen').hidden = true; $('title').hidden = false; $('veil').hidden = true;
@@ -4914,6 +4937,7 @@ html.art .coach { border-radius: 0; }
     endGrave(true);
     endPaid();
     $('bounty').hidden = true;
+    titleMusic(true);
   }
   /* The title scene, from art/title/scene.js (never load-bearing: without it, or the art, the hero is a banded sky). */
   function buildHero() {
