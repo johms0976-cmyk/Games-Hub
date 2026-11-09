@@ -120,9 +120,10 @@
 .sp-tag img { width: 52px; height: 52px; image-rendering: pixelated; }
 .sp-tag[aria-pressed="true"] { translate: 0 -3px; outline: 3px solid #f3d070; }
 .sp-tag:disabled { opacity: .45; cursor: default; }
-.sp-rules { margin: 0; min-height: 2.6em; font: 14px/1.3 Bitter, Georgia, serif; color: #f6efe2; }
+.sp-rules { margin: 0; min-height: 2.6em; flex-shrink: 0; font: 14px/1.3 Bitter, Georgia, serif; color: #f6efe2; }
 .sp-rules b { color: #f3d070; }
-.sp-take { min-height: 48px; border: 3px solid #4a2626; border-radius: 10px; background: #7a3b2a; color: #fbf3e2; font: 600 18px/1 "Pixelify Sans", Georgia, serif; cursor: pointer; }
+/* Take is pinned to the dock's bottom: on a short window the rules scroll under it, never it out of view */
+.sp-take { position: sticky; bottom: 0; z-index: 1; flex-shrink: 0; margin-top: auto; box-shadow: 0 -8px 10px #24160f; min-height: 48px;border: 3px solid #4a2626; border-radius: 10px; background: #7a3b2a; color: #fbf3e2; font: 600 18px/1 "Pixelify Sans", Georgia, serif; cursor: pointer; }
 .sp-take:disabled { opacity: .5; cursor: default; }
 .sp-sheet { position: absolute; inset: 0; z-index: 9; display: flex; flex-direction: column; background: rgba(20, 12, 8, .88); padding: 16px; box-sizing: border-box; }
 .sp-sheet[hidden] { display: none; }
@@ -414,16 +415,20 @@
       let chosen = null;
       this.pickTok = { dead: true };
       return new Promise(res => {
+        // 2026-11-10 (the user: "I can't select an item from the sheriff to move on"): Take used to wait for the whole
+        // talk, every re-tap started it again, and with reduced motion it waited on taps of the picture. Now a tag
+        // picks at once (Take arms 300 ms later, so a double tap can't take it), and the talk plays on as colour.
         this.dock.querySelectorAll('.sp-tag').forEach(btn => btn.onclick = async () => {
           if (this.dead || this.clock.now() < armed) return;            // inert until 450 ms after it shows
+          const o = C.options.find(x => x.id === btn.dataset.o);
+          if (chosen === o) return;                                      // already picked: its talk plays on
           this.pickTok.dead = true; if (this.pending) this.pending.done();
-          const o = C.options.find(x => x.id === btn.dataset.o), my = this.pickTok = { dead: false };
+          const my = this.pickTok = { dead: false };
           this.dock.querySelectorAll('.sp-tag').forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
-          take.disabled = true; take.textContent = o.take; chosen = null; this.words.innerHTML = '';
+          take.disabled = true; take.textContent = o.take; chosen = o; this.words.innerHTML = '';
           rules.innerHTML = '<b>' + esc(o.label) + ':</b> ' + esc(o.rules || '');
-          if (!await this.run(o.steps, my)) return;
-          await this.wait(this.turbo ? 0 : 450, { tap: false });
-          if (!my.dead && !this.dead) { take.disabled = false; chosen = o; }
+          this.clock.after(this.turbo ? 0 : 300, () => { if (!my.dead && !this.dead && chosen === o) take.disabled = false; });
+          await this.run(o.steps, my);
         });
         take.onclick = () => { if (chosen && !this.dead) { this.pickTok.dead = true; if (this.pending) this.pending.done(); res(chosen); } };
       });
