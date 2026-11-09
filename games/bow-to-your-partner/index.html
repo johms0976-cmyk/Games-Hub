@@ -856,6 +856,8 @@ select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid
 /* Euchre-ka! at the title's pixel size (2026-11-04): an exact width (the town's art pixels x townScale), centred on
    the screen whatever the panel's padding, square-cornered like the title's scene */
 .mapbox.dust.euchre { max-width: none; border-radius: 0; box-shadow: none; }
+/* Euchre-ka! since 2026-11-09 (btp-euchreka.js): a mystery stop's gang in silhouette */
+.mapbox.ek .spr.sil { filter: brightness(.22) sepia(.5); }
 .mapbox.dust .road { position: absolute; top: 0; bottom: 0; background: #d2a874; }
 .mapbox.dust .plate, .mapbox.dust .spr, .mapbox.dust .amb { position: absolute; display: none; image-rendering: pixelated; pointer-events: none; }
 .mapbox.dust .plate { left: 0; top: 0; width: 100%; height: 100%; }
@@ -1727,6 +1729,7 @@ html.art .coach { border-radius: 0; }
 <div id="ceremony" hidden></div>
 <div id="dustwipe" aria-hidden="true"></div>
 <div id="actcard" aria-live="polite"></div>
+<div id="scene" hidden></div>
 <button class="btn alt" id="skipOpening" data-act="skipopening">Skip</button>
 
 <section id="screen" hidden></section>
@@ -1757,24 +1760,28 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=56"></script>
-<script src="btp-ai.js?v=56"></script>
-<script src="btp-run.js?v=56"></script>
-<script src="btp-town.js?v=56"></script>
-<script src="art/dustwater/sprites.js?v=56"></script>
-<script src="btp-train.js?v=56"></script>
-<script src="art/train/sprites.js?v=56"></script>
-<script src="art/title/scene.js?v=56"></script>
-<script src="art/title/cameo.js?v=56"></script>
-<script src="art/title/crossing.js?v=56"></script>
-<script src="art/table/scene.js?v=56"></script>
-<script src="art/table/partners.js?v=56"></script>
-<script src="art/grave/scene.js?v=56"></script>
-<script src="art/paid/scene.js?v=56"></script>
-<script src="art/rooms/scene.js?v=56"></script>
-<script src="art/express/scene.js?v=56"></script>
-<script src="art/country/country.js?v=56"></script>
-<script src="art/fair/sprites.js?v=56"></script>
+<script src="btp-engine.js?v=57"></script>
+<script src="btp-ai.js?v=57"></script>
+<script src="btp-run.js?v=57"></script>
+<script src="btp-town.js?v=57"></script>
+<script src="art/dustwater/sprites.js?v=57"></script>
+<script src="btp-train.js?v=57"></script>
+<script src="art/train/sprites.js?v=57"></script>
+<script src="art/title/scene.js?v=57"></script>
+<script src="art/title/cameo.js?v=57"></script>
+<script src="art/title/crossing.js?v=57"></script>
+<script src="art/table/scene.js?v=57"></script>
+<script src="art/table/partners.js?v=57"></script>
+<script src="art/grave/scene.js?v=57"></script>
+<script src="art/paid/scene.js?v=57"></script>
+<script src="art/rooms/scene.js?v=57"></script>
+<script src="art/express/scene.js?v=57"></script>
+<script src="art/country/country.js?v=57"></script>
+<script src="art/fair/sprites.js?v=57"></script>
+<script src="btp-euchreka.js?v=57"></script>
+<script src="art/euchreka/sprites.js?v=57"></script>
+<script src="btp-scene.js?v=57"></script>
+<script src="scenes/gate.js?v=57"></script>
 <script>
 (function () {
   'use strict';
@@ -1791,7 +1798,7 @@ html.art .coach { border-radius: 0; }
   /* Settings kept in this browser: the pace, and whether a finished trick waits for your tap (the default: you
      are the whole table, so nobody else is reading) or clears itself after its reading time. */
   function loadPrefs() {
-    const d = { pace: 'brisk', tricks: 'tap' };
+    const d = { pace: 'brisk', tricks: 'tap', scenes: 'full' };
     try { return Object.assign(d, JSON.parse(localStorage.getItem(PREFS) || '{}')); } catch (e) { return d; }
   }
   const FAST = /[?&]fast\b/.test(location.search);
@@ -1801,7 +1808,7 @@ html.art .coach { border-radius: 0; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 41, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 42, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -2228,6 +2235,7 @@ html.art .coach { border-radius: 0; }
     $('screen').classList.toggle('one', one);
     $('screen').innerHTML = bar() + (tipTop ? '<div class="coach">' + coachHTML(tip) + '</div>' : '') + body;
     if (L.phase === 'gate') gateShown(L);
+    else if (SC.player) closeScene();
     // the gate passed: now the riders go through it, and the Twins' poster (ESCAPE FROM EUCHRE-KA!)
     if (L.phase === 'actstart' && P.rideDue && L.act === 1) { P.rideDue = false; setTimeout(rideIn, 60); }
     if (L.map && L.map.side && document.querySelector('.mapbox.side')) sideScroll(false);
@@ -2473,6 +2481,50 @@ html.art .coach { border-radius: 0; }
       '<svg viewBox="0 0 ' + T.W + ' ' + T.H + '" preserveAspectRatio="none" aria-hidden="true">' + paths + '</svg>' + sprites + buttons +
       rodeIn(L, coach, T, pct) +
       '<div class="stage" style="left:' + pct(coach[0], T.W) + ';top:' + pct(coach[1] + 8, T.H) + '">Where you rode in</div></div>';
+  }
+  /* Act I's map since 2026-11-09 (the user's pick of the film crew's concept C): Euchre-ka! in the opening's and the
+     cards' look, at Golf Story's size, one phone wide with every stop in view across it, scrolling up only.
+     btp-euchreka.js lays it out from the run's own map; art/euchreka/ (bakery/euchreka_px.py) is the plate (the sky,
+     the Saloon and the Twins, the street, the stockade and the siege camp) and the sprites (the shops, every gang at
+     its stop as their portraits, the Sheriff and Pettibone at the gate). The same contract as townBox: the plate and
+     sprites are art and never load-bearing; the road band, footpaths and markers are the map. */
+  const ekScale = () => Math.max(2, Math.min(4, Math.floor(Math.min(innerWidth, 760) / window.BtpEuchreka.GEO.W)));
+  function ekBox(L, can, route, walked, fNow) {
+    const T = window.BtpEuchreka, S = window.EUCHRE_SPRITES, G = T.GEO, lay = T.layout(L.map);
+    const pct = (v, of) => (100 * v / of).toFixed(2) + '%';
+    const at = { boss: lay.boss };
+    lay.stops.forEach(s => { at[s.id] = s; });
+    const seg = (a, b, cls) => '<path class="fp' + cls + '" d="M' + a[0].toFixed(1) + ' ' + a[1].toFixed(1) + 'L' + b[0].toFixed(1) + ' ' + b[1].toFixed(1) + '"/>';
+    let paths = '';
+    // from inside the gate to the first row, then every way up the street
+    for (const s of lay.stops) if (s.f === 0) paths += seg(lay.start, s.marker, route[0] === s.id ? ' walked' : !L.pos && can.includes(s.id) ? ' can' : '');
+    for (const s of lay.stops) for (const id of R.node(L, s.id).next)
+      paths += seg(s.marker, at[id].marker, walked.has(s.id + '>' + id) ? ' walked' : s.id === L.pos && can.includes(id) ? ' can' : '');
+    const spr = d => {
+      const s = S.s[d.key];
+      if (!s) return '';
+      return '<img class="spr' + (d.cls ? ' ' + d.cls : '') + '" alt="" src="' + artURL('euchreka/' + d.key + '.webp') + '" style="left:' + pct(d.x - s[2], G.W) + ';top:' + pct(d.y - s[3], G.H) + ';width:' + pct(s[0], G.W) + ';z-index:' + (2 + Math.round(d.y)) + '">';
+    };
+    const sprites = lay.shops.map(spr).join('') + lay.stops.map(s => s.draws.map(spr).join('')).join('') + lay.decor.map(spr).join('');
+    const buttons = lay.stops.map(s => stopButton(L, R.node(L, s.id), s.marker[0], s.marker[1], G.W, G.H, can, route, fNow, s.place)).join('') +
+      stopButton(L, R.node(L, 'boss'), lay.boss.marker[0], lay.boss.marker[1], G.W, G.H, can, route, fNow);
+    const mw = G.W * ekScale();
+    return '<div class="mapbox dust euchre ek hasplate" style="aspect-ratio:' + G.W + ' / ' + G.H + ';width:' + mw + 'px;margin-left:calc(50% - ' + mw / 2 + 'px)">' +
+      '<div class="road" style="left:' + pct(G.ROAD[0], G.W) + ';width:' + pct(G.ROAD[1] - G.ROAD[0], G.W) + '"></div>' +
+      '<img class="plate" alt="" src="' + artURL('euchreka/plate.webp') + '">' +
+      '<svg viewBox="0 0 ' + G.W + ' ' + G.H + '" preserveAspectRatio="none" aria-hidden="true">' + paths + '</svg>' + sprites + buttons +
+      ekRider(L, lay.start, G, pct) +
+      '<div class="stage" style="left:' + pct(lay.start[0], G.W) + ';top:' + pct(lay.start[1] + 8, G.H) + '">Where you rode in</div></div>';
+  }
+  // you, and your partner on their own horse, just inside the gate: the opening's riders at their own size (the map
+  // is drawn at the opening's pixel size, and the townsfolk are the riders' size)
+  function ekRider(L, at, G, pct) {
+    const I = window.TITLE_SCENE && window.TITLE_SCENE.intro && window.TITLE_SCENE.intro.stage;
+    if (!I) return '';
+    const w = I.w, h = I.h, x = at[0] - w / 2, y = at[1] - h + 2;
+    return '<div class="rodein" style="left:' + pct(x, G.W) + ';top:' + pct(y, G.H) + ';width:' + pct(w, G.W) + ';height:' + pct(h, G.H) + ';z-index:' + (2 + Math.round(at[1])) + '">' +
+      (L.partner && L.partner !== 'horse' ? '<i class="pr" style="background-image:url(' + artURL('title/ride_' + L.partner + '.webp') + ')"></i>' : '') +
+      '<i style="background-image:url(' + artURL('title/' + I.img + '.webp') + ')"></i></div>';
   }
   /* Act II: the Westbound Express, the line up the map (btp-train.js; see .mapbox.train). The paths are rails: up
      each first track from the depot, under every carriage, and every way on from it. The plate and the carriages
@@ -2858,7 +2910,7 @@ html.art .coach { border-radius: 0; }
     return '<div class="panel"><h2>Act ' + R.ROMAN[L.act] + ': ' + esc(E.ACTS[L.act].name) + tag + '</h2>' + wantedHTML(L) +
       '<div class="legend">' + ['dance', 'elite', 'event', 'store', 'camp', 'raffle'].concat(R.BANK.acts.includes(L.act) ? ['bank'] : [], R.WATER.acts.includes(L.act) ? ['water'] : [], R.CONTEST.acts.includes(L.act) ? ['contest'] : [], L.map && L.map.floors.flat().some(n => n.kind === 'mystery') ? ['mystery'] : []).map(k => '<span><i class="lg k-' + k + '">' + icon(k) + '</i>' + esc(R.kindName(L.act, k)) + '</span>').join('') +
       '<span><i class="pips"><i></i></i>A trick up their sleeve</span></div>' +
-      (town ? townBox(L, can, route, walked, fNow) : fair ? fairBox(L, can, route, walked, fNow) : side ? sideBox(L, can, route, walked, fNow) : train ? trainBox(L, can, route, walked, fNow) : plainBox(L, can, route, walked, fNow)) +
+      (town ? (window.BtpEuchreka && window.EUCHRE_SPRITES && L.map.floors.length === window.BtpEuchreka.GEO.FLOORS ? ekBox : townBox)(L, can, route, walked, fNow) : fair ? fairBox(L, can, route, walked, fNow) : side ? sideBox(L, can, route, walked, fNow) : train ? trainBox(L, can, route, walked, fNow) : plainBox(L, can, route, walked, fNow)) +
       (kinds.length ? '<p style="margin:8px 0 0"><b>Next</b>: tap a glowing stop' + (wanted.length ? ' or a poster' : '') + '.</p>' +
         (wanted.length ? '<div class="posters">' + wanted.map(n => posterHTML(L, n)).join('') + '</div>' : '') +
         (others.length ? '<ul class="nextup">' + others.map(k => '<li><b>' + esc(k === 'boss' ? 'The Showdown' : R.kindName(L.act, k)) + '</b>: ' + esc(nodeWhat(L, k)) + '</li>').join('') + '</ul>' : '') : '') + '</div>';
@@ -3482,16 +3534,25 @@ html.art .coach { border-radius: 0; }
   /* The Marshal's gatehouse (2026-11-08, STORY-PLAN.md [1.2]-[1.3]): a story's Act I starts outside Euchre-ka!'s
      stockade. Sheriff Hardcastle and Deputy Pettibone talk you in (the lines come one by one; a tap shows them all),
      then the pick of one thing confiscated at the gate (R.gate). Every option is something the game already has. */
+  /* 2026-11-09 (step 1c-a): the plan's ten + three lines. With the art they play as a film (scenes/gate.js on
+     btp-scene.js, startGateScene below); these bubbles are what plays without it (?fast, no art, Story scenes: Off). */
   const GATE_TALK = [
     ['sher', 'Ah! A voter!'],
     ['you', 'Bounty hunter.'],
-    ['sher', 'Even better, you travel. Tell folks. Sheriff Hardcastle, Bower County. The Twins have taken over my prison, and I\u2019d go in myself, but I\u2019ve a baby to kiss at four.'],
-    ['sher', '(He raises his right hand.) By the power vested in me by Bower County, I deputise you, Mr\u2026 Voter.'],
-    ['pet', 'That\u2019s the Marshal\u2019s badge, Sheriff.'],
+    ['sher', 'Even better. You travel.'],
+    ['sher', 'Gold ran out, so I filled the town with every crook in the county. Crime\u2019s down a hundred percent.'],
+    ['pet', 'The Twins let themselves in, sir. Now they run it.'],
+    ['sher', 'I\u2019d go in myself, but I\u2019ve a baby to kiss at four.'],
+    ['pet', 'We have thirty-one deputies, sir. Thirty awake.'],                                  // the siege (2026-11-09)
+    ['sher', 'Send thirty, it\u2019s their photo. Send one, it\u2019s mine. I deputise you, Mr\u2026 Voter. (He pins on a badge.)'],
+    ['pet', 'That\u2019s the Marshal\u2019s badge, sir.'],
     ['sher', 'Then don\u2019t lose it.'],
-    ['pet', '(He stamps the back of your hand: INMATE.) Everyone who goes in gets one. It doesn\u2019t wash off. Getting out\u2019s impossible. Getting in\u2019s twenty-five cents.']
+    ['pet', '(He stamps INMATE on the back of your hand.) Doesn\u2019t wash off. Name, for the book? (You tell him.) Thank you. Nobody asks the book.'],
+    ['pet', '(He holds out his hat.) Getting out\u2019s impossible. Getting in\u2019s twenty-five cents.'],
+    ['sher', 'Hand over your guns. It\u2019s all evidence.'],
+    ['pet', 'In there, sir, when a man says draw, he means a card.']
   ];
-  const GATE_ASK = 'Take something. It\u2019s all evidence, but the trials aren\u2019t till after the election.';
+  const GATE_ASK = 'Take one. Trials are after the election.';
   const GATE_WHO = { sher: 'Sheriff Hardcastle', pet: 'Deputy Pettibone', you: 'You' };
   // the Sheriff gets every one of them wrong; Pettibone reads out what it really does
   const SHERIFF_SAYS = { spyglass: 'A confiscated spyglass. For looking at things.', freshdeck: 'A brand-new deck. Never been cheated with. Probably.',
@@ -3514,7 +3575,7 @@ html.art .coach { border-radius: 0; }
       '<div class="panel gatepanel' + (all ? ' all' : '') + '"><h2>The Marshal\u2019s gatehouse</h2><div class="gtalk">' + GATE_TALK.map(([w, t], i) => say(w, t, i)).join('') + '</div>' +
       '<div class="gpick" style="--i:' + GATE_TALK.length + '"><p class="ask"><b>Sheriff Hardcastle:</b> ' + esc(GATE_ASK) + '</p>' +
       opt('buff', b ? R.BUFFS[b].name : 'Nothing left on the shelf', b ? SHERIFF_SAYS[b] || 'Took it off a card sharp. Does something clever, I\u2019m told.' : '', b ? R.BUFFS[b].text : '', !b) +
-      opt('elixirs', 'Two bottles of evidence', 'Two bottles of evidence. Mostly full.', els.join('. ') + '.') +
+      opt('elixirs', 'Two bottles of evidence', 'Two bottles of evidence. I’ve tested them thoroughly.', 'That one was full this morning, sir. (' + els.join('. ') + '.)') +
       opt('upgrade', 'His lucky card', 'My lucky card. It\u2019s never lost.', 'He\u2019s never played it. (Pick an enhancement and put it on one of your cards.)') +
       '</div></div>';
   }
@@ -3522,8 +3583,54 @@ html.art .coach { border-radius: 0; }
   function gateShown(L) {
     const key = L.rs + ':' + L.level, panel = document.querySelector('.gatepanel');
     if (!panel) return;
+    if (startGateScene(L)) return;
     panel.onclick = ev => { if (!ev.target.closest('[data-gate]')) { panel.classList.add('all'); P.gateSeen = key; } };
     if (P.gateSeen !== key) setTimeout(() => { if (P.L === L && L.phase === 'gate') P.gateSeen = key; }, (GATE_TALK.length + 1) * 1100);
+  }
+  /* The gate as a film (2026-11-09, step 1c-a, docs/film-crew/SCENE-BIBLE.md): scenes/gate.js played by
+     btp-scene.js over the screen (#scene), the pick in its dock; Take plays the gate's CREEEAK… SLAM! and then
+     makes the same move as the panel's buttons. The full cut plays the first time (profile.scenes.gate), the fast
+     cut after that or with Story scenes: Short; Off, ?fast, ?demo and no art keep the panel. A reload mid-scene
+     comes back at the shot it was on (SCENE_AT). Returns true when the scene is up. */
+  const SCENE_AT = 'btp-scene-at', SC = { player: null, key: '' };
+  function scenesOn() { return !FAST && !DEMO && P.prefs.scenes !== 'off' && !!window.BtpScene && !!window.BTP_SCENES && document.documentElement.classList.contains('art'); }
+  function sceneRead(n) { const t = PACE[P.prefs.pace] || PACE.brisk; return Math.max(Math.round(t.readBase * 1.1), Math.min(t.readMax, t.readBase + t.readPer * n)); }
+  function startGateScene(L) {
+    const key = L.rs + ':' + L.level + ':gate';
+    if (SC.player && SC.key === key) return true;
+    if (!scenesOn() || document.body.classList.contains('opening') || !$('title').hidden) return false;
+    const G = L.gate || {}, b = G.buff, X = R.ELIXIRS, pr = profile();
+    const scene = window.BTP_SCENES.gate({
+      art: artURL,
+      buff: b ? { id: b, name: R.BUFFS[b].name, text: R.BUFFS[b].text, sher: SHERIFF_SAYS[b] || 'Took it off a card sharp. Does something clever, I’m told.' } : null,
+      elixirs: (G.elixirs || []).filter(id => X[id]).map(id => ({ name: X[id].name, text: X[id].text })),
+      greet: Math.floor(Math.random() * 3), won: (pr.rides || []).some(x => x.won)
+    });
+    let at = null;
+    try { at = JSON.parse(localStorage.getItem(SCENE_AT) || 'null'); } catch (e) { /* none */ }
+    if (!at || at.key !== key) at = null;
+    const cut = at ? at.cut : P.prefs.scenes === 'short' || (pr.scenes && pr.scenes.gate) ? 'fast' : 'first';
+    const host = $('scene');
+    host.hidden = false;
+    SC.key = key;
+    SC.player = new window.BtpScene(host, scene, {
+      cut, from: at && at.shot, still: reduceMotion(), read: sceneRead,
+      onShot: (id, shot) => {
+        try { localStorage.setItem(SCENE_AT, JSON.stringify({ key, cut, shot: id })); } catch (e) { /* private window */ }
+        if (shot.choice) { const p = profile(); if (!(p.scenes && p.scenes.gate)) { p.scenes = Object.assign({}, p.scenes, { gate: true }); try { localStorage.setItem(PROFILE, JSON.stringify(p)); } catch (e) {} } }
+      },
+      onEnd: o => { closeScene(); if (o && P.L === L && L.phase === 'gate') move('gate', o.id); }
+    });
+    const pl = P.scene = SC.player;
+    window.BtpScene.preload(scene).then(() => { if (SC.player === pl) pl.play(); });
+    return true;
+  }
+  function closeScene() {
+    if (SC.player) SC.player.destroy();
+    SC.player = P.scene = null; SC.key = '';
+    try { localStorage.removeItem(SCENE_AT); } catch (e) { /* none */ }
+    const host = $('scene');
+    if (host) { host.hidden = true; host.innerHTML = ''; }
   }
 
   /* Between stretches: the chase on one screen. Their cart (the Caller's mine cart down the silver mine, the
@@ -4265,6 +4372,7 @@ html.art .coach { border-radius: 0; }
     return '<h2>Menu</h2><p>Your run is saved after every move.</p>' +
       '<h3>Pace</h3><div class="btns">' + Object.keys(PACE).map(k => opt('pace', k, PACE_NAME[k])).join('') + '</div>' +
       '<h3>Finished tricks</h3><div class="btns">' + opt('tricks', 'tap', 'Wait for a tap') + opt('tricks', 'auto', 'Clear by themselves') + '</div>' +
+      '<h3>Story scenes</h3><div class="btns">' + opt('scenes', 'full', 'In full the first time') + opt('scenes', 'short', 'Always short') + opt('scenes', 'off', 'Off') + '</div>' +
       '<h3>When only one card can be played</h3><div class="btns">' + optVal('onecard', oneCard(), 'auto', 'Play it for me') + optVal('onecard', oneCard(), 'tap', 'Let me tap it') + '</div>' + (L ? '<h3>Your cards and buffs</h3>' + mineHTML() +
       '<ul class="lines">' + L.owned.filter(c => L.mods[c] && L.mods[c].enh).map(c => '<li>' + esc(E.label(c)) + (R.legendary(L, c) ? ' (Legendary)' : '') + ': ' + E.enhsOf(L.mods[c]).map(x => esc(R.ENH[x].name + ': ' + R.ENH[x].text)).join(' ') + '</li>').join('') +
       L.buffs.map(b => '<li>' + esc(R.BUFFS[b].name) + ': ' + esc(R.BUFFS[b].text) + '</li>').join('') + '</ul>' : '') +
