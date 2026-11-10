@@ -1770,31 +1770,31 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=65"></script>
-<script src="btp-ai.js?v=65"></script>
-<script src="btp-run.js?v=65"></script>
-<script src="btp-town.js?v=65"></script>
-<script src="art/dustwater/sprites.js?v=65"></script>
-<script src="btp-train.js?v=65"></script>
-<script src="art/train/sprites.js?v=65"></script>
-<script src="art/title/scene.js?v=65"></script>
-<script src="art/title/cameo.js?v=65"></script>
-<script src="art/title/crossing.js?v=65"></script>
-<script src="art/table/scene.js?v=65"></script>
-<script src="art/table/partners.js?v=65"></script>
-<script src="art/grave/scene.js?v=65"></script>
-<script src="art/paid/scene.js?v=65"></script>
-<script src="art/rooms/scene.js?v=65"></script>
-<script src="art/express/scene.js?v=65"></script>
-<script src="art/country/country.js?v=65"></script>
-<script src="art/fair/sprites.js?v=65"></script>
-<script src="btp-euchreka.js?v=65"></script>
-<script src="art/euchreka/sprites.js?v=65"></script>
-<script src="btp-scene.js?v=65"></script>
-<script src="scenes/gate.js?v=65"></script>
-<script src="btp-music.js?v=65"></script>
-<script src="music/theme.js?v=65"></script>
-<script src="music/westbound.js?v=65"></script>
+<script src="btp-engine.js?v=66"></script>
+<script src="btp-ai.js?v=66"></script>
+<script src="btp-run.js?v=66"></script>
+<script src="btp-town.js?v=66"></script>
+<script src="art/dustwater/sprites.js?v=66"></script>
+<script src="btp-train.js?v=66"></script>
+<script src="art/train/sprites.js?v=66"></script>
+<script src="art/title/scene.js?v=66"></script>
+<script src="art/title/cameo.js?v=66"></script>
+<script src="art/title/crossing.js?v=66"></script>
+<script src="art/table/scene.js?v=66"></script>
+<script src="art/table/partners.js?v=66"></script>
+<script src="art/grave/scene.js?v=66"></script>
+<script src="art/paid/scene.js?v=66"></script>
+<script src="art/rooms/scene.js?v=66"></script>
+<script src="art/express/scene.js?v=66"></script>
+<script src="art/country/country.js?v=66"></script>
+<script src="art/fair/sprites.js?v=66"></script>
+<script src="btp-euchreka.js?v=66"></script>
+<script src="art/euchreka/sprites.js?v=66"></script>
+<script src="btp-scene.js?v=66"></script>
+<script src="scenes/gate.js?v=66"></script>
+<script src="btp-music.js?v=66"></script>
+<script src="music/theme.js?v=66"></script>
+<script src="music/westbound.js?v=66"></script>
 <script>
 (function () {
   'use strict';
@@ -1821,7 +1821,7 @@ html.art .coach { border-radius: 0; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 45, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 46, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
