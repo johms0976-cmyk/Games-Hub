@@ -679,7 +679,7 @@ body.tilt .hero .stagecoach { transform: none; }
 #title > :not(.hero) { transition: transform .6s ease-in, opacity .5s ease-in; }
 body.opening #title > :not(.hero) { transform: translateY(60px); opacity: 0; pointer-events: none; }
 body.tilt .hero { position: fixed; left: 0; right: 0; top: 0; margin: 0; z-index: 60; transition: height .45s ease-out; }
-body.signzoom .hero { transform-origin: 0 0; transition: transform 1s cubic-bezier(.45, 0, .3, 1); }
+body.signzoom .hero { transform-origin: 0 0; transition: transform var(--signzoom, 2s) cubic-bezier(.4, 0, .6, 1); }
 #dustwipe, #actcard { position: fixed; inset: 0; z-index: 70; pointer-events: none; opacity: 0; }
 #dustwipe { z-index: 75; background: #ead6ae; transition: opacity .45s; overflow: hidden; }
 #dustwipe .dp { position: absolute; image-rendering: pixelated; animation: dustgrow 1s ease-out forwards; }
@@ -858,6 +858,16 @@ select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid
 .mapbox.dust.euchre { max-width: none; border-radius: 0; box-shadow: none; }
 /* Euchre-ka! since 2026-11-09 (btp-euchreka.js): a mystery stop's gang in silhouette */
 .mapbox.ek .spr.sil { filter: brightness(.22) sepia(.5); }
+/* the sun going down up the map (ekDusk): over the plate, the sprites and the standing riders (z 1999 too, and earlier
+   in the page), under the markers (2000) */
+.mapbox.ek .tod { display: none; position: absolute; pointer-events: none; z-index: 1999; }
+@supports (mix-blend-mode: multiply) {
+  html.art .mapbox.ek .tod { display: block; }
+  .mapbox.ek .tod.mul, .mapbox.ek .tod.wash { inset: 0; }
+  .mapbox.ek .tod.mul { mix-blend-mode: multiply; }
+  .mapbox.ek .tod.lamp { mix-blend-mode: screen; background: radial-gradient(closest-side, rgba(255, 206, 120, .62), rgba(255, 170, 70, .28) 55%, rgba(255, 150, 60, 0)); }
+  .mapbox.ek .tod.sky { left: 0; top: 0; width: 100%; image-rendering: pixelated; }
+}
 .mapbox.dust .road { position: absolute; top: 0; bottom: 0; background: #d2a874; }
 .mapbox.dust .plate, .mapbox.dust .spr, .mapbox.dust .amb { position: absolute; display: none; image-rendering: pixelated; pointer-events: none; }
 .mapbox.dust .plate { left: 0; top: 0; width: 100%; height: 100%; }
@@ -1760,31 +1770,31 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=58"></script>
-<script src="btp-ai.js?v=58"></script>
-<script src="btp-run.js?v=58"></script>
-<script src="btp-town.js?v=58"></script>
-<script src="art/dustwater/sprites.js?v=58"></script>
-<script src="btp-train.js?v=58"></script>
-<script src="art/train/sprites.js?v=58"></script>
-<script src="art/title/scene.js?v=58"></script>
-<script src="art/title/cameo.js?v=58"></script>
-<script src="art/title/crossing.js?v=58"></script>
-<script src="art/table/scene.js?v=58"></script>
-<script src="art/table/partners.js?v=58"></script>
-<script src="art/grave/scene.js?v=58"></script>
-<script src="art/paid/scene.js?v=58"></script>
-<script src="art/rooms/scene.js?v=58"></script>
-<script src="art/express/scene.js?v=58"></script>
-<script src="art/country/country.js?v=58"></script>
-<script src="art/fair/sprites.js?v=58"></script>
-<script src="btp-euchreka.js?v=58"></script>
-<script src="art/euchreka/sprites.js?v=58"></script>
-<script src="btp-scene.js?v=58"></script>
-<script src="scenes/gate.js?v=58"></script>
-<script src="btp-music.js?v=58"></script>
-<script src="music/theme.js?v=58"></script>
-<script src="music/westbound.js?v=58"></script>
+<script src="btp-engine.js?v=65"></script>
+<script src="btp-ai.js?v=65"></script>
+<script src="btp-run.js?v=65"></script>
+<script src="btp-town.js?v=65"></script>
+<script src="art/dustwater/sprites.js?v=65"></script>
+<script src="btp-train.js?v=65"></script>
+<script src="art/train/sprites.js?v=65"></script>
+<script src="art/title/scene.js?v=65"></script>
+<script src="art/title/cameo.js?v=65"></script>
+<script src="art/title/crossing.js?v=65"></script>
+<script src="art/table/scene.js?v=65"></script>
+<script src="art/table/partners.js?v=65"></script>
+<script src="art/grave/scene.js?v=65"></script>
+<script src="art/paid/scene.js?v=65"></script>
+<script src="art/rooms/scene.js?v=65"></script>
+<script src="art/express/scene.js?v=65"></script>
+<script src="art/country/country.js?v=65"></script>
+<script src="art/fair/sprites.js?v=65"></script>
+<script src="btp-euchreka.js?v=65"></script>
+<script src="art/euchreka/sprites.js?v=65"></script>
+<script src="btp-scene.js?v=65"></script>
+<script src="scenes/gate.js?v=65"></script>
+<script src="btp-music.js?v=65"></script>
+<script src="music/theme.js?v=65"></script>
+<script src="music/westbound.js?v=65"></script>
 <script>
 (function () {
   'use strict';
@@ -1811,7 +1821,7 @@ html.art .coach { border-radius: 0; }
   /* The card art (bakery/ -> art/). Never load-bearing: html.art is set only once a picture has really
      loaded, so ?noart, a missing folder, or jsdom (which loads no images) all keep the drawn faces.
      BUMP ART_VER after a re-bake: the file names never change, so a browser keeps the old pictures. */
-  const ART_VER = 42, NOART = /[?&]noart\b/.test(location.search);
+  const ART_VER = 45, NOART = /[?&]noart\b/.test(location.search);
   const artURL = f => 'art/' + f + '?v=' + ART_VER;
   if (!NOART && typeof Image !== 'undefined') {
     const probe = new Image();
@@ -2148,7 +2158,7 @@ html.art .coach { border-radius: 0; }
         body = chaseHTML(L);
         break;
       case 'gate':
-        body = gateHTML(L);
+        body = gateOnMap(L) ? mapHTML(L) : gateHTML(L);       // the scene plays on the map; the panel is what's left without it
         break;
       case 'bank': {
         const B = R.BANK, door = L.bank.stage === 'door';
@@ -2234,13 +2244,13 @@ html.art .coach { border-radius: 0; }
       }
     }
     const one = L.phase === 'shop' || L.phase === 'camp' || L.phase === 'contest' || L.phase === 'chase';                        // one-screen stops carry the tip in their slip
-    const tipTop = tip && !one && !(L.phase === 'partner' || L.phase === 'actstart');   // over the map the tip rides in the sheet
+    const tipTop = tip && !one && !(L.phase === 'partner' || L.phase === 'actstart' || (L.phase === 'gate' && gateOnMap(L)));   // over the map the tip rides in the sheet
     $('screen').classList.toggle('one', one);
     $('screen').innerHTML = bar() + (tipTop ? '<div class="coach">' + coachHTML(tip) + '</div>' : '') + body;
     if (L.phase === 'gate') gateShown(L);
     else if (SC.player) closeScene();
     // the gate passed: now the riders go through it, and the Twins' poster (ESCAPE FROM EUCHRE-KA!)
-    if (L.phase === 'actstart' && P.rideDue && L.act === 1) { P.rideDue = false; setTimeout(rideIn, 60); }
+    if (L.phase === 'actstart' && P.rideDue && L.act === 1) { const how = P.rideDue; P.rideDue = false; setTimeout(how === 'scene' ? afterGate : rideIn, 60); }
     if (L.map && L.map.side && document.querySelector('.mapbox.side')) sideScroll(false);
     if (L.phase === 'map') placeRider(L);
     // on the map, bring the next choice into view once per stop (the map is taller than a phone)
@@ -2508,7 +2518,11 @@ html.art .coach { border-radius: 0; }
       if (!s) return '';
       return '<img class="spr' + (d.cls ? ' ' + d.cls : '') + '" alt="" src="' + artURL('euchreka/' + d.key + '.webp') + '" style="left:' + pct(d.x - s[2], G.W) + ';top:' + pct(d.y - s[3], G.H) + ';width:' + pct(s[0], G.W) + ';z-index:' + (2 + Math.round(d.y)) + '">';
     };
-    const sprites = lay.shops.map(spr).join('') + lay.stops.map(s => s.draws.map(spr).join('')).join('') + lay.decor.map(spr).join('');
+    // the gate scene (scenes/gate.js) plays on this map: while it does, the law and the riders are its cast, not ours
+    const staged = L.phase === 'gate', SG = T.MARKS.sign;
+    // the gate's sign again, over the plate's own, sorted with the sprites: whoever rides in passes behind it
+    const sign = '<img class="spr" alt="" src="' + artURL('title/sign.webp') + '" style="left:' + pct(SG.x, G.W) + ';top:' + pct(SG.y, G.H) + ';width:' + pct(SG.w, G.W) + ';z-index:' + (2 + SG.z) + '">';
+    const sprites = lay.shops.map(spr).join('') + lay.stops.map(s => s.draws.map(spr).join('')).join('') + (staged ? '' : lay.decor.map(spr).join('')) + lay.towers.map(spr).join('') + sign;
     const buttons = lay.stops.map(s => stopButton(L, R.node(L, s.id), s.marker[0], s.marker[1], G.W, G.H, can, route, fNow, s.place)).join('') +
       stopButton(L, R.node(L, 'boss'), lay.boss.marker[0], lay.boss.marker[1], G.W, G.H, can, route, fNow);
     const mw = G.W * ekScale();
@@ -2516,18 +2530,38 @@ html.art .coach { border-radius: 0; }
       '<div class="road" style="left:' + pct(G.ROAD[0], G.W) + ';width:' + pct(G.ROAD[1] - G.ROAD[0], G.W) + '"></div>' +
       '<img class="plate" alt="" src="' + artURL('euchreka/plate.webp') + '">' +
       '<svg viewBox="0 0 ' + G.W + ' ' + G.H + '" preserveAspectRatio="none" aria-hidden="true">' + paths + '</svg>' + sprites + buttons +
-      ekRider(L, lay.start, G, pct) +
-      '<div class="stage" style="left:' + pct(lay.start[0], G.W) + ';top:' + pct(lay.start[1] + 8, G.H) + '">Where you rode in</div></div>';
+      (staged ? '' : ekRider(L, lay.start, G, pct) +
+      '<div class="stage" style="left:' + pct(lay.start[0], G.W) + ';top:' + pct(lay.start[1] + 8, G.H) + '">Where you rode in</div>') + ekDusk(lay, G, pct) + '</div>';
   }
   // you, and your partner on their own horse, just inside the gate: the opening's riders at their own size (the map
   // is drawn at the opening's pixel size, and the townsfolk are the riders' size)
+  // (2026-11-10, big heads: the map's own strips, art/euchreka/ride_<who>.webp, heads to match its people; the
+  // opening's are untouched. Your partner stands 24 art px left and 7.5 up, whatever the frame's size.)
   function ekRider(L, at, G, pct) {
-    const I = window.TITLE_SCENE && window.TITLE_SCENE.intro && window.TITLE_SCENE.intro.stage;
+    const I = window.TITLE_SCENE && window.TITLE_SCENE.intro && window.TITLE_SCENE.intro.stage, RD = (window.EUCHRE_SPRITES || {}).r || {};
     if (!I) return '';
-    const w = I.w, h = I.h, x = at[0] - w / 2, y = at[1] - h + 2;
+    const me = RD.you, w = me ? me[0] : I.w, h = me ? me[1] : I.h, x = at[0] - (me ? me[2] : w / 2), y = at[1] - (me ? me[3] : h - 2);
+    const p = L.partner && L.partner !== 'horse' ? L.partner : null, dx = (100 * 24 / w).toFixed(2), dy = (100 * 7.5 / h).toFixed(2);
     return '<div class="rodein" style="left:' + pct(x, G.W) + ';top:' + pct(y, G.H) + ';width:' + pct(w, G.W) + ';height:' + pct(h, G.H) + ';z-index:' + (2 + Math.round(at[1])) + '">' +
-      (L.partner && L.partner !== 'horse' ? '<i class="pr" style="background-image:url(' + artURL('title/ride_' + L.partner + '.webp') + ')"></i>' : '') +
-      '<i style="background-image:url(' + artURL('title/' + I.img + '.webp') + ')"></i></div>';
+      (p ? '<i class="pr" style="left:-' + dx + '%;right:' + dx + '%;top:-' + dy + '%;bottom:' + dy + '%;background-image:url(' + (me && RD[p] ? artURL('euchreka/ride_' + p + '.webp') : artURL('title/ride_' + p + '.webp')) + ')"></i>' : '') +
+      '<i style="background-image:url(' + (me ? artURL('euchreka/ride_you.webp') : artURL('title/' + I.img + '.webp')) + ')"></i></div>';
+  }
+  /* The sun goes down as you go up Main Street (2026-11-10, the user's: "can the sun slowly set over the act 1 map as
+     well so by the time the Saloon is visible is midnight"): day at the gate and the first row, the golden hour, the
+     sunset, dusk, and night over the top rows and the Saloon. It is the place that carries the time, so nothing
+     ticks: two layers over the plate and the sprites (under the markers, which stay bright), one multiplying the
+     colours down and one washing them toward blue; lamplight at the doors of the rows it is dark in, and the Saloon's;
+     stars and a moon over the sky (art/euchreka/night.webp). Art only: without mix-blend-mode it isn't drawn. */
+  function ekDusk(lay, G, pct) {
+    const T = window.BtpEuchreka, at = f => (100 * T.rowY(f) / G.H).toFixed(1) + '%', top = (100 * (G.SKY + G.BOSS) / G.H).toFixed(1) + '%';
+    const mul = 'linear-gradient(to bottom,#4f5ba0 0,#55609f ' + top + ',#5d64a2 ' + at(6) + ',#8a73a8 ' + at(5) + ',#e08f74 ' + at(4) + ',#ffbd88 ' + at(3) + ',#ffe2ba ' + at(2) + ',#fff ' + at(1) + ',#fff 100%)';
+    const wash = 'linear-gradient(to bottom,rgba(18,28,92,.36) 0,rgba(22,32,96,.32) ' + at(6) + ',rgba(60,40,110,.22) ' + at(5) + ',rgba(150,60,70,.10) ' + at(4) + ',rgba(255,150,60,.06) ' + at(3) + ',rgba(255,150,60,0) ' + at(2) + ')';
+    const lamp = (x, y, w, h, a) => '<i class="tod lamp" style="left:' + pct(x - w / 2, G.W) + ';top:' + pct(y - h / 2, G.H) + ';width:' + pct(w, G.W) + ';height:' + pct(h, G.H) + ';opacity:' + a + '"></i>';
+    const dark = [0, 0, 0, 0.25, 0.6, 0.9, 1];                 // how much lamplight a row's doors give, by row
+    const lamps = lay.shops.map((s, i) => dark[Math.floor(i / 2)] ? lamp(s.x, s.y - 6, 62, 46, dark[Math.floor(i / 2)]) : '').join('') +
+      lamp(G.W / 2, lay.boss.marker[1] - 44, 120, 70, 1) + lamp(G.W / 2, lay.boss.marker[1] - 30, 46, 40, 1);
+    return '<i class="tod mul" style="background:' + mul + '"></i><i class="tod wash" style="background:' + wash + '"></i>' + lamps +
+      '<img class="tod sky" alt="" src="' + artURL('euchreka/night.webp') + '">';
   }
   /* Act II: the Westbound Express, the line up the map (btp-train.js; see .mapbox.train). The paths are rails: up
      each first track from the depot, under every carriage, and every way on from it. The plate and the carriages
@@ -3537,8 +3571,8 @@ html.art .coach { border-radius: 0; }
   /* The Marshal's gatehouse (2026-11-08, STORY-PLAN.md [1.2]-[1.3]): a story's Act I starts outside Euchre-ka!'s
      stockade. Sheriff Hardcastle and Deputy Pettibone talk you in (the lines come one by one; a tap shows them all),
      then the pick of one thing confiscated at the gate (R.gate). Every option is something the game already has. */
-  /* 2026-11-09 (step 1c-a): the plan's ten + three lines. With the art they play as a film (scenes/gate.js on
-     btp-scene.js, startGateScene below); these bubbles are what plays without it (?fast, no art, Story scenes: Off). */
+  /* 2026-11-09 (step 1c-a): the plan's ten + three lines. With the art they play as a scene on the map (scenes/gate.js
+     on btp-scene.js, startGateScene below); these bubbles are what plays without it (?fast, no art, Story scenes: Off). */
   const GATE_TALK = [
     ['sher', 'Ah! A voter!'],
     ['you', 'Bounty hunter.'],
@@ -3584,28 +3618,39 @@ html.art .coach { border-radius: 0; }
   }
   // the talk plays once a visit; a tap on it shows the rest at once
   function gateShown(L) {
+    if (startGateScene(L)) return;
     const key = L.rs + ':' + L.level, panel = document.querySelector('.gatepanel');
     if (!panel) return;
-    if (startGateScene(L)) return;
     panel.onclick = ev => { if (!ev.target.closest('[data-gate]')) { panel.classList.add('all'); P.gateSeen = key; } };
     if (P.gateSeen !== key) setTimeout(() => { if (P.L === L && L.phase === 'gate') P.gateSeen = key; }, (GATE_TALK.length + 1) * 1100);
   }
-  /* The gate as a film (2026-11-09, step 1c-a, docs/film-crew/SCENE-BIBLE.md): scenes/gate.js played by
-     btp-scene.js over the screen (#scene), the pick in its dock; Take plays the gate's CREEEAK… SLAM! and then
-     makes the same move as the panel's buttons. The full cut plays the first time (profile.scenes.gate), the fast
-     cut after that or with Story scenes: Short; Off, ?fast, ?demo and no art keep the panel. A reload mid-scene
-     comes back at the shot it was on (SCENE_AT). Returns true when the scene is up. */
+  /* The gate on the map (2026-11-10, the user's: "I want this to all happen on the map ... ride up the road here and
+     stop out by the Sheriff and then the interaction should happen here. Someone should stop you from entering the
+     town"): scenes/gate.js played by btp-scene.js on Euchre-ka!'s own map. The gate phase draws the map (ekBox, with
+     no law and no riders of its own) and the scene's cast go on it: you ride up through the siege camp, Pettibone
+     steps into the road, the Sheriff does the rest, the pick is a dock at the screen's foot (#scene), and Take rides
+     you in under the sign to where the map has you standing, so its last frame is the map's next render. It replaced
+     the first-person film of 2026-11-09. The full cut plays the first time (profile.scenes.gate), the fast cut after
+     that or with Story scenes: Short; Off, ?fast, ?demo and no art keep the panel (gateHTML). A reload mid-scene
+     comes back at the beat it was on (SCENE_AT); a re-render moves the cast onto the new map (remount). Returns
+     true when the scene is up. */
   const SCENE_AT = 'btp-scene-at', SC = { player: null, key: '' };
   function scenesOn() { return !FAST && !DEMO && P.prefs.scenes !== 'off' && !!window.BtpScene && !!window.BTP_SCENES && document.documentElement.classList.contains('art'); }
   function sceneRead(n) { const t = PACE[P.prefs.pace] || PACE.brisk; return Math.max(Math.round(t.readBase * 1.1), Math.min(t.readMax, t.readBase + t.readPer * n)); }
+  // the gate's scene can play on the map: the scenes are on, and this run's Act I is the map the cast were baked for
+  function gateOnMap(L) {
+    const T = window.BtpEuchreka, S = window.EUCHRE_SPRITES, I = window.TITLE_SCENE && window.TITLE_SCENE.intro;
+    return scenesOn() && !!T && !!T.MARKS && !!S && !!S.a && !!I && !!I.stage && !!L.map && L.act === 1 && L.map.floors.length === T.GEO.FLOORS;
+  }
   function startGateScene(L) {
     const key = L.rs + ':' + L.level + ':gate';
-    if (SC.player && SC.key === key) return true;
-    if (!scenesOn() || document.body.classList.contains('opening') || !$('title').hidden) return false;
-    const G = L.gate || {}, b = G.buff, X = R.ELIXIRS, pr = profile();
+    if (SC.player && SC.key === key) { SC.player.remount(); return true; }
+    if (!gateOnMap(L)) return false;
+    const T = window.BtpEuchreka, G = L.gate || {}, b = G.buff, X = R.ELIXIRS, pr = profile();
     const scene = window.BTP_SCENES.gate({
-      art: artURL,
-      buff: b ? { id: b, name: R.BUFFS[b].name, text: R.BUFFS[b].text, sher: SHERIFF_SAYS[b] || 'Took it off a card sharp. Does something clever, I’m told.' } : null,
+      art: artURL, marks: T.MARKS, sprites: window.EUCHRE_SPRITES, rider: window.TITLE_SCENE.intro.stage,
+      pal: L.partner && L.partner !== 'horse' ? 'ride_' + L.partner : null,
+      buff: b ? { id: b, name: R.BUFFS[b].name, text: R.BUFFS[b].text, sher: SHERIFF_SAYS[b] || 'Took it off a card sharp. Does something clever, I\u2019m told.' } : null,
       elixirs: (G.elixirs || []).filter(id => X[id]).map(id => ({ name: X[id].name, text: X[id].text })),
       greet: Math.floor(Math.random() * 3), won: (pr.rides || []).some(x => x.won)
     });
@@ -3616,17 +3661,30 @@ html.art .coach { border-radius: 0; }
     const host = $('scene');
     host.hidden = false;
     SC.key = key;
+    P.rideDue = 'scene';                              // the scene rides you in: afterwards only the job's poster is due
+    P.panned = L.act + ':' + L.levelsDone;            // and this act's first look was the ride, not the pan
     SC.player = new window.BtpScene(host, scene, {
+      world: { box: () => document.querySelector('.mapbox.ek'), k: ekScale, W: T.GEO.W, H: T.GEO.H },
       cut, from: at && at.shot, still: reduceMotion(), read: sceneRead,
       onShot: (id, shot) => {
         try { localStorage.setItem(SCENE_AT, JSON.stringify({ key, cut, shot: id })); } catch (e) { /* private window */ }
         if (shot.choice) { const p = profile(); if (!(p.scenes && p.scenes.gate)) { p.scenes = Object.assign({}, p.scenes, { gate: true }); try { localStorage.setItem(PROFILE, JSON.stringify(p)); } catch (e) {} } }
       },
-      onEnd: o => { closeScene(); if (o && P.L === L && L.phase === 'gate') move('gate', o.id); }
+      // (a card upgrade's screen is not the map: it starts at its top, not wherever the map was scrolled to)
+      onEnd: o => { closeScene(); if (o && P.L === L && L.phase === 'gate') { move('gate', o.id); if (P.L.phase !== 'actstart') try { window.scrollTo(0, 0); } catch (e) { /* no layout */ } } }
     });
     const pl = P.scene = SC.player;
+    pl.aim({ cam: 'foot' });                          // under the opening's dust: the foot of the map, where you ride in
     window.BtpScene.preload(scene).then(() => { if (SC.player === pl) pl.play(); });
     return true;
+  }
+  // the gate scene has ridden you in: the camera stays on where you stand (a card upgrade's screen may have come
+  // between), and the Twins' poster comes up
+  function afterGate() {
+    const L = P.L, T = window.BtpEuchreka, box = document.querySelector('.mapbox.ek');
+    if (!L) return;
+    if (box && T) try { const want = Math.max(0, Math.round(box.getBoundingClientRect().top + scrollY + T.MARKS.start[1] * ekScale() - innerHeight * 0.62)); if (Math.abs(want - scrollY) > 4) window.scrollTo(0, want); } catch (e) { /* no layout */ }
+    unrollJob(L);
   }
   function closeScene() {
     if (SC.player) SC.player.destroy();
@@ -4956,11 +5014,17 @@ html.art .coach { border-radius: 0; }
     const puffs = Array.from({ length: 7 }, (_, i) => { const p = S.puffs[i % S.puffs.length];
       return '<div class="puff" style="left:calc(50% + ' + u(T.stack[0] - T.w / 2 - p.w / 2) + ');top:' + u(T.y + T.stack[1] - p.h / 2) + ';width:' + u(p.w) + ';height:' + u(p.h) +
         ';background:' + url(p.img) + ' 0 0 / 100% 100%;animation-delay:' + (i * 0.4).toFixed(1) + 's"></div>'; }).join('');
+    // the opening's rider: the map's own big-headed strip when it is baked (2026-11-10, the user's "Yes, match them":
+    // the map's people and riders went big-headed, and the rider who leaves the opening is the one who arrives on
+    // the map), else the title's
+    const RD = (window.EUCHRE_SPRITES || {}).r || {};
+    const RS = S.intro && (RD.you ? { url: 'url(' + artURL('euchreka/ride_you.webp') + ')', w: RD.you[0], h: RD.you[1], ay: RD.you[3], frames: 4 }
+      : Object.assign({ url: url(S.intro.stage.img) }, S.intro.stage));
     const I = S.intro, below = I ? '<div class="below" style="top:' + u(S.H) + ';height:' + u(BELOW) + '">' +
       '<div class="meadow" style="background:' + url(I.meadow.img) + ' 0 0 / ' + u(I.meadow.w) + ' ' + u(I.meadow.h) + ' repeat;--tw:' + u(I.meadow.w) + ';--dur:' + (I.meadow.w / STAGE_SPEED).toFixed(2) + 's"></div>' +
       lyr({ img: I.trail.img, w: I.trail.w, h: I.trail.h, y: TRAIL_Y, speed: STAGE_SPEED }) +
-      '<div class="stagecoach" style="left:calc(50% - ' + u(I.stage.w / 2) + ');top:' + u(TRAIL_Y + 18 - (I.stage.ay || 24)) + ';width:' + u(I.stage.w) + ';height:' + u(I.stage.h) +
-      ';background-image:' + url(I.stage.img) + ';background-size:' + u(I.stage.w * I.stage.frames) + ' ' + u(I.stage.h) + ';--fw:' + u(I.stage.w) + '"></div>' +
+      '<div class="stagecoach" style="left:calc(50% - ' + u(RS.w / 2) + ');top:' + u(TRAIL_Y + 18 - (RS.ay || 24)) + ';width:' + u(RS.w) + ';height:' + u(RS.h) +
+      ';background-image:' + RS.url + ';background-size:' + u(RS.w * RS.frames) + ' ' + u(RS.h) + ';--fw:' + u(RS.w) + '"></div>' +
       '<div class="townsign" style="top:' + u(TRAIL_Y + 14) + ';width:' + u(I.sign.w * SIGN_K) + ';height:' + u(I.sign.h * SIGN_K) + ';background:' + url(I.sign.img) + ' 0 0 / 100% 100%">' +
       (I.sign.panel && I.signcover ? signCover(I.sign, url(I.signcover.img)) : '') + '</div></div>' : '';
     HERO.top = innerHeight - S.H * s;                   // the scene's top edge: it sits on the bottom of the screen
@@ -5290,7 +5354,8 @@ html.art .coach { border-radius: 0; }
     sc.classList.add('pair');
     sc.innerHTML = '';
     const pr = document.createElement('i'), me = document.createElement('i');
-    pr.className = 'pr'; pr.style.backgroundImage = 'url(' + artURL('title/ride_' + partner + '.webp') + ')';
+    const RD = (window.EUCHRE_SPRITES || {}).r || {};     // big-headed, as you are (buildHero)
+    pr.className = 'pr'; pr.style.backgroundImage = 'url(' + (RD.you && RD[partner] ? artURL('euchreka/ride_' + partner + '.webp') : artURL('title/ride_' + partner + '.webp')) + ')';
     me.className = 'me'; me.style.backgroundImage = sc.dataset.me;
     sc.append(pr, me);
   }
@@ -5324,15 +5389,19 @@ html.art .coach { border-radius: 0; }
     at(1600, () => signRun(performance.now() + 5000));
     const Z = 6600 + 100;                        // the camera has stopped as the coach passes the sign: close in on it,
     at(Z, signZoom);                             // and the coach drives off the edge while it does (the user's, 2026-10-29)
-    at(Z + 1100, () => document.body.classList.add('signdrop'));
-    at(Z + 3500, () => dust(true));
+    // 2026-11-10 (the user's: the zoom "is too fast. Can it slowly zoom in at the same pace as the horse going past and
+    // then the sign falls off"): the zoom takes as long as the rider takes to leave the frame (EXIT, it was 1 s), and
+    // the plank falls only once it has closed in; everything after is that much later
+    const DROP = Z + EXIT + 150;
+    at(DROP, () => document.body.classList.add('signdrop'));
+    at(DROP + 2400, () => dust(true));
     // 5: a story rides into town (the user's, 2026-11-04: "the opening scene plays and the rider rides into town ...
     // the rider rides in and the game starts from there"): the dust clears on Euchre-ka!'s gate at the foot of the
     // map, drawn at the opening's own pixel size, and you gallop in under it to the hitching rail. Standard 500 has
     // no town: the act card, as before.
-    if (town) { at(Z + 4400, () => rideIntoTown(L)); return; }
-    at(Z + 4400, () => { actCard(L, L.tips); undust(); });
-    at(Z + 4400 + (L.tips ? 2600 : 1400), endOpening);
+    if (town) { at(DROP + 3300, () => rideIntoTown(L)); return; }
+    at(DROP + 3300, () => { actCard(L, L.tips); undust(); });
+    at(DROP + 3300 + (L.tips ? 2600 : 1400), endOpening);
   }
   /* The ride into Euchre-ka!: the run starts under the dust (the map drawn, scrolled to its foot, the opening put
      away), the dust clears, and the riders gallop up from below the gate to the hitching rail; then the Twins'
@@ -5340,10 +5409,11 @@ html.art .coach { border-radius: 0; }
   const RIDE_IN = 1900;
   function rideIntoTown(L) {
     P.panned = L.act + ':' + L.levelsDone;           // this act's first look is the ride, not the pan
-    endOpening();                                     // (starts the run: OPEN.done draws the map)
+    P.rideDue = false;
+    endOpening();                                     // (starts the run: OPEN.done draws the map, and the gate's scene on it)
     // ESCAPE FROM EUCHRE-KA! (2026-11-08): the dust clears on the gatehouse first; the ride through the gate and the
     // Twins' poster come once you've been deputised (render, on the act's card pick)
-    if (P.L && (P.L.phase === 'gate' || (P.L.phase === 'reward' && P.L.gated))) { P.rideDue = true; return; }
+    if (P.L && (P.L.phase === 'gate' || (P.L.phase === 'reward' && P.L.gated))) { if (!P.rideDue) P.rideDue = true; return; }
     rideIn();
   }
   function rideIn() {
@@ -5406,6 +5476,7 @@ html.art .coach { border-radius: 0; }
     if (!r.width) return;
     const k = Math.min(3, innerWidth * 0.9 / r.width, innerHeight * 0.55 / r.height);
     const tx = innerWidth / 2 - k * (r.left + r.width / 2), ty = innerHeight * 0.45 - k * (r.top + r.height / 2);
+    hero.style.setProperty('--signzoom', EXIT + 'ms');      // as slow as the rider's way out of the frame
     document.body.classList.add('signzoom');
     hero.style.transform = 'translate(' + Math.round(tx) + 'px,' + Math.round(ty) + 'px) scale(' + k.toFixed(3) + ')';
   }

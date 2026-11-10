@@ -10,7 +10,8 @@
      - every gang stands at its stop as their portraits (the generator's foe.look), behind a prop that suits them; a
        duel is its pair face to face; a mystery stop its gang in silhouette; gossip the bench; the gold strike the
        prospectors at work;
-     - the Sheriff and Pettibone at the gate.
+     - the Sheriff and Pettibone at the gate, and a watchtower each side of it (2026-11-10: sprites, so whoever stands
+       inside the stockade is drawn behind them).
    Art pixels throughout: x across (0 at the left), y down the plate, a sprite placed by its ground point. */
 (function (root) {
   const node = typeof module !== 'undefined' && module.exports;
@@ -19,6 +20,15 @@
   GEO.H = GEO.SKY + GEO.BOSS + GEO.FLOORS * GEO.FS + GEO.GATE;
   GEO.GATE_Y = GEO.H - GEO.GATE + 100;                     // the stockade's ground line
   GEO.START = [94, GEO.GATE_Y - 46];                        // just inside the gate, clear of its sign
+  /* The gate scene's marks (2026-11-10: scenes/gate.js plays on this map), a person's or a rider's ground point each.
+     The Sheriff and Pettibone stand at `sher` and `pet` on the map too, so the scene's last frame is the map. `sign`
+     is the gate's sign as the plate draws it: the page lays it over the plate again so riders pass behind it. */
+  const gy = GEO.GATE_Y;
+  const MARKS = { gy, foot: GEO.H, sher: [128, gy + 24], pet: [62, gy + 26], block: [94, gy + 12], talk: [124, gy + 40], stamp: [117, gy + 60],
+    halt: [94, gy + 56], pal: [96, gy + 90], start: GEO.START, palStart: [GEO.START[0] - 24, GEO.START[1] - 7.5],
+    lookout: [20, gy + 166], sleeper: [34, gy + 150], sign: { x: 63, y: gy - 38, w: 60, h: 40, z: gy + 2 },
+    // the gate's watchtowers: clear of the road, the sign, the lanes' markers above and your partner standing inside
+    towers: [{ key: 'sg_tower_l', x: 36, y: gy + 2 }, { key: 'sg_tower_r', x: 151, y: gy + 2 }] };
   const SHOPS = { camp: ['camp', 'The hotel'], store: ['store', 'The general store'], bank: ['bank', 'The bank of Euchre-ka!'] };
   const BACKDROP = { dance: 'dance', event: 'event', raffle: 'raffle' };
   const PLAIN = ['house1', 'house3', 'store2', 'house2', 'camp2'];
@@ -74,11 +84,11 @@
     });
     const by = GEO.SKY + GEO.BOSS - 30;                     // the Saloon's front (baked into the plate)
     const boss = { id: 'boss', kind: 'boss', marker: [GEO.W / 2, by + 32] };
-    const decor = [{ key: 'm_Ksher', x: GEO.W / 2 - 26, y: GEO.GATE_Y + 30 }, { key: 'm_Jpet', x: GEO.W / 2 + 26, y: GEO.GATE_Y + 28 }];
-    return { stops, shops, boss, decor, start: GEO.START };
+    const decor = [{ key: 'm_Ksher', x: MARKS.sher[0], y: MARKS.sher[1] }, { key: 'm_Jpet', x: MARKS.pet[0], y: MARKS.pet[1] }];
+    return { stops, shops, boss, decor, towers: MARKS.towers, start: GEO.START };
   }
 
-  const api = { GEO, SHOPS, BACKDROP, PLAIN, rowY, laneX, propFor, layout };
+  const api = { GEO, MARKS, SHOPS, BACKDROP, PLAIN, rowY, laneX, propFor, layout };
   if (node) module.exports = api;
   else root.BtpEuchreka = api;
 })(typeof window !== 'undefined' ? window : this);
