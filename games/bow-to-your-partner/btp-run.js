@@ -48,7 +48,9 @@
      hit), the Sharps 91%, the Caller 77-84%, the Undertakers 62-70% (bids from 8; from 7 they were beaten 98%).
      Fights last about 4.5 / 3.7 / 3 hands at Card tables, 5.5 / 4.8 / 4.2 in Duels, 8 / 10 / 8 at Showdowns. */
   const HEALTH = { start: 500, max: 500 };
-  const FOE = { base: { 1: 64, 2: 128, 3: 176 }, step: { 1: 8, 2: 13, 3: 16 }, elite: 1.5, boss: { 1: 100, 2: 300, 3: 500 }, bossHit: 2 };
+  /* x1.35 on 2026-11-10 (the Hot Hand on for everyone, its damage multiplier, five buffs that reach every card):
+     stand-in stories won 56% -> 35% (32% before the round). tests/fights.js {"hot":1} */
+  const FOE = { base: { 1: 86, 2: 173, 3: 238 }, step: { 1: 11, 2: 18, 3: 22 }, elite: 1.5, boss: { 1: 100, 2: 300, 3: 500 }, bossHit: 2 };
   /* The Showdowns went up 15% with the trail of clues (2026-10-29) and back down when the clues were cut (the
      user's, 2026-10-30: "the clues didn't really seem to do anything"). */
   const PAR = { dance: { 1: 4, 2: 3, 3: 3 }, elite: { 1: 5, 2: 4, 3: 4 }, boss: { 1: 7, 2: 9, 3: 8 } };
@@ -408,21 +410,21 @@
     // 2026-11-05, the set pays (E.FX.setPay): gangs x1.6 and every Showdown retuned to its old win rate, 800 stand-in runs
     // (run won 23% as before; Twins 84%, Hustlers 77%, Undertakers 65%, Caller 66%, Sharps 71%; the Stranger x1.5, unmeasured)
     // with their last stands (2026-11-02, fights.js 3 x 2000): Twins 79%, Sharps 70%, Hustlers 68%, Caller 70%, Undertakers ~68%
-    twins:  { name: 'The Twins', short: 'Twins', act: 1, look: ['pJT', 'pJT'], hp: 120, hit: 1, rule: 'West and East are always dealt the two red Jacks, one each.',
+    twins:  { name: 'The Twins', short: 'Twins', act: 1, look: ['pJT', 'pJT'], hp: 160, hit: 1, rule: 'West and East are always dealt the two red Jacks, one each.',
               hint: 'In diamonds or hearts they hold both bowers. In no trumps their Jacks are just Jacks; the Joker beats them either way.' },
-    sharps: { name: 'The Card Sharps', short: 'Sharps', act: 2, look: ['pKX', 'pKX'], hp: 330, hit: 2, rule: 'They can see your seeded cards, and hunt them.',
+    sharps: { name: 'The Card Sharps', short: 'Sharps', act: 2, look: ['pKX', 'pKX'], hp: 445, hit: 2, rule: 'They can see your seeded cards, and hunt them.',
               revenge: 'Cousins of the Twins, by the look of the noses. Every carriage up ahead seems to be family.',
               hint: 'Lead your seeded cards when they can\u2019t be beaten, or let your partner cover them.' },
-    hustlers: { name: 'The Hustlers', short: 'Hustlers', act: 2, look: ['pJY', 'pJY'], hp: 480, hit: 1.25, rule: 'They bid mis\u00e8re whenever they dare.',
+    hustlers: { name: 'The Hustlers', short: 'Hustlers', act: 2, look: ['pJY', 'pJY'], hp: 650, hit: 1.25, rule: 'They bid mis\u00e8re whenever they dare.',
               revenge: 'The Twins\u2019 big brothers. Every carriage up ahead seems to be family.',
               hint: 'One trick sinks a mis\u00e8re: lead low and stay under their card. Or outbid them with a 6 to keep them out.' },
     // Act III's two evened out (2026-11-02, fights.js 1500 x 2 seed sets: Caller 77% -> 69%, Undertakers 57-60% -> 66-69%)
-    caller: { name: 'The Caller', short: 'Caller', act: 3, look: ['sJK', 'sQD'], hp: 1200, hit: 2, rule: 'Before each hand he calls a figure that changes the rules, aimed at the cards you were dealt from your own.',
+    caller: { name: 'The Caller', short: 'Caller', act: 3, look: ['sJK', 'sQD'], hp: 1620, hit: 2, rule: 'Before each hand he calls a figure that changes the rules, aimed at the cards you were dealt from your own.',
               hint: 'Each call is chosen to hurt your seeded cards, and he tells you why. A run that only works one way gets punished.' },
-    wallflowers: { name: 'The Undertakers', short: 'Undertakers', act: 3, look: ['pKU', 'pKU'], hp: 280, hit: 1.6, rule: 'They never bid, so your team must bid every hand, and at least 8.',
+    wallflowers: { name: 'The Undertakers', short: 'Undertakers', act: 3, look: ['pKU', 'pKU'], hp: 380, hit: 1.6, rule: 'They never bid, so your team must bid every hand, and at least 8.',
               hint: 'Nobody can pass the hand out: if your partner passes, you must bid. Bid what you can make, not what you hope.' },
     // never drawn: he takes the Fair's place when five marked cards call him (STRANGER)
-    stranger: { name: 'The Stranger', short: 'Stranger', act: 3, look: ['gKstr', 'gKstr'], hp: 900, hit: 1.8, secret: true,
+    stranger: { name: 'The Stranger', short: 'Stranger', act: 3, look: ['gKstr', 'gKstr'], hp: 1215, hit: 1.8, secret: true,
               rule: 'Each hand he plays by another Showdown\u2019s rule: the Twins\u2019 Jacks, the Sharps\u2019 hunt, the Hustlers\u2019 mis\u00e8re, the Caller\u2019s calls or the Undertakers\u2019 silence.',
               hint: 'He tells you whose rule he\u2019s playing at every deal. Read it before you bid.' }
   };
@@ -620,8 +622,16 @@
     iron:     { name: 'Iron Constitution', text: 'Your health goes up to 600, and you heal 100 now.' },
     pillow:   { name: 'Feather Pillow', text: 'A night at the Hotel heals 100 more.' },
     warrant:  { name: 'Signed Warrant', text: 'Every gang starts with a tenth less health.' },
-    dice:     { name: 'Loaded Dice', text: 'Rerolling a reward is free.' }
+    dice:     { name: 'Loaded Dice', text: 'Rerolling a reward is free.' },
+    // five that reach every card at the table, not just your own (2026-11-10, the review's top idea): each is known at
+    // the deal and changes what you'd bid. Fired in track (and Fat Purse in E.fight); FX holds the numbers.
+    sweetheart: { name: 'Sweetheart', text: 'Every trick your team wins with a heart hits the gang for 15 more.' },
+    lowdown:  { name: 'Low Down', text: 'Every trick your team wins with a 10 or lower hits the gang for 25.' },
+    ruffian:  { name: 'Ruffian', text: 'Every time your team trumps a trick led in another suit, the gang takes 25.' },
+    pileon:   { name: 'Pile On', text: 'Tricks your team wins in a row hit harder each time: 10, then 20, then 30… A trick they take starts it over.' },
+    purse:    { name: 'Fat Purse', text: 'Every hand you hit the gang, it hits 1 more for every 10 gold you carry.' }
   };
+  const BUFF_FX = { sweetheart: 15, lowdown: 25, ruffian: 25, pileon: 10 };
   /* Card enhancements, by the act that adds them to the reward pool (one new
      system per act). Act III adds Glass and the Triple Threat (not built yet). */
   const ENH = {
@@ -658,17 +668,28 @@
     notched:  { name: 'Notched', text: 'Each trick it wins carves a notch that stays all run, then hits the gang for 5 a notch.', acts: [1, 2, 3] },
     ambush:   { name: 'Ambush', text: 'When the gang holds the contract, a trick it wins hits them for 25.', acts: [1, 2, 3] },
     grudge:   { name: 'Grudge', text: 'Each time you set them with it in your hand it bears one more grudge, all run; every set hits them 20 more a grudge.', acts: [1, 2, 3] },
-    spoiler:  { name: 'Spoiler', text: 'Win a trick with it in a hand you set them, and the set hits them twice.', acts: [2, 3] }
+    spoiler:  { name: 'Spoiler', text: 'Win a trick with it in a hand you set them, and the set hits them twice.', acts: [2, 3] },
+    // the rework (2026-11-10, the review: six "a rank higher sometimes" enhancements barely moved a hand). Hair Trigger
+    // folds them into one; the other three work on what's around them, so a Legendary pair is a puzzle
+    trigger:  { name: 'Hair Trigger', text: 'Two ranks higher (no higher than an Ace) on a hand’s first and last trick, when you lead it, and when it’s the last card into a trick.', acts: [1, 2, 3] },
+    doubletap: { name: 'Double Tap', text: 'Its other enhancement fires twice: shots, burns, notches, grudges, gold and blocks all count double. Goes only on a card that already has one.', acts: [1, 2, 3] },
+    posse:    { name: 'Posse', text: 'A trick it wins hits the gang for 10 for every enhanced card of yours dealt to you this hand, itself included.', acts: [2, 3] },
+    flag:     { name: 'Flag Bearer', text: 'Dealt to you, it rallies its suit: every trick your team wins with a card of that suit hits the gang for 10.', acts: [1, 2, 3] }
   };
+  /* Retired from the reward pools (2026-11-10), still read by the engine so old saves and the horse's card keep working */
+  ['highnoon', 'spurs', 'lastdraw', 'desperado', 'knuckles', 'hole'].forEach(k => { ENH[k].retired = true; ENH[k].acts = []; });
+  const ENH_FX = { posse: 10, flag: 10 };
   /* Legendary cards (the user's, 2026-10-29: "stack buffs into Legendary cards", and an enhancement on a card
      can't be overwritten). A card takes a second enhancement and becomes Legendary; a Legendary card is full.
      Pairs that cancel or repeat each other never share a card, and an Outcast (which never wins) only pairs with
      what works without winning. */
-  const LEGEND = { slots: 2, clash: [['reverse', 'sanctuary'], ['sworn', 'glass'], ['double', 'triple']], outcastOk: ['herald', 'ricochet', 'steady', 'magnet', 'twoface', 'grudge'] };
+  const LEGEND = { slots: 2, clash: [['reverse', 'sanctuary'], ['sworn', 'glass'], ['double', 'triple']], outcastOk: ['herald', 'ricochet', 'steady', 'magnet', 'twoface', 'grudge', 'doubletap'] };
   function fits(L, card, id) {
     if (!L.owned.includes(card) || card === 'JK' || !ENH[id]) return false;
     const have = E.enhsOf(L.mods[card]);
     if (have.length >= LEGEND.slots || have.includes(id)) return false;
+    // a Double Tap only doubles what's already there (2026-11-10)
+    if (id === 'doubletap' && have.length !== 1) return false;
     return have.every(x => !LEGEND.clash.some(pr => pr.includes(x) && pr.includes(id)) &&
       (x !== 'outcast' || LEGEND.outcastOk.includes(id)) && (id !== 'outcast' || LEGEND.outcastOk.includes(x)));
   }
@@ -1141,17 +1162,25 @@
      win rate where it was. The stand-in bids the same either way: whether players bid bolder is the A/B test's. */
   const HOT = { unit: { 1: 15, 2: 30, 3: 55 }, at: [3, 7, 12, 18], cool: 1, mult: [1, 1.1, 1.2, 1.35, 1.5], names: ['', 'Spark', 'Flame', 'Blaze', 'Wildfire'],
                 kinds: ['dance', 'elite', 'boss', 'bank'] };
+  /* The Hot Hand multiplies damage too (2026-11-10, the review's step 1: "one visible multiplier"): HOT.dmg by stage,
+     on everything your team hits the gang with in a fight, shown as its own payday line. A set of theirs feeds it at
+     half their contract's value (HOT.set), so a defender's streak grows too. */
+  HOT.dmg = [1, 1.25, 1.5, 2, 3];
+  HOT.set = 0.5;
   const hotStage = n => HOT.at.filter(x => (n | 0) >= x).length;
   const hotMult = L => L && L.hotOn ? HOT.mult[hotStage(L.hot)] : 1;
+  const hotDmg = L => L && L.hotOn && L.mode !== 'standard' && HOT.kinds.includes(L.kind) ? HOT.dmg[hotStage(L.hot)] : 1;
+  E.hitMult = L => { const x = hotDmg(L); return x > 1 ? { x, name: HOT.names[hotStage(L.hot)] } : null; };
   function stoke(L, r) {
     if (!L.hotOn || L.mode === 'standard' || !L.h || !L.h.contract || !HOT.kinds.includes(L.kind)) return;
     const ours = E.team(r.contractor) === 0, was = L.hot | 0;
     if (ours && r.made) L.hot = was + Math.max(1, Math.round(L.h.contract.v / (HOT.unit[E.actOf(L)] || 60)));
     else if (ours) L.hot = 0;
+    else if (!r.made && HOT.set) L.hot = was + Math.max(1, Math.round(HOT.set * L.h.contract.v / (HOT.unit[E.actOf(L)] || 60)));
     else if (r.made) { const s = hotStage(was); L.hot = typeof HOT.cool === 'number' ? Math.max(0, was - HOT.cool) : s > 1 ? HOT.at[s - 2] : 0; }
     L.hotBest = Math.max(L.hotBest | 0, L.hot | 0);
     L.hotLast = { from: was, to: L.hot | 0, at: L.level + ':' + L.handNo };
-    if (hotStage(L.hot) !== hotStage(was)) E.say(L, L.hot > was ? 'Hot Hand: ' + HOT.names[hotStage(L.hot)] + '! Bounties pay \u00d7' + HOT.mult[hotStage(L.hot)] + '.' : L.hot ? 'Hot Hand cools to ' + (HOT.names[hotStage(L.hot)] || 'embers') + '.' : 'Hot Hand: doused.', 'gold');
+    if (hotStage(L.hot) !== hotStage(was)) E.say(L, L.hot > was ? 'Hot Hand: ' + HOT.names[hotStage(L.hot)] + '! You hit \u00d7' + HOT.dmg[hotStage(L.hot)] + ', bounties pay \u00d7' + HOT.mult[hotStage(L.hot)] + '.' : L.hot ? 'Hot Hand cools to ' + (HOT.names[hotStage(L.hot)] || 'embers') + '.' : 'Hot Hand: doused.', 'gold');
   }
   /* Beginner's luck (2026-11-03, the user's: "I want the first couple of rounds to be quite easy and quick, i.e. the
      chances of getting a joker are quite high for the player and their chances decrease as the game progresses").
@@ -1653,6 +1682,22 @@
       if (free.length) { const c = E.pick(L, free); placeHex(L, c, 'twoleft'); h.grave = c; E.say(L, 'Dig a Grave: your ' + E.label(c) + ' is buried this hand. It can\u2019t win a trick.', 'rule'); }
     }
   }
+  /* The small print that bites after the hand (2026-11-10): Gunpowder Tea Dog-ears its card (unless it already has a
+     hex), Nitro blows an owned card out of your hands for good (it stays in the deck, plain). */
+  function afterBottles(L) {
+    const h = L.h, x = h && h.tmpx;
+    if (!x) return;
+    Object.keys(x).forEach(c => {
+      const name = ELIXIRS[(h.tmp || {})[c]] ? ELIXIRS[h.tmp[c]].name : 'The bottle';
+      if (x[c].dog && c !== 'JK' && E.rankOf(c) !== 'J' && !(L.hexes || {})[c]) { placeHex(L, c, 'stepped'); E.say(L, name + '’s small print: your ' + E.label(c) + ' is Dog-eared for the rest of the story.', 'rule'); }
+      if (x[c].lose && L.owned.includes(c) && L.owned.length > 1) {
+        L.owned = L.owned.filter(y => y !== c); delete L.mods[c];
+        if (L.hexes) delete L.hexes[c];
+        E.say(L, name + '’s small print: your ' + E.label(c) + ' blew apart. It’s yours no longer.', 'rule');
+      }
+    });
+    h.tmpx = null;
+  }
   function unbury(L) {
     const h = L.h;
     if (h && h.grave && L.hexes && L.hexes[h.grave] === 'twoleft') delete L.hexes[h.grave];
@@ -1677,38 +1722,67 @@
     const wk = E.K(L, trick.winner, trick.cards[trick.winner]), X = E.FX;
     h.fx = h.fx || { hit: 0, block: 0, burn: 0 };
     const shot = (n, text) => { h.fx.hit += n; E.say(L, text, 'rule'); };
+    // a Double Tap fires the card's other enhancement twice (2026-11-10)
+    const tap = k => E.en(k, 'doubletap') ? 2 : 1, n = tap(wk), twice = n > 1 ? ' (Double Tap: twice)' : '';
+    // what a bottle drunk on the winning card does besides its rules (h.tmpx, the cocktails and the small print)
+    const tx = trick.winner === 0 && h.tmpx ? h.tmpx[wk.c] || null : null;
     if (mine && (wk.m || wk.tmp)) {
       const lb = E.label(wk.c);
-      if (E.en(wk, 'hollow')) shot(X.hollow, lb + ' is a Hollow Point: +' + X.hollow + ' to the gang.');
-      if (E.en(wk, 'keg')) shot(X.keg, lb + ' is a Powder Keg: +' + X.keg + ' to the gang.');
-      if (E.en(wk, 'bullseye') && trick.no === E.ACTS[E.actOf(L)].hand) shot(X.bullseye, 'Bullseye! ' + lb + ' took the last trick: +' + X.bullseye + ' to the gang.');
-      if (E.en(wk, 'deadman') && trick.cards.some(c => c && c !== 'JK' && ['A', '8'].includes(E.rankOf(c)))) shot(X.deadman, lb + ' holds a Dead Man\u2019s Hand: +' + X.deadman + ' to the gang.');
-      if (E.en(wk, 'notched')) { wk.m.notch = (wk.m.notch || 0) + 1; shot(X.notch * wk.m.notch, lb + ' carves notch ' + wk.m.notch + ': +' + X.notch * wk.m.notch + ' to the gang.'); }
-      if (E.en(wk, 'ambush') && h.contract && E.team(h.contractor) === 1) shot(X.ambush, lb + ' springs an Ambush on their contract: +' + X.ambush + ' to the gang.');
-      if (E.en(wk, 'spoiler') && h.contract && E.team(h.contractor) === 1) h.spoil = (h.spoil || 0) + 1;
-      if (E.en(wk, 'plate')) { h.fx.block += X.plate; E.say(L, lb + ' is an Iron Plate: ' + X.plate + ' of this hand\u2019s damage will be blocked.', 'rule'); }
+      if (E.en(wk, 'hollow')) shot(X.hollow * n, lb + ' is a Hollow Point: +' + X.hollow * n + ' to the gang' + twice + '.');
+      if (E.en(wk, 'keg')) shot(X.keg * n, lb + ' is a Powder Keg: +' + X.keg * n + ' to the gang' + twice + '.');
+      if (E.en(wk, 'bullseye') && trick.no === E.ACTS[E.actOf(L)].hand) shot(X.bullseye * n, 'Bullseye! ' + lb + ' took the last trick: +' + X.bullseye * n + ' to the gang' + twice + '.');
+      if (E.en(wk, 'deadman') && trick.cards.some(c => c && c !== 'JK' && ['A', '8'].includes(E.rankOf(c)))) shot(X.deadman * n, lb + ' holds a Dead Man\u2019s Hand: +' + X.deadman * n + ' to the gang' + twice + '.');
+      if (E.en(wk, 'notched')) { wk.m.notch = (wk.m.notch || 0) + n; shot(X.notch * wk.m.notch, lb + ' carves ' + (n > 1 ? 'two notches, now ' : 'notch ') + wk.m.notch + ': +' + X.notch * wk.m.notch + ' to the gang.'); }
+      if (E.en(wk, 'ambush') && h.contract && E.team(h.contractor) === 1) shot(X.ambush * n, lb + ' springs an Ambush on their contract: +' + X.ambush * n + ' to the gang' + twice + '.');
+      if (E.en(wk, 'spoiler') && h.contract && E.team(h.contractor) === 1) h.spoil = (h.spoil || 0) + n;
+      if (E.en(wk, 'plate')) { h.fx.block += X.plate * n; E.say(L, lb + ' is an Iron Plate: ' + X.plate * n + ' of this hand\u2019s damage will be blocked' + twice + '.', 'rule'); }
       if (E.en(wk, 'horseshoe')) h.shoe = true;
+      // Posse: 10 for every enhanced card of yours dealt this hand
+      if (E.en(wk, 'posse')) { const p = (h.seeded || []).filter(c => L.mods && L.mods[c] && E.enhsOf(L.mods[c]).length).length; if (p) shot(ENH_FX.posse * p * n, lb + '\u2019s Posse rides with ' + p + ' enhanced card' + (p > 1 ? 's' : '') + ': +' + ENH_FX.posse * p * n + ' to the gang' + twice + '.'); }
+    }
+    if (mine && tx) {
+      const lb = E.label(wk.c);
+      if (tx.shot) shot(tx.shot, lb + ' (' + ELIXIRS[h.tmp[wk.c]].name + '): +' + tx.shot + ' to the gang.');
+      if (tx.gold) { L.gold += tx.gold; E.say(L, lb + ' (' + ELIXIRS[h.tmp[wk.c]].name + '): +' + tx.gold + ' gold.', 'gold'); }
+    }
+    if (mine) {
+      // the buffs that read every card at the table (2026-11-10)
+      const wc = trick.cards[trick.winner], plain = wc && wc !== 'JK';
+      if (has(L, 'sweetheart') && plain && E.suitOf(wc) === 'H') shot(BUFF_FX.sweetheart, 'Sweetheart: a heart takes the trick, +' + BUFF_FX.sweetheart + ' to the gang.');
+      if (has(L, 'lowdown') && plain && E.RANKV[E.rankOf(wc)] <= 10) shot(BUFF_FX.lowdown, 'Low Down: the ' + E.label(wc) + ' takes it, +' + BUFF_FX.lowdown + ' to the gang.');
+      if (has(L, 'ruffian') && h.trump && E.kSuit(E.K(L, trick.leader, trick.cards[trick.leader]), h.trump) !== h.trump && E.kIsTrump(wk, h.trump)) shot(BUFF_FX.ruffian, 'Ruffian: trumped in, +' + BUFF_FX.ruffian + ' to the gang.');
+      h.pile = (h.pile || 0) + 1;
+      if (has(L, 'pileon')) shot(BUFF_FX.pileon * h.pile, 'Pile On: ' + h.pile + ' in a row, +' + BUFF_FX.pileon * h.pile + ' to the gang.');
+      // Flag Bearers dealt to you rally their suit, whoever's card wins
+      if (plain) { const fl = (h.seeded || []).filter(c => L.mods && L.mods[c] && E.en({ m: L.mods[c] }, 'flag') && E.suitOf(c) === E.suitOf(wc)); if (fl.length) { const x = fl.reduce((a, c) => a + ENH_FX.flag * tap({ m: L.mods[c] }), 0); shot(x, 'Flag Bearer: ' + E.NAME[E.suitOf(wc)] + ' rally, +' + x + ' to the gang.'); } }
+      const e = h.elx || {};
+      if (e.fools || e.goldrush) { const g = e.goldrush ? 25 : 15; L.gold += g; E.say(L, (e.goldrush ? 'Gold Rush' : 'Fool\u2019s Gold') + ': +' + g + ' gold.', 'gold'); }
+      if (e.goldrush) shot(25, 'Gold Rush: +25 to the gang.');
+    } else {
+      h.pile = 0;
+      if ((h.elx || {}).fools && L.gold > 0) { const g = Math.min(15, L.gold); L.gold -= g; E.say(L, 'Fool\u2019s Gold\u2019s small print: they take ' + g + ' gold.', 'gold'); }
     }
     if (!mine) {
       // your team's cards in a trick the gang took
       trick.cards.forEach((c, s) => {
         if (!c || E.team(s) !== 0) return;
-        const k = E.K(L, s, c);
-        if (E.en(k, 'ricochet')) shot(X.ricochet, E.label(c) + ' ricochets: +' + X.ricochet + ' to the gang.');
-        if (E.en(k, 'keg')) { h.fx.burn += X.kegBurn; E.say(L, E.label(c) + ' is a Powder Keg, and it went off in your hands: ' + X.kegBurn + ' burn.', 'rule'); }
+        const k = E.K(L, s, c), kx = s === 0 && h.tmpx ? h.tmpx[c] || {} : {};
+        if (E.en(k, 'ricochet')) shot(X.ricochet * tap(k), E.label(c) + ' ricochets: +' + X.ricochet * tap(k) + ' to the gang.');
+        const burn = (E.en(k, 'keg') && !kx.nob ? X.kegBurn * tap(k) : 0) + (kx.burn || 0);
+        if (burn) { h.fx.burn += burn; E.say(L, E.label(c) + ' went off in your hands: ' + burn + ' burn.', 'rule'); }
       });
       if (E.foeHas(L, 'shakedown') && L.gold > 0) { const g = Math.min(5, L.gold); L.gold -= g; E.say(L, 'Shakedown: they take ' + g + ' gold.', 'gold'); }
     }
     if (mine) {
       L.captured.push(...trick.cards.filter(Boolean));
-      if (E.en(wk, 'gilded')) { L.gold += 5; E.say(L, E.label(wk.c) + ' is Gilded: +5 gold.', 'gold'); }
+      if (E.en(wk, 'gilded')) { L.gold += 5 * n; E.say(L, E.label(wk.c) + ' is Gilded: +' + 5 * n + ' gold' + twice + '.', 'gold'); }
       if (E.en(wk, 'glass')) {
         wk.m.wins = (wk.m.wins || 0) + 1;
         if (wk.m.wins >= GLASS_WINS) shatter(L, wk.c);
         else E.say(L, E.label(wk.c) + ' is Glass: ' + (GLASS_WINS - wk.m.wins) + ' more win' + (GLASS_WINS - wk.m.wins > 1 ? 's' : '') + ' before it shatters.', 'rule');
       }
       if (E.en(wk, 'growing') && (wk.m.up || 0) < E.maxUp(wk.c)) {
-        wk.m.up = (wk.m.up || 0) + 1;
+        wk.m.up = Math.min(E.maxUp(wk.c), (wk.m.up || 0) + n);
         E.say(L, E.label(wk.c) + ' grows: it is now ' + E.kLabel(wk).replace(/^.*\(now /, '').replace(')', '') + '.', 'rule');
       }
     }
@@ -1847,6 +1921,7 @@
      their health (the Bank: its one hand), or your health runs out, which ends the run wherever you are. */
   function endHand(L) {
     unbury(L);
+    afterBottles(L);
     if (L.dare && !L.dare.done && L.dare.hand === L.handNo) L.dare.done = true;     // a dare lasts its hand
     if (L.mode === 'standard') { endStandardHand(L); return; }
     const r = L.h.result;
@@ -2100,7 +2175,7 @@
   function cantTake(L, card, id) {
     if (card === 'JK') return 'the Joker takes no enhancements';
     if (!L.owned.includes(card)) return 'pick a card you own';
-    if (!fits(L, card, id)) return legendary(L, card) ? 'that card is Legendary already: it holds two enhancements' : 'that card can’t take ' + ENH[id].name + ' with what it has';
+    if (!fits(L, card, id)) return legendary(L, card) ? 'that card is Legendary already: it holds two enhancements' : id === 'doubletap' && !E.enhsOf(L.mods[card]).length ? 'a Double Tap needs a card that already has an enhancement to double' : 'that card can’t take ' + ENH[id].name + ' with what it has';
     return '';
   }
   /* Changing your mind (the user's, 2026-10-30: they took Hollow Point for the Joker, found it can't take one, and
@@ -2302,7 +2377,46 @@
       .concat(L.act === 3 && !L.fastCar ? [{ type: 'handcar', id: 'handcar', price: priced(L, FAIR_GOODS.handcar), name: 'A faster handcar', text: 'If the boss bolts after the Showdown, your first lost stretch of the chase costs no ground.' }] : [])
       .concat((L.pockets || 0) < POCKETS.most ? [{ type: 'pocket', id: 'pocket', price: priced(L, POCKETS.price + POCKETS.step * (L.pocketsBought || 0)), name: 'Deeper pockets',
                text: 'One more of your enhanced cards is dealt to you every hand, for the rest of the story.' }] : [])
+      .concat([{ type: 'elixir', id: drawElixir(L), price: priced(L, ELIXIR.price) }])
+      .concat([{ type: 'gunsmith', id: 'gunsmith', price: priced(L, GUNSMITH.price), name: 'The Gunsmith', text: 'Moves one enhancement off a card you own onto another. The card it comes off goes in the melting pot: it\u2019s yours no longer.' }])
       .concat([{ type: 'restock', id: 'restock', price: restockPrice(L), name: 'Ask what\u2019s out back', text: 'A new set of goods on the shelves. Costs more each time you ask.' }]);
+  }
+  /* The Gunsmith (2026-11-10, the review: nothing can be overwritten, which punishes trying things; Inscryption's
+     sacrifice): a store service. Pick a card you own with an enhancement, one of its enhancements, and another card
+     you own that can take it; the enhancement moves and the first card is melted down (lost to you, plain in the
+     deck, like a cracked polish). Never mind gives the price back. */
+  const GUNSMITH = { price: 40 };
+  // the moves the Gunsmith can make: [from, enh, to]
+  function gunMoves(L) {
+    const out = [];
+    for (const from of L.owned) for (const id of E.enhsOf(L.mods[from])) for (const to of L.owned) {
+      if (to !== from && fits(L, to, id)) out.push([from, id, to]);
+    }
+    return out;
+  }
+  function gunsmith(L, arg) {
+    if (L.phase !== 'gunsmith') return no('the Gunsmith isn\u2019t in');
+    arg = arg || {};
+    if (arg.cancel) {
+      const it = L.stock && L.stock[L.gunBuy];
+      if (it) { it.sold = false; L.gold += it.price; }
+      L.gunBuy = null; L.phase = 'shop';
+      note(L, 'The Gunsmith shrugs and hands your gold back.');
+      return yes();
+    }
+    if (!gunMoves(L).some(m => m[0] === arg.from && m[1] === arg.enh && m[2] === arg.to)) return no('he can\u2019t make that move');
+    const to = L.mods[arg.to] || (L.mods[arg.to] = {});
+    if (to.enh) to.enh2 = arg.enh; else to.enh = arg.enh;
+    // grown things stay with the enhancement that grew them
+    const m = L.mods[arg.from];
+    if (arg.enh === 'notched' && m.notch) to.notch = (to.notch || 0) + m.notch;
+    if (arg.enh === 'grudge' && m.grudge) to.grudge = (to.grudge || 0) + m.grudge;
+    L.owned = L.owned.filter(c => c !== arg.from); delete L.mods[arg.from];
+    if (L.hexes && L.hexes[arg.from] && L.hexes[arg.from] !== 'twoleft') delete L.hexes[arg.from];
+    L.melted = (L.melted || 0) + 1;
+    note(L, 'The Gunsmith moves ' + ENH[arg.enh].name + ' onto your ' + E.label(arg.to) + (E.enhsOf(to).length > 1 ? ', now Legendary' : '') + '. Your ' + E.label(arg.from) + ' goes in the melting pot.');
+    L.gunBuy = null; L.phase = 'shop';
+    return yes();
   }
   /* The posting is a bet (a Card table pays 10 / 25 / 40 by stars: two stars breaks even, three wins); a restock
      costs 15 more each time in one visit, so the store can't be rerolled for free. */
@@ -2311,20 +2425,69 @@
      damage"): bottles carried in a satchel (L.elixirs, three at most) and drunk during a hand of a fight, for that hand
      only. Four go on a card in your hand (h.tmp, read by E.K as k.tmp), two on the whole hand (h.elx, read by E.fight).
      From Doctor Bellweather's Medicine Show (EVENTS.salesman) and bottles a beaten gang drops (ELIXIR.drop). */
+  /* Each bottle says what it does: `as` (what the card counts as, read by the engine through h.tfx), `fx` (h.tmpx: shot,
+     burn, nob = no burn, gold a trick won, dog = Dog-eared after the hand, lose = lost to you after the hand), `elx` (a
+     whole-hand flag E.fight and track read), `heal` (on drinking). `small` is the small print (2026-11-10, the review:
+     stronger bottles with a side effect on the label), shown apart in the satchel. Cocktails (`of`) are never drawn:
+     they're mixed (MIX). */
   const ELIXIRS = {
-    ace:     { name: 'Ace in a Bottle', card: true, w: 3, text: 'Pick a card in your hand: this hand it plays as the Ace of its suit.' },
-    sworn:   { name: 'Turncoat Tonic', card: true, w: 3, text: 'Pick a card in your hand: this hand it counts as a trump. Drink it before you bid.' },
-    joker:   { name: 'Wild Card Whiskey', card: true, w: 1, text: 'Pick a card in your hand: this hand it is the top trump, level with the Joker (the first played wins); in no trumps, the Ace of its suit.' },
-    keg:     { name: 'Firewater', card: true, w: 3, text: 'Pick a card in your hand: this hand it is a Powder Keg, +30 to the gang for every trick it wins (15 burn if they take it).' },
-    double:  { name: 'Rotgut', w: 2, text: 'Everything your team hits the gang with this hand counts double.' },
-    bitters: { name: 'Doc\u2019s Bitters', w: 3, text: 'The gang hits you for half this hand.' }
+    ace:     { name: 'Ace in a Bottle', card: true, w: 3, as: ['ace'], text: 'Pick a card in your hand: this hand it plays as the Ace of its suit.' },
+    sworn:   { name: 'Turncoat Tonic', card: true, w: 3, as: ['sworn'], text: 'Pick a card in your hand: this hand it counts as a trump. Drink it before you bid.' },
+    joker:   { name: 'Wild Card Whiskey', card: true, w: 1, as: ['joker'], text: 'Pick a card in your hand: this hand it is the top trump, level with the Joker (the first played wins); in no trumps, the Ace of its suit.' },
+    keg:     { name: 'Firewater', card: true, w: 3, as: ['keg'], text: 'Pick a card in your hand: this hand it is a Powder Keg, +30 to the gang for every trick it wins (15 burn if they take it).' },
+    double:  { name: 'Rotgut', w: 2, elx: 'double', text: 'Everything your team hits the gang with this hand counts double.' },
+    bitters: { name: 'Doc\u2019s Bitters', w: 3, elx: 'bitters', text: 'The gang hits you for half this hand.' },
+    // the small print (2026-11-10)
+    courage: { name: 'Liquid Courage', w: 2, elx: 'courage', text: 'If your team makes its contract this hand, it hits the gang triple. Drink it before you bid.', small: 'If your contract fails, the backfire is triple too.' },
+    tea:     { name: 'Gunpowder Tea', card: true, w: 2, fx: { shot: 60, dog: true }, noJack: true, text: 'Pick a card in your hand (not a Jack): every trick it wins this hand hits the gang for 60.', small: 'When the hand ends, the card is Dog-eared for the rest of the story: one rank down, whoever holds it.' },
+    fools:   { name: 'Fool\u2019s Gold', w: 2, elx: 'fools', text: 'Every trick your team wins this hand pays you 15 gold.', small: 'Every trick they win takes 15 of yours.' },
+    hair:    { name: 'Hair of the Dog', w: 2, elx: 'hair', heal: 100, text: '+100 health, now.', small: 'The gang hits you double this hand.' },
+    // cocktails (2026-11-10, the review: Monkey Island's "use X with Y"): two bottles mixed into one, by MIX's recipes
+    deadman:  { name: 'Dead Man\u2019s Draught', card: true, of: ['ace', 'keg'], as: ['ace', 'keg'], fx: { nob: true }, text: 'Pick a card: this hand it plays as the Ace of its suit and is a Powder Keg that never burns you.', hint: 'An Ace and a barrel of powder: what a man drinks before a duel he means to finish.' },
+    prairie:  { name: 'Prairie Fire', of: ['keg', 'double'], elx: 'triple', text: 'Everything your team hits the gang with this hand counts triple.', hint: 'Fire on rotgut spreads across the grass.' },
+    fullhouse: { name: 'Full House', card: true, of: ['joker', 'ace'], as: ['joker'], fx: { shot: 50 }, text: 'Pick a card: this hand it is the top trump, level with the Joker, and every trick it wins hits the gang for 50.', hint: 'Wild and high together: the best hand at the table.' },
+    rattler:  { name: 'Rattlesnake', card: true, of: ['keg', 'keg'], fx: { shot: 70, burn: 30 }, text: 'Pick a card: every trick it wins this hand hits the gang for 70; 30 burn if they take it.', hint: 'Two kegs in one bottle. Stand well back.' },
+    turncoat: { name: 'Turncoat Punch', card: true, of: ['sworn', 'sworn'], suit: true, as: ['sworn'], text: 'Pick a card: this hand every card of its suit in your hand counts as a trump. Drink it before you bid.', hint: 'One traitor\u2019s a nuisance. Two\u2019s a mutiny.' },
+    holy:     { name: 'Holy Water', of: ['bitters', 'hair'], elx: 'holy', heal: 100, text: '+100 health, now, and nothing the gang does this hand touches you.', hint: 'The Doc\u2019s cure and the dog that bit you, blessed together.' },
+    goldrush: { name: 'Gold Rush', of: ['fools', 'double'], elx: 'goldrush', text: 'Every trick your team wins this hand pays 25 gold and hits the gang for 25. No small print.', hint: 'Fool\u2019s gold, doubled, comes up real.' },
+    dutch:    { name: 'Dutch Courage', of: ['courage', 'bitters'], elx: 'dutch', text: 'If your team makes its contract this hand, it hits the gang triple; a failed one backfires as usual. Drink it before you bid.', hint: 'Courage, with something for the nerves.' },
+    nitro:    { name: 'Nitro', card: true, of: ['tea', 'keg'], fx: { shot: 120, lose: true }, noJack: true, text: 'Pick a card in your hand (not a Jack): every trick it wins this hand hits the gang for 120.', small: 'When the hand ends the card blows apart: if it\u2019s yours, it\u2019s yours no longer.', hint: 'Gunpowder in the tea and powder in the cup. Never stir.' },
+    wildfire: { name: 'Wildfire Whiskey', card: true, of: ['joker', 'double'], as: ['joker'], elx: 'double', text: 'Pick a card: this hand it is the top trump, level with the Joker, and everything your team hits the gang with counts double.', hint: 'A wild card, and twice the trouble.' },
+    ironside: { name: 'Ironside', card: true, of: ['sworn', 'bitters'], as: ['sworn'], elx: 'bitters', text: 'Pick a card: this hand it counts as a trump, and the gang hits you for half.', hint: 'A turncoat with a strong stomach.' },
+    midas:    { name: 'Midas Touch', card: true, of: ['fools', 'ace'], as: ['ace'], fx: { gold: 30 }, text: 'Pick a card: this hand it plays as the Ace of its suit, and every trick it wins pays you 30 gold.', hint: 'An Ace that only touches gold.' },
+    swamp:    { name: 'Swamp Water', w: 0, heal: 20, text: '+20 health. That\u2019s all it does. It\u2019s what you get when a mix has no recipe.' }
   };
-  const ELIXIR = { slots: 3, drop: { dance: 0.2, elite: 0.45 } };
+  /* Supply (2026-11-10, the review: 2.1 bottles a won story never filled a three-bottle satchel): gangs drop more, and
+     every General Store has a bottle on the shelf (ELIXIR.price). */
+  const ELIXIR = { slots: 3, drop: { dance: 0.4, elite: 0.7 }, price: 35 };
+  // the recipes, by the two bottles sorted; any other pair makes Swamp Water. A cocktail never mixes again.
+  const mixKey = (a, b) => [a, b].sort().join('+');
+  const MIX = {};
+  Object.keys(ELIXIRS).forEach(k => { if (ELIXIRS[k].of) MIX[mixKey(ELIXIRS[k].of[0], ELIXIRS[k].of[1])] = k; });
+  const mixable = id => !!ELIXIRS[id] && !ELIXIRS[id].of && id !== 'swamp';
   function drawElixir(L) {
-    const ids = Object.keys(ELIXIRS), tot = ids.reduce((a, k) => a + ELIXIRS[k].w, 0);
+    const ids = Object.keys(ELIXIRS).filter(k => ELIXIRS[k].w > 0), tot = ids.reduce((a, k) => a + ELIXIRS[k].w, 0);
     let r = E.rnd(L) * tot;
     for (const k of ids) { r -= ELIXIRS[k].w; if (r < 0) return k; }
     return ids[0];
+  }
+  /* Mixing (2026-11-10): two plain bottles from the satchel become one, any time but in the middle of drinking. A pair
+     with a recipe makes its cocktail, any other Swamp Water; either way the pair goes in the run's book (L.book, which
+     the page copies into the player's recipe book, kept across stories). */
+  const canMix = L => (L.elixirs || []).filter(mixable).length >= 2 && L.phase !== 'victory' && L.phase !== 'runover' && !(L.phase === 'hand' && L.h && L.h.phase === 'done');
+  function mix(L, arg) {
+    arg = arg || {};
+    const a = (L.elixirs || [])[arg.i], b = (L.elixirs || [])[arg.j];
+    if (arg.i === arg.j || !a || !b) return no('pick two bottles');
+    if (!mixable(a) || !mixable(b)) return no('a cocktail doesn’t mix again');
+    if (!canMix(L)) return no('not now');
+    const key = mixKey(a, b), got = MIX[key] || 'swamp';
+    L.elixirs = L.elixirs.filter((x, n) => n !== arg.i && n !== arg.j).concat(got);
+    L.book = Object.assign({}, L.book, { [key]: got });
+    L.mixed = (L.mixed || 0) + 1;
+    L.lastMix = { key, got, from: [a, b] };
+    E.say(L, got === 'swamp' ? ELIXIRS[a].name + ' and ' + ELIXIRS[b].name + ' curdle into Swamp Water. No recipe there.' : ELIXIRS[a].name + ' and ' + ELIXIRS[b].name + ' make ' + ELIXIRS[got].name + '! ' + ELIXIRS[got].text, 'objective');
+    return yes();
   }
   // a bottle into the satchel; false when it is full
   function gainElixir(L, id) {
@@ -2339,19 +2502,21 @@
     if (!canDrink(L)) return no('drink it during a hand of a fight');
     const id = (L.elixirs || [])[arg.i], X = ELIXIRS[id], h = L.h;
     if (!X) return no('no such bottle');
+    h.elx = h.elx || {};
+    if (X.elx && h.elx[X.elx]) return no('you have already had one of those this hand');
     if (X.card) {
       if (!h.hands[0].includes(arg.card)) return no('pick a card in your hand');
       if (arg.card === 'JK') return no('the Joker needs no help');
-      h.tmp = h.tmp || {};
+      if (X.noJack && E.rankOf(arg.card) === 'J') return no('the Jacks won’t touch the stuff');
+      h.tmp = h.tmp || {}; h.tfx = h.tfx || {}; h.tmpx = h.tmpx || {};
       if (h.tmp[arg.card]) return no('that card has already had a drink this hand');
-      h.tmp[arg.card] = id;
-      E.say(L, X.name + ' on your ' + E.label(arg.card) + ': ' + X.text.replace(/^Pick a card in your hand: /, '').replace(/ Drink it before you bid\.$/, ''), 'rule');
-    } else {
-      h.elx = h.elx || {};
-      if (h.elx[id]) return no('you have already had one of those this hand');
-      h.elx[id] = true;
-      E.say(L, X.name + ': ' + X.text, 'rule');
-    }
+      // Turncoat Punch: every card of the picked one's suit in your hand (that hasn't had a drink)
+      const on = X.suit ? h.hands[0].filter(c => c !== 'JK' && !h.tmp[c] && E.suitOf(c) === E.suitOf(arg.card)) : [arg.card];
+      on.forEach(c => { h.tmp[c] = id; h.tfx[c] = (X.as || []).slice(); if (X.fx) h.tmpx[c] = Object.assign({}, X.fx); });
+      E.say(L, X.name + ' on your ' + on.map(E.label).join(', ') + ': ' + X.text.replace(/^Pick a card( in your hand)?( \(not a Jack\))?: /, '').replace(/ Drink it before you bid\.$/, '') + (X.small ? ' Small print: ' + X.small : ''), 'rule');
+    } else E.say(L, X.name + ': ' + X.text + (X.small ? ' Small print: ' + X.small : ''), 'rule');
+    if (X.elx) h.elx[X.elx] = true;
+    if (X.heal) { const got = heal(L, X.heal); E.say(L, X.name + ': +' + got + ' health.', 'health'); }
     L.elixirs.splice(arg.i, 1);
     L.drunk = (L.drunk || 0) + 1;
     return yes();
@@ -2361,6 +2526,10 @@
   const POCKETS = { most: 3, price: 175, step: 75 };
   const restockPrice = L => priced(L, SHOP.restock * (1 + (L.restocks || 0)));
   const releasePrice = L => priced(L, 50 + 25 * L.releases);
+  // would buy() take it (for the stand-ins and the page's Buy button)
+  const buyable = (L, it) => !!it && !it.sold && L.gold >= it.price && !(it.type === 'cleanse' && !hexed(L).length) &&
+    !(it.type === 'enh' && !L.owned.some(c => fits(L, c, it.id))) && !(it.type === 'elixir' && (L.elixirs || []).length >= ELIXIR.slots) &&
+    !(it.type === 'gunsmith' && !gunMoves(L).length);
   function buy(L, i) {
     if (L.phase !== 'shop') return no('the store is closed');
     if (i === 'release') {
@@ -2373,6 +2542,8 @@
     if (L.gold < it.price) return no('not enough gold');
     if (it.type === 'cleanse' && !hexed(L).length) return no('no hexes to cleanse');
     if (it.type === 'enh' && !L.owned.some(c => fits(L, c, it.id))) return no('none of your cards can take it');
+    if (it.type === 'elixir' && (L.elixirs || []).length >= ELIXIR.slots) return no('your satchel is full (three bottles)');
+    if (it.type === 'gunsmith' && !gunMoves(L).length) return no('you need an enhanced card and another card to move it to');
     L.gold -= it.price; it.sold = true;
     if (it.type === 'card') { L.owned.push(it.id); note(L, 'Bought the ' + E.label(it.id) + '.'); }
     if (it.type === 'buff') { grantBuff(L, it.id); note(L, 'Bought ' + BUFFS[it.id].name + '.'); }
@@ -2385,6 +2556,8 @@
     if (it.type === 'gunhand') { L.gunhand = true; note(L, 'A gunhand rides with you: the Showdown\u2019s boss will start a quarter down.'); }
     if (it.type === 'pocket') { L.pockets = (L.pockets || 0) + 1; L.pocketsBought = (L.pocketsBought || 0) + 1; note(L, 'Deeper pockets: one more of your enhanced cards is dealt to you every hand' + (E.pocketsIn(L) < L.pockets ? ' (from the next act: this one\u2019s hand is full)' : '') + '.'); }
     if (it.type === 'handcar') { L.fastCar = true; note(L, 'A faster handcar waits by the line, in case the boss bolts.'); }
+    if (it.type === 'elixir') { gainElixir(L, it.id); note(L, 'A bottle of ' + ELIXIRS[it.id].name + ' into your satchel.'); }
+    if (it.type === 'gunsmith') { L.gunBuy = i; L.phase = 'gunsmith'; }
     return yes();
   }
   function release(L, card) {
@@ -2511,6 +2684,8 @@
       case 'remove': return removeCard(L, arg);
       case 'buy': return buy(L, arg);
       case 'drink': return drink(L, arg);
+      case 'mix': return mix(L, arg);
+      case 'gunsmith': return gunsmith(L, arg);
       case 'leave': if (L.phase !== 'shop') return no('not in the store'); nextStop(L); return yes();
       case 'release': return release(L, arg);
       case 'cleanse': return cleanse(L, arg);
@@ -2595,7 +2770,7 @@
     if (O && O.kind === 'limit') return 'holding';
     return o.n + ' / ' + o.of;
   }
-  const api = { INMATE_INSULTS, TWINS_HAIL, HALF_PAID, halfPaid, thousands, GATE, ESCAPE, gateDue, escapeDue, chaseLen, chaseAway, HOT, hotStage, hotMult, stoke, BOND, bondOf, GILD, gildStep, LUCK, lucky, jokerOdds, luckyJoker, INSULTS, insult, QUIPS, quipFor, dealt, SILENT_BACKS, POCKETS, ELIXIRS, ELIXIR, drawElixir, gainElixir, canDrink, poss, eventText, LAST_STAND, STRANGER, DUEL_RULES, DARES, DARE_LIE, HEAT, heatOdds, MYSTERY, GHOST, ghostFoe, DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
+  const api = { INMATE_INSULTS, TWINS_HAIL, HALF_PAID, halfPaid, thousands, GATE, ESCAPE, gateDue, escapeDue, chaseLen, chaseAway, HOT, hotStage, hotMult, stoke, BOND, bondOf, GILD, gildStep, LUCK, lucky, jokerOdds, luckyJoker, INSULTS, insult, QUIPS, quipFor, dealt, SILENT_BACKS, POCKETS, ELIXIRS, ELIXIR, drawElixir, gainElixir, canDrink, MIX, mixKey, mixable, canMix, buyable, afterBottles, hotDmg, BUFF_FX, ENH_FX, GUNSMITH, gunMoves, poss, eventText, LAST_STAND, STRANGER, DUEL_RULES, DARES, DARE_LIE, HEAT, heatOdds, MYSTERY, GHOST, ghostFoe, DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
     TAUNTS, taunt, cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, MANNERS, WANTED, wantedFor, wants, dailySeed, dailyTwist, FAIR_GOODS, setQuick, floorsFor, CHASE, chaseRide, CONTEST, RIBBON, ribbonOf, EXPRESS, SIDE, genThreeTrains, DRIVER, COUNTER, makeDriver, ROSTER, partnerOpen, voice, STANDARD, standardFoe, ruleText, newStandard,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;

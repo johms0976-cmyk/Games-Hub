@@ -131,7 +131,8 @@
   const maxUp = c => c === 'JK' ? 0 : (() => { let n = 0; while (grown(c, n) < 14) n++; return n; })();
   /* Does this card (as a seat holds it) carry enhancement `id`? A Legendary card carries two. */
   // k.tmp: an elixir you drank on this card for this hand (2026-11-05), read like an enhancement
-  const en = (k, id) => (!!k.m && (k.m.enh === id || k.m.enh2 === id)) || k.tmp === id;
+  // k.tmp is a list since the cocktails (2026-11-10): one bottle can do two things to a card (Dead Man's Draught)
+  const en = (k, id) => (!!k.m && (k.m.enh === id || k.m.enh2 === id)) || (Array.isArray(k.tmp) ? k.tmp.includes(id) : k.tmp === id);
   const enhsOf = m => m ? [m.enh, m.enh2].filter(Boolean) : [];
   const foeHas = (L, id) => !!(L && L.foe && L.foe.traits && L.foe.traits.includes(id));
   const hasBuff = (L, b) => !!(L && L.buffs && L.buffs.includes(b));
@@ -155,12 +156,16 @@
       if (en(k, 'desperado')) k.b += h.tricks[1 - team(seat)];
       if (en(k, 'knuckles') && h.contract && !h.trump) k.b += 2;
       if (en(k, 'hole') && h.trickNo === ACTS[actOf(L)].hand - 1) k.hole = true;
+      // Hair Trigger (2026-11-10, folds High Noon, Spurs, Last to Draw, Desperado, Brass Knuckles and Ace in the Hole):
+      // two up on the hand's first and last trick; kRank adds the led and last-into-the-trick cases, never twice
+      if (en(k, 'trigger') && (h.trickNo === 0 || h.trickNo === ACTS[actOf(L)].hand - 1)) k.trig = true;
     }
     if (own && seat === 0 && !steady && foeHas(L, 'rusty')) k.b -= 1;
     // an elixir on a card in your hand, this hand only: Ace in a Bottle plays it as the Ace of its suit; Wild Card
     // Whiskey makes it the top trump (kSuit, kTrumpRank), and the Ace of its suit in no trumps
-    const tmp = own && seat === 0 && h && h.tmp ? h.tmp[c] || null : null;
-    if (tmp && c !== 'JK') { k.tmp = tmp; if (tmp === 'ace' || (tmp === 'joker' && !h.trump)) k.hole = true; }
+    // h.tfx[c]: what the bottle does to the card (a list); h.tmp[c] alone is an older save's single elixir id
+    const tmp = own && seat === 0 && h && h.tmp && h.tmp[c] ? (h.tfx && h.tfx[c]) || [h.tmp[c]] : null;
+    if (tmp && c !== 'JK') { k.tmp = tmp; if (tmp.includes('ace') || (tmp.includes('joker') && !h.trump)) k.hole = true; }
     return k;
   }
   const plainK = c => ({ c, seat: null, m: null, tie: false, x: null });
@@ -169,7 +174,7 @@
     if (k.forced) return k.forced;
     if (c === 'JK') return trump || '*';
     if (en(k, 'outcast')) return '#';     // Outcast: no suit at all
-    if (trump && (en(k, 'sworn') || en(k, 'glass') || k.tmp === 'joker')) return trump;
+    if (trump && (en(k, 'sworn') || en(k, 'glass') || en(k, 'joker'))) return trump;
     if (trump && rankOf(c) === 'J' && suitOf(c) === TWIN[trump]) return trump;
     return suitOf(c);
   }
@@ -179,14 +184,14 @@
   function kRank(k) {
     if (k.c === 'JK') return 100;
     let v = grown(k.c, k.m && k.m.up);
-    const b = (k.b || 0) + (k.led && en(k, 'spurs') ? 1 : 0) + (k.last && en(k, 'lastdraw') ? 2 : 0);
+    const b = (k.b || 0) + (k.led && en(k, 'spurs') ? 1 : 0) + (k.last && en(k, 'lastdraw') ? 2 : 0) + ((k.trig || k.led || k.last) && en(k, 'trigger') ? 2 : 0);
     if (b) v = Math.max(2, Math.min(14, v + b));
     if (k.hole) v = Math.max(v, 14);
     return k.x === 'stepped' ? stepDown(k.c, v) : v;
   }
   function kTrumpRank(k, trump) {
     const c = k.c;
-    if (c === 'JK' || k.tmp === 'joker') return 100;
+    if (c === 'JK' || en(k, 'joker')) return 100;
     // the Caller's Allemande Left swaps the bowers: the left outranks the right
     if (rankOf(c) === 'J' && suitOf(c) === trump) return k.tie ? 100 : k.al ? 98 : 99;      // right bower
     if (rankOf(c) === 'J' && suitOf(c) === TWIN[trump]) return k.tie ? 100 : k.al ? 99 : 98; // left bower
@@ -724,14 +729,24 @@
         const held = (h.seeded || []).filter(c => L.mods && L.mods[c] && en({ m: L.mods[c] }, 'grudge'));
         if (held.length) {
           let g = 0;
-          held.forEach(c => { const m = L.mods[c]; m.grudge = (m.grudge || 0) + 1; g += FX.grudge * m.grudge; });
+          // a Double Tap on the card bears two grudges at a time (2026-11-10)
+          held.forEach(c => { const m = L.mods[c]; m.grudge = (m.grudge || 0) + (en({ m }, 'doubletap') ? 2 : 1); g += FX.grudge * m.grudge; });
           hit += g; lines.push('Grudge: ' + held.map(c => label(c) + ' bears ' + L.mods[c].grudge).join(', ') + ' (+' + g + ').');
         }
       }
     }
     if (fx.hit) { hit += fx.hit; lines.push('Your cards\u2019 shots this hand: +' + fx.hit + '.'); }
-    if (hasBuff(L, 'holster') && L.handNo === 1 && L.foe && hit > 0) { lines.push('Quick Holster: the fight\u2019s first hand hits double (+' + hit + ').'); hit *= 2; }
-    if (h.elx && h.elx.double && hit > 0) { lines.push('Rotgut: everything you hit them with counts double (+' + hit + ').'); hit *= 2; }
+    // Fat Purse (2026-11-10): the gold you carry is a weapon, one more a hand for every 10 gold
+    if (hasBuff(L, 'purse') && hit > 0 && L.gold >= 10) { const x = Math.floor(L.gold / 10); hit += x; lines.push('Fat Purse: your ' + L.gold + ' gold hits them for ' + x + ' more.'); }
+    const elx = h.elx || {};
+    // the multipliers, one line each, so the payday reads as a sum (2026-11-10: the Hot Hand multiplies damage)
+    const times = (x, what) => { if (hit <= 0 || x === 1) return; const was = hit; hit = Math.round(hit * x); lines.push(what + ': ' + was + ' \u00d7 ' + x + ' = ' + hit + '.'); };
+    const hm = api.hitMult ? api.hitMult(L) : null;
+    if (hm && hm.x > 1 && hit > 0) { const was = hit; hit = Math.round(hit * hm.x); lines.push('Hot Hand, ' + hm.name + ': (' + (was - fx.hit) + ' points + ' + fx.hit + ' shots) \u00d7 ' + hm.x + ' = ' + hit + '.'); }
+    if (hasBuff(L, 'holster') && L.handNo === 1 && L.foe) times(2, 'Quick Holster, the fight\u2019s first hand');
+    if (elx.double) times(2, 'Rotgut');
+    if (elx.triple) times(3, 'Prairie Fire');
+    if ((elx.courage || elx.dutch) && o.ct === 0 && o.made) times(3, elx.dutch ? 'Dutch Courage, your contract made' : 'Liquid Courage, your contract made');
     let dmg = damageOf(pts[1], L);
     if (dmg) lines.push('Their ' + pts[1] + ' points hit you: \u2212' + dmg + ' health (' + hitWord(L) + ').');
     if (dmg && h.misere && team(h.contractor) === 1 && L.stand === 'hustlers') { const x = Math.round(dmg / 20) * 10; dmg += x; lines.push('All In: their mis\u00e8re hits half as hard again (\u2212' + x + ').'); }
@@ -739,6 +754,8 @@
     if (L.foe && o.ct === 0 && !o.made && !o.near) {
       backfire = damageOf(FX.backfire * h.contract.v, L);
       if (h.shoe) backfire = Math.round(backfire / 10) * 5;
+      // Liquid Courage's small print: a failed contract backfires triple (Dutch Courage has none)
+      if (elx.courage && !elx.dutch && backfire) { backfire *= 3; lines.push('Liquid Courage’s small print: the backfire is triple.'); }
       if (backfire) lines.push('Your contract backfires: \u2212' + backfire + ' health' + (h.shoe ? ' (halved by your Lucky Horseshoe)' : '') + '.');
       dmg += backfire;
     }
@@ -747,7 +764,9 @@
     if (dmg && hasBuff(L, 'vest')) { const v = Math.min(dmg, FX.vest); dmg -= v; lines.push('Leather Vest: \u2212' + v + ' of it turned aside.'); }
     if (dmg && fx.block) { const b = Math.min(dmg, fx.block); dmg -= b; lines.push('Iron Plate: ' + b + ' of it blocked.'); }
     if (fx.burn) { dmg += fx.burn; lines.push('Powder Keg burns: \u2212' + fx.burn + '.'); }
-    if (h.elx && h.elx.bitters && dmg > 0) { const b = Math.ceil(dmg / 2); dmg -= b; lines.push('Doc\u2019s Bitters: ' + b + ' of it shrugged off.'); }
+    if (elx.hair && dmg > 0) { lines.push('Hair of the Dog\u2019s small print: they hit you double (\u2212' + dmg + ' more).'); dmg *= 2; }
+    if (elx.bitters && dmg > 0) { const b = Math.ceil(dmg / 2); dmg -= b; lines.push('Doc\u2019s Bitters: ' + b + ' of it shrugged off.'); }
+    if (elx.holy && dmg > 0) { lines.push('Holy Water: nothing they do touches you (' + dmg + ' turned aside).'); dmg = 0; }
     return { hit, dmg, backfire };
   }
 
@@ -781,7 +800,7 @@
     K, plainK, kSuit, kRank, kTrumpRank, kIsTrump, kBeats, kLabel,
     effSuit, trumpRank, isTrump, canPlay, winnerOf, beats, explain,
     bidValue, bidList, sweepValue, bidText, damageOf, HIT, hitShare, hitWord, rankOfBid, mustBid, WALL, wallMin, extraTricks, extraBids, counted, resolveTwo,
-    en, enhsOf, foeHas, hasBuff, FX, fight, callWords, POCKET, pocketsIn,
+    en, enhsOf, foeHas, hasBuff, FX, fight, callWords, POCKET, pocketsIn, hitMult: null,
     say, deal, sort, legalBids, bid, discard, afterKitty, ack, ledSuit, legalPlays, play, score
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
