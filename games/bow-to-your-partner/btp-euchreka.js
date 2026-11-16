@@ -27,6 +27,11 @@
   const MARKS = { gy, foot: GEO.H, sher: [128, gy + 24], pet: [62, gy + 26], block: [94, gy + 12], talk: [124, gy + 40], stamp: [117, gy + 60],
     halt: [94, gy + 56], pal: [96, gy + 90], start: GEO.START, palStart: [GEO.START[0] - 24, GEO.START[1] - 7.5],
     lookout: [20, gy + 166], sleeper: [34, gy + 150], sign: { x: 63, y: gy - 38, w: 60, h: 40, z: gy + 2 },
+    // the siege camp, as the plate draws it (2026-11-13): the brass band under VOTE HARDCASTLE, and a deputy by the road
+    band: [140, gy + 166], camp: [44, gy + 236],
+    // the gate's two doors (bakery/gate_leaves_px.py -> art/euchreka/gate_l, gate_r), their left edges shut and slid
+    // open along the wall; `y` sorts them under the sign and the towers, `top` is where the page draws them
+    gates: { w: 23, h: 35, y: gy + 1, top: gy - 33, shut: [71, 94], open: [48, 117] },
     // the gate's watchtowers: clear of the road, the sign, the lanes' markers above and your partner standing inside
     towers: [{ key: 'sg_tower_l', x: 36, y: gy + 2 }, { key: 'sg_tower_r', x: 151, y: gy + 2 }] };
   const SHOPS = { camp: ['camp', 'The hotel'], store: ['store', 'The general store'], bank: ['bank', 'The bank of Euchre-ka!'] };

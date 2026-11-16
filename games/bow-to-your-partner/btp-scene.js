@@ -30,11 +30,22 @@
      sfx    { sfx: 'BANG!', on: who | at: [x, y], small, shake, stop, hold }
      cam    { cam: y | 'foot', at, ms }                     the page scrolls: art row y at `at` of the screen's height
      hold, tap, set, dir, all (steps at once), seq (steps in turn, inside an all)
-   A beat is { id, dir, steps } or { id, choice: { cam, prompt, hint, options: [{ id, label, take, icon, rules,
+   A beat is { id, dir, steps }, or { id, ask: { cam, prompt, options: [{ id, label, steps, again }] } } (an answer of
+   yours mid-scene: the line tapped is said in your balloon, its steps play, the scene goes on), or { id, choice: { cam, prompt, hint, options: [{ id, label, take, icon, rules,
    steps, off }], after } }.
 
+   An ask option with `do: true` is something you do, not say (2026-11-16, "Hold out a hand"): its button has no
+   quotes, nobody speaks it, and the Script notes it as a stage direction. An ask may then have just the one option.
+   Or { id, input: { key, cam, prompt, hint, button, max, value } }: a word of yours, typed (2026-11-13, your name for
+   the ledger). It goes into the scene's vars; a line's {key} is filled from them, and a cast member with `var: key`
+   is named by it in the Script. opt.onInput(key, value) hands it to the page. A scene that already knows it
+   (scene.vars) never asks; Skip stops at one it doesn't know, as it does at the pick.
+   A cast member { prop: true, img, w, h, ax, ay, at } is a thing, not a person (the gate's doors): `go` slides it.
+   A cast member with no mark of its own, { short, on: who, dx, dy }, is a voice: it speaks from somebody else's sprite
+   (Biscuit, from under your saddle).
+
    new BtpScene(host, scene, opt).play()   host: the overlay for taps, Skip, the Script and the pick's dock.
-   opt: world, cut 'first'|'fast', from (a beat id to resume at), still, turbo (the tests: no waits), read(n) (ms a
+   opt: onInput(key, value), world, cut 'first'|'fast', from (a beat id to resume at), still, turbo (the tests: no waits), read(n) (ms a
    line of n characters holds), onShot(id, beat), onEnd(option). remount() after the map was drawn again.
    BtpScene.split(text) is the balloon splitter; BtpScene.images(scene) every picture a scene uses. */
 (function (root) {
@@ -90,7 +101,7 @@
 #scene[hidden] { display: none; }
 /* on the map: no z-index of its own, so the cast sort with the map's sprites (and pass behind the gate's sign) */
 .ms-layer { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
-.ms-a { position: absolute; display: block; background-repeat: no-repeat; background-position: 0 0; image-rendering: pixelated; }
+.ms-a, .ms-o { position: absolute; display: block; background-repeat: no-repeat; background-position: 0 0; image-rendering: pixelated; }
 .ms-a.flip { transform: scaleX(-1); }
 .ms-a.go { animation: mswalk .52s steps(4) infinite; }
 .ms-a.ms-r.go { animation-duration: .42s; }
@@ -141,6 +152,16 @@
 /* Take is pinned to the dock's bottom: on a short window the rules scroll under it, never it out of view */
 .sp-take { position: sticky; bottom: 0; z-index: 1; flex-shrink: 0; margin-top: auto; box-shadow: 0 -8px 10px #24160f; min-height: 48px;border: 3px solid #4a2626; border-radius: 10px; background: #7a3b2a; color: #fbf3e2; font: 600 18px/1 "Pixelify Sans", Georgia, serif; cursor: pointer; }
 .sp-take:disabled { opacity: .5; cursor: default; }
+.sp-ask { font-size: 14px; }
+.sp-say.sp-do { text-align: center; background: #e9d6a6; font-style: italic; }
+.sp-name { display: flex; gap: 8px; }
+.sp-in { flex: 1; min-width: 0; min-height: 46px; box-sizing: border-box; padding: 6px 12px; background: #fffaf0; color: #2a1b16; border: 3px solid #2a1b16; border-radius: 10px;
+  font: 600 20px/1.2 Bitter, Georgia, serif; user-select: text; -webkit-user-select: text; touch-action: manipulation; }
+.sp-sign { flex-shrink: 0; min-height: 46px; padding: 0 14px; border: 3px solid #4a2626; border-radius: 10px; background: #7a3b2a; color: #fbf3e2; font: 600 16px/1 "Pixelify Sans", Georgia, serif; cursor: pointer; }
+.sp-sign:disabled { opacity: .5; cursor: default; }
+.sp-say { min-height: 46px; padding: 8px 12px; text-align: left; cursor: pointer; background: #f3e3c0; color: #3a2a20; border: 3px solid #2a1b16; border-radius: 12px;
+  font: 600 16px/1.25 Bitter, Georgia, serif; box-shadow: 0 3px 0 rgba(0,0,0,.35); }
+.ms-p.wanted { color: #3a2a20; background: #ead9ae; border: 2px solid #6b4a2a; padding: 2px 4px 3px; font-size: 10px; letter-spacing: .04em; rotate: 4deg; }
 .sp-sheet { position: absolute; inset: 0; z-index: 9; display: flex; flex-direction: column; background: rgba(20, 12, 8, .88); padding: 16px; box-sizing: border-box; cursor: default; }
 .sp-sheet[hidden] { display: none; }
 .sp-page { flex: 1; overflow-y: auto; touch-action: pan-y; max-width: 440px; width: 100%; margin: 0 auto; box-sizing: border-box; padding: 18px 20px; background: #f6f0e0; color: #1e1712;
@@ -164,7 +185,7 @@
       this.host = host; this.S = scene; this.opt = opt || {}; this.clock = new Clock();
       this.world = this.opt.world || { box: () => host, k: () => 2, W: 187, H: 400 };
       this.still = !!this.opt.still; this.turbo = !!this.opt.turbo; this.read = this.opt.read || READ;
-      this.state = {}; this.log = []; this.pending = new Set(); this.skipping = false; this.swallow = 0; this.dead = false; this.offs = [];
+      this.vars = Object.assign({}, scene.vars); this.state = {}; this.log = []; this.pending = new Set(); this.skipping = false; this.swallow = 0; this.dead = false; this.offs = [];
       host.innerHTML = '<div class="sp-dock" hidden></div><button class="sp-script" hidden>Script</button><button class="sp-skip" hidden>Skip ›</button><i class="sp-more" hidden>▼</i>' +
         '<div class="sp-sheet" hidden><div class="sp-page"></div><button class="sp-close">Back to the scene</button></div>';
       host.setAttribute('role', 'group'); host.setAttribute('aria-label', scene.title || 'A scene');
@@ -178,7 +199,7 @@
         const c = scene.cast[id];
         if (!c.at) return;
         const a = this.cast[id] = { id, c, x: c.at[0], y: c.at[1], face: c.face || (c.rider ? 'r' : 'm'), held: null, el: document.createElement('i') };
-        a.el.className = 'ms-a' + (c.rider ? ' ms-r' : ''); a.el.dataset.who = id;
+        a.el.className = c.prop ? 'ms-o' : 'ms-a' + (c.rider ? ' ms-r' : ''); a.el.dataset.who = id;
         this.layer.appendChild(a.el);
       });
       const on = (t, ev, f, o) => { t.addEventListener(ev, f, o); this.offs.push(() => t.removeEventListener(ev, f, o)); };
@@ -188,6 +209,7 @@
       on(document, 'click', e => { if (performance.now() < this.swallow && !(e.target.closest && e.target.closest('.sp-skip,.sp-script,.sp-close'))) { e.stopPropagation(); e.preventDefault(); } }, true);
       on(document, 'keydown', e => {
         if (!this.sheet.hidden) { if (e.key === 'Escape') { e.stopPropagation(); this.script(false); } return; }
+        if (e.target.closest && e.target.closest('input')) return;       // typing your name: the keys are the field's
         if ((e.key === ' ' || e.key === 'Enter') && !(e.target.closest && e.target.closest('button'))) { e.preventDefault(); e.stopPropagation(); this.tap(); }
         if (e.key === 'Escape') { e.stopPropagation(); this.skip(); }
       }, true);
@@ -203,6 +225,7 @@
     }
     destroy() {
       this.dead = true;
+      if (this.askOff) this.askOff();
       if (this.tok) this.tok.dead = true;
       if (this.pickTok) this.pickTok.dead = true;
       this.flush();
@@ -320,7 +343,7 @@
       const x0 = a.x, y0 = a.y, [x1, y1] = s.to, dx = x1 - x0, ease = EASE[s.ease] || EASE.lin;
       const moving = !(this.still || this.skipping || this.turbo || !s.ms);
       const up = !!(a.c.views && a.c.views.u) && y1 < y0 && y0 - y1 > 1.5 * Math.abs(dx);      // riding up the map: from behind
-      if (moving) { if (up) a.face = 'u'; else if (Math.abs(dx) >= 2) a.face = dx > 0 ? 'r' : 'l'; a.el.classList.add('go'); }
+      if (moving && !a.c.prop) { if (up) a.face = 'u'; else if (Math.abs(dx) >= 2) a.face = dx > 0 ? 'r' : 'l'; a.el.classList.add('go'); }
       else if (up) a.face = 'u';                           // (skipped or still: the same end state)
       await this.tween(s.ms, t => { const u = ease(t); a.x = x0 + dx * u; a.y = y0 + (y1 - y0) * u; this.place(a); });
       a.el.classList.remove('go');
@@ -337,7 +360,14 @@
       }
     }
     // where a balloon or an emote goes: over a cast member's head, or over a place on the map
-    spot(who) { if (Array.isArray(who)) return who; const a = this.cast[who]; if (!a) return null; const h = this.head(a); return a.held ? [h[0], h[1] - a.held._h - 3] : h; }
+    // (a voice, { short, on: who, dx, dy }, has no sprite of its own: it speaks from somebody else's, as Biscuit does
+    // from under your saddle)
+    spot(who) {
+      if (Array.isArray(who)) return who;
+      const v = this.S.cast[who];
+      if (v && v.on && !this.cast[who]) { const p = this.spot(v.on); return p ? [p[0] + (v.dx || 0), p[1] + (v.dy || 0)] : null; }
+      const a = this.cast[who]; if (!a) return null; const h = this.head(a); return a.held ? [h[0], h[1] - a.held._h - 3] : h;
+    }
     async emote(s) {
       const at = this.spot(s.emote);
       if (!at || this.skipping || this.turbo) return;
@@ -347,7 +377,10 @@
       this.clock.after(s.ms || 700, () => e.remove());
       if (!s.nowait) await this.wait(s.ms || 700);
     }
+    // a line's {key} is a word of the player's (their name)
+    fill(text) { return String(text).replace(/\{(\w+)\}/g, (m, k) => this.vars[k] != null ? this.vars[k] : m); }
     async say(s, tok) {
+      s = Object.assign({}, s, { text: this.fill(s.text) });
       const all = s.text + (s.append || '');
       this.log.push({ who: s.say, text: all });
       if (this.skipping) return;
@@ -385,7 +418,7 @@
     // a passing remark: it waits for nobody and goes by itself
     note(s) {
       if (this.skipping || this.turbo || this.still) return;
-      const b = this.balloon(s.note, s.text, true);
+      const b = this.balloon(s.note, this.fill(s.text), true);
       this.clock.after(s.ms || 1600, () => b.remove());
     }
     // hold it up: a thing (or a word) rises over who's head, and stays there for `hold` (or until the next, with keep)
@@ -439,15 +472,16 @@
       if (p) p.textContent = on.length ? 'On you: ' + on.join(' · ') : '';
     }
     skip() {
-      if (this.skipping || this.picking || this.dead) return;
+      if (this.skipping || this.picking || this.asking || this.dead) return;
       this.skipping = true; this.skipB.hidden = true; this.moreI.hidden = true;
       this.clearWords();
       this.flush();
     }
+    nameOf(who) { const c = this.S.cast[who] || { short: who }; return c.var && this.vars[c.var] ? String(this.vars[c.var]).toUpperCase() : c.short; }
     script(open) {
       this.sheet.hidden = !open; this.clock.hold('script', open);
       if (open) this.sheet.querySelector('.sp-page').innerHTML = this.log.map(l => l.dir ? '<p class="dir">' + esc(l.dir) + '</p>' :
-        '<p class="who">' + esc(this.S.cast[l.who].short) + '</p><p class="ln">' + fmt(l.text) + '</p>').join('');
+        '<p class="who">' + esc(this.nameOf(l.who)) + '</p><p class="ln">' + fmt(l.text) + '</p>').join('');
     }
 
     /* ---- the pick lives in the scene: tags in a dock at the screen's foot, the talk about them on the map ---- */
@@ -487,11 +521,80 @@
       });
     }
 
+    /* ---- an answer of yours, mid-scene (2026-11-13): { ask: { cam, prompt, options: [{ id, label, steps, again }] } }.
+       The dock offers the lines; the one tapped is said in your balloon, its steps play, and the scene goes on. An
+       option with `again` brings the ask back without it (a "No." nobody accepts). Skipped or resumed past, the
+       first option that isn't `again` is taken, so every path leaves the same story behind it. ---- */
+    async ask(A, tok) {
+      let opts = A.options.slice();
+      for (;;) {
+        const o = this.skipping ? (opts.find(x => !x.again) || opts[0]) : await this.askDock(A, opts);
+        if (!o || this.dead || tok.dead) return;
+        this.state['said:' + o.id] = true;
+        // an answer that is done, not said ({ do: true }, 2026-11-16: "Hold out a hand"): the Script notes it, nobody speaks
+        if (o.do) this.log.push({ dir: o.label + '.' });
+        else await this.say({ say: A.who || 'you', text: o.label }, tok);  // (say fills any {name})
+        if (!await this.run(o.steps || [], tok)) return;
+        if (!o.again) return;
+        opts = opts.filter(x => x !== o);
+      }
+    }
+    /* ---- a word of yours, typed (2026-11-13: "this is where the player can choose their name ... Needs a character
+       limit"). Known already (a resumed scene, a later story): nothing is asked. Unknown and being skipped: the Skip
+       stops here, as it does at the pick, because nobody else can answer it. ---- */
+    static clean(v, max) { return String(v == null ? '' : v).replace(/[<>&{}"\\]/g, '').replace(/\s+/g, ' ').trim().slice(0, max || 12).trim(); }
+    async input(I, tok) {
+      const key = I.key || 'name', max = I.max || 12;
+      if (this.vars[key]) return;
+      this.skipping = false;
+      this.asking = true; this.skipB.hidden = true; this.scriptB.hidden = true; this.moreI.hidden = true;
+      this.clearWords();
+      Object.keys(this.cast).forEach(id => { this.cast[id].el.classList.remove('go'); this.place(this.cast[id]); });
+      this.dock.hidden = false;
+      this.dock.innerHTML = '<p class="sp-status sp-ask">' + esc(I.prompt || 'Your name?') + '</p><div class="sp-name"><input class="sp-in" type="text" maxlength="' + max +
+        '" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" aria-label="' + esc(I.label || 'Your name') + '" value="' + esc(BtpScene.clean(I.value, max)) +
+        '"><button class="sp-sign" disabled>' + esc(I.button || 'Sign') + '</button></div><p class="sp-rules">' + esc(I.hint || '') + '</p>';
+      if (I.cam != null) { const vh = root.innerHeight || 667, dh = this.dock.offsetHeight || 0; this.camStep({ cam: I.cam, at: Math.max(0.3, (vh - dh - 10) / vh), ms: 220 }); }
+      const inp = this.dock.querySelector('.sp-in'), sign = this.dock.querySelector('.sp-sign');
+      const ready = () => { sign.disabled = !BtpScene.clean(inp.value, max); };
+      ready();
+      try { inp.focus({ preventScroll: true }); } catch (e) { /* no focus */ }
+      const v = await new Promise(res => {
+        const done = x => { if (!this.asking) return; this.asking = false; this.dock.hidden = true; this.dock.innerHTML = ''; if (!this.dead) { this.skipB.hidden = false; this.scriptB.hidden = false; } res(x); };
+        this.askOff = () => done(null);
+        const go = () => { const x = BtpScene.clean(inp.value, max); if (x && !this.dead) done(x); };
+        inp.oninput = ready;
+        inp.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); go(); } };
+        sign.onclick = go;
+      });
+      if (!v || this.dead || tok.dead) return;
+      this.vars[key] = v;
+      this.log.push({ dir: (I.wrote || 'You give your name:') + ' ' + v + '.' });
+      if (this.opt.onInput) this.opt.onInput(key, v, this);
+    }
+    askDock(A, opts) {
+      this.asking = true; this.skipB.hidden = true; this.scriptB.hidden = true; this.moreI.hidden = true;      // (the Script button sits where the dock's last answer does)
+      this.clearWords();
+      this.dock.hidden = false;
+      this.dock.innerHTML = '<p class="sp-status sp-ask">' + esc(A.prompt || 'What do you say?') + '</p>' +
+        opts.map(o => '<button class="sp-say' + (o.do ? ' sp-do' : '') + '" data-o="' + esc(o.id) + '">' + fmt(o.do ? o.label : '“' + o.label + '”') + '</button>').join('');
+      if (A.cam != null) { const vh = root.innerHeight || 667, dh = this.dock.offsetHeight || 0; this.camStep({ cam: A.cam, at: Math.max(0.3, (vh - dh - 10) / vh), ms: 220 }); }
+      const armed = this.clock.now() + (this.turbo ? 0 : 450);
+      return new Promise(res => {
+        const done = o => { if (!this.asking) return; this.asking = false; this.dock.hidden = true; this.dock.innerHTML = ''; if (!this.dead) { this.skipB.hidden = false; this.scriptB.hidden = false; } res(o); };
+        this.askOff = () => done(null);
+        this.dock.querySelectorAll('.sp-say').forEach(btn => btn.onclick = () => {
+          if (this.dead || this.clock.now() < armed) return;            // inert until 450 ms after it shows
+          done(opts.find(x => x.id === btn.dataset.o));
+        });
+      });
+    }
+
     async play() {
       const cut = this.S[this.opt.cut === 'fast' ? 'fast' : 'first'], tok = this.tok = { dead: false };
       let i0 = this.opt.from ? cut.findIndex(s => s.id === this.opt.from) : 0;
       if (i0 < 0) i0 = 0;
-      this.clock.after(600, () => { if (!this.skipping && !this.picking && !this.dead) { this.skipB.hidden = false; this.scriptB.hidden = false; } });
+      this.clock.after(600, () => { if (!this.skipping && !this.picking && !this.asking && !this.dead) { this.skipB.hidden = false; this.scriptB.hidden = false; } });
       for (let i = 0; i < cut.length; i++) {
         const beat = cut[i];
         if (this.dead) return;
@@ -515,6 +618,8 @@
           return;
         }
         if (beat.dir) this.log.push({ dir: beat.dir });
+        if (beat.ask) { await this.ask(beat.ask, tok); if (tok.dead || this.dead) return; continue; }
+        if (beat.input) { await this.input(beat.input, tok); if (tok.dead || this.dead) return; continue; }
         if (!await this.run(beat.steps, tok)) return;
       }
       if (!this.dead && this.opt.onEnd) this.opt.onEnd(null, this);
