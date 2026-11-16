@@ -303,6 +303,16 @@ html.art .mapbox.fair .spr { display: block; }
 .pw-stand { color: #8a1a1a; } .pwbg-stand { background: #f0a0a0; }
 .foe .ftag.stand { background: #8a1a1a; color: #fff; }
 .nod.dare { border-color: #b8322a; }
+.nod.ornery { border-color: #7a4a9a; } .nod.ornery b { color: #5a2a7a; }
+.foebar u.wcut { position: absolute; top: -2px; bottom: -2px; width: 2px; margin-left: -1px; background: #f4e3b5; box-shadow: 0 0 0 1px rgba(0,0,0,.4); }
+.foebar { position: relative; }
+.ftag.wave { background: #3a5a7a; color: #f4e3b5; }
+#sheet .elx.coll .cbadge { width: 34px; height: 34px; flex: none; display: grid; place-items: center; border-radius: 6px; background: linear-gradient(#f0c23c, #c8962a); }
+#sheet .elx.coll .cbadge svg { width: 22px; height: 22px; }
+#sheet .elx.coll.locked .cbadge { background: #3a2a20; opacity: .55; }
+#sheet .elx.coll.locked b { color: #6a5a4a; }
+#sheet .elx.coll .newtag { font-style: normal; font-size: 11px; background: #b8322a; color: #fff; padding: 0 5px; border-radius: 4px; margin-left: 4px; }
+.nuf.cbadge svg { width: 26px; height: 26px; }
 .jokersay { position: fixed; z-index: 70; width: 240px; background: #fff4d8; border-color: #b8322a; animation: jokersay 4.5s forwards; }
 @keyframes jokersay { 0% { opacity: 0; } 8% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
 .jokersay b { color: #b8322a; }
@@ -1783,31 +1793,31 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=71"></script>
-<script src="btp-ai.js?v=71"></script>
-<script src="btp-run.js?v=71"></script>
-<script src="btp-town.js?v=71"></script>
-<script src="art/dustwater/sprites.js?v=71"></script>
-<script src="btp-train.js?v=71"></script>
-<script src="art/train/sprites.js?v=71"></script>
-<script src="art/title/scene.js?v=71"></script>
-<script src="art/title/cameo.js?v=71"></script>
-<script src="art/title/crossing.js?v=71"></script>
-<script src="art/table/scene.js?v=71"></script>
-<script src="art/table/partners.js?v=71"></script>
-<script src="art/grave/scene.js?v=71"></script>
-<script src="art/paid/scene.js?v=71"></script>
-<script src="art/rooms/scene.js?v=71"></script>
-<script src="art/express/scene.js?v=71"></script>
-<script src="art/country/country.js?v=71"></script>
-<script src="art/fair/sprites.js?v=71"></script>
-<script src="btp-euchreka.js?v=71"></script>
-<script src="art/euchreka/sprites.js?v=71"></script>
-<script src="btp-scene.js?v=71"></script>
-<script src="scenes/gate.js?v=71"></script>
-<script src="btp-music.js?v=71"></script>
-<script src="music/theme.js?v=71"></script>
-<script src="music/westbound.js?v=71"></script>
+<script src="btp-engine.js?v=72"></script>
+<script src="btp-ai.js?v=72"></script>
+<script src="btp-run.js?v=72"></script>
+<script src="btp-town.js?v=72"></script>
+<script src="art/dustwater/sprites.js?v=72"></script>
+<script src="btp-train.js?v=72"></script>
+<script src="art/train/sprites.js?v=72"></script>
+<script src="art/title/scene.js?v=72"></script>
+<script src="art/title/cameo.js?v=72"></script>
+<script src="art/title/crossing.js?v=72"></script>
+<script src="art/table/scene.js?v=72"></script>
+<script src="art/table/partners.js?v=72"></script>
+<script src="art/grave/scene.js?v=72"></script>
+<script src="art/paid/scene.js?v=72"></script>
+<script src="art/rooms/scene.js?v=72"></script>
+<script src="art/express/scene.js?v=72"></script>
+<script src="art/country/country.js?v=72"></script>
+<script src="art/fair/sprites.js?v=72"></script>
+<script src="btp-euchreka.js?v=72"></script>
+<script src="art/euchreka/sprites.js?v=72"></script>
+<script src="btp-scene.js?v=72"></script>
+<script src="scenes/gate.js?v=72"></script>
+<script src="btp-music.js?v=72"></script>
+<script src="music/theme.js?v=72"></script>
+<script src="music/westbound.js?v=72"></script>
 <script>
 (function () {
   'use strict';
@@ -1890,6 +1900,10 @@ html.art .coach { border-radius: 0; }
       pr.abLog = (pr.abLog || []).concat({ at: Date.now(), hot: !!L.hotOn, chosen: P.prefs.hot === 'on' || P.prefs.hot === 'off', won: L.phase === 'victory', act: L.act,
         ours: ours.length, made: ours.filter(x => x.made).length, bold: Math.round(bold * 100) / 100, hands: (L.history || []).length, best: L.hotBest | 0, partner: L.partner }).slice(-200);
     }
+    // the deeds that open locked cards (2026-11-16): this story's, added to every story's
+    { const was = R.lockedFor(statsOf(pr)); pr.stats = addStats(pr, L); const now = R.lockedFor(pr.stats);
+      L.newUnlocks = was.filter(id => !now.includes(id)); if (L.newUnlocks.length) pr.newCards = [...new Set((pr.newCards || []).concat(L.newUnlocks))];
+      if (L.book) pr.book = Object.assign({}, pr.book, L.book); }
     // the bond (2026-11-03): one more story finished together (never the Daily's)
     if (!L.daily && L.partner) { pr.bond = pr.bond || {}; pr.bond[L.partner] = (pr.bond[L.partner] || 0) + 1; L.bondNow = pr.bond[L.partner]; }
     // what the next story remembers (2026-11-02): the stranger's marked card, and a lost ride's cards for its ghost (never the Daily's)
@@ -1995,6 +2009,11 @@ html.art .coach { border-radius: 0; }
     e_ambush: ['..###..', '.#####.', '##.#.##', '#######', '.#####.', '..#.#..', '.##.##.'],
     e_grudge: ['##.#.##', '#..#..#', '.......', '###.###', '.......', '#..#..#', '##.#.##'],
     e_spoiler: ['.#####.', '##...##', '#.#.#.#', '#..#..#', '#.#.#.#', '##...##', '.#####.'],
+    e_marksman: ['...#...', '.#####.', '.#.#.#.', '####.##', '.#.#.#.', '.#####.', '...#...'],
+    e_ringleader: ['#.#.#.#', '#######', '.......', '..###..', '.#####.', '..###..', '.#.#.#.'],
+    e_bunch: ['#..#..#', '#..#..#', '#..#..#', '.#.#.#.', '..###..', '...#...', '...#...'],
+    e_ornery: ['#.....#', '.#...#.', '..###..', '.#.#.#.', '.#####.', '..#.#..', '...#...'],
+    e_glutton: ['.#####.', '#######', '##...##', '#.....#', '##...##', '#######', '.#####.'],
     // hexes: on a red badge
     h_loose: ['.......', '..###..', '.#...#.', '#..#..#', '.#...#.', '..###..', '.......'],
     h_potato: ['...#...', '..##...', '..###..', '.##.#..', '.#..##.', '.#..#..', '..##...'],
@@ -2041,7 +2060,7 @@ html.art .coach { border-radius: 0; }
     const flag = o.flag || (drunk ? drunk.name : '') || (enh ? (legend ? 'Legendary: ' : '') + ens.map(x => R.ENH[x].name).join(' and ') : c.includes('~') ? 'Forged' : '');
     const enName = !o.flag && !!enh;
     const layers = (hx ? '<span class="hx">' + esc(R.HEXES[hx].short) + '</span><i class="hb">' + px('h_' + hx, '#fff3cf') + '</i>' : '') +
-      (enh ? '<span class="ebs">' + ens.map(x => { const n = k.m && (x === 'notched' ? k.m.notch : x === 'grudge' ? k.m.grudge : 0); return '<i class="eb' + (n ? ' cnt' : '') + '">' + px('e_' + x, '#2a1b16') + (n ? '<b class="ect">' + n + '</b>' : '') + '</i>'; }).join('') + '</span>' : '') +
+      (enh ? '<span class="ebs">' + ens.map(x => { const n = k.m && (x === 'notched' ? k.m.notch : x === 'grudge' ? k.m.grudge : x === 'glutton' ? k.m.fed : 0); return '<i class="eb' + (n ? ' cnt' : '') + '">' + px('e_' + x, '#2a1b16') + (n ? '<b class="ect">' + n + '</b>' : '') + '</i>'; }).join('') + '</span>' : '') +
       (ens.includes('glass') ? crackHTML((k.m && k.m.wins) || 0) : '') +
       (flag ? '<span class="flag' + (enName ? ' en' : '') + '">' + esc(flag) + '</span>' : '');
     if (c === 'JK') return '<button class="' + cls + '"' + attr + (o.dis ? ' disabled' : '') + ' aria-label="Joker">' + artHTML('JK') +
@@ -3269,6 +3288,7 @@ html.art .coach { border-radius: 0; }
     if (k === 'stand' && L.stand && R.LAST_STAND[L.stand]) { const S = R.LAST_STAND[L.stand];
       return '<h2>Last stand: ' + esc(S.name) + '</h2><p>' + esc(S.text) + '</p><p>Every Showdown makes a last stand once you\u2019ve shot away half its health. It starts at the next deal and lasts the rest of the fight.</p>' + back; }
     if (k === 'borrow' && L.borrow && R.BOSS[L.borrow]) return '<h2>This hand: ' + esc(R.poss(R.BOSS[L.borrow].name.replace(/^The /, 'the '))) + ' rule</h2><p>' + esc(R.ruleText(L, L.borrow)) + '</p><p>The Stranger takes another Showdown\u2019s rule at every deal, never the same twice running.</p>' + back;
+    if (k === 'wave') return '<h2>They come in waves</h2><p>At the County Fair a gang rides in two waves. A hand can\u2019t go past the line on their health bar: what it does beyond the line is <b>overkill</b>, and pays you a gold piece for every ' + R.OVERKILL.per + ' (up to ' + R.OVERKILL.max + ' a hand). Then the second wave rides in. A Showdown does the same at half health, when it falls back to make its last stand.</p>' + back;
     if (k === 'stacked') return '<h2>Stacked deck</h2><p>The cards were dealt twice this hand and the gang got the better deal. It happens more often further up the map, and every hand against a <b>Lucky</b> gang.</p>' + back;
     const a = R.abilityOf(k);
     if (!a) return back;
@@ -3437,9 +3457,11 @@ html.art .coach { border-radius: 0; }
       (L.borrow && R.BOSS[L.borrow] ? '<button class="ftag rule" data-act="foeinfo" data-k="borrow" aria-label="' + esc(R.poss(R.BOSS[L.borrow].short) + ' rule this hand: what it means') + '">' + esc(R.poss(R.BOSS[L.borrow].short)) + ' rule</button>' : '') +
       (R.ruleOf(L) ? '<button class="ftag rule" data-act="foeinfo" data-k="rule" aria-label="' + esc('Table rule: ' + R.TABLE_RULES[R.ruleOf(L)].name + ': what it means') + '">' + esc(R.TABLE_RULES[R.ruleOf(L)].name) + '</button>' : '') +
       (L.h && L.h.stacked ? '<button class="ftag" data-act="foeinfo" data-k="stacked">Stacked deck</button>' : '') +
+      (R.waveOf(L) ? '<button class="ftag wave" data-act="foeinfo" data-k="wave">Wave ' + R.waveOf(L).n + ' of ' + R.waveOf(L).of + '</button>' : '') +
       '<button class="fhit" data-act="foeinfo" data-k="hit" aria-label="How hard they hit: what it means">hits ' + E.hitWord(L) + '</button>' + hotChip(L);
     return '<div class="foe"><div class="fn"><b>' + esc(F.name) + '</b>' + tags + '<span class="fhp">' + left + ' / ' + F.hp + '</span></div>' +
-      '<div class="foebar" role="meter" aria-label="Their health" aria-valuemin="0" aria-valuemax="' + F.hp + '" aria-valuenow="' + left + '"><i style="width:' + pct + '%"></i><s style="width:' + pct + '%"></s></div></div>';
+      '<div class="foebar" role="meter" aria-label="Their health" aria-valuemin="0" aria-valuemax="' + F.hp + '" aria-valuenow="' + left + '"><i style="width:' + pct + '%"></i><s style="width:' + pct + '%"></s>' +
+      R.cutsOf(L).filter(c => L.you < c).map(c => '<u class="wcut" style="left:' + Math.round(100 * (F.hp - c) / F.hp) + '%"></u>').join('') + '</div></div>';
   }
   /* The stage: rebuilt only when the fight, the act's wall, the gang or the scale changes. */
   /* Dustwater's General Store and hotel room (2026-10-30), from art/rooms/scene.js: the room's picture above the
@@ -3912,6 +3934,8 @@ html.art .coach { border-radius: 0; }
   }
   /* The Gunsmith (2026-11-10): take an enhancement off one card you own and pour it into another; the first card goes in
      the melting pot. Three picks on one screen (the card, which of its enhancements, where it goes), then Pour it. */
+  // the Gunsmith's second trade (2026-11-16): a whole card fed to a Glutton
+  const gunE = e => e === 'feed' ? { name: 'Feed it to the Glutton', text: 'The whole card goes down the Glutton\u2019s throat, and everything on it. Every card it eats makes its shots hit harder, for good.' } : R.ENH[e];
   function gunsmithHTML(L) {
     const key = 'gun:' + L.rs + ':' + (L.path || []).length + ':' + (L.melted || 0);
     if (!P.gunSel || P.gunSel.key !== key) P.gunSel = { key, from: null, enh: null, to: null };
@@ -3925,10 +3949,10 @@ html.art .coach { border-radius: 0; }
     const pick = (cs, data, sel) => '<div class="cardrow">' + cs.map(c => '<span class="gpick' + (sel === c ? ' on' : '') + '">' + cardHTML(c, { data, owned: true, big: true }) + '</span>').join('') + '</div>';
     const ready = S.from && S.enh && S.to;
     return '<div class="panel gunsmith"><h2>The Gunsmith</h2><p class="hint">\u201cPick the iron, pick what\u2019s on it, pick where it goes. The old one goes in the pot. Nothing comes back out of the pot.\u201d</p>' +
-      '<h3>1. Take it off which card?</h3>' + pick(froms, 'gfrom', S.from) +
-      (S.from && enhs.length > 1 ? '<h3>2. Which enhancement?</h3>' + enhs.map(e => '<button class="choice' + (S.enh === e ? ' on' : '') + '" data-genh="' + e + '" aria-pressed="' + (S.enh === e) + '"><b>' + esc(R.ENH[e].name) + '</b><span>' + esc(R.ENH[e].text) + '</span></button>').join('') : '') +
-      (S.enh ? '<h3>' + (enhs.length > 1 ? '3' : '2') + '. Pour it into which card?</h3>' + pick(tos, 'gto', S.to) : '') +
-      '<div class="oslip">' + (ready ? '<p>Move <b>' + esc(R.ENH[S.enh].name) + '</b> from the ' + esc(E.label(S.from)) + ' onto the ' + esc(E.label(S.to)) + (E.enhsOf(L.mods[S.to]).length ? ', making it Legendary' : '') + '. The ' + esc(E.label(S.from)) + ' goes in the melting pot: it\u2019s yours no longer.</p>' : '<p class="hint">Nothing is poured until you say so.</p>') +
+      '<h3>' + (moves.some(m => m[1] === 'feed') ? '1. Which card? (Its enhancement moves, or the Glutton eats it)' : '1. Take it off which card?') + '</h3>' + pick(froms, 'gfrom', S.from) +
+      (S.from && enhs.length > 1 ? '<h3>2. Which enhancement?</h3>' + enhs.map(e => '<button class="choice' + (S.enh === e ? ' on' : '') + '" data-genh="' + e + '" aria-pressed="' + (S.enh === e) + '"><b>' + esc(gunE(e).name) + '</b><span>' + esc(gunE(e).text) + '</span></button>').join('') : '') +
+      (S.enh ? '<h3>' + (enhs.length > 1 ? '3' : '2') + (S.enh === 'feed' ? '. Feed it to which Glutton?' : '. Pour it into which card?') + '</h3>' + pick(tos, 'gto', S.to) : '') +
+      '<div class="oslip">' + (ready && S.enh === 'feed' ? '<p>Feed the <b>' + esc(E.label(S.from)) + '</b> to the ' + esc(E.label(S.to)) + ' (Glutton). It eats the whole card: the ' + esc(E.label(S.from)) + ' is yours no longer, and the Glutton hits harder for good.</p>' : ready ? '<p>Move <b>' + esc(R.ENH[S.enh].name) + '</b> from the ' + esc(E.label(S.from)) + ' onto the ' + esc(E.label(S.to)) + (E.enhsOf(L.mods[S.to]).length ? ', making it Legendary' : '') + '. The ' + esc(E.label(S.from)) + ' goes in the melting pot: it\u2019s yours no longer.</p>' : '<p class="hint">Nothing is poured until you say so.</p>') +
       '<div class="btns"><button class="btn" data-act="gunmove"' + (ready ? '' : ' disabled') + '>Pour it</button><button class="btn alt" data-act="guncancel">Never mind (gold back)</button></div></div></div>';
   }
   // the one button: some choices take two moves (buy, then put it on the card; go to the Doc, then pick the hex)
@@ -4217,6 +4241,7 @@ html.art .coach { border-radius: 0; }
     if (R.sees(L, 'peek') || L.call === 'facekitty') extras += '<span class="nod">' + (L.call === 'facekitty' ? R.TABLE_RULES.facekitty.name : R.has(L, 'peek') ? 'Peek' : 'Marked deck') + ': the kitty holds ' + h.kitty.map(E.label).join(', ') + '</span>';
     // the rodeo clown's dare, said while you bid (2026-11-02): in the panel, so the gang stays in sight
     if (L.dare && !L.dare.done && L.dare.hand === L.handNo) extras += '<span class="nod dare" title="' + esc('The Joker: \u201c' + L.dare.text + '\u201d') + '"><b>Joker\u2019s dare:</b> ' + esc(DARE_SHORT[L.dare.id] || '') + ', ' + L.dare.pay + 'g</span>';
+    if (h.wants) Object.keys(h.wants).forEach(c => { extras += '<span class="nod ornery"><b>' + esc(E.label(c)) + ' wants ' + esc(E.NAME[h.wants[c]]) + ':</b> win the bid in it for \u00d7' + (1 + E.FX.ornery) + ', or it sulks</span>'; });
     if (h.spy) extras += '<span class="nod">' + esc(R.BUFFS.spyglass.name) + ': West holds the ' + E.label(h.spy[0]) + ', East the ' + E.label(h.spy[1]) + '</span>';
     const early = mine && !h.raise && !h.bids.some(b => b.seat === 0);
     let handy = '';     // buffs that work on your hand stay on the prompt, beside the hand they change
@@ -4519,6 +4544,7 @@ html.art .coach { border-radius: 0; }
       '<ul class="lines">' + L.owned.filter(c => L.mods[c] && L.mods[c].enh).map(c => '<li>' + esc(E.label(c)) + (R.legendary(L, c) ? ' (Legendary)' : '') + ': ' + E.enhsOf(L.mods[c]).map(x => esc(R.ENH[x].name + ': ' + R.ENH[x].text)).join(' ') + '</li>').join('') +
       L.buffs.map(b => '<li>' + esc(R.BUFFS[b].name) + ': ' + esc(R.BUFFS[b].text) + '</li>').join('') + '</ul>' : '') +
       '<h3>Title logo</h3><div class="btns">' + optVal('logo', logoKey(), 'hand', 'Joker and Ace') + optVal('logo', logoKey(), 'jacks', 'Four Jacks') + '</div>' +
+      '<h3>The collection</h3><div class="btns"><button class="btn alt" data-act="collection">Enhancements and card recipes (' + (Object.keys(R.ENH).filter(k => !R.ENH[k].retired).length - R.lockedFor(statsOf(profile())).length) + ' of ' + Object.keys(R.ENH).filter(k => !R.ENH[k].retired).length + ' open)</button></div>' +
       '<h3>Recipe book</h3><div class="btns"><button class="btn alt" data-act="book">Doc Bellweather\u2019s recipes (' + Object.keys(R.MIX).map(k => R.MIX[k]).filter(id => Object.values(bookOf()).includes(id)).length + ' of ' + Object.keys(R.MIX).length + ')</button></div>' +
       hotMenuHTML() + installHTML() +
       '<div class="btns"><button class="btn" data-act="closesheet">Back</button><button class="btn alt" data-act="quit">Title screen</button></div>';
@@ -4586,6 +4612,10 @@ html.art .coach { border-radius: 0; }
       lines.push('<b>' + esc(e.name) + '.</b> ' + esc(e.text) + (id === 'glass' ? ' It has won ' + (m.wins || 0) + ' of ' + R.GLASS_WINS + '.' : ''));
     });
     if (m.enh && !m.enh2 && owned) lines.push('It can take one more enhancement and become <b>Legendary</b>.');
+    const rec = m.recipe && R.CARD_MIX[m.recipe];
+    if (rec) { tags.push('<span class="buff legendary">' + esc(rec.name) + '</span>'); lines.push('<b>A recipe: ' + esc(rec.name) + '.</b> ' + esc(rec.text)); }
+    if (m.fed) lines.push('It has eaten ' + m.fed + ': it hits ' + E.FX.glutton * (1 + m.fed) + ' a trick it wins.');
+    if (h && h.wants && h.wants[c]) lines.push('It wants <b>' + esc(E.NAME[h.wants[c]]) + '</b> this hand: \u201c' + esc((h.wantSay || {})[c] || '') + '\u201d');
     if (m.up) {
       tags.push('<span class="buff">' + (m.enh === 'growing' ? 'Grown' : 'Polished') + ' +' + m.up + '</span>');
       lines.push('<b>' + (m.enh === 'growing' ? 'Grown' : 'Polished') + ':</b> it plays as ' + esc(E.kLabel({ c, m }).replace(/^.*\(now /, '').replace(/\)$/, '')) + ', ' + m.up + ' rank' + (m.up > 1 ? 's' : '') + ' above its print.');
@@ -4661,7 +4691,21 @@ html.art .coach { border-radius: 0; }
     if (res && !res.ok) { P.L.note = res.why; if (P.L.phase === 'hand') $('status').textContent = res.why; else render(); return; }
     if (undoable) P.undo.push({ snap, name });
     step();
+    recipeNews();
   }
+  /* A card recipe (2026-11-16): when an enhancement or a hex makes one, a sheet says so and the book keeps it. */
+  function recipeNews() {
+    const L = P.L, m = L && L.lastRecipe;
+    if (!m || !R.CARD_MIX[m.id]) return;
+    L.lastRecipe = null;
+    const X = R.CARD_MIX[m.id], key = 'card:' + R.recipeKey(X.of[0], X.of[1]), pr = profile(), fresh = !(pr.book || {})[key];
+    pr.book = Object.assign({}, pr.book, { [key]: m.id });
+    try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {}
+    const n = Object.keys(R.CARD_MIX).filter(id => Object.values(pr.book).includes(id)).length;
+    showSheet('<h2>' + (fresh ? 'A new recipe! ' : 'A recipe: ') + esc(X.name) + '</h2><p>' + esc(X.of.map(ingName).join(' + ')) + ' on your ' + esc(E.label(m.card)) + '.</p><p>' + esc(X.text) + '</p>' +
+      '<p class="hint">' + n + ' of ' + Object.keys(R.CARD_MIX).length + ' card recipes found.</p><div class="btns"><button class="btn" data-act="closesheet">Good</button><button class="btn alt" data-act="collection">The collection</button></div>', 'recipe');
+  }
+  const ingName = x => /^hex:/.test(x) ? (R.HEXES[x.slice(4)] || {}).name || x : (R.ENH[x] || {}).name || x;
   /* Elixirs (2026-11-05): the satchel's bottles, each with Drink; a bottle for a card waits for a tap on your hand */
   const ELX_HUE = { ace: 0, sworn: 120, joker: 260, keg: -40, double: 60, bitters: 180, courage: 20, tea: 90, fools: 45, hair: 300,
     deadman: -20, prairie: 30, fullhouse: 280, rattler: -60, turncoat: 140, holy: 200, goldrush: 50, dutch: 160, nitro: -80, wildfire: 240, ironside: 220, midas: 40, swamp: 100 };
@@ -4711,6 +4755,35 @@ html.art .coach { border-radius: 0; }
     showSheet('<h2>' + esc(m.got === 'swamp' ? 'It curdles' : X.name + '!') + '</h2><p>' + esc(R.ELIXIRS[m.from[0]].name + ' and ' + R.ELIXIRS[m.from[1]].name + (m.got === 'swamp' ? ' make Swamp Water. No recipe there.' : ' make ' + X.name + '.')) + '</p>' + elxRow(m.got) +
       (fresh ? '<p class="book">' + (m.got === 'swamp' ? 'The book notes it: don\u2019t try that again.' : 'A new recipe for the book! ' + found + ' of ' + Object.keys(R.MIX).length + ' found.') + '</p>' : '') +
       '<div class="btns"><button class="btn" data-act="satchel">Back to the satchel</button><button class="btn alt" data-act="closesheet">Close</button></div>', 'mixed');
+  }
+  /* The collection (2026-11-16, the review: locked cards with silhouettes and a book). Every enhancement: the open
+     ones in full, the locked ones as a dark badge with the deed that opens them and how close you are. Then the
+     card recipes found, and the rest as riddles. profile.stats (summed, or the best for LOCKS' best ones) counts deeds. */
+  function statsOf(pr) {
+    if (pr.stats) return pr.stats;
+    // a profile from before the locks: what it already shows (stories ridden, gangs brought in, Act II Showdowns, the Hot Hand)
+    const paid = (pr.wall && pr.wall.paid) || {};
+    return { stories: (pr.rides || []).length, fights: Object.values(paid).reduce((a, b) => a + (b | 0), 0), act2: (pr.beaten || []).some(b => b === 'sharps' || b === 'hustlers') ? 1 : 0,
+      hot: Math.max(0, ...(pr.abLog || []).map(x => x.best | 0)) };
+  }
+  function addStats(pr, L) {
+    const st = Object.assign({}, statsOf(pr)), add = R.storyStats(L), best = new Set(Object.keys(R.LOCKS).filter(id => R.LOCKS[id].best).map(id => R.LOCKS[id].stat));
+    Object.keys(add).forEach(k => { st[k] = best.has(k) ? Math.max(st[k] | 0, add[k] | 0) : (st[k] | 0) + (add[k] | 0); });
+    return st;
+  }
+  const lockBar = id => { const K = R.LOCKS[id], v = Math.min(K.of, (statsOf(profile())[K.stat] | 0)); return '<div class="ubar"><span class="meter"><i style="width:' + Math.round(100 * v / K.of) + '%"></i></span><small>' + esc(K.text) + ': ' + v + ' of ' + K.of + '</small></div>'; };
+  const actsWord = e => e.acts.length === 3 ? 'Acts I\u2013III' : e.acts.length ? 'from Act ' + R.ROMAN[e.acts[0]] : '';
+  function collectionHTML() {
+    const pr = profile(), locked = R.lockedFor(statsOf(pr)), fresh = pr.newCards || [], ids = Object.keys(R.ENH).filter(k => !R.ENH[k].retired);
+    const open = ids.filter(k => !locked.includes(k)).length, book = pr.book || {}, recs = Object.keys(R.CARD_MIX), found = recs.filter(id => Object.values(book).includes(id));
+    const row = k => { const e = R.ENH[k];
+      return locked.includes(k) ? '<div class="elx coll locked"><span class="cbadge">' + px('e_' + k, '#000') + '</span><div><b>Locked</b>' + lockBar(k) + '</div></div>'
+        : '<div class="elx coll"><span class="cbadge">' + px('e_' + k, '#2a1b16') + '</span><div><b>' + esc(e.name) + (fresh.includes(k) ? ' <i class="newtag">NEW</i>' : '') + '</b><p>' + esc(e.text) + '</p><small class="ing">' + actsWord(e) + '</small></div></div>'; };
+    return '<h2>The Collection</h2><p class="hint">' + open + ' of ' + ids.length + ' enhancements open. The locked ones open on a deed, counted over every story.</p>' + ids.map(row).join('') +
+      '<h3>Card recipes: ' + found.length + ' of ' + recs.length + '</h3><p class="hint">Two enhancements on one card, or an enhancement on a hexed card, can make something new.</p>' +
+      recs.map(id => { const X = R.CARD_MIX[id]; return found.includes(id) ? '<div class="elx coll"><span class="cbadge">' + px('star', '#2a1b16') + '</span><div><b>' + esc(X.name) + '</b><small class="ing">' + esc(X.of.map(ingName).join(' + ')) + '</small><p>' + esc(X.text) + '</p></div></div>'
+        : '<div class="elx coll locked"><span class="cbadge">' + px('star', '#000') + '</span><div><b>???</b><p class="hint">\u201c' + esc(X.hint) + '\u201d</p></div></div>'; }).join('') +
+      '<div class="btns"><button class="btn alt" data-act="closesheet">Close</button></div>';
   }
   function bookHTML() {
     const b = bookOf(), made = new Set(Object.values(b)), rec = Object.keys(R.MIX).map(k => R.MIX[k]), n = rec.filter(id => made.has(id)).length;
@@ -4880,6 +4953,7 @@ html.art .coach { border-radius: 0; }
       case 'mixcancel': P.mixA = P.mixB = null; openSatchel(); break;
       case 'mixgo': mixGo(); break;
       case 'book': showSheet(bookHTML(), 'book'); break;
+      case 'collection': { const pr = profile(); showSheet(collectionHTML(), 'collection'); if ((pr.newCards || []).length) { pr.newCards = []; try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} } break; }
       case 'gunmove': { const S = P.gunSel; if (S && S.from && S.enh && S.to) { P.gunSel = null; move('gunsmith', { from: S.from, enh: S.enh, to: S.to }); } break; }
       case 'guncancel': P.gunSel = null; move('gunsmith', { cancel: true }); break;
       case 'nodrink': P.drinking = null; renderStatus(); break;
@@ -4957,7 +5031,7 @@ html.art .coach { border-radius: 0; }
     // the Wanted level starts at the highest open (2026-11-02); the partner pick can lower it
     const rides = pr.rides || [], last = rides[rides.length - 1] || {};
     const memory = { runs: rides.length, lastWon: !!last.won, lastAct: last.act || 0, lostTo: last.lostTo || null, marked: pr.marked || 0 };
-    const L = R.newRun({ seed, euchre: true, objective: $('objPick').value || undefined, tips: $('tipsPick').checked, pickPartner: true, unlocked: pr.beaten, maxWanted: pr.wanted || 0, wanted: pr.wanted || 0, bonds: pr.bond || {},
+    const L = R.newRun({ seed, euchre: true, objective: $('objPick').value || undefined, tips: $('tipsPick').checked, pickPartner: true, unlocked: pr.beaten, locked: R.lockedFor(statsOf(pr)), maxWanted: pr.wanted || 0, wanted: pr.wanted || 0, bonds: pr.bond || {},
                          ghost: pr.ghost, memory, hot: hotSetting() === 'on', stranger: (pr.marked || 0) >= R.STRANGER.marks && !(pr.beaten || []).includes('stranger') });
     // the ghost rides once: the story that meets it has taken it
     if (pr.ghost) { delete pr.ghost; try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} }
@@ -5041,6 +5115,11 @@ html.art .coach { border-radius: 0; }
       const far = Math.max(0, ...(pr.rides || []).map(r => r.won ? 4 : r.act || 1)) - 1;
       rows.push('<div class="nu"><span class="nuf star">\u2605</span><div><b>Wanted level ' + ((pr.wanted || 0) + 1) + '</b><p>Win a story at the County Fair to open it: a new twist on the trail.</p>' + unlockBar(null, far >= 3 ? 'Done: it\u2019s open' : 'Your furthest: Act ' + R.ROMAN[Math.min(3, far + 1)]).replace('width:0%', 'width:' + Math.round(100 * Math.min(1, far / 3)) + '%') + '</div></div>');
     }
+    // cards this story opened, then the two locked ones you're closest to (2026-11-16)
+    (L.newUnlocks || []).forEach(id => rows.push('<div class="nu"><span class="nuf star cbadge">' + px('e_' + id, '#2a1b16') + '</span><div><b>New card open: ' + esc(R.ENH[id].name) + '!</b><p>' + esc(R.ENH[id].text) + '</p></div></div>'));
+    { const st = statsOf(pr), near = R.lockedFor(st).map(id => ({ id, f: (st[R.LOCKS[id].stat] | 0) / R.LOCKS[id].of })).sort((a, b) => b.f - a.f).slice(0, 2);
+      near.forEach(x => rows.push('<div class="nu"><span class="nuf locked cbadge">' + px('e_' + x.id, '#000') + '<b>?</b></span><div><b>A card still locked</b>' + lockBar(x.id) + '</div></div>'));
+      if (near.length || (L.newUnlocks || []).length) rows.push('<div class="btns"><button class="btn alt mini" data-act="collection">The collection</button></div>'); }
     const c = wallCount();
     rows.push('<div class="nu"><span class="nuf star">\u2605</span><div><b>Wanted Wall: ' + c.got + ' of ' + c.of + '</b>' + unlockBar(null, 'Gangs brought in').replace('width:0%', 'width:' + Math.round(100 * c.got / Math.max(1, c.of)) + '%') +
       '<div class="btns"><button class="btn alt mini" data-act="wall">See the Wall</button></div></div></div>');
@@ -6339,12 +6418,12 @@ html.art .coach { border-radius: 0; }
       d.onclick = gone; setTimeout(gone, 4500);
     }, 60);
   }
-  function jokerSays(text) {
+  function jokerSays(text, c, who) {
     setTimeout(() => {
-      const card = document.querySelector('#hand [data-c="JK"]') || document.querySelector('#hand');
+      const card = document.querySelector('#hand [data-c="' + (c || 'JK') + '"]') || document.querySelector('#hand');
       if (!card) return;
       const r = card.getBoundingClientRect(), d = document.createElement('div');
-      d.className = 'bubble jokersay'; d.innerHTML = '<b>The Joker:</b> \u201c' + esc(text) + '\u201d';
+      d.className = 'bubble jokersay'; d.innerHTML = '<b>' + esc(who || 'The Joker') + ':</b> \u201c' + esc(text) + '\u201d';
       d.style.left = Math.max(8, Math.min(innerWidth - 248, r.left + r.width / 2 - 120)) + 'px';
       document.body.appendChild(d);
       d.style.top = Math.max(8, r.top - d.offsetHeight - 6) + 'px';
@@ -6389,6 +6468,8 @@ html.art .coach { border-radius: 0; }
     if (L.phase === 'hand' && h.phase === 'bid' && h.turn === 2 && has('gag') && once('gag' + base)) fire(has('gag'), PN() + ' is gagged');
     // the Joker speaks his dare from your hand, a few seconds, once (its short form stays in the bid panel)
     if (L.phase === 'hand' && h.phase === 'bid' && L.dare && !L.dare.done && L.dare.hand === L.handNo && once('dare' + base + L.dare.id)) jokerSays(L.dare.text);
+    // an Ornery card says what it wants from your hand (2026-11-16), after the Joker if he spoke
+    if (L.phase === 'hand' && h.phase === 'bid' && h.wantSay && once('orn' + base)) Object.keys(h.wantSay).forEach((c, i) => setTimeout(() => jokerSays(h.wantSay[c], c, 'Your ' + E.label(c)), (L.dare && L.dare.hand === L.handNo ? 4700 : 0) + 4700 * i));
     // a Showdown's last stand: its own card, once a fight, at the deal it starts (kept on the run, so a reload doesn't replay it)
     if (L.phase === 'hand' && h.phase === 'bid' && L.stand && has('stand') && L.standShown !== L.level) { L.standShown = L.level; playCeremony(L, step, [has('stand')]); return; }
     // a Duel's new rule every deal, and the Showdown the Stranger borrows from

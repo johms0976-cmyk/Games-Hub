@@ -159,6 +159,9 @@
       // Hair Trigger (2026-11-10, folds High Noon, Spurs, Last to Draw, Desperado, Brass Knuckles and Ace in the Hole):
       // two up on the hand's first and last trick; kRank adds the led and last-into-the-trick cases, never twice
       if (en(k, 'trigger') && (h.trickNo === 0 || h.trickNo === ACTS[actOf(L)].hand - 1)) k.trig = true;
+      // an Ornery card (2026-11-16) said at the deal which suit it wants: in any hand whose contract isn't your team's in
+      // that suit, it sulks a rank down
+      if (en(k, 'ornery') && sulks(L, c)) k.b -= 1;
     }
     if (own && seat === 0 && !steady && foeHas(L, 'rusty')) k.b -= 1;
     // an elixir on a card in your hand, this hand only: Ace in a Bottle plays it as the Ace of its suit; Wild Card
@@ -169,6 +172,9 @@
     return k;
   }
   const plainK = c => ({ c, seat: null, m: null, tie: false, x: null });
+  // an Ornery card's demand (h.wants[c], set at the deal): humoured when your team holds a contract in that suit
+  const humoured = (L, c) => { const h = L && L.h, w = h && h.wants && h.wants[c]; return !!w && !!h.contract && team(h.contractor) === 0 && h.contract.s === w; };
+  const sulks = (L, c) => { const h = L && L.h; return !!(h && h.wants && h.wants[c] && h.contract && !humoured(L, c)); };
   function kSuit(k, trump) {
     const c = k.c;
     if (k.forced) return k.forced;
@@ -342,7 +348,9 @@
      10 a defending trick) hits your health at the act's share, to the nearest 5. The share shrinks as the acts'
      scores grow (Act I bids are 20-100, Act III's 40-520). A gang's Dead Eye (L.foe.hitMul) hits harder.
      Without a run (L), half. */
-  const HIT = { 1: 0.5, 2: 0.35, 3: 0.22 };   // tuned over whole stand-in runs (btp-run.js, FOE); 0.3 / 0.2 / 0.15 until 2026-10-29
+  // tuned over whole stand-in runs (btp-run.js, FOE); 0.3 / 0.2 / 0.15 until 2026-10-29; Act III 0.22 -> 0.16 on 2026-11-16,
+  // when its gangs got 2.5x health so a fight lasts more than one hand (tests/sources.js)
+  const HIT = { 1: 0.5, 2: 0.35, 3: 0.16 };
   const hitShare = L => L ? HIT[L.act] * ((L.foe && L.foe.hitMul) || 1) * (L.hitBoost || 1) : 1 / 2;     // hitBoost: a Wanted level's
   const hitWord = L => Math.round(100 * hitShare(L)) + '%';
   const damageOf = (v, L) => Math.round(Math.max(0, v) * hitShare(L) / 5) * 5;
@@ -705,9 +713,23 @@
   /* Deeper pockets: the most of your own cards a hand can hold, by act, counting the act's own seed slots */
   const POCKET = { max: { 1: 2, 2: 4, 3: 6 } };
   const pocketsIn = L => { const A = ACTS[actOf(L)], base = A.seeds + (hasBuff(L, 'holdout') ? 1 : 0); return Math.max(0, Math.min(L.pockets || 0, POCKET.max[actOf(L)] - base)); };
-  const FX = { backfire: 1, setPay: 1, notch: 5, ambush: 25, grudge: 20, hollow: 15, plate: 15, ricochet: 10, bullseye: 40, deadman: 25, keg: 30, kegBurn: 15, vest: 5, bandolier: 5, snakebite: 5, gutshot: 10, scope: 0.25 };
+  const FX = { backfire: 1, setPay: 1, notch: 5, ambush: 25, grudge: 20, hollow: 15, plate: 15, ricochet: 10, bullseye: 40, deadman: 25, keg: 30, kegBurn: 15, vest: 5, bandolier: 5, snakebite: 5, gutshot: 10, scope: 0.25,
+    // cards that multiply (2026-11-16, the review: enhancements supplied 5% of Act III damage because every one added a flat
+    // number): a Sharpshooter's win adds marksman to the hand's multiplier, a Wild Bunch adds bunch for every enhanced card
+    // dealt to you, a Ringleader adds ring to what your cards' shots are multiplied by
+    marksman: 0.75, bunch: 0.35, ring: 1,
+    // the weird cards (2026-11-16): an Ornery card you humour adds ornery to the multiplier; a Glutton hits glutton a trick,
+    // and glutton more for every card it has eaten
+    ornery: 1, glutton: 15 };
+  /* Your own cards dealt to you this hand that carry an enhancement, each counted twice with a Double Tap. */
+  function dealtWith(L, id) {
+    const h = L.h;
+    return ((h && h.seeded) || []).reduce((n, c) => { const m = L.mods && L.mods[c]; return n + (m && en({ m }, id) ? (en({ m }, 'doubletap') ? 2 : 1) : 0); }, 0);
+  }
+  const enhancedDealt = L => ((L.h && L.h.seeded) || []).filter(c => L.mods && L.mods[c] && enhsOf(L.mods[c]).length).length;
   function fight(L, pts, lines, o) {
     const h = L.h, fx = h.fx || { hit: 0, block: 0, burn: 0 };
+    let cardHit = fx.card || 0;           // what your enhanced cards fired this hand (a Ringleader multiplies it)
     if (L.mode === 'standard' || L.kind === 'contest' || L.kind === 'chase') return { hit: pts[0], dmg: 0, backfire: 0 };     // a plain game of 500, a prize contest: scores only
     let hit = pts[0];
     if (o.defend && hasBuff(L, 'bandolier')) { hit += FX.bandolier * o.defend; lines.push('Bandolier: your defending tricks hit ' + FX.bandolier * o.defend + ' harder.'); }
@@ -724,25 +746,37 @@
       else if (x) {
         hit += x; lines.push('You set them: their ' + o.value + ' comes back at them (+' + x + ').');
         // a Spoiler that won a trick this hand: the set hits them again, once a Spoiler (2026-11-05)
-        if (h.spoil) { hit += x * h.spoil; lines.push('Spoiler' + (h.spoil > 1 ? 's' : '') + ': the set hits them again (+' + x * h.spoil + ').'); }
+        if (h.spoil) { hit += x * h.spoil; cardHit += x * h.spoil; lines.push('Spoiler' + (h.spoil > 1 ? 's' : '') + ': the set hits them again (+' + x * h.spoil + ').'); }
         // a Grudge you held bears one more, all run, and each set pays FX.grudge a grudge
         const held = (h.seeded || []).filter(c => L.mods && L.mods[c] && en({ m: L.mods[c] }, 'grudge'));
         if (held.length) {
           let g = 0;
           // a Double Tap on the card bears two grudges at a time (2026-11-10)
           held.forEach(c => { const m = L.mods[c]; m.grudge = (m.grudge || 0) + (en({ m }, 'doubletap') ? 2 : 1); g += FX.grudge * m.grudge; });
-          hit += g; lines.push('Grudge: ' + held.map(c => label(c) + ' bears ' + L.mods[c].grudge).join(', ') + ' (+' + g + ').');
+          hit += g; cardHit += g; lines.push('Grudge: ' + held.map(c => label(c) + ' bears ' + L.mods[c].grudge).join(', ') + ' (+' + g + ').');
         }
       }
     }
     if (fx.hit) { hit += fx.hit; lines.push('Your cards\u2019 shots this hand: +' + fx.hit + '.'); }
+    // a Ringleader dealt to you: every shot your enhanced cards fired counts again, once a Ringleader (2026-11-16)
+    const rings = dealtWith(L, 'ringleader');
+    let shots = fx.hit || 0;
+    if (rings && cardHit > 0) { const x = Math.round(cardHit * FX.ring * rings); hit += x; shots += x; lines.push('Ringleader: your cards\u2019 ' + cardHit + ' in shots ' + (rings > 1 ? 'count ' + (1 + FX.ring * rings) + ' times over' : 'count double') + ' (+' + x + ').'); }
     // Fat Purse (2026-11-10): the gold you carry is a weapon, one more a hand for every 10 gold
     if (hasBuff(L, 'purse') && hit > 0 && L.gold >= 10) { const x = Math.floor(L.gold / 10); hit += x; lines.push('Fat Purse: your ' + L.gold + ' gold hits them for ' + x + ' more.'); }
     const elx = h.elx || {};
     // the multipliers, one line each, so the payday reads as a sum (2026-11-10: the Hot Hand multiplies damage)
     const times = (x, what) => { if (hit <= 0 || x === 1) return; const was = hit; hit = Math.round(hit * x); lines.push(what + ': ' + was + ' \u00d7 ' + x + ' = ' + hit + '.'); };
     const hm = api.hitMult ? api.hitMult(L) : null;
-    if (hm && hm.x > 1 && hit > 0) { const was = hit; hit = Math.round(hit * hm.x); lines.push('Hot Hand, ' + hm.name + ': (' + (was - fx.hit) + ' points + ' + fx.hit + ' shots) \u00d7 ' + hm.x + ' = ' + hit + '.'); }
+    if (hm && hm.x > 1 && hit > 0) { const was = hit; hit = Math.round(hit * hm.x); lines.push('Hot Hand, ' + hm.name + ': (' + (was - shots) + ' points + ' + shots + ' shots) \u00d7 ' + hm.x + ' = ' + hit + '.'); }
+    // your cards' multiplier (2026-11-16): Sharpshooters' wins (h.mult, from track) and Wild Bunches, added up, one line
+    const bunch = dealtWith(L, 'bunch'), nb = bunch ? enhancedDealt(L) : 0;
+    const r2 = x => Math.round(x * 100) / 100, wild = r2(FX.bunch * bunch * nb);
+    const orn = Object.keys(h.wants || {}).filter(c => (h.seeded || []).includes(c)), happy = orn.filter(c => humoured(L, c));
+    const glad = r2(happy.reduce((n, c) => n + FX.ornery * (en({ m: L.mods[c] }, 'doubletap') ? 2 : 1), 0));
+    const mult = r2((h.mult || 0) + wild + glad);
+    if (mult > 0) times(r2(1 + mult), 'Your cards\u2019 multiplier (' + [h.mult ? 'Sharpshooter' + (h.recMult ? 's and recipes' : '') + ' +' + r2(h.mult) : '', bunch ? 'Wild Bunch +' + wild : '', glad ? 'Ornery, humoured, +' + glad : ''].filter(Boolean).join(', ') + ')');
+    orn.filter(c => !happy.includes(c) && h.contract).forEach(c => lines.push('Your ' + label(c) + ' wanted ' + (NAME[h.wants[c]] || h.wants[c]) + ' and didn\u2019t get it: it sulked a rank down all hand.'));
     if (hasBuff(L, 'holster') && L.handNo === 1 && L.foe) times(2, 'Quick Holster, the fight\u2019s first hand');
     if (elx.double) times(2, 'Rotgut');
     if (elx.triple) times(3, 'Prairie Fire');
@@ -800,7 +834,7 @@
     K, plainK, kSuit, kRank, kTrumpRank, kIsTrump, kBeats, kLabel,
     effSuit, trumpRank, isTrump, canPlay, winnerOf, beats, explain,
     bidValue, bidList, sweepValue, bidText, damageOf, HIT, hitShare, hitWord, rankOfBid, mustBid, WALL, wallMin, extraTricks, extraBids, counted, resolveTwo,
-    en, enhsOf, foeHas, hasBuff, FX, fight, callWords, POCKET, pocketsIn, hitMult: null,
+    en, enhsOf, foeHas, hasBuff, FX, fight, dealtWith, enhancedDealt, humoured, sulks, callWords, POCKET, pocketsIn, hitMult: null,
     say, deal, sort, legalBids, bid, discard, afterKitty, ack, ledSuit, legalPlays, play, score
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
