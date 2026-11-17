@@ -573,6 +573,25 @@ html.art .oslip { border: 12px solid transparent; border-image: url(art/ui/paper
 #standoff .draw:active { translate: 0 4px; scale: .97; }
 @keyframes drawglow { 50% { filter: drop-shadow(0 0 10px #ffd65a) brightness(1.1); } }
 #standoff .dwrap small { color: #e8c890; font: 13px/1 Bitter, serif; opacity: 0; animation: soffin .4s 2s both; }
+/* the first table's exchange (2026-11-17): a balloon's tail at whoever says it; you and what you see under the stage;
+   NOW DRAW! waits for the title */
+#standoff.talking:not(.ready) .dwrap { visibility: hidden; }
+#standoff .say.t-e::before, #standoff .say.t-e::after { left: 70%; }
+#standoff .say.t-w::before, #standoff .say.t-w::after { left: 30%; }
+#standoff .say i { font-style: italic; color: #6a5040; font-size: .9em; }
+#standoff .say.back.you { background: #f3e3c0; }
+#standoff .say.back.you b { color: #5a3a10; }
+#standoff .say.back.dir { background: rgba(28,18,13,.82); color: #f6efe2; border-color: #6b4a2a; text-align: center; }
+#standoff .say.back.dir::before, #standoff .say.back.dir::after { display: none; }
+#standoff .say.back.dir i { color: #f6efe2; font-size: 1em; }
+#standoff .gplate { position: absolute; left: 0; right: 0; top: 10px; text-align: center; font: 15px/1 'Pixelify Sans', Georgia, serif; letter-spacing: .06em; color: #e8c890; }
+#standoff .tskip { position: absolute; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); min-height: 38px; padding: 4px 14px; border: 2px solid rgba(255,246,220,.8); border-radius: 19px;
+  background: rgba(28,18,13,.72); color: #fff6dc; font: 600 14px/1 Bitter, Georgia, serif; cursor: pointer; z-index: 6; }
+#standoff .tskip[hidden] { display: none; }
+#standoff .sfig.e.hip { animation: sbreathe 2.4s ease-in-out infinite, shiphip .5s ease-in-out 2; }
+@keyframes shiphip { 50% { translate: 0 3px; rotate: -2deg; } }
+.wposter .d s.struck { text-decoration-color: #b8302a; text-decoration-thickness: 3px; }
+.coach p.narr { font-style: italic; }
 #standoff .draw:focus-visible { outline: 3px solid #fff6d2; outline-offset: 4px; }
 /* a short screen: NOW DRAW! lower and without its hint, so the gang keeps the table's size (2026-11-04) */
 @media (max-height: 700px) { #standoff .dwrap { bottom: 22px; } #standoff .dwrap small { display: none; } }
@@ -1793,31 +1812,31 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=72"></script>
-<script src="btp-ai.js?v=72"></script>
-<script src="btp-run.js?v=72"></script>
-<script src="btp-town.js?v=72"></script>
-<script src="art/dustwater/sprites.js?v=72"></script>
-<script src="btp-train.js?v=72"></script>
-<script src="art/train/sprites.js?v=72"></script>
-<script src="art/title/scene.js?v=72"></script>
-<script src="art/title/cameo.js?v=72"></script>
-<script src="art/title/crossing.js?v=72"></script>
-<script src="art/table/scene.js?v=72"></script>
-<script src="art/table/partners.js?v=72"></script>
-<script src="art/grave/scene.js?v=72"></script>
-<script src="art/paid/scene.js?v=72"></script>
-<script src="art/rooms/scene.js?v=72"></script>
-<script src="art/express/scene.js?v=72"></script>
-<script src="art/country/country.js?v=72"></script>
-<script src="art/fair/sprites.js?v=72"></script>
-<script src="btp-euchreka.js?v=72"></script>
-<script src="art/euchreka/sprites.js?v=72"></script>
-<script src="btp-scene.js?v=72"></script>
-<script src="scenes/gate.js?v=72"></script>
-<script src="btp-music.js?v=72"></script>
-<script src="music/theme.js?v=72"></script>
-<script src="music/westbound.js?v=72"></script>
+<script src="btp-engine.js?v=74"></script>
+<script src="btp-ai.js?v=74"></script>
+<script src="btp-run.js?v=74"></script>
+<script src="btp-town.js?v=74"></script>
+<script src="art/dustwater/sprites.js?v=74"></script>
+<script src="btp-train.js?v=74"></script>
+<script src="art/train/sprites.js?v=74"></script>
+<script src="art/title/scene.js?v=74"></script>
+<script src="art/title/cameo.js?v=74"></script>
+<script src="art/title/crossing.js?v=74"></script>
+<script src="art/table/scene.js?v=74"></script>
+<script src="art/table/partners.js?v=74"></script>
+<script src="art/grave/scene.js?v=74"></script>
+<script src="art/paid/scene.js?v=74"></script>
+<script src="art/rooms/scene.js?v=74"></script>
+<script src="art/express/scene.js?v=74"></script>
+<script src="art/country/country.js?v=74"></script>
+<script src="art/fair/sprites.js?v=74"></script>
+<script src="btp-euchreka.js?v=74"></script>
+<script src="art/euchreka/sprites.js?v=74"></script>
+<script src="btp-scene.js?v=74"></script>
+<script src="scenes/gate.js?v=74"></script>
+<script src="btp-music.js?v=74"></script>
+<script src="music/theme.js?v=74"></script>
+<script src="music/westbound.js?v=74"></script>
 <script>
 (function () {
   'use strict';
@@ -2078,7 +2097,10 @@ html.art .coach { border-radius: 0; }
   const bidPlain = b => b.s === 'MIS' ? 'Misère' : b.s === 'OMIS' ? 'Open misère' : b.t + (b.s === 'NT' ? 'NT' : E.SYM[b.s]);
   const denom = s => s === 'NT' ? 'no trumps' : E.NAME[s];
   function stars(n) { let s = ''; for (let i = 1; i <= 3; i++) s += i <= n ? '★' : '<span class="off">★</span>'; return s; }
-  function coachHTML(tip) { return tip ? '<div class="face' + (P.L && partnerFace(P.L.partner) ? ' svg">' + partnerFace(P.L.partner) : '">') + '</div><p>' + esc(tip.text) + '</p><button data-tip="' + tip.id + '">Got it</button>' : ''; }
+  const capFirst = s => String(s).charAt(0).toUpperCase() + String(s).slice(1);
+  /* The Quiet One never speaks (STORY-PLAN, "Who's who"): their tips are a narrator's caption, with no face (2026-11-17). */
+  function coachHTML(tip) {
+    if (tip && P.L && P.L.partner === 'quiet') return '<p class="narr"><i>' + esc(tip.text) + '</i></p><button data-tip="' + tip.id + '">Got it</button>'; return tip ? '<div class="face' + (P.L && partnerFace(P.L.partner) ? ' svg">' + partnerFace(P.L.partner) : '">') + '</div><p>' + esc(tip.text) + '</p><button data-tip="' + tip.id + '">Got it</button>' : ''; }
   function mineHTML() {
     const L = P.L;
     const base = E.ACTS[E.actOf(L)].seeds + (E.hasBuff(L, 'holdout') ? 1 : 0), more = E.pocketsIn(L), idle = (L.pockets || 0) - more;
@@ -2138,7 +2160,12 @@ html.art .coach { border-radius: 0; }
           '<div class="cardrow deal">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div>' + ownedRow(L) + '</div>' :
           L.act === 2 ? '<div class="panel baize"><h2>Act II: the Westbound Express</h2><p>Spades and clubs join the deck and hands grow to 6 cards. Two of the cards you own are now dealt to you each hand. Pick a new card to own.</p>' +
           '<div class="cardrow deal">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div>' + ownedRow(L) + '</div>' :
-          '<div class="panel baize"><h2>Act I: Euchre-ka!</h2><p>You ride into Euchre-ka! a bounty hunter, ' + (L.partner === 'horse' ? 'on ' + PN() + ', your horse and your partner at the table' : 'with ' + PN() + ' riding shotgun') + '. It’s a gold town: they struck it rich up the hill, and somebody has put a bounty on the Twins. Every gang in town is wanted, and they settle everything over cards. Pick a card to own. You already own ' + PN() + '’s ' + E.label(R.PARTNERS[L.partner].start) + '. Each hand, one card you own is dealt straight to you (your seed slot), so owning two means you won’t know which comes.</p>' +
+          // (2026-11-17, docs/writers-room/first-table/DRAFT-2.md C: you're in undercover, so no bounty hunter riding in, no gold
+          // strike, no wanted gangs; the posters by every table are the inmates' own, and the card you own is in your boot)
+          '<div class="panel baize"><h2>Act I: Euchre-ka!</h2><p>You\u2019re in. The gate\u2019s at the bottom of the street. The Twins\u2019 saloon is at the top. Sun-up is on the far side of the night.</p>' +
+          '<p>Every gang in here pins its old wanted poster up by its table. Like a certificate. It shows their health, their tricks and what they carry.</p>' +
+          '<p>They took your guns. Nobody searched your boots.</p>' +
+          '<p>Pick a card to hide in one. ' + capFirst(PN()) + ' has already slipped the ' + E.label(R.PARTNERS[L.partner].start) + ' into the other. Each hand, one card from your boots is dealt straight to you. Hide two, and you won\u2019t know which comes.</p>' +
           '<div class="cardrow deal">' + L.offer.map(c => cardHTML(c, { data: 'take', big: true })).join('') + '</div>' + ownedRow(L) + '</div>'));
         break;
       case 'map':
@@ -2337,7 +2364,7 @@ html.art .coach { border-radius: 0; }
         '<small>' + esc(w || (sel.card === c ? 'Chosen' : ' ')) + '</small></span>';
     }).join('') + '</div>' + (sel.why ? '<p class="sub badc" role="status">' + esc(sel.why) + '</p>' : '');
   }
-  function ownedRow(L) { return L.owned.length ? '<div class="yours">Already yours: ' + L.owned.map(c => cardHTML(c, { small: true, owned: true })).join('') + '</div>' : ''; }
+  function ownedRow(L) { return L.owned.length ? '<div class="yours">Already in your boots: ' + L.owned.map(c => cardHTML(c, { small: true, owned: true })).join('') + '</div>' : ''; }
   /* The act-start pan: from the top of the map (the Showdown) down to the first choices, eased, over a couple of
      seconds; any touch, wheel or key hands the scroll back at once. Skipped when it all fits, in ?fast, and
      under reduced motion. */
@@ -3256,7 +3283,7 @@ html.art .coach { border-radius: 0; }
     if (L.kind === 'bank') return '<button class="pay" data-act="levelinfo"><span><b>Outscore the gang:</b> ' + (R.bankBounty(L) ? R.bankBounty(L) + ' gold + ' : '') + 'pick 1 of ' + R.BANK.enh + ' enhancements. <b>Lose:</b> they take ' + L.bank.take + ' gold.</span>' +
       '<span class="nx">' + esc('You ' + num(L.you) + ' · them ' + num(L.opp)) + '</span><span class="more">Rewards</span></button>';
     const n = starsNow(L), pay = R.PAY[L.kind][n], done = n - (fast ? 1 : 0) > 1;
-    const next = [done ? '' : 'the bonus for a star', fast ? 'bring them in by hand ' + par + ' for a star' : 'over par'].filter(Boolean).join(' · ');
+    const next = [done ? '' : 'the bonus for a star', fast ? 'beat them by hand ' + par + ' for a star' : 'over par'].filter(Boolean).join(' · ');
     return '<button class="pay" data-act="levelinfo"><span class="st">' + stars(n) + '</span><span><b>Win now:</b> ' + pay + 'g' + (n > 1 ? ' + ' + PRIZE_SHORT[L.kind][n] : '') + '</span>' +
       '<span class="nx">' + esc(next) + '</span><span class="more">Rewards</span></button>';
   }
@@ -3511,7 +3538,7 @@ html.art .coach { border-radius: 0; }
     g.push({ i: 'release', type: 'release', price: R.releasePrice(L), name: 'Turn a card loose', text: 'Stop owning a card, so your best ones come more often.' });
     return g.map(it => Object.assign(it, {
       name: it.name || (it.type === 'card' ? 'The ' + E.label(it.id) : it.type === 'enh' ? 'Enhancement: ' + R.ENH[it.id].name : it.type === 'tonic' ? 'Snake oil' : it.type === 'cleanse' ? 'See the Doc' : it.type === 'elixir' ? 'A bottle of ' + R.ELIXIRS[it.id].name : 'Buff: ' + R.BUFFS[it.id].name),
-      text: it.text || (it.type === 'card' ? 'Own it: it can be dealt to you in your seed slot.' : it.type === 'enh' ? R.ENH[it.id].text : it.type === 'tonic' ? '+' + R.TONIC.health + ' health, now.' : it.type === 'cleanse' ? 'Remove a hex from any card.' :
+      text: it.text || (it.type === 'card' ? 'Hide it in a boot: it can be dealt to you.' : it.type === 'enh' ? R.ENH[it.id].text : it.type === 'tonic' ? '+' + R.TONIC.health + ' health, now.' : it.type === 'cleanse' ? 'Remove a hex from any card.' :
         it.type === 'elixir' ? 'For your satchel. ' + R.ELIXIRS[it.id].text + (R.ELIXIRS[it.id].small ? ' Small print: ' + R.ELIXIRS[it.id].small : '') : R.BUFFS[it.id].text),
       needs: it.type === 'enh' ? 'enh' : it.type === 'cleanse' ? 'hexed' : it.type === 'release' ? 'owned' : null }));
   }
@@ -4464,7 +4491,7 @@ html.art .coach { border-radius: 0; }
         '<span>They hit you</span><span class="' + (r.dmg ? 'badc' : 'good') + '">' + (r.dmg ? '−' + r.dmg : 'nothing') + ' · health ' + L.health + '</span></div>' +
         '<ul class="lines">' + r.lines.map(t => '<li>' + esc(t) + '</li>').join('') + '</ul>' +
         (goal ? '<div class="kv"><span>' + (L.kind === 'bank' ? 'Objective' : 'Bonus') + '</span><span>' + goal + '</span></div>' : '') +
-        (over && F ? '<p class="big good">' + esc(F.name) + (L.kind === 'boss' ? ' are brought to justice!' : ' are brought in!') + '</p>' : '') +
+        (over && F ? '<p class="big good">' + esc(F.name) + (L.kind === 'boss' ? ' are brought to justice!' : L.euchre && L.act === 1 ? ' are beaten!' : ' are brought in!') + '</p>' : '') +
         '<div class="btns"><button class="btn" data-act="next">' + (over ? (L.euchre && L.act === 1 && L.kind === 'boss' && L.boss === 'twins' && !L.escaped ? 'They\u2019re running for the gate!' : 'See the stars') : 'Next hand') + '</button></div>';
     } else if (L.phase === 'over') {
       const r = L.result;
@@ -4526,7 +4553,7 @@ html.art .coach { border-radius: 0; }
     '<li><b>Trumps:</b> the Joker is highest, then the <b>right bower</b> (the Jack of trumps), then the <b>left bower</b> (the other red Jack, which counts as a trump), then A, K, Q, 10, 9.</li>' +
     '<li><b>Play:</b> the winner of the auction takes the kitty, puts a card back and leads. Follow the suit led if you can; the highest trump wins, otherwise the highest card of the suit led. Equal cards: the first played wins.</li>' +
     '<li><b>Scoring:</b> make your bid and score it; fail and lose it. Defenders score 10 a trick. Take every trick and you score your suit’s top bid.</li>' +
-    '<li><b>You are a bounty hunter.</b> Every table is a wanted gang with health and a price on its head. Your team\u2019s points each hand (a made contract, 10 a defending trick, and the whole value of any contract of theirs you set) shoot it down. Hand follows hand until they are brought in, and the reward is yours.</li>' +
+    '<li><b>You are a bounty hunter, undercover.</b> Every table is a gang of two with health. Your team\u2019s points each hand (a made contract, 10 a defending trick, and the whole value of any contract of theirs you set) shoot it down. Hand follows hand until they are beaten, and what they carry is yours.</li>' +
     '<li><b>Health:</b> you start with 500, and that is the most you can have. Every point West and East score hits you, at 50% in Act I, 35% in Act II and 22% in Act III (Showdown gangs hit harder). A contract of yours that fails <b>backfires</b>: it hits you for its value at the same share. Nothing heals you during a fight; at 0 the run is over, Showdown or not.</li>' +
     '<li><b>Legendary cards:</b> a card you own takes up to two enhancements; with two it is Legendary. An enhancement is never replaced.</li>' +
     '<li><b>The gangs</b> grow tougher up the trail, and many carry an ability or a debuff on you: Rusty Guns, Gut Shot, Bushwhack and more. Tap their name on the plate to read it.</li>' +
@@ -4630,7 +4657,7 @@ html.art .coach { border-radius: 0; }
     else if (tr && c !== 'JK' && E.rankOf(c) === 'J' && E.suitOf(c) === E.TWIN[tr]) lines.push('This hand it is the <b>left bower</b>: it counts as a ' + E.NAME[tr].slice(0, -1) + '.');
     if (c === 'JK') lines.push('The Joker wins any trick it is in.');
     if (!tags.length) tags.push('<span class="plain">No buff or hex</span>');
-    if (owned) lines.push('<b>Yours:</b> it can be dealt to you in a seed slot. ' + (m.enh || m.up ? 'Its buff works only in your team\u2019s hands (yours and your partner\u2019s); if West or East holds it, it is a plain card.' : ''));
+    if (owned) lines.push('<b>Yours:</b> it\u2019s in your boots, so it can be dealt to you. ' + (m.enh || m.up ? 'Its buff works only in your team\u2019s hands (yours and your partner\u2019s); if West or East holds it, it is a plain card.' : ''));
     if (!lines.length) lines.push('A plain card.');
     return '<div class="cardinfo">' + cardHTML(c, { owned: true, big: true }) + '<h2 style="text-align:center;margin:0 0 6px">' + esc(E.label(c)) + '</h2>' +
       '<div class="tags" style="text-align:center">' + tags.join('') + '</div><ul>' + lines.map(x => '<li>' + x + '</li>').join('') + '</ul>' +
@@ -5031,7 +5058,7 @@ html.art .coach { border-radius: 0; }
     // the Wanted level starts at the highest open (2026-11-02); the partner pick can lower it
     const rides = pr.rides || [], last = rides[rides.length - 1] || {};
     const memory = { runs: rides.length, lastWon: !!last.won, lastAct: last.act || 0, lostTo: last.lostTo || null, marked: pr.marked || 0 };
-    const L = R.newRun({ seed, euchre: true, objective: $('objPick').value || undefined, tips: $('tipsPick').checked, pickPartner: true, unlocked: pr.beaten, locked: R.lockedFor(statsOf(pr)), maxWanted: pr.wanted || 0, wanted: pr.wanted || 0, bonds: pr.bond || {},
+    const L = R.newRun({ seed, euchre: true, firstEver: !rides.length && !pr.firstTable, lastLost: rides.length > 0 && !rides[rides.length - 1].won, objective: $('objPick').value || undefined, tips: $('tipsPick').checked, pickPartner: true, unlocked: pr.beaten, locked: R.lockedFor(statsOf(pr)), maxWanted: pr.wanted || 0, wanted: pr.wanted || 0, bonds: pr.bond || {},
                          ghost: pr.ghost, memory, hot: hotSetting() === 'on', stranger: (pr.marked || 0) >= R.STRANGER.marks && !(pr.beaten || []).includes('stranger') });
     // the ghost rides once: the story that meets it has taken it
     if (pr.ghost) { delete pr.ghost; try { localStorage.setItem(PROFILE, JSON.stringify(pr)); } catch (e) {} }
@@ -5121,7 +5148,7 @@ html.art .coach { border-radius: 0; }
       near.forEach(x => rows.push('<div class="nu"><span class="nuf locked cbadge">' + px('e_' + x.id, '#000') + '<b>?</b></span><div><b>A card still locked</b>' + lockBar(x.id) + '</div></div>'));
       if (near.length || (L.newUnlocks || []).length) rows.push('<div class="btns"><button class="btn alt mini" data-act="collection">The collection</button></div>'); }
     const c = wallCount();
-    rows.push('<div class="nu"><span class="nuf star">\u2605</span><div><b>Wanted Wall: ' + c.got + ' of ' + c.of + '</b>' + unlockBar(null, 'Gangs brought in').replace('width:0%', 'width:' + Math.round(100 * c.got / Math.max(1, c.of)) + '%') +
+    rows.push('<div class="nu"><span class="nuf star">\u2605</span><div><b>Wanted Wall: ' + c.got + ' of ' + c.of + '</b>' + unlockBar(null, 'Gangs beaten').replace('width:0%', 'width:' + Math.round(100 * c.got / Math.max(1, c.of)) + '%') +
       '<div class="btns"><button class="btn alt mini" data-act="wall">See the Wall</button></div></div></div>');
     return '<h3>What\u2019s next</h3><div class="nextup">' + rows.join('') + '</div>';
   }
@@ -5542,7 +5569,7 @@ html.art .coach { border-radius: 0; }
     const card = $('actcard');
     card.className = 'over';
     card.style.backgroundImage = '';
-    card.innerHTML = '<div class="board"><small>ACT I</small><b>EUCHRE-KA!</b><span>A gold town, struck rich. Somebody wants the Twins brought in</span></div>';
+    card.innerHTML = '<div class="board"><small>ACT I</small><b>EUCHRE-KA!</b><span>A prison town. Somebody has to get them out</span></div>';
     card.classList.add('on');
   }
   function dust(full) {
@@ -5711,7 +5738,7 @@ html.art .coach { border-radius: 0; }
   // (with the loot they carry, 2026-11-01: its picture and its name under the gold)
   function wantedFace(id, loot, L) {
     const B = R.BOSS[id], lt = loot && R.BUFFS[loot], half = R.halfPaid(L, id);
-    return '<i class="nail"></i><span class="w">WANTED</span><span class="d">DEAD OR ALIVE</span><img src="' + artURL('wanted/' + id + '.webp') + '" alt="">' +
+    return '<i class="nail"></i><span class="w">WANTED</span><span class="d">' + (L && L.euchre && L.act === 1 && id === 'twins' ? '<s class="struck">DEAD OR</s> ALIVE' : 'DEAD OR ALIVE') + '</span><img src="' + artURL('wanted/' + id + '.webp') + '" alt="">' +
       '<span class="n">' + esc(B.name.toUpperCase()) + '</span><span class="rw">REWARD ' + (half ? R.thousands(R.HALF_PAID.promised) : 100) + ' GOLD</span>' +
       (lt ? '<span class="loot"><img src="' + artURL('goods/buff_' + loot + '.webp') + '" alt=""><span><small>& THEIR LOOT</small>' + esc(lt.name.toUpperCase()) + '</span></span>' : '') +
       (half ? '<span class="rw up">& A CARD UPGRADE</span>' : '') + (half && L && L.euchre ? '<span class="vote">VOTE HARDCASTLE</span>' : '');
@@ -5722,10 +5749,14 @@ html.art .coach { border-radius: 0; }
      THE FUGI-TWINS); until then their words only bridge to Bower City. */
   const LEDGER = { 1: 'Owed: ' + (R.HALF_PAID.promised - R.HALF_PAID.paid) + ' gold, payable on delivery at Bower City.' };
   const JOB = {
-    1: ['Both Twins, alive, at this gate at sun-up', 'A thousand gold, dear. That\u2019s a new roof, a new horse, and change for a great deal of pie.'],
+    1: ['Both Twins, alive, out of the gate at sun-up', 'A thousand gold, dear. That\u2019s a new roof, a new horse, and change for a great deal of pie.'],
     2: ['This train doesn\u2019t stop till the end of the line', 'They\u2019re up in the locomotive, dear. Car by car, through the carriages or over the roofs.'],
     3: ['Waiting at the top of the midway', 'The last of them, dear. Bring this one in and we can finally enjoy the Fair.']
   };
+  // (2026-11-17, first-table DRAFT-2 A; STORY-PLAN [1.4]) Act I's poster, each partner in their own voice
+  const JOB1_SAY = { horse: 'A thousand gold. I did the sums. In carrots.', nan: 'The Sheriff said alive, dear. I\u2019ll try to remember.',
+    showboat: 'Folks! A thousand gold and a photograph. I\u2019ll need top billing.', sharp: 'A thousand gold, payable by a politician. I\u2019d price that at forty.',
+    quiet: '(folds the poster in quarters and puts it inside their coat.)' };
   function unrollJob(L) {
     if (FAST || !L || !['map', 'partner', 'actstart'].includes(L.phase) || !L.map || (L.sawPoster || []).includes(L.act)) return;
     L.sawPoster = (L.sawPoster || []).concat(L.act);
@@ -5737,7 +5768,7 @@ html.art .coach { border-radius: 0; }
     b.innerHTML = '<p class="why">' + esc(J[0]) + '</p><div class="scroll"><div class="wposter" role="img" aria-label="' + esc('Wanted: ' + R.BOSS[L.map.boss].name + ', reward 100 gold') + '">' +
       wantedFace(L.map.boss, L.map.loot, L) + '</div><i class="rod" aria-hidden="true"></i></div>' + (why ? '<p class="why long">' + esc(why) + '</p>' : '') +
       // Act II: your partner said all this on the departure platform a moment ago, so the Sheriff speaks alone
-      (chosen && !(L.act === 2 && why) ? '<div class="nanline"><b>' + esc(R.PARTNERS[L.partner].name) + ':</b> ' + esc(R.voice(L, J[1])) + '</div>' : '') +
+      (chosen && !(L.act === 2 && why) ? '<div class="nanline"><b>' + esc(R.PARTNERS[L.partner].name) + ':</b> ' + esc(L.act === 1 && L.euchre && JOB1_SAY[L.partner] ? JOB1_SAY[L.partner] : R.voice(L, J[1])) + '</div>' : '') +
       '<button class="btn" data-act="takejob">' + (chosen ? 'Let\u2019s ride' : 'Take the job') + '</button>';
     b.hidden = false;
   }
@@ -5928,6 +5959,9 @@ html.art .coach { border-radius: 0; }
       // a Card table or a Duel opens with an insult, and your partner answers it (2026-11-03)
       const duel = L.mode !== 'standard' && (L.kind === 'dance' || L.kind === 'elite') ? R.insult(L) : null;
       if (duel) t.text = duel.text;
+      const talk = firstTalk(L);
+      clearTimeout(TALK.timer); TALK.lines = talk; TALK.i = -1;
+      s.onpointerup = null;
       // the table's own size (2026-11-04, the user's: the gang one size from here to the play), one smaller only on
       // a screen too short to hold it with the lines and NOW DRAW! (measured below)
       let k = tableScale();
@@ -5944,24 +5978,97 @@ html.art .coach { border-radius: 0; }
       s.innerHTML = '<div class="sstage"><i class="swall" style="background-image:url(' + artURL('table/' + wallKey(L) + '.webp') + ')"></i>' +
         (look ? look.map((f, i) => '<img class="sfig ' + (i ? 'e' : 'w') + '" src="' + artURL('table/fig_' + f + '.webp') + '" alt="">').join('') : '') +
         '<img class="stable" src="' + artURL('table/table.webp') + '" alt=""></div>' +
+        (talk ? '<div class="stand"></div><div class="backline"></div><div class="gplate">' + esc(t.who) + '</div>' :
         '<div class="stand"><div class="say" role="status"><b>' + esc(t.who) + '</b><p>\u201c' + esc(t.text) + '\u201d</p></div></div>' +
-        (duel ? '<div class="backline"><div class="say back" role="status"><span class="face svg">' + partnerFace(L.partner) + '</span><p><b>' + esc(PN()) + '</b>' + (/^\(/.test(duel.back) ? esc(duel.back) : '\u201c' + esc(duel.back) + '\u201d') + '</p></div></div>' : '') +
-        '<div class="dwrap"><button class="btn draw" data-act="draw">NOW DRAW!</button><small>Tap to draw your cards</small></div>';
+        (duel ? '<div class="backline"><div class="say back" role="status"><span class="face svg">' + partnerFace(L.partner) + '</span><p><b>' + esc(PN()) + '</b>' + (/^\(/.test(duel.back) ? esc(duel.back) : '\u201c' + esc(duel.back) + '\u201d') + '</p></div></div>' : '')) +
+        '<div class="dwrap"><button class="btn draw" data-act="draw">NOW DRAW!</button><small>Tap to draw your cards</small></div>' +
+        (talk ? '<button class="tskip" type="button">Skip \u203a</button>' : '');
+      if (talk) s.classList.add('talking');
       s.hidden = false;
       // too tall: the gang's line off the top, or the stage (or the comeback) running into NOW DRAW!
       const clash = () => { const r = sel => { const e = s.querySelector(sel); return e ? e.getBoundingClientRect() : null; };
         const say = r('.stand'), low = r('.backline') || r('.sstage'), go = r('.dwrap');
+        if (talk && say && !say.height) return false;          // (an exchange: measured with its longest balloons, below)
         return !!(say && go && go.height && (say.top < 4 || low.bottom > go.top - 6)); };
       // first crop wall off the top (down to the hat brims), then a size smaller
       if (clash()) { cut = STANDOFF_CUT; place(); }
       while (k > 2 && clash()) { k--; place(); }
+      if (talk) { talkFit(s, talk, clash, () => { if (k > 2) { k--; place(); return true; } return false; }); talkNext(s); }
       try { window.scrollTo(0, 0); } catch (e) { /* no layout */ }
     }
+  }
+  /* The first table of your first story (2026-11-17, docs/writers-room/first-table/DRAFT-2.md E, with the user's
+     "Neigh. Count again."): the gang, you and Biscuit, one balloon at a time over the standoff, ending on the title
+     and NOW DRAW!. Why every fight in here is cards, why this table, two against two, and the card in your boot.
+     The gang's lines sit over the stage, their tails at whoever says them; yours, Biscuit's and what you see sit
+     under it. A line holds for its reading time, a tap moves on, Skip lands on the title. Once ever (profile.firstTable),
+     with Biscuit, at a story's first Card table; every later story gets one pair (R.insult). */
+  const TALK = { timer: 0, lines: null, i: -1 };
+  const GANG_SAY = { 'Two Cowpokes': ['COWPOKE', 'COWPOKE'], 'The Miller Brothers': ['MILLER', 'MILLER'], 'A Pair of Drifters': ['DRIFTER', 'DRIFTER'],
+    'The Saddle Thieves': ['SADDLE THIEF', 'SADDLE THIEF'], 'The Widow and Her Boy': ['THE WIDOW', 'HER BOY'], 'The Blacksmith Brothers': ['BLACKSMITH', 'BLACKSMITH'],
+    'The Barber and His Cousin': ['BARBER', 'COUSIN'], 'Two Mule Skinners': ['MULE SKINNER', 'MULE SKINNER'], 'Two Prospectors': ['PROSPECTOR', 'PROSPECTOR'],
+    'The Ranch Hands': ['RANCH HAND', 'RANCH HAND'] };
+  function firstTalk(L) {
+    if (FAST || DEMO || !L || !L.euchre || L.act !== 1 || L.kind !== 'dance' || (L.actLevels | 0) !== 0 || L.partner !== 'horse' || L.mode === 'standard') return null;
+    if (profile().firstTable) return null;
+    const name = (L.foe && L.foe.name) || 'The gang', [w, e] = GANG_SAY[name] || [name.toUpperCase(), name.toUpperCase()];
+    const title = x => x.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+    const hip = w === e ? 'The other ' + title(e).replace(/^The /, '') : /^(THE|HER|HIS) /.test(e) ? title(e) : 'The ' + title(e);
+    return [
+      { who: 'w', name: w, act: 'looks at the back of your hand', text: 'Fresh ink.' },
+      { who: 'e', name: e, act: 'holds up their own stamped hand', text: 'Same ink. Welcome home.' },
+      { who: 'you', text: 'Where are the Twins?' },
+      { who: 'w', name: w, text: 'Top of the street. You play your way up. This table first.' },
+      { who: 'e', name: e, text: 'Nobody\u2019s armed in here. It\u2019s all settled over cards.' },
+      { who: 'w', name: w, text: 'Nobody gets up till it\u2019s played out. Not for fire. Town rule.' },
+      { who: 'e', name: e, text: 'It\u2019s two against two. You\u2019re one.' },
+      { who: 'dir', text: capFirst(PN()) + ' takes the chair across from you. It holds. Just.', fx: 'sit' },
+      { who: 'pal', text: 'Neigh. Count again.' },
+      { who: 'w', name: w, act: 'picks up the deck', text: 'Draw.' },
+      { who: 'dir', text: hip + '\u2019s hand goes to the hip. Nothing there. Back to the cards.', fx: 'hip' },
+      { who: 'dir', text: 'Your hand goes to your boot. The card\u2019s still there.' },
+      { who: 'pal', text: 'Draw, partner.', last: true }];
+  }
+  function talkHTML(L, x) {
+    if (x.who === 'w' || x.who === 'e') return '<div class="say t-' + x.who + '" role="status"><b>' + esc(x.name) + '</b><p>' + (x.act ? '<i>(' + esc(x.act) + ')</i> ' : '') + '\u201c' + esc(x.text) + '\u201d</p></div>';
+    if (x.who === 'dir') return '<div class="say back dir" role="status"><p><i>' + esc(x.text) + '</i></p></div>';
+    if (x.who === 'you') return '<div class="say back you" role="status"><p><b>' + esc(meName(L) || 'You') + '</b>\u201c' + esc(x.text) + '\u201d</p></div>';
+    return '<div class="say back" role="status"><span class="face svg">' + partnerFace(L.partner) + '</span><p><b>' + esc(PN()) + '</b>\u201c' + esc(x.text) + '\u201d</p></div>';
+  }
+  // fit the stage to the longest balloon above it and the longest under it, then clear both for the first line
+  function talkFit(s, talk, clash, smaller) {
+    const L = P.L, up = s.querySelector('.stand'), low = s.querySelector('.backline');
+    const top = talk.filter(x => x.who === 'w' || x.who === 'e').sort((a, b) => (b.text + (b.act || '')).length - (a.text + (a.act || '')).length)[0];
+    const bot = talk.filter(x => !(x.who === 'w' || x.who === 'e')).sort((a, b) => b.text.length - a.text.length)[0];
+    up.innerHTML = talkHTML(L, top); low.innerHTML = talkHTML(L, bot);
+    s.classList.add('ready');
+    for (let n = 0; n < 4 && clash(); n++) if (!smaller()) break;
+    s.classList.remove('ready');
+    up.innerHTML = ''; low.innerHTML = '';
+    s.onpointerup = ev => { if (ev.target.closest('button')) return; talkNext(s); };
+    const skip = s.querySelector('.tskip');
+    if (skip) skip.onclick = () => { TALK.i = TALK.lines.length - 2; talkNext(s); };
+  }
+  function talkNext(s) {
+    const L = P.L, talk = TALK.lines;
+    clearTimeout(TALK.timer);
+    if (!talk || !L || TALK.i >= talk.length - 1) return;
+    const x = talk[++TALK.i], up = s.querySelector('.stand'), low = s.querySelector('.backline');
+    if (!up || !low) return;
+    const gang = x.who === 'w' || x.who === 'e';
+    up.innerHTML = gang ? talkHTML(L, x) : '';
+    low.innerHTML = gang ? '' : talkHTML(L, x);
+    s.querySelectorAll('.sfig').forEach(f => f.classList.toggle('hip', x.fx === 'hip' && f.classList.contains('e')));
+    if (x.last) { s.classList.add('ready'); const sk = s.querySelector('.tskip'); if (sk) sk.hidden = true; return; }
+    TALK.timer = setTimeout(() => talkNext(s), sceneRead((x.text + (x.act || '')).length) + 250);
   }
   function draw() {
     const L = P.L, s = $('standoff');
     if (!L || !standoffDue(L)) return;
     P.drawnFor = standKey(L);
+    // (2026-11-17) "partner" is free from here; the first table's exchange is said once ever
+    L.titled = true;
+    if (TALK.lines) { clearTimeout(TALK.timer); TALK.lines = null; s.onpointerup = null; s.classList.remove('talking', 'ready'); const p = profile(); if (!p.firstTable) { p.firstTable = true; try { localStorage.setItem(PROFILE, JSON.stringify(p)); } catch (e) { /* private window */ } } }
     if (reduceMotion()) { s.hidden = true; render(); playCeremony(L, step); return; }
     s.classList.add('bang');
     document.body.classList.remove('standing');

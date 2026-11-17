@@ -258,7 +258,7 @@
     ['I could outdraw you with a broken arm.', 'That can be arranged. Deal.'],
     ['Folks round here call me the Undertaker\u2019s Friend.', 'Well, the man must be lonely.'],
     ['You\u2019ll be pushing up daisies by sundown.', 'Daisies? In this dirt? I\u2019ll be lucky to push up a cactus.'],
-    ['Your partner looks like a sack of feed in a hat.', 'Careful. The sack\u2019s holding the right bower.'],
+    ['Your friend looks like a sack of feed in a hat.', 'Careful. The sack\u2019s holding the right bower.'],   // (inmates never say "partner": first-table DRAFT-2)
     ['Every card you play, I\u2019ve already seen.', 'Then you know what\u2019s coming. Must be awful.'],
     ['When I\u2019m done, they\u2019ll call you Lucky.', 'When I\u2019m done, they\u2019ll call you \u201cthe other fella in the story\u201d.'],
     ['I\u2019ve seen more spine in a jellyfish.', 'Out here? You\u2019ve never seen a jellyfish. You\u2019ve never seen the sea.']
@@ -268,14 +268,59 @@
     quiet: ['(The Quiet One just looks at them. It lands harder than words.)', '(The Quiet One writes something on a napkin and slides it across. They read it and go pale.)'],
     horse: ['Neigh. (Biscuit means something rude.)', '(Biscuit eats the corner of their best card.)', 'Neigh. (In horse, that\u2019s about their mother.)', '(Biscuit sneezes on their hand. All of it.)']
   };
-  /* Inside Euchre-ka!'s walls (2026-11-08, the Escape nods): the first two fights of a story's Act I open on the running
-     gag, everybody inside having heard about you. */
-  const INMATE_INSULTS = [['I heard you were dead.', 'Heard wrong.'], ['I heard you were taller.', 'Heard wrong.']];
-  const inmateInsult = L => !!L.euchre && L.act === 1 && (L.kind === 'dance' || L.kind === 'elite') && (L.actLevels | 0) < INMATE_INSULTS.length ? INMATE_INSULTS[L.actLevels | 0] : null;
+  /* The first tables inside Euchre-ka! (2026-11-17, the writers' room: docs/writers-room/first-table/DRAFT-2.md,
+     built on the user's "Build it"). The rumour mill's "I heard you were dead." / "Heard wrong." pair was the film's own
+     gag and blew your cover, so it's gone. A story's first table opens on the town rule (or, after a lost story, on
+     "Don't I know you?", a plant for the fourth act), and your partner answers with the title; the second table of
+     your first story ever hears that the Sheriff has sent another hunter. The first table of your first story ever is
+     a whole exchange instead, played by the page (FIRST_TABLE, index.html). Inside the wall nobody but your partner
+     says "partner", and the inmates never learn your name. */
+  const FIRST_TABLE = {
+    gang: 'Fresh ink. Sit. Nobody gets up till it\u2019s played out.',
+    lost: 'Fresh ink. Don\u2019t I know you?',
+    back: { horse: 'Draw, partner.', nan: 'Draw, partner. And sit up straight, dear.', showboat: 'Draw, partner! \u2026That\u2019s going on the poster.',
+      sharp: 'Draw, partner. Three tricks beat six bullets.', quiet: '(The Quiet One deals you your cards face down. Taps them once.)' },
+    lostBack: { horse: 'Everybody says that. It\u2019s the hat. Draw, partner.', nan: 'From church, dear. Back pew. Draw, partner.',
+      showboat: 'They always know me, folks. Draw, partner!', sharp: 'Never been in here. I\u2019d have counted. Draw, partner.',
+      quiet: '(The Quiet One looks at you a moment too long. Then deals.)' },
+    hunter: 'Word is the Sheriff\u2019s sent another hunter. Over the wall.',
+    hunterBack: { quiet: '(The Quiet One looks at the wall. Then at you.)' },
+    hunterBackAll: 'We\u2019ll keep an eye out.'
+  };
+  /* The rumour mill, at every later table inside the wall (2026-11-17, STORY-PLAN [1.5] rewritten; lines from the
+     writers' room's first-table notes). Every inmate has heard something about the new arrival, "fresh ink", never
+     who you are: the old "heard you were dead / taller" was the film's gag and blew your cover. Your partner answers.
+     A few are plants: the Kitty, Bower City, two of you, the rule, the floor that knocks. */
+  const RUMOURS = [
+    ['Heard you were law.', 'Law? Look at the hand. Genuine county ink.'],
+    ['Heard you\u2019re in for stealing a kitty.', 'It followed us home.'],
+    ['Heard you robbed the Bower City bank.', 'We\u2019d have to find Bower City first.'],
+    ['Heard you once took four tricks.', 'There are three. That\u2019s why it\u2019s a story.'],
+    ['Heard there were two of you.', 'There are. Count again.'],
+    ['Heard you reneged at the judge\u2019s table.', 'Only the once. He\u2019s not a judge now.'],
+    ['Heard you\u2019ve broke out of three jails.', 'So far.'],
+    ['Heard you bid the lot on two nines.', '\u2026Heard right.'],
+    ['Heard you came in alone.', 'I\u2019ll pretend I didn\u2019t hear that.'],
+    ['Rule\u2019s older than the wall, fresh ink.', 'So\u2019s that deck, by the smell of it.'],
+    ['Nobody leaves mid-hand. Not even if the floor knocks.', 'Then deal before it does.'],
+    ['Mind your boots, fresh ink. Things walk off in here.', 'So do sore losers. Deal.']
+  ];
+  // (and anywhere the general pool is used inside the wall: nobody is armed, and nobody knows your name)
+  const INSIDE_NO = ['There\u2019s a rope out back with your name on it.', 'I\u2019ve got an Ace up my sleeve and a Colt under the table.'];
+  const inside = L => !!L.euchre && L.act === 1;
+  function firstTablePair(L) {
+    if (!inside(L) || !(L.kind === 'dance' || L.kind === 'elite')) return null;
+    const p = L.partner || 'horse', n = L.actLevels | 0;
+    if (n === 0) return L.lastLost ? { text: FIRST_TABLE.lost, back: FIRST_TABLE.lostBack[p] || FIRST_TABLE.lostBack.horse } : { text: FIRST_TABLE.gang, back: FIRST_TABLE.back[p] || FIRST_TABLE.back.horse };
+    if (n === 1 && L.firstEver) return { text: FIRST_TABLE.hunter, back: FIRST_TABLE.hunterBack[p] || FIRST_TABLE.hunterBackAll };
+    return null;
+  }
   function insult(L) {
     let x = ((L.rs >>> 0) ^ Math.imul((L.level || 1) + 7, 2246822519)) >>> 0;
     x = Math.imul(x ^ (x >>> 13), 3266489917) >>> 0;
-    const [text, back] = inmateInsult(L) || dealt(L, 'insult', INSULTS, (L.level | 0) - 1), quiet = SILENT_BACKS[L.partner];
+    const first = firstTablePair(L);
+    if (first) return first;
+    const [text, back] = inside(L) ? dealt(L, 'rumour', RUMOURS, (L.level | 0) - 1) : dealt(L, 'insult', INSULTS, (L.level | 0) - 1), quiet = SILENT_BACKS[L.partner];
     return { text, back: L.partner === 'quiet' ? quiet[x % quiet.length] : L.partner === 'horse' && x % 4 === 0 ? quiet[(x >>> 4) % quiet.length] : back };
   }
   /* Your partner's one-off quips (2026-11-03): the first time a run meets each of these, said over the table as the
@@ -335,7 +380,8 @@
     return (L.kind !== 'chase' && L.revealed && L.revealed === L.pos ? takeQuip(L, 'mystery') : null) || takeQuip(L, L.kind === 'chase' ? 'getaway' : when);
   }
   function taunt(L) {
-    const pool = L.foe && L.foe.ghost ? TAUNTS.ghost : L.mode === 'standard' ? TAUNTS[(L.std && L.std.id) || 'regulars'] || TAUNTS.regulars : L.kind === 'contest' && L.contest ? TAUNTS[L.contest.id] : L.kind === 'boss' ? TAUNTS[L.boss] || TAUNTS.elite : TAUNTS[L.kind] || TAUNTS.dance;
+    const pool0 = L.foe && L.foe.ghost ? TAUNTS.ghost : L.mode === 'standard' ? TAUNTS[(L.std && L.std.id) || 'regulars'] || TAUNTS.regulars : L.kind === 'contest' && L.contest ? TAUNTS[L.contest.id] : L.kind === 'boss' ? TAUNTS[L.boss] || TAUNTS.elite : TAUNTS[L.kind] || TAUNTS.dance;
+    const pool = inside(L) && L.kind === 'bank' ? pool0.filter(x => !/bounty hunter/.test(x)) : pool0;   // (inside the wall you're undercover)
     let x = ((L.rs >>> 0) ^ Math.imul(L.level || 1, 2654435761)) >>> 0;
     x = Math.imul(x ^ (x >>> 15), 2246822519) >>> 0;
     const who = L.mode === 'standard' ? L.std.name : L.kind === 'contest' && L.contest ? 'Your fellow contestants' : L.kind === 'boss' ? BOSS[L.boss].name : L.kind === 'bank' ? 'The robbers' : L.foe ? L.foe.name : 'The gang';
@@ -835,7 +881,7 @@
     potato:  { name: 'Dynamite', short: 'Dyn', text: 'The team that captures it loses 20.' },
     itchy:   { name: 'Itchy Trigger Finger', short: 'Itch', text: 'If it\u2019s legal to play, it must be played.' },
     stepped: { name: 'Dog-eared', short: '−1', text: '\u22121 rank, tying the card below.' },
-    twoleft: { name: 'Misfire', short: 'Dud', text: 'Can never win a trick. A curse card you own: it takes a seed slot when dealt.' }
+    twoleft: { name: 'Misfire', short: 'Dud', text: 'Can never win a trick. A curse card you own: it takes up a boot when dealt.' }
   };
   const BOSS_HEXES = ['stepped', 'loose', 'itchy', 'potato'];
   const CLEANSE_PRICE = 60;
@@ -1393,6 +1439,10 @@
     E.rnd(L);
     actStart(L);
     if (o.euchre) L.euchre = true;
+    // (2026-11-17, first-table DRAFT-2) the very first story's first tables have no house rule: one fewer thing
+    // before the first bid. The page also says whether the last story was lost ("Don't I know you?")
+    if (o.firstEver) { L.firstEver = true; (L.map.floors[0] || []).forEach(n => { if (n.foe && n.kind === 'dance') delete n.foe.rule; }); }
+    if (o.lastLost) L.lastLost = true;
     // a New Story from the title chooses a partner before Act I's card pick (the user's, 2026-10-30)
     if (o.pickPartner) L.phase = 'partner';
     else if (gateDue(L)) openGate(L);
@@ -1402,17 +1452,17 @@
      the profile's beaten Showdowns in as L.unlocked); the rest are the design doc's, shown locked on the pick. */
   const ROSTER = [
     { id: 'horse', name: E.PARTNER_NAME.horse, title: 'your Horse', text: 'Steady bidder. Fast Horse: par is one hand longer in every fight. Brings the K♥, shod with a Lucky Horseshoe.',
-      intro: 'Don’t look so surprised, partner. Who else was going to sit across the table from you? Steady bids, no funny business. I’m a fast horse, so every fight gives us a hand’s grace on par, and I’ve brought the K♥ with a Lucky Horseshoe on it.' },
+      intro: 'Steady bids, no funny business. I’m a fast horse: every fight, we get one hand longer for the star. And I’ve brought the K♥, with a Lucky Horseshoe on it.' },
     { id: 'nan', name: E.PARTNER_NAME.nan, title: 'the Steady Hand', unlock: 'twins', unlockText: 'Beat the Twins at the Saloon to meet her.', text: 'Cautious bidder. Shows you her strongest suit while you bid. Brings her A♥.',
       // what she says once you've chosen her (the user's, 2026-10-30: a partner speaks only after being picked)
       intro: 'Steady does it, dear. We take this town one table at a time and walk into that Saloon with health to spare. I\u2019ll nod at my best suit while you bid, and I\u2019ve brought my A\u2665 for the ride.' },
     // the Getaway's (2026-11-02): catch the Caller, the Undertakers, or either without losing a stretch
     { id: 'showboat', name: 'Showboat', title: 'the Big Talker', unlock: 'getaway:caller', unlockText: 'Catch the Caller\u2019s mine cart at the end of the Getaway.',
       text: 'Bids bold. Slips you a card under the table every hand. Brings a Trump-sworn 9♥.',
-      intro: 'Ladies and gentlemen, partner: the Showboat rides again! I bid big and I play bigger. Every hand I\u2019ll slip you a card under the table, and I\u2019ve brought a 9\u2665 sworn to the trumps.' },
+      intro: 'Ladies and gentlemen: the Showboat rides again! I bid big and I play bigger. Every hand I\u2019ll slip you a card under the table, and I\u2019ve brought a 9\u2665 sworn to the trumps.' },
     { id: 'sharp', name: 'The Sharp', title: 'the Card Counter', unlock: 'getaway:clean', unlockText: 'Catch a Getaway without losing a single stretch.',
       text: 'Bids precise. Keeps count of the trumps still out. Brings a Giant-killer 10♦.',
-      intro: 'I watched you catch that cart without dropping a stretch, partner. I count every trump that falls and I\u2019ll tell you how many are still out. I\u2019ve brought a 10\u2666 that kills Aces.' },
+      intro: 'I watched you catch that cart without dropping a stretch. I count every trump that falls and I\u2019ll tell you how many are still out. I\u2019ve brought a 10\u2666 that kills Aces.' },
     { id: 'quiet', name: 'The Quiet One', title: 'the Silent Partner', unlock: 'getaway:wallflowers', unlockText: 'Catch the Undertakers\u2019 ghost train at the end of the Getaway.',
       text: 'Never bids. Lets you see the kitty before you bid. Brings the K♦.',
       intro: '\u2026 (a nod, and the K\u2666 slid across the table. The Quiet One never bids, but lifts the corner of the kitty for you before you do.)' }
@@ -1441,9 +1491,9 @@
      keeps the count (profile.bond) and passes it in as o.bonds; never on the Daily. */
   const BOND = { at: [1, 3, 6, 10, 15], gold: 40,
     lines: {
-      horse: ['Three rides, partner. You still hold your cards like they owe you money. I\u2019m fond of it.', 'Ten rides. I\u2019ve stopped counting the times a horse at a card table got funny looks. Mostly.'],
+      horse: ['Three rides. You still hold your cards like they owe you money. I\u2019m fond of it.', 'Ten rides. I\u2019ve stopped counting the times a horse at a card table got funny looks. Mostly.'],
       nan: ['There you are, dear. I\u2019ve knitted you a scarf for luck. It\u2019s mostly holes, like your bidding, but it\u2019s warm.', 'Ten rides together. My late husband never sat across from me this often, and he lived in the house.'],
-      showboat: ['The partnership the papers are calling \u201cthe greatest in the territory\u201d. The papers being me, mostly.', 'Ten rides, partner! I\u2019ve had a poster made of us. You\u2019re in the background. Small. But present.'],
+      showboat: ['The partnership the papers are calling \u201cthe greatest in the territory\u201d. The papers being me, mostly.', 'Ten rides! I\u2019ve had a poster made of us. You\u2019re in the background. Small. But present.'],
       sharp: ['Three rides. I\u2019ve counted your tells: four. I\u2019ll keep them between us. And the gang.', 'Ten rides. By my count we\u2019ve won more than we\u2019ve lost, and I\u2019m never wrong about counting.'],
       quiet: ['(The Quiet One nods at you. Twice. That\u2019s practically a speech.)', '(The Quiet One hands you a bandana of your own. Then looks away, embarrassed.)']
     } };
@@ -1471,7 +1521,12 @@
     return yes();
   }
   /* A partner other than Nan says "partner" where she says "dear" (her tips and lines are written in her voice). */
-  const voice = (L, text) => !L || L.partner === 'nan' || !L.partner ? text : text.replace(/\bdear\b/g, 'partner');
+  /* (2026-11-17, first-table DRAFT-2) Nan says "dear"; everybody else said "partner" in its place, which wore the word
+     out before the title. Now, inside the wall, "dear" is dropped until a story's first NOW DRAW! (L.titled, set by the
+     page), and the Quiet One never says it at all (their tips are narrated). */
+  const voice = (L, text) => !L || !L.partner || L.partner === 'nan' ? text
+    : L.partner === 'quiet' || (L.euchre && L.act === 1 && !L.titled) ? text.replace(/, dear\b/g, '').replace(/\bdear\b/g, '')
+    : text.replace(/\bdear\b/g, 'partner');
 
   /* ---------------- Standard 500 (the user's, 2026-10-30) ---------------- */
   /* A plain game of 500 from the title: the whole 43-card pack (Act III's deck, bids and open misère), you and Nan
@@ -2231,7 +2286,7 @@
             E.say(L, 'The ghosts fade, and your old ' + E.kLabel({ c: back, m: L.mods[back] || null }) + ' is yours again.', 'objective');
           }
         }
-        E.say(L, L.foe.name + ' are brought in after ' + L.handNo + ' hand' + (L.handNo > 1 ? 's' : '') + (fast ? ' (par ' + par + ')' : ', over par ' + par) + '.', 'objective');
+        E.say(L, L.foe.name + (inside(L) ? ' are beaten after ' : ' are brought in after ') + L.handNo + ' hand' + (L.handNo > 1 ? 's' : '') + (fast ? ' (par ' + par + ')' : ', over par ' + par) + '.', 'objective');
       }
     }
     if (won && L.foe && L.foe.driver) {
@@ -2847,17 +2902,43 @@
   /* ---------------- Nan's coaching (first run) ---------------- */
   /* One tip at a time, each once a run; tips at the table only in the first three
      levels, as the design doc says. */
+  /* Act I's first tips, each partner in their own voice (2026-11-17: the first table's leftovers; Biscuit's are the
+     writers' room's, docs/writers-room/first-table/DRAFT-2.md, the others grown from its parked draft one). The red
+     deck and the street come before the title, so nobody but Nan says "partner" or "dear" there; the Quiet One's are
+     what they do, narrated. `sun` is added inside the wall, where losing a fight means missing sun-up. */
+  const ACT1_TIPS = {
+    horse: { actstart: 'They took the spades and clubs too. Spades dig. Clubs hit. Hearts and diamonds only in here, and the Joker beats the lot.',
+      map: 'That\u2019s the street. Saloon at the top, and the night climbs it with us. Beat a table and we go up a stop. Gossip\u2019s a gamble. A Duel is harder, but pays a buff. The gold strike halfway always gives one.',
+      fight: 'Hooves are fine for cards, before you ask. Our points take their health down, hand after hand. Theirs take ours. Bid and miss, and it hits us instead. Nothing heals till it\u2019s over.',
+      sun: ' Run out of health and we miss sun-up.' },
+    nan: { actstart: 'No spades or clubs in here, dear. One digs and one hits, so they\u2019re confiscated. Hearts and diamonds only, and the Joker beats everything. Rather like me.',
+      map: 'Up the street a table at a time, dear, and the night climbs it with us. Gossip\u2019s a gamble; I\u2019d know. A Duel is harder, but pays a buff. The gold strike halfway always gives one.',
+      fight: 'Every point we make comes off their health, dear, hand after hand. Theirs comes off ours. Bid and miss, and it comes off us anyway. Nothing heals till we\u2019re done.',
+      sun: ' Run dry and we miss sun-up. So don\u2019t miss.' },
+    showboat: { actstart: 'A red show tonight! No spades, no clubs: one\u2019s a shovel and one\u2019s a cudgel, so they\u2019re barred. Hearts and diamonds only, and the Joker tops the bill.',
+      map: 'There\u2019s our stage! The saloon\u2019s top of the bill, and the night comes up the street with us. Beat a table, we go up a stop. Gossip\u2019s a gamble. A Duel is harder, but pays a buff. The gold strike halfway always gives one.',
+      fight: 'Here\u2019s the show, partner! Our points knock their health down, hand after hand. Theirs knock ours. Bid big and miss, and it lands on us. No healing till the curtain.',
+      sun: ' Run out and we miss sun-up.' },
+    sharp: { actstart: 'No spades or clubs in here. Shovels and cudgels: confiscated. That leaves hearts, diamonds and one Joker. The Joker wins any trick it\u2019s in. Odds: certain.',
+      map: 'Saloon at the top, one stop for every table we beat, and the night keeps pace. Gossip: a gamble. A Duel: harder, pays a buff. The gold strike halfway: one buff, guaranteed.',
+      fight: 'Arithmetic, partner. Our points come off their health, hand after hand; theirs come off ours. A bid we miss counts against us. Nothing heals until it\u2019s over.',
+      sun: ' Health at zero: no sun-up.' },
+    quiet: { actstart: 'The Quiet One takes a spade and a club out of the deck and drops them over the wall. Hearts and diamonds only in here. Then they tap the Joker: it beats every card.',
+      map: 'The Quiet One points up the street at the saloon, then at the sky going dark above it. Beat a table to go up a stop. Gossip is a gamble. A Duel is harder, but pays a buff. The gold strike halfway always gives one.',
+      fight: 'The Quiet One taps the gang\u2019s health, then yours, then your bid. Our points hurt them, hand after hand. Theirs hurt us. A bid we miss hurts us. Nothing heals until it\u2019s over.',
+      sun: ' At zero, no sun-up.' }
+  };
   function coach(L) {
     if (!L.tips) return null;
     const tip = (id, text) => L.seen[id] ? null : { id, text: voice(L, text) };
     const ph = L.phase;
     if (ph === 'actstart' && L.act === 3) return tip('actstart3', 'The County Fair, dear: the little cards join in and we play the whole deck. A failed 10 no trumps can finish us, so bid carefully.');
     if (ph === 'actstart' && L.act === 2) return tip('actstart2', 'All aboard, dear. Spades and clubs join us on the train, and two of your cards come to you each hand. A black Jack is a bower when black is trumps.');
-    if (ph === 'actstart') return tip('actstart', 'The Joker wins every trick it’s in. A red Jack becomes a bower whenever red is trumps. A 9 or 10 is a gamble that enhancements can make special.');
+    // (2026-11-17, first-table DRAFT-2: the red deck, as [1.3] planned; bowers are taught in the hand)
+    if (ph === 'actstart') return tip('actstart', (ACT1_TIPS[L.partner] || ACT1_TIPS.horse).actstart);
     if (ph === 'map' && reachable(L).includes('boss') && L.act === 2) return tip('boss2', 'Act II ends with the Card Sharps or the Hustlers. The Sharps can see the cards dealt to you from your own; the Hustlers bid mis\u00e8re all night, so lead low and stay under them.');
     if (ph === 'map' && L.act === 2 && L.map.side && !reachable(L).includes('boss')) { const t = tip('hatch', 'Inside the carriages it’s quieter, dear; up on the roofs is where they fight. See the ladders? A carriage with a roof hatch lets us climb up or drop down as we go on to the next one.'); if (t) return t; }
-    if (ph === 'map') return reachable(L).includes('boss') ? (L.act === 1 ? tip('boss', 'That\u2019s the Saloon, dear, and the Twins are waiting in it. They always hold both red Jacks: bid no trumps and their Jacks are just Jacks.') : null) : tip('map', 'Welcome to Euchre-ka!, dear. Every gang on this map has a price on its head: we work our way up the trail a stop at a time and bring them in. Gossip is a gamble, a duel is harder but pays a buff, and the gold strike halfway always gives one.');
-    if (ph === 'map' && L.pos && L.act === 1) { const t = tip('posters', 'Every gang on the map has its wanted poster under it, dear: who they are, their health, what tricks they carry and what they\u2019re worth. A tougher gang pays more.'); if (t) return t; }
+    if (ph === 'map') return reachable(L).includes('boss') ? (L.act === 1 ? tip('boss', 'That\u2019s the Saloon, dear, and the Twins are waiting in it. They always hold both red Jacks: bid no trumps and their Jacks are just Jacks.') : null) : tip('map', (ACT1_TIPS[L.partner] || ACT1_TIPS.horse).map);
     if (ph === 'water') { const t = tip('water', 'The train\u2019s taking on water, dear. Fill your canteen, or lend the fireman a hand with the wood for a few coins.'); if (t) return t; }
     if (ph === 'map' && hexed(L).length) { const t = tip('hex', 'A hex! Hexed cards are marked in red, and they hurt whoever holds them. The Doc at the Hotel can lift one.'); if (t) return t; }
     if (ph === 'reward') return tip('reward', 'A reward! An enhancement goes on a card you own and stays all run.');
@@ -2865,7 +2946,7 @@
     if (ph === 'camp') return tip('camp', 'The Hotel: do one thing — shop, rest or polish a card. Cashing in health for gold is extra.');
     if (ph !== 'hand' || L.levelsDone >= 3) return null;
     const h = L.h;
-    if (L.foe && L.handNo === 1 && h.phase === 'bid') { const t = tip('fight', 'They\u2019re wanted, dear, so let\u2019s bring them in. Our points shoot their health down, hand after hand; their points hit ours, and a bid of ours that fails backfires on us. Nothing heals us until it\u2019s over.'); if (t) return t; }
+    if (L.foe && L.handNo === 1 && h.phase === 'bid') { const t = tip('fight', (ACT1_TIPS[L.partner] || ACT1_TIPS.horse).fight + (inside(L) ? (ACT1_TIPS[L.partner] || ACT1_TIPS.horse).sun : '')); if (t) return t; }
     if (h.phase === 'bid' && h.turn === 0) return tip('bid', 'Count sure tricks: the Joker, a bower, the Ace of trumps. We need more than half the tricks. Weak hand? Pass — defending pays 10 a trick, and setting them hits them for their whole contract.');
     if (h.phase === 'kitty' && h.turn === 0) return tip('kitty', 'You took the kitty card. Put back your weakest card that isn’t a trump.');
     if (h.phase === 'swing') return tip('swing', 'Under the table, dear: slip me a card you don’t want and I’ll slip you my best one.');
@@ -2878,7 +2959,7 @@
     const led = E.ledSuit(L);
     if (!led) return tip('lead', 'Your lead. A sure winner is a fine lead; if we bid, lead trumps to draw theirs out.');
     if (h.trick[2] && AI.after(h, 0).length === 0 && E.winnerOf(h.trick, h.leader, h.trump, L) === 2)
-      { const t = tip('partner', 'I’ve got this trick, dear. Throw your smallest card and save the good ones.'); if (t) return t; }
+      { const t = tip('partner', L.partner === 'quiet' ? '(The Quiet One has this trick. Throw your smallest card.)' : 'I’ve got this trick, dear. Throw your smallest card and save the good ones.'); if (t) return t; }
     const legal = E.legalPlays(L, 0), follows = legal.some(c => E.kSuit(E.K(L, 0, c), h.trump) === led);
     if (follows) return tip('follow', 'You must follow the suit that was led if you can. The raised cards are the ones you may play.');
     if (h.trump && legal.some(c => E.kIsTrump(E.K(L, 0, c), h.trump))) return tip('ruff', 'Out of that suit? Play a trump and the trick is ours — unless someone trumps higher.');
@@ -2994,7 +3075,7 @@
     if (O && O.kind === 'limit') return 'holding';
     return o.n + ' / ' + o.of;
   }
-  const api = { MULTI_ELX, multiBottle, WAVES, OVERKILL, STAND_LINE, cutsOf, waveOf, landHit, TAGS, LEAN, leanOf, drawEnh, CARD_MIX, CARD_RECIPE, recipeKey, recipeOf, recipeCheck, LOCKS, storyStats, lockedFor, ORNERY_SAYS, GLUTTON_SAYS, INMATE_INSULTS, TWINS_HAIL, HALF_PAID, halfPaid, thousands, GATE, ESCAPE, gateDue, escapeDue, chaseLen, chaseAway, HOT, hotStage, hotMult, stoke, BOND, bondOf, GILD, gildStep, LUCK, lucky, jokerOdds, luckyJoker, INSULTS, insult, QUIPS, quipFor, dealt, SILENT_BACKS, POCKETS, ELIXIRS, ELIXIR, drawElixir, gainElixir, canDrink, MIX, mixKey, mixable, canMix, buyable, afterBottles, hotDmg, BUFF_FX, ENH_FX, GUNSMITH, gunMoves, poss, eventText, LAST_STAND, STRANGER, DUEL_RULES, DARES, DARE_LIE, HEAT, heatOdds, MYSTERY, GHOST, ghostFoe, DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
+  const api = { FIRST_TABLE, RUMOURS, ACT1_TIPS, MULTI_ELX, multiBottle, WAVES, OVERKILL, STAND_LINE, cutsOf, waveOf, landHit, TAGS, LEAN, leanOf, drawEnh, CARD_MIX, CARD_RECIPE, recipeKey, recipeOf, recipeCheck, LOCKS, storyStats, lockedFor, ORNERY_SAYS, GLUTTON_SAYS, TWINS_HAIL, HALF_PAID, halfPaid, thousands, GATE, ESCAPE, gateDue, escapeDue, chaseLen, chaseAway, HOT, hotStage, hotMult, stoke, BOND, bondOf, GILD, gildStep, LUCK, lucky, jokerOdds, luckyJoker, INSULTS, insult, QUIPS, quipFor, dealt, SILENT_BACKS, POCKETS, ELIXIRS, ELIXIR, drawElixir, gainElixir, canDrink, MIX, mixKey, mixable, canMix, buyable, afterBottles, hotDmg, BUFF_FX, ENH_FX, GUNSMITH, gunMoves, poss, eventText, LAST_STAND, STRANGER, DUEL_RULES, DARES, DARE_LIE, HEAT, heatOdds, MYSTERY, GHOST, ghostFoe, DEBUFFS, LEGEND, fits, legendary, maxHealth, priced, picks, rerollPrice, enhPool, HEXES, BOSS_HEXES, CLEANSE_PRICE, hexed, hexTarget, placeHex, objProgress, HEALTH, FOE, PAR, STACK, TRAIT, TRAITS, GANGS, DUELISTS, DUEL_ABILITIES, abilityOf, makeFoe, gangStrength, stackChance, heal, canCash, fightOver, parOf, LAST_ACT, ROMAN, PARTNERS, OBJECTIVES, BOSS, BOSS_POOL, CALLS, chooseCall, BUFFS, ENH, CURSES, EVENTS, PAY, MAPSHAPE, ROOMS, RAFFLE, genMap, node: mapNode, reachable, floorOf, KIND_NAME, KIND_BY_ACT, kindName, PLACE, BANK, HOLDUP, holdup, bankBounty, bankTake, bankShare, WATER, shuntable, BOUNTY, foeHp, bountyOf, TOWN, REST, restOf, ACT2, ACT3, CASH, runSummary, KITTY, kittyOf, forgeable, removable, GLASS_WINS, ENH_PRICE, REROLL, TONIC,
     TAUNTS, taunt, cardPrice, releasePrice, polishable, enhanceable, claimable, freeBuffs, cantTake, TABLE_RULES, RULE_POOL, ruleOf, sees, SHOP, freshDeal, sleeveSwap, stock, restockPrice, MANNERS, WANTED, wantedFor, wants, dailySeed, dailyTwist, FAIR_GOODS, setQuick, floorsFor, CHASE, chaseRide, CONTEST, RIBBON, ribbonOf, EXPRESS, SIDE, genThreeTrains, DRIVER, COUNTER, makeDriver, ROSTER, partnerOpen, voice, STANDARD, standardFoe, ruleText, newStandard,
     newRun, startLevel, whoseMove, act, aiStep, next, autoLevel, aiFallback, track, trackHand, coach, has };
   if (node) module.exports = api;
