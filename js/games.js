@@ -172,6 +172,17 @@ const GAMES = [
     status: "playable",
   },
   {
+    id: "1960",
+    title: "1960: The Making of the President",
+    subtitle: "Solo — Kennedy or Nixon against the house, nine turns to the White House, on your phone",
+    category: "strategy",
+    players: "1",
+    duration: "45–75 min",
+    icon: "🗳️",
+    accentColor: "#f1c75b",
+    status: "playable",
+  },
+  {
     id: "gwent",
     title: "Gwent: The Path",
     subtitle: "Solo deck-builder — the Witcher card game as a run: three acts, three bosses, three lives; or the Long Road, at Slay the Spire’s length",
