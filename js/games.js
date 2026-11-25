@@ -183,6 +183,17 @@ const GAMES = [
     status: "playable",
   },
   {
+    id: "robin-hood",
+    title: "A Gest of Robin Hood",
+    subtitle: "Solo — Robin Hood or the Sheriff of Nottingham against the house: rob the Carriages, stir the Parishes, three Ballads until King Richard returns",
+    category: "strategy",
+    players: "1",
+    duration: "45–75 min",
+    icon: "🏹",
+    accentColor: "#3f9d4a",
+    status: "playable",
+  },
+  {
     id: "gwent",
     title: "Gwent: The Path",
     subtitle: "Solo deck-builder — the Witcher card game as a run: three acts, three bosses, three lives; or the Long Road, at Slay the Spire’s length",
