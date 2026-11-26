@@ -3,771 +3,361 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
-<title>1960</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f1626">
+<meta name="theme-color" content="#211c17">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="1960">
+<link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
+<title>1960: The Making of the President — Solo</title>
 <style>
-:root{
-  --bg:#0f1626; --panel:#1b2540; --panel2:#141c31; --line:#34446b; --ink:#f3ecdb; --dim:#b3b9c9;
-  --gold:#f1c75b; --k:#3e7bfa; --n:#e5484d; --good:#6fcf7f; --bad:#ff6a6a;
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 [hidden],.hide{display:none !important}
-html,body{margin:0;min-height:100%}
-body{background:var(--bg);color:var(--ink);font:16px/1.4 Georgia,"Times New Roman",serif;
-  padding:env(safe-area-inset-top) 12px calc(96px + env(safe-area-inset-bottom))}
-header{display:flex;align-items:center;gap:8px;padding:10px 0 8px;position:sticky;top:0;background:var(--bg);z-index:5}
-#dot{width:12px;height:12px;border-radius:3px;background:var(--gold);flex:none}
-#dot.pt{width:26px;height:auto;background:none !important}
-#dot .m60-pt{width:26px;border-radius:4px}
-#who{font-weight:800}
-#link{margin-left:auto;font-size:11px;color:var(--dim)}
-#link.ok{color:var(--good)} #link.bad{color:var(--bad)}
-h2{margin:16px 0 6px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-family:system-ui,sans-serif}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:8px}
-.card.mine{border-color:var(--gold)}
-.title{font-weight:800;font-size:19px;color:var(--gold)}
-.sub{color:var(--dim);font-size:13px;margin-top:2px}
-button{font:inherit}
-.btn{display:block;width:100%;background:var(--gold);border:0;color:#1b140c;font-weight:800;font-size:17px;border-radius:14px;padding:14px;margin-top:10px}
-.btn:disabled{opacity:.4}
-.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--dim);font-weight:600;font-size:15px}
-.btn.warn{background:#5a2a14;color:#ffd9b0}
-.opts{display:flex;flex-direction:column;gap:7px;margin-top:10px}
-.opt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:10px 11px;font-size:15px}
-.opt:disabled{opacity:.42}
-.opt.on{border-color:var(--gold);background:rgba(241,199,91,.13)}
-.opt .lab{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.opt .lab small{color:var(--dim);font-size:12px;line-height:1.25}
-.opt .val{font-weight:800;font-size:13px;text-align:right;flex:none;font-family:system-ui,sans-serif}
-.why{color:#ffab9a;font-size:12px}
-.tick{width:22px;height:22px;border-radius:6px;border:2px solid var(--line);flex:none;display:flex;align-items:center;justify-content:center;font-weight:900;color:#1b140c}
-.on .tick{background:var(--gold);border-color:var(--gold)}
-/* the hand */
-.hand{display:flex;flex-direction:column;gap:7px;margin-top:8px}
-.hc{display:flex;flex-direction:column;gap:4px;width:100%;text-align:left;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:9px 10px;font-size:14px}
-.hc:disabled{opacity:.45}
-.hc.sel{border-color:var(--gold);background:rgba(241,199,91,.12)}
-.hc .msp{font-size:15px;font-weight:700}
-.hc .tx{font-size:12.5px;color:var(--dim);line-height:1.3;font-family:system-ui,sans-serif}
-.hc .x{font-size:11px;color:#ffab9a;font-family:system-ui,sans-serif}
-.selbox{display:flex;gap:12px;margin-top:10px;align-items:flex-start}
-.selbox .mc{width:42%;font-size:11px;flex:none}
-.selbox .st{flex:1;min-width:0;font-size:13.5px;font-family:system-ui,sans-serif}
-.selbox .st b{display:block;font-size:16px;color:var(--gold);margin-bottom:3px;font-family:Georgia,serif}
-.pre{display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px;border-radius:12px;border:1px dashed var(--line);background:var(--panel2);font-size:14px;width:100%;color:var(--ink);text-align:left}
-.pre.on{border-color:var(--gold);background:rgba(241,199,91,.13)}
-.warnline{margin-top:8px;font-size:13px;color:#ffcf8a;font-family:system-ui,sans-serif}
-/* steppers */
-.ed{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
-.ed:first-child{border-top:0}
-.ed .nm{flex:1;min-width:0}
-.ed .nm small{display:block;color:var(--dim);font-size:11.5px;font-family:system-ui,sans-serif}
-.ed .stp{display:flex;align-items:center;gap:6px;flex:none;font-family:system-ui,sans-serif}
-.ed .stp button{width:38px;height:38px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:20px;font-weight:800}
-.ed .stp button:disabled{opacity:.3}
-.ed .stp b{min-width:28px;text-align:center;font-size:17px}
-.tot{position:sticky;top:44px;background:var(--panel);z-index:2;padding:6px 0;font-family:system-ui,sans-serif;font-size:14px;color:var(--dim);border-bottom:1px solid var(--line)}
-.tot b{color:var(--ink);font-size:17px}
-.chk{color:#ffcf8a}
-/* the board in miniature */
-.facts{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:6px;font-size:13px;color:var(--dim);font-family:system-ui,sans-serif;align-items:center}
-.facts b{color:var(--ink)}
-.regs{display:flex;flex-direction:column;gap:6px;margin-top:6px}
-.reg{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:6px 8px}
-.reg .rh{display:flex;align-items:center;gap:8px;font-size:13px;font-family:system-ui,sans-serif;color:var(--dim)}
-.reg .rh b{color:var(--ink);font-size:14px}
-.sts{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
-.sc{display:inline-flex;align-items:center;gap:3px;border-radius:7px;padding:2px 5px;font-size:12px;font-family:system-ui,sans-serif;background:#2a3350;color:var(--dim);border:1px solid transparent}
-.sc b{color:var(--ink)}
-.sc.k{background:rgba(62,123,250,.25);border-color:rgba(62,123,250,.6)}
-.sc.n{background:rgba(229,72,77,.22);border-color:rgba(229,72,77,.6)}
-.sc.car{font-weight:800}
-.sc.car.k{background:#2f62b8}.sc.car.n{background:#b8333a}
-.sc .tk{color:var(--gold)}
-.sc .mcu{font-size:10.5px;margin-left:2px}
-.mcu{display:inline-flex;align-items:center;justify-content:center;min-width:1.45em;height:1.45em;padding:0 .2em;border-radius:.22em;font-weight:900;font-family:system-ui,sans-serif;line-height:1}
-.mcu.k{background:#2f62b8;color:#fff}.mcu.n{background:#c8383e;color:#fff}.mcu.x{background:#777;color:#fff}
-.iss{display:flex;gap:6px;margin-top:6px}
-.iss span{flex:1;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:5px;text-align:center;font-size:12px;font-family:system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;gap:3px}
-.since{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:9px 11px;margin-top:6px;font-size:13px;color:var(--dim);display:flex;flex-direction:column;gap:4px}
-.since .sh{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;font-family:system-ui,sans-serif}
-.since .sl.new{color:var(--ink)}
-.since .more{align-self:flex-start;background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:9px;padding:4px 10px;font-size:12px}
-.reel{margin-top:6px;padding:9px 11px;border-radius:12px;background:rgba(241,199,91,.1);border:1px solid rgba(241,199,91,.5);font-size:14px}
-.reel small{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:800;font-family:system-ui,sans-serif}
-.coach{margin-top:8px;padding:9px 11px;border-radius:12px;background:rgba(111,207,127,.1);border:1px solid rgba(111,207,127,.55);font-size:14px;line-height:1.35}
-.coach small{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--good);font-weight:800;font-family:system-ui,sans-serif}
-.coach .cx{margin-top:4px;font-size:12.5px;color:var(--dim)}
-.coach .cshow{margin-top:7px;background:transparent;border:1px solid var(--good);color:var(--good);border-radius:9px;padding:5px 12px;font-size:13px;font-weight:700}
-.upnext{margin-top:8px;padding:8px 10px;border-radius:10px;background:rgba(241,199,91,.14);border:1px solid var(--gold);color:var(--gold);font-weight:800}
-.undo{display:flex;align-items:center;gap:8px;width:100%;margin-top:8px;background:var(--panel2);border:1px dashed var(--gold);color:var(--ink);border-radius:12px;padding:10px 12px;font-size:14px;text-align:left}
-.undo b{color:var(--gold);flex:none}
-.seen{border-color:#9a7ad8}
-#flash{position:fixed;left:12px;right:12px;bottom:calc(96px + env(safe-area-inset-bottom));background:#2a1610;border:1px solid var(--bad);color:#ffd9de;border-radius:12px;padding:11px 13px;font-size:14px;z-index:40}
-#bar{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:9px 12px calc(10px + env(safe-area-inset-bottom));background:var(--bg);border-top:1px solid var(--line);box-shadow:0 -12px 18px rgba(15,22,38,.85)}
-#bar .btn{margin-top:0}
-/* The decision lives under the thumb (PRINCIPLES 11): a chosen card's ways to
-   play it, a yes/no, the lobby's Start — all in the pinned bar. */
-#bar .grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-#bar .grid .opt{padding:8px 9px;font-size:14px;align-items:flex-start;min-height:52px}
-#bar .grid .opt .lab small,#bar .grid .opt .why{font-size:11px}
-#bar .grid .opt.tip{border-color:var(--good);box-shadow:0 0 0 2px rgba(111,207,127,.35)}
-#bar .grid .opt .why{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.how{margin:8px 0 0;padding-left:1.1em;font-size:12.5px;color:var(--dim);font-family:system-ui,sans-serif;line-height:1.3}
-.how li{margin:2px 0}
-#bar .opts{margin-top:0}
-#bar .pre{margin:0 0 7px;padding:7px 9px;font-size:13px}
-#bar .pre .tick{width:18px;height:18px}
-#bar .back{display:block;width:100%;margin-top:7px;background:transparent;border:0;color:var(--dim);font-size:13px;padding:4px;text-decoration:underline}
-/* The shortest real phone is ~360x500 with its browser bars showing
-   (PRINCIPLES 10): the chosen card shrinks so its words and the bar both fit. */
-@media (max-height:640px){
-  .selbox .mc{width:30%}
-  .selbox{gap:10px;margin-top:8px}
-  .selbox .st{font-size:12.5px}
-  .selbox .st b{font-size:15px}
-  .title{font-size:17px}
-  .card{padding:10px}
-}
-#name{display:flex;gap:8px;margin:10px 0}
-#name input{flex:1;font:inherit;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:12px}
-.rc-h{font-weight:900;font-size:24px;color:var(--gold);line-height:1.15}
-.rc-sub{font-size:14px;margin-top:3px}
-.rc-sc{display:flex;flex-direction:column;gap:6px;margin:10px 0 4px}
-.rc-p{display:flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:7px 10px;font-size:14px;flex-wrap:wrap}
-.rc-p i{width:11px;height:11px;border-radius:2px;flex:none}
-.rc-role{font-size:10px;color:var(--dim);text-transform:uppercase}
-.rc-t{flex-basis:100%;color:var(--dim);font-size:12.5px}
-.rc-sec{margin-top:10px}
-.rc-sec h4{margin:0 0 3px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
-.rc-sec ul{margin:0;padding-left:1.1em;font-size:13.5px}
-.rc-what{font-size:12.5px;color:var(--dim)}
-.rc-strip{display:flex;gap:4px;margin:8px 0}
-.rc-strip span{flex:1;text-align:center;padding:4px 2px;border-radius:7px;background:var(--panel2);border:1px solid var(--line);font-size:10.5px;color:var(--dim);font-family:system-ui,sans-serif}
-.rc-strip span.on{background:var(--gold);color:#1b140c;font-weight:800}
-.rc-strip span.done{color:var(--ink)}
-.siteL{display:flex;align-items:center;gap:6px;font-size:14px;padding:6px 0;border-top:1px solid var(--line)}
-.siteL:first-child{border-top:0}
-.siteL b{flex:1}
-.dbrow{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;font-size:12.5px;font-family:system-ui,sans-serif;padding:6px 0;border-top:1px solid var(--line)}
-.dbrow:first-child{border-top:0}
-.dbrow .c{text-align:center}
-.dbrow .c b{display:block;font-size:14px}
-.dbrow .l{text-align:right;color:#9ec0ff}.dbrow .r{color:#ffb0b3}
-#zoom{position:fixed;inset:0;z-index:50;background:rgba(6,9,18,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;gap:12px}
-#zoom .mc{width:min(70vw,300px);font-size:18px}
-#zoom .ztx{max-width:420px;font-size:15px;text-align:center;color:var(--ink)}
+#menuBtn{margin-left:auto;background:transparent;border:1px solid #6a5c48;color:#d8c9a6;border-radius:10px;padding:5px 11px;font-size:14px;flex:none;font-family:system-ui,sans-serif}
+.namein{display:flex;gap:8px;margin-top:6px}
+.namein input{flex:1;min-width:0;font:inherit;font-size:16px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:11px}
+#msheet{position:fixed;inset:0;z-index:45;background:rgba(5,8,16,.9);display:flex;align-items:flex-end;justify-content:center;padding:16px;padding-bottom:calc(16px + var(--inset-bottom, env(safe-area-inset-bottom)))}
+#msheet .msheet{width:min(100%,460px);max-height:100%;overflow:auto;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:18px;padding:14px}
+#mCode{display:block;width:100%;margin-top:10px;font:16px/1.3 ui-monospace,Menlo,Consolas,monospace;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:8px;-webkit-user-select:text;user-select:text}
+/* the reveal, full screen on a phone held upright (F1) */
+#finale .hf-wrap{background-color:#0c0d10}
+#finale .hf-title{font-size:min(6.2vh,9vw)}
+#finale .hf-sub{font-size:min(3.1vh,4.4vw)}
+#finale .hf-stage{gap:3vw;padding:0 3vw 9vh}
+#finale .hf-col{width:30vw}
+#finale .hf-name{font-size:min(3vh,4vw)}
+#finale .hf-tag{font-size:min(2vh,3vw)}
+#finale .hf-tot{font-size:min(4.4vh,7vw)}
+#finale .hf-part,#finale .hf-place{font-size:min(2.4vh,3.5vw)}
+#finale .hf-winner{font-size:min(10vh,12vw)}
+#finale .hf-winner small{font-size:min(3.4vh,4.6vw)}
+#finale .hf-skip{font-size:15px;padding:8px 14px}
+#finBg{position:fixed;inset:0;z-index:59;pointer-events:none;background:#05080f}
+#finBg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 40%}
+#finBg img.tw{animation:twinkle 2.4s ease-in-out infinite}
+html.m60fin #finale .hf-wrap{background:linear-gradient(rgba(5,7,14,.3),rgba(5,7,14,.8)) !important}
 </style>
 </head>
 <body>
-
-<header>
-  <span id="dot"></span><span id="who">joining…</span><span id="link"></span>
-</header>
-<div id="name" class="hide">
-  <input id="nameIn" placeholder="Your name" maxlength="14" autocomplete="off">
-  <button class="btn" style="width:auto;margin:0;padding:12px 18px" id="nameGo">Join</button>
-</div>
+<header><span id="dot"></span><span id="who"></span><span id="side"></span><button id="menuBtn">Menu</button></header>
 <div id="main"></div>
 <div id="bar" class="hide"></div>
 <div id="flash" class="hide"></div>
 <div id="zoom" class="hide"></div>
+<div id="msheet" class="hide"></div>
+<div id="finBg" class="hide"><img alt="" id="fbRoom"><img alt="" id="fbLights" class="tw"></div>
+<div id="finale"></div>
 
-<script src="sound.js"></script>
-<script src="solo-room.js"></script>
 <script src="m60-build.js"></script>
-<script src="avatar.js"></script>
+<script src="sound.js"></script>
 <script src="finale.js"></script>
 <script src="m60-data.js"></script>
+<script src="m60-engine.js"></script>
+<script src="m60-bots.js"></script>
 <script src="m60-art.js"></script>
 <script src="m60-words.js"></script>
+<script src="m60-host.js"></script>
+<script src="m60-phone.js"></script>
 <script>
 'use strict';
+/* 1960 on one phone: you against the house, no telly.
+ *
+ * The host and the handset run side by side in this page (LESSONS-CHECKLIST
+ * F1): m60-host.js is the very orchestration the hub's telly runs, talking to
+ * m60-phone.js — the very handset the hub's phones run — over an in-page bus
+ * instead of a socket. The telly is never touched. The game is saved on this
+ * phone after every move and picks up where it was left; the house stops
+ * while the screen is away; nothing is banked to any season. */
 (function checkVersions() {
   const missing = [];
-  if (!window.M60Data || window.M60Data.VERSION !== 1) missing.push('m60-data.js');
-  if (!window.M60Art || window.M60Art.VERSION !== 1) missing.push('m60-art.js');
-  if (!window.M60Words || window.M60Words.VERSION !== 1) missing.push('m60-words.js');
+  for (const [g, f] of [['M60Data', 'm60-data.js'], ['M60Engine', 'm60-engine.js'], ['M60Bots', 'm60-bots.js'], ['M60Art', 'm60-art.js'], ['M60Words', 'm60-words.js'], ['M60Host', 'm60-host.js'], ['M60Phone', 'm60-phone.js']])
+    if (!window[g] || window[g].VERSION !== 1) missing.push(f);
   if (!missing.length) return;
   const show = () => {
-    document.body.innerHTML = '<div style="padding:12vw 8vw;text-align:center;font:600 18px/1.5 system-ui;color:#f3ecdb">' +
+    document.body.innerHTML = '<div id="staleWarning" style="padding:12vw 8vw;text-align:center;font:600 18px/1.5 system-ui;color:#f2ecdc">' +
       '<div style="font-size:26px;color:#f1c75b;margin-bottom:12px">This page is out of date</div>' +
-      'Your phone kept an old copy of ' + missing.join(' and ') + '. Close this tab and open the join link again.</div>';
+      'Your phone kept an old copy of ' + missing.join(' and ') + '. Pull down to reload, or close the tab and open it again.</div>';
   };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', show); else show();
   throw new Error('stale assets: ' + missing.join(', '));
 })();
 
-const D = window.M60Data, A = window.M60Art, W = window.M60Words;
 const $ = id => document.getElementById(id);
+const D = M60Data, A = M60Art;
 const esc = A.esc;
-const SN = s => D.SIDE[s].name;
-const TOKEN_KEY = 'gameshow.token', NAME_KEY = 'gameshow.name';
+const ME = 'me';
+/* Every save carries a version: m60-host.js VERSION rides inside it, and the
+   key names it too. */
+const SAVE_KEY = 'm60.solo.save.v1', NAME_KEY = 'm60.solo.name', PLAYED_KEY = 'm60.solo.played', ASIDE_KEY = 'm60.solo.save.aside';
 const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
-const set = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
-/* Phones synthesise a click ~300ms after a touch. Everything is inert for
-   this long after a send and after the screen changes shape. */
-const LOCK_MS = 450;
+/* Every write goes through here and says whether it held (PHONE-APP-LESSONS C). */
+const set = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+const HUB = /\/games\/1960\//.test(location.pathname) ? '../../index.html' : '/';
+/* This tab's mark on its saves: a save written by another tab of this game
+   stops this one writing (two copies open never corrupt one save). */
+const TAB = Math.random().toString(36).slice(2, 10);
+const SOLO = { name: get(NAME_KEY) || 'The Senator', finCtl: null, resumed: false, writes: 0, saveFail: false, stopped: false, persistAsked: false,
+  firstRun: !get(PLAYED_KEY) && !get(NAME_KEY) && !get(SAVE_KEY), errs: [] };
+window.__M60SOLO = SOLO;
+/* Installed on the home screen? (?standalone stands in, for tests.) */
+const standalone = () => /[?&]standalone/.test(location.search) || !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+/* ?insets=top,bottom fakes the safe areas for a layout check. */
+(function fakeInsets() {
+  const m = /[?&]insets=(\d+),(\d+)/.exec(location.search);
+  if (m) { document.documentElement.style.setProperty('--inset-top', m[1] + 'px'); document.documentElement.style.setProperty('--inset-bottom', m[2] + 'px'); }
+})();
+window.addEventListener('error', e => { SOLO.errs.push(String(e.message || e).slice(0, 200)); if (SOLO.errs.length > 20) SOLO.errs.shift(); });
 
-const S = {
-  sock: null, retry: 0, id: null, name: '', hex: '#f1c75b',
-  pub: null, me: null, undo: null,
-  sel: null,          // the hand card being looked at (a card id, or 'cand')
-  pre: false,         // preempt the event of the card being played
-  multi: [], amap: {}, sinceAll: false, lockUntil: 0, shape: '', myTurn: false, finStage: ''
-};
-window.__M60PHONE = S;
-const locked = () => Date.now() < S.lockUntil;
-const lock = () => { S.lockUntil = Date.now() + LOCK_MS; };
-const buzz = ms => { if (navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) {} } };
-
-/* ---------- socket ---------- */
-const live = () => S.sock && S.sock.readyState === 1;
-const send = m => { if (live()) { S.sock.send(JSON.stringify(m)); return true; } return false; };
-function connect() {
-  const proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
-  try { S.sock = new WebSocket(proto + location.host + '/ws'); } catch (e) { return; }
-  S.sock.onopen = () => { S.retry = 0; setLink('joining…', ''); send({ t: 'hello', role: 'player', name: S.name || get(NAME_KEY) || undefined, token: get(TOKEN_KEY) || undefined }); };
-  S.sock.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (err) { return; } handle(m); };
-  S.sock.onclose = () => { setLink('reconnecting…', 'bad'); S.retry = Math.min(S.retry + 1, 10); setTimeout(connect, 400 * S.retry); };
-}
-function handle(m) {
-  if (m.t === 'hello-ok') {
-    S.id = m.id; S.name = m.name; S.hex = m.hex || S.hex;
-    if (m.token) set(TOKEN_KEY, m.token);
-    set(NAME_KEY, m.name);
-    $('name').classList.add('hide');
-    $('who').textContent = S.name;
-    setLink(m.host ? 'connected' : 'the telly is not open', m.host ? 'ok' : '');
-    paint();
+/* The one door every game save goes through. */
+function saveGame(data) {
+  if (SOLO.stopped) return;
+  if (data) Object.assign(data, { tab: TAB, w: ++SOLO.writes, build: window.M60_BUILD });
+  const held = set(SAVE_KEY, data ? JSON.stringify(data) : null);
+  if (!held) {
+    if (!SOLO.saveFail) { SOLO.saveFail = true; setTimeout(() => phone.flash('This phone isn’t keeping your save — its storage is full or switched off. Menu → Back up keeps a copy you can paste back.'), 0); }
     return;
   }
-  if (m.t === 'error') { setLink(m.error, 'bad'); return; }
-  if (m.t === 'lobby') { setLink(m.host ? 'connected' : 'the telly is not open', m.host ? 'ok' : ''); return; }
-  if (m.t !== 'msg' || !m.msg) return;
-  const msg = m.msg;
-  if (msg.t === 'goto' && typeof msg.url === 'string') { if (msg.url.split('?')[0] !== location.pathname) location.href = msg.url; return; }
-  if (msg.t === 'flash') { flash(msg.text); return; }
-  if (msg.t === 'm60') { S.pub = msg; if (!msg.game) S.me = null; paint(); return; }
-  if (msg.t === 'm60-me') { S.me = msg.me; S.undo = msg.undo || null; S.coach = msg.coach || null; paint(); }
-}
-function setLink(text, tone) { $('link').textContent = text || ''; $('link').className = tone || ''; }
-let flashTimer = null;
-function flash(text) {
-  clearTimeout(flashTimer);
-  $('flash').textContent = text;
-  $('flash').classList.remove('hide');
-  buzz(40);
-  flashTimer = setTimeout(() => $('flash').classList.add('hide'), Math.max(2600, String(text).length * 45));
-}
-
-/* ---------- helpers ---------- */
-const game = () => S.pub && S.pub.game;
-const mine = () => { const g = game(); return g ? g.players.find(p => p.id === S.id) : null; };
-const mySide = () => { const m = mine(); return m ? m.side : null; };
-const isRemote = () => S.pub && S.pub.remote === S.id;
-const myPrompt = () => {
-  if (!S.me || !S.me.prompts || !S.me.prompts.length) return null;
-  const g = game();
-  /* The public view and this seat's own half arrive as two messages: only
-     draw a question the table itself still lists as open. */
-  const open = S.me.prompts.filter(pr => g && g.prompts.some(x => x.n === pr.n && x.seat === S.id));
-  if (!open.length) return 'stale';
-  return open[0];
-};
-const act = a => { if (locked()) return; lock(); send({ t: 'do', a }); };
-const TICK = '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3L13 4.5" stroke="#1b140c" stroke-width="2.4" fill="none"/></svg>';
-const toggle = (arr, v) => { const i = arr.indexOf(v); if (i >= 0) arr.splice(i, 1); else arr.push(v); };
-const supTxt = v => v === 0 ? 'empty' : SN(D.leadOf(v)) + ' ' + Math.abs(v) + (Math.abs(v) >= 4 ? ' (carried)' : '');
-const cardRow = (id, extra, attrs) => '<button class="hc"' + (attrs || '') + '>' + A.spine(id) + '<span class="tx">' + esc(id === 'K' || id === 'N' ? '5 CP, played instead of a hand card; then exhausted.' : D.CARD[id].text) + '</span>' + (extra || '') + '</button>';
-
-/* ================================================================
-   Painting
-   ================================================================ */
-function paint() {
-  const pr = myPrompt();
-  const t = S.pub && S.pub.tbl;
-  const holdKey = t ? 'tbl' + t.n + (t.waiting.indexOf(S.id) >= 0 ? 'w' : 'd') + (t.grace ? 'g' : '') + (t.page != null ? 'p' + t.page : '') : '';
-  const shape = [S.pub && S.pub.screen, pr && pr !== 'stale' ? pr.t + pr.n : '-', holdKey, S.pub && S.pub.draw ? 'd' + S.pub.draw.n : '', S.pub && S.pub.timed ? 'x' + S.pub.timed.n : ''].join('|');
-  if (shape !== S.shape) {
-    const wasTurn = S.shape.split('|')[1] && S.shape.split('|')[1].indexOf('turn') === 0;
-    const isTurn = pr && pr !== 'stale' && pr.t === 'turn';
-    if (!(wasTurn && isTurn)) { S.sel = null; S.pre = false; }
-    S.multi = []; S.amap = {};
-    /* A new question, or a card coming up or going, starts at the top. */
-    const top = (!!t !== (S.shape.split('|')[2] || '').length > 0) || (S.shape.split('|')[1] !== shape.split('|')[1] && shape.split('|')[1] !== '-' && !(wasTurn && isTurn));
-    S.shape = shape; lock();
-    if (top) window.scrollTo(0, 0);
+  SOLO.saveFail = false;
+  if (data) {
+    set(PLAYED_KEY, '1');
+    /* Installed: ask the phone to keep this site's storage (Safari 17+). */
+    if (!SOLO.persistAsked && standalone() && navigator.storage && navigator.storage.persist) { SOLO.persistAsked = true; try { navigator.storage.persist().catch(() => {}); } catch (e) {} }
   }
-  const g0 = game();
-  const mineNow = !!(g0 && g0.phase === 'act' && g0.active === S.id && !(S.pub && S.pub.tbl));
-  if (mineNow && !S.myTurn) buzz([90, 60, 90]);
-  S.myTurn = mineNow;
-  const fst = S.pub && S.pub.finale ? S.pub.finale.n + S.pub.finale.stage : '';
-  if (fst !== S.finStage) {
-    const f = S.pub && S.pub.finale;
-    if (f && f.stage === 'winner' && g0 && g0.result) { const r = g0.result.rows.find(x => x.id === S.id); buzz(r && r.won ? [200, 90, 200, 90, 500] : 120); }
-    S.finStage = fst;
-  }
-  const me = mine();
-  if (me) {
-    /* Your candidate's face in the header (a colour square if it cannot load). */
-    $('dot').style.background = D.SIDE[me.side].hex;
+}
+/* Another tab of this game wrote the save: this one stops writing, says so, and pauses. */
+window.addEventListener('storage', e => {
+  if (e.key !== SAVE_KEY || SOLO.stopped) return;
+  let s = null;
+  try { s = JSON.parse(e.newValue || 'null'); } catch (x) {}
+  if (S.screen === 'lobby') { H.publish(); return; }
+  if (!s || s.tab === TAB) return;
+  SOLO.stopped = true;
+  H.input(ME, { t: 'vis', hidden: true });
+  $('msheet').innerHTML = '<div class="msheet" id="otherTab"><div class="title">Open in another tab</div><div class="sub">This campaign was carried on in another tab or window. This one has stopped saving, so the two can’t overwrite each other.</div>' +
+    '<button class="btn" id="mReload">Reload here</button></div>';
+  $('msheet').classList.remove('hide');
+  $('mReload').onclick = () => location.reload();
+});
+/* The player's name goes into third-person lines, so it may not be "you". */
+const nameOk = n => n && !/^(you|me|i|myself)$/i.test(n.trim());
+
+/* ---------------- the in-page bus ---------------- */
+let phone = null;
+const deliver = m => { setTimeout(() => phone && phone.receive(JSON.parse(JSON.stringify(m))), 0); };
+const H = M60Host.create({
+  solo: true,
+  toAll: deliver,
+  toSeat: (id, m) => { if (id === ME) deliver(m); },
+  flash: (id, text, tone) => { if (id === ME) setTimeout(() => phone.flash(text, tone), 0); },
+  humans: () => [{ id: ME, name: SOLO.name, hex: '#f1c75b' }],
+  remote: () => ME,
+  save: saveGame,
+  menu: () => { location.href = HUB; },
+  sound: on => { if (window.HubSound) HubSound.setEnabled(on); },
+  cue: (name, o) => { if (window.HubSound) HubSound.play(name, o); },
+  onStart: () => { if (window.HubSound) { HubSound.setEnabled(H.S.opts.sound); HubSound.unlock(); } },
+  onFinale: (fin, data) => playFinale(fin, data),
+  skipFinale: () => { if (SOLO.finCtl) SOLO.finCtl.skip(); }
+});
+SOLO.H = H;
+const S = H.S;
+
+document.head.insertAdjacentHTML('beforeend', A.styles() + '<style>' + M60Phone.STYLES + '</style>');
+phone = M60Phone.create({
+  solo: true, root: $('main'), bar: $('bar'), flashEl: $('flash'), zoomEl: $('zoom'),
+  send: m => setTimeout(() => H.input(ME, m), 0),
+  scrollTop: () => window.scrollTo(0, 0),
+  onMenu: () => { H.flushSave(); location.href = HUB; },
+  onMe: me => {
+    $('side').textContent = D.SIDE[me.side].name;
+    document.documentElement.classList.toggle('side-N', me.side === 'N');
     if ($('dot').dataset.side !== me.side) { $('dot').dataset.side = me.side; $('dot').className = 'pt'; $('dot').innerHTML = A.portrait(me.side); }
-  }
-  const m = $('main');
-  $('bar').classList.add('hide'); $('bar').innerHTML = '';
-  if (!S.pub) { m.innerHTML = waitCard('Waiting for the telly', '1960 has not been started yet.'); return; }
-  if (S.pub.screen === 'lobby') { m.innerHTML = lobbyHtml(); fitBar(); wire(); return; }
-  if (S.pub.screen === 'over') { m.innerHTML = overHtml(); fitBar(); wire(); return; }
-  if (!game()) { m.innerHTML = waitCard('Hold tight', ''); return; }
-  if (!me) { m.innerHTML = waitCard('Watching', '1960 is for two; the chairs were taken when this campaign started.') + boardHtml(); wire(); return; }
-  if (!S.me) { m.innerHTML = waitCard('Dealing you in', ''); return; }
-  if (t) m.innerHTML = tblHtml() + boardHtml() + handHtml();
-  else if (S.pub.draw) m.innerHTML = drawHtml() + boardHtml() + handHtml();
-  else if (S.pub.timed) m.innerHTML = timedHtml() + debateHtml() + boardHtml() + handHtml();
-  else {
-    /* A chosen card is the whole screen: the feed waits above it unread. */
-    const choosing = pr && pr !== 'stale' && ((pr.t === 'turn' && S.sel != null) || pr.t === 'camp' || pr.t === 'alloc');
-    m.innerHTML = reelHtml(pr) + (choosing ? '' : sinceHtml()) + undoHtml() + seenHtml() + askHtml(pr) + hurryHtml() + debateHtml() + boardHtml() +
-      (pr && pr !== 'stale' && (pr.t === 'turn' || pr.what === 'strat' || pr.what === 'swap' || pr.what === 'debate') ? '' : handHtml());
-  }
-  fitBar();
-  wire();
-}
-/* The pinned bar grows with what is in it, so the page keeps that much room
-   at its foot: nothing scrolls under the bar for good. */
-function fitBar() {
-  const b = $('bar');
-  const h = b.classList.contains('hide') ? 0 : b.offsetHeight;
-  document.body.style.paddingBottom = h ? (h + 14) + 'px' : '';
-}
-function waitCard(title, sub, extra) {
-  return '<div class="card"><div class="title">' + esc(title) + '</div>' + (sub ? '<div class="sub">' + esc(sub) + '</div>' : '') + (extra || '') + '</div>';
-}
+  },
+  lobbyTop
+});
+SOLO.phone = phone;
+window.__M60PHONE = phone.P;
+phone.setMe(ME, SOLO.name, '#f1c75b');
+$('who').textContent = SOLO.name;
 
-/* ---------- the held cards (the telly holds the table) ---------- */
-function holdBody(g, h, page) {
-  switch (h.k) {
-    case 'turnStart': return W.turnStartHtml(g, h);
-    case 'mom': { const base = (g.logN || g.log.length) - g.log.length; return W.momHtml(g, h, g.log.slice(Math.max(0, h.from - base), h.to - base), page); }
-    case 'debateStart': return W.debateStartHtml(g, h);
-    case 'debateEnd': return W.debateEndHtml(g, h);
-    case 'edayStart': return W.edayStartHtml(g, h);
-    case 'lesson': return W.lessonHtml(g, h);
-  }
-  return '';
+/* The setup screen: your name, and the campaign you left, if there is one. */
+function savedGame() { try { const s = JSON.parse(get(SAVE_KEY) || 'null'); return s && s.createOpts && s.v === M60Host.VERSION ? s : null; } catch (e) { return null; } }
+/* A save this build can't resume is never dropped in silence: it is put
+   aside (Back up still reaches it) and the setup screen says so. */
+function setAside(why) {
+  const raw = get(SAVE_KEY);
+  if (raw) set(ASIDE_KEY, raw);
+  set(SAVE_KEY, null);
+  SOLO.lost = why;
 }
-function tblHtml() {
-  const t = S.pub.tbl;
-  const g = game();
-  const h = g.hold;
-  const others = t.waiting.filter(id => id !== S.id);
-  const pname = id => { const p = g.players.find(x => x.id === id); return p ? p.name : '?'; };
-  let foot = '';
-  if (t.waiting.indexOf(S.id) >= 0) {
-    $('bar').innerHTML = '<button class="btn" id="cont">' + (t.page != null && t.page < t.pages ? 'Continue (the telly is on page ' + (t.page + 1) + ' of ' + t.pages + ')' : 'Continue') + '</button>';
-    $('bar').classList.remove('hide');
-    foot = '<div class="sub" style="margin-top:8px">The game waits until everybody has read this.</div>';
-  } else if (others.length) {
-    foot = '<div class="sub" style="margin-top:8px">Waiting for ' + esc(others.map(pname).join(', ')) + ' to read it.</div>' +
-      (t.grace && t.done.indexOf(S.id) >= 0 ? '<button class="btn ghost" id="nowait">Don’t wait for ' + esc(others.map(pname).join(' and ')) + '</button>' : '');
-  }
-  return '<div class="card mine">' + (h ? holdBody(g, h, t.page) : '') + foot + '</div>';
+if (get(SAVE_KEY) && !savedGame()) setAside('Your saved campaign was made by an older build of 1960 and can’t be picked up again here. It is kept aside: Menu → Back up still copies it.');
+/* The save code: the whole game as text, a few KB (Back up / Restore). */
+const CODE_HEAD = 'M60-SAVE:';
+function saveCode() { H.flushSave(); const raw = get(SAVE_KEY) || get(ASIDE_KEY); return raw ? CODE_HEAD + raw : ''; }
+function readCode(text) {
+  const t = String(text || '').trim();
+  if (t.indexOf(CODE_HEAD) !== 0) return null;
+  try { const s = JSON.parse(t.slice(CODE_HEAD.length)); return s && s.createOpts && s.v === M60Host.VERSION && Array.isArray(s.moves) ? s : null; } catch (e) { return null; }
 }
-function drawHtml() {
-  const g = game(), h = g.hold;
-  const why = h ? (h.why || 'Support checks') : 'Drawing from the bag';
-  const where = h && h.rows ? h.rows.filter(r => r.st).map(r => D.STATE[r.st].name + ' (' + r.k + ')').join(', ') : '';
-  return waitCard(why, 'Cubes are coming out of the bag — watch the telly.' + (where ? ' ' + where + '.' : ''));
-}
-function timedHtml() {
-  const g = game(), h = g.hold;
-  if (!h) return waitCard('Watch the telly', '');
-  if (h.k === 'reveal') return waitCard('Debate round ' + h.round, D.SIDES.filter(s => h[s] != null).map(s => SN(s) + ': ' + D.CARD[h[s]].name + ' (' + D.CARD[h[s]].cp + ' CP, ' + D.issueName(D.CARD[h[s]].iss) + ')').join(' · '));
-  if (h.k === 'won') return waitCard(SN(h.side) + ' wins ' + D.issueName(h.iss), h.K + ' to ' + h.N + (h.tie ? ' — a tie, and the initiative decides' : '') + '. ' + h.award + ' state support to place.');
-  if (h.k === 'tips') return waitCard('The undecided states fall', D.SIDES.map(s => SN(s) + ': ' + (h.tips.filter(x => x.side === s).map(x => x.st).join(' ') || 'none')).join(' · '));
-  return waitCard('Watch the telly', '');
-}
-
-/* ---------- the house's newest move, and since your last turn ---------- */
-function allLines() {
-  const g = game();
-  if (!g || !g.log || !g.log.length) return [];
-  const base = (g.logN || g.log.length) - g.log.length;
-  return W.lines(g.log, g, base);
-}
-function reelHtml(pr) {
-  const g = game();
-  if (!g || g.phase === 'over') return '';
-  const ls = allLines().filter(l => l.by && l.by !== S.id && W.CHOSE[l.t]);
-  const l = ls[ls.length - 1];
-  if (!l) return '';
-  const p = g.players.find(x => x.id === l.by);
-  if (!p || !p.bot || l.tn !== g.turn) return '';
-  return '<div class="reel"><small>Just now' + (pr && pr !== 'stale' && pr.t === 'turn' ? ' · your turn' : '') + '</small>' + W.html(l, g) + '</div>';
-}
-function sinceLines() {
-  const all = allLines();
-  let i = all.length - 1;
-  while (i >= 0 && all[i].by === S.id) i--;
-  const out = [];
-  let reached = false;
-  for (; i >= 0; i--) {
-    const l = all[i];
-    if (l.by === S.id && W.CHOSE[l.t]) { reached = true; break; }
-    if (l.by === S.id) continue;
-    out.unshift(l);
-  }
-  return { lines: out, first: !reached };
-}
-function sinceHtml() {
-  const g = game();
-  if (!g || g.phase === 'over') return '';
-  const s = sinceLines();
-  const lastBy = s.lines.length && g.players.find(p => p.id === s.lines[s.lines.length - 1].by);
-  if (lastBy && lastBy.bot && s.lines[s.lines.length - 1].tn === g.turn && W.CHOSE[s.lines[s.lines.length - 1].t]) s.lines = s.lines.slice(0, -1);
-  if (!s.lines.length) return '';
-  const MAX = 6;
-  const shown = S.sinceAll ? s.lines : s.lines.slice(-MAX);
-  const hidden = s.lines.length - shown.length;
-  return '<div class="since"><div class="sh">' + (s.first ? 'So far' : 'Since your last turn') + '</div>' +
-    (hidden ? '<button class="more" id="sinceMore">' + hidden + ' earlier</button>' : '') +
-    shown.map((l, k) => '<div class="sl' + (k === shown.length - 1 ? ' new' : '') + '">' + W.html(l, g) + '</div>').join('') +
-    (S.sinceAll && s.lines.length > MAX ? '<button class="more" id="sinceLess">Show fewer</button>' : '') + '</div>';
-}
-function undoHtml() {
-  if (!S.undo) return '';
-  return '<button class="undo" id="undo"><b>Take back</b><span>' + esc(S.undo.what.replace(/\.$/, '')) + '</span></button>';
-}
-function hurryHtml() {
-  const h = S.pub && S.pub.hurry;
-  if (!h || !isRemote()) return '';
-  const others = h.ids.filter(id => id !== S.id);
-  if (!others.length) return '';
-  const g = game();
-  return '<button class="btn ghost" id="hurry">Play the house’s move for ' + esc(others.map(id => (g.players.find(p => p.id === id) || {}).name).join(' and ')) + '</button>';
-}
-/* Opposition Research: Kennedy's hand, shown to Nixon's phone alone. */
-function seenHtml() {
-  const s = S.me && S.me.seen;
-  if (!s) return '';
-  return '<div class="card seen"><div class="title" style="color:#c8b0ff">Kennedy’s hand (Opposition Research)</div><div class="hand">' + s.ids.map(id => cardRow(id, '', ' data-zoom="' + id + '"')).join('') + '</div></div>';
-}
-
-/* ================================================================
-   The question at the top
-   ================================================================ */
-function askHtml(pr) {
-  const g = game();
-  if (pr === 'stale') return waitCard('Hold on', 'The table is moving on.');
-  if (!pr) {
-    if (!g.prompts.length) return waitCard('Watch the telly', g.phase === 'over' ? 'The polls have closed.' : '');
-    const x = g.prompts[0];
-    const p = g.players.find(q => q.id === x.seat);
-    const next = g.phase === 'act' && g.cur && g.cur !== mySide();
-    return waitCard((p ? SN(p.side) : '?') + (x.t === 'turn' ? '’s turn' : ''), x.why || '', next ? '<div class="upnext" id="upnext">You’re up next — plan your card.</div>' : '');
-  }
-  if (pr.t === 'turn') return turnHtml(pr);
-  if (pr.t === 'camp') return campHtml(pr);
-  if (pr.t === 'alloc') return allocHtml(pr);
-  return pickHtml(pr);
-}
-
-/* ---------------- the turn: a card, and how to play it ---------------- */
-function turnHtml(pr) {
-  const c = S.me.can;
-  if (!c) return waitCard('Your turn', '');
-  const g = game(), side = mySide(), opp = D.other(side);
-  let out = '<div class="card mine"><div class="title">Your turn · activity ' + g.ap + ' of 5</div>' +
-    '<div class="sub">You have ' + c.mom + ' momentum · ' + SN(opp) + ' has ' + c.oppMom + '. Your candidate is in ' + D.STATE[g.tok[side]].name + '.</div>';
-  const sel = S.sel;
-  const h = sel === 'cand' ? Object.assign({ card: side }, c.cand) : sel != null && c.hand.find(x => x.card === sel);
-  if (h) {
-    const id = sel === 'cand' ? side : sel;
-    out += '<div class="selbox">' + A.face(id, { exhausted: false }) + '<div class="st"><b>' + esc(D.cardName(id)) + '</b>' + esc(sel === 'cand' ? 'Play it for 5 CP instead of a card from your hand. It is then exhausted until an event turns it face up.' : D.CARD[id].text) + '</div></div>';
-    if (h.keep) out += '<div class="warnline">' + esc(h.keep) + '</div>';
-    /* What each way of playing it does, said once in the card; the buttons
-       themselves sit in the pinned bar, short enough for four at 360x500. */
-    const how = [];
-    if (sel !== 'cand') how.push(h.event.ok ? (h.event.mom ? 'Event: costs 1 momentum (Jackie Kennedy).' : D.benefits(D.CARD[id], side) ? 'Event: the event on it is yours to use.' : 'Event: careful — it helps ' + SN(opp) + '.') : '');
-    if (h.camp.ok) how.push('Campaign: 1 CP a cube in your candidate’s region; 1 CP to cross a border.' + (h.camp.mom ? ' Costs 1 momentum (Nixon’s Knee).' : ''));
-    if (h.adv.ok) how.push('Advertise: ' + h.adv.cp + ' draws; each ' + (side === 'K' ? 'blue' : 'red') + ' cube is a media cube.');
-    if (h.pos.ok) how.push('Issues: the first cube on an issue 1 CP, each more 2.' + (h.pos.banned ? ' Not ' + D.issueName(h.pos.banned) + ' (Restricted Positioning).' : ''));
-    out += '<ul class="how">' + how.filter(Boolean).map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>';
-    if (sel !== 'cand' && h.trig) out += '<div class="warnline">Played for CP, ' + esc(SN(opp)) + ' may trigger its event for 1 momentum' + (D.benefits(D.CARD[id], opp) ? ' — and it helps them.' : '.') + '</div>';
-    out += '</div>';
-    const opts = [];
-    if (sel !== 'cand') opts.push(['event', 'Event', h.event.ok ? (D.benefits(D.CARD[id], side) ? 'yours' : 'helps ' + SN(opp)) : null, h.event]);
-    opts.push(['camp', 'Campaign ' + h.camp.cp, h.camp.ok ? 'CP in states' : null, h.camp]);
-    opts.push(['adv', 'Advertise ' + h.adv.cp, h.adv.ok ? 'media cubes' : null, h.adv]);
-    opts.push(['pos', 'Issues ' + h.pos.cp, h.pos.ok ? 'position' : null, h.pos]);
-    let bar = '';
-    if (sel !== 'cand' && h.trig && h.pre) bar += '<button class="pre' + (S.pre ? ' on' : '') + '" id="pre"' + (h.pre.ok ? '' : ' disabled') + '><span class="tick">' + (S.pre ? TICK : '') + '</span><span>' + (h.pre.ok ? 'Preempt it: ' + (h.pre.cost ? 'spend 2 momentum so they cannot trigger it.' : 'free this turn (Peace Corps).') : esc(h.pre.why)) + '</span></button>';
-    const tip = S.coach && S.coach.card === sel ? S.coach.how : null;
-    bar += '<div class="grid">' + opts.map(([k, l, sub, x]) => '<button class="opt' + (tip === k ? ' tip' : '') + '" data-how="' + k + '"' + (x.ok ? '' : ' disabled') + '><span class="lab"><b>' + esc(l) + '</b>' + (x.ok ? '<small>' + esc(sub || '') + '</small>' : '<span class="why">' + esc(x.why || '') + '</span>') + '</span></button>').join('') + '</div>' +
-      '<button class="back" id="unsel">Back to your hand</button>';
-    $('bar').innerHTML = bar;
-    $('bar').classList.remove('hide');
-    return out;
-  }
-  out += coachHtml(true);
-  out += '<h2>Your hand · ' + c.hand.length + ' — tap a card</h2><div class="hand">' + c.hand.map(x => cardRow(x.card, x.keep ? '<span class="x">' + esc(x.keep) + '</span>' : '', ' data-sel="' + x.card + '"')).join('') + '</div>';
-  if (c.cand) out += '<h2>Your candidate card</h2>' + cardRow(side, '', ' data-sel="cand"');
-  else out += '<div class="sub" style="margin-top:8px">Your candidate card is exhausted.</div>';
-  if (S.me.strat && S.me.strat.length) out += '<h2>Kept for ' + (g.turn < 6 ? 'the Debates' : 'Election Day') + ' · ' + S.me.strat.length + '</h2><div class="sub">' + esc(S.me.strat.map(id => D.CARD[id].name).join(', ')) + '</div>';
-  out += '</div>';
-  if (c.pass) { $('bar').innerHTML = '<button class="btn" id="pass">Nothing to play — pass</button>'; $('bar').classList.remove('hide'); }
-  return out;
-}
-
-/* How to play: the coach's suggestion, with its reason. "Show me" opens the
-   card it means; the choice stays the player's. */
-function coachHtml(canShow) {
-  const c = S.coach;
-  if (!c || !c.line) return '';
-  const show = canShow && c.card != null && S.me && S.me.can && (c.card === 'cand' ? S.me.can.cand : S.me.can.hand.some(x => x.card === c.card));
-  return '<div class="coach"><small>Coach</small>' + esc(c.line) + (c.pre ? '<div class="cx">' + esc(c.pre) + '</div>' : '') + (c.keep ? '<div class="cx">' + esc(c.keep) + '</div>' : '') +
-    (show ? '<button class="cshow" id="coachShow">Show me</button>' : '') + '</div>';
-}
-
-/* ---------------- campaigning, a CP at a time ---------------- */
-function campHtml(pr) {
-  const g = game(), side = mySide();
-  const states = pr.options.filter(o => o.st);
-  const travel = pr.options.filter(o => o.go);
-  const where = pr.region === 'AK' ? 'Alaska' : pr.region === 'HI' ? 'Hawaii' : 'the ' + D.REGION[pr.region].name;
-  let out = '<div class="card mine"><div class="title">Campaigning: ' + pr.left + ' CP left</div><div class="sub">Your candidate is in ' + esc(D.STATE[pr.tok].name) + ', ' + esc(where) + '. Each CP is one cube in a state here' + (states.some(o => o.chk && !o.bad) ? '; a state marked “checks” is drawn for instead — you say how many CP once.' : '.') + '</div>';
-  out += '<h2>States in ' + esc(where) + '</h2><div class="opts">' + states.sort((a, b) => b.ev - a.ev).map(o => '<button class="opt" data-pick="' + o.id + '"' + (o.bad ? ' disabled' : '') + '><span class="lab"><b>' + esc(o.label) + ' · ' + o.ev + ' votes</b><small>' + esc(supTxt(o.sup)) + (g.tok[D.other(side)] === o.st ? ' · ' + SN(D.other(side)) + ' is here' : '') + '</small>' + (o.bad ? '<span class="why">' + esc(o.bad) + '</span>' : '') + '</span>' +
-    '<span class="val">' + (o.chk ? '<span class="chk">checks</span>' : '+1') + '</span></button>').join('') + '</div>';
-  out += '<h2>Travel</h2><div class="opts">' + travel.map(o => '<button class="opt" data-pick="' + o.id + '"' + (o.bad ? ' disabled' : '') + '><span class="lab"><b>' + esc(o.label) + '</b><small>' + esc(o.sub || '') + '</small></span></button>').join('') + '</div></div>';
-  $('bar').innerHTML = '<button class="btn ghost" id="campEnd" style="background:var(--panel)">Stop here — lose the ' + pr.left + ' CP left</button>';
-  $('bar').classList.remove('hide');
-  return out;
-}
-
-/* ---------------- sharing out: support, issues, media ---------------- */
-function allocHtml(pr) {
-  const m = S.amap;
-  const pos = pr.what === 'pos';
-  const used = Object.values(m).reduce((a, b) => a + b, 0);
-  const cost = pos ? D.ISSUES.reduce((t, i) => t + (m[i] ? 2 * m[i] - 1 : 0), 0) : used;
-  const room = pos ? pr.budget - cost : pr.total - used;
-  const canAdd = o => { const k = m[o.id] || 0; if (pos) return !o.bad && (k === 0 ? 1 : 2) <= room; return !o.bad && k < o.cap && room > 0; };
-  let out = '<div class="card mine"><div class="title">' + esc(pr.why) + '</div>';
-  out += '<div class="tot">' + (pos ? 'CP spent <b>' + cost + '</b> of ' + pr.budget : 'Placed <b>' + used + '</b> of ' + pr.total + (pr.min ? ' (at least ' + pr.min + ')' : '')) + '</div>';
-  const opts = pr.options.slice().sort((a, b) => (b.ev || 0) - (a.ev || 0));
-  out += opts.map(o => {
-    const k = m[o.id] || 0;
-    const sub = o.ev != null ? o.ev + ' votes · ' + supTxt(o.sup) + (o.chk ? ' · support checks' : '') : o.sup != null ? (o.sup ? SN(D.leadOf(o.sup)) + ' ' + Math.abs(o.sup) : 'nobody') : '';
-    return '<div class="ed"><span class="nm">' + esc(o.label || o.id) + '<small' + (o.chk ? ' class="chk"' : '') + '>' + esc(sub) + (o.bad ? ' — ' + esc(o.bad) : '') + (!pos && o.cap < pr.total ? ' · at most ' + o.cap : '') + '</small></span>' +
-      '<span class="stp"><button data-dec="' + o.id + '"' + (k ? '' : ' disabled') + '>−</button><b>' + k + '</b><button data-inc="' + o.id + '"' + (canAdd(o) ? '' : ' disabled') + '>+</button></span></div>';
-  }).join('');
-  const okNow = pos ? cost <= pr.budget : used >= pr.min && used <= pr.total;
-  $('bar').innerHTML = '<button class="btn" id="allocGo"' + (okNow ? '' : ' disabled') + '>' + (used ? 'Confirm' : pr.min ? 'Place them first' : 'Place none') + '</button>';
-  $('bar').classList.remove('hide');
-  return out + '</div>';
-}
-
-/* ---------------- any other question ---------------- */
-function pickHtml(pr) {
-  let out = '<div class="card mine"><div class="title">' + esc(pr.why) + '</div>' + (pr.what === 'trigger' || pr.what === 'strat' || pr.what === 'first' ? coachHtml(false) : '');
-  if (pr.card && pr.what === 'trigger') out += '<div class="hand">' + cardRow(pr.card, '', ' data-zoom="' + pr.card + '"') + '</div>';
-  const multi = pr.multi;
-  if (multi) out += '<div class="sub">Choose ' + (pr.min === pr.max ? pr.min : pr.min + ' to ' + pr.max) + '.</div>';
-  const withCards = pr.options.some(o => o.card != null && o.card !== '' && D.CARD[o.card]) && pr.what !== 'trigger';
-  if (withCards) {
-    out += '<div class="hand">' + pr.options.map(o => {
-      const on = multi && S.multi.indexOf(o.id) >= 0;
-      return cardRow(+o.card, (o.sub ? '<span class="x" style="color:var(--dim)">' + esc(o.sub) + '</span>' : '') + (multi ? '<span class="x" style="color:var(--gold)">' + (on ? 'chosen' : '') + '</span>' : ''), ' data-pick="' + esc(o.id) + '"' + (o.bad ? ' disabled' : '')).replace('class="hc"', 'class="hc' + (on ? ' sel' : '') + '"');
-    }).join('') + '</div>';
-  } else {
-    const list = '<div class="opts">' + pr.options.map(o => {
-      const on = multi && S.multi.indexOf(o.id) >= 0;
-      return '<button class="opt' + (on ? ' on' : '') + '" data-pick="' + esc(o.id) + '"' + (o.bad ? ' disabled' : '') + '>' + (multi ? '<span class="tick">' + (on ? TICK : '') + '</span>' : '') +
-        '<span class="lab"><b>' + esc(o.label || o.id) + '</b>' + (o.sub ? '<small>' + esc(o.sub) + '</small>' : '') + (o.bad ? '<span class="why">' + esc(o.bad) + '</span>' : '') + '</span></button>';
-    }).join('') + '</div>';
-    /* A short answer (trigger it? which side?) goes under the thumb. */
-    if (!multi && !pr.skip && pr.options.length <= 3) { $('bar').innerHTML = list; $('bar').classList.remove('hide'); }
-    else out += list;
-  }
-  if (multi) {
-    $('bar').innerHTML = '<button class="btn" id="pickGo"' + (S.multi.length >= pr.min && S.multi.length <= pr.max ? '' : ' disabled') + '>Confirm (' + S.multi.length + ' of ' + pr.max + ')</button>';
-    $('bar').classList.remove('hide');
-  }
-  if (pr.skip) out += '<button class="btn ghost" id="skip">' + esc(pr.skip) + '</button>';
-  return out + '</div>';
-}
-
-/* ================================================================
-   The Debates, and the board in miniature
-   ================================================================ */
-function debateHtml() {
-  const g = game();
-  const d = g && g.debate;
-  if (!d || g.phase !== 'debate') return '';
-  return '<h2>The Debates · ' + esc(SN(d.init)) + ' wins ties</h2><div class="card">' + d.pos.map(i => {
-    const w = d.won.find(x => x.iss === i), t = d.totals[i];
-    const names = s => d.board[i][s].map(c => D.CARD[c].name + ' ' + D.CARD[c].cp).join(', ') || '—';
-    return '<div class="dbrow"><span class="l">' + esc(names('K')) + '</span><span class="c"><b>' + esc(D.issueName(i)) + '</b>' + t.K + ' · ' + t.N + (w ? '<br><span style="color:var(--gold)">' + esc(SN(w.side)) + ' +' + w.award + '</span>' : '') + '</span><span class="r">' + esc(names('N')) + '</span></div>';
-  }).join('') + (d.shown ? '<div class="sub">Lazy Shave: Nixon’s card this round is ' + esc(D.CARD[d.shown].name) + ' (' + D.CARD[d.shown].cp + ' CP, ' + esc(D.issueName(D.CARD[d.shown].iss)) + ').</div>' : '') + '</div>';
-}
-function boardHtml() {
-  const g = game();
-  if (!g || !g.sup) return '';
-  const ev = D.leadingEv(g.sup);
-  const side = mySide();
-  const facts = s => '<div class="facts"><b style="color:' + D.SIDE[s].hex + '">' + esc(side === s ? 'You · ' + SN(s) : SN(s)) + '</b><span>momentum <b>' + g.mom[s] + '</b></span><span><b>' + g.handN[s] + '</b> in hand</span>' +
-    '<span>candidate card ' + (g.cand[s] ? 'ready' : 'exhausted') + '</span><span>leads <b>' + ev[s] + '</b> votes</span><span>in ' + esc(g.tok[s]) + '</span></div>';
-  let out = '<h2>The campaign</h2>' + facts(side || 'K') + facts(D.other(side || 'K')) +
-    '<div class="facts"><span>bag <b style="color:#9ec0ff">' + g.bag.K + '</b> blue · <b style="color:#ffb0b3">' + g.bag.N + '</b> red</span><span>rest cubes: ' + g.rest.K + ' blue, ' + g.rest.N + ' red</span></div>' +
-    '<div class="iss">' + g.order.map((i, k) => { const L = D.leadOf(g.iss[i]); return '<span>' + ['1st', '2nd', '3rd'][k] + A.icon(i, 18) + esc(D.issueName(i)) + (L ? A.cube(L, Math.abs(g.iss[i])) : '<i style="color:var(--dim)">nobody</i>') + '</span>'; }).join('') + '</div>';
-  if (g.fxCards && g.fxCards.length) out += '<div class="facts">In force this turn: ' + g.fxCards.map(f => '<b>' + esc(D.CARD[f.id].name) + '</b> (' + esc(W.fxWords(f)) + ')').join(', ') + '</div>';
-  out += '<div class="regs">' + D.REGIONS.map(r => {
-    const m = g.media[r], e = g.end[r];
-    const total = D.statesIn(r).reduce((t, s) => t + D.STATE[s].ev, 0);
-    return '<div class="reg"><div class="rh"><b style="color:' + D.REGION[r].hex + '">' + esc(D.REGION[r].name) + '</b><span>' + total + ' votes</span><span>media ' + (m ? A.cube(D.leadOf(m), Math.abs(m)) : '0') + '</span><span>endorsed ' + (e ? A.cube(D.leadOf(e), Math.abs(e)) : '—') + '</span></div><div class="sts">' +
-      D.statesIn(r).sort((a, b) => D.STATE[b].ev - D.STATE[a].ev).map(s => {
-        const v = g.sup[s], L = D.leadOf(v);
-        const tk = D.SIDES.filter(x => g.tok[x] === s).map(x => '<span class="tk" style="color:' + D.SIDE[x].hex + '">' + A.icon('pawn', 12) + '</span>').join('');
-        return '<span class="sc' + (L ? ' ' + L.toLowerCase() : '') + (L && Math.abs(v) >= 4 ? ' car' : '') + '">' + s + ' <b>' + D.STATE[s].ev + '</b>' + (L ? A.cube(L, Math.abs(v)) : '') + tk + '</span>';
-      }).join('') + '</div></div>';
-  }).join('') + '</div>';
-  if (g.board) {
-    const pe = ['prev', 'debate', 'eday'].filter(k => g.board[k].length).map(k => ({ prev: 'Prevention', debate: 'Debates', eday: 'Election Day' })[k] + ': ' + g.board[k].map(c => D.CARD[c].name).join(', '));
-    if (pe.length) out += '<div class="facts">' + esc(pe.join(' · ')) + '</div>';
-    if (g.disc && g.disc.length) out += '<div class="facts">Discard pile (' + g.disc.length + '): ' + esc(g.disc.slice(-8).map(c => D.CARD[c].name).join(', ')) + (g.disc.length > 8 ? '…' : '') + '</div>';
+function lobbyTop() {
+  const sv = savedGame();
+  let out = '';
+  if (SOLO.lost) out += '<div class="card" id="lostCard"><div class="title">Your saved campaign is gone</div><div class="sub">' + esc(SOLO.lost) + '</div></div>';
+  if (SOLO.firstRun && !sv) out += '<div class="card mine" id="firstRun"><div class="title">First time here?</div><div class="sub">How to play is picked for you: a real campaign against a gentle house, with a coach who explains each step. Know the rules already? Choose Campaign below.</div></div>';
+  out += '<div class="card"><div class="title">Your name</div><div class="sub">The house speaks of you by it: “' + esc(SOLO.name) + ' campaigns in Ohio.”</div>' +
+    '<div class="namein"><input id="nameIn" maxlength="14" value="' + esc(SOLO.name) + '" autocomplete="off"><button class="btn ghost" style="width:auto;margin:0;padding:10px 16px" id="nameGo">Save</button></div></div>';
+  if (sv) {
+    const when = new Date(sv.at);
+    const me = (sv.sides || []).find(x => !x.bot);
+    const ev = sv.ev || { K: 0, N: 0 };
+    out += '<div class="card mine"><div class="title">Resume your campaign</div><div class="sub">Turn ' + sv.turn + ' of 9' + (me ? ' · you are ' + esc(D.SIDE[me.side].name) : '') + ' · leading states: Kennedy ' + ev.K + ', Nixon ' + ev.N + ' votes' +
+      ' · last played ' + esc(when.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' })) + '</div>' +
+      '<button class="btn" id="resume">Resume</button><button class="btn ghost" id="abandon">Throw it away</button></div>';
   }
   return out;
 }
-/* Your hand, to plan with while you wait. */
-function handHtml() {
-  if (!S.me || !S.me.hand) return '';
-  const hand = S.me.hand;
-  let out = '<h2>Your hand · ' + hand.length + '</h2>' + (hand.length ? '<div class="hand">' + hand.map(c => cardRow(c, '', ' data-zoom="' + c + '"')).join('') + '</div>' : '<div class="sub">Empty.</div>');
-  if (S.me.strat && S.me.strat.length) out += '<h2>Kept face down · ' + S.me.strat.length + '</h2><div class="hand">' + S.me.strat.map(c => cardRow(c, '', ' data-zoom="' + c + '"')).join('') + '</div>';
-  if (S.me.debateHand && S.me.debateHand.length) out += '<h2>Your debate cards · ' + S.me.debateHand.length + '</h2><div class="hand">' + S.me.debateHand.map(c => cardRow(c, '', ' data-zoom="' + c + '"')).join('') + '</div>';
-  return out;
+document.addEventListener('click', ev => {
+  const t = ev.target;
+  if (t.id === 'nameGo') {
+    const v = $('nameIn').value.trim();
+    if (!nameOk(v)) { phone.flash('Choose a name the house can say: “' + (v || '…') + ' campaigns in Ohio”.'); return; }
+    SOLO.name = v; set(NAME_KEY, v); $('who').textContent = v; phone.setMe(ME, v, '#f1c75b'); H.publish();
+  }
+  if (t.id === 'resume') {
+    const sv = savedGame();
+    if (sv && H.resume(sv)) { SOLO.resumed = true; SOLO.lost = null; phone.flash('Welcome back — your campaign picks up where you left it.', 'good'); }
+    else { setAside('Your saved campaign did not replay the way it was played, so it was not picked up. It is kept aside: Menu → Back up still copies it.'); H.publish(); }
+  }
+  if (t.id === 'abandon') {
+    if (t.dataset.armed !== '1') { t.dataset.armed = '1'; t.textContent = 'Tap again to throw it away'; return; }
+    set(SAVE_KEY, null); H.publish();
+  }
+});
+
+/* The menu: about, back up / restore, reload, abandon, the hub. */
+$('menuBtn').onclick = () => {
+  if (SOLO.stopped) return;
+  const playing = S.screen !== 'lobby';
+  const code = saveCode();
+  const other = phone.P.skin === 'paper' ? 'tv' : 'paper';
+  $('msheet').innerHTML = '<div class="msheet"><div class="title">1960: The Making of the President</div><div class="sub">You against the house — a computer opponent that sees only what a player would: never your hand, never the cubes left in the bag before they come out. The campaign is saved on this phone after every move, and the house waits while your screen is off. Nothing here goes into the room’s season.</div>' +
+    '<div id="mCodeBox" class="hide"><textarea id="mCode" rows="4" spellcheck="false" autocomplete="off"></textarea><div class="sub" id="mCodeNote"></div><button class="btn" id="mCodeGo"></button></div>' +
+    (code ? '<button class="btn ghost" id="mBackup">Back up: copy this campaign as text</button>' : '') +
+    (!playing ? '<button class="btn ghost" id="mRestore">Restore a campaign from its text</button>' : '') +
+    (playing ? '<button class="btn ghost" id="mQuit">Abandon this campaign</button>' : '') +
+    '<button class="btn ghost" id="mHub">' + (playing ? 'Back to the Games hub (your campaign is saved)' : 'Back to the Games hub') + '</button>' +
+    '<button class="btn ghost" id="mSkin">Look: ' + esc(M60Phone.SKINS[phone.P.skin] || '') + ' — switch to ' + esc(M60Phone.SKINS[other]) + '</button>' +
+    '<button class="btn ghost" id="mReload">Reload the game</button>' +
+    '<button class="btn" id="mClose">Close</button>' +
+    '<div class="sub" id="mBuild" style="text-align:center;margin-top:8px">Build ' + esc(window.M60_BUILD || '?') + (standalone() ? ' · installed' : '') + '</div>' +
+    '<div class="sub" style="font-size:11px;margin-top:6px">1960: The Making of the President is designed by Christian Leonhard and Jason Matthews and published by GMT Games. The map and card pictures are theirs; every line of card text here is written fresh. Built to sit beside a copy of the game, not to replace one.</div></div>';
+  $('msheet').classList.remove('hide');
+  $('mClose').onclick = () => $('msheet').classList.add('hide');
+  $('mHub').onclick = () => { H.flushSave(); location.href = HUB; };
+  $('mReload').onclick = () => { H.flushSave(); location.reload(); };
+  $('mSkin').onclick = () => { phone.setSkin(other); $('menuBtn').onclick(); };
+  const box = $('mCodeBox'), ta = $('mCode'), note = $('mCodeNote'), go = $('mCodeGo');
+  if ($('mBackup')) $('mBackup').onclick = () => {
+    box.classList.remove('hide');
+    ta.value = saveCode();
+    note.textContent = 'Keep this text somewhere safe (Notes, a message to yourself). Restore it on any phone, or after this one forgets the campaign.';
+    go.textContent = 'Copy';
+    go.onclick = () => {
+      ta.select();
+      const done = () => { go.textContent = 'Copied'; };
+      try { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(ta.value).then(done, () => { document.execCommand('copy'); done(); }); else { document.execCommand('copy'); done(); } } catch (e) {}
+    };
+  };
+  if ($('mRestore')) $('mRestore').onclick = () => {
+    box.classList.remove('hide');
+    ta.value = '';
+    const sv = savedGame();
+    note.textContent = 'Paste the text from Back up.' + (sv ? ' It replaces the campaign saved on this phone (turn ' + sv.turn + ').' : '');
+    go.textContent = 'Restore';
+    go.onclick = () => {
+      const s = readCode(ta.value);
+      if (!s) { note.textContent = 'That isn’t a save from this build of 1960. Paste the whole text, starting M60-SAVE:'; return; }
+      set(SAVE_KEY, JSON.stringify(s));
+      SOLO.lost = null;
+      $('msheet').classList.add('hide');
+      H.publish();
+      phone.flash('Restored: tap Resume to pick it up (turn ' + s.turn + ').', 'good');
+    };
+  };
+  if ($('mQuit')) $('mQuit').onclick = ev => {
+    const b = ev.currentTarget;
+    if (b.dataset.armed !== '1') { b.dataset.armed = '1'; b.textContent = 'Tap again: the saved campaign is thrown away'; return; }
+    $('msheet').classList.add('hide');
+    if (SOLO.finCtl) { SOLO.finCtl.stop(); SOLO.finCtl = null; }
+    finaleBg(false);
+    H.input(ME, { t: 'quit' });
+  };
+};
+
+/* ---------------- the reveal, on the phone ---------------- */
+/* Election Night behind the reveal (baked; the plain dark wrap without it). */
+function finaleBg(on) {
+  const el = $('finBg');
+  if (!on || !document.documentElement.classList.contains('m60scene')) { el.classList.add('hide'); document.documentElement.classList.remove('m60fin'); return; }
+  $('fbRoom').setAttribute('src', A.sceneUrl(A.SCENES.eday.room));
+  $('fbLights').setAttribute('src', A.sceneUrl(A.SCENES.eday.lights));
+  el.classList.remove('hide');
+  document.documentElement.classList.add('m60fin');
+}
+function playFinale(fin, data) {
+  if (!window.HubFinale) { H.finaleStage(fin.n, 'table'); return; }
+  finaleBg(true);
+  const figure = p => A.portrait(p.side, 'fpt').replace('<img ', '<img style="height:100%;width:auto;margin:0 auto;image-rendering:pixelated" ');
+  SOLO.finCtl = HubFinale.play(Object.assign({}, data, {
+    root: $('finale'), avatars: false, sound: window.HubSound && (S.gameOpts || S.opts).sound ? HubSound : null,
+    players: data.players.map(p => Object.assign({}, p, { figure: figure(p) })),
+    onStage(stage, info) { H.finaleStage(fin.n, stage, info && info.label); },
+    onDone() { H.finaleStage(fin.n, 'table'); finaleBg(false); const c = SOLO.finCtl; SOLO.finCtl = null; setTimeout(() => { if (c) c.stop(); }, 0); }
+  }));
 }
 
-/* ---------------- lobby and the end ---------------- */
-function lobbyHtml() {
-  const lv = S.pub.lobby || { seated: [], house: [] };
-  const rows = lv.seated.map(p => '<div class="siteL"><b style="color:' + D.SIDE[p.side].hex + '">' + esc(p.name) + '</b><span class="sub">' + esc(SN(p.side)) + ' · ' + (p.id === S.id ? 'you' : 'phone') + '</span></div>').join('') +
-    lv.house.map(p => '<div class="siteL"><b>' + esc(p.name) + '</b><span class="sub">' + esc(SN(p.side)) + ' · house · ' + esc(p.level) + '</span></div>').join('') +
-    (lv.watching || []).map(p => '<div class="siteL"><b>' + esc(p.name) + '</b><span class="sub">watching</span></div>').join('');
-  let opts = '';
-  if (isRemote()) {
-    const seg = (key, list, cur) => '<div class="opts" style="flex-direction:row;flex-wrap:wrap">' + list.map(([k, l]) => '<button class="opt' + (String(k) === String(cur) ? ' on' : '') + '" data-opt="' + key + '" data-v="' + esc(k) + '" style="width:auto;flex:1;justify-content:center">' + esc(l) + '</button>').join('') + '</div>';
-    opts = '<h2>Mode</h2>' + seg('mode', [['play', 'Campaign'], ['learn', 'How to play']], lv.mode || 'play') +
-      (lv.mode === 'learn' ? '<div class="sub">A lesson before each new rule, a coach on your phone, and an Easy house.</div>' : '') +
-      '<h2>You play</h2>' + seg('side', [['K', 'Kennedy'], ['N', 'Nixon'], ['R', 'Random']], lv.side) +
-      (lv.house.length && lv.mode !== 'learn' ? '<h2>How well the house plays</h2>' + seg('level', [['easy', 'Easy'], ['medium', 'Medium'], ['hard', 'Hard']], lv.level) : '') +
-      '<h2>Restricted Positioning (optional rule)</h2>' + seg('restricted', [['off', 'Off'], ['on', 'On']], lv.restricted ? 'on' : 'off') +
-      '<h2>Pace</h2>' + seg('pace', [['slow', 'Slow'], ['relaxed', 'Relaxed'], ['brisk', 'Brisk']], lv.pace);
-    $('bar').innerHTML = '<button class="btn" id="go">' + (lv.mode === 'learn' ? 'Start learning' : 'Start the campaign') + '</button>';
-    $('bar').classList.remove('hide');
-  }
-  const holder = S.pub.remote && (lv.seated.find(p => p.id === S.pub.remote) || {}).name;
-  return '<div class="card"><div class="title">1960: The Making of the President</div><div class="sub">Kennedy against Nixon. 269 electoral votes wins.</div>' + rows + '</div>' + opts +
-    (isRemote() ? '' : '<div class="sub" style="margin-top:12px">' + esc(holder || 'The first phone') + ' starts the campaign.</div>') +
-    '<button class="btn ghost" id="menu">Games menu</button>' +
-    '<div class="sub" style="margin-top:10px;text-align:center;font-size:11px">build ' + esc(window.M60_BUILD || '?') + '</div>';
-}
-function overHtml() {
-  const f = S.pub.finale;
-  const told = !f || f.stage === 'winner' || f.stage === 'table';
-  const g0 = game();
-  const R = told && g0 && g0.result;
-  const block = f && window.HubFinale ? HubFinale.phoneHtml(f, { meId: S.id, rows: R ? R.rows.map(r => Object.assign({}, r, { name: SN(r.side), total: r.ev, place: r.won ? 1 : 2 })) : null, esc,
-    winSmall: 'is the next President', loseSmall: me => 'You took ' + me.ev + ' electoral votes.',
-    lines: { title: 'The polls have closed', count: 'Counting the votes region by region', decider: 'The closest region' } }) : '';
-  if (f && f.stage !== 'table') return block + (isRemote() ? '<button class="btn ghost" id="skipFin">Skip to the table</button>' : '');
-  const pay = (S.pub.pay || []).find(p => mine() && p.name === mine().name);
-  return block + (R ? '<div class="card"><div class="title">' + (R.side ? esc(D.SIDE[R.side].full) + ' wins' : 'A tied election') + '</div>' + (pay ? '<div class="sub">' + esc(pay.detail) + '</div>' : '') +
-    R.rows.map(r => '<div class="siteL"><b style="color:' + D.SIDE[r.side].hex + '">' + esc(SN(r.side)) + ' · ' + esc(r.name) + '</b><span class="sub">' + r.ev + ' votes · ' + r.states + ' states</span></div>').join('') + '</div>' : '') +
-    (isRemote() ? '<button class="btn" id="again">Play again</button>' : '') + '<button class="btn ghost" id="menu">Games menu</button>';
-}
-
-/* ================================================================
-   Wiring every button of the current paint
-   ================================================================ */
-function wire() {
-  const on = (sel, fn) => document.querySelectorAll(sel).forEach(x => { x.onclick = ev => { ev.stopPropagation(); if (!locked()) fn(x, ev); }; });
-  const pr = myPrompt();
-  const P = pr && pr !== 'stale' ? pr : null;
-  on('#cont', () => { lock(); send({ t: 'cont', n: S.pub.tbl && S.pub.tbl.n }); });
-  on('#nowait', () => { lock(); send({ t: 'nowait' }); });
-  on('#undo', () => { lock(); send({ t: 'undo' }); });
-  on('#hurry', () => { lock(); send({ t: 'hurry' }); });
-  on('#sinceMore', () => { S.sinceAll = true; paint(); });
-  on('#sinceLess', () => { S.sinceAll = false; paint(); });
-  on('#menu', () => send({ t: 'menu' }));
-  on('#again', () => send({ t: 'again' }));
-  on('#skipFin', () => send({ t: 'skip' }));
-  on('#go', () => send({ t: 'start' }));
-  on('[data-opt]', x => send({ t: 'opt', key: x.dataset.opt, value: x.dataset.v }));
-  document.querySelectorAll('[data-zoom]').forEach(x => { x.onclick = ev => { ev.stopPropagation(); zoom(+x.dataset.zoom); }; });
-  $('zoom').onclick = () => $('zoom').classList.add('hide');
-  if (!P) return;
-  const n = P.n;
-  if (P.t === 'turn') {
-    on('[data-sel]', x => { S.sel = x.dataset.sel === 'cand' ? 'cand' : +x.dataset.sel; S.pre = false; lock(); paint(); window.scrollTo(0, 0); });
-    on('#coachShow', () => { const c = S.coach; if (!c) return; S.sel = c.card; S.pre = false; lock(); paint(); window.scrollTo(0, 0); });
-    on('#unsel', () => { S.sel = null; S.pre = false; lock(); paint(); });
-    on('#pre', () => { S.pre = !S.pre; paint(); });
-    on('[data-how]', x => act({ t: 'play', n, card: S.sel, how: x.dataset.how, pre: x.dataset.how !== 'event' && S.pre }));
-    on('#pass', () => act({ t: 'pass', n }));
-    return;
-  }
-  if (P.t === 'camp') {
-    on('[data-pick]', x => act({ t: 'pick', n, id: x.dataset.pick }));
-    on('#campEnd', x => {
-      if (x.dataset.armed !== '1') { x.dataset.armed = '1'; x.textContent = 'Tap again to stop'; return; }
-      act({ t: 'pick', n, id: 'end' });
-    });
-    return;
-  }
-  if (P.t === 'alloc') {
-    on('[data-inc]', x => { S.amap[x.dataset.inc] = (S.amap[x.dataset.inc] || 0) + 1; paint(); });
-    on('[data-dec]', x => { const k = x.dataset.dec; S.amap[k] = Math.max(0, (S.amap[k] || 0) - 1); if (!S.amap[k]) delete S.amap[k]; paint(); });
-    on('#allocGo', () => act({ t: 'alloc', n, map: Object.assign({}, S.amap) }));
-    return;
-  }
-  on('[data-pick]', x => {
-    if (P.multi) {
-      const id = x.dataset.pick;
-      if (S.multi.indexOf(id) < 0 && S.multi.length >= P.max) { if (P.max === 1) S.multi = []; else return; }
-      toggle(S.multi, id);
-      return paint();
-    }
-    act({ t: 'pick', n, id: x.dataset.pick });
-  });
-  on('#pickGo', () => act({ t: 'pick', n, ids: S.multi.slice() }));
-  on('#skip', () => act({ t: 'skip', n }));
-}
-function zoom(id) {
-  if (!D.CARD[id]) return;
-  const z = $('zoom');
-  z.innerHTML = A.face(id) + '<div class="ztx"><b>' + esc(D.CARD[id].name) + '</b><br>' + esc(D.CARD[id].text) + '</div>';
-  z.classList.remove('hide');
-}
-
-document.head.insertAdjacentHTML('beforeend', A.styles());
+/* The house stops while the phone is away. */
+document.addEventListener('visibilitychange', () => {
+  if (SOLO.stopped) return;
+  const hidden = document.visibilityState === 'hidden';
+  H.input(ME, { t: 'vis', hidden });
+  if (!hidden) checkUpdate();
+});
 if (!/[?&]noart/.test(location.search)) A.probe();
-/* Installable (PRINCIPLES 13): the offline helper is network-first and keyed
-   on the one build number. Browsers only allow it on https or localhost. */
-if ('serviceWorker' in navigator && window.isSecureContext) { try { navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {} }
-$('nameGo').onclick = () => { S.name = $('nameIn').value.trim(); if (S.name) { set(NAME_KEY, S.name); if (live()) send({ t: 'hello', role: 'player', name: S.name }); } };
-if (!get(NAME_KEY) && !get(TOKEN_KEY)) $('name').classList.remove('hide');
-connect();
+window.addEventListener('m60scene', () => phone.paint());
+if (window.HubSound) HubSound.armUnlock();
+
+/* Updates (PHONE-APP-LESSONS C): the GitHub copy's service worker never
+   swaps files under a game. A new build waits; it is looked for whenever the
+   phone comes back, and taken only at the setup screen — or at the next cold
+   start, when nothing is running. */
+let swReg = null;
+function checkUpdate() {
+  if (!swReg) return;
+  try { swReg.update().catch(() => {}); } catch (e) {}
+  takeUpdate();
+}
+function takeUpdate() {
+  const w = swReg && swReg.waiting;
+  if (!w || S.screen !== 'lobby' || SOLO.taking) return;
+  SOLO.taking = true;
+  w.addEventListener('statechange', () => { if (w.state === 'activated') location.reload(); });
+  w.postMessage('take-over');
+}
+if ('serviceWorker' in navigator && window.isSecureContext) {
+  try {
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      swReg = reg;
+      reg.addEventListener('updatefound', () => { const n = reg.installing; if (n) n.addEventListener('statechange', () => { if (n.state === 'installed') takeUpdate(); }); });
+      takeUpdate();
+    }).catch(() => {});
+  } catch (e) {}
+}
+setInterval(() => H.tick(), 1000);
+/* A new player's first game is How to play; Campaign is one tap away (B). */
+if (SOLO.firstRun) H.setOpt('mode', 'learn');
+H.publish();
 </script>
 </body>
 </html>

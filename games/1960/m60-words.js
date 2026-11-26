@@ -205,7 +205,7 @@
         'Every state is worth its electoral votes — ' + big + '. There are 537 in all; <b>269 wins</b>.',
         'Cubes in a state mean you <b>lead</b> it: on Election Day it gives you all its votes. Blue cubes are Kennedy’s, red are Nixon’s, and a state never holds both — adding a cube where the other side has some takes one of theirs off instead.',
         'An empty state goes to whoever has an <b>endorsement</b> in its region, or else to the side printed on its edge.',
-        'Right now: Kennedy leads states worth <b>' + ev.K + '</b>, Nixon <b>' + ev.N + '</b>.'], tip: 'The board on the telly is the map. A state’s box shows its votes and its cubes.' };
+        'Right now: Kennedy leads states worth <b>' + ev.K + '</b>, Nixon <b>' + ev.N + '</b>.'], tip: 'The board on the telly is the map. A state’s box shows its votes and its cubes.', tipSolo: 'The Map tab is the board: the whole country, then one region at a time. A state’s box shows its votes and its cubes.' };
       case 'cards': return { h: 'A card is points — or an event', li: [
         'Every card has <b>campaign points</b> (CP, the big number) and an <b>event</b>.',
         'Spend the CP one of three ways: <b>Campaign</b> — a cube a CP in the states of your candidate’s region, 1 CP to cross into the next region; <b>Advertise</b> — a draw from the bag a CP for media cubes; or <b>Position</b> on the three issues.',
@@ -215,7 +215,7 @@
         'Four or more cubes and you <b>carry</b> the state.',
         'Campaigning where the other side carries the state, or where their candidate stands, takes <b>support checks</b>: a cube from the bag for each CP, and only your colour counts.',
         '<b>Media cubes</b> in a region spare you the checks there.',
-        'The bag holds <b>' + pub.bag.K + '</b> blue and <b>' + pub.bag.N + '</b> red. The rest cubes on the cards you play go into it at the end of each turn — so playing cards with rest cubes fills the bag in your colour.'], tip: 'Every draw comes out on the telly one cube at a time before it counts.' };
+        'The bag holds <b>' + pub.bag.K + '</b> blue and <b>' + pub.bag.N + '</b> red. The rest cubes on the cards you play go into it at the end of each turn — so playing cards with rest cubes fills the bag in your colour.'], tip: 'Every draw comes out on the telly one cube at a time before it counts.', tipSolo: 'Every draw comes out of the bag on your phone one cube at a time before it counts.' };
       case 'faces': return { h: 'Whose face is on the card', li: [
         'Play a card for its CP and the other side may <b>trigger</b> its event for <b>1 momentum</b>, as if they had played it themselves.',
         'So a card showing the <b>other candidate’s face</b> is a gift to them unless you plan for it: pay <b>2 momentum</b> as you play it to <b>preempt</b> them.',
@@ -241,8 +241,9 @@
     }
     return { h: id, li: [], tip: '' };
   }
-  function lessonHtml(pub, h) {
+  function lessonHtml(pub, h, solo) {
     const L = lessonBody(pub, h.id);
+    if (solo && L.tipSolo) L.tip = L.tipSolo;
     return '<div class="rc-what">' + (h.of ? 'How to play · lesson ' + h.i + ' of ' + h.of : 'How to play · a new rule') + '</div>' +
       '<div class="rc-h">' + esc(L.h) + '</div>' +
       '<div class="rc-sec"><ul>' + L.li.map(x => '<li>' + x + '</li>').join('') + '</ul></div>' +

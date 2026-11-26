@@ -13,5 +13,5 @@
  * network-first, so a phone that can reach the hub always gets the new files.
  */
 (function (root) {
-  root.M60_BUILD = '2026-11-20.3';
+  root.M60_BUILD = '2026-11-27.1';
 })(typeof self !== 'undefined' ? self : this);
