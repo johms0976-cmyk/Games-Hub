@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#0b1220">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<title>Twilight Struggle — Solo</title>
+<style>
+[hidden],.hide{display:none !important}
+#menuBtn{margin-left:auto;background:transparent;border:1px solid #33446a;color:#b2b9c9;border-radius:10px;padding:5px 11px;font-size:14px;flex:none}
+.namein{display:flex;gap:8px;margin-top:6px}
+.namein input{flex:1;min-width:0;font:inherit;background:#111a2c;border:1px solid #33446a;color:#f2ecdc;border-radius:12px;padding:11px}
+#msheet{position:fixed;inset:0;z-index:45;background:rgba(5,8,16,.9);display:flex;align-items:flex-end;justify-content:center;padding:16px}
+#msheet .msheet{width:min(100%,460px);max-height:100%;overflow:auto;background:#182238;border:1px solid #33446a;border-radius:18px;padding:14px}
+#msheet{padding-bottom:calc(16px + var(--inset-bottom, env(safe-area-inset-bottom)))}
+#mCode{display:block;width:100%;margin-top:10px;font:16px/1.3 ui-monospace,Menlo,Consolas,monospace;background:#111a2c;border:1px solid #33446a;color:#f2ecdc;border-radius:10px;padding:8px;-webkit-user-select:text;user-select:text}
+/* the reveal, full screen on a phone held upright (F1) */
+#finale .hf-wrap{background-color:#0b1220}
+#finale .hf-title{font-size:min(6.2vh,9vw)}
+#finale .hf-sub{font-size:min(3.1vh,4.4vw)}
+#finale .hf-stage{gap:3vw;padding:0 3vw 9vh}
+#finale .hf-col{width:30vw}
+#finale .hf-name{font-size:min(3vh,4vw)}
+#finale .hf-tag{font-size:min(2vh,3vw)}
+#finale .hf-tot{font-size:min(4.4vh,7vw)}
+#finale .hf-part,#finale .hf-place{font-size:min(2.4vh,3.5vw)}
+#finale .hf-winner{font-size:min(10vh,12vw)}
+#finale .hf-winner small{font-size:min(3.4vh,4.6vw)}
+#finale .hf-skip{font-size:15px;padding:8px 14px}
+#finBg{position:fixed;inset:0;z-index:59;pointer-events:none;background:#05080f}
+#finBg img{width:100%;height:100%;object-fit:cover;object-position:50% 70%}
+html.tsfin #finale .hf-wrap{background:linear-gradient(rgba(5,7,14,.25),rgba(5,7,14,.78)) !important}
+</style>
+</head>
+<body>
+<header><span id="dot"></span><span id="who"></span><span id="side"></span><button id="menuBtn">Menu</button></header>
+<div id="main"></div>
+<div id="bar" class="hide"></div>
+<div id="flash" class="hide"></div>
+<div id="zoom" class="hide"></div>
+<div id="msheet" class="hide"></div>
+<div id="finBg" class="hide"><img alt=""></div>
+<div id="finale"></div>
+
+<script src="ts-build.js"></script>
+<script src="finale.js"></script>
+<script src="ts-data.js"></script>
+<script src="ts-engine.js"></script>
+<script src="ts-bots.js"></script>
+<script src="ts-art.js"></script>
+<script src="ts-words.js"></script>
+<script src="ts-host.js"></script>
+<script src="ts-phone.js"></script>
+<script>
+'use strict';
+/* Twilight Struggle on one phone: you against the house, no telly.
+ *
+ * The host and the handset run side by side in this page (LESSONS-CHECKLIST
+ * F1): ts-host.js is the very orchestration the hub's telly runs, talking to
+ * ts-phone.js — the very handset the hub's phones run — over an in-page bus
+ * instead of a socket. The telly is never touched. The game is saved on this
+ * phone after every move and picks up where it was left; the house stops
+ * while the screen is away; nothing is banked to any season. */
+(function checkVersions() {
+  const missing = [];
+  for (const [g, f] of [['TSData', 'ts-data.js'], ['TSEngine', 'ts-engine.js'], ['TSBots', 'ts-bots.js'], ['TSArt', 'ts-art.js'], ['TSWords', 'ts-words.js'], ['TSHost', 'ts-host.js'], ['TSPhone', 'ts-phone.js']])
+    if (!window[g] || window[g].VERSION !== 1) missing.push(f);
+  if (!missing.length) return;
+  const show = () => {
+    document.body.innerHTML = '<div id="staleWarning" style="padding:12vw 8vw;text-align:center;font:600 18px/1.5 system-ui;color:#f2ecdc">' +
+      '<div style="font-size:26px;color:#f1c75b;margin-bottom:12px">This page is out of date</div>' +
+      'Your phone kept an old copy of ' + missing.join(' and ') + '. Pull down to reload, or close the tab and open it again.</div>';
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', show); else show();
+  throw new Error('stale assets: ' + missing.join(', '));
+})();
+
+const $ = id => document.getElementById(id);
+const esc = TSArt.esc;
+const ME = 'me';
+/* Every save carries a version: ts-host.js VERSION rides inside it, and the
+   key names it too. */
+const SAVE_KEY = 'ts.solo.save.v1', NAME_KEY = 'ts.solo.name', PLAYED_KEY = 'ts.solo.played', ASIDE_KEY = 'ts.solo.save.aside';
+const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+/* Every write goes through here and says whether it held (PHONE-APP-LESSONS C). */
+const set = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+const HUB = /\/games\/twilight-struggle\//.test(location.pathname) ? '../../index.html' : '/';
+/* This tab's mark on its saves: a save written by another tab of this game
+   stops this one writing (two copies open never corrupt one save). */
+const TAB = Math.random().toString(36).slice(2, 10);
+const SOLO = { name: get(NAME_KEY) || 'The Premier', finCtl: null, resumed: false, writes: 0, saveFail: false, stopped: false, persistAsked: false,
+  firstRun: !get(PLAYED_KEY) && !get(NAME_KEY) && !get(SAVE_KEY), errs: [] };
+window.__TSSOLO = SOLO;
+/* Installed on the home screen? (?standalone stands in, for tests.) */
+const standalone = () => /[?&]standalone/.test(location.search) || !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+/* ?insets=top,bottom fakes the safe areas for a layout check. */
+(function fakeInsets() {
+  const m = /[?&]insets=(\d+),(\d+)/.exec(location.search);
+  if (m) { document.documentElement.style.setProperty('--inset-top', m[1] + 'px'); document.documentElement.style.setProperty('--inset-bottom', m[2] + 'px'); }
+})();
+window.addEventListener('error', e => { SOLO.errs.push(String(e.message || e).slice(0, 200)); if (SOLO.errs.length > 20) SOLO.errs.shift(); });
+
+/* The one door every game save goes through. */
+function saveGame(data) {
+  if (SOLO.stopped) return;
+  if (data) Object.assign(data, { tab: TAB, w: ++SOLO.writes, build: window.TS_BUILD });
+  const held = set(SAVE_KEY, data ? JSON.stringify(data) : null);
+  if (!held) {
+    if (!SOLO.saveFail) { SOLO.saveFail = true; setTimeout(() => phone.flash('This phone isn’t keeping your save — its storage is full or switched off. Menu → Back up keeps a copy you can paste back.'), 0); }
+    return;
+  }
+  SOLO.saveFail = false;
+  if (data) {
+    set(PLAYED_KEY, '1');
+    /* Installed: ask the phone to keep this site's storage (Safari 17+). */
+    if (!SOLO.persistAsked && standalone() && navigator.storage && navigator.storage.persist) { SOLO.persistAsked = true; try { navigator.storage.persist().catch(() => {}); } catch (e) {} }
+  }
+}
+/* Another tab of this game wrote the save: this one stops writing, says so, and pauses. */
+window.addEventListener('storage', e => {
+  if (e.key !== SAVE_KEY || SOLO.stopped) return;
+  let s = null;
+  try { s = JSON.parse(e.newValue || 'null'); } catch (x) {}
+  if (S.screen === 'lobby') { H.publish(); return; }
+  if (!s || s.tab === TAB) return;
+  SOLO.stopped = true;
+  H.input(ME, { t: 'vis', hidden: true });
+  $('msheet').innerHTML = '<div class="msheet" id="otherTab"><div class="title">Open in another tab</div><div class="sub">This game was carried on in another tab or window. This one has stopped saving, so the two can’t overwrite each other.</div>' +
+    '<button class="btn" id="mReload">Reload here</button></div>';
+  $('msheet').classList.remove('hide');
+  $('mReload').onclick = () => location.reload();
+});
+/* The player's name goes into third-person lines, so it may not be "you". */
+const nameOk = n => n && !/^(you|me|i|myself)$/i.test(n.trim());
+
+/* ---------------- the in-page bus ---------------- */
+let phone = null;
+const deliver = m => { setTimeout(() => phone && phone.receive(JSON.parse(JSON.stringify(m))), 0); };
+const H = TSHost.create({
+  solo: true,
+  toAll: deliver,
+  toSeat: (id, m) => { if (id === ME) deliver(m); },
+  flash: (id, text, tone) => { if (id === ME) setTimeout(() => phone.flash(text, tone), 0); },
+  humans: () => [{ id: ME, name: SOLO.name, hex: '#f1c75b' }],
+  remote: () => ME,
+  save: saveGame,
+  menu: () => { location.href = HUB; },
+  onFinale: (fin, data) => playFinale(fin, data),
+  skipFinale: () => { if (SOLO.finCtl) SOLO.finCtl.skip(); }
+});
+SOLO.H = H;
+const S = H.S;
+
+document.head.insertAdjacentHTML('beforeend', TSArt.styles() + '<style>' + TSPhone.STYLES + '</style>');
+phone = TSPhone.create({
+  solo: true, root: $('main'), bar: $('bar'), flashEl: $('flash'), zoomEl: $('zoom'),
+  send: m => setTimeout(() => H.input(ME, m), 0),
+  scrollTop: () => window.scrollTo(0, 0),
+  onMenu: () => { location.href = HUB; },
+  onMe: me => { $('dot').style.background = TSData.SIDE[me.side].hex; $('side').textContent = TSData.SIDE[me.side].name; },
+  lobbyTop
+});
+SOLO.phone = phone;
+phone.setMe(ME, SOLO.name, '#f1c75b');
+$('who').textContent = SOLO.name;
+
+/* The setup screen: your name, and the game you left, if there is one. */
+function savedGame() { try { const s = JSON.parse(get(SAVE_KEY) || 'null'); return s && s.createOpts && s.v === TSHost.VERSION ? s : null; } catch (e) { return null; } }
+/* A save this build can't resume is never dropped in silence: it is put
+   aside (Back up still reaches it) and the setup screen says so. */
+function setAside(why) {
+  const raw = get(SAVE_KEY);
+  if (raw) set(ASIDE_KEY, raw);
+  set(SAVE_KEY, null);
+  SOLO.lost = why;
+}
+if (get(SAVE_KEY) && !savedGame()) setAside('Your saved game was made by an older build of Twilight Struggle and can’t be picked up again here. It is kept aside: Menu → Back up still copies it.');
+/* The save code: the whole game as text, a few KB (Back up / Restore). */
+const CODE_HEAD = 'TS-SAVE:';
+function saveCode() { H.flushSave(); const raw = get(SAVE_KEY) || get(ASIDE_KEY); return raw ? CODE_HEAD + raw : ''; }
+function readCode(text) {
+  const t = String(text || '').trim();
+  if (t.indexOf(CODE_HEAD) !== 0) return null;
+  try { const s = JSON.parse(t.slice(CODE_HEAD.length)); return s && s.createOpts && s.v === TSHost.VERSION && Array.isArray(s.moves) ? s : null; } catch (e) { return null; }
+}
+function lobbyTop() {
+  const sv = savedGame();
+  let out = '';
+  if (SOLO.lost) out += '<div class="card" id="lostCard"><div class="title">Your saved game is gone</div><div class="sub">' + esc(SOLO.lost) + '</div></div>';
+  if (SOLO.firstRun && !sv) out += '<div class="card mine" id="firstRun"><div class="title">First time here?</div><div class="sub">How to play is picked for you: a real game against a gentle house, with a coach who explains each step. Know the rules already? Choose Game below.</div></div>';
+  out +='<div class="card"><div class="title">Your name</div><div class="sub">The house speaks of you by it: “' + esc(SOLO.name) + ' plays Fidel for its event.”</div>' +
+    '<div class="namein"><input id="nameIn" maxlength="14" value="' + esc(SOLO.name) + '" autocomplete="off"><button class="btn ghost" style="width:auto;margin:0;padding:10px 16px" id="nameGo">Save</button></div></div>';
+  if (sv) {
+    const when = new Date(sv.at);
+    const me = (sv.sides || []).find(x => !x.bot);
+    out += '<div class="card mine"><div class="title">Resume your game</div><div class="sub">Turn ' + sv.turn + (me ? ' · you are the ' + esc(TSData.SIDE[me.side].name) : '') + ' · VP ' + esc(TSWords.vpWords(sv.vp || 0)) + ' · DEFCON ' + (sv.defcon || 5) +
+      ' · last played ' + esc(when.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' })) + '</div>' +
+      '<button class="btn" id="resume">Resume</button><button class="btn ghost" id="abandon">Throw it away</button></div>';
+  }
+  return out;
+}
+document.addEventListener('click', ev => {
+  const t = ev.target;
+  if (t.id === 'nameGo') {
+    const v = $('nameIn').value.trim();
+    if (!nameOk(v)) { phone.flash('Choose a name the house can say: “' + (v || '…') + ' plays Fidel”.'); return; }
+    SOLO.name = v; set(NAME_KEY, v); $('who').textContent = v; phone.setMe(ME, v, '#f1c75b'); H.publish();
+  }
+  if (t.id === 'resume') {
+    const sv = savedGame();
+    if (sv && H.resume(sv)) { SOLO.resumed = true; SOLO.lost = null; phone.flash('Welcome back — your game picks up where you left it.', 'good'); }
+    else { setAside('Your saved game did not replay the way it was played, so it was not picked up. It is kept aside: Menu → Back up still copies it.'); H.publish(); }
+  }
+  if (t.id === 'abandon') {
+    if (t.dataset.armed !== '1') { t.dataset.armed = '1'; t.textContent = 'Tap again to throw it away'; return; }
+    set(SAVE_KEY, null); H.publish();
+  }
+});
+
+/* The menu: about, back up / restore, reload, abandon, the hub. */
+$('menuBtn').onclick = () => {
+  if (SOLO.stopped) return;
+  const playing = S.screen !== 'lobby';
+  const code = saveCode();
+  $('msheet').innerHTML = '<div class="msheet"><div class="title">Twilight Struggle</div><div class="sub">You against the house — a computer opponent that sees only what a player would: never your hand, never the deck. The game is saved on this phone after every move, and the house waits while your screen is off. Nothing here goes into the room’s season.</div>' +
+    '<div id="mCodeBox" class="hide"><textarea id="mCode" rows="4" spellcheck="false" autocomplete="off"></textarea><div class="sub" id="mCodeNote"></div><button class="btn" id="mCodeGo"></button></div>' +
+    (code ? '<button class="btn ghost" id="mBackup">Back up: copy this game as text</button>' : '') +
+    (!playing ? '<button class="btn ghost" id="mRestore">Restore a game from its text</button>' : '') +
+    (playing ? '<button class="btn ghost" id="mQuit">Abandon this game</button>' : '') +
+    '<button class="btn ghost" id="mHub">' + (playing ? 'Back to the Games hub (your game is saved)' : 'Back to the Games hub') + '</button>' +
+    '<button class="btn ghost" id="mReload">Reload the game</button>' +
+    '<button class="btn" id="mClose">Close</button>' +
+    '<div class="sub" id="mBuild" style="text-align:center;margin-top:8px">Build ' + esc(window.TS_BUILD || '?') + (standalone() ? ' · installed' : '') + '</div></div>';
+  $('msheet').classList.remove('hide');
+  $('mClose').onclick = () => $('msheet').classList.add('hide');
+  $('mHub').onclick = () => { H.flushSave(); location.href = HUB; };
+  $('mReload').onclick = () => { H.flushSave(); location.reload(); };
+  const box = $('mCodeBox'), ta = $('mCode'), note = $('mCodeNote'), go = $('mCodeGo');
+  if ($('mBackup')) $('mBackup').onclick = () => {
+    box.classList.remove('hide');
+    ta.value = saveCode();
+    note.textContent = 'Keep this text somewhere safe (Notes, a message to yourself). Restore it on any phone, or after this one forgets the game.';
+    go.textContent = 'Copy';
+    go.onclick = () => {
+      ta.select();
+      const done = () => { go.textContent = 'Copied'; };
+      try { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(ta.value).then(done, () => { document.execCommand('copy'); done(); }); else { document.execCommand('copy'); done(); } } catch (e) {}
+    };
+  };
+  if ($('mRestore')) $('mRestore').onclick = () => {
+    box.classList.remove('hide');
+    ta.value = '';
+    const sv = savedGame();
+    note.textContent = 'Paste the text from Back up.' + (sv ? ' It replaces the game saved on this phone (turn ' + sv.turn + ').' : '');
+    go.textContent = 'Restore';
+    go.onclick = () => {
+      const s = readCode(ta.value);
+      if (!s) { note.textContent = 'That isn’t a save from this build of Twilight Struggle. Paste the whole text, starting TS-SAVE:'; return; }
+      set(SAVE_KEY, JSON.stringify(s));
+      SOLO.lost = null;
+      $('msheet').classList.add('hide');
+      H.publish();
+      phone.flash('Restored: tap Resume to pick it up (turn ' + s.turn + ').', 'good');
+    };
+  };
+  if ($('mQuit')) $('mQuit').onclick = ev => {
+    const b = ev.currentTarget;
+    if (b.dataset.armed !== '1') { b.dataset.armed = '1'; b.textContent = 'Tap again: the saved game is thrown away'; return; }
+    $('msheet').classList.add('hide');
+    if (SOLO.finCtl) { SOLO.finCtl.stop(); SOLO.finCtl = null; }
+    H.input(ME, { t: 'quit' });
+  };
+};
+
+/* ---------------- the reveal, on the phone ---------------- */
+const FIG = hex => '<svg viewBox="0 0 40 70" aria-hidden="true"><rect x="6" y="18" width="28" height="28" rx="6" fill="' + hex + '"/><path d="M8 66h24" stroke="' + hex + '" stroke-width="5"/></svg>';
+/* The skyline behind the reveal (baked; the plain dark wrap without it). */
+function finaleBg(on) {
+  const el = $('finBg');
+  const R = S.g && S.g.result;
+  if (!on || !document.documentElement.classList.contains('tsscene')) { el.classList.add('hide'); document.documentElement.classList.remove('tsfin'); return; }
+  el.firstElementChild.setAttribute('src', TSArt.sceneUrl(R && (R.how === 'defcon' || R.how === 'cmc') ? TSArt.SCENES.finale.red : TSArt.SCENES.finale.dawn));
+  el.classList.remove('hide');
+  document.documentElement.classList.add('tsfin');
+}
+function playFinale(fin, data) {
+  if (!window.HubFinale) { H.finaleStage(fin.n, 'table'); return; }
+  finaleBg(true);
+  SOLO.finCtl = HubFinale.play(Object.assign({}, data, {
+    root: $('finale'), avatars: false, sound: null,
+    players: data.players.map(p => Object.assign({}, p, { figure: FIG(p.hex) })),
+    onStage(stage, info) { H.finaleStage(fin.n, stage, info && info.label); },
+    onDone() { H.finaleStage(fin.n, 'table'); finaleBg(false); const c = SOLO.finCtl; SOLO.finCtl = null; setTimeout(() => { if (c) c.stop(); }, 0); }
+  }));
+}
+
+/* The house stops while the phone is away. */
+document.addEventListener('visibilitychange', () => {
+  if (SOLO.stopped) return;
+  const hidden = document.visibilityState === 'hidden';
+  H.input(ME, { t: 'vis', hidden });
+  if (!hidden) checkUpdate();
+});
+if (!/[?&]noart/.test(location.search)) TSArt.probe();
+window.addEventListener('tsart', () => phone.paint());
+
+/* Updates (PHONE-APP-LESSONS C): the GitHub copy's service worker never
+   swaps files under a game. A new build waits; it is looked for whenever the
+   phone comes back, and taken only at the setup screen — or at the next cold
+   start, when nothing is running. */
+let swReg = null;
+function checkUpdate() {
+  if (!swReg) return;
+  try { swReg.update().catch(() => {}); } catch (e) {}
+  takeUpdate();
+}
+function takeUpdate() {
+  const w = swReg && swReg.waiting;
+  if (!w || S.screen !== 'lobby' || SOLO.taking) return;
+  SOLO.taking = true;
+  w.addEventListener('statechange', () => { if (w.state === 'activated') location.reload(); });
+  w.postMessage('take-over');
+}
+if ('serviceWorker' in navigator && window.isSecureContext) {
+  try {
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      swReg = reg;
+      reg.addEventListener('updatefound', () => { const n = reg.installing; if (n) n.addEventListener('statechange', () => { if (n.state === 'installed') takeUpdate(); }); });
+      takeUpdate();
+    }).catch(() => {});
+  } catch (e) {}
+}
+setInterval(() => H.tick(), 1000);
+/* A new player's first game is How to play; Game is one tap away (B). */
+if (SOLO.firstRun) H.setOpt('mode', 'learn');
+H.publish();
+</script>
+</body>
+</html>

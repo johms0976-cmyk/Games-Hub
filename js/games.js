@@ -194,6 +194,17 @@ const GAMES = [
     status: "playable",
   },
   {
+    id: "twilight-struggle",
+    title: "Twilight Struggle",
+    subtitle: "Solo — the USA or the USSR against the house: spread influence, stage coups, race to the Moon and keep DEFCON off one, ten turns of Cold War",
+    category: "strategy",
+    players: "1",
+    duration: "60–120 min",
+    icon: "☢️",
+    accentColor: "#d8323a",
+    status: "playable",
+  },
+  {
     id: "gwent",
     title: "Gwent: The Path",
     subtitle: "Solo deck-builder — the Witcher card game as a run: three acts, three bosses, three lives; or the Long Road, at Slay the Spire’s length",
