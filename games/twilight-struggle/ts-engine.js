@@ -370,7 +370,7 @@
       const mod = coupMod(s, c);
       const r = 1 + Math.floor(rand() * 6);
       const net = r + ops + mod - 2 * C[c].stab;
-      yield* hold({ k: 'die', what: 'coup', why: SN(s) + ' coup in ' + CN(c), side: s, c, rolls: [{ side: s, r }], ops, mod, stab: C[c].stab, net });
+      yield* hold({ k: 'die', what: 'coup', why: SN(s) + ' coup in ' + CN(c), side: s, c, rolls: [{ side: s, r }], ops, mod, stab: C[c].stab, net, card: card || null, free: !!o.free });
       let removed = 0, added = 0;
       if (net > 0) {
         removed = remInf(opp, c, net, 'coup');

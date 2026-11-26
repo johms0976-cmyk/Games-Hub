@@ -109,7 +109,7 @@
       s += '<g class="ts-box ' + a.reg + (a.bg ? ' bg' : '') + '">' +
         '<rect class="ts-bx" x="' + x0 + '" y="' + y0 + '" width="' + BW + '" height="' + BH + '" rx="14" style="--rc:' + D.REGION[a.reg].hex + '"/>' +
         '<rect class="ts-bn" x="' + x0 + '" y="' + y0 + '" width="' + BW + '" height="48" rx="14"/>' +
-        '<text class="ts-nm" x="' + (x0 + 12) + '" y="' + (y0 + 38) + '" textLength="' + (a.name.length > 12 ? BW - 66 : '') + '" lengthAdjust="spacingAndGlyphs">' + esc(a.name) + '</text>' +
+        '<text class="ts-nm" x="' + (x0 + 12) + '" y="' + (y0 + 38) + '"' + (a.name.length > 12 ? ' textLength="' + (BW - 66) + '" lengthAdjust="spacingAndGlyphs"' : '') + '>' + esc(a.name) + '</text>' +
         '<text class="ts-stab" x="' + (x0 + BW - 14) + '" y="' + (y0 + 39) + '">' + a.stab + '</text></g>';
     }
     s += '</g>';

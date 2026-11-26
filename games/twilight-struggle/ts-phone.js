@@ -21,6 +21,28 @@
   /* Phones synthesise a click ~300ms after a touch. Everything is inert for
      this long after a send and after the screen changes shape. */
   const LOCK_MS = 450;
+  const SKINS = { file: 'Dossier', steel: 'Situation Room' };
+  const SKIN_KEY = 'ts.skin';
+  /* A country box on the board, in map units (ts-art.js draws the same). */
+  const BW = 236, BH = 150;
+  /* Where influence is placed: the map one view at a time, each at least
+     ~60 px a country (a view wider than the phone scrolls sideways). */
+  const VIEWS = [['WE', 'W. Europe'], ['EE', 'E. Europe'], ['ME', 'Mid East'], ['AS', 'Asia'], ['AF', 'Africa'], ['CA', 'C. America'], ['SA', 'S. America']];
+  const inView = (c, v) => (v === 'WE' || v === 'EE' ? D.COUNTRY[c].reg === 'EU' && D.inWhere(c, v) : D.COUNTRY[c].reg === v);
+  const viewOf = c => { const k = D.COUNTRY[c]; return k.reg !== 'EU' ? k.reg : D.inWhere(c, 'EE') && !D.inWhere(c, 'WE') ? 'EE' : 'WE'; };
+  const VBOX = {};
+  function viewBox(v) {
+    if (VBOX[v]) return VBOX[v];
+    const cs = D.COUNTRIES.filter(c => inView(c, v));
+    const xs = cs.map(c => D.COUNTRY[c].x), ys = cs.map(c => D.COUNTRY[c].y);
+    const x = Math.min(...xs) - BW / 2 - 40, y = Math.min(...ys) - BH / 2 - 50;
+    const w = Math.max(...xs) + BW / 2 + 40 - x, h = Math.max(...ys) + BH / 2 + 40 - y;
+    const k = Math.max(0.25, Math.min(1, 366 / w, 380 / h));
+    return (VBOX[v] = { x, y, w, h, k, W: Math.round(w * k), H: Math.round(h * k) });
+  }
+  /* The two sides' seals: a white star on blue, a gold star on red. */
+  const STAR = f => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.75 6.1 6.65.6-5.03 4.4 1.5 6.5L12 16.8l-5.87 3.4 1.5-6.5L2.6 9.3l6.65-.6z" fill="' + f + '"/></svg>';
+  const seal = s => '<span class="seal ' + (s === 'US' ? 'us' : 'su') + '">' + STAR(s === 'US' ? '#fff' : '#ffd23f') + '</span>';
 
   function create(o) {
     const S = {
@@ -29,8 +51,28 @@
       sel: null,          // the hand card being looked at
       evFirst: false,     // the other side's event before my Ops
       multi: [], amap: {}, sinceAll: false, lockUntil: 0, shape: '', myTurn: false, finStage: '',
-      tab: 'play', solo: !!o.solo
+      tab: 'play', solo: !!o.solo,
+      view: null,         // the map view placing influence (W. Europe, Asia…)
+      alist: false,       // placing influence from the list instead of the map
+      sx: {},             // how far each map view is scrolled sideways
+      skin: 'file'
     };
+    /* The look: Dossier (manila, typewriter, stamps) or Situation Room
+       (gunmetal, amber, rivets). This phone's own choice, kept on it; it
+       changes nothing anyone else sees. */
+    function applySkin(k) {
+      S.skin = SKINS[k] ? k : 'file';
+      if (typeof document === 'undefined') return;
+      const c = document.documentElement.classList;
+      Object.keys(SKINS).forEach(x => c.remove('skin-' + x));
+      c.add('skin-' + S.skin);
+    }
+    function setSkin(k) {
+      applySkin(k);
+      try { localStorage.setItem(SKIN_KEY, S.skin); } catch (e) {}
+      paint();
+    }
+    { let k = null; try { k = localStorage.getItem(SKIN_KEY); } catch (e) {} applySkin(k); }
     const send = m => o.send(m);
     const scrollTop = () => { if (o.scrollTop) o.scrollTop(); };
     const locked = () => Date.now() < S.lockUntil;
@@ -85,7 +127,7 @@
         const wasTurn = S.shape.split('|')[1] && S.shape.split('|')[1].indexOf('turn') === 0;
         const isTurn = pr && pr !== 'stale' && pr.t === 'turn';
         if (!(wasTurn && isTurn)) { S.sel = null; S.evFirst = false; }
-        S.multi = []; S.amap = {};
+        S.multi = []; S.amap = {}; S.view = null; S.sx = {};
         const top = (!!t !== (S.shape.split('|')[2] || '').length > 0) || (S.shape.split('|')[1] !== shape.split('|')[1] && shape.split('|')[1] !== '-' && !(wasTurn && isTurn));
         /* A new question pulls you back to Play; you may still go and look at
            the map while it waits. */
@@ -149,7 +191,7 @@
     function holdBody(g, h) {
       switch (h.k) {
         case 'turnStart': return W.turnStartHtml(g, h);
-        case 'score': return W.scoreHtml(g, h);
+        case 'score': return h.r !== 'SEA' && h.res && h.res.lv && D.REGION[h.r] ? scoreHtml(g, h) : W.scoreHtml(g, h);
         case 'turnEnd': return W.turnEndHtml(g, h);
         case 'final': return W.finalHtml(g, h);
         case 'lesson': return W.lessonHtml(g, h);
@@ -188,9 +230,75 @@
       const g = game(), h = g.hold;
       if (!h || !h.rolls) return waitCard('The dice', S.solo ? '' : 'Watch the telly.');
       const landed = S.pub.dice.landed && h.rolls[0].r != null;
+      if (S.solo && h.what === 'coup' && h.c && D.COUNTRY[h.c]) return coupHtml(h, landed) + goOn(S.pub.dice.n);
       if (S.solo) return '<div class="card mine showc">' + banner(h, landed) + W.diceHtml(h, landed, A, 'phone') + '</div>' + goOn(S.pub.dice.n);
       return waitCard(h.why || 'The dice', landed ? '' : 'The dice are rolling on the telly.',
         landed ? '<div class="dice">' + h.rolls.map(r => '<span>' + A.die(r.r, r.side) + '</span>').join('') + '</div>' : '');
+    }
+    /* A country as its box on the board: the name band, stability, both chips. */
+    function cbox(c, inf) {
+      const a = D.COUNTRY[c], ct = D.ctrl({ [c]: inf }, c);
+      const chip = s => '<span class="' + s.toLowerCase() + (ct === s ? ' ctl' : '') + (inf[s] ? '' : ' z') + '">' + inf[s] + '</span>';
+      return '<div class="cbx' + (a.bg ? ' bg' : '') + '" style="--rcx:' + D.REGION[a.reg].hex + '"><div class="bn"><span>' + esc(a.name) + '</span><s>' + a.stab + '</s></div><div class="ch">' + chip('US') + chip('SU') + '</div></div>';
+    }
+    /* A coup, alone on the phone: the card and its Ops, the target and its
+       defence, the die and the sum, then what changed and what it costs —
+       each said as the engine applies it (ts-engine.js coupAt). */
+    function coupHtml(h, landed) {
+      const g = game();
+      const c = h.c, a = D.COUNTRY[c], s = h.side, opp = D.other(s);
+      const before = { US: g.inf[c].US, SU: g.inf[c].SU };
+      const r = h.rolls[0].r;
+      const def = 2 * h.stab, mod = h.mod || 0;
+      const net = h.net;
+      const after = { US: before.US, SU: before.SU };
+      if (net > 0) { const out = Math.min(net, after[opp]); after[opp] -= out; after[s] += net - out; }
+      const card = h.card != null && D.CARD[h.card] ? h.card : null;
+      const by = card != null ? 'The ' + SN(s) + ' ' + (h.free ? 'plays ' : 'uses ') + D.CARD[card].name + (h.free ? ' for a free coup' : ' for its Ops') : 'The ' + SN(s) + ' stages a coup';
+      const ok = net > 0;
+      const sum = h.ops + ' + ' + (landed ? r : '?') + (mod ? (mod > 0 ? ' + ' : ' − ') + Math.abs(mod) : '') + ' − ' + def + (landed ? ' = ' + net : '');
+      let out = '<div class="card mine showc pnl coupp">' + banner(h, landed) +
+        '<div class="ptl">' + seal(s) + '<span>Coup in ' + esc(a.name) + '</span>' + seal(s) + '</div>' +
+        '<div class="pby">' + esc(by) + '</div>' +
+        '<div class="g2"><div class="bx"><span class="k">Operations</span>' + (card != null ? '<span class="mini">' + A.face(card) + '</span>' : '') + '<b class="v">' + h.ops + '</b><small>Ops' + (mod ? ', ' + (mod > 0 ? '+' : '−') + Math.abs(mod) + ' in effect' : '') + '</small></div>' +
+        '<div class="bx"><span class="k">Target</span>' + cbox(c, before) + '<b class="v">' + def + '</b><small>defence: stability ' + h.stab + ' × 2</small></div></div>' +
+        '<div class="eq">' + A.die(landed ? r : 1 + ((s === 'US' ? 3 : 0) % 6), s, landed ? 'land' : 'roll') + '<div class="sum">' + esc(sum) + '<small>Ops + the roll' + (mod ? ' + modifiers' : '') + ' − defence</small></div>' +
+        (landed ? '<span class="stamp' + (ok ? '' : ' no') + '">' + (ok ? 'Success' : 'Failed') + '</span>' : '') + '</div>';
+      if (landed) {
+        out += '<div class="after">' + cbox(c, after) + '<div>' + (ok ? esc(net + (net === 1 ? ' point: ' : ' points: ')) + (net - Math.min(net, before[opp]) ? 'the ' + esc(SN(opp)) + '’s ' + Math.min(net, before[opp]) + ' removed, then ' + (net - Math.min(net, before[opp])) + ' ' + esc(SN(s)) + ' influence placed.' : Math.min(net, before[opp]) + ' ' + esc(SN(opp)) + ' influence removed.') : 'Nothing changes in ' + esc(a.name) + '.') + '</div></div>';
+        const facts = [];
+        if (a.bg && !(s === 'US' && g.tfx && g.tfx.subs)) facts.push('<div class="fact warn"><i class="lp d' + Math.max(1, g.defcon - 1) + ' on">' + Math.max(1, g.defcon - 1) + '</i><span><b>DEFCON falls to ' + Math.max(1, g.defcon - 1) + '.</b> ' + esc(a.name) + ' is a battleground' + (ok ? '' : ', and the attempt counts even when it fails') + '.</span></div>');
+        if (!h.free) facts.push('<div class="fact"><span><b>' + esc(SN(s)) + ' military ops +' + h.ops + '</b> towards the ' + g.defcon + ' this turn asks for.</span></div>');
+        out += '<div class="facts2">' + facts.join('') + '</div>';
+      }
+      return out + '</div>';
+    }
+    /* A region scored, as a panel: the USA | the scoring card | the USSR, row
+       by row, then the VP track moving. Southeast Asia keeps its own words. */
+    function scoreHtml(g, h) {
+      const r = h.res, reg = h.r;
+      const R = D.REGION[reg];
+      const LV = { presence: 'Presence', domination: 'Domination', control: 'Control' };
+      const PTS = { presence: R.p, domination: R.d, control: R.c };
+      const cid = Object.keys(D.CARD).find(k => D.CARD[k].score === reg);
+      const own = (s, bg) => D.inReg(reg).filter(c => D.ctrl(g.inf, c) === s && !!D.COUNTRY[c].bg === bg).map(c => D.COUNTRY[c].name);
+      const col = s => {
+        const bgs = own(s, true), others = own(s, false);
+        const lv = r.lv && r.lv[s];
+        return '<div class="col ' + s.toLowerCase() + '"><div class="who">' + seal(s) + esc(SN(s)) + '</div>' +
+          '<div class="row"><div class="k">Level</div><div class="v"><b>' + esc(LV[lv] || 'Nothing') + '</b><em>' + esc(String(lv ? PTS[lv] : 0)) + '</em></div></div>' +
+          '<div class="row"><div class="k">Battlegrounds</div><div class="v"><b>' + r.bg[s] + '</b><em>+' + r.bg[s] + '</em></div><div class="nm">' + esc(bgs.join(', ') || '—') + '</div></div>' +
+          '<div class="row"><div class="k">Other countries</div><div class="v"><b>' + others.length + '</b><em>—</em></div><div class="nm">' + esc(others.join(', ') || '—') + '</div></div>' +
+          '<div class="row"><div class="k">Next to the enemy</div><div class="v"><b>' + r.adj[s] + '</b><em>+' + r.adj[s] + '</em></div></div>' +
+          '<div class="row tot"><div class="v"><b>Total</b><em>' + (r.euroWin === s ? 'wins' : r[s]) + '</em></div></div></div>';
+      };
+      const v0 = h.vpBefore != null ? h.vpBefore : g.vp, v1 = Math.max(-20, Math.min(20, v0 + (r.net || 0)));
+      const at = v => 50 + Math.max(-20, Math.min(20, v)) * 2.5;
+      const head = r.euroWin ? esc(SN(r.euroWin)) + ' controls Europe — the game is won' : r.net ? '<span class="' + (r.net > 0 ? 'us' : 'su') + '">' + esc(SN(r.net > 0 ? 'US' : 'SU')) + ' +' + Math.abs(r.net) + ' VP</span> · ' + r.US + ' against ' + r.SU : 'Even · ' + r.US + ' against ' + r.SU;
+      return '<div class="pnl scorep"><div class="ptl"><span>' + esc(R.name) + ' scored</span></div>' +
+        '<div class="sc3">' + col('US') + '<div class="mid">' + (cid ? A.face(+cid) : '') + '<div class="lvk"><b>Presence ' + R.p + '</b><br><b>Domination ' + R.d + '</b><br><b>Control ' + esc(String(R.c)) + '</b><br>+1 a battleground<br>+1 next to the enemy</div></div>' + col('SU') + '</div>' +
+        '<div class="net"><div class="nh">' + head + '</div><div class="vpb"><span class="bar"><u></u></span><i class="was" style="left:' + at(v0) + '%"></i><i class="now" style="left:' + at(v1) + '%"></i></div>' +
+        '<div class="ends"><span>USSR wins at 20</span><span>USA wins at 20</span></div><div class="vpl">VP: ' + esc(W.vpWords(v0)) + ' → ' + esc(W.vpWords(v1)) + '</div></div></div>';
     }
     function timedHtml() {
       const g = game(), h = g.hold;
@@ -221,13 +329,25 @@
       const t = (k, l) => '<button class="tab' + (S.tab === k ? ' on' : '') + '" data-tab="' + k + '">' + l + '</button>';
       return '<div class="tabs">' + t('play', 'Play') + t('map', 'Map') + '</div>';
     }
+    /* The gauges: both sides, the VP track, the DEFCON lamps, the turn,
+       military ops against what DEFCON asks, and the space race. */
     function tracksHtml() {
       const g = game();
       if (!g || !g.inf) return '';
       const d = g.defcon;
-      return '<div class="trk"><span class="dc l' + d + '"><small>DEFCON</small><b>' + d + '</b></span>' +
-        '<span class="vp ' + (g.vp > 0 ? 'us' : g.vp < 0 ? 'su' : '') + '"><small>VP</small><b>' + esc(W.vpWords(g.vp)) + '</b></span>' +
-        '<span><small>Turn</small><b>' + (g.turn || 1) + '/10' + (g.phase === 'ar' ? ' · ' + g.ar : '') + '</b></span></div>';
+      const pl = s => g.players.find(p => p.side === s) || {};
+      const who = s => { const p = pl(s); return p.id === S.id ? 'you' : p.bot ? 'house · ' + (p.level || '') : (p.name || ''); };
+      const pos = 50 + Math.max(-20, Math.min(20, g.vp)) * 2.5;
+      const lamp = k => '<i class="lp d' + k + (k === d ? ' on' : '') + '">' + k + '</i>';
+      const mil = s => { const n = Math.min(g.mil[s], 5); let x = ''; for (let k = 1; k <= Math.max(d, n); k++) x += '<i class="' + (k <= n ? s.toLowerCase() : '') + (k > d ? ' over' : '') + '"></i>'; return '<span class="mo" aria-label="' + esc(SN(s)) + ' military ops ' + g.mil[s] + ' of ' + d + '">' + x + '</span>'; };
+      return '<div class="gauge" role="group" aria-label="The tracks">' +
+        '<div class="gs us">' + seal('US') + '<span><b>USA</b><small>' + esc(who('US')) + '</small></span></div>' +
+        '<div class="gv"><span class="vpw ' + (g.vp > 0 ? 'us' : g.vp < 0 ? 'su' : '') + '">VP ' + esc(W.vpWords(g.vp)) + '</span><span class="vbar"><u></u><i style="left:' + pos + '%"></i></span></div>' +
+        '<div class="gs su">' + seal('SU') + '<span><b>USSR</b><small>' + esc(who('SU')) + '</small></span></div>' +
+        '<div class="gt"><span class="lamps dc l' + d + '" aria-label="DEFCON ' + d + '"><em>DEFCON</em>' + [5, 4, 3, 2, 1].map(lamp).join('') + '</span>' +
+        '<span class="gn">Turn ' + (g.turn || 1) + '/10' + (g.phase === 'ar' ? ' · AR ' + g.ar : '') + '</span>' +
+        '<span class="gn">Mil ' + mil('US') + mil('SU') + '</span>' +
+        '<span class="gn">Space ' + g.space.US + '·' + g.space.SU + '</span></div></div>';
     }
     /* The map tab: the board as the telly draws it, wide enough to read and
        scrolled sideways; the newest moves lit, as on the telly. */
@@ -238,7 +358,7 @@
       const fx = W.inForce(g);
       return '<div class="mapbox"><div class="mapin">' + A.board(g, { hi }) + '</div></div>' +
         '<div class="sub" style="margin-top:4px">Drag sideways to see the whole map.</div>' +
-        (fx.length ? '<h2>In effect</h2><div class="facts">' + fx.map(esc).join(' · ') + '</div>' : '') + boardHtml();
+        (fx.length ? '<h2>In effect</h2><div class="facts">' + fx.map(esc).join(' · ') + '</div>' : '') + boardHtml() + lookHtml();
     }
 
     /* ---------- the house's newest move, and since your last turn ---------- */
@@ -302,7 +422,7 @@
       const s = S.me && S.me.seen;
       if (!s) return '';
       const o = D.other(mySide());
-      return '<div class="card seen"><div class="title" style="color:#c8b0ff">' + esc(SN(o)) + '’s hand (shown to you this turn)</div><div class="hand">' + (s.length ? s.map(id => cardRow(id, '', ' data-zoom="' + id + '"')).join('') : '<div class="sub">Empty.</div>') + '</div></div>';
+      return '<div class="card seen"><div class="title" style="color:#c8b0ff">' + esc(SN(o)) + '’s hand (shown to you this turn)</div><div class="tray">' + (s.length ? s.map(id => trayCard(id, ' data-zoom="' + id + '"')).join('') : '<div class="sub">Empty.</div>') + '</div></div>';
     }
 
     /* ================================================================
@@ -365,13 +485,13 @@
       if (c.defuse && c.defuse.length) out += '<h2>The Cuban Missile Crisis</h2><div class="sub">A coup by you now is nuclear war. You can defuse it first:</div><div class="opts">' + c.defuse.map(x => '<button class="opt" data-defuse="' + x + '"><span class="lab"><b>Take 2 influence out of ' + esc(CN(x)) + '</b><small>The crisis ends; then play your card.</small></span></button>').join('') + '</div>';
       out += coachHtml(pr, true);
       const cc = coachFor(pr);
-      out += '<h2>Your hand · ' + c.hand.length + ' — tap a card</h2><div class="hand">' + c.hand.map(x => {
+      out += '<h2>Your hand · ' + c.hand.length + ' — tap a card</h2><div class="tray">' + c.hand.map(x => {
         const tags = [];
-        if (x.score) tags.push('<span class="x">Scoring card — play it this turn</span>');
-        else if (x.trig) tags.push('<span class="x">' + esc(SN(opp)) + '’s event happens if you use its Ops</span>');
-        else if (x.event.ok) tags.push('<span class="x ok">Event available</span>');
-        if (x.card === D.CHINA) tags.push('<span class="x ok">Passes to ' + esc(SN(opp)) + ' face down after you play it</span>');
-        return tip(cc && cc.card === x.card, cardRow(x.card, tags.join(''), ' data-sel="' + x.card + '"'));
+        if (x.score) tags.push('<span class="x">Scoring: play it this turn</span>');
+        else if (x.trig) tags.push('<span class="x">' + esc(SN(opp)) + '’s event fires</span>');
+        else if (x.event.ok) tags.push('<span class="x ok">Event ready</span>');
+        if (x.card === D.CHINA) tags.push('<span class="x ok">Then passes face down</span>');
+        return tip(cc && cc.card === x.card, trayCard(x.card, ' data-sel="' + x.card + '"', tags.join('')));
       }).join('') + '</div>';
       out += '</div>';
       if (c.pass) { o.bar.innerHTML = '<button class="btn" id="pass">' + (c.ar > c.of ? 'Skip the extra round' : 'Nothing to play — pass') + '</button>'; o.bar.classList.remove('hide'); }
@@ -386,7 +506,12 @@
       if (!c || !c.line) return '';
       return '<div class="coach"><small>Coach</small>' + esc(c.line) + (show && c.card != null && S.sel !== c.card ? '<button class="cshow" id="coachShow">Show me</button>' : '') + '</div>';
     }
-    const tip = (on, html) => (on ? html.replace(/class="(opt|hc)/, 'class="$1 tip') : html);
+    const tip = (on, html) => (on ? html.replace(/class="(opt|hc|tc)/, 'class="$1 tip') : html);
+    /* One card in the tray: the card itself, and under it its name and Ops
+       (a button you cannot read is no button) and what playing it means. */
+    function trayCard(id, attrs, tags, cls) {
+      return '<button class="tc' + (cls || '') + '"' + attrs + ' aria-label="' + esc(D.CARD[id].name) + '"><span class="tf">' + A.face(id) + '</span><span class="tcap">' + A.spine(id, { short: true }) + (tags || '') + '</span></button>';
+    }
 
     /* ---------------- sharing out influence ---------------- */
     function allocHtml(pr) {
@@ -404,11 +529,15 @@
         if (ops) { const t = Object.assign({}, m); t[o.id] = (t[o.id] || 0) + 1; const w2 = Object.keys(t); return D.placeCost(g.inf, side, t) <= pr.budget + D.bonusFor(pr.bonus, w2); }
         return used < pr.total;
       };
-      let out = '<div class="card mine"><div class="title">' + esc(pr.why) + '</div>' + coachHtml(pr, false);
+      let out = '<div class="card mine alloc"><div class="title">' + esc(pr.why) + '</div>' + coachHtml(pr, false);
       const cmap = (coachFor(pr) || {}).map || {};
+      const pips = ops ? room : pr.total;
+      out += '<div class="pips" aria-hidden="true">' + Array.from({ length: Math.min(pips, 12) }, (x, k) => '<i class="' + (k < (ops ? cost : used) ? 'on' : '') + '"></i>').join('') + '</div>';
       out += '<div class="tot">' + (ops ? 'Ops used <b>' + cost + '</b> of ' + room + (pr.bonus && pr.bonus.length && !D.bonusFor(pr.bonus, where) ? ' (' + pr.budget + ' + bonus if all in ' + pr.bonus.map(b => b.where === 'AS' ? 'Asia' : D.SUBS[b.where]).join('/') + ')' : '') : (pr.act === 'rem' ? 'Removed' : 'Placed') + ' <b>' + used + '</b> of ' + pr.total + (pr.min && pr.min < pr.total ? ' (at least ' + pr.min + ')' : '')) + '</div>';
       const byReg = {};
       pr.options.forEach(o => { const r = D.COUNTRY[o.id].reg; (byReg[r] = byReg[r] || []).push(o); });
+      out += allocMap(pr, m, canAdd, cmap, who, ops);
+      out += '<button class="lsw" id="aList">' + (S.alist ? 'Hide the list' : 'Show it as a list') + '</button><div class="alist' + (S.alist ? '' : ' hide') + '">';
       D.REGIONS.forEach(r => {
         const list = byReg[r];
         if (!list) return;
@@ -424,11 +553,51 @@
             '<span class="stp"><button data-dec="' + o.id + '"' + (k ? '' : ' disabled') + '>−</button><b>' + k + '</b><button data-inc="' + o.id + '"' + (canAdd(o) ? '' : ' disabled') + '>+</button></span></div>';
         }).join('');
       });
+      out += '</div>';
       void after;
       const okNow = ops ? cost <= room : used >= pr.min && used <= pr.total;
-      o.bar.innerHTML = '<button class="btn" id="allocGo"' + (okNow ? '' : ' disabled') + '>' + (used ? 'Confirm' : pr.min ? 'Choose them first' : (ops ? 'Place none' : 'None')) + '</button>';
+      o.bar.innerHTML = '<button class="btn" id="allocGo"' + (okNow ? '' : ' disabled') + '>' + (!ops && pr.min && used < pr.min ? (pr.act === 'rem' ? 'Take ' : 'Place ') + (pr.min - used) + ' more' : used ? 'Confirm' : pr.min ? 'Choose them first' : (ops ? 'Place none' : 'None')) + '</button>';
       o.bar.classList.remove('hide');
       return out + '</div>';
+    }
+
+    /* The map, one view at a time: every country the question offers is a
+       button over its own box on the board. A tap adds one; its mark takes
+       one back. The views with a country on offer are the tabs, each saying
+       how many. */
+    function allocMap(pr, m, canAdd, cmap, who, ops) {
+      const g = game();
+      const rem = pr.act === 'rem';
+      const count = {};
+      VIEWS.forEach(([v]) => { count[v] = pr.options.filter(o => !o.bad && inView(o.id, v)).length; });
+      const placedIn = v => Object.keys(m).some(c => m[c] && inView(c, v));
+      if (!S.view || !(count[S.view] || placedIn(S.view))) {
+        const tipC = Object.keys(cmap)[0];
+        const vs = VIEWS.map(x => x[0]);
+        S.view = tipC && D.COUNTRY[tipC] ? viewOf(tipC) : vs.find(placedIn) || vs.slice().sort((a, b) => count[b] - count[a])[0];
+      }
+      const tabs = '<div class="vtabs">' + VIEWS.filter(([v]) => count[v] || placedIn(v)).map(([v, l]) =>
+        '<button class="vt' + (v === S.view ? ' on' : '') + '" data-view="' + v + '" style="--rc:' + D.REGION[v === 'WE' || v === 'EE' ? 'EU' : v].hex + '">' + esc(l) + '<small>' + count[v] + '</small></button>').join('') + '</div>';
+      const vb = viewBox(S.view);
+      const hi = {};
+      pr.options.forEach(o => { if (!o.bad && inView(o.id, S.view)) hi[o.id] = cmap[o.id] ? 'tipc' : 'legal'; });
+      const svg = A.board(g, { hi }).replace('viewBox="0 0 5100 3300"', 'viewBox="' + [vb.x, vb.y, vb.w, vb.h].join(' ') + '"');
+      const px = n => Math.round(n * vb.k);
+      const btns = pr.options.filter(o => inView(o.id, S.view)).map(o => {
+        const c = o.id, a = D.COUNTRY[c], k = m[c] || 0;
+        const L = px(a.x - BW / 2 - vb.x), T = px(a.y - BH / 2 - vb.y);
+        const doubled = ops && D.ctrl(g.inf, c) === D.other(mySide());
+        const say = (rem ? 'Take one out of ' : 'Add one to ') + a.name + (doubled ? ' (2 Ops: the other side controls it)' : '') + (k ? ', ' + k + ' so far' : '');
+        return '<button class="mc' + (o.bad ? ' bad' : '') + (cmap[c] ? ' tip' : '') + (doubled ? ' dbl' : '') + '" data-inc="' + c + '" style="left:' + L + 'px;top:' + T + 'px;width:' + px(BW) + 'px;height:' + px(BH) + 'px"' + (canAdd(o) ? '' : ' disabled') + ' aria-label="' + esc(say) + '"></button>' +
+          (k ? '<button class="mk' + (rem ? ' rem' : '') + '" data-dec="' + c + '" style="left:' + Math.min(vb.W - 40, L + px(BW) - 20) + 'px;top:' + Math.max(2, T - 14) + 'px" aria-label="Take one back from ' + esc(a.name) + '">' + (rem ? '−' : '+') + k + '</button>' : '');
+      }).join('');
+      const placed = Object.keys(m).filter(c => m[c]).map(c => '<button class="pc" data-dec="' + c + '" aria-label="Take one back from ' + esc(D.COUNTRY[c].name) + '">' + esc(D.COUNTRY[c].name) + ' <b>' + (rem ? '−' : '+') + m[c] + '</b><span aria-hidden="true">×</span></button>').join('');
+      void who;
+      /* Opens on the countries on offer (a wide view scrolls sideways). */
+      const lit = pr.options.filter(o => !o.bad && inView(o.id, S.view)).map(o => D.COUNTRY[o.id].x);
+      const sx = lit.length ? Math.max(0, Math.round(((Math.min(...lit) + Math.max(...lit)) / 2 - vb.x) * vb.k - 183)) : 0;
+      return tabs + '<div class="amap" data-sx="' + sx + '"><div class="amin" style="width:' + vb.W + 'px;height:' + vb.H + 'px">' + svg + btns + '</div></div>' +
+        '<div class="placed">' + (placed || '<span class="sub">' + (rem ? 'Tap a lit country to take one out.' : 'Tap a lit country to add one; tap its mark to take it back.') + '</span>') + '</div>';
     }
 
     /* ---------------- any other question ---------------- */
@@ -442,9 +611,10 @@
       if (multi) out += '<div class="sub">Choose ' + (pr.min === pr.max ? pr.min : pr.min + ' to ' + pr.max) + '.</div>';
       const withCards = pr.options.some(o => o.card != null && D.CARD[o.card]) && pr.what !== 'grain';
       if (withCards) {
-        out += '<div class="hand">' + pr.options.map(o => {
+        out += '<div class="tray">' + pr.options.map(o => {
           const on = multi && S.multi.indexOf(o.id) >= 0;
-          return tip(tipped(o.id), cardRow(+o.card, (o.label && !/^\d+$/.test(o.id) ? '<span class="x" style="color:var(--gold)">' + esc(o.label) + '</span>' : '') + (o.sub ? '<span class="x" style="color:var(--dim)">' + esc(o.sub) + '</span>' : '') + (multi ? '<span class="x" style="color:var(--gold)">' + (on ? 'chosen' : '') + '</span>' : ''), ' data-pick="' + esc(o.id) + '"' + (o.bad ? ' disabled' : '')).replace('class="hc"', 'class="hc' + (on ? ' sel' : '') + '"'));
+          const tags = (o.label && !/^\d+$/.test(o.id) ? '<span class="x lab">' + esc(o.label) + '</span>' : '') + (o.sub ? '<span class="x sub2">' + esc(o.sub) + '</span>' : '') + (o.bad ? '<span class="x">' + esc(o.bad) + '</span>' : '') + (on ? '<span class="x ok">Chosen</span>' : '');
+          return tip(tipped(o.id), trayCard(+o.card, ' data-pick="' + esc(o.id) + '"' + (o.bad ? ' disabled' : ''), tags, on ? ' sel' : ''));
         }).join('') + '</div>';
       } else {
         const list = '<div class="opts">' + pr.options.map(o => {
@@ -499,7 +669,7 @@
       if (!S.me || !S.me.hand) return '';
       const hand = S.me.hand;
       const g = game();
-      let out = '<h2>Your hand · ' + hand.length + '</h2>' + (hand.length ? '<div class="hand">' + hand.map(c => cardRow(c, '', ' data-zoom="' + c + '"')).join('') + '</div>' : '<div class="sub">Empty.</div>');
+      let out = '<h2>Your hand · ' + hand.length + '</h2>' + (hand.length ? '<div class="tray">' + hand.map(c => trayCard(c, ' data-zoom="' + c + '"')).join('') + '</div>' : '<div class="sub">Empty.</div>');
       if (g && g.china === mySide()) out += '<div class="sub" style="margin-top:6px">You hold the China Card' + (g.chinaUp ? '.' : ', face down until the turn ends.') + '</div>';
       return out;
     }
@@ -524,11 +694,16 @@
       }
       const holder = S.pub.remote && (lv.seated.find(p => p.id === S.pub.remote) || {}).name;
       return (o.lobbyTop ? o.lobbyTop() : '') +
-        '<div class="card"><div class="title">Twilight Struggle</div><div class="sub">' + (S.solo ? 'You against the house, on this phone. The USSR against the USA, 1945 to 1989; 20 VP wins.' : 'The USSR against the USA, 1945 to 1989. 20 VP wins.') + '</div>' + (S.solo ? '' : rows) + '</div>' + opts +
+        '<div class="card"><div class="title">Twilight Struggle</div><div class="sub">' + (S.solo ? 'You against the house, on this phone. The USSR against the USA, 1945 to 1989; 20 VP wins.' : 'The USSR against the USA, 1945 to 1989. 20 VP wins.') + '</div>' + (S.solo ? '' : rows) + '</div>' + opts + lookHtml() +
         (isRemote() ? '' : '<div class="sub" style="margin-top:12px">' + esc(holder || 'The first phone') + ' starts the game.</div>') +
         (o.soloUrl ? '<button class="btn ghost" id="soloGo">Play alone on this phone — no telly</button><div class="sub">You against the house, saved on this phone; the telly and the room are left alone.</div>' : '') +
         '<button class="btn ghost" id="menu">' + (S.solo ? 'Games hub' : 'Games menu') + '</button>' +
         '<div class="sub" style="margin-top:10px;text-align:center;font-size:11px">build ' + esc(window.TS_BUILD || '?') + '</div>';
+    }
+    /* This phone's look; nobody else sees the choice. */
+    function lookHtml() {
+      return '<h2>Look (this phone)</h2><div class="opts" style="flex-direction:row;flex-wrap:wrap">' + Object.keys(SKINS).map(k =>
+        '<button class="opt' + (S.skin === k ? ' on' : '') + '" data-skin="' + k + '" style="width:auto;flex:1;justify-content:center">' + esc(SKINS[k]) + '</button>').join('') + '</div>';
     }
     function overHtml() {
       const f = S.pub.finale;
@@ -568,6 +743,7 @@
       on('#goon', x => { lock(); send({ t: 'goon', n: +x.dataset.n }); });
       on('#soloGo', () => { if (o.soloUrl) location.href = o.soloUrl; });
       on('[data-opt]', x => send({ t: 'opt', key: x.dataset.opt, value: x.dataset.v }));
+      on('[data-skin]', x => setSkin(x.dataset.skin));
       document.querySelectorAll('[data-zoom]').forEach(x => { x.onclick = ev => { ev.stopPropagation(); zoom(+x.dataset.zoom); }; });
       o.zoomEl.onclick = () => o.zoomEl.classList.add('hide');
       if (!P) return;
@@ -588,6 +764,15 @@
         on('[data-inc]', x => { S.amap[x.dataset.inc] = (S.amap[x.dataset.inc] || 0) + 1; paint(); });
         on('[data-dec]', x => { const k = x.dataset.dec; S.amap[k] = Math.max(0, (S.amap[k] || 0) - 1); if (!S.amap[k]) delete S.amap[k]; paint(); });
         on('#allocGo', () => act({ t: 'alloc', n, map: Object.assign({}, S.amap) }));
+        on('[data-view]', x => { S.view = x.dataset.view; paint(); });
+        /* Every tap repaints: the map keeps where you had scrolled it. */
+        const am = document.querySelector('.amap');
+        if (am) {
+          const v = S.view;
+          am.scrollLeft = S.sx[v] != null ? S.sx[v] : +am.dataset.sx || 0;
+          am.onscroll = () => { S.sx[v] = am.scrollLeft; };
+        }
+        on('#aList', () => { S.alist = !S.alist; paint(); });
         return;
       }
       on('[data-pick]', x => {
@@ -609,7 +794,7 @@
       z.classList.remove('hide');
     }
 
-    return { P: S, receive, paint, flash, setMe };
+    return { P: S, receive, paint, flash, setMe, setSkin };
   }
 
   const STYLES = `
@@ -794,6 +979,205 @@ button{font:inherit}
 .sban.up .sb-ship{transform:translateY(-55%)}
 .sban.ring .sb-phone{filter:drop-shadow(0 0 8px rgba(255,40,40,.95)) brightness(1.2)}
 `;
-  const Phone = { VERSION, create, STYLES: STYLES + STYLES2 };
+  /* The new parts (gauges, the card tray, the map for placing influence, the
+     result panels) and the two looks. Every colour a part uses is a variable,
+     so a look is a set of variables plus its own decorations. In Dossier the
+     desk is dark and the paper is light: the paper sets its own ink. */
+  const STYLES3 = `
+:root{--head:Georgia,serif;--headW:800;--mono:'Courier New',Courier,monospace;--r:10px;--titlebg:var(--panel2);--titlec:var(--gold);--ptbg:#11161e;--ptc:#f1c75b;
+  --stampc:#4fe07a;--stampno:#ff5a5a;--usink:#9cc2ff;--suink:#ff9a9e;--warnink:#ffab9a;--mapB:2px solid var(--line);--mapSh:none}
+.gauge{display:grid;grid-template-columns:auto 1fr auto;gap:5px 8px;align-items:center;margin:2px 0 6px;padding:7px 9px 8px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);position:relative;color:var(--ink)}
+.gs{display:flex;align-items:center;gap:6px;min-width:0}
+.gs b{display:block;font:var(--headW) 13px/1.05 var(--head);letter-spacing:.06em;text-transform:uppercase}
+.gs small{display:block;font:500 10.5px/1.2 system-ui,sans-serif;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:84px}
+.gs.su{flex-direction:row-reverse;text-align:right}
+.seal{width:26px;height:26px;border-radius:6px;display:inline-grid;place-items:center;flex:none}
+.seal.us{background:#1f4f9e;box-shadow:inset 0 0 0 2px #9cc2ff}.seal.su{background:#b5161f;box-shadow:inset 0 0 0 2px #ffb0b0}
+.seal svg{width:18px;height:18px}
+.gv{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.vpw{font:700 11.5px/1 var(--mono);white-space:nowrap}
+.vpw.us{color:var(--usink)}.vpw.su{color:var(--suink)}
+.vbar{position:relative;display:block;width:100%;height:12px;border-radius:6px;background:linear-gradient(90deg,#b5161f,#4a2226 46%,#2a2f3a 50%,#1f3560 54%,#1f4f9e);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.vbar u{position:absolute;top:-1px;bottom:-1px;left:50%;width:1px;background:rgba(255,255,255,.65)}
+.vbar i{position:absolute;top:-4px;width:8px;height:20px;margin-left:-4px;border-radius:3px;background:#f6f0dc;box-shadow:0 0 0 1.5px #111,0 0 7px rgba(255,240,200,.8)}
+.gt{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:5px 8px;font:700 11px/1 var(--mono);white-space:nowrap}
+.tc.sel{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+.tc .x.lab{color:var(--gold)}.tc .x.sub2{color:var(--dim)}
+.gn{display:inline-flex;align-items:center}
+.lamps{display:inline-flex;gap:3px;align-items:center}
+.lamps em{font:var(--headW) 10px var(--head);letter-spacing:.08em;color:var(--dim);font-style:normal;margin-right:2px}
+.lp{width:16px;height:16px;border-radius:50%;display:inline-grid;place-items:center;font:800 9px/1 system-ui,sans-serif;font-style:normal;color:rgba(255,255,255,.5);background:#2b2f36;box-shadow:inset 0 0 0 1.5px #545a64;flex:none}
+.lp.on{color:#111;box-shadow:0 0 0 1.5px #fff,0 0 9px var(--lc)}
+.lp.on.d5{--lc:#4fb35d;background:#4fb35d}.lp.on.d4{--lc:#d5cc3c;background:#d5cc3c}.lp.on.d3{--lc:#f08f2a;background:#f08f2a}
+.lp.on.d2{--lc:#e3343c;background:#e3343c;color:#fff}.lp.on.d1{--lc:#fff;background:#fff}
+.mo{display:inline-flex;gap:2px;margin-left:4px}
+.mo + .mo{margin-left:5px}
+.mo i{width:5px;height:11px;border-radius:1.5px;background:#3a3f48;box-shadow:inset 0 0 0 1px #5a606b}
+.mo i.us{background:#3b7be0;box-shadow:none}.mo i.su{background:#d8323a;box-shadow:none}
+.mo i.over{opacity:.6}
+
+/* the hand as cards */
+.tray{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px}
+.tc{display:flex;flex-direction:column;gap:5px;padding:5px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);text-align:left;min-width:0;font:inherit}
+.tc:disabled{opacity:.45}
+.tc .tf{display:block}
+.tc .ts-card{width:100%;font-size:7.4px;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.tc .tcap{display:flex;flex-direction:column;gap:2px;min-width:0}
+.tc .ts-sp{font-size:12px;line-height:1.2}
+.tc .ts-sp em{display:none}
+.tc .ts-sp{align-items:flex-start}
+.tc .ts-sp b{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.15}
+.tc .ts-ops{width:1.6em;height:1.6em;font-size:11px}
+.tc .x{font:600 10.5px/1.2 system-ui,sans-serif;color:var(--warnink)}
+.tc .x.ok{color:var(--good)}
+.tc.tip{border-color:var(--good);box-shadow:0 0 0 2px rgba(111,207,127,.45)}
+
+/* placing influence on the map */
+.pips{display:flex;gap:4px;margin:6px 0 2px;flex-wrap:wrap}
+.pips i{width:20px;height:8px;border-radius:4px;background:rgba(127,127,127,.35)}
+.pips i.on{background:#3fbf63;box-shadow:0 0 6px rgba(63,191,99,.6)}
+.vtabs{display:flex;gap:4px;flex-wrap:wrap;margin:8px 0 6px}
+.vt{flex:1 1 auto;font:var(--headW) 11.5px/1 var(--head);letter-spacing:.03em;text-transform:uppercase;padding:8px 7px 6px;border-radius:8px;border:1px solid var(--line);border-bottom:3px solid var(--rc);background:var(--panel2);color:var(--dim)}
+.vt small{margin-left:5px;font:700 10px system-ui,sans-serif;padding:1px 5px;border-radius:7px;background:rgba(0,0,0,.2)}
+.vt.on{color:var(--ink);background:var(--panel);box-shadow:inset 0 0 0 1px var(--rc)}
+.amap{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;border-radius:8px;background:#0d1729;border:var(--mapB);box-shadow:var(--mapSh);margin:0 -4px}
+.amin{position:relative;margin:0 auto}
+.amin svg.ts-board{position:absolute;inset:0;width:100%;height:100%}
+.mc{position:absolute;background:transparent;border:0;border-radius:6px;padding:0;margin:0}
+.mc:not(:disabled):active{background:rgba(255,230,120,.3)}
+.mk{position:absolute;min-width:36px;height:30px;padding:0 7px;border-radius:15px;background:#2f9e52;color:#fff;font:900 15px/1 system-ui,sans-serif;border:2px solid #e9ffe9;box-shadow:0 2px 6px rgba(0,0,0,.55);z-index:2}
+.mk.rem{background:#b5161f;border-color:#ffd0d0}
+.ts-hi.legal{stroke:#ffd24a;stroke-width:9;opacity:.9}
+.ts-hi.tipc{stroke:#6fcf7f;stroke-width:16}
+.placed{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;min-height:30px;align-items:center}
+.pc{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:15px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font:600 13px system-ui,sans-serif}
+.pc b{color:var(--good)}
+.pc span{opacity:.55}
+.lsw{display:block;margin-top:8px;background:transparent;border:0;color:var(--dim);text-decoration:underline;font-size:13px;padding:4px 0}
+.alloc .tot{position:static}
+
+/* result panels */
+.pnl{position:relative;overflow:hidden}
+.coupp .sban{aspect-ratio:16/5.2;margin-bottom:0}
+.coupp .sban .sb-l{object-position:50% 62%}
+.coupp .ptl{margin-top:0}
+.ptl{display:flex;align-items:center;justify-content:center;gap:9px;padding:10px;margin:0 -12px;border-bottom:1px solid var(--line);background:var(--titlebg)}
+.card > .pnl:first-child > .ptl:first-child{margin-top:-12px;border-radius:13px 13px 0 0}
+.ptl span{font:var(--headW) 21px/1 var(--head);letter-spacing:.06em;text-transform:uppercase;color:var(--titlec)}
+.ptl .seal{width:24px;height:24px}
+.pby{text-align:center;font:600 12px/1.3 var(--mono);color:var(--dim);margin:7px 0 2px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.bx{border-radius:10px;padding:7px 8px 8px;background:var(--panel2);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;min-width:0}
+.bx .k{font:var(--headW) 10.5px var(--head);letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.bx .v{font:var(--headW) 26px/1 var(--head);color:var(--ink)}
+.bx small{font:600 11px/1.25 var(--mono);color:var(--dim)}
+.mini .ts-card{font-size:6.4px;width:12em}
+.eq{display:flex;align-items:center;gap:12px;margin-top:8px;padding:10px 112px 10px 10px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);position:relative;text-align:left}
+.showc .eq .ts-die{width:60px;height:60px;flex:none}
+.sum{font:var(--headW) 23px/1.05 var(--head);color:var(--ink)}
+.sum small{display:block;font:600 11px/1.25 var(--mono);color:var(--dim);margin-top:4px;letter-spacing:0}
+.stamp{position:absolute;right:8px;top:50%;transform:translateY(-50%) rotate(-11deg);font:400 22px/1 Impact,'Avenir Next Condensed','Arial Narrow',sans-serif;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--stampc);border:3px solid var(--stampc);border-radius:6px;padding:5px 8px 3px}
+.stamp.no{color:var(--stampno);border-color:var(--stampno)}
+.after{display:flex;gap:10px;align-items:center;margin-top:8px;text-align:left;font-size:13.5px;line-height:1.35}
+.facts2{display:flex;flex-direction:column;gap:6px;margin-top:8px;text-align:left}
+.fact{display:flex;gap:9px;align-items:center;border-radius:9px;padding:7px 9px;background:var(--panel2);border:1px solid var(--line);font-size:13px;line-height:1.3}
+.fact.warn{border-color:#f08f2a}
+.fact b{font-family:var(--head);font-weight:var(--headW);letter-spacing:.03em}
+.cbx{width:112px;border-radius:7px;overflow:hidden;border:2px solid var(--rcx);background:color-mix(in srgb,var(--rcx) 20%,#141b2c);text-align:left;color:#e9e4d4;flex:none}
+.cbx .bn{display:flex;justify-content:space-between;align-items:center;gap:4px;padding:3px 6px;font:800 12px system-ui,sans-serif;background:var(--rcx);color:#111}
+.cbx .bn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cbx.bg .bn{background:#8d1d2c;color:#fff}
+.cbx .bn s{text-decoration:none;font-weight:900}
+.cbx.bg .bn s{color:#ffe1a0}
+.cbx .ch{display:flex;gap:6px;padding:6px}
+.cbx .ch span{flex:1;height:30px;border-radius:6px;display:grid;place-items:center;font:900 19px system-ui,sans-serif}
+.cbx .ch .us{background:#eef4ff;color:#1d4fa8;box-shadow:inset 0 0 0 2.5px #3b7be0}
+.cbx .ch .su{background:#fff0ef;color:#a3161d;box-shadow:inset 0 0 0 2.5px #d8323a}
+.cbx .ch .us.ctl{background:#2f68cf;color:#fff}.cbx .ch .su.ctl{background:#c8222b;color:#fff}
+.cbx .ch .z{opacity:.35}
+.sc3{display:grid;grid-template-columns:minmax(0,1fr) 96px minmax(0,1fr);gap:6px;margin-top:8px;align-items:start}
+.col{display:flex;flex-direction:column;gap:5px;min-width:0}
+.col .who{display:flex;align-items:center;gap:5px;justify-content:center;padding:4px;border-radius:8px;font:var(--headW) 13px var(--head);letter-spacing:.06em;color:#fff;text-transform:uppercase}
+.col.us .who{background:linear-gradient(#2c5fb8,#1b3f80)}.col.su .who{background:linear-gradient(#c62a32,#8e141b)}
+.col .who .seal{width:20px;height:20px;background:transparent;box-shadow:none}
+.row{border-radius:7px;padding:5px 6px;background:var(--panel2);border:1px solid var(--line);text-align:left}
+.row .k{font:var(--headW) 9.5px var(--head);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.row .v{display:flex;justify-content:space-between;align-items:baseline;gap:4px;margin-top:2px}
+.row .v b{font:var(--headW) 13.5px/1.1 var(--head);color:var(--ink);min-width:0;overflow-wrap:anywhere}
+.row .v em{font:var(--headW) 14px var(--head);font-style:normal;padding:1px 6px;border-radius:5px;background:var(--ptbg);color:var(--ptc)}
+.row .nm{font:600 10px/1.25 system-ui,sans-serif;color:var(--dim);margin-top:3px}
+.row.tot{border-width:2px}
+.col.us .row.tot{border-color:#3b7be0}.col.su .row.tot{border-color:#d8323a}
+.mid{display:flex;flex-direction:column;align-items:center;gap:6px}
+.mid .ts-card{font-size:7.4px;width:12em}
+.lvk{font:600 9.5px/1.3 var(--mono);color:var(--dim);text-align:center}
+.lvk b{color:var(--ink)}
+.net{margin-top:9px;border-radius:10px;padding:9px 10px 10px;background:var(--panel2);border:1px solid var(--line);text-align:center}
+.nh{font:var(--headW) 18px/1.2 var(--head);color:var(--ink)}
+.nh .us{color:var(--usink)}.nh .su{color:var(--suink)}
+.vpb{position:relative;height:26px;margin:8px 4px 0}
+.vpb .bar{position:absolute;left:0;right:0;top:7px;height:12px;border-radius:6px;background:linear-gradient(90deg,#b5161f,#4a2226 46%,#2a2f3a 50%,#1f3560 54%,#1f4f9e);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.vpb .bar u{position:absolute;top:-3px;bottom:-3px;left:50%;width:1.5px;background:rgba(255,255,255,.7)}
+.vpb i{position:absolute;top:1px;width:12px;height:24px;margin-left:-6px;border-radius:4px}
+.vpb i.was{box-shadow:0 0 0 2px #f6f0dc;opacity:.6}
+.vpb i.now{background:#f6f0dc;box-shadow:0 0 0 2px #111,0 0 10px rgba(255,240,200,.9)}
+.ends{display:flex;justify-content:space-between;font:600 9.5px var(--mono);color:var(--dim);margin:2px 4px 0}
+.vpl{font:600 11.5px var(--mono);color:var(--dim);margin-top:4px}
+
+/* ============ Situation Room: gunmetal, amber, rivets ============ */
+html.skin-steel{--bg:#0b0e13;--panel:linear-gradient(180deg,#363d4a,#232832);--panel2:#1a1f27;--line:#59616e;--ink:#ece6d6;--dim:#a6adb8;--gold:#f1c75b;--good:#6fcf7f;--bad:#ff6a6a;
+  --head:Impact,Haettenschweiler,'Avenir Next Condensed','Arial Narrow',sans-serif-condensed,sans-serif;--headW:400;--mono:'Courier New',Courier,monospace;--r:10px;
+  --titlebg:linear-gradient(#5a1216,#3a0b0e);--titlec:#fff1cf;--ptbg:#11161e;--ptc:#f1c75b;--stampc:#4fe07a;--stampno:#ff5a5a;--usink:#9cc2ff;--suink:#ff9a9e;--warnink:#ffab9a;
+  --mapB:3px solid #4b5361;--mapSh:inset 0 0 0 1px #000,0 3px 10px rgba(0,0,0,.6)}
+.skin-steel .card,.skin-steel .gauge{box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 2px 6px rgba(0,0,0,.5)}
+.skin-steel .card::before,.skin-steel .gauge::before{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:radial-gradient(circle at 7px 7px,#aab2bf 0 1.6px,#3a404b 2.4px,transparent 3px),radial-gradient(circle at calc(100% - 7px) 7px,#aab2bf 0 1.6px,#3a404b 2.4px,transparent 3px),radial-gradient(circle at 7px calc(100% - 7px),#aab2bf 0 1.6px,#3a404b 2.4px,transparent 3px),radial-gradient(circle at calc(100% - 7px) calc(100% - 7px),#aab2bf 0 1.6px,#3a404b 2.4px,transparent 3px)}
+.skin-steel .card{position:relative}
+.skin-steel :is(.title,h2,.rc-h,.dh,.tab){font-family:var(--head);font-weight:400;letter-spacing:.05em;text-transform:uppercase}
+.skin-steel .title{font-size:20px}
+.skin-steel .reel{background:linear-gradient(#0f1a14,#0b130f);border-color:#2f5a3a;color:#bfe8c4;font-family:var(--mono);font-size:13px}
+.skin-steel .reel small{color:#f1c75b}
+.skin-steel .btn:not(.ghost){background:linear-gradient(#f7d777,#d9a83a);border:1px solid #fff2c2;box-shadow:inset 0 -3px 0 rgba(0,0,0,.25),0 2px 6px rgba(0,0,0,.5);font-family:var(--head);font-weight:400;letter-spacing:.06em;text-transform:uppercase}
+.skin-steel .tab.on{background:linear-gradient(#f7d777,#d9a83a)}
+
+/* ============ Dossier: manila, typewriter, rubber stamps ============ */
+html.skin-file{--bg:#3a2b1f;--panel:#efe2bd;--panel2:#e6d6aa;--line:#6b543b;--ink:#f4ead2;--dim:#d6c49c;--gold:#e8c46a;--good:#7fd08e;--bad:#ff8a7a;
+  --head:'American Typewriter','Courier New',Courier,monospace;--headW:700;--mono:'American Typewriter','Courier New',Courier,monospace;--r:4px;
+  --titlebg:repeating-linear-gradient(-45deg,#e9dbb2 0 10px,#e2d2a4 10px 20px);--titlec:#a3161d;--ptbg:#2a2218;--ptc:#f6ecd0;--stampc:#a3161d;--stampno:#2a2218;--usink:#9cc2ff;--suink:#ff9a9e;--warnink:#ffab9a;
+  --mapB:5px solid #f6f1e3;--mapSh:0 3px 10px rgba(0,0,0,.55)}
+html.skin-file body{background:repeating-linear-gradient(90deg,rgba(0,0,0,.06) 0 2px,transparent 2px 11px),linear-gradient(#46341f,#2c2016) fixed;background-color:#3a2b1f}
+/* the paper: its own ink */
+.skin-file :is(.card,.since,.reel,.hc,.opt,.reg,.coach,.undo,.pre,.gauge,.tc,.tracks > span,.upnext,.pc,.vt,.tab,.lsw,#msheet .msheet){--ink:#2a2218;--dim:#6d5a3f;--line:#b39f73;--panel:#efe2bd;--panel2:#e6d6aa;--gold:#a3161d;--good:#2e7d3e;--bad:#a3161d;--usink:#1d4fa8;--suink:#a3161d;--warnink:#a3161d;color:var(--ink)}
+.skin-file :is(.card,.gauge,#msheet .msheet){background:#efe2bd url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35  0 0 0 0 .25  0 0 0 0 .1  0 0 0 .1 0'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>");border-color:#b39f73;box-shadow:0 2px 0 #c8b585,0 5px 12px rgba(0,0,0,.45)}
+.skin-file .card.mine{border-color:#a3161d}
+.skin-file :is(.title,h2,.rc-h,.dh,.tab,.tot,.lsw){font-family:var(--head)}
+.skin-file .title{letter-spacing:.02em}
+.skin-file h2{letter-spacing:.08em}
+.skin-file .reel{background:repeating-linear-gradient(#fbf6e6 0 19px,#cfe0f0 19px 20px);border-color:#b39f73;font-family:var(--mono);font-size:13.5px}
+.skin-file .reel small{color:#a3161d}
+.skin-file .btn:not(.ghost){background:#a3161d;color:#fff3e0;border:2px solid #6e0d12;box-shadow:0 3px 0 #5e0a0e,0 4px 10px rgba(0,0,0,.4);font-family:var(--head);letter-spacing:.06em;text-transform:uppercase}
+.skin-file .btn.ghost{border-color:#8c7652}
+.skin-file .opt.on{background:#f6e3c8;box-shadow:inset 0 0 0 2px #a3161d;color:#2a2218}
+.skin-file .namein input{background:#fbf6e6;color:#2a2218;border-color:#b39f73;font-family:var(--mono)}
+.skin-file .tab.on{background:#f6ecd0;color:#2a2218;border-color:#a3161d}
+.skin-file .tab{background:#d9c89a;color:#5b4a30;border-radius:8px 8px 3px 3px}
+.skin-file :is(.why,.hc .x,.dangerline){color:#a3161d}
+.skin-file :is(.warn,.warnline){color:#8a4b00}
+.skin-file .sc{background:#dccb9b;color:#2a2218}
+.skin-file .sc.us{background:rgba(59,123,224,.28)}.skin-file .sc.su{background:rgba(216,50,58,.25)}
+.skin-file .gauge .lp:not(.on){background:#cbb98a;box-shadow:inset 0 0 0 1.5px #8c7a52;color:rgba(0,0,0,.45)}
+.skin-file .gauge .mo i:not(.us):not(.su){background:#cbb98a;box-shadow:inset 0 0 0 1px #8c7a52}
+.skin-file .ptl span{border:3px solid #a3161d;padding:4px 8px 3px;transform:rotate(-1.5deg);border-radius:3px}
+.skin-file .pnl::after{content:"TOP SECRET";position:absolute;right:-32px;top:15px;transform:rotate(30deg);font:900 10.5px/1 Impact,'Avenir Next Condensed',sans-serif;letter-spacing:.2em;color:#fff;background:#a3161d;padding:3px 36px;opacity:.85;pointer-events:none}
+.skin-file .stamp{mix-blend-mode:multiply;font-family:var(--head)}
+/* the side inks the words set inline, darkened for paper */
+.skin-file :is(.card,.since,.reel,.hc,.opt,.reg,.gauge,.tc) [style*="#9cc2ff"]{color:#1d4fa8 !important}
+.skin-file :is(.card,.since,.reel,.hc,.opt,.reg,.gauge,.tc) [style*="#ff9a9e"]{color:#a3161d !important}
+.skin-file :is(.card,.since,.reel,.hc,.opt,.reg,.gauge,.tc) [style*="#f1d58a"]{color:#6d4c0f !important}
+.skin-file :is(.card,.since,.reel,.hc,.opt,.reg,.gauge,.tc) [style*="#c8b0ff"]{color:#5b3a9e !important}
+.skin-file .seen .title{color:#5b3a9e !important}
+.skin-file :is(.card,.tc,.hc,.opt) .ts-sp.us em{color:#1d4fa8}.skin-file :is(.card,.tc,.hc,.opt) .ts-sp.su em{color:#a3161d}
+`;
+  const Phone = { VERSION, create, SKINS, STYLES: STYLES + STYLES2 + STYLES3 };
   root.TSPhone = Phone;
 })(typeof window !== 'undefined' ? window : this);

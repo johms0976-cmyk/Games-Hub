@@ -1,4 +1,4 @@
-/* build 2026.11.27.1 */
+/* build 2026.11.27.2 */
 'use strict';
 /* Twilight Struggle on one phone (GitHub Pages) — the offline helper.
  *

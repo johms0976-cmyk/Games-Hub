@@ -230,6 +230,7 @@ $('menuBtn').onclick = () => {
     (!playing ? '<button class="btn ghost" id="mRestore">Restore a game from its text</button>' : '') +
     (playing ? '<button class="btn ghost" id="mQuit">Abandon this game</button>' : '') +
     '<button class="btn ghost" id="mHub">' + (playing ? 'Back to the Games hub (your game is saved)' : 'Back to the Games hub') + '</button>' +
+    '<button class="btn ghost" id="mSkin">Look: ' + esc(TSPhone.SKINS[phone.P.skin] || '') + ' — switch to ' + esc(TSPhone.SKINS[phone.P.skin === 'file' ? 'steel' : 'file']) + '</button>' +
     '<button class="btn ghost" id="mReload">Reload the game</button>' +
     '<button class="btn" id="mClose">Close</button>' +
     '<div class="sub" id="mBuild" style="text-align:center;margin-top:8px">Build ' + esc(window.TS_BUILD || '?') + (standalone() ? ' · installed' : '') + '</div></div>';
@@ -237,6 +238,7 @@ $('menuBtn').onclick = () => {
   $('mClose').onclick = () => $('msheet').classList.add('hide');
   $('mHub').onclick = () => { H.flushSave(); location.href = HUB; };
   $('mReload').onclick = () => { H.flushSave(); location.reload(); };
+  $('mSkin').onclick = () => { phone.setSkin(phone.P.skin === 'file' ? 'steel' : 'file'); $('menuBtn').onclick(); };
   const box = $('mCodeBox'), ta = $('mCode'), note = $('mCodeNote'), go = $('mCodeGo');
   if ($('mBackup')) $('mBackup').onclick = () => {
     box.classList.remove('hide');

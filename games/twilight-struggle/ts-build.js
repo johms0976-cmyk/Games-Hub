@@ -3,5 +3,5 @@
    picture is fetched with ?v= it. Bump it after any change to a script or a
    picture, or phones keep the old one. */
 (function (root) {
-  root.TS_BUILD = '2026.11.27.1';
+  root.TS_BUILD = '2026.11.27.2';
 })(typeof self !== 'undefined' ? self : this);
