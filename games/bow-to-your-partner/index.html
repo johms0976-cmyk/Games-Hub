@@ -1843,31 +1843,31 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=76"></script>
-<script src="btp-ai.js?v=76"></script>
-<script src="btp-run.js?v=76"></script>
-<script src="btp-town.js?v=76"></script>
-<script src="art/dustwater/sprites.js?v=76"></script>
-<script src="btp-train.js?v=76"></script>
-<script src="art/train/sprites.js?v=76"></script>
-<script src="art/title/scene.js?v=76"></script>
-<script src="art/title/cameo.js?v=76"></script>
-<script src="art/title/crossing.js?v=76"></script>
-<script src="art/table/scene.js?v=76"></script>
-<script src="art/table/partners.js?v=76"></script>
-<script src="art/grave/scene.js?v=76"></script>
-<script src="art/paid/scene.js?v=76"></script>
-<script src="art/rooms/scene.js?v=76"></script>
-<script src="art/express/scene.js?v=76"></script>
-<script src="art/country/country.js?v=76"></script>
-<script src="art/fair/sprites.js?v=76"></script>
-<script src="btp-euchreka.js?v=76"></script>
-<script src="art/euchreka/sprites.js?v=76"></script>
-<script src="btp-scene.js?v=76"></script>
-<script src="scenes/gate.js?v=76"></script>
-<script src="btp-music.js?v=76"></script>
-<script src="music/theme.js?v=76"></script>
-<script src="music/westbound.js?v=76"></script>
+<script src="btp-engine.js?v=77"></script>
+<script src="btp-ai.js?v=77"></script>
+<script src="btp-run.js?v=77"></script>
+<script src="btp-town.js?v=77"></script>
+<script src="art/dustwater/sprites.js?v=77"></script>
+<script src="btp-train.js?v=77"></script>
+<script src="art/train/sprites.js?v=77"></script>
+<script src="art/title/scene.js?v=77"></script>
+<script src="art/title/cameo.js?v=77"></script>
+<script src="art/title/crossing.js?v=77"></script>
+<script src="art/table/scene.js?v=77"></script>
+<script src="art/table/partners.js?v=77"></script>
+<script src="art/grave/scene.js?v=77"></script>
+<script src="art/paid/scene.js?v=77"></script>
+<script src="art/rooms/scene.js?v=77"></script>
+<script src="art/express/scene.js?v=77"></script>
+<script src="art/country/country.js?v=77"></script>
+<script src="art/fair/sprites.js?v=77"></script>
+<script src="btp-euchreka.js?v=77"></script>
+<script src="art/euchreka/sprites.js?v=77"></script>
+<script src="btp-scene.js?v=77"></script>
+<script src="scenes/gate.js?v=77"></script>
+<script src="btp-music.js?v=77"></script>
+<script src="music/theme.js?v=77"></script>
+<script src="music/westbound.js?v=77"></script>
 <script>
 (function () {
   'use strict';
@@ -5866,7 +5866,7 @@ html.art .coach { border-radius: 0; }
     return '<i class="nail"></i><span class="w">WANTED</span><span class="d">' + (L && L.euchre && L.act === 1 && id === 'twins' ? '<s class="struck">DEAD OR</s> ALIVE' : 'DEAD OR ALIVE') + '</span><img src="' + artURL('wanted/' + id + '.webp') + '" alt="">' +
       '<span class="n">' + esc(B.name.toUpperCase()) + '</span><span class="rw">REWARD ' + (half ? R.thousands(R.HALF_PAID.promised) : 100) + ' GOLD</span>' +
       (lt ? '<span class="loot"><img src="' + artURL('goods/buff_' + loot + '.webp') + '" alt=""><span><small>& THEIR LOOT</small>' + esc(lt.name.toUpperCase()) + '</span></span>' : '') +
-      (half ? '<span class="rw up">& A CARD UPGRADE</span>' : '') + (half && L && L.euchre ? '<span class="vote">VOTE HARDCASTLE</span>' : '');
+      (half ? '<span class="rw up">& A CARD UPGRADE</span>' : '') + (half ? '<span class="rw up">PAID IN FULL ON DELIVERY</span>' : '') + (half && L && L.euchre ? '<span class="vote">VOTE HARDCASTLE</span>' : '');
   }
   /* The story (2026-11-06, STORY-PLAN.md; it replaces the Family Reunion, which replaced Sheriff Crane). Act I's
      poster promises 200 gold, payday pays 100 (R.HALF_PAID), and the Sheriff sends you to Bower City for the rest
@@ -6084,8 +6084,8 @@ html.art .coach { border-radius: 0; }
       // a Card table or a Duel opens with an insult, and your partner answers it (2026-11-03)
       const duel = L.mode !== 'standard' && (L.kind === 'dance' || L.kind === 'elite') ? R.insult(L) : null;
       if (duel) t.text = duel.text;
-      const talk = firstTalk(L);
-      clearTimeout(TALK.timer); TALK.lines = talk; TALK.i = -1;
+      const first = firstTalk(L), talk = first || twinsTalk(L);
+      clearTimeout(TALK.timer); TALK.lines = talk; TALK.i = -1; TALK.first = !!first;
       s.onpointerup = null;
       // the table's own size (2026-11-04, the user's: the gang one size from here to the play), one smaller only on
       // a screen too short to hold it with the lines and NOW DRAW! (measured below)
@@ -6128,13 +6128,31 @@ html.art .coach { border-radius: 0; }
      The gang's lines sit over the stage, their tails at whoever says them; yours, Biscuit's and what you see sit
      under it. A line holds for its reading time, a tap moves on, Skip lands on the title. Once ever (profile.firstTable),
      with Biscuit, at a story's first Card table; every later story gets one pair (R.insult). */
-  const TALK = { timer: 0, lines: null, i: -1 };
+  const TALK = { timer: 0, lines: null, i: -1, first: false };
   const GANG_SAY = { 'Two Cowpokes': ['COWPOKE', 'COWPOKE'], 'The Miller Brothers': ['MILLER', 'MILLER'], 'A Pair of Drifters': ['DRIFTER', 'DRIFTER'],
     'The Saddle Thieves': ['SADDLE THIEF', 'SADDLE THIEF'], 'The Widow and Her Boy': ['THE WIDOW', 'HER BOY'], 'The Blacksmith Brothers': ['BLACKSMITH', 'BLACKSMITH'],
     'The Barber and His Cousin': ['BARBER', 'COUSIN'], 'Two Mule Skinners': ['MULE SKINNER', 'MULE SKINNER'], 'Two Prospectors': ['PROSPECTOR', 'PROSPECTOR'],
     'The Ranch Hands': ['RANCH HAND', 'RANCH HAND'] };
+  /* The Twins' Showdown talk (2026-11-17, the writers' room's Act I draft 2, STORY-PLAN [1.6]): the West Twin is the
+     Elder ("we", smiling), the East Twin the Younger ("I", scowling). The count is never said: the pronouns say it. */
+  function twinsTalk(L) {
+    if (FAST || DEMO || !L || !L.euchre || L.act !== 1 || L.kind !== 'boss' || L.boss !== 'twins' || L.mode === 'standard') return null;
+    return [
+      // (2026-11-18) both balloons read THE TWINS: no age word on screen, so they can argue about who is older
+      { who: 'w', name: 'THE TWINS', text: 'Welcome, stranger. We’ve been expecting you.' },
+      { who: 'e', name: 'THE TWINS', text: 'I haven’t.' },
+      { who: 'e', name: 'THE TWINS', text: 'I run this town.' },
+      { who: 'w', name: 'THE TWINS', text: 'He runs. I wave.' },
+      { who: 'w', name: 'THE TWINS', text: 'Name a red trump, stranger. We don’t mind which.' },
+      { who: 'e', name: 'THE TWINS', text: 'Count the Jacks.' },
+      { who: 'w', name: 'THE TWINS', text: 'Two red Jacks, one each. We’re generous.' },
+      { who: 'e', name: 'THE TWINS', text: 'I’m the older one.' },
+      { who: 'w', name: 'THE TWINS', text: 'Four minutes, and I was first.' },
+      { who: 'e', name: 'THE TWINS', text: 'I’m keeping score.' }
+    ];
+  }
   function firstTalk(L) {
-    if (FAST || DEMO || !L || !L.euchre || L.act !== 1 || L.kind !== 'dance' || (L.actLevels | 0) !== 0 || L.partner !== 'horse' || L.mode === 'standard') return null;
+    if (FAST || DEMO || !L || !L.euchre || L.act !== 1 || L.kind !== 'dance'|| (L.actLevels | 0) !== 0 || L.partner !== 'horse' || L.mode === 'standard') return null;
     if (profile().firstTable) return null;
     const name = (L.foe && L.foe.name) || 'The gang', [w, e] = GANG_SAY[name] || [name.toUpperCase(), name.toUpperCase()];
     const title = x => x.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
@@ -6165,7 +6183,8 @@ html.art .coach { border-radius: 0; }
     const L = P.L, up = s.querySelector('.stand'), low = s.querySelector('.backline');
     const top = talk.filter(x => x.who === 'w' || x.who === 'e').sort((a, b) => (b.text + (b.act || '')).length - (a.text + (a.act || '')).length)[0];
     const bot = talk.filter(x => !(x.who === 'w' || x.who === 'e')).sort((a, b) => b.text.length - a.text.length)[0];
-    up.innerHTML = talkHTML(L, top); low.innerHTML = talkHTML(L, bot);
+    // (2026-11-24) a talk may be all gang (the Twins'): nothing under the stage to measure, so leave it empty
+    up.innerHTML = top ? talkHTML(L, top) : ''; low.innerHTML = bot ? talkHTML(L, bot) : '';
     s.classList.add('ready');
     for (let n = 0; n < 4 && clash(); n++) if (!smaller()) break;
     s.classList.remove('ready');
@@ -6184,7 +6203,8 @@ html.art .coach { border-radius: 0; }
     up.innerHTML = gang ? talkHTML(L, x) : '';
     low.innerHTML = gang ? '' : talkHTML(L, x);
     s.querySelectorAll('.sfig').forEach(f => f.classList.toggle('hip', x.fx === 'hip' && f.classList.contains('e')));
-    if (x.last) { s.classList.add('ready'); const sk = s.querySelector('.tskip'); if (sk) sk.hidden = true; return; }
+    // the final line ends any talk, flagged or not (Skip lands on it by position), and brings up NOW DRAW!
+    if (x.last || TALK.i === talk.length - 1) { s.classList.add('ready'); const sk = s.querySelector('.tskip'); if (sk) sk.hidden = true; return; }
     TALK.timer = setTimeout(() => talkNext(s), sceneRead((x.text + (x.act || '')).length) + 250);
   }
   function draw() {
@@ -6193,7 +6213,7 @@ html.art .coach { border-radius: 0; }
     P.drawnFor = standKey(L);
     // (2026-11-17) "partner" is free from here; the first table's exchange is said once ever
     L.titled = true;
-    if (TALK.lines) { clearTimeout(TALK.timer); TALK.lines = null; s.onpointerup = null; s.classList.remove('talking', 'ready'); const p = profile(); if (!p.firstTable) { p.firstTable = true; try { localStorage.setItem(PROFILE, JSON.stringify(p)); } catch (e) { /* private window */ } } }
+    if (TALK.lines) { clearTimeout(TALK.timer); TALK.lines = null; s.onpointerup = null; s.classList.remove('talking', 'ready'); const p = profile(); if (TALK.first && !p.firstTable) { p.firstTable = true; try { localStorage.setItem(PROFILE, JSON.stringify(p)); } catch (e) { /* private window */ } } }
     if (reduceMotion()) { s.hidden = true; render(); playCeremony(L, step); return; }
     s.classList.add('bang');
     document.body.classList.remove('standing');
@@ -6268,6 +6288,13 @@ html.art .coach { border-radius: 0; }
      a story begun before the gate). */
   const JAIL = {
     scoop: 'Scoop Malone, under the camera\u2019s black cloth: \u201cHold it\u2026 hold it\u2026\u201d',
+    // the photo's lines before the flash (2026-11-17, the writers' room's draft 2): the Pettibone and Sheriff lines
+    // are the logic hole ("already in prison", "not in a photograph"), the Twins' are the hat ("For now" pays off at Act III)
+    mark: [['pet', 'You\u2019re cuffed beside them, stranger. Stand on the mark. Chin up.'],
+           ['elder', 'Well. We\u2019re in the photograph.'], ['younger', 'Write it down.'],
+           ['elder', 'Nice hat.'], ['younger', 'Suits you.'], ['elder', 'For now.'],
+           ['sher', 'Out of shot, lads. It says single-handed.'], ['pet', 'Technically, sir, they were already in prison.'],
+           ['sher', 'Not in a photograph they weren\u2019t.'], ['sher', 'The Gazette\u2019s man came early. Couldn\u2019t wait for sun-up.']],
     thanks: 'Couldn\u2019t have done it without you. Well. Could have. Didn\u2019t, but could have.',
     replies: [
       { id: 'work', say: 'I did all the work.', back: 'Teamwork! That\u2019s exactly what I told the paper.' },
@@ -6275,13 +6302,13 @@ html.art .coach { border-radius: 0; }
       { id: 'gold', say: 'Where\u2019s my thousand gold?', back: '' }
     ],
     // your partner's own reply, and the Sheriff's answer (and Pettibone's, for the Sharp)
-    partner: { horse: ['(Biscuit stamps a hoof.)', 'Is that a yes? I\u2019ll count that as a yes.'], nan: ['You\u2019ll have my vote, dear.', 'Finally, a voter!'],
+    partner: { horse: ['(Biscuit stamps a hoof.)', 'Noted.'], nan: ['You\u2019ll have my vote, dear.', 'Finally, a voter!'],
                showboat: ['Sheriff, you need a speechwriter.', 'Got one. Pettibone writes all my lists.'], sharp: ['How many votes did you get last time?', 'All of them.', 'Eleven, sir.'],
                quiet: ['(The Quiet One stares at him.)', '\u2026I\u2019ll put you down as undecided.'] },
-    close: [['sher', 'Now, about the reward. County rules, friend: the treasurer in Bower City pays on delivery. No Twins, no nine hundred. Here\u2019s a hundred from the campaign fund to be going on with.'],
+    close: [['pet', 'Votes are counted at sundown, sir.'], ['sher', 'Now, about the reward. County rules, friend: the treasurer in Bower City pays on delivery. No Twins, no nine hundred. Here\u2019s a hundred from the campaign fund to be going on with.'],
             ['pet', 'That was for the brass band, sir.'],
             ['sher', 'And seeing as I\u2019m headed to Bower City myself, on the campaign train, you can deliver them on the way. Train leaves at noon.'],
-            ['pet', 'I packed you a sandwich. (He hands you a box: the sandwich, and a stuffed bunny.) And would you take this to my niece in Bower City? It\u2019s her birthday.']]
+            ['pet', 'Bunny. For my niece. Bower City. It\u2019s her birthday. (He hands you a box with a stuffed bunny in it.)']]
   };
   const JAILK = { timers: [] };
   function jailStage(cls) {
@@ -6298,14 +6325,14 @@ html.art .coach { border-radius: 0; }
     P.jailFor = key;
     JAILK.timers.forEach(clearTimeout); JAILK.timers = [];
     const at = (ms, f) => JAILK.timers.push(setTimeout(f, ms));
-    const who = { sher: 'Sheriff Hardcastle', pet: 'Deputy Pettibone' };
+    const who = { sher: 'Sheriff Hardcastle', pet: 'Deputy Pettibone', elder: 'The Twins', younger: 'The Twins' };
     const sayHTML = (w, t) => '<div class="say"><span class="face svg">' + pwSvg('star') + '</span><p><b>' + esc(who[w] || w) + ':</b> ' + esc(t) + '</p></div>';
-    const pr = JAIL.partner[L.partner], horse = L.partner === 'horse';
+    const pr = JAIL.partner[L.partner], CAPTION_ADD = { horse: ', and a horse, who declined to comment', showboat: ', and a man who asked for a second photograph', quiet: ', and somebody nobody remembers standing there' };
     card.className = 'gazette jail on';
     card.style.backgroundImage = '';
-    card.innerHTML = '<div class="jlive">' + jailStage('') + '<p class="jcap">' + esc(JAIL.scoop) + '</p></div>' +
+    card.innerHTML = '<div class="jlive">' + jailStage('') + '<div class="jtalk"></div><p class="jcap">' + esc(JAIL.scoop) + '</p></div>' +
       '<div class="gpaper" hidden><div class="gmast">The Euchre-ka! Gazette</div><div class="gdate"><span>Extra!</span><span>One cent</span><span>Polling day soon</span></div>' +
-      '<div class="gphoto">' + jailStage('eased') + '</div><p class="gcap">Sheriff Hardcastle with the Twins. Also pictured: an unidentified hat' + (horse ? ', and a horse, who declined to comment' : '') + '.</p>' +
+      '<div class="gphoto">' + jailStage('eased') + '</div><p class="gcap">Sheriff Hardcastle with the Twins. Also pictured: an unidentified hat' + (CAPTION_ADD[L.partner] || '') + '.</p>' +
       '<b class="ghead">Eureka! Sheriff strikes gold</b><p class="gsub">Hardcastle brings in the Twins single-handed</p><p class="gby">by Scoop Malone, cub reporter</p></div>' +
       '<div class="gwords" hidden></div>';
     try { card.scrollTop = 0; } catch (e) { /* no layout */ }
@@ -6321,9 +6348,17 @@ html.art .coach { border-radius: 0; }
       card.classList.remove('printed'); void card.offsetWidth; card.classList.add('printed');
       ask();
     };
+    // the lines come in one at a time under the photo; a tap skips to the paper (card.onclick). Only the newest
+    // JAIL_SHOWN stay: all ten ran off the foot of a 375x667 phone, punchlines and all (2026-11-28, measured)
+    const talk = card.querySelector('.jtalk'), JAIL_SHOWN = 3;
+    JAIL.mark.forEach(([w, t], i) => at(500 + i * 700, () => {
+      talk.insertAdjacentHTML('beforeend', sayHTML(w, t));
+      while (talk.children.length > JAIL_SHOWN) talk.firstElementChild.remove();
+    }));
+    const flashAt = 500 + JAIL.mark.length * 700 + 400;
     at(900, () => live.classList.add('eased'));
-    at(2600, () => { live.classList.add('flash'); try { if (navigator.vibrate) navigator.vibrate(40); } catch (e) { /* none */ } });
-    at(4000, toPaper);
+    at(flashAt, () => { live.classList.add('flash'); try { if (navigator.vibrate) navigator.vibrate(40); } catch (e) { /* none */ } });
+    at(flashAt + 1400, toPaper);
     card.onpointerdown = null;
     card.onclick = ev => {
       if (!paper.hidden && ev.target.closest('[data-jdone]')) { endJail(L); return; }
@@ -6398,6 +6433,7 @@ html.art .coach { border-radius: 0; }
       '<div class="dtrain">' + train + '</div><div class="dpuffs"></div>' + front +
       '<div class="dwords"><div class="board"><small>ACT II</small><b>THE WESTBOUND EXPRESS</b><span>Next stop: Bower City. No other stops.</span></div>' +
       '<div class="say"><span class="face svg">' + partnerFace(p.id) + '</span><p><b>' + esc(p.name) + ':</b> ' + esc(departLine(L)) + '</p></div>' +
+      (L.euchre ? '<div class="say">' + figFace(REPORTER) + '<p><b>Scoop Malone:</b> Nothing ever happens on trains.</p></div>' : '') +
       (nan ? '<div class="unlock"><span class="face svg">' + NAN_SVG + '</span><p><b>New partner: Nan</b>, the Steady Hand. She heard what you did to the Twins: she can ride with you from your next story.</p></div>' : '') +
       '<button class="btn" data-act="allaboard">All aboard</button></div>';
     card.classList.add('on');

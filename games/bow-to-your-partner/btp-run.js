@@ -169,7 +169,7 @@
      Draw!": each fight of cards is a gunfight. A Showdown has its own lines; a gang's are drawn from its kind's.
      taunt(L) is fixed by the run's seed and the fight, so a reload says the same thing. */
   const TAUNTS = {
-    dance: ['This town ain\u2019t big enough for the four of us.', 'We don\u2019t take kindly to strangers. We take their money.',
+    dance: ['This town\u2019s full, and that\u2019s just the inmates.','We don\u2019t take kindly to strangers. We take their money.',
       'Deal \u2019em, and kiss your boots goodbye.', 'You look like somebody who folds.', 'Last fella in that chair still owes us a horse.',
       'Read \u2019em and weep. Actually, just weep.', 'Sit down, stranger. The chair\u2019s still warm from the last one we cleaned out.',
       'Ma told us never to gamble. So we cheat.', 'Hope you brought more than that hat.', 'I\u2019ve seen tumbleweeds hold better hands.',
@@ -389,7 +389,8 @@
     if (L.euchre && L.kind === 'boss' && L.boss === 'twins' && L.act === 1) return { who, text: TWINS_HAIL };
     return { who, text: dealt(L, 't:' + pool[0], pool, (L.level | 0) - 1) };
   }
-  const TWINS_HAIL = 'The Twins of Euchre-ka! A Number One\u2026 and A Number Two.';
+  // (2026-11-17, the writers' room: no number is said; the Twins' lines are the sequence in index.html's twinsTalk)
+  const TWINS_HAIL = 'The Twins of Euchre-ka! Holding court.';
   const LAST_ACT = 3;                       // the County Fair ends the run
   const ROMAN = { 1: 'I', 2: 'II', 3: 'III' };
   /* Who rides with you. Your horse first (the user's, 2026-11-01: "thematically it works better if the starting
@@ -609,10 +610,11 @@
      Sheriff Hardcastle deputises you and lets you take ONE thing confiscated at the gate (phase 'gate', before the
      act's card pick): a buff, two elixirs, or a card upgrade (an enhancement pick). One of each is drawn per run.
      After the Twins' Showdown they bolt for the gate in an ore cart and you chase them: the Fair's Getaway, shorter
-     (ESCAPE), and it can only add to the win: caught, their strongbox; not caught, Pettibone shuts the gate on them
-     anyway. Then the Showdown's payday as ever. */
+     (ESCAPE: two stretches, 2026-11-17, the writers' room's ruling), and it can only add to the win: caught, their
+     strongbox; not caught, Pettibone shuts the gate on them and they are caught there anyway. Then the Showdown's
+     payday as ever. */
   const GATE = { elixirs: 2, enh: 2 };
-  const ESCAPE = { stretches: 3, gap: 2, away: 4, bounty: 75 };
+  const ESCAPE = { stretches: 2, gap: 2, away: 4, bounty: 75 };
   const gateDue = L => !!L.euchre && L.mode !== 'standard' && L.act === 1 && !L.gated;
   function openGate(L) {
     const fb = freeBuffs(L);
@@ -1050,7 +1052,7 @@
     if (caught) {
       L.gold += bounty;
       E.say(L, 'You catch ' + B.replace(/^The /, 'the ') + (c.escape ? ' short of the gate' : ' at the end of the line') + '! Their strongbox is yours: +' + bounty + ' gold.', 'gold');
-    } else if (c.escape) E.say(L, B + ' reach the gate first, and Deputy Pettibone shuts it in their faces. Caught anyway; their strongbox goes to the county.', 'objective');
+    } else if (c.escape) E.say(L, B + ' reach the gate first. Deputy Pettibone shuts it in their faces: “Gate’s shut, sir.” Caught anyway; their strongbox goes to the county.', 'objective');
     else E.say(L, B + ' get away ' + chaseRide(c).into.replace(/^(into|onto) /, 'down ') + ', strongbox and all.', 'objective');
     L.record = (L.record || []).concat({ act: L.act, level: L.level, kind: c.escape ? 'escape' : 'getaway', id: c.boss, stars: 0, won: caught, clean: caught && c.lost === 0 });
   }
