@@ -335,6 +335,13 @@
   gate.GREET = GREET;
   gate.PARTNER = PARTNER;
   gate.NAME_MAX = NAME_MAX;
+  /* Which script the first cut plays: the date of the draft it is built from (the writers' room's DRAFT-2, built
+     2026-11-16). The page keeps the version a player watched to its pick (profile.scenes.gate) and plays the short cut
+     only to someone who has seen THIS one, so a rewrite is seen in full once. (2026-11-28, the user: "The game seems to
+     be on an old version of the script": the flag was a plain true, set by the 2026-11-09 film, so anyone who had
+     watched an older gate got the short cut ever after and never saw the rewrite.) Change it whenever the first
+     cut's lines change. */
+  gate.VERSION = '2026-11-16';
   root.BTP_SCENES = root.BTP_SCENES || {};
   root.BTP_SCENES.gate = gate;
 })(typeof window !== 'undefined' ? window : globalThis);

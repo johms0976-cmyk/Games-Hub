@@ -34,6 +34,22 @@
     gates: { w: 23, h: 35, y: gy + 1, top: gy - 33, shut: [71, 94], open: [48, 117] },
     // the gate's watchtowers: clear of the road, the sign, the lanes' markers above and your partner standing inside
     towers: [{ key: 'sg_tower_l', x: 36, y: gy + 2 }, { key: 'sg_tower_r', x: 151, y: gy + 2 }] };
+  /* The siege camp's lines (STORY-PLAN.md "The siege outside the stockade": "Map lines (tap a deputy)", built
+     2026-11-28): tap one of these on the map and they say theirs. `hit` is where a tap lands, in art pixels: the
+     sprites' own boxes as bakery/euchreka_px.py places them (sg_cards, sg_cannon and the deputy beside it, sg_band,
+     sg_lookout, sg_sleeper, sg_fire, and the deputy by the road at spot 12), never overlapping. `head` is where the
+     balloon's tail points. Each line is the plan's, 40 characters or fewer, and describes the camp, so it lasts all
+     act. Two of them are also said as you ride up (scenes/gate.js, at MARKS.camp and MARKS.lookout). */
+  const CAMP = [
+    // (a lone deputy's area is 22 art pixels wide: 44 CSS pixels on a phone, a thumb's width)
+    { id: 'road', who: 'A deputy by the road', hit: [[55, gy + 219, 77, gy + 249]], head: [66, gy + 221], text: 'Day four hundred. Siege is going great.' },
+    { id: 'cards', who: 'The deputies at cards', hit: [[131, gy + 120, 171, gy + 154]], head: [148, gy + 122], text: 'Not now. I’ve bid ten no trumps.' },
+    { id: 'cannon', who: 'The deputy at the cannon', hit: [[131, gy + 61, 163, gy + 88], [109, gy + 86, 131, gy + 116]], head: [124, gy + 88], text: 'It’s loaded. With confetti.' },
+    { id: 'band', who: 'The brass band', hit: [[125, gy + 169, 157, gy + 199]], head: [141, gy + 171], text: 'We know one tune. It’s his name.' },
+    { id: 'lookout', who: 'The lookout', hit: [[0, gy + 152, 22, gy + 223]], head: [12, gy + 155], text: 'Got eyes on a suspect. It’s you.' },
+    { id: 'sleeper', who: 'The deputy asleep', hit: [[23, gy + 145, 48, gy + 166]], head: [30, gy + 150], text: 'Mm… nobody’s got in… I’d have seen…' },
+    { id: 'fire', who: 'The deputies at the fire', hit: [[16, gy + 96, 56, gy + 133]], head: [36, gy + 99], text: 'Siege pay’s by the day. No rush.' }
+  ];
   const SHOPS = { camp: ['camp', 'The hotel'], store: ['store', 'The general store'], bank: ['bank', 'The bank of Euchre-ka!'] };
   const BACKDROP = { dance: 'dance', event: 'event', raffle: 'raffle' };
   const PLAIN = ['house1', 'house3', 'store2', 'house2', 'camp2'];
@@ -93,7 +109,7 @@
     return { stops, shops, boss, decor, towers: MARKS.towers, start: GEO.START };
   }
 
-  const api = { GEO, MARKS, SHOPS, BACKDROP, PLAIN, rowY, laneX, propFor, layout };
+  const api = { GEO, MARKS, CAMP, SHOPS, BACKDROP, PLAIN, rowY, laneX, propFor, layout };
   if (node) module.exports = api;
   else root.BtpEuchreka = api;
 })(typeof window !== 'undefined' ? window : this);

@@ -725,6 +725,19 @@ body.signzoom .hero { transform-origin: 0 0; transition: transform var(--signzoo
 #actcard .board b { display: block; font-size: 34px; letter-spacing: .08em; font-weight: 800; }
 #actcard .board span { display: block; font-size: 14px; color: #f3e3c0; margin-top: 4px; }
 @keyframes boardin { from { transform: translateY(-80px) rotate(-8deg); opacity: 0; } }
+/* Act I's title card (2026-11-28, STORY-PLAN.md): printed on paper over the opening's dust, ESCAPE FROM EUREKA!, and
+   "CH" scrawled in above it in red with a caret, a beat after the card lands */
+#actcard.title { background: #ead6ae; }
+#actcard .board.ttl { background: #f3e3c0; color: #3a2a20; box-shadow: 0 0 0 3px #a8603a, 0 8px 0 rgba(58,42,32,.35); padding: 14px 22px 18px; }
+#actcard .board.ttl small { color: #8a2d22; }
+#actcard .board.ttl b { font-family: "Pixelify Sans", Bitter, Georgia, serif; font-size: clamp(26px, 9vw, 40px); line-height: 1.5; letter-spacing: .06em; }
+#actcard .board.ttl .nw { display: inline; white-space: nowrap; font-size: inherit; color: inherit; margin: 0; }
+#actcard .board.ttl .ch { position: relative; display: inline-block; width: 0; height: 1em; margin: 0; font-size: inherit; color: inherit; }
+#actcard .board.ttl .ch::before { content: '^'; position: absolute; left: 0; bottom: -1.05em; transform: translateX(-50%); font: 800 .6em/1 Bitter, Georgia, serif; color: #c0201a; opacity: 0; animation: fadein .15s 1s forwards; }
+#actcard .board.ttl .ch i { position: absolute; left: 0; bottom: 1.3em; transform: translateX(-50%) rotate(-9deg); font: italic 800 .62em/1 Bitter, Georgia, serif; color: #c0201a; letter-spacing: .02em; white-space: nowrap;
+  clip-path: inset(0 100% 0 0); animation: scrawl .45s steps(5) 1.15s forwards; }
+@keyframes scrawl { to { clip-path: inset(0 0 0 0); } }
+@media (prefers-reduced-motion: reduce) { #actcard .board.ttl .ch i { clip-path: none; animation: none; } #actcard .board.ttl .ch::before { opacity: 1; animation: none; } }
 #actcard .nanline { background: #fffaf0; color: #3a2a20; border-radius: 10px; padding: 10px 14px; max-width: 320px; box-shadow: 0 2px 0 rgba(58,42,32,.3);
   font-size: 15px; animation: boardin .55s .35s both; }
 #paid .ledger .lnote { width: fit-content; margin: 6px 0 0 auto; padding: 1px 4px; background: #fbf5e4; font: italic 600 11px/1.25 Georgia, serif; color: #6b2a1a; text-align: right; }
@@ -765,6 +778,13 @@ body.signzoom .hero { transform-origin: 0 0; transition: transform var(--signzoo
 .gatepanel .gsay { margin: 0; padding: 6px 10px; background: #fffaf0; color: #3a2a20; border: 2px solid #2a1b16; border-radius: 10px; font-size: 15px; line-height: 1.35;
   opacity: 0; animation: gsay .35s ease-out forwards; animation-delay: calc(var(--i) * 1.1s + .3s); }
 .gatepanel .gsay.you { align-self: flex-end; background: #f3e3c0; }
+/* (2026-11-28) the scene's own script as text: what is seen in italics, the sound words stamped, the name typed in place */
+.gatepanel .gsay.gdir { background: none; border: 0; padding: 0 4px; font-style: italic; color: #6f6253; font-size: 14px; }
+.gatepanel .gsay.gdir.slug { font-style: normal; font-family: "Pixelify Sans", Bitter, monospace; letter-spacing: .04em; color: #4a2626; }
+.gatepanel .gsay.dep { background: #efe4cc; font-size: 14px; }
+.gatepanel .gsfx { font-style: normal; font-weight: 800; letter-spacing: .06em; color: #4a2626; }
+.gatepanel .gsay.gfield { background: none; border: 0; padding: 0; }
+.gatepanel .gn, .gatepanel .gyou { font-weight: 700; }
 .gatepanel .gpick { opacity: 0; animation: gsay .35s ease-out forwards; animation-delay: calc(var(--i) * 1.1s + .5s); }
 .gatepanel.all .gsay, .gatepanel.all .gpick { animation: none; opacity: 1; }
 .gatepanel .gpick .ask { margin: 0 0 8px; }
@@ -890,6 +910,17 @@ select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid
 /* the sun going down up the map (ekDusk): over the plate, the sprites and the standing riders (z 1999 too, and earlier
    in the page), under the markers (2000) */
 .mapbox.ek .tod { display: none; position: absolute; pointer-events: none; z-index: 1999; }
+/* (2026-11-28) the siege camp's deputies: invisible tap areas over the plate (above the dusk, under the stops'
+   markers), and the line a tapped one says, in the gate scene's small balloon */
+.mapbox.ek .ekdep { position: absolute; z-index: 2000; margin: 0; padding: 0; border: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.mapbox.ek .ekline { position: absolute; z-index: 3000; box-sizing: border-box; max-width: 170px; width: max-content; background: #fffaf0; color: #3a2a20; border: 2px solid #2a1b16;
+  border-radius: 9px; padding: 4px 8px 5px; font: 13px/1.3 Bitter, Georgia, serif; box-shadow: 0 3px 0 rgba(30, 18, 14, .35); pointer-events: none; animation: eklin .18s ease-out; }
+.mapbox.ek .ekline p { margin: 0; }
+.mapbox.ek .ekline::before, .mapbox.ek .ekline::after { content: ""; position: absolute; left: var(--tx); border: solid transparent; }
+.mapbox.ek .ekline::before { bottom: -11px; margin-left: -6px; border-width: 9px 6px 0; border-top-color: #2a1b16; }
+.mapbox.ek .ekline::after { bottom: -7px; margin-left: -4px; border-width: 7px 4px 0; border-top-color: #fffaf0; }
+@keyframes eklin { from { opacity: 0; transform: translateY(4px); } }
+@media (prefers-reduced-motion: reduce) { .mapbox.ek .ekline { animation: none; } }
 @supports (mix-blend-mode: multiply) {
   html.art .mapbox.ek .tod { display: block; }
   .mapbox.ek .tod.mul, .mapbox.ek .tod.wash { inset: 0; }
@@ -1812,31 +1843,31 @@ html.art .coach { border-radius: 0; }
 <div class="veil" id="veil" hidden><div class="sheet" id="sheet"></div></div>
 
 <!-- ?v=: bump it when the scripts change, so a browser never pairs this page with an old cached script -->
-<script src="btp-engine.js?v=74"></script>
-<script src="btp-ai.js?v=74"></script>
-<script src="btp-run.js?v=74"></script>
-<script src="btp-town.js?v=74"></script>
-<script src="art/dustwater/sprites.js?v=74"></script>
-<script src="btp-train.js?v=74"></script>
-<script src="art/train/sprites.js?v=74"></script>
-<script src="art/title/scene.js?v=74"></script>
-<script src="art/title/cameo.js?v=74"></script>
-<script src="art/title/crossing.js?v=74"></script>
-<script src="art/table/scene.js?v=74"></script>
-<script src="art/table/partners.js?v=74"></script>
-<script src="art/grave/scene.js?v=74"></script>
-<script src="art/paid/scene.js?v=74"></script>
-<script src="art/rooms/scene.js?v=74"></script>
-<script src="art/express/scene.js?v=74"></script>
-<script src="art/country/country.js?v=74"></script>
-<script src="art/fair/sprites.js?v=74"></script>
-<script src="btp-euchreka.js?v=74"></script>
-<script src="art/euchreka/sprites.js?v=74"></script>
-<script src="btp-scene.js?v=74"></script>
-<script src="scenes/gate.js?v=74"></script>
-<script src="btp-music.js?v=74"></script>
-<script src="music/theme.js?v=74"></script>
-<script src="music/westbound.js?v=74"></script>
+<script src="btp-engine.js?v=76"></script>
+<script src="btp-ai.js?v=76"></script>
+<script src="btp-run.js?v=76"></script>
+<script src="btp-town.js?v=76"></script>
+<script src="art/dustwater/sprites.js?v=76"></script>
+<script src="btp-train.js?v=76"></script>
+<script src="art/train/sprites.js?v=76"></script>
+<script src="art/title/scene.js?v=76"></script>
+<script src="art/title/cameo.js?v=76"></script>
+<script src="art/title/crossing.js?v=76"></script>
+<script src="art/table/scene.js?v=76"></script>
+<script src="art/table/partners.js?v=76"></script>
+<script src="art/grave/scene.js?v=76"></script>
+<script src="art/paid/scene.js?v=76"></script>
+<script src="art/rooms/scene.js?v=76"></script>
+<script src="art/express/scene.js?v=76"></script>
+<script src="art/country/country.js?v=76"></script>
+<script src="art/fair/sprites.js?v=76"></script>
+<script src="btp-euchreka.js?v=76"></script>
+<script src="art/euchreka/sprites.js?v=76"></script>
+<script src="btp-scene.js?v=76"></script>
+<script src="scenes/gate.js?v=76"></script>
+<script src="btp-music.js?v=76"></script>
+<script src="music/theme.js?v=76"></script>
+<script src="music/westbound.js?v=76"></script>
 <script>
 (function () {
   'use strict';
@@ -2592,11 +2623,14 @@ html.art .coach { border-radius: 0; }
     const sprites = lay.shops.map(spr).join('') + lay.stops.map(s => s.draws.map(spr).join('')).join('') + (staged ? '' : lay.decor.map(spr).join('')) + lay.towers.map(spr).join('') + doors + sign;
     const buttons = lay.stops.map(s => stopButton(L, R.node(L, s.id), s.marker[0], s.marker[1], G.W, G.H, can, route, fNow, s.place)).join('') +
       stopButton(L, R.node(L, 'boss'), lay.boss.marker[0], lay.boss.marker[1], G.W, G.H, can, route, fNow);
+    // the siege camp outside the gate: tap a deputy and they say their line (depSay; not while the gate's scene plays)
+    const deps = staged || !T.CAMP ? '' : T.CAMP.map((d, i) => d.hit.map(h => '<button class="ekdep" data-dep="' + i + '" aria-label="' + esc(d.who) + '" style="left:' + pct(h[0], G.W) + ';top:' + pct(h[1], G.H) +
+      ';width:' + pct(h[2] - h[0], G.W) + ';height:' + pct(h[3] - h[1], G.H) + '"></button>').join('')).join('');
     const mw = G.W * ekScale();
     return '<div class="mapbox dust euchre ek hasplate" style="aspect-ratio:' + G.W + ' / ' + G.H + ';width:' + mw + 'px;margin-left:calc(50% - ' + mw / 2 + 'px)">' +
       '<div class="road" style="left:' + pct(G.ROAD[0], G.W) + ';width:' + pct(G.ROAD[1] - G.ROAD[0], G.W) + '"></div>' +
       '<img class="plate" alt="" src="' + artURL('euchreka/plate.webp') + '">' +
-      '<svg viewBox="0 0 ' + G.W + ' ' + G.H + '" preserveAspectRatio="none" aria-hidden="true">' + paths + '</svg>' + sprites + buttons +
+      '<svg viewBox="0 0 ' + G.W + ' ' + G.H + '" preserveAspectRatio="none" aria-hidden="true">' + paths + '</svg>' + sprites + buttons + deps +
       (staged ? '' : ekRider(L, lay.start, G, pct) +
       '<div class="stage" style="left:' + pct(lay.start[0], G.W) + ';top:' + pct(lay.start[1] + 8, G.H) + '">Where you rode in</div>') + ekDusk(lay, G, pct) + '</div>';
   }
@@ -2612,6 +2646,27 @@ html.art .coach { border-radius: 0; }
     return '<div class="rodein" style="left:' + pct(x, G.W) + ';top:' + pct(y, G.H) + ';width:' + pct(w, G.W) + ';height:' + pct(h, G.H) + ';z-index:' + (2 + Math.round(at[1])) + '">' +
       (p ? '<i class="pr" style="left:-' + dx + '%;right:' + dx + '%;top:-' + dy + '%;bottom:' + dy + '%;background-image:url(' + (me && RD[p] ? artURL('euchreka/ride_' + p + '.webp') : artURL('title/ride_' + p + '.webp')) + ')"></i>' : '') +
       '<i style="background-image:url(' + (me ? artURL('euchreka/ride_you.webp') : artURL('title/' + I.img + '.webp')) + ')"></i></div>';
+  }
+  /* The siege camp talks (2026-11-28, STORY-PLAN.md "Map lines (tap a deputy)"): a tap on a deputy puts their line
+     in a small balloon over their head, its tail at them, kept inside the map's width. One at a time; it goes by itself
+     after its reading time, or with the next tap. The map's re-render takes it away (it's only ever a passing remark). */
+  const DEP = { timer: 0 };
+  function depSay(i) {
+    const T = window.BtpEuchreka, d = T && T.CAMP && T.CAMP[i], box = document.querySelector('.mapbox.ek');
+    if (!d || !box) return;
+    clearTimeout(DEP.timer);
+    box.querySelectorAll('.ekline').forEach(e => e.remove());
+    const b = document.createElement('div');
+    b.className = 'ekline';
+    b.dataset.dep = d.id;
+    b.innerHTML = '<p>' + esc(d.text) + '</p>';
+    box.appendChild(b);
+    const k = (box.offsetWidth || T.GEO.W * 2) / T.GEO.W, W = T.GEO.W * k, bw = b.offsetWidth || 150, bh = b.offsetHeight || 40;
+    const hx = d.head[0] * k, hy = d.head[1] * k, left = Math.max(4, Math.min(W - 4 - bw, hx - bw / 2));
+    b.style.left = Math.round(left) + 'px';
+    b.style.top = Math.round(hy - 12 - bh) + 'px';
+    b.style.setProperty('--tx', Math.round(Math.max(12, Math.min(bw - 12, hx - left))) + 'px');
+    DEP.timer = setTimeout(() => b.remove(), sceneRead(d.text.length) + 1400);
   }
   /* The sun goes down as you go up Main Street (2026-11-10, the user's: "can the sun slowly set over the act 1 map as
      well so by the time the Saloon is visible is midnight"): day at the gate and the first row, the golden hour, the
@@ -3649,35 +3704,15 @@ html.art .coach { border-radius: 0; }
   /* 2026-11-13: the gate rewritten, twice (STORY-PLAN.md [1.2]; the user: "The opening scene doesn't quite make sense",
      then: Pettibone tougher and no "sir" for you, undercover instead of deputised, the stamp as your cover, your name
      typed into the ledger, the deadline said plainly). With the art it plays as a scene on the map (scenes/gate.js on
-     btp-scene.js, startGateScene below); these bubbles are its short form, what plays without it (?fast, no art,
-     Story scenes: Off), with the name's field under them. */
-  // (2026-11-16: the writers' room's draft two, docs/writers-room/gate/DRAFT-2.md, built on the user's "Yes, build it")
-  const GATE_TALK = [
-    ['pet', 'Hold it. Nobody goes in.'],
-    ['you', '(You hold up the poster: WANTED, THE TWINS.) I\u2019m here for the Twins.'],
-    ['pet', 'Another one. (He turns his back on you.) Sheriff! Your poster\u2019s caught something.'],
-    ['sher', 'Ah! A voter!'],
-    ['you', 'Bounty hunter.'],
-    ['sher', 'Even better. Voters want roads.'],
-    ['pet', 'This one wants paying, sir.'],
-    ['sher', 'In there! Euchre-ka! The safest town in Bower County. The gold ran out and everybody left. So I walled it in and put every crook in the county inside. Crime\u2019s down a hundred percent.'],
-    ['sher', 'They broke in! Nobody breaks into a bad prison. And now they run it.'],
-    ['pet', 'It\u2019s a saloon, sir. Top of the street.'],
-    ['sher', 'A thousand gold for the pair. Alive, mind. The Gazette\u2019s man gets here at sun-up. One photograph. You, me and two Twins. Mostly me.'],
-    ['pet', 'You\u2019d be the fourth hunter through this gate. (He turns three pages.) In. In. And in.'],
-    ['you', 'A thousand. Paid at this gate.'],
-    ['sher', 'In full! The minute they\u2019re in the photograph. Send thirty deputies and I\u2019m at the back of my own photograph.'],
-    ['pet', 'One more crook, nobody looks twice. (He looks you over.) You\u2019ll pass. Hand. (He stamps INMATE on the back of it.) No stamp, and they smell law.'],
-    ['pet', 'Name. For the ledger. (You write it below.) Everyone in, I write down. Everyone out, I cross off. You\u2019d be the first.'],
-    ['sher', 'Be at this gate at sun-up, with both Twins, and it opens. If you\u2019re not, well\u2026 you\u2019re digging for daylight with a spoon.'],
-    ['you', 'I\u2019m stuck in there?'],
-    ['pet', 'That ink doesn\u2019t wash off. Miss sun-up, and you\u2019re an inmate. (He holds out his hat.) Gate toll. Twenty-five cents. Out\u2019s free.'],
-    ['sher', 'Now, hand over your guns.'],
-    ['you', 'I go in unarmed?'],
-    ['pet', 'It\u2019s a prison. Everyone in there is.']
-  ];
-  const GATE_ASK = 'Take one. Trials are after the election.';
-  const GATE_WHO = { sher: 'Sheriff Hardcastle', pet: 'Deputy Pettibone', you: 'You' };
+     btp-scene.js, startGateScene below); without it (?fast, ?demo, no art, Story scenes: Off) the panel below plays
+     the same script as text. */
+  /* (2026-11-28) The panel reads its lines off the scene itself, so the two can't drift apart again: it was the
+     2026-11-13 paraphrase, headed "The Marshal's gatehouse", long after the scene was rewritten (the user: "The game
+     seems to be on an old version of the script"). It plays the cut the scene would: the whole script to anyone who
+     hasn't seen this version of it (gateCut), the short cut after that. Stage directions in italics, your name typed
+     where Pettibone asks for it and filled into the lines that use it; the lines come one at a time, a tap shows all.
+     What comes after the pick (the ride in, "A dead man, sir.") is film only. */
+  const GATE_ASK = 'Take one. Trials are after the election.';     // (only if the scene can't be read)
   /* Your name (2026-11-13, the user's: "This is where the player can choose their name. And the game should address
      them as that. Needs a character limit"): typed into Pettibone's ledger at the gate, kept on the run (L.name) and,
      for the next story's field, in the profile. meName(L) is what to call the player; '' before they've said. */
@@ -3701,29 +3736,106 @@ html.art .coach { border-radius: 0; }
     credit: 'A store voucher. My campaign\u2019s. I\u2019d appreciate it back after the election.', holdout: 'A cuff with a pocket in it. Card sharps love \u2019em.',
     bandolier: 'A bandolier. Very slimming.', iron: 'A tonic. Says \u201cIron\u201d on it. I think it\u2019s for ironing.', pillow: 'A feather pillow. Confiscated off a fella sleeping on the job. Pettibone.',
     warrant: 'A signed warrant. My signature\u2019s on it, so it\u2019s valuable.', dice: 'A pair of dice. They always roll a six. Very honest dice.', swing: 'A card with a string on it.', count: 'An abacus.' };
+  // the cut the gate plays: the whole script once for each version of it (scenes/gate.js VERSION), then the short cut
+  function gateCut() {
+    const V = window.BTP_SCENES && window.BTP_SCENES.gate && window.BTP_SCENES.gate.VERSION, pr = profile();
+    return P.prefs.scenes === 'short' || (V && pr.scenes && pr.scenes.gate === V) ? 'fast' : 'first';
+  }
+  // this version of the script has been seen to its pick (in the film or the panel)
+  function gateWatched() {
+    const V = window.BTP_SCENES && window.BTP_SCENES.gate && window.BTP_SCENES.gate.VERSION, p = profile();
+    if (!V || (p.scenes && p.scenes.gate === V)) return;
+    p.scenes = Object.assign({}, p.scenes, { gate: V });
+    try { localStorage.setItem(PROFILE, JSON.stringify(p)); } catch (e) { /* private window */ }
+  }
+  // what the gate's scene is built from (scenes/gate.js documents each field)
+  function gateCtx(L) {
+    const T = window.BtpEuchreka, G = L.gate || {}, b = G.buff, X = R.ELIXIRS, pr = profile(), I = window.TITLE_SCENE && window.TITLE_SCENE.intro;
+    return { art: artURL, marks: T.MARKS, sprites: window.EUCHRE_SPRITES, rider: I && I.stage,
+      pal: L.partner && L.partner !== 'horse' ? 'ride_' + L.partner : null,
+      partner: L.partner || 'horse', name: meName(L), suggest: cleanName(pr.name),
+      lost: (pr.rides || []).length > 0 && !pr.rides[pr.rides.length - 1].won,   // the short cut's "Still not crossed off"
+      buff: b ? { id: b, name: R.BUFFS[b].name, text: R.BUFFS[b].text, sher: SHERIFF_SAYS[b] || 'Took it off a card sharp. Does something clever, I\u2019m told.' } : null,
+      elixirs: (G.elixirs || []).filter(id => X[id]).map(id => ({ name: X[id].name, text: X[id].text })),
+      greet: Math.floor(Math.random() * 3), won: (pr.rides || []).some(x => x.won) };
+  }
+  // the scene for this visit, and the cut it plays (a replay keeps the name you gave last story, and asks only if
+  // there isn't one); null if its scripts aren't here
+  function gateScene(L, cut) {
+    if (!window.BTP_SCENES || !window.BTP_SCENES.gate || !window.BtpEuchreka || !window.BtpEuchreka.MARKS) return null;
+    const pr = profile();
+    if (!L.name && cut === 'fast' && cleanName(pr.name)) { L.name = cleanName(pr.name); save(); }
+    try { return window.BTP_SCENES.gate(gateCtx(L)); } catch (e) { return null; }
+  }
+  /* The scene's script as the panel's lines: [{ who, text }] for what is said (the deputies' lines on the ride up
+     too), { dir } (html) for what is seen, { name: true } where your name is asked for. An ask takes its first
+     answer (the deal), an answer that is done is its stage direction, and it stops at the pick. */
+  function gateScript(S, cut) {
+    const out = [];
+    let dir = [];
+    const flush = () => { if (dir.length) out.push({ dir: dir.join(' ') }); dir = []; };
+    const stamp = t => t === 'INMATE' ? '<span class="inmate">INMATE</span>' : '<span class="gsfx">' + esc(t) + '</span>';
+    const run = list => (list || []).forEach(st => {
+      if (st.all) return run(st.all);
+      if (st.seq) return run(st.seq);
+      if (st.say) { flush(); out.push({ who: st.say, text: st.text + (st.append || '') }); return; }
+      if (st.note) { flush(); out.push({ who: 'dep', text: st.text }); return; }
+      if (st.dir) { dir.push(esc(st.dir).replace('INMATE', '<span class="inmate">INMATE</span>')); return; }
+      if (st.sfx) { dir.push(stamp(st.sfx)); return; }
+      if (st.raise && st.text && st.cls !== 'wanted' && !dir.some(d => d.indexOf('>' + st.text + '<') >= 0)) dir.push(stamp(st.text));
+    });
+    for (const beat of S[cut] || []) {
+      if (beat.choice) break;
+      if (beat.dir && !/^EXT\./.test(beat.dir)) dir.push(esc(beat.dir));
+      else if (beat.dir) { flush(); out.push({ dir: esc(beat.dir), slug: true }); }
+      if (beat.ask) { const o = beat.ask.options.find(x => !x.again) || beat.ask.options[0]; if (!o.do) { flush(); out.push({ who: 'you', text: o.label }); } run(o.steps); continue; }
+      if (beat.input) { flush(); out.push({ name: true }); continue; }
+      run(beat.steps);
+    }
+    flush();
+    return out;
+  }
   function gateHTML(L) {
     const G = L.gate || {}, b = G.buff, X = R.ELIXIRS, all = FAST || P.gateSeen === L.rs + ':' + L.level;
-    const say = (w, t, i) => '<p class="gsay ' + w + '" style="--i:' + i + '"><b>' + esc(w === 'you' && meName(L) ? meName(L) : GATE_WHO[w]) + ':</b> ' + esc(t).replace('INMATE', '<span class="inmate">INMATE</span>') + '</p>';
+    const S = gateScene(L, gateCut()), lines = S ? gateScript(S, gateCut()) : [];
+    const nm = meName(L) || cleanName(profile().name);
+    const who = { sher: 'Sheriff Hardcastle', pet: 'Deputy Pettibone', dep: 'A deputy', bis: PN(), pal: PN() };
+    // your name, wherever the script says it: what you typed (the field fills these in as you type)
+    const fill = t => esc(t).replace(/\*([^*]+)\*/g, '<em>$1</em>').replace(/\{name\}/g, '<span class="gn">' + esc(nm || '___') + '</span>');
+    const field = '<p class="ask gname"><label><b>Your name, for the ledger:</b> <input id="gname" type="text" maxlength="' + NAME_MAX + '" autocomplete="off" spellcheck="false" value="' + esc(nm) + '" style="font:inherit;width:9em;padding:2px 6px"></label></p>';
+    const asks = lines.some(x => x.name);
+    const talk = lines.map((x, i) => {
+      const at = ' style="--i:' + i + '"';
+      if (x.name) return '<div class="gsay gfield"' + at + '>' + field + '</div>';
+      if (x.dir) return '<p class="gsay gdir' + (x.slug ? ' slug' : '') + '"' + at + '>' + x.dir + '</p>';
+      return '<p class="gsay ' + x.who + '"' + at + '><b>' + (x.who === 'you' ? '<span class="gyou">' + esc(nm || 'You') + '</span>' : esc(who[x.who] || x.who)) + ':</b> ' + fill(x.text) + '</p>';
+    }).join('');
     const opt = (id, title, sher, pet, off) => '<button class="choice" data-gate="' + id + '"' + (off ? ' disabled' : '') + '><b>' + esc(title) + '</b><span>\u201c' + esc(sher) + '\u201d</span>' +
       (pet ? '<span class="pet">Pettibone: ' + esc(pet) + '</span>' : '') + '</button>';
     const els = (G.elixirs || []).map(id => X[id] ? X[id].name + ': ' + X[id].text.replace(/\.$/, '') : '').filter(Boolean);
     return '<div class="evscene gate" aria-hidden="true"><i class="ew" style="background-image:url(' + artURL('table/wall_gate.webp') + ')"></i>' +
       '<img class="host l" src="' + artURL('table/fig_gKsher.webp') + '" alt=""><img class="host r" src="' + artURL('table/fig_gJpet.webp') + '" alt=""></div>' +
-      '<div class="panel gatepanel' + (all ? ' all' : '') + '"><h2>The Marshal\u2019s gatehouse</h2><div class="gtalk">' + GATE_TALK.map(([w, t], i) => say(w, t, i)).join('') + '</div>' +
-      '<div class="gpick" style="--i:' + GATE_TALK.length + '"><p class="ask gname"><label><b>Your name, for the ledger:</b> <input id="gname" type="text" maxlength="' + NAME_MAX + '" autocomplete="off" spellcheck="false" value="' + esc(meName(L) || cleanName(profile().name)) + '" style="font:inherit;width:9em;padding:2px 6px"></label></p>' +
-      '<p class="ask"><b>Sheriff Hardcastle:</b> ' + esc(GATE_ASK) + '</p>' +
+      '<div class="panel gatepanel' + (all ? ' all' : '') + '"><h2>' + esc(S ? S.title : 'The gate of Euchre-ka!') + '</h2><div class="gtalk">' + talk + '</div>' +
+      '<div class="gpick" style="--i:' + lines.length + '">' + (asks || (S && L.name) ? '' : field) +
+      (lines.length ? '<p class="ask"><i>Take one off the evidence shelf.</i></p>' : '<p class="ask"><b>Sheriff Hardcastle:</b> ' + esc(GATE_ASK) + '</p>') +
       opt('buff', b ? R.BUFFS[b].name : 'Nothing left on the shelf', b ? SHERIFF_SAYS[b] || 'Took it off a card sharp. Does something clever, I\u2019m told.' : '', b ? R.BUFFS[b].text : '', !b) +
-      opt('elixirs', 'Two bottles of evidence', 'Two bottles of evidence. I’ve tested them thoroughly.', 'That one was full this morning, sir. (' + els.join('. ') + '.)') +
+      opt('elixirs', 'Two bottles of evidence', 'Two bottles of evidence. I\u2019ve tested them thoroughly.', 'That one was full this morning, sir. (' + els.join('. ') + '.)') +
       opt('upgrade', 'His lucky card', 'My lucky card. It\u2019s never lost.', 'He\u2019s never played it. (Pick an enhancement and put it on one of your cards.)') +
       '</div></div>';
   }
-  // the talk plays once a visit; a tap on it shows the rest at once
+  // the talk plays once a visit; a tap on it shows the rest at once; your name goes into the lines as you type it
   function gateShown(L) {
     if (startGateScene(L)) return;
     const key = L.rs + ':' + L.level, panel = document.querySelector('.gatepanel');
     if (!panel) return;
     panel.onclick = ev => { if (!ev.target.closest('[data-gate],input')) { panel.classList.add('all'); P.gateSeen = key; } };
-    if (P.gateSeen !== key) setTimeout(() => { if (P.L === L && L.phase === 'gate') P.gateSeen = key; }, (GATE_TALK.length + 1) * 1100);
+    const field = panel.querySelector('#gname');
+    if (field) field.oninput = () => {
+      const n = cleanName(field.value);
+      panel.querySelectorAll('.gn').forEach(e => { e.textContent = n || '___'; });
+      panel.querySelectorAll('.gyou').forEach(e => { e.textContent = n || 'You'; });
+    };
+    if (P.gateSeen !== key) setTimeout(() => { if (P.L === L && L.phase === 'gate') P.gateSeen = key; }, (panel.querySelectorAll('.gsay').length + 1) * 1100);
   }
   /* The gate on the map (2026-11-10, the user's: "I want this to all happen on the map ... ride up the road here and
      stop out by the Sheriff and then the interaction should happen here. Someone should stop you from entering the
@@ -3747,22 +3859,14 @@ html.art .coach { border-radius: 0; }
     const key = L.rs + ':' + L.level + ':gate';
     if (SC.player && SC.key === key) { SC.player.remount(); return true; }
     if (!gateOnMap(L)) return false;
-    const T = window.BtpEuchreka, G = L.gate || {}, b = G.buff, X = R.ELIXIRS, pr = profile();
+    const T = window.BtpEuchreka;
     let at = null;
     try { at = JSON.parse(localStorage.getItem(SCENE_AT) || 'null'); } catch (e) { /* none */ }
     if (!at || at.key !== key) at = null;
-    const cut = at ? at.cut : P.prefs.scenes === 'short' || (pr.scenes && pr.scenes.gate) ? 'fast' : 'first';
-    // the full cut asks your name; a replay keeps the one you gave last story (and asks only if there isn't one)
-    if (!L.name && cut === 'fast' && cleanName(pr.name)) { L.name = cleanName(pr.name); save(); }
-    const scene = window.BTP_SCENES.gate({
-      art: artURL, marks: T.MARKS, sprites: window.EUCHRE_SPRITES, rider: window.TITLE_SCENE.intro.stage,
-      pal: L.partner && L.partner !== 'horse' ? 'ride_' + L.partner : null,
-      partner: L.partner || 'horse', name: meName(L), suggest: cleanName(pr.name),
-      lost: (pr.rides || []).length > 0 && !pr.rides[pr.rides.length - 1].won,   // the short cut's "Still not crossed off"
-      buff: b ? { id: b, name: R.BUFFS[b].name, text: R.BUFFS[b].text, sher: SHERIFF_SAYS[b] || 'Took it off a card sharp. Does something clever, I\u2019m told.' } : null,
-      elixirs: (G.elixirs || []).filter(id => X[id]).map(id => ({ name: X[id].name, text: X[id].text })),
-      greet: Math.floor(Math.random() * 3), won: (pr.rides || []).some(x => x.won)
-    });
+    // the whole script once for each version of it, the short cut after that (gateCut); a resumed scene keeps its cut
+    const cut = at ? at.cut : gateCut();
+    const scene = gateScene(L, cut);
+    if (!scene) return false;
     const host = $('scene');
     host.hidden = false;
     SC.key = key;
@@ -3774,7 +3878,7 @@ html.art .coach { border-radius: 0; }
       onInput: (k, v) => { if (k === 'name' && P.L === L) setName(L, v); },
       onShot: (id, shot) => {
         try { localStorage.setItem(SCENE_AT, JSON.stringify({ key, cut, shot: id })); } catch (e) { /* private window */ }
-        if (shot.choice) { const p = profile(); if (!(p.scenes && p.scenes.gate)) { p.scenes = Object.assign({}, p.scenes, { gate: true }); try { localStorage.setItem(PROFILE, JSON.stringify(p)); } catch (e) {} } }
+        if (shot.choice) gateWatched();
       },
       // (a card upgrade's screen is not the map: it starts at its top, not wherever the map was scrolled to)
       onEnd: o => { closeScene(); if (o && P.L === L && L.phase === 'gate') { move('gate', o.id); if (P.L.phase !== 'actstart') try { window.scrollTo(0, 0); } catch (e) { /* no layout */ } } }
@@ -4864,6 +4968,9 @@ html.art .coach { border-radius: 0; }
     if (dk) { if (!(dk.closest('#sheet') && Date.now() < P.guardUntil)) drinkTap(+dk.dataset.drink); return; }
     const mk = ev.target.closest('[data-mix]');
     if (mk) { if (!(Date.now() < P.guardUntil)) mixTap(+mk.dataset.mix); return; }
+    // a deputy in the siege camp outside Euchre-ka!'s gate
+    const dp = ev.target.closest('button[data-dep]');
+    if (dp) { depSay(+dp.dataset.dep); return; }
     // the Gunsmith's three picks
     const gp = ev.target.closest('[data-gfrom],[data-genh],[data-gto]');
     if (gp && P.L && P.L.phase === 'gunsmith' && P.gunSel) {
@@ -4900,7 +5007,7 @@ html.art .coach { border-radius: 0; }
     if (d.bank) { move('bank', d.bank); return; }
     if (d.contest) { move('contest', d.contest); return; }
     if (d.chase) { move('chase', d.chase); return; }
-    if (d.gate) { const n = $('gname'); if (n || !P.L.name) setName(P.L, n ? n.value : ''); move('gate', d.gate); return; }
+    if (d.gate) { const n = $('gname'); if (n || !P.L.name) setName(P.L, n ? n.value : ''); gateWatched(); move('gate', d.gate); return; }
     if (d.wanted != null && P.picking && P.L) { R.act(P.L, 'wanted', +d.wanted); showPick(); return; }
     if (d.wanted != null && P.L && P.L.phase === 'partner') { move('wanted', +d.wanted); return; }
     if (d.water) { move('water', d.water); return; }
@@ -5569,7 +5676,20 @@ html.art .coach { border-radius: 0; }
     const card = $('actcard');
     card.className = 'over';
     card.style.backgroundImage = '';
-    card.innerHTML = '<div class="board"><small>ACT I</small><b>EUCHRE-KA!</b><span>A prison town. Somebody has to get them out</span></div>';
+    card.innerHTML = '<div class="board"><small>ACT I</small><b>ESCAPE FROM<br>EUCHRE-KA!</b><span>Somebody has to get them out.</span></div>';
+    card.classList.add('on');
+  }
+  /* The title card (STORY-PLAN.md, Act I: "ESCAPE FROM EUREKA!" with "CH" scrawled in above in red), built 2026-11-28
+     when the opening was checked against the script: a story shows it over the dust between the sign and the gate;
+     with reduced motion it is the plain board, as in Standard 500 (actCard): "ACT I · ESCAPE FROM EUCHRE-KA! ·
+     Somebody has to get them out." It only paints: endOpening starts the run and lifts it. */
+  const TITLE_MS = 3000;
+  function titleCard(L, plain) {
+    const card = $('actcard');
+    card.className = 'title';
+    card.style.backgroundImage = '';
+    card.innerHTML = plain ? '<div class="board"><small>ACT I</small><b>ESCAPE FROM<br>EUCHRE-KA!</b><span>Somebody has to get them out.</span></div>'
+      : '<div class="board ttl"><small>ACT I</small><b>ESCAPE FROM<br><span class="nw">EU<span class="ch"><i>CH</i></span>REKA!</span></b></div>';
     card.classList.add('on');
   }
   function dust(full) {
@@ -5620,7 +5740,11 @@ html.art .coach { border-radius: 0; }
     OPEN.done = done;
     try { window.scrollTo(0, 0); } catch (e) { /* no layout */ }
     const town = L && L.mode !== 'standard' && L.act === 1;
-    if (reduceMotion()) { if (town) { done(); return; } document.body.classList.add('opening'); actCard(L, L.tips); at(1600, endOpening); return; }
+    if (reduceMotion()) {
+      // a story: the plain title board, then the run (endOpening starts it and lifts the board)
+      if (town) { document.body.classList.add('opening'); titleCard(L, true); at(2200, endOpening); return; }
+      document.body.classList.add('opening'); actCard(L, L.tips); at(1600, endOpening); return;
+    }
     // 2: the whistle (the smoke comes thick and fast), the words drop away, the train picks up speed: smoothly, to
     // RUSH, and it holds that speed from here to the sign, the trail below included (the user's, 2026-10-29: the speed
     // used to snap back as the camera tilted down)
@@ -5653,7 +5777,8 @@ html.art .coach { border-radius: 0; }
     // the rider rides in and the game starts from there"): the dust clears on Euchre-ka!'s gate at the foot of the
     // map, drawn at the opening's own pixel size, and you gallop in under it to the hitching rail. Standard 500 has
     // no town: the act card, as before.
-    if (town) { at(DROP + 3300, () => rideIntoTown(L)); return; }
+    // (2026-11-28) first the title, on the dust: the card comes up as the dust settles into it, then the gate
+    if (town) { at(DROP + 3300, () => { titleCard(L); undust(); }); at(DROP + 3300 + TITLE_MS, () => rideIntoTown(L)); return; }
     at(DROP + 3300, () => { actCard(L, L.tips); undust(); });
     at(DROP + 3300 + (L.tips ? 2600 : 1400), endOpening);
   }
